@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.4 2004-10-05 19:15:51 cantarel Exp $
+ * $Id: vector.c,v 1.5 2004-10-08 00:16:36 cantarel Exp $
  *
  */
 
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "vector.h"
+#include "octrope_vector.h"
 
 /**************************************************************/
 /*   Basic Linear Algebra Operations                          */
