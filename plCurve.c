@@ -3,7 +3,7 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.1 2003-12-24 00:38:54 ashted Exp $
+ *  $Id: plCurve.c,v 1.2 2003-12-29 22:47:59 ashted Exp $
  *
  */
 
@@ -165,7 +165,7 @@ int link_write(FILE *file,link *L) {
   int totNumVert = 0; /* Total number of vertices of all components */
 
   /************************************************/
-  fprintf(stderr,"link_write has not yet been rewritten");
+  fprintf(stderr,"Error: link_write has not yet been rewritten.\n");
   exit(-1);
   /************************************************/
 
@@ -226,7 +226,7 @@ int link_read(FILE *file, link *L) {
   fpos_t pos;
 
   /*****************************************************/
-  fprintf(stderr,"link_read has not yet been rewritten");
+  fprintf(stderr,"Error: link_read has not yet been rewritten.\n");
   exit(-1);
   /*****************************************************/
   
