@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.18 2004-09-03 17:01:34 ashted Exp $
+ *  $Id: plCurve.c,v 1.19 2004-09-23 19:49:58 ashted Exp $
  *
  */
 
@@ -83,9 +83,9 @@ octrope_link *octrope_link_new(int components, const int *nv,
     return NULL;
   }
 
-  if (nv == NULL || acyclic == NULL) {
+  if (nv == NULL || acyclic == NULL || cc == NULL) {
     octrope_error_num = 32;
-    sprintf(octrope_error_str,"octrope_link_new: The vertex or acyclic status list is empty.");
+    sprintf(octrope_error_str,"octrope_link_new: nv, acyclic or cc is NULL.");
     return NULL;
   }
 
