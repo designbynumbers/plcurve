@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.12 2004-03-02 20:51:30 ashted Exp $
+ *  $Id: plCurve.c,v 1.13 2004-05-27 13:36:01 ashted Exp $
  *
  */
 
@@ -461,6 +461,9 @@ octrope_link *octrope_link_read(FILE *file)
 
   /* We could now read the colors, but we don't bother (though perhaps we *
    * should).                                                             */
+
+  free(acyclic);
+  free(nvarray);
 
   return L;
 }
