@@ -3,11 +3,10 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.2 2003-12-29 22:47:59 ashted Exp $
+ *  $Id: plCurve.c,v 1.3 2003-12-30 23:14:13 ashted Exp $
  *
  */
 
-#include <c.h>
 #include <stdio.h>
 #ifdef I_MALLOC
 #include <malloc.h>
