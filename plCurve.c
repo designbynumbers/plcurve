@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.17 2004-08-31 19:04:02 ashted Exp $
+ *  $Id: plCurve.c,v 1.18 2004-09-03 17:01:34 ashted Exp $
  *
  */
 
@@ -433,6 +433,12 @@ octrope_link *octrope_link_read(FILE *file)
   int i, j;
   int nv;
   
+#ifdef DEBUG
+  if (octrope_debug_level() > 8) {
+    printf("octrope_link_read:Reading link from file.\n");
+  }
+#endif
+
   /* First, we check for the 'VECT' keyword. */
 
   if (fscanf(file," VECT ") == EOF) {
