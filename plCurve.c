@@ -3,7 +3,7 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.6 2003-12-31 06:40:22 cantarel Exp $
+ *  $Id: plCurve.c,v 1.7 2004-01-14 20:45:33 cantarel Exp $
  *
  */
 
@@ -198,7 +198,15 @@ int link_write(FILE *file,link *L) {
   
   for(i=0;i<L->nc;i++) {
 
-    fprintf(file,"%d ",L->cp[i].nv);
+    if (L->cp[i].acyclic) {
+
+      fprintf(file,"%d ",L->cp[i].nv); 
+    
+    } else {
+
+      fprintf(file,"%d ",-L->cp[i].nv);
+
+    }
 
   }
   
