@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.11 2004-02-23 01:20:43 ashted Exp $
+ *  $Id: plCurve.c,v 1.12 2004-03-02 20:51:30 ashted Exp $
  *
  */
 
@@ -60,7 +60,9 @@ static void pline_new(octrope_pline *Pl,int nv, int acyclic) {
  * the array pointed to by acyclic.                           
  *
  */
-octrope_link *octrope_link_new(int components, int *nv, int *acyclic) {
+octrope_link *octrope_link_new(int components, const int *nv, 
+                                               const int *acyclic) 
+{
   octrope_link *L;
   int   i;
 
@@ -168,7 +170,7 @@ void octrope_link_free(octrope_link *L) {
  *
  */
 
-int octrope_link_write(FILE *file,octrope_link *L) {
+int octrope_link_write(FILE *file, const octrope_link *L) {
   int i,j;              /* Counter for the for loops */ 
   int nverts =0;        /* Total number of vertices of all components */
 
@@ -389,7 +391,6 @@ void octrope_link_fix_wrap(const octrope_link *L) {
  */
 octrope_link *octrope_link_read(FILE *file) 
 {
-
   octrope_link *L;
   int nverts, ncomp, ncolors;
   int *nvarray, *acyclic;
@@ -465,7 +466,9 @@ octrope_link *octrope_link_read(FILE *file)
 }
 
 #define pline_edges(P) (((P).acyclic) ? (P).nv-1 : (P).nv)
-/* Procedure returns the total number of edges in link. */
+/* 
+ *   Return the total number of edges in link. 
+ */
 int octrope_link_edges(const octrope_link *L) 
 {
   int i, edges = 0;
@@ -474,4 +477,33 @@ int octrope_link_edges(const octrope_link *L)
     edges += pline_edges(L->cp[i]);
   }
   return edges;
+}
+
+/* 
+ * Duplicate a link and return the duplicate 
+ *
+ */
+octrope_link *octrope_link_copy(const octrope_link *L) {
+  octrope_link *nL;
+  int *nv,*acyclic;
+  int cnt,cnt2;
+
+  if ((nv = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
+      (acyclic = (int *)malloc((L->nc)*sizeof(int))) == NULL) {
+    fprintf(stderr,"Unable to malloc space for alternate link.\n");
+    exit(-1);
+  }
+  for (cnt = 0; cnt < L->nc; cnt++) {
+    nv[cnt] = L->cp[cnt].nv;
+    acyclic[cnt] = L->cp[cnt].acyclic;
+  }
+  nL = octrope_link_new(L->nc,nv,acyclic);
+
+  for (cnt=0; cnt < L->nc; cnt++) {
+    for (cnt2=0; cnt2 < L->cp[cnt].nv; cnt2++) {
+      nL->cp[cnt].vt[cnt2] = L->cp[cnt].vt[cnt2];
+    }
+  }
+
+  return nL;
 }
