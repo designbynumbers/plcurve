@@ -3,19 +3,21 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.9 2004-01-28 18:56:40 cantarel Exp $
+ *  $Id: plCurve.c,v 1.10 2004-02-13 13:58:05 ashted Exp $
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
 
-#ifdef I_MALLOC
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
-#include "config.h"
 #include "stdarg.h"
 #include "ropelength.h"
 
