@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.13 2004-05-27 13:36:01 ashted Exp $
+ *  $Id: plCurve.c,v 1.14 2004-05-27 18:25:21 ashted Exp $
  *
  */
 
@@ -36,7 +36,7 @@
  * We allocate two extra vertices, at -1 and nv to make "wrap-around" much 
  * simpler.
  */
-static void pline_new(octrope_pline *Pl,int nv, int acyclic) {
+static void pline_new(octrope_pline *Pl,int nv, int acyclic, int cc) {
  
   if (nv < 1) {
     fprintf(stderr,"Can't create a pline with %d vertices.\n",nv);
@@ -51,6 +51,12 @@ static void pline_new(octrope_pline *Pl,int nv, int acyclic) {
     exit(-1);
   }
   Pl->vt++; /* so that Pl->vt[-1] is a valid space */
+
+  Pl->cc = cc;
+  if ((Pl->clr = (octrope_color *)malloc(cc*sizeof(octrope_color))) == NULL) {
+    fprintf(stderr,"Can't allocate space for %d colors in pline_new.\n",cc);
+    exit(-1);
+  }
 }
 
 /*
@@ -61,10 +67,10 @@ static void pline_new(octrope_pline *Pl,int nv, int acyclic) {
  *
  */
 octrope_link *octrope_link_new(int components, const int *nv, 
-                                               const int *acyclic) 
+                               const int *acyclic, const int *cc) 
 {
   octrope_link *L;
-  int   i;
+  int i;
 
   /* First, we check to see that the input values are reasonable. */
 
@@ -91,7 +97,7 @@ octrope_link *octrope_link_new(int components, const int *nv,
   }
 
   for (i = 0; i < L->nc; i++) {
-    pline_new(&L->cp[i],nv[i],acyclic[i]);
+    pline_new(&L->cp[i],nv[i],acyclic[i],cc[i]);
   }
 
   return L;
@@ -115,6 +121,11 @@ void pline_free(octrope_pline *Pl) {
     Pl->vt--; /* undo our original vt++ (for wraparound) */
     free(Pl->vt);
     Pl->vt = NULL;
+  }
+ 
+  Pl->cc = 0;
+  if (Pl->clr != NULL) {
+    free(Pl->clr);
   }
 } /* pline_free */
 
@@ -172,7 +183,8 @@ void octrope_link_free(octrope_link *L) {
 
 int octrope_link_write(FILE *file, const octrope_link *L) {
   int i,j;              /* Counter for the for loops */ 
-  int nverts =0;        /* Total number of vertices of all components */
+  int nverts = 0;       /* Total number of vertices of all components */
+  int colors = 0;       /* Total number of colors of all components */
 
   /* First, do a little sanity checking. */
   if (L == NULL) {
@@ -188,11 +200,12 @@ int octrope_link_write(FILE *file, const octrope_link *L) {
   /* Now we begin work. */
   for(i=0;i<L->nc;i++) {
     nverts += L->cp[i].nv;
+    colors += L->cp[i].cc;
   }
 
   /* We are ready to write the link. */
   fprintf(file,"VECT \n");
-  fprintf(file,"%d %d %d \n",L->nc,nverts,0);
+  fprintf(file,"%d %d %d \n",L->nc,nverts,colors);
   
   for(i=0;i<L->nc;i++) {
     if (L->cp[i].acyclic) {
@@ -204,11 +217,11 @@ int octrope_link_write(FILE *file, const octrope_link *L) {
   fprintf(file,"\n");
 
   for(i=0;i<L->nc;i++) {
-    fprintf(file,"0 ");
+    fprintf(file,"%d ",L->cp[i].cc);
   }
   fprintf(file,"\n");
 
-  /* Now we write the vertex data. */
+  /* Now we write the vertex data . . . */
   for(i=0;i<L->nc;i++) {
     for(j=0;j<L->cp[i].nv;j++) {
       fprintf(file,"%g %g %g \n", L->cp[i].vt[j].c[0], L->cp[i].vt[j].c[1],
@@ -216,6 +229,14 @@ int octrope_link_write(FILE *file, const octrope_link *L) {
     }
   }
 
+  /* . . . and the color data. */
+  for (i=0; i < L->nc; i++) {
+    for (j=0; j < L->cp[i].cc; j++) {
+      fprintf(file,"%g %g %g %g\n", L->cp[i].clr[j].r, L->cp[i].clr[j].g,
+        L->cp[i].clr[j].b, L->cp[i].clr[j].alpha);
+    }
+  }
+      
   /* And we're done. */
   return 0;
 }
@@ -302,7 +323,7 @@ int scandoubles(FILE *infile,int ndoubles, ...)
 
 /* Procedure scans for nints integers, ignoring whitespace and     *
  * comments between them. We expect the variable length arguments  *
- * to contain a collection of pointers to doubles. If not,         *
+ * to contain a collection of pointers to ints. If not,            *
  * there's trouble.                                                */
 int scanints(FILE *infile,int nints, ...)
 {
@@ -393,8 +414,8 @@ octrope_link *octrope_link_read(FILE *file)
 {
   octrope_link *L;
   int nverts, ncomp, ncolors;
-  int *nvarray, *acyclic;
-  int i, scratch, j;
+  int *nvarray, *acyclic, *ccarray;
+  int i, j;
   int nv;
   
   /* First, we check for the 'VECT' keyword. */
@@ -413,6 +434,7 @@ octrope_link *octrope_link_read(FILE *file)
 
   nvarray = (int *)calloc(ncomp,sizeof(int));
   acyclic = (int *)calloc(ncomp,sizeof(int));
+  ccarray = (int *)calloc(ncomp,sizeof(int));
 
   for(i=0;i<ncomp;i++) {
     if (scanints(file,1,&(nvarray[i])) != 1) {
@@ -427,18 +449,17 @@ octrope_link *octrope_link_read(FILE *file)
     }
   }
 
-  /* We have now set nvarray and acyclic, and are ready to read (and discard) *
-   * the color data.                                                          */
+  /* We have set nvarray and acyclic and are ready to read the color data.  */
 
   for(i=0;i<ncomp;i++) {
-    if (scanints(file,1,&scratch) != 1) {
+    if (scanints(file,1,&(ccarray[i])) != 1) {
       return NULL;
     }
   }
 
   /* We now allocate the link data structure. */
 
-  L = octrope_link_new(ncomp,nvarray,acyclic);
+  L = octrope_link_new(ncomp,nvarray,acyclic,ccarray);
 
   if (L == NULL) {   /* If we don't have this much memory, then return NULL. */
     return NULL;
@@ -459,9 +480,17 @@ octrope_link *octrope_link_read(FILE *file)
   /* Now set the "wrap-around" vertices */
   octrope_link_fix_wrap(L);
 
-  /* We could now read the colors, but we don't bother (though perhaps we *
-   * should).                                                             */
+  /* And finally the colors. */
+  for (i=0; i < ncomp; i++) {
+    for (j=0; j < L->cp[i].cc; j++) {
+      if (scandoubles(file,4, &L->cp[i].clr[j].r, &L->cp[i].clr[j].g,
+           &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha) != 4) {
+        return NULL;
+      }
+    }
+  }
 
+  free(ccarray);
   free(acyclic);
   free(nvarray);
 
@@ -488,25 +517,34 @@ int octrope_link_edges(const octrope_link *L)
  */
 octrope_link *octrope_link_copy(const octrope_link *L) {
   octrope_link *nL;
-  int *nv,*acyclic;
+  int *nv,*acyclic,*ccarray;
   int cnt,cnt2;
 
   if ((nv = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
-      (acyclic = (int *)malloc((L->nc)*sizeof(int))) == NULL) {
+      (acyclic = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
+      (ccarray = (int *)malloc((L->nc)*sizeof(int))) == NULL) {
     fprintf(stderr,"Unable to malloc space for alternate link.\n");
     exit(-1);
   }
   for (cnt = 0; cnt < L->nc; cnt++) {
     nv[cnt] = L->cp[cnt].nv;
     acyclic[cnt] = L->cp[cnt].acyclic;
+    ccarray[cnt] = L->cp[cnt].cc;
   }
-  nL = octrope_link_new(L->nc,nv,acyclic);
+  nL = octrope_link_new(L->nc,nv,acyclic,ccarray);
 
-  for (cnt=0; cnt < L->nc; cnt++) {
-    for (cnt2=0; cnt2 < L->cp[cnt].nv; cnt2++) {
+  for (cnt = 0; cnt < L->nc; cnt++) {
+    for (cnt2 = 0; cnt2 < L->cp[cnt].nv; cnt2++) {
       nL->cp[cnt].vt[cnt2] = L->cp[cnt].vt[cnt2];
     }
+    for (cnt2 = 0; cnt2 < L->cp[cnt].cc; cnt2++) {
+      nL->cp[cnt].clr[cnt2] = L->cp[cnt].clr[cnt2];
+    }
   }
+
+  free(ccarray);
+  free(acyclic);
+  free(nv);
 
   return nL;
 }
