@@ -3,7 +3,7 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.8 2004-01-28 02:11:22 cantarel Exp $
+ *  $Id: plCurve.c,v 1.9 2004-01-28 18:56:40 cantarel Exp $
  *
  */
 
@@ -617,12 +617,12 @@ link *hopf_link(int verts_per_comp)
       i<verts_per_comp;
       i++,theta += t_step) {
 
-    link_v(L,0,i)->c[0] = (1/cos(t_step/2.0))*cos(theta);
-    link_v(L,0,i)->c[1] = (1/cos(t_step/2.0))*sin(theta);
+    link_v(L,0,i)->c[1] = (1/cos(t_step/2.0))*cos(theta);
+    link_v(L,0,i)->c[0] = (1/cos(t_step/2.0))*sin(theta);
     link_v(L,0,i)->c[2] = 0;
 
     link_v(L,1,i)->c[0] = 0;
-    link_v(L,1,i)->c[1] = (1/cos(t_step/2.0))*cos(theta) + 1.0;
+    link_v(L,1,i)->c[1] = -(1/cos(t_step/2.0))*cos(theta) + 1.0;
     link_v(L,1,i)->c[2] = (1/cos(t_step/2.0))*sin(theta);
 
   }
