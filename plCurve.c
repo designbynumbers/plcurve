@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.15 2004-08-30 20:10:45 cantarel Exp $
+ *  $Id: plCurve.c,v 1.16 2004-08-30 21:55:45 ashted Exp $
  *
  */
 
@@ -39,7 +39,7 @@
 static void pline_new(octrope_pline *Pl,int nv, int acyclic, int cc) {
  
   if (nv < 1) {
-    octrope_error_number = 21;
+    octrope_error_num = 21;
     sprintf(octrope_error_str,"pline_new: Can't create a pline with %d vertices.\n",nv);
     return;
   }
@@ -48,7 +48,7 @@ static void pline_new(octrope_pline *Pl,int nv, int acyclic, int cc) {
   Pl->nv = nv;
   if ((Pl->vt = 
        (octrope_vector *)malloc((nv+2)*sizeof(octrope_vector))) == NULL) {
-    octrope_error_number = 22;
+    octrope_error_num = 22;
     sprintf(octrope_error_str,"pline_new: Can't allocate space for %d vertices in pline_new.\n",nv);
     return;
   }
@@ -56,7 +56,7 @@ static void pline_new(octrope_pline *Pl,int nv, int acyclic, int cc) {
 
   Pl->cc = cc;
   if ((Pl->clr = (octrope_color *)malloc(cc*sizeof(octrope_color))) == NULL) {
-    octrope_error_number = 23;
+    octrope_error_num = 23;
     sprintf(octrope_error_str,"pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
     return;
   }
@@ -78,13 +78,13 @@ octrope_link *octrope_link_new(int components, const int *nv,
   /* First, we check to see that the input values are reasonable. */
 
   if (components < 1) {
-    octrope_error_number = 31;
+    octrope_error_num = 31;
     sprintf(octrope_error_str,"octrope_link_new: Can't create a link with %d components.",components);
     return;
   }
 
   if (nv == NULL || acyclic == NULL) {
-    octrope_error_number = 32;
+    octrope_error_num = 32;
     sprintf(octrope_error_str,"octrope_link_new: The vertex or acyclic status list is empty.");
     return;
   }
@@ -92,13 +92,13 @@ octrope_link *octrope_link_new(int components, const int *nv,
   /* Now we attempt to allocate space for these components. */
   
   if ((L = (octrope_link *)malloc(sizeof(octrope_link))) == NULL) {
-    octrope_error_number = 33;
+    octrope_error_num = 33;
     sprintf(octrope_error_str,"octrope_link_new: Could not allocate space for link in link_new.\n");
     return;
   }
   L->nc = components;
   if ((L->cp = (octrope_pline *)malloc(L->nc*sizeof(octrope_pline))) == NULL) {
-    octrope_error_number = 34;
+    octrope_error_num = 34;
     sprintf(octrope_error_str,"Can't allocate array of pline ptrs in link_new.\n");
     return;
   }
@@ -151,7 +151,7 @@ void octrope_link_free(octrope_link *L) {
   }
 
   if (L->nc < 0) {
-    octrope_error_number = 41;
+    octrope_error_num = 41;
     sprintf(octrope_error_str,"octrope_link_free: Link appears corrupted. L.nc = %d.",L->nc);
     return;
   }
