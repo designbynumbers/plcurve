@@ -3,11 +3,15 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.7 2004-01-14 20:45:33 cantarel Exp $
+ *  $Id: plCurve.c,v 1.8 2004-01-28 02:11:22 cantarel Exp $
  *
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <math.h>
+
 #ifdef I_MALLOC
 #include <malloc.h>
 #endif
@@ -23,8 +27,9 @@
  *
  */
 static void pline_new(pline *Pl,int nv, int acyclic) {
-  const char fn[10] = "pline_new";
-  int   i;
+ 
+  /*const char fn[10] = "pline_new";
+    int   i;*/
 
   /* Sanity checking */
 
@@ -49,7 +54,7 @@ static void pline_new(pline *Pl,int nv, int acyclic) {
  *
  */
 link *link_new(int components, int *nv, int *acyclic) {
-  const char fn[10] = "link_new";
+  /* const char fn[10] = "link_new"; */
   link *L;
   int   i;
 
@@ -92,7 +97,7 @@ link *link_new(int components, int *nv, int *acyclic) {
  *
  */ 
 void pline_free(pline *Pl) {
-  const char fn[10] = "pline_free";
+  /* const char fn[10] = "pline_free";*/
   
   if (Pl == NULL) {
     return;
@@ -101,7 +106,7 @@ void pline_free(pline *Pl) {
   Pl->nv = 0;
   if (Pl->vt != NULL) {
     free(Pl->vt);
-    Pl->vt == NULL;
+    Pl->vt = NULL;
   }
 } /* pline_free */
 
@@ -112,7 +117,7 @@ void pline_free(pline *Pl) {
  *
  */ 
 void link_free(link *L) {
-  const char fn[10] = "link_free";
+  /* const char fn[10] = "link_free"; */
   int i;
 
   /* First, we check the input. */
@@ -162,7 +167,7 @@ void link_free(link *L) {
 
 int link_write(FILE *file,link *L) {
 
-  const char fn[10] = "link_write";
+  /* const char fn[10] = "link_write";*/ 
   int i,j;              /* Counter for the for loops */ 
   int nverts =0;        /* Total number of vertices of all components */
 
@@ -236,6 +241,8 @@ int link_write(FILE *file,link *L) {
   }
 
   /* And we're done. */
+
+  return 0;
 
 }
 
@@ -541,3 +548,85 @@ link *link_read(FILE *file)
   
 }
 
+int link_verts(link *L)
+
+     /* Procedure returns the total number of verts in L. */
+
+{
+  int i,verts = 0;
+
+  for(i=0;i<L->nc;i++) {
+
+    verts += L->cp[i].nv;
+
+  }
+
+  return verts;
+}
+
+int comp_edges(link *L, int comp) 
+
+     /* Procedure returns the number of edges in component <comp> of <L>. */
+
+{
+  if (comp < 0 || comp > L->nc-1) {
+
+    fprintf(stderr,"comp_edges: Can't access component %d of a %d component link.\n",
+	    comp,L->nc);
+    exit(1);
+
+  }
+
+  return L->cp[comp].nv - ((L->cp[comp].acyclic == TRUE) ? 1:0);
+
+}
+
+
+int link_edges(link *L) 
+
+     /* Procedure returns the total number of edges in link. */
+
+{
+  int sum = 0, i;
+
+  for(i=0;i<L->nc;i++) {
+
+    sum += comp_edges(L,i);
+
+  }
+
+  return sum;
+}
+
+
+link *hopf_link(int verts_per_comp)
+
+     /* Generates a carefully-built Hopf link with <verts_per_comp> vertices in each ring. */
+
+{
+  int i, nv[2], acyclic[2] = {FALSE,FALSE};
+  double theta, t_step;
+  double pi = 3.14159265358979;
+  link   *L;
+
+  nv[0] = nv[1] = verts_per_comp;
+  
+  L = link_new(2,nv,acyclic);
+
+  for(i=0,t_step = 2.0*pi/(double)(verts_per_comp),theta = t_step/2.0;
+      i<verts_per_comp;
+      i++,theta += t_step) {
+
+    link_v(L,0,i)->c[0] = (1/cos(t_step/2.0))*cos(theta);
+    link_v(L,0,i)->c[1] = (1/cos(t_step/2.0))*sin(theta);
+    link_v(L,0,i)->c[2] = 0;
+
+    link_v(L,1,i)->c[0] = 0;
+    link_v(L,1,i)->c[1] = (1/cos(t_step/2.0))*cos(theta) + 1.0;
+    link_v(L,1,i)->c[2] = (1/cos(t_step/2.0))*sin(theta);
+
+  }
+
+  return L;
+
+}
