@@ -3,7 +3,7 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.3 2003-12-30 23:14:13 ashted Exp $
+ *  $Id: plCurve.c,v 1.4 2003-12-31 02:57:30 cantarel Exp $
  *
  */
 
@@ -158,197 +158,369 @@ void link_free(link *L) {
  * Returns TRUE if successful write, FALSE otherwise.
  *
  */
+
 int link_write(FILE *file,link *L) {
+
   const char fn[10] = "link_write";
-  int i;              /* Counter for the for loops */ 
-  int totNumVert = 0; /* Total number of vertices of all components */
+  int i,j;              /* Counter for the for loops */ 
+  int nverts =0;        /* Total number of vertices of all components */
 
-  /************************************************/
-  fprintf(stderr,"Error: link_write has not yet been rewritten.\n");
-  exit(-1);
-  /************************************************/
+  /* First, do a little sanity checking. */
 
-//  for(i=0;i<L->nc;i++)                      /* Loop through each component */   
-//    totNumVert += L->nv[i];                 /* Running count of total number of vertices in compts */
-//  
-//  fprintf(file, "VECT\n"); 
-//  fprintf(file, "%d %d %d \n",L->nc, totNumVert, L->nc);
-//  /* write the number of compts, */
-//  /* total number of verts in all components, and */
-//  /* total number of colors, with one color per component */
-//
-//  for(i=0;i<L->nc;i++)                      /* Loop through the total number of components*/
-//    fprintf(file, "%d ",L->nv[i]);          /* write the number of vertices in each component */
-//
-//  fprintf(file, "\n");
-//
-//  for(i=0;i<L->nc;i++)                      /* Loop through the total number of components */
-//    fprintf(file, "%d ", 1);               /* write the number of colors (one) in each component */
-//
-//  fprintf(file, "\n");
-//
-//  for(i=0;i<totNumVert;i++)                /* Loop through each vertex */
-//    fprintf(file, "%f %f %f\n",L->vt[i]->c[0],L->vt[i]->c[1],L->vt[i]->c[2]);   /* write the coordinates of each vertex */
-//
-//  fprintf(file, "\n");
-//
-//  for(i=0;i<L->nc;i++) /* Loop through each component*/
-//    fprintf(file, ",%f,%f,%f,", 1.0 - (1.0/i), 0.0 + (1.0/i), 1.0 - (1.0/i));
-//  /* assign the color 1/ith of the way down the diagonal of the spectrum */
-//  /* to the ith component */
-//
-//  fprintf(file, "\n");
+  if (L == NULL) {
+
+    fprintf(stderr,"link_write: Passed NULL pointer as link. \n");
+    exit(2);
+
+  }
+
+  if (file == NULL) {
+
+    fprintf(stderr,"link_write: Passed NULL pointer as file.\n");
+    exit(2);
+
+  }
+
+  /* Now we begin work. */
+    
+
+  for(i=0;i<L->nc;i++) {
+
+    nverts += L->cp.nv;
+
+  }
+
+  /* We are ready to write the link. */
+
+  fprintf(file,"VECT \n");
+  fprintf(file,"%d %d %d \n",L->nc,nverts,0);
+  
+  for(i=0;i<L->nc;i++) {
+
+    fprintf(file,"%d ",L->cp[i].nv);
+
+  }
+  
+  fprintf(file,"\n");
+
+  /* Now we write the vertex data. */
+
+  for(i=0;i<L->nc;i++) {
+
+    for(j=0;j<L->cp.nv;j++) {
+
+      fprintf(file,"%g %g %g \n",
+	      L->cp[i].vt[j].c[0],
+	      L->cp[i].vt[j].c[1],
+	      L->cp[i].vt[j].c[2]);
+
+    }
+
+  }
+
+  /* And we're done. */
+
+}
+
+
+/* The next section of the library file includes some (private) procedures for reading link
+   data reliably from Geomview VECT files. We also add a "color" structure to store the color 
+   information that may be present in the files, though we don't do anything with it as yet. */
+
+int skip_whitespace_and_comments(FILE *infile)
+
+     /* Procedure positions the file pointer on */
+     /* next non-whitespace character, returning */
+     /* FALSE if EOF happens first. We skip anything */
+     /* between a # and a newline. */
+
+{
+  int thischar,commentflag = {FALSE};
+
+  /* First, we check to make sure that infile looks legit. */
+
+  if (infile == NULL) {
+
+    fprintf(stderr,"skip_whitespace_and_comments: infile is a null pointer.\n");
+    exit(2);
+    
+  }
+  
+  /* Now we start to work. */
+
+  for(;;) {
+
+    thischar = fgetc(infile);
+
+    if (thischar == EOF) {  /* Reached end of file before a non-space, non-comment */
+      
+      return 0;
+    
+    } else if (thischar == '#') { /* Started a comment. */
+    
+      commentflag = TRUE;
+
+    } else if (thischar == '\n' && commentflag) { /* End a comment. */
+
+      commentflag = FALSE;
+
+    } else if (!isspace(thischar) && !commentflag) { /* Found a hit! */
+
+      ungetc(thischar,infile);
+      return 1;
+
+    } /* It must have been a space or a non-space in a comment. */
+
+  }
+
+}
+
+int scandoubles(FILE *infile,int ndoubles, ...)
+
+     /* Procedure scans for nfloats floating point (or double) numbers, ignoring 
+	whitespace and comments between them. We expect the variable length arguments 
+	to contain a collection of pointers to doubles. If not, there's trouble. */
+
+{
+
+  int nconverted = 0,i;
+  va_list ap;
+  double *thisdouble;
+
+  /* First, we check for overall sanity. */
+
+  if (infile == NULL) {
+
+    fprintf(stderr,"scandoubles: infile is a null pointer.\n");
+    exit(2);
+
+  }
+
+  if (ndoubles < 1) {
+
+    fprintf(stderr,"scandoubles: ndoubles (%d) is less than one.\n",ndoubles);
+    exit(2);
+
+  }
+
+  va_start(ap,ndoubles);
+
+  /* Now we're ready to work. */
+
+  for (i=0;i<ndoubles;i++) {	/* We expect to exit from the loop by */
+                                /* returning, but this is a safety.   */
+    
+    if (skip_whitespace_and_comments(infile) == 0) { /* Failed */
+
+      return nconverted;
+
+    }
+
+    thisdouble = va_arg(ap,double *);
+
+    if (fscanf(infile,"%lf",thisdouble) != 1) {	/* We couldn't scan. */
+
+      return nconverted;	/* So give up here */
+
+    } else {			/* Else record our victory */
+
+      nconverted++;
+
+    }
+
+  }
+
+  va_end(ap);
+
+  return nconverted;
+
+}
+
+int scanints(FILE *infile,int nints, ...)
+
+     /* Procedure scans for nints integers, ignoring whitespace and
+	comments between them. We expect the variable length arguments
+	to contain a collection of pointers to doubles. If not,
+	there's trouble. */
+
+{
+
+  int nconverted = 0,i;
+  va_list ap;
+  int *thisint;
+
+  /* First, we check for overall sanity. */
+
+  if (infile == NULL) {
+
+    fprintf(stderr,"scanints: infile is a null pointer.\n");
+    exit(2);
+
+  }
+
+  if (nints < 1) {
+
+    fprintf(stderr,"scanints: nints (%d) is less than one.\n",nints);
+    exit(2);
+
+  }
+
+  va_start(ap,nints);
+
+  /* Now we're ready to work. */
+
+  for (i=0;i<nints;i++) {	/* We expect to exit from the loop by */
+                                /* returning, but this is a safety.   */
+    
+    if (skip_whitespace_and_comments(infile) == 0) { /* Failed */
+
+      return nconverted;
+
+    }
+
+    thisint = va_arg(ap,int *);
+
+    if (fscanf(infile,"%d",thisint) != 1) {	/* We couldn't scan. */
+
+      return nconverted;	/* So give up here */
+
+    } else {			/* Else record our victory */
+
+      nconverted++;
+
+    }
+
+  }
+
+  va_end(ap);
+
+  return nconverted;
+
+}
+
+int skipwhitespace(FILE *infile)
+
+     /* Procedure skips whitespace (but NOT newlines). */
+     /* Returns 1 if we find something, 0 if EOF. */
+{
+  int thischar;
+
+  for(;;) {
+
+    thischar = fgetc(infile);
+    
+    if (thischar == '\n' || !isspace(thischar)) {
+
+      ungetc(thischar,infile);
+      return 1;
+
+    } else if (thischar == EOF) {
+
+      return 0;
+
+    }
+
+  }
+
 }
 
 /*
  * Read a Geomview VECT file and create a link.  Color information is not 
- * preserved.  File is assumed to be open for reading.  Returns TRUE on 
- * success, FALSE on failure.
- *
- */
-int link_read(FILE *file, link *L) {
-  const char fn[10] = "link_read";
-  int i;
-  int n;
-  int trash_int;
-  int return_code1;
-  int return_code2;
-  int span;
-  int nc;
-  int total_verts;
-  int check[] = {FALSE, FALSE};  
-  double energy;
-  char trash_string[] = "VECT";
-  char ch;
-  char line[1024];  
-  char comment[] = "#";
-  fpos_t pos;
+ * preserved.  File is assumed to be open for reading. Returns either a 
+ * pointer to a newly allocated link structure (don't forget to FREE it!)
+ * or NULL on failure. */
 
-  /*****************************************************/
-  fprintf(stderr,"Error: link_read has not yet been rewritten.\n");
-  exit(-1);
-  /*****************************************************/
+link *link_read(FILE *file) 
+{
+
+  link *L;
+  int nverts, ncomp, ncolors;
+  int *nvarray, *acyclic;
+  int i, scratch, j;
   
-//  if (file == NULL || L == NULL) {
-//    fprintf(stderr, "Of the Link and File passed to link_read, one (or both) is a null pointer.\n");
-//      return FALSE;
-//  }
-//
-//  while(TRUE)
-//    {
-//      fgetpos(file, &pos);
-//      
-//      while(TRUE)
-//	{
-//	  i = 0;
-//	  ch = fgetc(file);
-//	  if( ch == '\n' )
-//	    {
-//	      line[i] = '\0';
-//	      break;
-//	    }
-//	  if( ch == EOF )
-//	    {
-//	      fprintf(stderr, "NewBreedLink: Error, file does not contain energy and/or link_type data.\n");
-//	      return FALSE;
-//	    }
-//	  line[i++]=ch;
-//	}
-//      return_code1 = sscanf(line,"# energy %f", energy);    
-//      return_code2 = sscanf(line,"# HOMEFLY span %d", span);
-//      
-//      if (return_code1 == 1) {
-//	check[0] = TRUE;
-//      }
-//
-//      if (return_code2 == 1) {
-//	fsetpos(file, &pos);
-//	fscanf(file, "# HOMFLY span %d coeffs", span);
-//	for (n =0; n < span; n++) {
-//	  fscanf(file, " %d", link_type[n]);
-//	}
-//	check[1] = TRUE;
-//      } 
-//
-//      if (check[0] == TRUE && check[1] == TRUE) {
-//	break;
-//      }
-//      
-//    }
-// 
-//  rewind(file);
-//  
-//  while(TRUE)
-//    { 
-//      while(TRUE)
-//	{
-//	  i = 0;
-//	  ch = fgetc(file);
-//	  if( ch == '\n' )
-//	    {
-//	      line[i] = '\0';
-//	      break;
-//	    }
-//	  if( ch == EOF )
-//	    {
-////	      fprintf(stderr, "NewBreedLink: VECT not found. File not proper .vect format");
-//	      return FALSE;
-//	    }
-//	  line[i++]=ch;
-//	}
-//      if (strcmp(line, trash_string) == TRUE)
-//	{
-//	    fscanf(file, " %d", nc);
-//	    fscanf(file, " %d", total_verts);
-//	    fscanf(file, " %d", nc);
-//	    for (n = 0; n < nc; n++) {
-//	      fscanf(file, " %d", nv[n]);
-//	    }
-//	    for (n = 0; n < nc; n++) {
-//	      fscanf(file, " %d", trash_int);
-//	    }
-//	    break;
-//	}   
-//    }
-//
-//  *L = link_new(nc, nv);
-//  L->energy = energy;
-//  /* L->span = span; */
-//
-//  for (i = 0; i < MAX_HOMFLY; i++) {
-//    L->link_type[i] = link_type[i];
-//  }
-//  
-//  //TIME TO READ IN THE VERTICES
-//
-//  for(i=0;i<total_verts;i++) {               /* Loop through each vertex */
-//    fgetpos(file, &pos);
-//    if (fscanf(file, "%f %f %f\n",L->vt[i]->c[0],L->vt[i]->c[1],L->vt[i]->c[2]) == FALSE){ /* write the coordinates of each vertex */
-//      fsetpos(file, &pos);   
-//      while(TRUE)
-//	{
-//	  n = 0;
-//	  ch = fgetc(file);
-//	  if( ch == '\n' )
-//	    {
-//	      line[i] = '\0';
-//	      break;
-//	    }
-//	  if( ch == EOF )
-//	    {
-//	      fprintf(stderr, "NewBreedLink: Error, specified number of vertices is greater than actual number in .vect file.");
-//	      return FALSE;
-//	    }
-//	  line[n++]=ch;
-//	}
-//      if(strcspn(comment,line) < strlen(line)){
-//	i--;
-//      } else {
-//	fprintf(stderr, "NewBreedLink: Error, invalid information in vertex set at vertex %d.", i);
-//	return FALSE;
-//      }
-//    } 
-//  } 
-//  return TRUE;
+  /* First, we check for the 'VECT' keyword. */
+
+  if (!fscanf(file,"VECT")) {
+
+    return NULL;
+
+  }
+
+  /* Now we read the three integers giving vertices, components, and colors. */
+
+  if (scanints(file,3,&ncomp,&nverts,&ncolors) != 3) {
+
+    return NULL;
+
+  }
+
+  /* We now try to read the array of numbers of vertices. */
+
+  nvarray = calloc(ncomp,sizeof(int));
+  acyclic = calloc(ncomp,sizeof(int));
+
+  for(i=0;i<ncomp;i++) {
+
+    if (scanints(file,1,&(nvarray[i])) != 1) {
+
+      return NULL;
+
+    }
+
+    if (nvarray[i] < 0) {
+
+      acyclic[i] = FALSE;             /* A negative number of vertices indicates a CLOSED component. */
+      nvarray[i] *= -1;
+
+    } else {
+
+      acyclic[i] = TRUE;
+    
+    }
+
+  }
+
+  /* We have now set nvarray and acyclic, and are ready to read (and discard) the color data. */
+
+  for(i=0;i<ncolors;i++) {
+
+    if (scanints(file,1,&scratch) != 1) {
+
+      return NULL;
+
+    }
+
+  }
+
+  /* We now allocate the link data structure. */
+
+  L = link_new(ncomp,nvarray,acyclic);
+
+  if (L == NULL) {   /* If we don't have this much memory, then return NULL. */
+
+    return NULL;
+
+  }
+
+  /* And get ready to read the actual data. */
+
+  for(i=0;i<ncomp;i++) {
+
+    for(j=0;j<L->cp[i].nv;j++) {
+
+      if (scandoubles(file,3,&L->cp[i].vt[j].c[0],&L->cp[i].vt[j].c[1],&L->cp[i].vt[j].c[2]) != 3) {
+
+	return NULL;
+
+      }
+
+    }
+
+  }
+
+  /* We could now read the colors, but we don't bother. */
+
+  return L;
   
 }
+
