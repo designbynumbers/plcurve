@@ -3,7 +3,7 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.4 2003-12-31 02:57:30 cantarel Exp $
+ *  $Id: plCurve.c,v 1.5 2003-12-31 03:21:21 cantarel Exp $
  *
  */
 
@@ -12,6 +12,7 @@
 #include <malloc.h>
 #endif
 #include "config.h"
+#include "stdarg.h"
 #include "ropelength.h"
 
 /*
@@ -21,7 +22,7 @@
  * open or closed.                                        
  *
  */
-static inline void pline_new(pline *Pl,int nv, int acyclic) {
+static void pline_new(pline *Pl,int nv, int acyclic) {
   const char fn[10] = "pline_new";
   int   i;
 
@@ -186,7 +187,7 @@ int link_write(FILE *file,link *L) {
 
   for(i=0;i<L->nc;i++) {
 
-    nverts += L->cp.nv;
+    nverts += L->cp[i].nv;
 
   }
 
@@ -203,11 +204,19 @@ int link_write(FILE *file,link *L) {
   
   fprintf(file,"\n");
 
+  for(i=0;i<L->nc;i++) {
+
+    fprintf(file,"0 ");
+
+  }
+
+  fprintf(file,"\n");
+
   /* Now we write the vertex data. */
 
   for(i=0;i<L->nc;i++) {
 
-    for(j=0;j<L->cp.nv;j++) {
+    for(j=0;j<L->cp[i].nv;j++) {
 
       fprintf(file,"%g %g %g \n",
 	      L->cp[i].vt[j].c[0],
@@ -440,7 +449,7 @@ link *link_read(FILE *file)
   
   /* First, we check for the 'VECT' keyword. */
 
-  if (!fscanf(file,"VECT")) {
+  if (fscanf(file," VECT ") == EOF) {
 
     return NULL;
 
@@ -456,8 +465,8 @@ link *link_read(FILE *file)
 
   /* We now try to read the array of numbers of vertices. */
 
-  nvarray = calloc(ncomp,sizeof(int));
-  acyclic = calloc(ncomp,sizeof(int));
+  nvarray = (int *)calloc(ncomp,sizeof(int));
+  acyclic = (int *)calloc(ncomp,sizeof(int));
 
   for(i=0;i<ncomp;i++) {
 
