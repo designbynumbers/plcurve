@@ -3,19 +3,21 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.1 2004-01-21 20:17:46 ashted Exp $
+ * $Id: vector.c,v 1.2 2004-03-02 20:53:42 ashted Exp $
  *
  */
 
-#include "config.h"
-#include "ropelength.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include "octrope.h"
 
 /**************************************************************/
 /*   Basic Linear Algebra Operations                          */
 /**************************************************************/
 
-vector plus(vector A,vector B) { /* Returns A + B. */
-  vector C;
+octrope_vector plus(octrope_vector A,octrope_vector B) { /* Returns A + B. */
+  octrope_vector C;
 
   C.c[0] = A.c[0] + B.c[0];
   C.c[1] = A.c[1] + B.c[1];
@@ -24,8 +26,8 @@ vector plus(vector A,vector B) { /* Returns A + B. */
   return C;
 }
   
-vector minus(vector A,vector B) { /* Returns A - B. */ 
-  vector C;
+octrope_vector minus(octrope_vector A,octrope_vector B) { /* Returns A - B. */ 
+  octrope_vector C;
 
   C.c[0] = A.c[0] - B.c[0];
   C.c[1] = A.c[1] - B.c[1];
@@ -34,8 +36,8 @@ vector minus(vector A,vector B) { /* Returns A - B. */
   return C;
 }
   
-vector cross(vector A,vector B) { /* Returns A x B. */
-  vector C;
+octrope_vector cross(octrope_vector A,octrope_vector B) { /* Returns A x B. */
+  octrope_vector C;
 
   C.c[0] = A.c[1] * B.c[2] - A.c[2] * B.c[1];
   C.c[1] = A.c[2] * B.c[0] - A.c[0] * B.c[2];
@@ -44,9 +46,8 @@ vector cross(vector A,vector B) { /* Returns A x B. */
   return C;
 }
 
-vector scalarmult(double x,vector A) { /* Returns xA. */
-
-  vector C;
+octrope_vector scalarmult(double x,octrope_vector A) { /* Returns xA. */
+  octrope_vector C;
 
   C.c[0] = x * A.c[0];
   C.c[1] = x * A.c[1];
