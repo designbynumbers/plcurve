@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.2 2004-03-02 20:53:42 ashted Exp $
+ * $Id: vector.c,v 1.3 2004-05-28 14:33:13 ashted Exp $
  *
  */
 
@@ -16,7 +16,8 @@
 /*   Basic Linear Algebra Operations                          */
 /**************************************************************/
 
-octrope_vector plus(octrope_vector A,octrope_vector B) { /* Returns A + B. */
+/* Returns A + B. */
+octrope_vector octrope_vplus(octrope_vector A,octrope_vector B) { 
   octrope_vector C;
 
   C.c[0] = A.c[0] + B.c[0];
@@ -26,7 +27,8 @@ octrope_vector plus(octrope_vector A,octrope_vector B) { /* Returns A + B. */
   return C;
 }
   
-octrope_vector minus(octrope_vector A,octrope_vector B) { /* Returns A - B. */ 
+/* Returns A - B. */ 
+octrope_vector octrope_vminus(octrope_vector A,octrope_vector B) { 
   octrope_vector C;
 
   C.c[0] = A.c[0] - B.c[0];
@@ -36,7 +38,8 @@ octrope_vector minus(octrope_vector A,octrope_vector B) { /* Returns A - B. */
   return C;
 }
   
-octrope_vector cross(octrope_vector A,octrope_vector B) { /* Returns A x B. */
+/* Returns A x B. */
+octrope_vector octrope_cross(octrope_vector A,octrope_vector B) { 
   octrope_vector C;
 
   C.c[0] = A.c[1] * B.c[2] - A.c[2] * B.c[1];
@@ -46,7 +49,8 @@ octrope_vector cross(octrope_vector A,octrope_vector B) { /* Returns A x B. */
   return C;
 }
 
-octrope_vector scalarmult(double x,octrope_vector A) { /* Returns xA. */
+/* Returns xA. */
+octrope_vector octrope_scalarmult(double x,octrope_vector A) { 
   octrope_vector C;
 
   C.c[0] = x * A.c[0];
