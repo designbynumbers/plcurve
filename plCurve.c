@@ -3,7 +3,7 @@
  * 
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.5 2003-12-31 03:21:21 cantarel Exp $
+ *  $Id: plCurve.c,v 1.6 2003-12-31 06:40:22 cantarel Exp $
  *
  */
 
@@ -491,7 +491,7 @@ link *link_read(FILE *file)
 
   /* We have now set nvarray and acyclic, and are ready to read (and discard) the color data. */
 
-  for(i=0;i<ncolors;i++) {
+  for(i=0;i<ncomp;i++) {
 
     if (scanints(file,1,&scratch) != 1) {
 
