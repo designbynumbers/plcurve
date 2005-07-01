@@ -1,26 +1,26 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.21 2005-07-01 01:08:22 cantarel Exp $
+ *  $Id: plCurve.c,v 1.22 2005-07-01 01:40:34 cantarel Exp $
  *
  */
 
 /* Copyright 2004 The University of Georgia. */
 
-/* This file is part of liboctrope.
+/* This file is part of vecttools.
    
-liboctrope is free software; you can redistribute it and/or modify
+vecttools is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
-liboctrope is distributed in the hope that it will be useful,
+vecttools is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with liboctrope; if not, write to the Free Software
+along with vecttools; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
@@ -45,7 +45,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_CTYPE_H
 #include <ctype.h>
 #endif
-#include "../octropesrc/octrope.h"
+
+#include <link.h>
+
+extern int  linklib_error_num;
+extern char linklib_error_str[80];
 
 /*
  * Set up a new pline.  Pl should point to an *ALREADY ALLOCATED* pline (but
@@ -56,28 +60,28 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * We allocate two extra vertices, at -1 and nv to make "wrap-around" much 
  * simpler.
  */
-static void pline_new(octrope_pline *Pl,int nv, int acyclic, int cc) {
+static void pline_new(linklib_pline *Pl,int nv, int acyclic, int cc) {
  
   if (nv < 1) {
-    octrope_error_num = 21;
-    sprintf(octrope_error_str,"pline_new: Can't create a pline with %d vertices.\n",nv);
+    linklib_error_num = 21;
+    sprintf(linklib_error_str,"pline_new: Can't create a pline with %d vertices.\n",nv);
     return;
   }
 
   Pl->acyclic = acyclic;
   Pl->nv = nv;
   if ((Pl->vt = 
-       (octrope_vector *)malloc((nv+2)*sizeof(octrope_vector))) == NULL) {
-    octrope_error_num = 22;
-    sprintf(octrope_error_str,"pline_new: Can't allocate space for %d vertices in pline_new.\n",nv);
+       (linklib_vector *)calloc((nv+2),sizeof(linklib_vector))) == NULL) {
+    linklib_error_num = 22;
+    sprintf(linklib_error_str,"pline_new: Can't allocate space for %d vertices in pline_new.\n",nv);
     return;
   }
   Pl->vt++; /* so that Pl->vt[-1] is a valid space */
 
   Pl->cc = cc;
-  if ((Pl->clr = (octrope_color *)malloc(cc*sizeof(octrope_color))) == NULL) {
-    octrope_error_num = 23;
-    sprintf(octrope_error_str,"pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
+  if ((Pl->clr = (linklib_color *)calloc(cc,sizeof(linklib_color))) == NULL) {
+    linklib_error_num = 23;
+    sprintf(linklib_error_str,"pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
     return;
   }
 }
@@ -89,37 +93,37 @@ static void pline_new(octrope_pline *Pl,int nv, int acyclic, int cc) {
  * the array pointed to by acyclic.                           
  *
  */
-octrope_link *octrope_link_new(int components, const int *nv, 
+linklib_link *linklib_link_new(int components, const int *nv, 
                                const int *acyclic, const int *cc) 
 {
-  octrope_link *L;
+  linklib_link *L;
   int i;
 
   /* First, we check to see that the input values are reasonable. */
 
   if (components < 1) {
-    octrope_error_num = 31;
-    sprintf(octrope_error_str,"octrope_link_new: Can't create a link with %d components.",components);
+    linklib_error_num = 31;
+    sprintf(linklib_error_str,"linklib_link_new: Can't create a link with %d components.",components);
     return NULL;
   }
 
   if (nv == NULL || acyclic == NULL || cc == NULL) {
-    octrope_error_num = 32;
-    sprintf(octrope_error_str,"octrope_link_new: nv, acyclic or cc is NULL.");
+    linklib_error_num = 32;
+    sprintf(linklib_error_str,"linklib_link_new: nv, acyclic or cc is NULL.");
     return NULL;
   }
 
   /* Now we attempt to allocate space for these components. */
   
-  if ((L = (octrope_link *)malloc(sizeof(octrope_link))) == NULL) {
-    octrope_error_num = 33;
-    sprintf(octrope_error_str,"octrope_link_new: Could not allocate space for link in link_new.\n");
+  if ((L = (linklib_link *)malloc(sizeof(linklib_link))) == NULL) {
+    linklib_error_num = 33;
+    sprintf(linklib_error_str,"linklib_link_new: Could not allocate space for link in link_new.\n");
     return NULL;
   }
   L->nc = components;
-  if ((L->cp = (octrope_pline *)malloc(L->nc*sizeof(octrope_pline))) == NULL) {
-    octrope_error_num = 34;
-    sprintf(octrope_error_str,"Can't allocate array of pline ptrs in link_new.\n");
+  if ((L->cp = (linklib_pline *)malloc(L->nc*sizeof(linklib_pline))) == NULL) {
+    linklib_error_num = 34;
+    sprintf(linklib_error_str,"Can't allocate array of pline ptrs in link_new.\n");
     return NULL;
   }
 
@@ -137,7 +141,7 @@ octrope_link *octrope_link_new(int components, const int *nv,
  * twice on the same pline without fear. 
  *
  */ 
-void pline_free(octrope_pline *Pl) {
+void pline_free(linklib_pline *Pl) {
   
   if (Pl == NULL) {
     return;
@@ -162,7 +166,7 @@ void pline_free(octrope_pline *Pl) {
  * We can call link_free twice on the same link without fear. 
  *
  */ 
-void octrope_link_free(octrope_link *L) {
+void linklib_link_free(linklib_link *L) {
   int i;
 
   /* First, we check the input. */
@@ -171,8 +175,8 @@ void octrope_link_free(octrope_link *L) {
   }
 
   if (L->nc < 0) {
-    octrope_error_num = 41;
-    sprintf(octrope_error_str,"octrope_link_free: Link appears corrupted. L.nc = %d.",L->nc);
+    linklib_error_num = 41;
+    sprintf(linklib_error_str,"linklib_link_free: Link appears corrupted. L.nc = %d.",L->nc);
     return;
   }
 
@@ -186,7 +190,7 @@ void octrope_link_free(octrope_link *L) {
 
   free(L);
   L = NULL;
-} /* octrope_link_free */
+} /* linklib_link_free */
 
 /*
  * Writes the link to a file in Geomview VECT format.  The file format is:
@@ -209,21 +213,21 @@ void octrope_link_free(octrope_link *L) {
  *
  */
 
-int octrope_link_write(FILE *file, const octrope_link *L) {
+int linklib_link_write(FILE *file, const linklib_link *L) {
   int i,j;              /* Counter for the for loops */ 
   int nverts = 0;       /* Total number of vertices of all components */
   int colors = 0;       /* Total number of colors of all components */
 
   /* First, do a little sanity checking. */
   if (L == NULL) {
-    octrope_error_num = 51;
-    sprintf(octrope_error_str,"octrope_link_write: Passed NULL pointer as link. \n");
+    linklib_error_num = 51;
+    sprintf(linklib_error_str,"linklib_link_write: Passed NULL pointer as link. \n");
     return -1;
   }
 
   if (file == NULL) {
-    octrope_error_num = 52;
-    sprintf(octrope_error_str,"octrope_link_write: Passed NULL pointer as file.\n");
+    linklib_error_num = 52;
+    sprintf(linklib_error_str,"linklib_link_write: Passed NULL pointer as file.\n");
     return -1;
   }
 
@@ -254,8 +258,9 @@ int octrope_link_write(FILE *file, const octrope_link *L) {
   /* Now we write the vertex data . . . */
   for(i=0;i<L->nc;i++) {
     for(j=0;j<L->cp[i].nv;j++) {
-      fprintf(file,"%g %g %g \n", L->cp[i].vt[j].c[0], L->cp[i].vt[j].c[1],
-                                  L->cp[i].vt[j].c[2]);
+      fprintf(file,"%.16g %.16g %.16g \n", 
+	      L->cp[i].vt[j].c[0], L->cp[i].vt[j].c[1],
+	      L->cp[i].vt[j].c[2]);
     }
   }
 
@@ -286,8 +291,8 @@ int skip_whitespace_and_comments(FILE *infile)
 
   /* First, we check to make sure that infile looks legit. */
   if (infile == NULL) {
-    octrope_error_num = 61;
-    sprintf(octrope_error_str,"skip_whitespace_and_comments: infile is a null pointer.\n");
+    linklib_error_num = 61;
+    sprintf(linklib_error_str,"skip_whitespace_and_comments: infile is a null pointer.\n");
     return -1;
   }
   
@@ -321,14 +326,14 @@ int scandoubles(FILE *infile,int ndoubles, ...)
   /* First, we check for overall sanity. */
 
   if (infile == NULL) {
-    octrope_error_num = 71;
-    sprintf(octrope_error_str,"scandoubles: infile is a null pointer.\n");
+    linklib_error_num = 71;
+    sprintf(linklib_error_str,"scandoubles: infile is a null pointer.\n");
     return -1;
   }
 
   if (ndoubles < 1) {
-    octrope_error_num = 72;
-    sprintf(octrope_error_str,"scandoubles: ndoubles (%d) is less than one.\n",ndoubles);
+    linklib_error_num = 72;
+    sprintf(linklib_error_str,"scandoubles: ndoubles (%d) is less than one.\n",ndoubles);
     return -1;
   }
 
@@ -367,14 +372,14 @@ int scanints(FILE *infile,int nints, ...)
   /* First, we check for overall sanity. */
 
   if (infile == NULL) {
-    octrope_error_num = 73;
-    sprintf(octrope_error_str,"scanints: infile is a null pointer.\n");
+    linklib_error_num = 73;
+    sprintf(linklib_error_str,"scanints: infile is a null pointer.\n");
     return -1;
   }
 
   if (nints < 1) {
-    octrope_error_num = 74;
-    sprintf(octrope_error_str,"scanints: nints (%d) is less than one.\n",nints);
+    linklib_error_num = 74;
+    sprintf(linklib_error_str,"scanints: nints (%d) is less than one.\n",nints);
     return -1;
   }
 
@@ -421,7 +426,7 @@ int skipwhitespace(FILE *infile)
  * used to implement "wraparound".
  *
  */
-void octrope_link_fix_wrap(const octrope_link *L) {
+void linklib_link_fix_wrap(const linklib_link *L) {
   int i,nv;
 
   for (i = 0; i < L->nc; i++) {
@@ -445,17 +450,17 @@ void octrope_link_fix_wrap(const octrope_link *L) {
  * or NULL on failure. 
  *
  */
-octrope_link *octrope_link_read(FILE *file) 
+linklib_link *linklib_link_read(FILE *file) 
 {
-  octrope_link *L;
+  linklib_link *L;
   int nverts, ncomp, ncolors;
   int *nvarray, *acyclic, *ccarray;
   int i, j;
   int nv;
   
 #ifdef DEBUG
-  if (octrope_debug_level() > 8) {
-    printf("octrope_link_read:Reading link from file.\n");
+  if (linklib_debug_level() > 8) {
+    printf("linklib_link_read:Reading link from file.\n");
   }
 #endif
 
@@ -463,8 +468,8 @@ octrope_link *octrope_link_read(FILE *file)
 
   if (fscanf(file," VECT ") == EOF) {
   
-    octrope_error_num = 81;
-    sprintf(octrope_error_str,"octrope_link_read: Couldn't find VECT keyword.");    
+    linklib_error_num = 81;
+    sprintf(linklib_error_str,"linklib_link_read: Couldn't find VECT keyword.");    
     return NULL;
   }
 
@@ -472,8 +477,8 @@ octrope_link *octrope_link_read(FILE *file)
 
   if (scanints(file,3,&ncomp,&nverts,&ncolors) != 3) {
   
-    octrope_error_num = 82;
-    sprintf(octrope_error_str,"octrope_link_read: Couldn't parse <ncomp> <nverts> <ncolors> line");
+    linklib_error_num = 82;
+    sprintf(linklib_error_str,"linklib_link_read: Couldn't parse <ncomp> <nverts> <ncolors> line");
     return NULL;
   }
 
@@ -485,8 +490,8 @@ octrope_link *octrope_link_read(FILE *file)
 
   for(i=0;i<ncomp;i++) {
     if (scanints(file,1,&(nvarray[i])) != 1) {
-      octrope_error_num = 83;
-      sprintf(octrope_error_str,"octrope_link_read: Couldn't parse number"
+      linklib_error_num = 83;
+      sprintf(linklib_error_str,"linklib_link_read: Couldn't parse number"
               "of vertices in component %d.",i);    
       return NULL;
     }
@@ -503,8 +508,8 @@ octrope_link *octrope_link_read(FILE *file)
 
   for(i=0;i<ncomp;i++) {
     if (scanints(file,1,&(ccarray[i])) != 1) {
-      octrope_error_num = 84;
-      sprintf(octrope_error_str,"octrope_link_read: Couldn't parse <ncolors>"
+      linklib_error_num = 84;
+      sprintf(linklib_error_str,"linklib_link_read: Couldn't parse <ncolors>"
       "for component %d.", i); 
       return NULL;
     }
@@ -512,11 +517,11 @@ octrope_link *octrope_link_read(FILE *file)
 
   /* We now allocate the link data structure. */
 
-  L = octrope_link_new(ncomp,nvarray,acyclic,ccarray);
+  L = linklib_link_new(ncomp,nvarray,acyclic,ccarray);
 
   if (L == NULL) {   /* If we don't have this much memory, then return NULL. */
-    octrope_error_num = 85;
-    sprintf(octrope_error_str,"octrope_link_read: Couldn't allocate enough"
+    linklib_error_num = 85;
+    sprintf(linklib_error_str,"linklib_link_read: Couldn't allocate enough"
     " memory for link.");
     return NULL;
   }
@@ -529,16 +534,16 @@ octrope_link *octrope_link_read(FILE *file)
       if (scandoubles(file,3,&L->cp[i].vt[j].c[0],
                              &L->cp[i].vt[j].c[1],
                              &L->cp[i].vt[j].c[2]) != 3) {
-        octrope_link_free(L);
-        octrope_error_num = 86;
-        sprintf(octrope_error_str,"octrope_link_read: Couldn't parse "
+        linklib_link_free(L);
+        linklib_error_num = 86;
+        sprintf(linklib_error_str,"linklib_link_read: Couldn't parse "
         " <x> <y> <z> data for vertex %d of component %d.",j,i);
         return NULL;
       }
     }
   }
   /* Now set the "wrap-around" vertices */
-  octrope_link_fix_wrap(L);
+  linklib_link_fix_wrap(L);
 
     /* And finally the colors. Unfortunately, to really comply with 
         the Geomview standard here we have to be kind of careful. */
@@ -548,7 +553,14 @@ octrope_link *octrope_link_read(FILE *file)
     for (j=0; j < L->cp[i].cc; j++) {
       if (scandoubles(file,4, &L->cp[i].clr[j].r, &L->cp[i].clr[j].g,
            &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha) != 4) {
+
+	linklib_error_num = 28;
+	sprintf(linklib_error_str,
+		"linklib_read: Couldn't parse color %d "
+		"in component %d of link.\n",j,i);
         return NULL;
+
+
       }
     }
   }
@@ -564,7 +576,7 @@ octrope_link *octrope_link_read(FILE *file)
 /* 
  *   Return the total number of edges in link. 
  */
-int octrope_link_edges(const octrope_link *L) 
+int linklib_link_edges(const linklib_link *L) 
 {
   int i, edges = 0;
 
@@ -578,16 +590,16 @@ int octrope_link_edges(const octrope_link *L)
  * Duplicate a link and return the duplicate 
  *
  */
-octrope_link *octrope_link_copy(const octrope_link *L) {
-  octrope_link *nL;
+linklib_link *linklib_link_copy(const linklib_link *L) {
+  linklib_link *nL;
   int *nv,*acyclic,*ccarray;
   int cnt,cnt2;
 
   if ((nv = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
       (acyclic = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
       (ccarray = (int *)malloc((L->nc)*sizeof(int))) == NULL) {
-    octrope_error_num = 75;
-    sprintf(octrope_error_str,"Unable to malloc space for alternate link.\n");
+    linklib_error_num = 75;
+    sprintf(linklib_error_str,"Unable to malloc space for alternate link.\n");
     return NULL;
   }
   for (cnt = 0; cnt < L->nc; cnt++) {
@@ -595,7 +607,7 @@ octrope_link *octrope_link_copy(const octrope_link *L) {
     acyclic[cnt] = L->cp[cnt].acyclic;
     ccarray[cnt] = L->cp[cnt].cc;
   }
-  nL = octrope_link_new(L->nc,nv,acyclic,ccarray);
+  nL = linklib_link_new(L->nc,nv,acyclic,ccarray);
 
   for (cnt = 0; cnt < L->nc; cnt++) {
     for (cnt2 = 0; cnt2 < L->cp[cnt].nv; cnt2++) {
@@ -612,6 +624,55 @@ octrope_link *octrope_link_copy(const octrope_link *L) {
 
   return nL;
 }
+
+linklib_vector linklib_link_tangent_vector(linklib_link *link,int cp, int vt)
+
+/* Procedure computes a (unit) tangent vector to <link> 
+   at the given vertex of the given component. */
+
+{
+  linklib_vector in, out, tan;
+
+  if (link->cp[cp].acyclic) {
+
+    if (vt == 0) {
+
+      tan = linklib_vminus(link->cp[cp].vt[1],
+		  link->cp[cp].vt[0]);
+
+      linklib_vector_normalize(&tan);
+
+      return tan;
+
+    } else if (vt == link->cp[cp].nv-1) {
+
+       tan = linklib_vminus(link->cp[cp].vt[link->cp[cp].nv-1],
+		   link->cp[cp].vt[link->cp[cp].nv-2]);
+
+       linklib_vector_normalize(&tan);
+
+       return tan;
+
+    }
+
+  }
+
+  /* We now know that either we are on a closed 
+     component, or we are not at an endpoint.   */
+  
+   in = linklib_vminus(link->cp[cp].vt[vt+1],link->cp[cp].vt[vt]);
+   linklib_vector_normalize(&in);
+
+   out = linklib_vminus(link->cp[cp].vt[vt],link->cp[cp].vt[vt-1]);
+   linklib_vector_normalize(&out);
+
+   linklib_vweighted(tan,0.5,in,out);
+   linklib_vector_normalize(&tan);
+   
+   return tan;
+
+}
+
 
 double linklib_link_length(linklib_link *L,double *component_lengths)
 
