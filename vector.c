@@ -3,26 +3,26 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.5 2004-10-08 00:16:36 cantarel Exp $
+ * $Id: vector.c,v 1.6 2005-07-01 00:48:36 cantarel Exp $
  *
  */
 
 /* Copyright 2004 The University of Georgia. */
 
-/* This file is part of liboctrope.
+/* This file is part of vecttools.
    
-liboctrope is free software; you can redistribute it and/or modify
+vecttools is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
-liboctrope is distributed in the hope that it will be useful,
+vecttools is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with liboctrope; if not, write to the Free Software
+along with vecttools; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
@@ -31,15 +31,24 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "octrope_vector.h"
+
+#ifdef HAVE_MATH_H
+#include <math.h>
+#endif
+
+#ifdef HAVE_ASSERT_H
+#include <assert.h>
+#endif
+
+#include "vector.h"
 
 /**************************************************************/
 /*   Basic Linear Algebra Operations                          */
 /**************************************************************/
 
 /* Returns A + B. */
-octrope_vector octrope_vplus(octrope_vector A,octrope_vector B) { 
-  octrope_vector C;
+inline linklib_vector linklib_vplus(linklib_vector A,linklib_vector B) { 
+  linklib_vector C;
 
   C.c[0] = A.c[0] + B.c[0];
   C.c[1] = A.c[1] + B.c[1];
@@ -49,8 +58,8 @@ octrope_vector octrope_vplus(octrope_vector A,octrope_vector B) {
 }
   
 /* Returns A - B. */ 
-octrope_vector octrope_vminus(octrope_vector A,octrope_vector B) { 
-  octrope_vector C;
+inline linklib_vector linklib_vminus(linklib_vector A,linklib_vector B) { 
+  linklib_vector C;
 
   C.c[0] = A.c[0] - B.c[0];
   C.c[1] = A.c[1] - B.c[1];
@@ -60,8 +69,8 @@ octrope_vector octrope_vminus(octrope_vector A,octrope_vector B) {
 }
   
 /* Returns A x B. */
-octrope_vector octrope_cross(octrope_vector A,octrope_vector B) { 
-  octrope_vector C;
+inline linklib_vector linklib_cross(linklib_vector A,linklib_vector B) { 
+  linklib_vector C;
 
   C.c[0] = A.c[1] * B.c[2] - A.c[2] * B.c[1];
   C.c[1] = A.c[2] * B.c[0] - A.c[0] * B.c[2];
@@ -71,8 +80,8 @@ octrope_vector octrope_cross(octrope_vector A,octrope_vector B) {
 }
 
 /* Returns xA. */
-octrope_vector octrope_scalarmult(double x,octrope_vector A) { 
-  octrope_vector C;
+inline linklib_vector linklib_scalarmult(double x,linklib_vector A) { 
+  linklib_vector C;
 
   C.c[0] = x * A.c[0];
   C.c[1] = x * A.c[1];
@@ -81,3 +90,37 @@ octrope_vector octrope_scalarmult(double x,octrope_vector A) {
   return C;
 }
 
+inline linklib_vector linklib_vdivide(linklib_vector A,linklib_vector B) {
+  linklib_vector C;
+
+  C.c[0] = A.c[0]/B.c[0];
+  C.c[1] = A.c[1]/B.c[1];
+  C.c[2] = A.c[2]/B.c[2];
+
+  return C;
+}
+
+inline double linklib_vdist(linklib_vector A,linklib_vector B) {
+
+  linklib_vector diff;
+
+  diff = A;
+  linklib_vsub(diff,B);
+  
+  return linklib_norm(diff);
+
+}
+
+void linklib_vector_normalize(linklib_vector *V)
+
+/* Procedure replaces V with a unit vector (if possible). */
+
+{
+  double vnrm;
+
+  vnrm = linklib_norm((*V));
+  assert(vnrm > 1e-8);
+  linklib_vsmult(1/vnrm,(*V));
+
+}
+  
