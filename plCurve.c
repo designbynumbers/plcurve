@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.20 2004-10-08 00:19:40 cantarel Exp $
+ *  $Id: plCurve.c,v 1.21 2005-07-01 01:08:22 cantarel Exp $
  *
  */
 
@@ -611,4 +611,63 @@ octrope_link *octrope_link_copy(const octrope_link *L) {
   free(nv);
 
   return nL;
+}
+
+double linklib_link_length(linklib_link *L,double *component_lengths)
+
+/* Procedure computes the length of each component of the link,
+   and fills in the array of doubles "component_lengths", which 
+   must be as long as L->nc. It returns the total length. We assume
+   that fix_wrap has been called. */
+
+{
+  double tot_length;
+  int cmp, nv, vert;
+  linklib_pline *cp;
+
+  tot_length = 0;
+  for (cmp = 0; cmp < L->nc; cmp++) {
+
+    component_lengths[cmp] = 0;
+    cp = &L->cp[cmp];
+    nv = (cp->acyclic) ? cp->nv-1 : cp->nv;
+
+    for (vert = 0; vert < nv; vert++) {
+
+      component_lengths[cmp] += linklib_vdist(cp->vt[vert+1],cp->vt[vert]);
+
+    }
+
+    tot_length += component_lengths[cmp];
+  }
+
+  return tot_length;
+}
+
+double linklib_link_parameter(linklib_link *L,int cmp,int vertnum)
+
+/* Procedure reports the arclength distance from the given vertex */
+/* to the 0th vertex of the given component of L. */
+
+{
+  double tot_length;
+  int vert,nv;
+  linklib_pline *cp;
+  linklib_vector temp_vect;
+
+  assert(L != NULL);
+  assert(0 <= cmp && cmp <= L->nc);
+  assert(0 <= vertnum && vertnum <= L->cp[cmp].nv-1);
+
+  tot_length = 0;
+  cp = &L->cp[cmp];
+  nv = (cp->acyclic) ? cp->nv-1 : cp->nv;
+
+  for (vert = 0; vert < vertnum; vert++) {
+    temp_vect = cp->vt[vert+1];
+    linklib_vsub(temp_vect,cp->vt[vert]);
+    tot_length += linklib_norm(temp_vect);
+  }
+
+  return tot_length;
 }

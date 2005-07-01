@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.6 2005-07-01 00:48:36 cantarel Exp $
+ * $Id: vector.c,v 1.7 2005-07-01 01:08:22 cantarel Exp $
  *
  */
 
@@ -121,6 +121,36 @@ void linklib_vector_normalize(linklib_vector *V)
   vnrm = linklib_norm((*V));
   assert(vnrm > 1e-8);
   linklib_vsmult(1/vnrm,(*V));
+
+}
+
+linklib_vector linklib_vector_random()
+
+/* Procedure assumes that the "rand" random number generator
+   exists on this system and has been seeded. It generates a
+   random unit vector. */
+
+{
+  int i;
+  linklib_vector R;
+
+  for(i=0;i<1000;i++) {
+
+    R.c[0] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
+    R.c[1] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
+    R.c[2] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
+
+    if (linklib_norm(R) > 0.1 && linklib_norm(R) < 0.9) {
+
+      linklib_vector_normalize(&R);
+      return R;
+
+    }
+
+  }
+
+  fprintf(stderr,"linklib_random_vector: Apparent error in rand().\n");
+  exit(0);
 
 }
   

@@ -2,7 +2,7 @@
  * 
  * Prototypes for routines in vector.c.
  *
- * $Id: vector.h,v 1.1.1.1 2005-07-01 00:44:41 cantarel Exp $
+ * $Id: vector.h,v 1.2 2005-07-01 01:08:22 cantarel Exp $
  *
  */
 
@@ -91,5 +91,8 @@ inline void linklib_vector_normalize(linklib_vector *V);
     (A).c[0] *= (B).c[0]; \
     (A).c[1] *= (B).c[1]; \
     (A).c[2] *= (B).c[2];
+
+
+linklib_vector linklib_vector_random();
 
 #endif

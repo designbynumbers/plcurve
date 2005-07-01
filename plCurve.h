@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for linklib_links
  *
- *  $Id: plCurve.h,v 1.1.1.1 2005-07-01 00:44:41 cantarel Exp $
+ *  $Id: plCurve.h,v 1.2 2005-07-01 01:08:22 cantarel Exp $
  *
  */
 
@@ -91,11 +91,20 @@ void          linklib_link_fix_wrap(const linklib_link *L);
 /* Count the edges in a link (correctly handling open/closed) */
 int           linklib_link_edges(const linklib_link *L);
 
-  /* Copy a link */
+/* Copy a link */
 linklib_link *linklib_link_copy(const linklib_link *L);
 
-  /* Compute tangent vector */
+/* Compute tangent vector */
 linklib_vector linklib_link_tangent_vector(linklib_link *link,int cp, int vt);
+
+/* Find the arclength of a link. */
+double linklib_link_length(linklib_link *L,double *component_lengths);
+
+/* Find the arclength position of a point on a link. */
+double linklib_link_parameter(linklib_link *L,int cmp,int vertnum);
+
+/* Force a linklib_link to close as gently as possible */
+void linklib_link_force_closed(linklib_link *link);
 
 #if (__cplusplus || c_plusplus)
 };
