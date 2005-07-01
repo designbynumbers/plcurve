@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, and convert spline_links (and spline_plines)
  * 
- *  $Id: splines.c,v 1.1.1.1 2005-07-01 00:44:41 cantarel Exp $
+ *  $Id: splines.c,v 1.2 2005-07-01 01:56:33 cantarel Exp $
  *
  */
 
@@ -604,6 +604,7 @@ linklib_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
 
   linklib_vector scrV, scrW;
   linklib_vector retV;
+  linklib_vector zeroVec = {{0,0,0}};
 
   /* We begin with a bit of checking to make sure that cmp and s seem
      compatible with the given spL. */
@@ -614,13 +615,13 @@ linklib_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
     sprintf(linklib_error_str,"evaluate_spline_link: Can't find position %g"
 	    " on component %d of the %d component link spL.\n",
 	    s,cmp,spL->nc);
-    return;
+    return zeroVec;
 
   }
 
   /* Now fix any wraparound, so that the s value given is in [0,cmpLen). */
 
-  cmpLen = spL->cp[cmp].svals[spL->cp[cmp].nv];
+  cmpLen = spL->cp[cmp].svals[spL->cp[cmp].ns];
   while (s < 0) {    s += cmpLen; }
   while (s >= cmpLen) { s -= cmpLen; }
 
@@ -640,7 +641,7 @@ linklib_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
   /* Now we can evaluate the polynomial. */
 
   
-  h = spL->cp[comp].svals[khi] - spL->cp[comp].svals[klo];
+  h = spL->cp[cmp].svals[khi] - spL->cp[cmp].svals[klo];
 
   if (h < 10e-14) { 
     
@@ -648,19 +649,19 @@ linklib_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
     sprintf(linklib_error_str,"evaluate_spline_link: svals of samples %d "
 	    "and %d are"
 	    " too close for spline algorithm (svals are %g and %g).\n",
-	    khi,klo,spL->cp[comp].svals[khi],spL->cp[comp].svals[klo]);
-    return NULL;
+	    khi,klo,spL->cp[cmp].svals[khi],spL->cp[cmp].svals[klo]);
+    return zeroVec;
 
   }
   
-  a = (spL->cp[comp].svals[khi] - s)/h;
-  b = (s - spL->cp[comp].svals[klo])/h;
+  a = (spL->cp[cmp].svals[khi] - s)/h;
+  b = (s - spL->cp[cmp].svals[klo])/h;
   
-  linklib_vlincombine(spL->cp[comp].vt[klo],a,spL->cp[comp].vt[khi],b,
+  linklib_vlincombine(spL->cp[cmp].vt[klo],a,spL->cp[cmp].vt[khi],b,
 		      scrV);
   
-  linklib_vlincombine(spL->cp[comp].vt2[klo],(a*a*a - a)*(h*h)/6.0,
-		      spL->cp[comp].vt2[khi],(b*b*b - b)*(h*h)/6.0,
+  linklib_vlincombine(spL->cp[cmp].vt2[klo],(a*a*a - a)*(h*h)/6.0,
+		      spL->cp[cmp].vt2[khi],(b*b*b - b)*(h*h)/6.0,
 		      scrW);
   
   retV = linklib_vplus(scrV,scrW);  

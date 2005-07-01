@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.7 2005-07-01 01:08:22 cantarel Exp $
+ * $Id: vector.c,v 1.8 2005-07-01 01:56:33 cantarel Exp $
  *
  */
 
@@ -36,11 +36,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <math.h>
 #endif
 
+#ifdef HAVE_STDIO_H
+#include <stdio.h>
+#endif
+
 #ifdef HAVE_ASSERT_H
 #include <assert.h>
 #endif
 
+#include "truefalse.h"
 #include "vector.h"
+
+extern int   linklib_error_num;
+extern char *linklib_error_str;
 
 /**************************************************************/
 /*   Basic Linear Algebra Operations                          */
@@ -149,8 +157,9 @@ linklib_vector linklib_vector_random()
 
   }
 
-  fprintf(stderr,"linklib_random_vector: Apparent error in rand().\n");
-  exit(0);
-
+  linklib_error_num = 1569;
+  sprintf(linklib_error_str,"linklib_random_vector: Apparent error in rand().\n");
+  assert(FALSE);
+  return R;
 }
   

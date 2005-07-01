@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.22 2005-07-01 01:40:34 cantarel Exp $
+ *  $Id: plCurve.c,v 1.23 2005-07-01 01:56:33 cantarel Exp $
  *
  */
 
@@ -731,4 +731,51 @@ double linklib_link_parameter(linklib_link *L,int cmp,int vertnum)
   }
 
   return tot_length;
+}
+
+void linklib_link_force_closed(linklib_link *link)
+
+     /* Procedure closes all open components of link by distributing a small
+	change of all vertices of each such component. It also changes the 
+	"acyclic" flag, calls fix_wrap. We lose one vertex in this process. */
+
+{
+  int i, this_cp;
+  linklib_vector diff;
+
+  for (this_cp=0;this_cp < link->nc;this_cp++) {
+
+    if (link->cp[this_cp].acyclic == TRUE) {  
+      /* Isolate the open components. */
+
+      diff = link->cp[this_cp].vt[link->cp[this_cp].nv-1];   
+      /* Compute the error in closure */
+
+      linklib_vsub(diff,link->cp[this_cp].vt[0]);
+
+      for(i=0;i<link->cp[this_cp].nv;i++) {
+
+	linklib_vlincombine(link->cp[this_cp].vt[i],1.0,
+			    diff,-((double)(i))/(double)(link->cp[this_cp].nv-1),
+       			    link->cp[this_cp].vt[i]);
+
+      }
+
+      /* We claim to have moved the last vertex on top of the first. */
+
+      diff = linklib_vminus(link->cp[this_cp].vt[0],
+			    link->cp[this_cp].vt[link->cp[this_cp].nv-1]);
+      assert(linklib_norm(diff) < 1e-10);
+
+      /* Thus we eliminate the last vertex. */
+
+      link->cp[this_cp].nv--;
+      link->cp[this_cp].acyclic = FALSE;
+
+    }
+
+  }
+
+  linklib_link_fix_wrap(link);
+
 }

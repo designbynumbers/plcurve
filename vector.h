@@ -2,7 +2,7 @@
  * 
  * Prototypes for routines in vector.c.
  *
- * $Id: vector.h,v 1.2 2005-07-01 01:08:22 cantarel Exp $
+ * $Id: vector.h,v 1.3 2005-07-01 01:56:33 cantarel Exp $
  *
  */
 
@@ -32,6 +32,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
+
+#ifdef HAVE_ASSERT_H
+#include <assert.h>
+#endif
+
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
 #endif
 
 typedef struct linklib_vector_type {    /* A point in 3-space. */

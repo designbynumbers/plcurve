@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for linklib_links
  *
- *  $Id: plCurve.h,v 1.2 2005-07-01 01:08:22 cantarel Exp $
+ *  $Id: plCurve.h,v 1.3 2005-07-01 01:56:33 cantarel Exp $
  *
  */
 
@@ -36,7 +36,15 @@ extern "C" {
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+
+#ifdef HAVE_STDIO_H
 #include <stdio.h>
+#endif 
+
+#ifdef HAVE_ASSERT_H
+#include <assert.h>
+#endif
+
 #include <truefalse.h>
 #include <vector.h>
 
