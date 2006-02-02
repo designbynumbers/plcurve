@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for linklib_links
  *
- *  $Id: plCurve.h,v 1.3 2005-07-01 01:56:33 cantarel Exp $
+ *  $Id: plCurve.h,v 1.4 2006-02-02 22:25:18 ashted Exp $
  *
  */
 
@@ -85,19 +85,24 @@ linklib_link *linklib_link_new(int components,
                                const int *cc);
 
 /* Free the link (and plines) */
-void          linklib_link_free(linklib_link *L);
+void linklib_link_free(linklib_link *L);
 
 /* Read link data from a file */
 linklib_link *linklib_link_read(FILE *infile);
 
 /* Write link data to a file */
-int           linklib_link_write(FILE *outfile, const linklib_link *L);
+int linklib_link_write(FILE *outfile, const linklib_link *L);
 
 /* Fix the "hidden vertices" for easy handling of closed components */
-void          linklib_link_fix_wrap(const linklib_link *L);
+void linklib_link_fix_wrap(const linklib_link *L);
 
 /* Count the edges in a link (correctly handling open/closed) */
-int           linklib_link_edges(const linklib_link *L);
+int linklib_link_edges(const linklib_link *L);
+
+/* Compute the (minrad-based) curvature of L at vertex vt of component cp */
+double linklib_link_curvature(const linklib_link *L, 
+                              const int cp, 
+                              const int vt);
 
 /* Copy a link */
 linklib_link *linklib_link_copy(const linklib_link *L);

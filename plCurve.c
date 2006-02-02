@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.23 2005-07-01 01:56:33 cantarel Exp $
+ *  $Id: plCurve.c,v 1.24 2006-02-02 22:25:18 ashted Exp $
  *
  */
 
@@ -586,6 +586,46 @@ int linklib_link_edges(const linklib_link *L)
   return edges;
 }
 
+/* Compute the curvature of L at vertex vt of component cp */
+
+double linklib_link_curvature(const linklib_link *L, 
+                              const int comp, 
+                              const int vert)
+{
+  double         kappa;
+  linklib_vector in,out;
+  double normin, normout;
+  double dot_prod,cross_prod_norm;
+
+  /* We start with some initializations. */
+  
+  linklib_error_num = linklib_error_str[0] = 0;
+  linklib_link_fix_wrap(L);
+  
+  /* Now we work. */
+
+  in = linklib_vminus(L->cp[comp].vt[vert],L->cp[comp].vt[vert-1]);
+  normin = linklib_norm(in);
+  out = linklib_vminus(L->cp[comp].vt[vert+1],L->cp[comp].vt[vert]);
+  normout = linklib_norm(out);
+      
+  dot_prod = linklib_dot(in,out);
+  cross_prod_norm = linklib_norm(linklib_cross(in,out));
+
+  if (normin*normout + dot_prod < 1e-12) {
+    linklib_error_num = 469;
+    sprintf(linklib_error_str,
+	    "linklib_link_curvature: kappa not finite "
+	    "at vertex %d of component %d.\n",comp,vert);
+    return -1.0;
+  }
+      
+  kappa = (2*cross_prod_norm)/(normin*normout + dot_prod);
+  kappa /= (normin < normout) ? normin : normout;
+
+  return kappa;
+}
+
 /* 
  * Duplicate a link and return the duplicate 
  *
@@ -610,7 +650,11 @@ linklib_link *linklib_link_copy(const linklib_link *L) {
   nL = linklib_link_new(L->nc,nv,acyclic,ccarray);
 
   for (cnt = 0; cnt < L->nc; cnt++) {
-    for (cnt2 = 0; cnt2 < L->cp[cnt].nv; cnt2++) {
+    /*
+     * Copy the vertices (including the "hidden" ones, so we don't have to call
+     * linklib_link_fix_wrap).
+     */
+    for (cnt2 = -1; cnt2 =< L->cp[cnt].nv; cnt2++) { 
       nL->cp[cnt].vt[cnt2] = L->cp[cnt].vt[cnt2];
     }
     for (cnt2 = 0; cnt2 < L->cp[cnt].cc; cnt2++) {
