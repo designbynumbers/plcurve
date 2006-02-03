@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, and convert spline_links (and spline_plines)
  * 
- *  $Id: splines.c,v 1.4 2006-02-03 13:10:20 ashted Exp $
+ *  $Id: splines.c,v 1.5 2006-02-03 21:42:57 ashted Exp $
  *
  */
 
@@ -507,7 +507,8 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
     linklib_error_num = 710;
     sprintf(linklib_error_str,
-	    "convert_spline_to_link: spline_link appears corrupt (nc = %d).\n",spL->nc);
+	    "convert_spline_to_link: spline_link appears corrupt (nc = %d).\n",
+            spL->nc);
     return NULL;
   }
 
@@ -519,7 +520,8 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
   if (cc == NULL || open == NULL) {
 
     linklib_error_num = 711;
-    sprintf(linklib_error_str,"convert_spline_to_link: Couldn't allocate cc, open buffer"
+    sprintf(linklib_error_str,
+            "convert_spline_to_link: Couldn't allocate cc, open buffer"
 	    " of size %d.\n",spL->nc);
     return NULL;
 
@@ -527,7 +529,7 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
   for(i=0;i<spL->nc;i++) { open[i] = spL->cp[i].open; cc[i] = spL->cp[i].cc; }
 
-  L = plCurve_new(spL->nc,nv,open,cc);
+  L = plCurve_new(spL->nc,nv,open,cc,0,NULL);
   
   if (L == NULL || linklib_error_num != 0) { return NULL; }
 

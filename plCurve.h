@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.7 2006-02-03 13:10:20 ashted Exp $
+ *  $Id: plCurve.h,v 1.8 2006-02-03 21:42:57 ashted Exp $
  *
  */
 
@@ -57,15 +57,14 @@ extern "C" {
 #define TRUE (1 == 1)
 #endif /* TRUE */
 
-/* Define 3-space vectors */
+/* Variables for reporting errors */
+int  plCurve_error_num;
+char plCurve_error_str[80];
 
+/* Define 3-space vectors */
 typedef struct plcl_vector_type {  
   double c[3];
 } plcl_vector;
-
-
-int  plCurve_error_num;
-char plCurve_error_str[80];
 
 typedef struct plCurve_color_type {
   double r;
@@ -80,12 +79,25 @@ typedef struct plCurve_pline_type {
   int            cc;     /* Color count (number of colors) */
   plcl_vector   *vt;     /* Actual vertices */
   plCurve_color *clr;    /* Colors */
-  /***** Need a way to specify constraints on endpoints here *****/
 } plCurve_pline;
 
+/* Curve constraint kind */
+#define PLCL_FIXED     1  /* Vertex is not allowed to move */
+#define PLCL_ON_LINE   2  /* Vertex must lie on the given line */
+#define PLCL_IN_PLANE  3  /* Vertex must lie in the given plane */
+
+typedef struct plCurve_constraint_type {
+  int    cp;      /* Component */
+  int    vt;      /* Vertex */
+  int    kind;    /* What kind of constraint */
+  double coef[6]; /* Coefficients for defining plane or line */
+} plCurve_constraint;
+  
 typedef struct plCurve_type {	
   int nc;			/* Number of components */
   plCurve_pline *cp;            /* Components */
+  int ncst;                     /* Number of constraints */
+  plCurve_constraint *cst;      /* The constraints themselves */
 } plCurve;
 
 /*
@@ -143,17 +155,15 @@ inline void plcl_vector_normalize(plcl_vector *V);
     (A).c[1] *= (B).c[1]; \
     (A).c[2] *= (B).c[2];
 
-
 /* 
  * Prototypes for routines to deal with plCurves.
  *
  */
 
 /* Build a new link (with associated plines) */
-plCurve *plCurve_new(int components, 
-                               const int *nv, 
-                               const int *acyclic,
-                               const int *cc);
+plCurve *plCurve_new(int components, const int *nv, 
+                     const int *open, const int *cc, 
+                     const int ncst, const plCurve_constraint *cst);
 
 /* Free the link (and plines) */
 void plCurve_free(plCurve *L);

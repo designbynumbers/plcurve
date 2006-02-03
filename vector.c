@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.10 2006-02-03 13:10:20 ashted Exp $
+ * $Id: vector.c,v 1.11 2006-02-03 21:42:57 ashted Exp $
  *
  */
 
@@ -151,7 +151,7 @@ plcl_vector plcl_vector_random()
 
   }
 
-  plCurve_error_num = 1569;
+  plCurve_error_num = 15;
   sprintf(plCurve_error_str,"plcl_vector_random: Apparent error in rand().\n");
   assert(FALSE);
   return R;

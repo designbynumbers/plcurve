@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+#
+# $Id: check_error_nums,v 1.1 2006-02-03 21:42:57 ashted Exp $
+#
+# Check to see which error numbers have been used and report usage, hollering
+# about duplication.
+#
+
+use strict;
+use warnings;
+
+our @error_nums;
+open(GREP,'find . -name \*.c -exec grep plCurve_error_num {} \; |');
+while (<GREP>) {
+  next unless /plCurve_error_num\s*=\s*(\d+)/;
+  next unless $1;
+  warn "Two errors numbered $1" if defined($error_nums[$1]);
+  $error_nums[$1] = 1;
+}
+my($num,$cnt);
+for ($num = 0; $num <= $#error_nums; $num += 10) {
+  my @out = ();
+  for ($cnt = 0; $cnt <= 9; $cnt++) {
+    $out[$cnt] = defined($error_nums[$num+$cnt]) ? $num+$cnt : '';
+  }
+  write;
+  format STDOUT = 
+^>> ^>> ^>> ^>> ^>> ^>> ^>> ^>> ^>> ^>>
+@out
+.
+}

@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.27 2006-02-03 13:10:20 ashted Exp $
+ *  $Id: plCurve.c,v 1.28 2006-02-03 21:42:57 ashted Exp $
  *
  */
 
@@ -37,7 +37,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_MATH_H
 #include <math.h>
 #endif
-
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -46,6 +45,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 #ifdef HAVE_CTYPE_H
 #include <ctype.h>
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
 #endif
 
 #include <plCurve.h>
@@ -66,7 +68,8 @@ static void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
  
   if (nv < 1) {
     plCurve_error_num = 21;
-    sprintf(plCurve_error_str,"pline_new: Can't create a pline with %d vertices.\n",nv);
+    sprintf(plCurve_error_str,
+      "pline_new: Can't create a pline with %d vertices.\n",nv);
     return;
   }
 
@@ -98,7 +101,8 @@ static void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
  *
  */
 plCurve *plCurve_new(int components, const int *nv, 
-                          const int *open, const int *cc) 
+                     const int *open, const int *cc, 
+                     const int ncst, const plCurve_constraint *cst)
 {
   plCurve *L;
   int i;
@@ -107,13 +111,63 @@ plCurve *plCurve_new(int components, const int *nv,
 
   if (components < 1) {
     plCurve_error_num = 31;
-    sprintf(plCurve_error_str,"plCurve_new: Can't create a link with %d components.",components);
+    sprintf(plCurve_error_str,
+      "plCurve_new: Can't create a link with %d components.",components);
     return NULL;
   }
 
   if (nv == NULL || open == NULL || cc == NULL) {
     plCurve_error_num = 32;
+#ifdef HAVE_STRLCPY
+    strlcpy(plCurve_error_str,"plCurve_new: nv is NULL.",
+      sizeof(plCurve_error_str));
+#else
+    strlncpy(plCurve_error_str,"plCurve_new: nv is NULL.",
+      sizeof(plCurve_error_str)-1);
+    plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
+#endif
+#ifdef HAVE_STRLCAT
+    if (nv == NULL) {
+      strlcat(plCurve_error_str,"nv ",sizeof(plCurve_error_str));
+    }
+    if (open == NULL) {
+      strlcat(plCurve_error_str,"open ",sizeof(plCurve_error_str));
+    }
+    if (cc == NULL) {
+      strlcat(plCurve_error_str,"cc",sizeof(plCurve_error_str));
+    }
+#else
+    if (nv == NULL ) {
+      strncat(plCurve_error_str,"nv ",
+        sizeof(plCurve_error_str)-strlen(plCurve_error_str)-1);
+      plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
+    }
+    if (open == NULL ) {
+      strncat(plCurve_error_str,"open ",
+        sizeof(plCurve_error_str)-strlen(plCurve_error_str)-1);
+      plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
+    }
+    if (cc == NULL ) {
+      strncat(plCurve_error_str,"cc ",
+        sizeof(plCurve_error_str)-strlen(plCurve_error_str)-1);
+      plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
+    }
+#endif
     sprintf(plCurve_error_str,"plCurve_new: nv, open or cc is NULL.");
+    return NULL;
+  }
+
+  if (ncst < 0) {
+    plCurve_error_num = 35;
+    sprintf(plCurve_error_str,
+      "plCurve_new: Can't have %d constraints.",ncst);
+    return NULL;
+  }
+
+  if (ncst > 0 && cst == NULL) {
+    plCurve_error_num = 36;
+    sprintf(plCurve_error_str,
+      "plCurve_new: Called with ncst=%d but cst NULL.",ncst);
     return NULL;
   }
 
@@ -121,21 +175,176 @@ plCurve *plCurve_new(int components, const int *nv,
   
   if ((L = (plCurve *)malloc(sizeof(plCurve))) == NULL) {
     plCurve_error_num = 33;
-    sprintf(plCurve_error_str,"plCurve_new: Could not allocate space for link in link_new.\n");
+    sprintf(plCurve_error_str,
+      "plCurve_new: Could not allocate space for plCurve.\n");
     return NULL;
   }
   L->nc = components;
   if ((L->cp = (plCurve_pline *)malloc(L->nc*sizeof(plCurve_pline))) == NULL) {
     plCurve_error_num = 34;
-    sprintf(plCurve_error_str,"Can't allocate array of pline ptrs in link_new.\n");
+    sprintf(plCurve_error_str,
+      "plCurve_new: Can't allocate array of pline ptrs.\n");
     return NULL;
+  }
+  L->ncst = ncst;
+  if (ncst > 0) {
+    if ((L->cst = (plCurve_constraint *)
+      malloc(L->ncst*sizeof(plCurve_constraint))) == NULL) {
+      plCurve_error_num = 38;
+      sprintf(plCurve_error_str,
+        "plCurve_new: Can't allocate array of constraints.\n");
+      return NULL;
+    }
   }
 
   for (i = 0; i < L->nc; i++) {
     pline_new(&L->cp[i],nv[i],open[i],cc[i]);
   }
+  for (i = 0; i < L->ncst; i++) {
+    L->cst[i] = cst[i];
+  }
 
   return L;
+}
+
+/*
+ * Find the closest point on the given line to the given point.
+ *
+ * coef should hold 6 doulbes, which we will call a,b,c,d,e,f
+ * the components of the vector point we will call x,y,z
+ *
+ * The line is given parametrically by (at + b, ct + d, et + f) and the
+ * closest point then has
+ *  
+ *       a(x - b) + c(y - d) + e(z - f)
+ *   t = ------------------------------
+ *              a^2 + c^2 + e^2
+ *
+ */
+static plcl_vector Closest_line_point(const plcl_vector point, 
+                                      const double *coef) {
+
+  plcl_vector ret_vect;
+  double a = coef[0];
+  double b = coef[1];
+  double c = coef[2];
+  double d = coef[3];
+  double e = coef[4];
+  double f = coef[5];
+  double x = point.c[0];
+  double y = point.c[1];
+  double z = point.c[2];
+
+  double t = (a*(x-b) + c*(y-d) + e*(z-f))/(a*a + c*c + e*e);
+
+  ret_vect.c[0] = a*t + b;
+  ret_vect.c[1] = c*t + d;
+  ret_vect.c[2] = e*t + f;
+
+  return ret_vect;
+}
+
+/*
+ * Find the closest point on the given plane to the given point.
+ *
+ * coef should hold 4 doubles, which we will call a,b,c,d
+ * the components of the vector point we will call x1,y1,z1
+ *
+ * The plane can be given by ax + by + cz = d or parameterized as
+ *
+ *          d - ax - by
+ *   (x, y, -----------)
+ *               c
+ *
+ * The closest point then has
+ *
+ *              a x1 + b y1 + c z1 - d
+ *   x = x1 - a ----------------------
+ *                 a^2 + b^2 + c^2
+ *
+ *              a x1 + b y1 + c z1 - d
+ *   y = y1 - b ----------------------
+ *                 a^2 + b^2 + c^2
+ *
+ */
+static plcl_vector Closest_plane_point(const plcl_vector point, 
+                                       const double *coef) {
+
+  plcl_vector ret_vect;
+  double a = coef[0];
+  double b = coef[1];
+  double c = coef[2];
+  double d = coef[3];
+  double x1 = point.c[0];
+  double y1 = point.c[1];
+  double z1 = point.c[2];
+
+  double frac = (a*x1 + b*y1 + c*z1 - d)/(a*a + b*b + c*c);
+  double x = x1 - a*frac;
+  double y = y1 - b*frac;
+
+  ret_vect.c[0] = x;
+  ret_vect.c[1] = y;
+  ret_vect.c[2] = (d - a*x - b*y)/c;
+
+  return ret_vect;
+}
+
+/*
+ * Check to see if the given constraint is satisfied and return value for 
+ * how far off it is.
+ *
+ */
+
+double plCurve_cst_check(const plCurve L, const plCurve_constraint cst) {
+  
+  plcl_vector closest;
+  if (cst.kind == PLCL_FIXED) {
+    closest.c[0] = cst.coef[0];
+    closest.c[1] = cst.coef[1];
+    closest.c[2] = cst.coef[2];
+  } else if (cst.kind == PLCL_ON_LINE) {
+    closest = Closest_line_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
+  } else if (cst.kind == PLCL_IN_PLANE) {
+    closest = Closest_plane_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
+  } else {
+    plCurve_error_num = 37;
+    sprintf(plCurve_error_str,
+      "plCurve_cst_check: Unknown constraint kind: %d",cst.kind);
+    return -1;
+  }
+
+  return linklib_vdist(L.cp[cst.cp].vt[cst.vt],closest);
+}
+
+/*
+ * Move the vertex to the closest possible point which satisfies the
+ * constraint.
+ *
+ */
+
+double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst) {
+  
+  plcl_vector closest;
+  if (cst.kind == PLCL_FIXED) {
+    closest.c[0] = cst.coef[0];
+    closest.c[1] = cst.coef[1];
+    closest.c[2] = cst.coef[2];
+  } else if (cst.kind == PLCL_ON_LINE) {
+    closest = Closest_line_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
+  } else if (cst.kind == PLCL_IN_PLANE) {
+    closest = Closest_plane_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
+  } else {
+    plCurve_error_num = 39;
+    sprintf(plCurve_error_str,
+      "plCurve_cst_fix: Unknown constraint kind: %d",cst.kind);
+    return -1;
+  }
+
+  double dist = linklib_vdist(L.cp[cst.cp].vt[cst.vt],closest);
+  L.cp[cst.cp].vt[cst.vt] = closest;
+
+  return dist;
 }
 
 /*
@@ -145,7 +354,7 @@ plCurve *plCurve_new(int components, const int *nv,
  * twice on the same pline without fear. 
  *
  */ 
-void pline_free(plCurve_pline *Pl) {
+static void pline_free(plCurve_pline *Pl) {
   
   if (Pl == NULL) {
     return;
@@ -180,7 +389,8 @@ void plCurve_free(plCurve *L) {
 
   if (L->nc < 0) {
     plCurve_error_num = 41;
-    sprintf(plCurve_error_str,"plCurve_free: Link appears corrupted. L.nc = %d.",L->nc);
+    sprintf(plCurve_error_str,
+      "plCurve_free: Link appears corrupted. L.nc = %d.",L->nc);
     return;
   }
 
@@ -191,6 +401,10 @@ void plCurve_free(plCurve *L) {
 
   free(L->cp);
   L->nc = 0;
+  if (L->cst != NULL) {
+    free(L->cst);
+  }
+  L->ncst = 0;
 
   free(L);
   L = NULL;
@@ -515,7 +729,7 @@ plCurve *plCurve_read(FILE *file)
 
   /* We now allocate the link data structure. */
 
-  L = plCurve_new(ncomp,nvarray,open,ccarray);
+  L = plCurve_new(ncomp,nvarray,open,ccarray,0,NULL);
 
   if (L == NULL) {   /* If we don't have this much memory, then return NULL. */
     plCurve_error_num = 85;
@@ -611,7 +825,7 @@ double plCurve_curvature(const plCurve *L,
   cross_prod_norm = linklib_norm(linklib_cross(in,out));
 
   if (normin*normout + dot_prod < 1e-12) {
-    plCurve_error_num = 469;
+    plCurve_error_num = 46;
     sprintf(plCurve_error_str,
 	    "plCurve_curvature: kappa not finite "
 	    "at vertex %d of component %d.\n",comp,vert);
@@ -645,7 +859,7 @@ plCurve *plCurve_copy(const plCurve *L) {
     open[cnt] = L->cp[cnt].open;
     ccarray[cnt] = L->cp[cnt].cc;
   }
-  nL = plCurve_new(L->nc,nv,open,ccarray);
+  nL = plCurve_new(L->nc,nv,open,ccarray,0,NULL);
 
   for (cnt = 0; cnt < L->nc; cnt++) {
     /*

@@ -37,7 +37,8 @@ AC_CHECK_LIB(argtable2,arg_parse,[builddemos=true],[builddemos=false; AC_MSG_WAR
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h])
+AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h \
+                  string.h])
 
 # Signal to AUTOMAKE if we have argtable2
 
@@ -47,7 +48,7 @@ AM_CONDITIONAL([BUILD_DEMOS],[test "$builddemos" = true])
 AC_C_CONST
 
 # Checks for library functions.
-AC_CHECK_FUNCS([floor sqrt ceil srandomdev sranddev random srandom])
+AC_CHECK_FUNCS([strlcpy strlcat])
 
 # Can we inline and/or const?
 AC_C_INLINE
