@@ -1,5 +1,6 @@
 #!/bin/sh
 rm -f config.cache
+touch config.h
 aclocal 
 autoconf
 autoheader
