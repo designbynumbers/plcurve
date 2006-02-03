@@ -1,0 +1,122 @@
+To: Ted Ashton <ashted@math.uga.edu>
+Cc: Jason Cantarella <jason@math.uga.edu>
+Subject: Justifications
+From: Jason Cantarella <jason@math.uga.edu>
+Date: Thu, 2 Feb 2006 16:53:20 -0500
+
+Hey Ted,
+
+Here's the basic idea: we want the library to (ideally) include all of
+the functionality that the students accomplishing various tasks with
+the library will need to do their jobs without (possibly badly)
+implementing this stuff for themselves.
+
+So my idea is to provide a kind of GSL for curve geometry in 3-space,
+based on the underlying convention of polygonal curves of many
+components. In particular, I want to avoid the trap that I (and Eric
+Rawdon) fell into of implementing things for single-component curves
+for one project and ending up having to throw out large and highly
+functional libraries later in life.
+
+So I think that any local geometric quantity associated to the curve is
+a reasonable candidate for library inclusion, as well as many linear
+algebraic operations and some global curve operations.
+
+I also want to include library code for accomplishing relatively
+high-level operations which are convenient for the geometric
+programmer. The idea is that a relatively high-level application like
+"tube" should be writeable without _any_ local code that depends solely
+on the underlying curve. (All of that functionality should be pushed
+down into the library where it's more broadly useful.)
+
+linklib_link_curvature : not in my update from CVS. But it should be
+replaced with either or both of
+
+       linklib_link_minrad  or  linklib_link_turn_angle
+
+depending on which it's returning.
+
+linklib_link_tangent_vector : Something like this should be in there.
+(Eventually, we should have _normal_vector and _binormal_vector as
+well. I could be convinced that we should have plcurve_forward_tangent
+and plcurve_average_tangent instead, though.)
+
+linklib_link_length : This is reasonable. We should keep it.
+
+linklib_link_parameter : Bad name, bad idea, my fault. I think we
+should replace with
+
+       plcurve_subarc_length(plcurve *L, int cmp1, int vert1, int cmp2, int
+vert2)
+
+which gives the arclength distance from vertex vert1 to vertex vert2.
+It's used by the spline code, so can't be entirely eliminated. But it
+would be easier and more readable to call
+
+       plcurve_subarc_length(L,cmp,0,cmp,V)
+
+for the length from 0 to V.
+
+linklib_link_force_closed : Not a bad idea-- it's surprising how often
+one is required to fix an almost-closed curve imported from another
+program which handles closed curves by (annoyingly) repeating a vertex,
+and the operation is nontrivial enough that it's worth doing once
+right. (The obvious solution gives horrible tangent vectors for the
+last vertex or so.)
+
+linklib_vdivide : Bad name, useful code. The idea is to vectorize an
+arithmetic operation. How about
+
+plcl_vector plcl_componentwise_divide(plcl_vector A, plcl_vector B)
+
+and the same with vdiv? It _is_ used in the spline link code.
+
+linklib_vdist : I think we need a distance-between-vectors function.
+I'm open to discussion of the interface and name. But this is used too
+often to make people ask for plcl_norm(plcl_vminus(A,B)) (which is,
+anyway, a disaster since plcl_norm is a macro which will do the
+subtraction three times instead of one). Shouldn't we have a functional
+norm which avoids this problem, anyway?
+
+linklib_vector_normalize : We need something that does this. (Again,
+there are weird special cases when you try to normalize something of
+length 0, which usually means that you should put up an error and halt
+the show.)
+
+linklib_vector_random : This is often useful (and subtle to implement),
+so it's worth doing.
+
+--
+
+General comment: I don't like our (random) split between macros and
+inline functions. It really does matter, especially when you want to
+chain several operators together. Imagine a student trying the
+(reasonable-sounding)
+
+       plcl_scalarmult(2.0,plcl_vadd(A,B))
+
+(*crash*) or the previously mentioned
+
+       plcl_norm(plcl_vminus(A,B))
+
+(*slow*). I think that the relatively subtle difference between vadd
+and vplus is also a problem, as is the difference between vminus and
+vsub. I suggest that we standardize on a notation for macros vs inline
+functions, so that the advanced user can call the macros when
+performance is paramount (as in octrope) and remember that he has done
+so.
+I suggest
+
+       plcl_Madd(A,B),
+       plcl_Msub(A,B),
+       plcl_Mdot(A,B)
+
+and so forth. We should also add non-macro versions of dot and norm.
+
+vmul and vdiv are used in the spline link code, so we have to keep the
+functionality. I don't like the names, though.
+
+By the way, we should also remember that Chad's code uses this stuff.
+(*ugh*)
+
+Jason.
