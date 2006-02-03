@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.26 2006-02-03 03:45:11 ashted Exp $
+ *  $Id: plCurve.c,v 1.27 2006-02-03 13:10:20 ashted Exp $
  *
  */
 
@@ -28,7 +28,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#ifdef HAVE_STDIO_H
 #include <stdio.h>
+#endif
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
@@ -48,40 +50,42 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <plCurve.h>
 
-extern int  linklib_error_num;
-extern char linklib_error_str[80];
+extern int  plCurve_error_num;
+extern char plCurve_error_str[80];
 
 /*
  * Set up a new pline.  Pl should point to an *ALREADY ALLOCATED* pline (but
  * with an unallocated space for vertices).  The number of vertices is given in
- * nv and acyclic is set to TRUE or FALSE depending on whether the pline is
+ * nv and open is set to TRUE or FALSE depending on whether the pline is
  * open or closed.                                        
  *
  * We allocate two extra vertices, at -1 and nv to make "wrap-around" much 
  * simpler.
  */
-static void pline_new(linklib_pline *Pl,int nv, int acyclic, int cc) {
+static void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
  
   if (nv < 1) {
-    linklib_error_num = 21;
-    sprintf(linklib_error_str,"pline_new: Can't create a pline with %d vertices.\n",nv);
+    plCurve_error_num = 21;
+    sprintf(plCurve_error_str,"pline_new: Can't create a pline with %d vertices.\n",nv);
     return;
   }
 
-  Pl->acyclic = acyclic;
+  Pl->open = open;
   Pl->nv = nv;
   if ((Pl->vt = 
-       (linklib_vector *)calloc((nv+2),sizeof(linklib_vector))) == NULL) {
-    linklib_error_num = 22;
-    sprintf(linklib_error_str,"pline_new: Can't allocate space for %d vertices in pline_new.\n",nv);
+       (plcl_vector *)calloc((nv+2),sizeof(plcl_vector))) == NULL) {
+    plCurve_error_num = 22;
+    sprintf(plCurve_error_str,
+      "pline_new: Can't allocate space for %d vertices in pline_new.\n",nv);
     return;
   }
   Pl->vt++; /* so that Pl->vt[-1] is a valid space */
 
   Pl->cc = cc;
-  if ((Pl->clr = (linklib_color *)calloc(cc,sizeof(linklib_color))) == NULL) {
-    linklib_error_num = 23;
-    sprintf(linklib_error_str,"pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
+  if ((Pl->clr = (plCurve_color *)calloc(cc,sizeof(plCurve_color))) == NULL) {
+    plCurve_error_num = 23;
+    sprintf(plCurve_error_str,
+      "pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
     return;
   }
 }
@@ -90,45 +94,45 @@ static void pline_new(linklib_pline *Pl,int nv, int acyclic, int cc) {
  * Procedure allocates memory for a new link. The number of components is given
  * by components. The number of vertices in each component shows up in the
  * buffer pointed to be nv.  The closed/open nature of each pline is given in
- * the array pointed to by acyclic.                           
+ * the array pointed to by open.                           
  *
  */
-linklib_link *plCurve_new(int components, const int *nv, 
-                               const int *acyclic, const int *cc) 
+plCurve *plCurve_new(int components, const int *nv, 
+                          const int *open, const int *cc) 
 {
-  linklib_link *L;
+  plCurve *L;
   int i;
 
   /* First, we check to see that the input values are reasonable. */
 
   if (components < 1) {
-    linklib_error_num = 31;
-    sprintf(linklib_error_str,"plCurve_new: Can't create a link with %d components.",components);
+    plCurve_error_num = 31;
+    sprintf(plCurve_error_str,"plCurve_new: Can't create a link with %d components.",components);
     return NULL;
   }
 
-  if (nv == NULL || acyclic == NULL || cc == NULL) {
-    linklib_error_num = 32;
-    sprintf(linklib_error_str,"plCurve_new: nv, acyclic or cc is NULL.");
+  if (nv == NULL || open == NULL || cc == NULL) {
+    plCurve_error_num = 32;
+    sprintf(plCurve_error_str,"plCurve_new: nv, open or cc is NULL.");
     return NULL;
   }
 
   /* Now we attempt to allocate space for these components. */
   
-  if ((L = (linklib_link *)malloc(sizeof(linklib_link))) == NULL) {
-    linklib_error_num = 33;
-    sprintf(linklib_error_str,"plCurve_new: Could not allocate space for link in link_new.\n");
+  if ((L = (plCurve *)malloc(sizeof(plCurve))) == NULL) {
+    plCurve_error_num = 33;
+    sprintf(plCurve_error_str,"plCurve_new: Could not allocate space for link in link_new.\n");
     return NULL;
   }
   L->nc = components;
-  if ((L->cp = (linklib_pline *)malloc(L->nc*sizeof(linklib_pline))) == NULL) {
-    linklib_error_num = 34;
-    sprintf(linklib_error_str,"Can't allocate array of pline ptrs in link_new.\n");
+  if ((L->cp = (plCurve_pline *)malloc(L->nc*sizeof(plCurve_pline))) == NULL) {
+    plCurve_error_num = 34;
+    sprintf(plCurve_error_str,"Can't allocate array of pline ptrs in link_new.\n");
     return NULL;
   }
 
   for (i = 0; i < L->nc; i++) {
-    pline_new(&L->cp[i],nv[i],acyclic[i],cc[i]);
+    pline_new(&L->cp[i],nv[i],open[i],cc[i]);
   }
 
   return L;
@@ -141,7 +145,7 @@ linklib_link *plCurve_new(int components, const int *nv,
  * twice on the same pline without fear. 
  *
  */ 
-void pline_free(linklib_pline *Pl) {
+void pline_free(plCurve_pline *Pl) {
   
   if (Pl == NULL) {
     return;
@@ -166,7 +170,7 @@ void pline_free(linklib_pline *Pl) {
  * We can call link_free twice on the same link without fear. 
  *
  */ 
-void plCurve_free(linklib_link *L) {
+void plCurve_free(plCurve *L) {
   int i;
 
   /* First, we check the input. */
@@ -175,8 +179,8 @@ void plCurve_free(linklib_link *L) {
   }
 
   if (L->nc < 0) {
-    linklib_error_num = 41;
-    sprintf(linklib_error_str,"plCurve_free: Link appears corrupted. L.nc = %d.",L->nc);
+    plCurve_error_num = 41;
+    sprintf(plCurve_error_str,"plCurve_free: Link appears corrupted. L.nc = %d.",L->nc);
     return;
   }
 
@@ -213,21 +217,21 @@ void plCurve_free(linklib_link *L) {
  *
  */
 
-int plCurve_write(FILE *file, const linklib_link *L) {
+int plCurve_write(FILE *file, const plCurve *L) {
   int i,j;              /* Counter for the for loops */ 
   int nverts = 0;       /* Total number of vertices of all components */
   int colors = 0;       /* Total number of colors of all components */
 
   /* First, do a little sanity checking. */
   if (L == NULL) {
-    linklib_error_num = 51;
-    sprintf(linklib_error_str,"plCurve_write: Passed NULL pointer as link. \n");
+    plCurve_error_num = 51;
+    sprintf(plCurve_error_str,"plCurve_write: Passed NULL pointer as link. \n");
     return -1;
   }
 
   if (file == NULL) {
-    linklib_error_num = 52;
-    sprintf(linklib_error_str,"plCurve_write: Passed NULL pointer as file.\n");
+    plCurve_error_num = 52;
+    sprintf(plCurve_error_str,"plCurve_write: Passed NULL pointer as file.\n");
     return -1;
   }
 
@@ -242,7 +246,7 @@ int plCurve_write(FILE *file, const linklib_link *L) {
   fprintf(file,"%d %d %d \n",L->nc,nverts,colors);
   
   for(i=0;i<L->nc;i++) {
-    if (L->cp[i].acyclic) {
+    if (L->cp[i].open) {
       fprintf(file,"%d ",L->cp[i].nv); 
     } else {
       fprintf(file,"%d ",-L->cp[i].nv);
@@ -291,8 +295,8 @@ int skip_whitespace_and_comments(FILE *infile)
 
   /* First, we check to make sure that infile looks legit. */
   if (infile == NULL) {
-    linklib_error_num = 61;
-    sprintf(linklib_error_str,"skip_whitespace_and_comments: infile is a null pointer.\n");
+    plCurve_error_num = 61;
+    sprintf(plCurve_error_str,"skip_whitespace_and_comments: infile is a null pointer.\n");
     return -1;
   }
   
@@ -326,14 +330,14 @@ int scandoubles(FILE *infile,int ndoubles, ...)
   /* First, we check for overall sanity. */
 
   if (infile == NULL) {
-    linklib_error_num = 71;
-    sprintf(linklib_error_str,"scandoubles: infile is a null pointer.\n");
+    plCurve_error_num = 71;
+    sprintf(plCurve_error_str,"scandoubles: infile is a null pointer.\n");
     return -1;
   }
 
   if (ndoubles < 1) {
-    linklib_error_num = 72;
-    sprintf(linklib_error_str,"scandoubles: ndoubles (%d) is less than one.\n",ndoubles);
+    plCurve_error_num = 72;
+    sprintf(plCurve_error_str,"scandoubles: ndoubles (%d) is less than one.\n",ndoubles);
     return -1;
   }
 
@@ -372,14 +376,14 @@ int scanints(FILE *infile,int nints, ...)
   /* First, we check for overall sanity. */
 
   if (infile == NULL) {
-    linklib_error_num = 73;
-    sprintf(linklib_error_str,"scanints: infile is a null pointer.\n");
+    plCurve_error_num = 73;
+    sprintf(plCurve_error_str,"scanints: infile is a null pointer.\n");
     return -1;
   }
 
   if (nints < 1) {
-    linklib_error_num = 74;
-    sprintf(linklib_error_str,"scanints: nints (%d) is less than one.\n",nints);
+    plCurve_error_num = 74;
+    sprintf(plCurve_error_str,"scanints: nints (%d) is less than one.\n",nints);
     return -1;
   }
 
@@ -426,12 +430,12 @@ int skipwhitespace(FILE *infile)
  * used to implement "wraparound".
  *
  */
-void plCurve_fix_wrap(const linklib_link *L) {
+void plCurve_fix_wrap(const plCurve *L) {
   int i,nv;
 
   for (i = 0; i < L->nc; i++) {
     nv = L->cp[i].nv;
-    if (L->cp[i].acyclic) {
+    if (L->cp[i].open) {
       /* fold it back on itself: v_{-1} = v_1 and v_{nv} = v_{nv-2} */
       L->cp[i].vt[-1] = L->cp[i].vt[1];
       L->cp[i].vt[nv] = L->cp[i].vt[nv-2];
@@ -450,26 +454,20 @@ void plCurve_fix_wrap(const linklib_link *L) {
  * or NULL on failure. 
  *
  */
-linklib_link *plCurve_read(FILE *file) 
+plCurve *plCurve_read(FILE *file) 
 {
-  linklib_link *L;
+  plCurve *L;
   int nverts, ncomp, ncolors;
-  int *nvarray, *acyclic, *ccarray;
+  int *nvarray, *open, *ccarray;
   int i, j;
   int nv;
   
-#ifdef DEBUG
-  if (linklib_debug_level() > 8) {
-    printf("plCurve_read:Reading link from file.\n");
-  }
-#endif
-
   /* First, we check for the 'VECT' keyword. */
 
   if (fscanf(file," VECT ") == EOF) {
   
-    linklib_error_num = 81;
-    sprintf(linklib_error_str,"plCurve_read: Couldn't find VECT keyword.");    
+    plCurve_error_num = 81;
+    sprintf(plCurve_error_str,"plCurve_read: Couldn't find VECT keyword.");    
     return NULL;
   }
 
@@ -477,39 +475,39 @@ linklib_link *plCurve_read(FILE *file)
 
   if (scanints(file,3,&ncomp,&nverts,&ncolors) != 3) {
   
-    linklib_error_num = 82;
-    sprintf(linklib_error_str,"plCurve_read: Couldn't parse <ncomp> <nverts> <ncolors> line");
+    plCurve_error_num = 82;
+    sprintf(plCurve_error_str,"plCurve_read: Couldn't parse <ncomp> <nverts> <ncolors> line");
     return NULL;
   }
 
   /* We now try to read the array of numbers of vertices. */
 
   nvarray = (int *)calloc(ncomp,sizeof(int));
-  acyclic = (int *)calloc(ncomp,sizeof(int));
+  open    = (int *)calloc(ncomp,sizeof(int));
   ccarray = (int *)calloc(ncomp,sizeof(int));
 
   for(i=0;i<ncomp;i++) {
     if (scanints(file,1,&(nvarray[i])) != 1) {
-      linklib_error_num = 83;
-      sprintf(linklib_error_str,"plCurve_read: Couldn't parse number"
+      plCurve_error_num = 83;
+      sprintf(plCurve_error_str,"plCurve_read: Couldn't parse number"
               "of vertices in component %d.",i);    
       return NULL;
     }
     if (nvarray[i] < 0) {
       /* A negative number of vertices indicates a CLOSED component. */
-      acyclic[i] = FALSE;  
+      open[i] = FALSE;  
       nvarray[i] *= -1;
     } else {
-      acyclic[i] = TRUE;
+      open[i] = TRUE;
     }
   }
 
-  /* We have set nvarray and acyclic and are ready to read the color data.  */
+  /* We have set nvarray and open and are ready to read the color data.  */
 
   for(i=0;i<ncomp;i++) {
     if (scanints(file,1,&(ccarray[i])) != 1) {
-      linklib_error_num = 84;
-      sprintf(linklib_error_str,"plCurve_read: Couldn't parse <ncolors>"
+      plCurve_error_num = 84;
+      sprintf(plCurve_error_str,"plCurve_read: Couldn't parse <ncolors>"
       "for component %d.", i); 
       return NULL;
     }
@@ -517,11 +515,11 @@ linklib_link *plCurve_read(FILE *file)
 
   /* We now allocate the link data structure. */
 
-  L = plCurve_new(ncomp,nvarray,acyclic,ccarray);
+  L = plCurve_new(ncomp,nvarray,open,ccarray);
 
   if (L == NULL) {   /* If we don't have this much memory, then return NULL. */
-    linklib_error_num = 85;
-    sprintf(linklib_error_str,"plCurve_read: Couldn't allocate enough"
+    plCurve_error_num = 85;
+    sprintf(plCurve_error_str,"plCurve_read: Couldn't allocate enough"
     " memory for link.");
     return NULL;
   }
@@ -535,8 +533,8 @@ linklib_link *plCurve_read(FILE *file)
                              &L->cp[i].vt[j].c[1],
                              &L->cp[i].vt[j].c[2]) != 3) {
         plCurve_free(L);
-        linklib_error_num = 86;
-        sprintf(linklib_error_str,"plCurve_read: Couldn't parse "
+        plCurve_error_num = 86;
+        sprintf(plCurve_error_str,"plCurve_read: Couldn't parse "
         " <x> <y> <z> data for vertex %d of component %d.",j,i);
         return NULL;
       }
@@ -554,8 +552,8 @@ linklib_link *plCurve_read(FILE *file)
       if (scandoubles(file,4, &L->cp[i].clr[j].r, &L->cp[i].clr[j].g,
            &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha) != 4) {
 
-	linklib_error_num = 28;
-	sprintf(linklib_error_str,
+	plCurve_error_num = 28;
+	sprintf(plCurve_error_str,
 		"linklib_read: Couldn't parse color %d "
 		"in component %d of link.\n",j,i);
         return NULL;
@@ -566,17 +564,17 @@ linklib_link *plCurve_read(FILE *file)
   }
 
   free(ccarray);
-  free(acyclic);
+  free(open);
   free(nvarray);
 
   return L;
 }
 
-#define pline_edges(P) (((P).acyclic) ? (P).nv-1 : (P).nv)
+#define pline_edges(P) (((P).open) ? (P).nv-1 : (P).nv)
 /* 
  *   Return the total number of edges in link. 
  */
-int plCurve_edges(const linklib_link *L) 
+int plCurve_edges(const plCurve *L) 
 {
   int i, edges = 0;
 
@@ -588,18 +586,18 @@ int plCurve_edges(const linklib_link *L)
 
 /* Compute the curvature of L at vertex vt of component cp */
 
-double plCurve_curvature(const linklib_link *L, 
+double plCurve_curvature(const plCurve *L, 
                               const int comp, 
                               const int vert)
 {
   double         kappa;
-  linklib_vector in,out;
+  plcl_vector in,out;
   double normin, normout;
   double dot_prod,cross_prod_norm;
 
   /* We start with some initializations. */
   
-  linklib_error_num = linklib_error_str[0] = 0;
+  plCurve_error_num = plCurve_error_str[0] = 0;
   plCurve_fix_wrap(L);
   
   /* Now we work. */
@@ -613,8 +611,8 @@ double plCurve_curvature(const linklib_link *L,
   cross_prod_norm = linklib_norm(linklib_cross(in,out));
 
   if (normin*normout + dot_prod < 1e-12) {
-    linklib_error_num = 469;
-    sprintf(linklib_error_str,
+    plCurve_error_num = 469;
+    sprintf(plCurve_error_str,
 	    "plCurve_curvature: kappa not finite "
 	    "at vertex %d of component %d.\n",comp,vert);
     return -1.0;
@@ -630,31 +628,31 @@ double plCurve_curvature(const linklib_link *L,
  * Duplicate a link and return the duplicate 
  *
  */
-linklib_link *plCurve_copy(const linklib_link *L) {
-  linklib_link *nL;
-  int *nv,*acyclic,*ccarray;
+plCurve *plCurve_copy(const plCurve *L) {
+  plCurve *nL;
+  int *nv,*open,*ccarray;
   int cnt,cnt2;
 
   if ((nv = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
-      (acyclic = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
+      (open = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
       (ccarray = (int *)malloc((L->nc)*sizeof(int))) == NULL) {
-    linklib_error_num = 75;
-    sprintf(linklib_error_str,"Unable to malloc space for alternate link.\n");
+    plCurve_error_num = 75;
+    sprintf(plCurve_error_str,"Unable to malloc space for alternate link.\n");
     return NULL;
   }
   for (cnt = 0; cnt < L->nc; cnt++) {
     nv[cnt] = L->cp[cnt].nv;
-    acyclic[cnt] = L->cp[cnt].acyclic;
+    open[cnt] = L->cp[cnt].open;
     ccarray[cnt] = L->cp[cnt].cc;
   }
-  nL = plCurve_new(L->nc,nv,acyclic,ccarray);
+  nL = plCurve_new(L->nc,nv,open,ccarray);
 
   for (cnt = 0; cnt < L->nc; cnt++) {
     /*
      * Copy the vertices (including the "hidden" ones, so we don't have to call
      * plCurve_fix_wrap).
      */
-    for (cnt2 = -1; cnt2 =< L->cp[cnt].nv; cnt2++) { 
+    for (cnt2 = -1; cnt2 <= L->cp[cnt].nv; cnt2++) { 
       nL->cp[cnt].vt[cnt2] = L->cp[cnt].vt[cnt2];
     }
     for (cnt2 = 0; cnt2 < L->cp[cnt].cc; cnt2++) {
@@ -663,28 +661,28 @@ linklib_link *plCurve_copy(const linklib_link *L) {
   }
 
   free(ccarray);
-  free(acyclic);
+  free(open);
   free(nv);
 
   return nL;
 }
 
-linklib_vector plCurve_tangent_vector(linklib_link *link,int cp, int vt)
+plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt)
 
 /* Procedure computes a (unit) tangent vector to <link> 
    at the given vertex of the given component. */
 
 {
-  linklib_vector in, out, tan;
+  plcl_vector in, out, tan;
 
-  if (link->cp[cp].acyclic) {
+  if (link->cp[cp].open) {
 
     if (vt == 0) {
 
       tan = linklib_vminus(link->cp[cp].vt[1],
 		  link->cp[cp].vt[0]);
 
-      linklib_vector_normalize(&tan);
+      plcl_vector_normalize(&tan);
 
       return tan;
 
@@ -693,7 +691,7 @@ linklib_vector plCurve_tangent_vector(linklib_link *link,int cp, int vt)
        tan = linklib_vminus(link->cp[cp].vt[link->cp[cp].nv-1],
 		   link->cp[cp].vt[link->cp[cp].nv-2]);
 
-       linklib_vector_normalize(&tan);
+       plcl_vector_normalize(&tan);
 
        return tan;
 
@@ -705,20 +703,20 @@ linklib_vector plCurve_tangent_vector(linklib_link *link,int cp, int vt)
      component, or we are not at an endpoint.   */
   
    in = linklib_vminus(link->cp[cp].vt[vt+1],link->cp[cp].vt[vt]);
-   linklib_vector_normalize(&in);
+   plcl_vector_normalize(&in);
 
    out = linklib_vminus(link->cp[cp].vt[vt],link->cp[cp].vt[vt-1]);
-   linklib_vector_normalize(&out);
+   plcl_vector_normalize(&out);
 
    linklib_vweighted(tan,0.5,in,out);
-   linklib_vector_normalize(&tan);
+   plcl_vector_normalize(&tan);
    
    return tan;
 
 }
 
 
-double plCurve_length(linklib_link *L,double *component_lengths)
+double plCurve_length(plCurve *L,double *component_lengths)
 
 /* Procedure computes the length of each component of the link,
    and fills in the array of doubles "component_lengths", which 
@@ -728,14 +726,14 @@ double plCurve_length(linklib_link *L,double *component_lengths)
 {
   double tot_length;
   int cmp, nv, vert;
-  linklib_pline *cp;
+  plCurve_pline *cp;
 
   tot_length = 0;
   for (cmp = 0; cmp < L->nc; cmp++) {
 
     component_lengths[cmp] = 0;
     cp = &L->cp[cmp];
-    nv = (cp->acyclic) ? cp->nv-1 : cp->nv;
+    nv = (cp->open) ? cp->nv-1 : cp->nv;
 
     for (vert = 0; vert < nv; vert++) {
 
@@ -749,7 +747,7 @@ double plCurve_length(linklib_link *L,double *component_lengths)
   return tot_length;
 }
 
-double plCurve_parameter(linklib_link *L,int cmp,int vertnum)
+double plCurve_parameter(plCurve *L,int cmp,int vertnum)
 
 /* Procedure reports the arclength distance from the given vertex */
 /* to the 0th vertex of the given component of L. */
@@ -757,8 +755,8 @@ double plCurve_parameter(linklib_link *L,int cmp,int vertnum)
 {
   double tot_length;
   int vert,nv;
-  linklib_pline *cp;
-  linklib_vector temp_vect;
+  plCurve_pline *cp;
+  plcl_vector temp_vect;
 
   assert(L != NULL);
   assert(0 <= cmp && cmp <= L->nc);
@@ -766,7 +764,7 @@ double plCurve_parameter(linklib_link *L,int cmp,int vertnum)
 
   tot_length = 0;
   cp = &L->cp[cmp];
-  nv = (cp->acyclic) ? cp->nv-1 : cp->nv;
+  nv = (cp->open) ? cp->nv-1 : cp->nv;
 
   for (vert = 0; vert < vertnum; vert++) {
     temp_vect = cp->vt[vert+1];
@@ -777,19 +775,19 @@ double plCurve_parameter(linklib_link *L,int cmp,int vertnum)
   return tot_length;
 }
 
-void plCurve_force_closed(linklib_link *link)
+void plCurve_force_closed(plCurve *link)
 
-     /* Procedure closes all open components of link by distributing a small
+  /* Procedure closes all open components of link by distributing a small
 	change of all vertices of each such component. It also changes the 
-	"acyclic" flag, calls fix_wrap. We lose one vertex in this process. */
+	"open" flag and calls fix_wrap. We lose one vertex in this process. */
 
 {
   int i, this_cp;
-  linklib_vector diff;
+  plcl_vector diff;
 
   for (this_cp=0;this_cp < link->nc;this_cp++) {
 
-    if (link->cp[this_cp].acyclic == TRUE) {  
+    if (link->cp[this_cp].open == TRUE) {  
       /* Isolate the open components. */
 
       diff = link->cp[this_cp].vt[link->cp[this_cp].nv-1];   
@@ -814,7 +812,7 @@ void plCurve_force_closed(linklib_link *link)
       /* Thus we eliminate the last vertex. */
 
       link->cp[this_cp].nv--;
-      link->cp[this_cp].acyclic = FALSE;
+      link->cp[this_cp].open = FALSE;
 
     }
 

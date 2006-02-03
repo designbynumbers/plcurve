@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.9 2006-02-03 02:03:09 ashted Exp $
+ * $Id: vector.c,v 1.10 2006-02-03 13:10:20 ashted Exp $
  *
  */
 
@@ -44,19 +44,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <assert.h>
 #endif
 
-#include "truefalse.h"
-#include "vector.h"
-
-extern int   linklib_error_num;
-extern char *linklib_error_str;
+#include "plCurve.h"
 
 /**************************************************************/
 /*   Basic Linear Algebra Operations                          */
 /**************************************************************/
 
 /* Returns A + B. */
-inline linklib_vector linklib_vplus(linklib_vector A,linklib_vector B) { 
-  linklib_vector C;
+inline plcl_vector linklib_vplus(plcl_vector A,plcl_vector B) { 
+  plcl_vector C;
 
   C.c[0] = A.c[0] + B.c[0];
   C.c[1] = A.c[1] + B.c[1];
@@ -66,8 +62,8 @@ inline linklib_vector linklib_vplus(linklib_vector A,linklib_vector B) {
 }
   
 /* Returns A - B. */ 
-inline linklib_vector linklib_vminus(linklib_vector A,linklib_vector B) { 
-  linklib_vector C;
+inline plcl_vector linklib_vminus(plcl_vector A,plcl_vector B) { 
+  plcl_vector C;
 
   C.c[0] = A.c[0] - B.c[0];
   C.c[1] = A.c[1] - B.c[1];
@@ -77,8 +73,8 @@ inline linklib_vector linklib_vminus(linklib_vector A,linklib_vector B) {
 }
   
 /* Returns A x B. */
-inline linklib_vector linklib_cross(linklib_vector A,linklib_vector B) { 
-  linklib_vector C;
+inline plcl_vector linklib_cross(plcl_vector A,plcl_vector B) { 
+  plcl_vector C;
 
   C.c[0] = A.c[1] * B.c[2] - A.c[2] * B.c[1];
   C.c[1] = A.c[2] * B.c[0] - A.c[0] * B.c[2];
@@ -88,8 +84,8 @@ inline linklib_vector linklib_cross(linklib_vector A,linklib_vector B) {
 }
 
 /* Returns xA. */
-inline linklib_vector linklib_scalarmult(double x,linklib_vector A) { 
-  linklib_vector C;
+inline plcl_vector linklib_scalarmult(double x,plcl_vector A) { 
+  plcl_vector C;
 
   C.c[0] = x * A.c[0];
   C.c[1] = x * A.c[1];
@@ -98,8 +94,8 @@ inline linklib_vector linklib_scalarmult(double x,linklib_vector A) {
   return C;
 }
 
-inline linklib_vector linklib_vdivide(linklib_vector A,linklib_vector B) {
-  linklib_vector C;
+inline plcl_vector linklib_vdivide(plcl_vector A,plcl_vector B) {
+  plcl_vector C;
 
   C.c[0] = A.c[0]/B.c[0];
   C.c[1] = A.c[1]/B.c[1];
@@ -108,9 +104,9 @@ inline linklib_vector linklib_vdivide(linklib_vector A,linklib_vector B) {
   return C;
 }
 
-inline double linklib_vdist(linklib_vector A,linklib_vector B) {
+inline double linklib_vdist(plcl_vector A,plcl_vector B) {
 
-  linklib_vector diff;
+  plcl_vector diff;
 
   diff = A;
   linklib_vsub(diff,B);
@@ -119,7 +115,7 @@ inline double linklib_vdist(linklib_vector A,linklib_vector B) {
 
 }
 
-void linklib_vector_normalize(linklib_vector *V)
+void plcl_vector_normalize(plcl_vector *V)
 
 /* Procedure replaces V with a unit vector (if possible). */
 
@@ -132,7 +128,7 @@ void linklib_vector_normalize(linklib_vector *V)
 
 }
 
-linklib_vector linklib_vector_random()
+plcl_vector plcl_vector_random()
 
 /* Procedure assumes that the "rand" random number generator
    exists on this system and has been seeded. It generates a
@@ -140,7 +136,7 @@ linklib_vector linklib_vector_random()
 
 {
   int i;
-  linklib_vector R;
+  plcl_vector R;
 
   for(i=0;i<1000;i++) {
 
@@ -149,16 +145,14 @@ linklib_vector linklib_vector_random()
     R.c[2] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
 
     if (linklib_norm(R) > 0.1 && linklib_norm(R) < 0.9) {
-
-      linklib_vector_normalize(&R);
+      plcl_vector_normalize(&R);
       return R;
-
     }
 
   }
 
-  linklib_error_num = 1569;
-  sprintf(linklib_error_str,"linklib_random_vector: Apparent error in rand().\n");
+  plCurve_error_num = 1569;
+  sprintf(plCurve_error_str,"plcl_vector_random: Apparent error in rand().\n");
   assert(FALSE);
   return R;
 }

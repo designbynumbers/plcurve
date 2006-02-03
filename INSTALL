@@ -1,0 +1,8 @@
+The traditional
+
+  ./configure
+  make 
+  make check
+  make install
+
+should do the job for most installations.

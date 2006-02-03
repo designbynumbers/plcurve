@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, and convert spline_links (and spline_plines)
  * 
- *  $Id: splines.c,v 1.3 2006-02-03 02:03:09 ashted Exp $
+ *  $Id: splines.c,v 1.4 2006-02-03 13:10:20 ashted Exp $
  *
  */
 
@@ -41,13 +41,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <stdlib.h>
 #endif
 
-#include <link.h>
 #include <spline_links.h>
 
 extern int  linklib_error_num;
 extern char linklib_error_str[80];
 
-static void spline_pline_new(linklib_spline_pline *Pl,int ns, int acyclic, int cc) {
+static void spline_pline_new(linklib_spline_pline *Pl,
+                                              int  ns, 
+                                              int  open, 
+                                              int  cc) {
  
   if (ns < 1) {
     linklib_error_num = 71;
@@ -55,7 +57,7 @@ static void spline_pline_new(linklib_spline_pline *Pl,int ns, int acyclic, int c
     return;
   }
 
-  Pl->acyclic = acyclic;
+  Pl->open = open;
   Pl->ns = ns;
 
   if ((Pl->svals = (double *)malloc((ns+2)*sizeof(double))) == NULL) {
@@ -68,7 +70,7 @@ static void spline_pline_new(linklib_spline_pline *Pl,int ns, int acyclic, int c
   Pl->svals++; /* so that Pl->svals[-1] is valid. */
 
   if ((Pl->vt = 
-       (linklib_vector *)malloc((ns+2)*sizeof(linklib_vector))) == NULL) {
+       (plcl_vector *)malloc((ns+2)*sizeof(plcl_vector))) == NULL) {
     linklib_error_num = 72;
     sprintf(linklib_error_str,"spline_pline_new: Can't allocate space for %d samples in spline_pline_new.\n",ns);
     return;
@@ -76,7 +78,7 @@ static void spline_pline_new(linklib_spline_pline *Pl,int ns, int acyclic, int c
   Pl->vt++; /* so that Pl->vt[-1] is a valid space */
 
   if ((Pl->vt2 = 
-       (linklib_vector *)malloc((ns+2)*sizeof(linklib_vector))) == NULL) {
+       (plcl_vector *)malloc((ns+2)*sizeof(plcl_vector))) == NULL) {
     linklib_error_num = 72;
     sprintf(linklib_error_str,"spline_pline_new: Can't allocate space for %d samples in spline_pline_new.\n",ns);
     return;
@@ -84,12 +86,12 @@ static void spline_pline_new(linklib_spline_pline *Pl,int ns, int acyclic, int c
   Pl->vt2++; /* so that Pl->vt2[-1] is a valid space */
 
   Pl->cc = cc;
-  if ((Pl->clr = (linklib_color *)malloc(cc*sizeof(linklib_color))) == NULL) {
+  if ((Pl->clr = (plCurve_color *)malloc(cc*sizeof(plCurve_color))) == NULL) {
     linklib_error_num = 73;
     sprintf(linklib_error_str,"spline_pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
     return;
   }
-  if ((Pl->clr2 = (linklib_color *)malloc(cc*sizeof(linklib_color))) == NULL) {
+  if ((Pl->clr2 = (plCurve_color *)malloc(cc*sizeof(plCurve_color))) == NULL) {
     linklib_error_num = 73;
     sprintf(linklib_error_str,"spline_pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
     return;
@@ -100,12 +102,12 @@ static void spline_pline_new(linklib_spline_pline *Pl,int ns, int acyclic, int c
  * Procedure allocates memory for a new spline_link. The number of
  * components is given by components. The number of data samples in each
  * component shows up in the buffer pointed to by ns.  The closed/open
- * nature of each pline is given in the array pointed to by acyclic.
+ * nature of each pline is given in the array pointed to by open.
  *
  */
 linklib_spline_link *linklib_spline_link_new(int components, 
 					     const int *ns, 
-					     const int *acyclic, 
+					     const int *open, 
 					     const int *cc) 
 {
   linklib_spline_link *L;
@@ -119,10 +121,10 @@ linklib_spline_link *linklib_spline_link_new(int components,
     return NULL;
   }
 
-  if (ns == NULL || acyclic == NULL || cc == NULL) {
+  if (ns == NULL || open == NULL || cc == NULL) {
     linklib_error_num = 82;
     sprintf(linklib_error_str,"linklib_spline_link_new: "
-	    "ns, acyclic or cc is NULL.");
+	    "ns, open or cc is NULL.");
     return NULL;
   }
 
@@ -141,7 +143,7 @@ linklib_spline_link *linklib_spline_link_new(int components,
   }
 
   for (i = 0; i < L->nc; i++) {
-    spline_pline_new(&L->cp[i],ns[i],acyclic[i],cc[i]);
+    spline_pline_new(&L->cp[i],ns[i],open[i],cc[i]);
   }
 
   return L;
@@ -216,7 +218,7 @@ void linklib_spline_link_free(linklib_spline_link *L) {
 } /* linklib_spline_link_free */
 
 
-linklib_spline_link *convert_to_spline_link(linklib_link *L)
+linklib_spline_link *convert_to_spline_link(plCurve *L)
 
      /* Converts a regular link to spline link form. The spline */
      /* code is adapted from the "Numerical recipes" spline code. */
@@ -224,7 +226,7 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
      /* equivalent vectorized version below. */
 {
   int    i;
-  int    *ns,*cc,*acyclic;
+  int    *ns,*cc,*open;
   int    comp;
 
   linklib_spline_link *spline_L;
@@ -249,13 +251,13 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
 
   }
 
-  linklib_link_fix_wrap(L);
+  plCurve_fix_wrap(L);
 
   ns = calloc(L->nc,sizeof(int));
-  acyclic = calloc(L->nc,sizeof(int));
+  open = calloc(L->nc,sizeof(int));
   cc = calloc(L->nc,sizeof(int));
 
-  if (ns == NULL || acyclic == NULL || cc == NULL) {
+  if (ns == NULL || open == NULL || cc == NULL) {
 
     linklib_error_num = 521;
     sprintf(linklib_error_str,"convert_to_spline_link: Couldn't allocate"
@@ -268,13 +270,13 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
 
     ns[i] = L->cp[i].nv;
     cc[i] = L->cp[i].cc;
-    acyclic[i] = L->cp[i].acyclic;
+    open[i] = L->cp[i].open;
 
   }
 
   /* Now we allocate the new spline link. */
 
-  spline_L = linklib_spline_link_new(L->nc,ns,acyclic,cc);
+  spline_L = linklib_spline_link_new(L->nc,ns,open,cc);
 
   if (linklib_error_num != 0 || spline_L == NULL) {
 
@@ -282,7 +284,7 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
 
   }
 
-  free(ns); free(acyclic); free(cc);
+  free(ns); free(open); free(cc);
 	  
   /* We now go component-by-component. */
 
@@ -299,7 +301,7 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
 					    L->cp[comp].vt[i]);
     }
     
-    if (!L->cp[comp].acyclic) { 
+    if (!L->cp[comp].open) { 
 
       spline_L->cp[comp].svals[i] = 
 	spline_L->cp[comp].svals[i-1] + linklib_vdist(L->cp[comp].vt[i-1],
@@ -339,12 +341,12 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
 
     /* double p, qn, sig, un, *u */
 
-    linklib_vector p,un,*u;
+    plcl_vector p,un,*u;
     double sig,qn;
 
     /* u = malloc(n,sizeof(double)); */
 
-    u = malloc((spline_L->cp[comp].ns+2)*sizeof(linklib_vector));
+    u = malloc((spline_L->cp[comp].ns+2)*sizeof(plcl_vector));
 
     if (u == NULL) {
 
@@ -358,13 +360,13 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
     /* ...together with values yp1 and ypn for the first derivative at 
        the first and last samples... */
 
-    linklib_vector yp1,ypn;
+    plcl_vector yp1,ypn;
 
-    yp1 = linklib_link_tangent_vector(L,comp,0);
+    yp1 = plCurve_tangent_vector(L,comp,0);
 
-    if (L->cp[comp].acyclic) { 
+    if (L->cp[comp].open) { 
 
-      ypn = linklib_link_tangent_vector(L,comp,L->cp[comp].nv-1);
+      ypn = plCurve_tangent_vector(L,comp,L->cp[comp].nv-1);
 
     } else {
 
@@ -383,7 +385,7 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
     /* u[1] = (3.0/(x[2]-x[1]))*((y[2]-y[1])/(x[2]-x[1])-yp1); */
 
     double scrx;
-    linklib_vector scrV,scrW;
+    plcl_vector scrV,scrW;
 
     scrV = linklib_vminus(spline_L->cp[comp].vt[1],spline_L->cp[comp].vt[0]);
     scrx = spline_L->cp[comp].svals[1] - spline_L->cp[comp].svals[0];
@@ -391,7 +393,7 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
     
     /* for (i=2;i<=n-1;i++) { */
 
-    I = L->cp[comp].acyclic ? L->cp[comp].nv-2 : L->cp[comp].nv-1;
+    I = L->cp[comp].open ? L->cp[comp].nv-2 : L->cp[comp].nv-1;
 
     for(i=1;i<=I;i++) {
 
@@ -473,23 +475,23 @@ linklib_spline_link *convert_to_spline_link(linklib_link *L)
 
 }
 
-linklib_link *convert_spline_to_link(linklib_spline_link *spL,int *nv)
+plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
      /* Converts spline_link back to regular link, but changes the number 
 	of verts to those in nv. We require that the number of components 
 	in nv match those in spL. 
 
-	A new linklib_link is allocated. */
+	A new plCurve is allocated. */
 
 {
-  int *cc, *acyclic;
+  int *cc, *open;
   int comp, i;
   double s,s_step;
   int shi, slo;
   double h, b, a;
 
-  linklib_vector scrV, scrW;
-  linklib_link *L;
+  plcl_vector scrV, scrW;
+  plCurve *L;
 
   /* First, we do some elementary sanity checking. */
 
@@ -512,31 +514,31 @@ linklib_link *convert_spline_to_link(linklib_spline_link *spL,int *nv)
   /* Now we allocate the new (conventional) link. */
 
   cc = malloc(spL->nc*sizeof(int));
-  acyclic = malloc(spL->nc*sizeof(int));
+  open = malloc(spL->nc*sizeof(int));
 
-  if (cc == NULL || acyclic == NULL) {
+  if (cc == NULL || open == NULL) {
 
     linklib_error_num = 711;
-    sprintf(linklib_error_str,"convert_spline_to_link: Couldn't allocate cc, acyclic buffer"
+    sprintf(linklib_error_str,"convert_spline_to_link: Couldn't allocate cc, open buffer"
 	    " of size %d.\n",spL->nc);
     return NULL;
 
   }
 
-  for(i=0;i<spL->nc;i++) { acyclic[i] = spL->cp[i].acyclic; cc[i] = spL->cp[i].cc; }
+  for(i=0;i<spL->nc;i++) { open[i] = spL->cp[i].open; cc[i] = spL->cp[i].cc; }
 
-  L = linklib_link_new(spL->nc,nv,acyclic,cc);
+  L = plCurve_new(spL->nc,nv,open,cc);
   
   if (L == NULL || linklib_error_num != 0) { return NULL; }
 
-  free(acyclic); free(cc);
+  free(open); free(cc);
 
   /* Now we can start filling in vertex positions, component by component. */
 
   for(comp=0;comp < L->nc;comp++) {
 
     s_step = spL->cp[comp].svals[spL->cp[comp].ns] / 
-      (L->cp[comp].acyclic ? L->cp[comp].nv-1 : L->cp[comp].nv);
+      (L->cp[comp].open ? L->cp[comp].nv-1 : L->cp[comp].nv);
 
     for(i=0,s=0,slo=0,shi=1;i<L->cp[comp].nv;i++,s+=s_step) {
 
@@ -592,7 +594,7 @@ linklib_link *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
 }
 
-linklib_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
+plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
 
 /* Procedure evaluates the spline link at a particular s value, 
    returning a spatial position. */
@@ -602,9 +604,9 @@ linklib_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
   double cmpLen;
   double h, b, a;
 
-  linklib_vector scrV, scrW;
-  linklib_vector retV;
-  linklib_vector zeroVec = {{0,0,0}};
+  plcl_vector scrV, scrW;
+  plcl_vector retV;
+  plcl_vector zeroVec = {{0,0,0}};
 
   /* We begin with a bit of checking to make sure that cmp and s seem
      compatible with the given spL. */

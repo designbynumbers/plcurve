@@ -1,8 +1,8 @@
 /*
  *
- * Data structures and prototypes for linklib_links
+ * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.6 2006-02-03 03:45:11 ashted Exp $
+ *  $Id: plCurve.h,v 1.7 2006-02-03 13:10:20 ashted Exp $
  *
  */
 
@@ -45,6 +45,10 @@ extern "C" {
 #include <assert.h>
 #endif
 
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
 /* Define TRUE and FALSE */
 #ifndef FALSE
 #define FALSE (1 == 0)
@@ -53,78 +57,138 @@ extern "C" {
 #define TRUE (1 == 1)
 #endif /* TRUE */
 
-#include <vector.h>
+/* Define 3-space vectors */
 
-int  linklib_error_num;
-char linklib_error_str[80];
+typedef struct plcl_vector_type {  
+  double c[3];
+} plcl_vector;
 
-typedef struct linklib_color_type {
+
+int  plCurve_error_num;
+char plCurve_error_str[80];
+
+typedef struct plCurve_color_type {
   double r;
   double g;
   double b;
   double alpha;
-} linklib_color;
+} plCurve_color;
 
-typedef struct linklib_pline_type {
-  int             acyclic;   /* This is an "open" pline (with distinct ends) */
-  int             nv;        /* Number of vertices */
-  int             cc;        /* Color count (number of colors) */
-  linklib_vector *vt;        /* Actual vertices */
-  linklib_color  *clr;       /* Colors */
+typedef struct plCurve_pline_type {
+  int            open;   /* This is an "open" pline (with distinct ends) */
+  int            nv;     /* Number of vertices */
+  int            cc;     /* Color count (number of colors) */
+  plcl_vector   *vt;     /* Actual vertices */
+  plCurve_color *clr;    /* Colors */
   /***** Need a way to specify constraints on endpoints here *****/
-} linklib_pline;
+} plCurve_pline;
 
 typedef struct plCurve_type {	
   int nc;			/* Number of components */
-  linklib_pline *cp;            /* Components */
-} linklib_link;
+  plCurve_pline *cp;            /* Components */
+} plCurve;
+
+/*
+ * Prototypes for vector routines. 
+ *
+ */
+
+inline plcl_vector linklib_vplus(plcl_vector A,plcl_vector B);
+inline plcl_vector linklib_vminus(plcl_vector A,plcl_vector B);
+inline plcl_vector linklib_cross(plcl_vector A,plcl_vector B);
+inline plcl_vector linklib_scalarmult(double x,plcl_vector A);
+inline plcl_vector linklib_vdivide(plcl_vector A,plcl_vector B);
+inline plcl_vector plcl_vector_random();
+
+inline double  linklib_vdist(plcl_vector A,plcl_vector B);
+
+inline void plcl_vector_normalize(plcl_vector *V);
+
+/*
+ * Macros for vector work (requires careful programming)
+ *
+ */
+
+#define linklib_dot(A,B)    ((A).c[0]*(B).c[0] + (A).c[1]*(B).c[1] + (A).c[2]*(B).c[2])
+#define linklib_norm(A)     sqrt(linklib_dot((A),(A)))
+#define linklib_vadd(A,B)  \
+  (A).c[0] += (B).c[0]; (A).c[1] += (B).c[1]; (A).c[2] += (B).c[2];
+#define linklib_vsub(A,B)  \
+  (A).c[0] -= (B).c[0]; (A).c[1] -= (B).c[1]; (A).c[2] -= (B).c[2];
+#define linklib_vsmult(s,V) (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
+  /* Add a multiple of B to A */
+#define linklib_vmadd(A,s,B)  (A).c[0] += (s)*(B).c[0]; \
+                              (A).c[1] += (s)*(B).c[1]; \
+                              (A).c[2] += (s)*(B).c[2];
+  /* A = B + s(C-B)                               *
+   * equivalent to                                *
+   *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
+#define linklib_vweighted(A,s,B,C)  \
+    (A).c[0] = (B).c[0] + s*((C).c[0] - (B).c[0]); \
+    (A).c[1] = (B).c[1] + s*((C).c[1] - (B).c[1]); \
+    (A).c[2] = (B).c[2] + s*((C).c[2] - (B).c[2]); 
+
+#define linklib_vlincombine(A,s,B,t,C) \
+    (C).c[0] = s*(A).c[0] + t*(B).c[0]; \
+    (C).c[1] = s*(A).c[1] + t*(B).c[1]; \
+    (C).c[2] = s*(A).c[2] + t*(B).c[2]; 
+
+#define linklib_vdiv(A,B) \
+    (A).c[0] /= (B).c[0]; \
+    (A).c[1] /= (B).c[1]; \
+    (A).c[2] /= (B).c[2];
+
+#define linklib_vmul(A,B) \
+    (A).c[0] *= (B).c[0]; \
+    (A).c[1] *= (B).c[1]; \
+    (A).c[2] *= (B).c[2];
+
 
 /* 
- * Prototypes for routines to deal with links.  More in-depth documentation is
- * available in link.c.
+ * Prototypes for routines to deal with plCurves.
  *
  */
 
 /* Build a new link (with associated plines) */
-linklib_link *plCurve_new(int components, 
+plCurve *plCurve_new(int components, 
                                const int *nv, 
                                const int *acyclic,
                                const int *cc);
 
 /* Free the link (and plines) */
-void plCurve_free(linklib_link *L);
+void plCurve_free(plCurve *L);
 
 /* Read link data from a file */
-linklib_link *plCurve_read(FILE *infile);
+plCurve *plCurve_read(FILE *infile);
 
 /* Write link data to a file */
-int plCurve_write(FILE *outfile, const linklib_link *L);
+int plCurve_write(FILE *outfile, const plCurve *L);
 
 /* Fix the "hidden vertices" for easy handling of closed components */
-void plCurve_fix_wrap(const linklib_link *L);
+void plCurve_fix_wrap(const plCurve *L);
 
 /* Count the edges in a link (correctly handling open/closed) */
-int plCurve_edges(const linklib_link *L);
+int plCurve_edges(const plCurve *L);
 
 /* Compute the (minrad-based) curvature of L at vertex vt of component cp */
-double plCurve_curvature(const linklib_link *L, 
+double plCurve_curvature(const plCurve *L, 
                               const int cp, 
                               const int vt);
 
 /* Copy a link */
-linklib_link *plCurve_copy(const linklib_link *L);
+plCurve *plCurve_copy(const plCurve *L);
 
 /* Compute tangent vector */
-linklib_vector plCurve_tangent_vector(linklib_link *link,int cp, int vt);
+plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt);
 
 /* Find the arclength of a link. */
-double plCurve_length(linklib_link *L,double *component_lengths);
+double plCurve_length(plCurve *L,double *component_lengths);
 
 /* Find the arclength position of a point on a link. */
-double plCurve_parameter(linklib_link *L,int cmp,int vertnum);
+double plCurve_parameter(plCurve *L,int cmp,int vertnum);
 
-/* Force a linklib_link to close as gently as possible */
-void plCurve_force_closed(linklib_link *link);
+/* Force a plCurve to close as gently as possible */
+void plCurve_force_closed(plCurve *link);
 
 #if (__cplusplus || c_plusplus)
 };
