@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for linklib_links
  *
- *  $Id: plCurve.h,v 1.5 2006-02-03 02:03:09 ashted Exp $
+ *  $Id: plCurve.h,v 1.6 2006-02-03 03:45:11 ashted Exp $
  *
  */
 
@@ -26,8 +26,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-#ifndef __LINKLIB_LINK_H
-#define __LINKLIB_LINK_H
+#ifndef __PLCURVE_H
+#define __PLCURVE_H
 
 #if (__cplusplus || c_plusplus)
 extern "C" {
@@ -45,7 +45,14 @@ extern "C" {
 #include <assert.h>
 #endif
 
-#include <truefalse.h>
+/* Define TRUE and FALSE */
+#ifndef FALSE
+#define FALSE (1 == 0)
+#endif /* FALSE */
+#ifndef TRUE
+#define TRUE (1 == 1)
+#endif /* TRUE */
+
 #include <vector.h>
 
 int  linklib_error_num;
@@ -67,7 +74,7 @@ typedef struct linklib_pline_type {
   /***** Need a way to specify constraints on endpoints here *****/
 } linklib_pline;
 
-typedef struct linklib_link_type {	
+typedef struct plCurve_type {	
   int nc;			/* Number of components */
   linklib_pline *cp;            /* Components */
 } linklib_link;
@@ -79,45 +86,45 @@ typedef struct linklib_link_type {
  */
 
 /* Build a new link (with associated plines) */
-linklib_link *linklib_link_new(int components, 
+linklib_link *plCurve_new(int components, 
                                const int *nv, 
                                const int *acyclic,
                                const int *cc);
 
 /* Free the link (and plines) */
-void linklib_link_free(linklib_link *L);
+void plCurve_free(linklib_link *L);
 
 /* Read link data from a file */
-linklib_link *linklib_link_read(FILE *infile);
+linklib_link *plCurve_read(FILE *infile);
 
 /* Write link data to a file */
-int linklib_link_write(FILE *outfile, const linklib_link *L);
+int plCurve_write(FILE *outfile, const linklib_link *L);
 
 /* Fix the "hidden vertices" for easy handling of closed components */
-void linklib_link_fix_wrap(const linklib_link *L);
+void plCurve_fix_wrap(const linklib_link *L);
 
 /* Count the edges in a link (correctly handling open/closed) */
-int linklib_link_edges(const linklib_link *L);
+int plCurve_edges(const linklib_link *L);
 
 /* Compute the (minrad-based) curvature of L at vertex vt of component cp */
-double linklib_link_curvature(const linklib_link *L, 
+double plCurve_curvature(const linklib_link *L, 
                               const int cp, 
                               const int vt);
 
 /* Copy a link */
-linklib_link *linklib_link_copy(const linklib_link *L);
+linklib_link *plCurve_copy(const linklib_link *L);
 
 /* Compute tangent vector */
-linklib_vector linklib_link_tangent_vector(linklib_link *link,int cp, int vt);
+linklib_vector plCurve_tangent_vector(linklib_link *link,int cp, int vt);
 
 /* Find the arclength of a link. */
-double linklib_link_length(linklib_link *L,double *component_lengths);
+double plCurve_length(linklib_link *L,double *component_lengths);
 
 /* Find the arclength position of a point on a link. */
-double linklib_link_parameter(linklib_link *L,int cmp,int vertnum);
+double plCurve_parameter(linklib_link *L,int cmp,int vertnum);
 
 /* Force a linklib_link to close as gently as possible */
-void linklib_link_force_closed(linklib_link *link);
+void plCurve_force_closed(linklib_link *link);
 
 #if (__cplusplus || c_plusplus)
 };

@@ -33,13 +33,11 @@ AC_PROG_RANLIB
 
 # Checks for libraries.
 AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(argtable2,arg_parse)
 AC_CHECK_LIB(argtable2,arg_parse,[builddemos=true],[builddemos=false; AC_MSG_WARN([[Demo programs require the argtable 2.0 library.]])])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([float.h malloc.h stdlib.h string.h math.h time.h stdarg.h])
-AC_CHECK_HEADERS([unistd.h sys/types.h ctype.h sys/wait.h string.h])
+AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h])
 
 # Signal to AUTOMAKE if we have argtable2
 
