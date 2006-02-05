@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.11 2006-02-03 21:42:57 ashted Exp $
+ * $Id: vector.c,v 1.12 2006-02-05 04:18:54 ashted Exp $
  *
  */
 
@@ -43,6 +43,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_ASSERT_H
 #include <assert.h>
 #endif
+
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif 
 
 #include "plCurve.h"
 
@@ -151,7 +155,7 @@ plcl_vector plcl_vector_random()
 
   }
 
-  plCurve_error_num = 15;
+  plCurve_error_num = PLCL_E_BAD_RANDOM;
   sprintf(plCurve_error_str,"plcl_vector_random: Apparent error in rand().\n");
   assert(FALSE);
   return R;

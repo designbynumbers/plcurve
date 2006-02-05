@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.8 2006-02-03 21:42:57 ashted Exp $
+ *  $Id: plCurve.h,v 1.9 2006-02-05 04:18:54 ashted Exp $
  *
  */
 
@@ -37,17 +37,10 @@ extern "C" {
 #include <config.h>
 #endif
 
+/* We need to define FILE */
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
 #endif 
-
-#ifdef HAVE_ASSERT_H
-#include <assert.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
 
 /* Define TRUE and FALSE */
 #ifndef FALSE
@@ -199,6 +192,36 @@ double plCurve_parameter(plCurve *L,int cmp,int vertnum);
 
 /* Force a plCurve to close as gently as possible */
 void plCurve_force_closed(plCurve *link);
+
+/* Return a value for how far a constraint is from being satisfied */
+double plCurve_cst_check(const plCurve L, const plCurve_constraint cst);
+
+/* 
+ * Force a constraint to be satisfied and return a value for how far from being
+ * satisfied it was 
+ */
+double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst);
+
+/* Define the error codes */
+#define PLCL_E_BAD_RANDOM     1
+#define PLCL_E_TOO_FEW_VERTS  2
+#define PLCL_E_CANT_ALLOC     3
+#define PLCL_E_TOO_FEW_COMPS  4
+#define PLCL_E_NULL_PTR       5
+#define PLCL_E_NEG_CST        6
+#define PLCL_E_BAD_CST_KIND   7
+#define PLCL_E_TOO_FEW_DBLS   8
+#define PLCL_E_TOO_FEW_INTS   9
+#define PLCL_E_NO_VECT       10
+#define PLCL_E_BAD_CVC_LINE  11
+#define PLCL_E_BAD_CVRT_LINE 12
+#define PLCL_E_BAD_CLR_LINE  13
+#define PLCL_E_NEW_FAILED    14
+#define PLCL_E_BAD_COLOR     15
+#define PLCL_E_BAD_VERT_LINE 16
+#define PLCL_E_INF_KAPPA     17
+#define PLCL_E_BAD_COMPONENT 18
+#define PLCL_E_BAD_VERTEX    19
 
 #if (__cplusplus || c_plusplus)
 };

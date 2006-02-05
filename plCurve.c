@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.28 2006-02-03 21:42:57 ashted Exp $
+ *  $Id: plCurve.c,v 1.29 2006-02-05 04:18:54 ashted Exp $
  *
  */
 
@@ -49,11 +49,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
+#ifdef HAVE_ASSERT_H
+#include <assert.h>
+#endif
 
 #include <plCurve.h>
-
-extern int  plCurve_error_num;
-extern char plCurve_error_str[80];
 
 /*
  * Set up a new pline.  Pl should point to an *ALREADY ALLOCATED* pline (but
@@ -67,7 +67,7 @@ extern char plCurve_error_str[80];
 static void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
  
   if (nv < 1) {
-    plCurve_error_num = 21;
+    plCurve_error_num = PLCL_E_TOO_FEW_VERTS;
     sprintf(plCurve_error_str,
       "pline_new: Can't create a pline with %d vertices.\n",nv);
     return;
@@ -77,7 +77,7 @@ static void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
   Pl->nv = nv;
   if ((Pl->vt = 
        (plcl_vector *)calloc((nv+2),sizeof(plcl_vector))) == NULL) {
-    plCurve_error_num = 22;
+    plCurve_error_num = PLCL_E_CANT_ALLOC;
     sprintf(plCurve_error_str,
       "pline_new: Can't allocate space for %d vertices in pline_new.\n",nv);
     return;
@@ -86,7 +86,7 @@ static void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
 
   Pl->cc = cc;
   if ((Pl->clr = (plCurve_color *)calloc(cc,sizeof(plCurve_color))) == NULL) {
-    plCurve_error_num = 23;
+    plCurve_error_num = PLCL_E_CANT_ALLOC;
     sprintf(plCurve_error_str,
       "pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
     return;
@@ -109,79 +109,76 @@ plCurve *plCurve_new(int components, const int *nv,
 
   /* First, we check to see that the input values are reasonable. */
 
+  plCurve_error_num = plCurve_error_str[0] = 0;
   if (components < 1) {
-    plCurve_error_num = 31;
+    plCurve_error_num = PLCL_E_TOO_FEW_COMPS;
     sprintf(plCurve_error_str,
-      "plCurve_new: Can't create a link with %d components.",components);
+      "plCurve_new: Can't create a link with %d components.\n",components);
     return NULL;
   }
 
-  if (nv == NULL || open == NULL || cc == NULL) {
-    plCurve_error_num = 32;
+  if (nv == NULL) {
+    plCurve_error_num = PLCL_E_NULL_PTR;
 #ifdef HAVE_STRLCPY
-    strlcpy(plCurve_error_str,"plCurve_new: nv is NULL.",
+    strlcpy(plCurve_error_str,"plCurve_new: nv is NULL.\n",
       sizeof(plCurve_error_str));
 #else
-    strlncpy(plCurve_error_str,"plCurve_new: nv is NULL.",
+    strlncpy(plCurve_error_str,"plCurve_new: nv is NULL.\n",
       sizeof(plCurve_error_str)-1);
     plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
 #endif
-#ifdef HAVE_STRLCAT
-    if (nv == NULL) {
-      strlcat(plCurve_error_str,"nv ",sizeof(plCurve_error_str));
-    }
-    if (open == NULL) {
-      strlcat(plCurve_error_str,"open ",sizeof(plCurve_error_str));
-    }
-    if (cc == NULL) {
-      strlcat(plCurve_error_str,"cc",sizeof(plCurve_error_str));
-    }
+    return NULL;
+  }
+  if (open == NULL) {
+    plCurve_error_num = PLCL_E_NULL_PTR;
+#ifdef HAVE_STRLCPY
+    strlcpy(plCurve_error_str,"plCurve_new: open is NULL.\n",
+      sizeof(plCurve_error_str));
 #else
-    if (nv == NULL ) {
-      strncat(plCurve_error_str,"nv ",
-        sizeof(plCurve_error_str)-strlen(plCurve_error_str)-1);
-      plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
-    }
-    if (open == NULL ) {
-      strncat(plCurve_error_str,"open ",
-        sizeof(plCurve_error_str)-strlen(plCurve_error_str)-1);
-      plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
-    }
-    if (cc == NULL ) {
-      strncat(plCurve_error_str,"cc ",
-        sizeof(plCurve_error_str)-strlen(plCurve_error_str)-1);
-      plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
-    }
+    strlncpy(plCurve_error_str,"plCurve_new: open is NULL.\n",
+      sizeof(plCurve_error_str)-1);
+    plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
 #endif
-    sprintf(plCurve_error_str,"plCurve_new: nv, open or cc is NULL.");
+    return NULL;
+  }
+  if (cc == NULL) {
+    plCurve_error_num = PLCL_E_NULL_PTR;
+#ifdef HAVE_STRLCPY
+    strlcpy(plCurve_error_str,"plCurve_new: cc is NULL.\n",
+      sizeof(plCurve_error_str));
+#else
+    strlncpy(plCurve_error_str,"plCurve_new: cc is NULL.\n",
+      sizeof(plCurve_error_str)-1);
+    plCurve_error_str[sizeof(plCurve_error_str)-1] = '\0';
+#endif
     return NULL;
   }
 
   if (ncst < 0) {
-    plCurve_error_num = 35;
+    plCurve_error_num = PLCL_E_NEG_CST;
     sprintf(plCurve_error_str,
-      "plCurve_new: Can't have %d constraints.",ncst);
+      "plCurve_new: Can't have %d constraints.\n",ncst);
     return NULL;
   }
 
   if (ncst > 0 && cst == NULL) {
-    plCurve_error_num = 36;
+    plCurve_error_num = PLCL_E_NULL_PTR;
     sprintf(plCurve_error_str,
-      "plCurve_new: Called with ncst=%d but cst NULL.",ncst);
+      "plCurve_new: Called with ncst=%d but cst NULL.\n",ncst);
     return NULL;
   }
 
   /* Now we attempt to allocate space for these components. */
   
   if ((L = (plCurve *)malloc(sizeof(plCurve))) == NULL) {
-    plCurve_error_num = 33;
+    plCurve_error_num = PLCL_E_CANT_ALLOC;
     sprintf(plCurve_error_str,
       "plCurve_new: Could not allocate space for plCurve.\n");
     return NULL;
   }
   L->nc = components;
   if ((L->cp = (plCurve_pline *)malloc(L->nc*sizeof(plCurve_pline))) == NULL) {
-    plCurve_error_num = 34;
+    plCurve_error_num = PLCL_E_CANT_ALLOC;
     sprintf(plCurve_error_str,
       "plCurve_new: Can't allocate array of pline ptrs.\n");
     return NULL;
@@ -190,7 +187,7 @@ plCurve *plCurve_new(int components, const int *nv,
   if (ncst > 0) {
     if ((L->cst = (plCurve_constraint *)
       malloc(L->ncst*sizeof(plCurve_constraint))) == NULL) {
-      plCurve_error_num = 38;
+      plCurve_error_num = PLCL_E_CANT_ALLOC;
       sprintf(plCurve_error_str,
         "plCurve_new: Can't allocate array of constraints.\n");
       return NULL;
@@ -299,6 +296,8 @@ static plcl_vector Closest_plane_point(const plcl_vector point,
 double plCurve_cst_check(const plCurve L, const plCurve_constraint cst) {
   
   plcl_vector closest;
+
+  plCurve_error_num = plCurve_error_str[0] = 0;
   if (cst.kind == PLCL_FIXED) {
     closest.c[0] = cst.coef[0];
     closest.c[1] = cst.coef[1];
@@ -308,9 +307,9 @@ double plCurve_cst_check(const plCurve L, const plCurve_constraint cst) {
   } else if (cst.kind == PLCL_IN_PLANE) {
     closest = Closest_plane_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
   } else {
-    plCurve_error_num = 37;
+    plCurve_error_num = PLCL_E_BAD_CST_KIND;
     sprintf(plCurve_error_str,
-      "plCurve_cst_check: Unknown constraint kind: %d",cst.kind);
+      "plCurve_cst_check: Unknown constraint kind: %d.\n",cst.kind);
     return -1;
   }
 
@@ -326,6 +325,8 @@ double plCurve_cst_check(const plCurve L, const plCurve_constraint cst) {
 double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst) {
   
   plcl_vector closest;
+
+  plCurve_error_num = plCurve_error_str[0] = 0;
   if (cst.kind == PLCL_FIXED) {
     closest.c[0] = cst.coef[0];
     closest.c[1] = cst.coef[1];
@@ -335,9 +336,9 @@ double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst) {
   } else if (cst.kind == PLCL_IN_PLANE) {
     closest = Closest_plane_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
   } else {
-    plCurve_error_num = 39;
+    plCurve_error_num = PLCL_E_BAD_CST_KIND;
     sprintf(plCurve_error_str,
-      "plCurve_cst_fix: Unknown constraint kind: %d",cst.kind);
+      "plCurve_cst_fix: Unknown constraint kind: %d.\n",cst.kind);
     return -1;
   }
 
@@ -382,15 +383,17 @@ static void pline_free(plCurve_pline *Pl) {
 void plCurve_free(plCurve *L) {
   int i;
 
+  plCurve_error_num = plCurve_error_str[0] = 0;
+
   /* First, we check the input. */
   if (L == NULL) {
     return; /* Move along, nothing to see here */
   }
 
   if (L->nc < 0) {
-    plCurve_error_num = 41;
+    plCurve_error_num = PLCL_E_TOO_FEW_COMPS;
     sprintf(plCurve_error_str,
-      "plCurve_free: Link appears corrupted. L.nc = %d.",L->nc);
+      "plCurve_free: plCurve appears corrupted. L.nc = %d.\n",L->nc);
     return;
   }
 
@@ -436,15 +439,18 @@ int plCurve_write(FILE *file, const plCurve *L) {
   int nverts = 0;       /* Total number of vertices of all components */
   int colors = 0;       /* Total number of colors of all components */
 
+  plCurve_error_num = plCurve_error_str[0] = 0;
+
   /* First, do a little sanity checking. */
   if (L == NULL) {
-    plCurve_error_num = 51;
-    sprintf(plCurve_error_str,"plCurve_write: Passed NULL pointer as link. \n");
+    plCurve_error_num = PLCL_E_NULL_PTR;
+    sprintf(plCurve_error_str,
+      "plCurve_write: Passed NULL pointer as plCurve.\n");
     return -1;
   }
 
   if (file == NULL) {
-    plCurve_error_num = 52;
+    plCurve_error_num = PLCL_E_NULL_PTR;
     sprintf(plCurve_error_str,"plCurve_write: Passed NULL pointer as file.\n");
     return -1;
   }
@@ -477,8 +483,8 @@ int plCurve_write(FILE *file, const plCurve *L) {
   for(i=0;i<L->nc;i++) {
     for(j=0;j<L->cp[i].nv;j++) {
       fprintf(file,"%.16g %.16g %.16g \n", 
-	      L->cp[i].vt[j].c[0], L->cp[i].vt[j].c[1],
-	      L->cp[i].vt[j].c[2]);
+              L->cp[i].vt[j].c[0], L->cp[i].vt[j].c[1],
+              L->cp[i].vt[j].c[2]);
     }
   }
 
@@ -503,14 +509,15 @@ int plCurve_write(FILE *file, const plCurve *L) {
 /* Procedure positions the file pointer on next non-whitespace character,   *
  * returning FALSE if EOF happens first. We skip anything between a # and a *
  * newline.                                                                 */
-int skip_whitespace_and_comments(FILE *infile)
+static int skip_whitespace_and_comments(FILE *infile)
 {
   int thischar,commentflag = {FALSE};
 
   /* First, we check to make sure that infile looks legit. */
   if (infile == NULL) {
-    plCurve_error_num = 61;
-    sprintf(plCurve_error_str,"skip_whitespace_and_comments: infile is a null pointer.\n");
+    plCurve_error_num = PLCL_E_NULL_PTR;
+    sprintf(plCurve_error_str,
+      "skip_whitespace_and_comments: infile is a null pointer.\n");
     return -1;
   }
   
@@ -518,7 +525,8 @@ int skip_whitespace_and_comments(FILE *infile)
   for(;;) {
     thischar = fgetc(infile);
 
-    if (thischar == EOF) {  /* Reached end of file before a non-space, non-comment */
+    if (thischar == EOF) {  
+      /* Reached end of file before a non-space, non-comment */
       return 0;
     } else if (thischar == '#') { /* Started a comment. */
       commentflag = TRUE;
@@ -535,7 +543,7 @@ int skip_whitespace_and_comments(FILE *infile)
  * whitespace and comments between them. We expect the variable length       *
  * arguments to contain a collection of pointers to doubles. If not, there's *
  * trouble.                                                                  */
-int scandoubles(FILE *infile,int ndoubles, ...)
+static int scandoubles(FILE *infile,int ndoubles, ...)
 {
   int nconverted = 0,i;
   va_list ap;
@@ -544,14 +552,15 @@ int scandoubles(FILE *infile,int ndoubles, ...)
   /* First, we check for overall sanity. */
 
   if (infile == NULL) {
-    plCurve_error_num = 71;
+    plCurve_error_num = PLCL_E_NULL_PTR;
     sprintf(plCurve_error_str,"scandoubles: infile is a null pointer.\n");
     return -1;
   }
 
   if (ndoubles < 1) {
-    plCurve_error_num = 72;
-    sprintf(plCurve_error_str,"scandoubles: ndoubles (%d) is less than one.\n",ndoubles);
+    plCurve_error_num = PLCL_E_TOO_FEW_DBLS;
+    sprintf(plCurve_error_str,
+      "scandoubles: ndoubles (%d) is less than one.\n", ndoubles);
     return -1;
   }
 
@@ -581,7 +590,7 @@ int scandoubles(FILE *infile,int ndoubles, ...)
  * comments between them. We expect the variable length arguments  *
  * to contain a collection of pointers to ints. If not,            *
  * there's trouble.                                                */
-int scanints(FILE *infile,int nints, ...)
+static int scanints(FILE *infile,int nints, ...)
 {
   int nconverted = 0,i;
   va_list ap;
@@ -590,13 +599,13 @@ int scanints(FILE *infile,int nints, ...)
   /* First, we check for overall sanity. */
 
   if (infile == NULL) {
-    plCurve_error_num = 73;
+    plCurve_error_num = PLCL_E_NULL_PTR;
     sprintf(plCurve_error_str,"scanints: infile is a null pointer.\n");
     return -1;
   }
 
   if (nints < 1) {
-    plCurve_error_num = 74;
+    plCurve_error_num = PLCL_E_TOO_FEW_INTS;
     sprintf(plCurve_error_str,"scanints: nints (%d) is less than one.\n",nints);
     return -1;
   }
@@ -623,7 +632,7 @@ int scanints(FILE *infile,int nints, ...)
 
 /* Procedure skips whitespace (but NOT newlines). */
 /* Returns 1 if we find something, 0 if EOF.      */
-int skipwhitespace(FILE *infile)
+static int skipwhitespace(FILE *infile)
 {
   int thischar;
 
@@ -646,6 +655,8 @@ int skipwhitespace(FILE *infile)
  */
 void plCurve_fix_wrap(const plCurve *L) {
   int i,nv;
+
+  plCurve_error_num = plCurve_error_str[0] = 0;
 
   for (i = 0; i < L->nc; i++) {
     nv = L->cp[i].nv;
@@ -676,12 +687,13 @@ plCurve *plCurve_read(FILE *file)
   int i, j;
   int nv;
   
-  /* First, we check for the 'VECT' keyword. */
+  plCurve_error_num = plCurve_error_str[0] = 0;
 
+  /* First, we check for the 'VECT' keyword. */
   if (fscanf(file," VECT ") == EOF) {
   
-    plCurve_error_num = 81;
-    sprintf(plCurve_error_str,"plCurve_read: Couldn't find VECT keyword.");    
+    plCurve_error_num = PLCL_E_NO_VECT;
+    sprintf(plCurve_error_str,"plCurve_read: Couldn't find VECT keyword.\n");
     return NULL;
   }
 
@@ -689,8 +701,9 @@ plCurve *plCurve_read(FILE *file)
 
   if (scanints(file,3,&ncomp,&nverts,&ncolors) != 3) {
   
-    plCurve_error_num = 82;
-    sprintf(plCurve_error_str,"plCurve_read: Couldn't parse <ncomp> <nverts> <ncolors> line");
+    plCurve_error_num = PLCL_E_BAD_CVC_LINE;
+    sprintf(plCurve_error_str,
+      "plCurve_read: Couldn't parse <ncomp> <nverts> <ncolors> line.\n");
     return NULL;
   }
 
@@ -702,9 +715,9 @@ plCurve *plCurve_read(FILE *file)
 
   for(i=0;i<ncomp;i++) {
     if (scanints(file,1,&(nvarray[i])) != 1) {
-      plCurve_error_num = 83;
+      plCurve_error_num = PLCL_E_BAD_CVRT_LINE;
       sprintf(plCurve_error_str,"plCurve_read: Couldn't parse number"
-              "of vertices in component %d.",i);    
+              "of vertices in component %d.\n",i);    
       return NULL;
     }
     if (nvarray[i] < 0) {
@@ -720,9 +733,9 @@ plCurve *plCurve_read(FILE *file)
 
   for(i=0;i<ncomp;i++) {
     if (scanints(file,1,&(ccarray[i])) != 1) {
-      plCurve_error_num = 84;
+      plCurve_error_num = PLCL_E_BAD_CLR_LINE;
       sprintf(plCurve_error_str,"plCurve_read: Couldn't parse <ncolors>"
-      "for component %d.", i); 
+        "for component %d.\n", i);   
       return NULL;
     }
   }
@@ -732,9 +745,9 @@ plCurve *plCurve_read(FILE *file)
   L = plCurve_new(ncomp,nvarray,open,ccarray,0,NULL);
 
   if (L == NULL) {   /* If we don't have this much memory, then return NULL. */
-    plCurve_error_num = 85;
-    sprintf(plCurve_error_str,"plCurve_read: Couldn't allocate enough"
-    " memory for link.");
+    sprintf(plCurve_error_str,"plCurve_read: Error in plCurve_new: %d.\n",
+      plCurve_error_num);
+    plCurve_error_num = PLCL_E_NEW_FAILED;
     return NULL;
   }
 
@@ -747,9 +760,9 @@ plCurve *plCurve_read(FILE *file)
                              &L->cp[i].vt[j].c[1],
                              &L->cp[i].vt[j].c[2]) != 3) {
         plCurve_free(L);
-        plCurve_error_num = 86;
+        plCurve_error_num = PLCL_E_BAD_VERT_LINE;
         sprintf(plCurve_error_str,"plCurve_read: Couldn't parse "
-        " <x> <y> <z> data for vertex %d of component %d.",j,i);
+          " <x> <y> <z> data for vertex %d of component %d.\n",j,i);
         return NULL;
       }
     }
@@ -766,12 +779,10 @@ plCurve *plCurve_read(FILE *file)
       if (scandoubles(file,4, &L->cp[i].clr[j].r, &L->cp[i].clr[j].g,
            &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha) != 4) {
 
-	plCurve_error_num = 28;
-	sprintf(plCurve_error_str,
-		"linklib_read: Couldn't parse color %d "
-		"in component %d of link.\n",j,i);
+        plCurve_error_num = PLCL_E_BAD_COLOR;
+        sprintf(plCurve_error_str,"plCurve_read: Couldn't parse color %d "
+          "in component %d of link.\n",j,i);
         return NULL;
-
 
       }
     }
@@ -791,6 +802,8 @@ plCurve *plCurve_read(FILE *file)
 int plCurve_edges(const plCurve *L) 
 {
   int i, edges = 0;
+
+  plCurve_error_num = plCurve_error_str[0] = 0;
 
   for (i=0;i<L->nc;i++) {
     edges += pline_edges(L->cp[i]);
@@ -825,10 +838,9 @@ double plCurve_curvature(const plCurve *L,
   cross_prod_norm = linklib_norm(linklib_cross(in,out));
 
   if (normin*normout + dot_prod < 1e-12) {
-    plCurve_error_num = 46;
-    sprintf(plCurve_error_str,
-	    "plCurve_curvature: kappa not finite "
-	    "at vertex %d of component %d.\n",comp,vert);
+    plCurve_error_num = PLCL_E_INF_KAPPA;
+    sprintf(plCurve_error_str,"plCurve_curvature: kappa not finite "
+      "at vertex %d of component %d.\n",comp,vert);
     return -1.0;
   }
       
@@ -847,10 +859,12 @@ plCurve *plCurve_copy(const plCurve *L) {
   int *nv,*open,*ccarray;
   int cnt,cnt2;
 
+  plCurve_error_num = plCurve_error_str[0] = 0;
+
   if ((nv = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
       (open = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
       (ccarray = (int *)malloc((L->nc)*sizeof(int))) == NULL) {
-    plCurve_error_num = 75;
+    plCurve_error_num = PLCL_E_CANT_ALLOC;
     sprintf(plCurve_error_str,"Unable to malloc space for alternate link.\n");
     return NULL;
   }
@@ -889,12 +903,14 @@ plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt)
 {
   plcl_vector in, out, tan;
 
+  plCurve_error_num = plCurve_error_str[0] = 0;
+
   if (link->cp[cp].open) {
 
     if (vt == 0) {
 
       tan = linklib_vminus(link->cp[cp].vt[1],
-		  link->cp[cp].vt[0]);
+                  link->cp[cp].vt[0]);
 
       plcl_vector_normalize(&tan);
 
@@ -903,7 +919,7 @@ plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt)
     } else if (vt == link->cp[cp].nv-1) {
 
        tan = linklib_vminus(link->cp[cp].vt[link->cp[cp].nv-1],
-		   link->cp[cp].vt[link->cp[cp].nv-2]);
+                   link->cp[cp].vt[link->cp[cp].nv-2]);
 
        plcl_vector_normalize(&tan);
 
@@ -942,6 +958,8 @@ double plCurve_length(plCurve *L,double *component_lengths)
   int cmp, nv, vert;
   plCurve_pline *cp;
 
+  plCurve_error_num = plCurve_error_str[0] = 0;
+
   tot_length = 0;
   for (cmp = 0; cmp < L->nc; cmp++) {
 
@@ -961,20 +979,40 @@ double plCurve_length(plCurve *L,double *component_lengths)
   return tot_length;
 }
 
-double plCurve_parameter(plCurve *L,int cmp,int vertnum)
 
 /* Procedure reports the arclength distance from the given vertex */
 /* to the 0th vertex of the given component of L. */
+double plCurve_parameter(plCurve *L,int cmp,int vertnum) {
 
-{
   double tot_length;
   int vert,nv;
   plCurve_pline *cp;
   plcl_vector temp_vect;
 
-  assert(L != NULL);
-  assert(0 <= cmp && cmp <= L->nc);
-  assert(0 <= vertnum && vertnum <= L->cp[cmp].nv-1);
+  plCurve_error_num = plCurve_error_str[0] = 0;
+
+  if (L == NULL) {
+    plCurve_error_num = PLCL_E_NULL_PTR;
+    sprintf(plCurve_error_str,
+      "plCurve_parameter: Passed NULL pointer as plCurve.\n");
+    return -1;
+  }
+
+  if (cmp < 0 || cmp >= L->nc) {
+    plCurve_error_num = PLCL_E_BAD_COMPONENT;
+    sprintf(plCurve_error_str,
+      "plCurve_parameter: Component value out of range (0..%d): %d.\n",
+      L->nc-1, cmp);
+    return -1;
+  }
+
+  if (vertnum < 0 || vertnum >= L->cp[cmp].nv) {
+    plCurve_error_num = PLCL_E_BAD_VERTEX;
+    sprintf(plCurve_error_str,
+      "plCurve_parameter: Vertex value out of range (0..%d): %d.\n",
+      L->cp[cmp].nv-1, vertnum);
+    return -1;
+  }
 
   tot_length = 0;
   cp = &L->cp[cmp];
@@ -989,49 +1027,41 @@ double plCurve_parameter(plCurve *L,int cmp,int vertnum)
   return tot_length;
 }
 
+/*
+ * This procedure closes all open components of link by distributing a small
+ * change of all vertices of each such component. It also changes the "open"
+ * flag and calls fix_wrap. We lose one vertex in this process. 
+ */
 void plCurve_force_closed(plCurve *link)
-
-  /* Procedure closes all open components of link by distributing a small
-	change of all vertices of each such component. It also changes the 
-	"open" flag and calls fix_wrap. We lose one vertex in this process. */
-
 {
-  int i, this_cp;
+  int i, cmp;
   plcl_vector diff;
 
-  for (this_cp=0;this_cp < link->nc;this_cp++) {
+  plCurve_error_num = plCurve_error_str[0] = 0;
 
-    if (link->cp[this_cp].open == TRUE) {  
-      /* Isolate the open components. */
+  for (cmp=0;cmp < link->nc;cmp++) {
+    if (link->cp[cmp].open == TRUE) {  /* Isolate the open components. */
 
-      diff = link->cp[this_cp].vt[link->cp[this_cp].nv-1];   
       /* Compute the error in closure */
+      diff = link->cp[cmp].vt[link->cp[cmp].nv-1];   
+      linklib_vsub(diff,link->cp[cmp].vt[0]);
 
-      linklib_vsub(diff,link->cp[this_cp].vt[0]);
-
-      for(i=0;i<link->cp[this_cp].nv;i++) {
-
-	linklib_vlincombine(link->cp[this_cp].vt[i],1.0,
-			    diff,-((double)(i))/(double)(link->cp[this_cp].nv-1),
-       			    link->cp[this_cp].vt[i]);
-
+      for(i=0;i<link->cp[cmp].nv;i++) {
+        linklib_vlincombine(link->cp[cmp].vt[i],1.0,
+                            diff,-((double)(i))/(double)(link->cp[cmp].nv-1),
+                            link->cp[cmp].vt[i]);
       }
 
       /* We claim to have moved the last vertex on top of the first. */
-
-      diff = linklib_vminus(link->cp[this_cp].vt[0],
-			    link->cp[this_cp].vt[link->cp[this_cp].nv-1]);
+      diff = linklib_vminus(link->cp[cmp].vt[0],
+                            link->cp[cmp].vt[link->cp[cmp].nv-1]);
       assert(linklib_norm(diff) < 1e-10);
 
       /* Thus we eliminate the last vertex. */
-
-      link->cp[this_cp].nv--;
-      link->cp[this_cp].open = FALSE;
-
+      link->cp[cmp].nv--;
+      link->cp[cmp].open = FALSE;
     }
-
   }
 
   plCurve_fix_wrap(link);
-
 }
