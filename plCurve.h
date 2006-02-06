@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.9 2006-02-05 04:18:54 ashted Exp $
+ *  $Id: plCurve.h,v 1.10 2006-02-06 00:10:12 ashted Exp $
  *
  */
 
@@ -51,8 +51,8 @@ extern "C" {
 #endif /* TRUE */
 
 /* Variables for reporting errors */
-int  plCurve_error_num;
-char plCurve_error_str[80];
+int  plcl_error_num;
+char plcl_error_str[80];
 
 /* Define 3-space vectors */
 typedef struct plcl_vector_type {  
@@ -105,7 +105,13 @@ inline plcl_vector linklib_scalarmult(double x,plcl_vector A);
 inline plcl_vector linklib_vdivide(plcl_vector A,plcl_vector B);
 inline plcl_vector plcl_vector_random();
 
-inline double  linklib_vdist(plcl_vector A,plcl_vector B);
+/* Return a linear combination: a*A + b*B */
+inline plcl_vector plcl_vlincomb(double a,plcl_vector A,
+                                 double b,plcl_vector B);
+
+inline double plcl_dot(plcl_vector A,plcl_vector B);
+inline double plcl_norm(plcl_vector A);
+inline double linklib_vdist(plcl_vector A,plcl_vector B);
 
 inline void plcl_vector_normalize(plcl_vector *V);
 
@@ -114,17 +120,25 @@ inline void plcl_vector_normalize(plcl_vector *V);
  *
  */
 
-#define linklib_dot(A,B)    ((A).c[0]*(B).c[0] + (A).c[1]*(B).c[1] + (A).c[2]*(B).c[2])
-#define linklib_norm(A)     sqrt(linklib_dot((A),(A)))
-#define linklib_vadd(A,B)  \
+#define plcl_M_dot(A,B)      \
+  ((A).c[0]*(B).c[0] + (A).c[1]*(B).c[1] + (A).c[2]*(B).c[2])
+
+#define plcl_M_norm(A)       \
+  sqrt(plcl_M_dot((A),(A)))
+
+#define linklib_vadd(A,B)    \
   (A).c[0] += (B).c[0]; (A).c[1] += (B).c[1]; (A).c[2] += (B).c[2];
-#define linklib_vsub(A,B)  \
+
+#define linklib_vsub(A,B)    \
   (A).c[0] -= (B).c[0]; (A).c[1] -= (B).c[1]; (A).c[2] -= (B).c[2];
-#define linklib_vsmult(s,V) (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
+
+#define linklib_vsmult(s,V)  \
+  (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
+
   /* Add a multiple of B to A */
-#define linklib_vmadd(A,s,B)  (A).c[0] += (s)*(B).c[0]; \
-                              (A).c[1] += (s)*(B).c[1]; \
-                              (A).c[2] += (s)*(B).c[2];
+#define linklib_vmadd(A,s,B) \
+  (A).c[0] += (s)*(B).c[0]; (A).c[1] += (s)*(B).c[1]; (A).c[2] += (s)*(B).c[2];
+
   /* A = B + s(C-B)                               *
    * equivalent to                                *
    *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
@@ -133,10 +147,10 @@ inline void plcl_vector_normalize(plcl_vector *V);
     (A).c[1] = (B).c[1] + s*((C).c[1] - (B).c[1]); \
     (A).c[2] = (B).c[2] + s*((C).c[2] - (B).c[2]); 
 
-#define linklib_vlincombine(A,s,B,t,C) \
-    (C).c[0] = s*(A).c[0] + t*(B).c[0]; \
-    (C).c[1] = s*(A).c[1] + t*(B).c[1]; \
-    (C).c[2] = s*(A).c[2] + t*(B).c[2]; 
+#define plcl_M_vlincomb(A,s,B,t,C) \
+    (A).c[0] = s*(B).c[0] + t*(C).c[0]; \
+    (A).c[1] = s*(B).c[1] + t*(C).c[1]; \
+    (A).c[2] = s*(B).c[2] + t*(C).c[2]; 
 
 #define linklib_vdiv(A,B) \
     (A).c[0] /= (B).c[0]; \
@@ -171,12 +185,10 @@ int plCurve_write(FILE *outfile, const plCurve *L);
 void plCurve_fix_wrap(const plCurve *L);
 
 /* Count the edges in a link (correctly handling open/closed) */
-int plCurve_edges(const plCurve *L);
+int plCurve_num_edges(const plCurve *L);
 
 /* Compute the (minrad-based) curvature of L at vertex vt of component cp */
-double plCurve_curvature(const plCurve *L, 
-                              const int cp, 
-                              const int vt);
+double plCurve_curvature(const plCurve *L, const int cp, const int vt);
 
 /* Copy a link */
 plCurve *plCurve_copy(const plCurve *L);
@@ -185,7 +197,7 @@ plCurve *plCurve_copy(const plCurve *L);
 plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt);
 
 /* Find the arclength of a link. */
-double plCurve_length(plCurve *L,double *component_lengths);
+double plCurve_arclength(plCurve *L,double *component_lengths);
 
 /* Find the arclength position of a point on a link. */
 double plCurve_parameter(plCurve *L,int cmp,int vertnum);
@@ -222,6 +234,7 @@ double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst);
 #define PLCL_E_INF_KAPPA     17
 #define PLCL_E_BAD_COMPONENT 18
 #define PLCL_E_BAD_VERTEX    19
+#define PLCL_E_ZERO_VECTOR   20
 
 #if (__cplusplus || c_plusplus)
 };

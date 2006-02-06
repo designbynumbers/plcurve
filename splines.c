@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, and convert spline_links (and spline_plines)
  * 
- *  $Id: splines.c,v 1.5 2006-02-03 21:42:57 ashted Exp $
+ *  $Id: splines.c,v 1.6 2006-02-06 00:10:12 ashted Exp $
  *
  */
 
@@ -64,7 +64,7 @@ static void spline_pline_new(linklib_spline_pline *Pl,
 
     linklib_error_num = 317;
     sprintf(linklib_error_str,"spline_pline_new: Can't allocation space for %d"
-	    " samples in spline_pline_new.\n",ns);
+            " samples in spline_pline_new.\n",ns);
     return;
   }
   Pl->svals++; /* so that Pl->svals[-1] is valid. */
@@ -106,9 +106,9 @@ static void spline_pline_new(linklib_spline_pline *Pl,
  *
  */
 linklib_spline_link *linklib_spline_link_new(int components, 
-					     const int *ns, 
-					     const int *open, 
-					     const int *cc) 
+                                             const int *ns, 
+                                             const int *open, 
+                                             const int *cc) 
 {
   linklib_spline_link *L;
   int i;
@@ -124,7 +124,7 @@ linklib_spline_link *linklib_spline_link_new(int components,
   if (ns == NULL || open == NULL || cc == NULL) {
     linklib_error_num = 82;
     sprintf(linklib_error_str,"linklib_spline_link_new: "
-	    "ns, open or cc is NULL.");
+            "ns, open or cc is NULL.");
     return NULL;
   }
 
@@ -237,7 +237,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
     linklib_error_num = 519;
     sprintf(linklib_error_str,"convert_to_spline_link: Passed NULL "
-	    "pointer.\n");
+            "pointer.\n");
     return NULL;
 
   }
@@ -246,7 +246,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
     linklib_error_num = 520;
     sprintf(linklib_error_str,"convert_to_spline_link: Link pointer "
-	    "appears corrupted (%d components).\n",L->nc);
+            "appears corrupted (%d components).\n",L->nc);
     return NULL;
 
   }
@@ -261,7 +261,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
     linklib_error_num = 521;
     sprintf(linklib_error_str,"convert_to_spline_link: Couldn't allocate"
-	    " memory for buffers to make %d component spline_link.",L->nc);
+            " memory for buffers to make %d component spline_link.",L->nc);
     return NULL;
 
   } 
@@ -285,7 +285,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
   }
 
   free(ns); free(open); free(cc);
-	  
+          
   /* We now go component-by-component. */
 
   for(comp = 0;comp < L->nc;comp++) {
@@ -297,18 +297,18 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
     for(i=1;i<L->cp[comp].nv;i++) {
 
       spline_L->cp[comp].svals[i] = 
-	spline_L->cp[comp].svals[i-1] + linklib_vdist(L->cp[comp].vt[i-1],
-					    L->cp[comp].vt[i]);
+        spline_L->cp[comp].svals[i-1] + linklib_vdist(L->cp[comp].vt[i-1],
+                                            L->cp[comp].vt[i]);
     }
     
     if (!L->cp[comp].open) { 
 
       spline_L->cp[comp].svals[i] = 
-	spline_L->cp[comp].svals[i-1] + linklib_vdist(L->cp[comp].vt[i-1],
-						      L->cp[comp].vt[i]);     
+        spline_L->cp[comp].svals[i-1] + linklib_vdist(L->cp[comp].vt[i-1],
+                                                      L->cp[comp].vt[i]);     
 
       spline_L->cp[comp].svals[-1] = -linklib_vdist(L->cp[comp].vt[0],
-						    L->cp[comp].vt[-1]);
+                                                    L->cp[comp].vt[-1]);
 
     } else {
 
@@ -352,7 +352,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
       linklib_error_num = 522;
       sprintf(linklib_error_str,"convert_to_spline_link: Unable to allocate"
-	      " splining buffer for %d verts.\n",spline_L->cp[comp].ns+2);
+              " splining buffer for %d verts.\n",spline_L->cp[comp].ns+2);
       return NULL;
 
     }
@@ -373,7 +373,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
       ypn = yp1;
 
       /* The idea here is that if we're splining a closed curve, we
-	 want to be able to smooth the last corner as well. */
+         want to be able to smooth the last corner as well. */
 
     }
 
@@ -389,7 +389,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
     scrV = linklib_vminus(spline_L->cp[comp].vt[1],spline_L->cp[comp].vt[0]);
     scrx = spline_L->cp[comp].svals[1] - spline_L->cp[comp].svals[0];
-    linklib_vlincombine(scrV,3.0/pow(scrx,2),yp1,-3.0/scrx,u[0]);
+    plcl_M_vlincomb(u[0],3.0/pow(scrx,2),scrV,-3.0/scrx,yp1);
     
     /* for (i=2;i<=n-1;i++) { */
 
@@ -400,12 +400,12 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
       /* sig=(x[i]-x[i-1])/(x[i+1]-x[i-1]); */
 
       sig = (spline_L->cp[comp].svals[i] - spline_L->cp[comp].svals[i-1])/
-	(spline_L->cp[comp].svals[i+1] - spline_L->cp[comp].svals[i-1]);
+        (spline_L->cp[comp].svals[i+1] - spline_L->cp[comp].svals[i-1]);
 
       /* p = sig*y2[i-1] + 2.0; */
 
       scrV.c[0] = scrV.c[1] = scrV.c[2] = 2.0;
-      linklib_vlincombine(spline_L->cp[comp].vt2[i-1],sig,scrV,1.0,p);
+      plcl_M_vlincomb(p,sig,spline_L->cp[comp].vt2[i-1],1.0,scrV);
 
       /* y2[i] = (sig-1.0)/p; */
 
@@ -414,14 +414,14 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
       /* u[i]=(y[i+1]-y[i])/(x[i+1]-x[i]) - (y[i]-y[i-1])/(x[i]-x[i-1]); */
 
-      scrV = linklib_vminus(spline_L->cp[comp].vt[i+1],spline_L->cp[comp].vt[i]);
-      scrW = linklib_vminus(spline_L->cp[comp].vt[i],spline_L->cp[comp].vt[i-1]);
+      scrV = linklib_vminus(spline_L->cp[comp].vt[i+1],
+                            spline_L->cp[comp].vt[i]);
+      scrW = linklib_vminus(spline_L->cp[comp].vt[i],
+                            spline_L->cp[comp].vt[i-1]);
 
-      linklib_vlincombine(scrV,
-			  1.0/(spline_L->cp[comp].svals[i+1] - spline_L->cp[comp].svals[i]),
-			  scrW,
-			  -1.0/(spline_L->cp[comp].svals[i] - spline_L->cp[comp].svals[i-1]),
-			  u[i]);
+      plcl_M_vlincomb(u[i],
+        1.0/(spline_L->cp[comp].svals[i+1] - spline_L->cp[comp].svals[i]),scrV,
+       -1.0/(spline_L->cp[comp].svals[i] - spline_L->cp[comp].svals[i-1]),scrW);
 
       /* u[i]=(6.0*u[i]/(x[i+1]-x[i-1]) - sig*u[i-1])/p; */
 
@@ -442,16 +442,16 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
     scrx = spline_L->cp[comp].svals[i] - spline_L->cp[comp].svals[i-1];
     scrV = linklib_vminus(spline_L->cp[comp].vt[i],spline_L->cp[comp].vt[i-1]);
 
-    linklib_vlincombine(ypn,3.0/scrx,scrV,-3.0/pow(scrx,2),un);
+    plcl_M_vlincomb(un,3.0/scrx,ypn,-3.0/pow(scrx,2),scrV);
 
     /* y2[n] = (un - qn*u[n-1])/(qn*y2[n-1]+1.0); */
 
     scrV.c[0] = scrV.c[1] = scrV.c[2] = 1.0;
-    linklib_vlincombine(spline_L->cp[comp].vt2[i-1],qn,scrV,1.0,scrW);
-    linklib_vlincombine(un,1.0,u[i-1],-qn,scrV);
+    plcl_M_vlincomb(scrW,qn,spline_L->cp[comp].vt2[i-1],1.0,scrV);
+    plcl_M_vlincomb(scrV,1.0,un,-qn,u[i-1]);
 
     spline_L->cp[comp].vt2[i] = linklib_vdivide(scrV,scrW);
-		     
+                     
     /* for (k=n-1;k>=1;k--) { */
 
     for (k=i-1;k>=0;k--) {
@@ -478,10 +478,10 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
      /* Converts spline_link back to regular link, but changes the number 
-	of verts to those in nv. We require that the number of components 
-	in nv match those in spL. 
+        of verts to those in nv. We require that the number of components 
+        in nv match those in spL. 
 
-	A new plCurve is allocated. */
+        A new plCurve is allocated. */
 
 {
   int *cc, *open;
@@ -507,7 +507,7 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
     linklib_error_num = 710;
     sprintf(linklib_error_str,
-	    "convert_spline_to_link: spline_link appears corrupt (nc = %d).\n",
+            "convert_spline_to_link: spline_link appears corrupt (nc = %d).\n",
             spL->nc);
     return NULL;
   }
@@ -522,7 +522,7 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
     linklib_error_num = 711;
     sprintf(linklib_error_str,
             "convert_spline_to_link: Couldn't allocate cc, open buffer"
-	    " of size %d.\n",spL->nc);
+            " of size %d.\n",spL->nc);
     return NULL;
 
   }
@@ -547,35 +547,34 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
       /* First, search to make sure that slo and shi bracket our current s.*/
 
       s = (s > spL->cp[comp].svals[spL->cp[comp].ns] ? 
-	   spL->cp[comp].svals[spL->cp[comp].ns] : s);
+           spL->cp[comp].svals[spL->cp[comp].ns] : s);
 
       while(spL->cp[comp].svals[shi] < s && slo < spL->cp[comp].ns) 
-	{ shi++; slo++; }
+        { shi++; slo++; }
 
       /* Now we can evaluate the spline polynomial. */
 
       h = spL->cp[comp].svals[shi] - spL->cp[comp].svals[slo];
 
       if (h < 10e-14) { 
-	
-	linklib_error_num = 713;
-	sprintf(linklib_error_str,"convert_spline_to_link: svals of samples %d "
-		"and %d are"
-		" too close for spline algorithm (svals are %g and %g).\n",
-		shi,slo,spL->cp[comp].svals[shi],spL->cp[comp].svals[slo]);
-	return NULL;
+        
+        linklib_error_num = 713;
+        sprintf(linklib_error_str,"convert_spline_to_link: svals of samples %d "
+                "and %d are"
+                " too close for spline algorithm (svals are %g and %g).\n",
+                shi,slo,spL->cp[comp].svals[shi],spL->cp[comp].svals[slo]);
+        return NULL;
 
       }
 
       a = (spL->cp[comp].svals[shi] - s)/h;
       b = (s - spL->cp[comp].svals[slo])/h;
 
-      linklib_vlincombine(spL->cp[comp].vt[slo],a,spL->cp[comp].vt[shi],b,
-			  scrV);
+      plcl_M_vlincomb(scrV,a,spL->cp[comp].vt[slo],b,spL->cp[comp].vt[shi]);
 
-      linklib_vlincombine(spL->cp[comp].vt2[slo],(a*a*a - a)*(h*h)/6.0,
-			  spL->cp[comp].vt2[shi],(b*b*b - b)*(h*h)/6.0,
-			  scrW);
+      plcl_M_vlincomb(scrW,
+        (a*a*a - a)*(h*h)/6.0, spL->cp[comp].vt2[slo],
+        (b*b*b - b)*(h*h)/6.0, spL->cp[comp].vt2[shi]);
 
       L->cp[comp].vt[i] = linklib_vplus(scrV,scrW);
 
@@ -617,8 +616,8 @@ plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
 
     linklib_error_num = 1813;
     sprintf(linklib_error_str,"evaluate_spline_link: Can't find position %g"
-	    " on component %d of the %d component link spL.\n",
-	    s,cmp,spL->nc);
+            " on component %d of the %d component link spL.\n",
+            s,cmp,spL->nc);
     return zeroVec;
 
   }
@@ -651,9 +650,9 @@ plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
     
     linklib_error_num = 3030;
     sprintf(linklib_error_str,"evaluate_spline_link: svals of samples %d "
-	    "and %d are"
-	    " too close for spline algorithm (svals are %g and %g).\n",
-	    khi,klo,spL->cp[cmp].svals[khi],spL->cp[cmp].svals[klo]);
+            "and %d are"
+            " too close for spline algorithm (svals are %g and %g).\n",
+            khi,klo,spL->cp[cmp].svals[khi],spL->cp[cmp].svals[klo]);
     return zeroVec;
 
   }
@@ -661,12 +660,11 @@ plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
   a = (spL->cp[cmp].svals[khi] - s)/h;
   b = (s - spL->cp[cmp].svals[klo])/h;
   
-  linklib_vlincombine(spL->cp[cmp].vt[klo],a,spL->cp[cmp].vt[khi],b,
-		      scrV);
+  plcl_M_vlincomb(scrV,a,spL->cp[cmp].vt[klo],b,spL->cp[cmp].vt[khi]);
   
-  linklib_vlincombine(spL->cp[cmp].vt2[klo],(a*a*a - a)*(h*h)/6.0,
-		      spL->cp[cmp].vt2[khi],(b*b*b - b)*(h*h)/6.0,
-		      scrW);
+  plcl_M_vlincomb(scrW,
+    (a*a*a - a)*(h*h)/6.0,spL->cp[cmp].vt2[klo],
+    (b*b*b - b)*(h*h)/6.0,spL->cp[cmp].vt2[khi]);
   
   retV = linklib_vplus(scrV,scrW);  
   return retV;

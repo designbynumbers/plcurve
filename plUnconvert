@@ -1,0 +1,22 @@
+#!perl
+#
+# $Id: plUnconvert,v 1.1 2006-02-06 00:10:12 ashted Exp $
+#
+# Move all of the .plC.orig files back to their original places.
+#
+
+print "This will move all of the .plC.orig files back to their original "
+      "places.\nIs this what you want to do?";
+my $answer = <>;
+unless ($answer =~ /^y/i) {
+  print "Not moving files.\n";
+  exit;
+}
+opendir(DIR,'.');
+my @files = grep { /.plC.orig$/ } readdir(DIR);
+closedir DIR;
+foreach my $file (@files) {
+  (my $new_name = $file) =~ s/.plC.orig//;
+  print "Moving $file to $new_name.\n";
+  rename $file,$new_name;
+}
