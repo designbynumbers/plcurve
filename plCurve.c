@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.30 2006-02-06 00:10:12 ashted Exp $
+ *  $Id: plCurve.c,v 1.31 2006-02-06 22:47:39 ashted Exp $
  *
  */
 
@@ -110,48 +110,50 @@ plCurve *plCurve_new(int components, const int *nv,
   /* First, we check to see that the input values are reasonable. */
 
   plcl_error_num = plcl_error_str[0] = 0;
-  if (components < 1) {
+  if (components < 0) {
     plcl_error_num = PLCL_E_TOO_FEW_COMPS;
     sprintf(plcl_error_str,
       "plCurve_new: Can't create a link with %d components.\n",components);
     return NULL;
   }
 
-  if (nv == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
+  if (components > 0) {
+    if (nv == NULL) {
+      plcl_error_num = PLCL_E_NULL_PTR;
 #ifdef HAVE_STRLCPY
-    strlcpy(plcl_error_str,"plCurve_new: nv is NULL.\n",
-      sizeof(plcl_error_str));
+      strlcpy(plcl_error_str,"plCurve_new: nv is NULL.\n",
+        sizeof(plcl_error_str));
 #else
-    strlncpy(plcl_error_str,"plCurve_new: nv is NULL.\n",
-      sizeof(plcl_error_str)-1);
-    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+      strlncpy(plcl_error_str,"plCurve_new: nv is NULL.\n",
+        sizeof(plcl_error_str)-1);
+      plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
 #endif
-    return NULL;
-  }
-  if (open == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
+      return NULL;
+    }
+    if (open == NULL) {
+      plcl_error_num = PLCL_E_NULL_PTR;
 #ifdef HAVE_STRLCPY
-    strlcpy(plcl_error_str,"plCurve_new: open is NULL.\n",
-      sizeof(plcl_error_str));
+      strlcpy(plcl_error_str,"plCurve_new: open is NULL.\n",
+        sizeof(plcl_error_str));
 #else
-    strlncpy(plcl_error_str,"plCurve_new: open is NULL.\n",
-      sizeof(plcl_error_str)-1);
-    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+      strlncpy(plcl_error_str,"plCurve_new: open is NULL.\n",
+        sizeof(plcl_error_str)-1);
+      plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
 #endif
-    return NULL;
-  }
-  if (cc == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
+      return NULL;
+    }
+    if (cc == NULL) {
+      plcl_error_num = PLCL_E_NULL_PTR;
 #ifdef HAVE_STRLCPY
-    strlcpy(plcl_error_str,"plCurve_new: cc is NULL.\n",
-      sizeof(plcl_error_str));
+      strlcpy(plcl_error_str,"plCurve_new: cc is NULL.\n",
+        sizeof(plcl_error_str));
 #else
-    strlncpy(plcl_error_str,"plCurve_new: cc is NULL.\n",
-      sizeof(plcl_error_str)-1);
-    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+      strlncpy(plcl_error_str,"plCurve_new: cc is NULL.\n",
+        sizeof(plcl_error_str)-1);
+      plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
 #endif
-    return NULL;
+      return NULL;
+    }
   }
 
   if (ncst < 0) {
@@ -177,11 +179,14 @@ plCurve *plCurve_new(int components, const int *nv,
     return NULL;
   }
   L->nc = components;
-  if ((L->cp = (plCurve_pline *)malloc(L->nc*sizeof(plCurve_pline))) == NULL) {
-    plcl_error_num = PLCL_E_CANT_ALLOC;
-    sprintf(plcl_error_str,
-      "plCurve_new: Can't allocate array of pline ptrs.\n");
-    return NULL;
+  if (L->nc > 0) {
+    if ((L->cp = (plCurve_pline *)
+      malloc(L->nc*sizeof(plCurve_pline))) == NULL) {
+      plcl_error_num = PLCL_E_CANT_ALLOC;
+      sprintf(plcl_error_str,
+        "plCurve_new: Can't allocate array of pline ptrs.\n");
+      return NULL;
+    }
   }
   L->ncst = ncst;
   if (ncst > 0) {
@@ -390,20 +395,16 @@ void plCurve_free(plCurve *L) {
     return; /* Move along, nothing to see here */
   }
 
-  if (L->nc < 0) {
-    plcl_error_num = PLCL_E_TOO_FEW_COMPS;
-    sprintf(plcl_error_str,
-      "plCurve_free: plCurve appears corrupted. L.nc = %d.\n",L->nc);
-    return;
-  }
-
   /* Now we can get to work. */
-  for (i=0; i<L->nc; i++) {
-    pline_free(&L->cp[i]);
+  if (L->cp != NULL) {
+    for (i=0; i<L->nc; i++) {
+      pline_free(&L->cp[i]); /* pline_free is ok, even if L->cp[i] is NULL */
+    }
+  
+    free(L->cp);
+    L->nc = 0;
   }
 
-  free(L->cp);
-  L->nc = 0;
   if (L->cst != NULL) {
     free(L->cst);
   }
@@ -438,10 +439,17 @@ int plCurve_write(FILE *file, const plCurve *L) {
   int i,j;              /* Counter for the for loops */ 
   int nverts = 0;       /* Total number of vertices of all components */
   int colors = 0;       /* Total number of colors of all components */
+  char (*kind)[10];     /* The kinds of constraints */
 
   plcl_error_num = plcl_error_str[0] = 0;
 
   /* First, do a little sanity checking. */
+  if (file == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str,"plCurve_write: Passed NULL pointer as file.\n");
+    return -1;
+  }
+
   if (L == NULL) {
     plcl_error_num = PLCL_E_NULL_PTR;
     sprintf(plcl_error_str,
@@ -449,10 +457,64 @@ int plCurve_write(FILE *file, const plCurve *L) {
     return -1;
   }
 
-  if (file == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
-    sprintf(plcl_error_str,"plCurve_write: Passed NULL pointer as file.\n");
+  if (L->nc < 0) {
+    plcl_error_num = PLCL_E_TOO_FEW_COMPS;
+    sprintf(plcl_error_str,
+      "plCurve_write: plCurve corrupted. L.nc = %d.\n",L->nc);
     return -1;
+  }
+
+  if (L->nc > 0 && L->cp == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+#ifdef HAVE_STRLCPY
+    strlcpy(plcl_error_str,
+      "plCurve_write: plCurve corrupted. L.cp is NULL.\n",
+      sizeof(plcl_error_str));
+#else
+    strncpy(plcl_error_str,
+      "plCurve_write: plCurve corrupted. L.cp is NULL.\n",
+      sizeof(plcl_error_str)-1);
+    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+#endif
+    return -1;
+  }
+
+  if (L->ncst < 0) {
+    plcl_error_num = PLCL_E_NEG_CST;
+    sprintf(plcl_error_str,
+      "plCurve_write: plCurve corrupted.  L.ncst == %d.\n",L->ncst);
+    return NULL;
+  }
+
+  if (L->ncst > 0 && L->cst == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str,
+      "plCurve_write: plCurve corrupted.  L.ncst=%d but cst NULL.\n",L->ncst);
+    return NULL;
+  }
+
+  if (L->ncst > 0) {
+    if ((kind = malloc(L->ncst*sizeof(*kind))) == NULL) {
+      plcl_error_num = PLCL_E_CANT_ALLOC;
+      sprintf(plcl_error_str,
+        "plCurve_write: Can't malloc space for kind list.\n");
+      return -1;
+    }
+    for (i=0; i < L->ncst; i++) {
+      if (L->cst[i].kind == PLCL_FIXED) {
+        strcpy(kind[i],"Fixed");
+      } else if (L->cst[i].kind == PLCL_ON_LINE) {
+        strcpy(kind[i],"Line");
+      } else if (L->cst[i].kind == PLCL_IN_PLANE) {
+        strcpy(kind[i],"Plane");
+      } else {
+        plcl_error_num = PLCL_E_BAD_CST_KIND;
+        sprintf(plcl_error_str,
+          "plCurve_cst_check: Unknown constraint kind: %d.\n",
+          L->cst[i].kind);
+        return -1;
+      }
+    }
   }
 
   /* Now we begin work. */
@@ -478,6 +540,15 @@ int plCurve_write(FILE *file, const plCurve *L) {
     fprintf(file,"%d ",L->cp[i].cc);
   }
   fprintf(file,"\n");
+
+  
+  /* Write out the constraints, if any */
+  for (i=0; i<L->ncst; i++) {
+    fprintf(file,"COMMENT Cst%d_%d %s { %.16g %.16g %.16g %.16g %.16g %f }\n",
+      L->cst[i].cp, L->cst[i].vt, kind[i], L->cst[i].coef[0],
+      L->cst[i].coef[1], L->cst[i].coef[2], L->cst[i].coef[3],
+      L->cst[i].coef[4], L->cst[i].coef[5]);
+  }
 
   /* Now we write the vertex data . . . */
   for(i=0;i<L->nc;i++) {
@@ -630,24 +701,6 @@ static int scanints(FILE *infile,int nints, ...)
   return nconverted;
 }
 
-/* Procedure skips whitespace (but NOT newlines). */
-/* Returns 1 if we find something, 0 if EOF.      */
-static int skipwhitespace(FILE *infile)
-{
-  int thischar;
-
-  for(;;) {
-    thischar = fgetc(infile);
-    
-    if (thischar == '\n' || !isspace(thischar)) {
-      ungetc(thischar,infile);
-      return 1;
-    } else if (thischar == EOF) {
-      return 0;
-    }
-  }
-}
-
 /* 
  * Touchup the "extra" vertices at each end of the component plines which are
  * used to implement "wraparound".
@@ -691,7 +744,6 @@ plCurve *plCurve_read(FILE *file)
 
   /* First, we check for the 'VECT' keyword. */
   if (fscanf(file," VECT ") == EOF) {
-  
     plcl_error_num = PLCL_E_NO_VECT;
     sprintf(plcl_error_str,"plCurve_read: Couldn't find VECT keyword.\n");
     return NULL;
@@ -700,7 +752,6 @@ plCurve *plCurve_read(FILE *file)
   /* Now we read the three integers giving vertices, components, and colors. */
 
   if (scanints(file,3,&ncomp,&nverts,&ncolors) != 3) {
-  
     plcl_error_num = PLCL_E_BAD_CVC_LINE;
     sprintf(plcl_error_str,
       "plCurve_read: Couldn't parse <ncomp> <nverts> <ncolors> line.\n");
@@ -720,13 +771,9 @@ plCurve *plCurve_read(FILE *file)
               "of vertices in component %d.\n",i);    
       return NULL;
     }
-    if (nvarray[i] < 0) {
-      /* A negative number of vertices indicates a CLOSED component. */
-      open[i] = FALSE;  
-      nvarray[i] *= -1;
-    } else {
-      open[i] = TRUE;
-    }
+    /* A negative number of vertices indicates a CLOSED component. */
+    open[i] = (nvarray[i] >= 0);
+    nvarray[i] = abs(nvarray[i]);
   }
 
   /* We have set nvarray and open and are ready to read the color data.  */
@@ -770,20 +817,18 @@ plCurve *plCurve_read(FILE *file)
   /* Now set the "wrap-around" vertices */
   plCurve_fix_wrap(L);
 
-    /* And finally the colors. Unfortunately, to really comply with 
-        the Geomview standard here we have to be kind of careful. */
-
-  /* And finally the colors. */
+  /*
+   * And finally the colors. Unfortunately, to really comply with 
+   *   the Geomview standard here we have to be kind of careful. 
+   */
   for (i=0; i < ncomp; i++) {
     for (j=0; j < L->cp[i].cc; j++) {
       if (scandoubles(file,4, &L->cp[i].clr[j].r, &L->cp[i].clr[j].g,
            &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha) != 4) {
-
         plcl_error_num = PLCL_E_BAD_COLOR;
         sprintf(plcl_error_str,"plCurve_read: Couldn't parse color %d "
           "in component %d of link.\n",j,i);
         return NULL;
-
       }
     }
   }
@@ -813,14 +858,11 @@ int plCurve_num_edges(const plCurve *L)
 
 /* Compute the curvature of L at vertex vt of component cp */
 
-double plCurve_curvature(const plCurve *L, 
-                              const int comp, 
-                              const int vert)
-{
-  double         kappa;
+double plCurve_curvature(const plCurve *L, const int comp, const int vert) {
+  double      kappa;
   plcl_vector in,out;
-  double normin, normout;
-  double dot_prod,cross_prod_norm;
+  double      normin, normout;
+  double      dot_prod,cross_prod_norm;
 
   /* We start with some initializations. */
   
@@ -829,13 +871,13 @@ double plCurve_curvature(const plCurve *L,
   
   /* Now we work. */
 
-  in = linklib_vminus(L->cp[comp].vt[vert],L->cp[comp].vt[vert-1]);
+  in = plcl_vect_diff(L->cp[comp].vt[vert],L->cp[comp].vt[vert-1]);
   normin = plcl_M_norm(in);
-  out = linklib_vminus(L->cp[comp].vt[vert+1],L->cp[comp].vt[vert]);
+  out = plcl_vect_diff(L->cp[comp].vt[vert+1],L->cp[comp].vt[vert]);
   normout = plcl_M_norm(out);
       
   dot_prod = plcl_M_dot(in,out);
-  cross_prod_norm = plcl_M_norm(linklib_cross(in,out));
+  cross_prod_norm = plcl_M_norm(plcl_cross_prod(in,out));
 
   if (normin*normout + dot_prod < 1e-12) {
     plcl_error_num = PLCL_E_INF_KAPPA;
@@ -865,7 +907,8 @@ plCurve *plCurve_copy(const plCurve *L) {
       (open = (int *)malloc((L->nc)*sizeof(int))) == NULL ||
       (ccarray = (int *)malloc((L->nc)*sizeof(int))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
-    sprintf(plcl_error_str,"Unable to malloc space for alternate link.\n");
+    sprintf(plcl_error_str,
+      "plCurve_copy: Unable to malloc space for alternate link.\n");
     return NULL;
   }
   for (cnt = 0; cnt < L->nc; cnt++) {
@@ -895,54 +938,41 @@ plCurve *plCurve_copy(const plCurve *L) {
   return nL;
 }
 
-plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt)
 
 /* Procedure computes a (unit) tangent vector to <link> 
    at the given vertex of the given component. */
-
-{
+plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt) {
   plcl_vector in, out, tan;
 
   plcl_error_num = plcl_error_str[0] = 0;
 
   if (link->cp[cp].open) {
-
     if (vt == 0) {
-
-      tan = linklib_vminus(link->cp[cp].vt[1],
+      tan = plcl_vect_diff(link->cp[cp].vt[1],
                   link->cp[cp].vt[0]);
 
-      plcl_vector_normalize(&tan);
-
-      return tan;
-
+      return plcl_vector_normalize(tan);
     } else if (vt == link->cp[cp].nv-1) {
-
-       tan = linklib_vminus(link->cp[cp].vt[link->cp[cp].nv-1],
+       tan = plcl_vect_diff(link->cp[cp].vt[link->cp[cp].nv-1],
                    link->cp[cp].vt[link->cp[cp].nv-2]);
 
-       plcl_vector_normalize(&tan);
-
-       return tan;
-
+       return plcl_vector_normalize(tan);
     }
-
   }
 
   /* We now know that either we are on a closed 
      component, or we are not at an endpoint.   */
   
-   in = linklib_vminus(link->cp[cp].vt[vt+1],link->cp[cp].vt[vt]);
-   plcl_vector_normalize(&in);
+   in = plcl_vector_normalize(
+     plcl_vect_diff(link->cp[cp].vt[vt+1],link->cp[cp].vt[vt])
+   );
 
-   out = linklib_vminus(link->cp[cp].vt[vt],link->cp[cp].vt[vt-1]);
-   plcl_vector_normalize(&out);
+   out = plcl_vector_normalize(
+     plcl_vect_diff(link->cp[cp].vt[vt],link->cp[cp].vt[vt-1])
+   );
 
    linklib_vweighted(tan,0.5,in,out);
-   plcl_vector_normalize(&tan);
-   
-   return tan;
-
+   return plcl_vector_normalize(tan);
 }
 
 
@@ -1020,7 +1050,7 @@ double plCurve_parameter(plCurve *L,int cmp,int vertnum) {
 
   for (vert = 0; vert < vertnum; vert++) {
     temp_vect = cp->vt[vert+1];
-    linklib_vsub(temp_vect,cp->vt[vert]);
+    plcl_M_subv(temp_vect,cp->vt[vert]);
     tot_length += plcl_M_norm(temp_vect);
   }
 
@@ -1044,7 +1074,7 @@ void plCurve_force_closed(plCurve *link)
 
       /* Compute the error in closure */
       diff = link->cp[cmp].vt[link->cp[cmp].nv-1];   
-      linklib_vsub(diff,link->cp[cmp].vt[0]);
+      plcl_M_subv(diff,link->cp[cmp].vt[0]);
 
       for (i=0;i<link->cp[cmp].nv;i++) {
         plcl_M_vlincomb(link->cp[cmp].vt[i],
@@ -1053,7 +1083,7 @@ void plCurve_force_closed(plCurve *link)
       }
 
       /* We claim to have moved the last vertex on top of the first. */
-      diff = linklib_vminus(link->cp[cmp].vt[0],
+      diff = plcl_vect_diff(link->cp[cmp].vt[0],
                             link->cp[cmp].vt[link->cp[cmp].nv-1]);
       assert(plcl_M_norm(diff) < 1e-10);
 

@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, and convert spline_links (and spline_plines)
  * 
- *  $Id: splines.c,v 1.6 2006-02-06 00:10:12 ashted Exp $
+ *  $Id: splines.c,v 1.7 2006-02-06 22:47:39 ashted Exp $
  *
  */
 
@@ -387,7 +387,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
     double scrx;
     plcl_vector scrV,scrW;
 
-    scrV = linklib_vminus(spline_L->cp[comp].vt[1],spline_L->cp[comp].vt[0]);
+    scrV = plcl_vect_diff(spline_L->cp[comp].vt[1],spline_L->cp[comp].vt[0]);
     scrx = spline_L->cp[comp].svals[1] - spline_L->cp[comp].svals[0];
     plcl_M_vlincomb(u[0],3.0/pow(scrx,2),scrV,-3.0/scrx,yp1);
     
@@ -414,9 +414,9 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
       /* u[i]=(y[i+1]-y[i])/(x[i+1]-x[i]) - (y[i]-y[i-1])/(x[i]-x[i-1]); */
 
-      scrV = linklib_vminus(spline_L->cp[comp].vt[i+1],
+      scrV = plcl_vect_diff(spline_L->cp[comp].vt[i+1],
                             spline_L->cp[comp].vt[i]);
-      scrW = linklib_vminus(spline_L->cp[comp].vt[i],
+      scrW = plcl_vect_diff(spline_L->cp[comp].vt[i],
                             spline_L->cp[comp].vt[i-1]);
 
       plcl_M_vlincomb(u[i],
@@ -427,8 +427,8 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
       scrx = spline_L->cp[comp].svals[i+1] - spline_L->cp[comp].svals[i-1];
       linklib_vsmult(6.0/scrx,u[i]);
-      scrV = linklib_scalarmult(sig,u[i-1]);
-      linklib_vsub(u[i],scrV);
+      scrV = plcl_scale_vect(sig,u[i-1]);
+      plcl_M_subv(u[i],scrV);
       linklib_vdiv(u[i],p);
  
     }
@@ -440,7 +440,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
     /* un = (3.0/(x[n]-x[n-1]))*(ypn-(y[n]-y[n-1])/(x[n]-x[n-1])); */
 
     scrx = spline_L->cp[comp].svals[i] - spline_L->cp[comp].svals[i-1];
-    scrV = linklib_vminus(spline_L->cp[comp].vt[i],spline_L->cp[comp].vt[i-1]);
+    scrV = plcl_vect_diff(spline_L->cp[comp].vt[i],spline_L->cp[comp].vt[i-1]);
 
     plcl_M_vlincomb(un,3.0/scrx,ypn,-3.0/pow(scrx,2),scrV);
 
@@ -459,7 +459,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
       /* y2[k] = y2[k]*y2[k+1] + u[k]; */
 
       linklib_vmul(spline_L->cp[comp].vt2[k],spline_L->cp[comp].vt2[k+1]);
-      linklib_vadd(spline_L->cp[comp].vt2[k],u[k]);
+      plcl_M_addv(spline_L->cp[comp].vt2[k],u[k]);
 
     }
 
@@ -576,7 +576,7 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
         (a*a*a - a)*(h*h)/6.0, spL->cp[comp].vt2[slo],
         (b*b*b - b)*(h*h)/6.0, spL->cp[comp].vt2[shi]);
 
-      L->cp[comp].vt[i] = linklib_vplus(scrV,scrW);
+      L->cp[comp].vt[i] = plcl_vect_sum(scrV,scrW);
 
     }
 
@@ -666,7 +666,7 @@ plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
     (a*a*a - a)*(h*h)/6.0,spL->cp[cmp].vt2[klo],
     (b*b*b - b)*(h*h)/6.0,spL->cp[cmp].vt2[khi]);
   
-  retV = linklib_vplus(scrV,scrW);  
+  retV = plcl_vect_sum(scrV,scrW);  
   return retV;
 
 }

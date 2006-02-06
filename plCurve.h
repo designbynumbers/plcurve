@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.10 2006-02-06 00:10:12 ashted Exp $
+ *  $Id: plCurve.h,v 1.11 2006-02-06 22:47:39 ashted Exp $
  *
  */
 
@@ -98,22 +98,21 @@ typedef struct plCurve_type {
  *
  */
 
-inline plcl_vector linklib_vplus(plcl_vector A,plcl_vector B);
-inline plcl_vector linklib_vminus(plcl_vector A,plcl_vector B);
-inline plcl_vector linklib_cross(plcl_vector A,plcl_vector B);
-inline plcl_vector linklib_scalarmult(double x,plcl_vector A);
+inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B);   /* A + B */
+inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B);  /* A - B */
+inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
+inline plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
+inline plcl_vector plcl_vector_normalize(const plcl_vector V);   /* V / |V| */
+inline plcl_vector plcl_vector_random();                         
 inline plcl_vector linklib_vdivide(plcl_vector A,plcl_vector B);
-inline plcl_vector plcl_vector_random();
 
 /* Return a linear combination: a*A + b*B */
 inline plcl_vector plcl_vlincomb(double a,plcl_vector A,
                                  double b,plcl_vector B);
 
-inline double plcl_dot(plcl_vector A,plcl_vector B);
+inline double plcl_dot_prod(plcl_vector A,plcl_vector B);
 inline double plcl_norm(plcl_vector A);
 inline double linklib_vdist(plcl_vector A,plcl_vector B);
-
-inline void plcl_vector_normalize(plcl_vector *V);
 
 /*
  * Macros for vector work (requires careful programming)
@@ -126,10 +125,10 @@ inline void plcl_vector_normalize(plcl_vector *V);
 #define plcl_M_norm(A)       \
   sqrt(plcl_M_dot((A),(A)))
 
-#define linklib_vadd(A,B)    \
+#define plcl_M_addv(A,B)    \
   (A).c[0] += (B).c[0]; (A).c[1] += (B).c[1]; (A).c[2] += (B).c[2];
 
-#define linklib_vsub(A,B)    \
+#define plcl_M_subv(A,B)    \
   (A).c[0] -= (B).c[0]; (A).c[1] -= (B).c[1]; (A).c[2] -= (B).c[2];
 
 #define linklib_vsmult(s,V)  \

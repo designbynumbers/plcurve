@@ -1,6 +1,6 @@
 #!perl
 #
-# $Id: plConvert,v 1.1 2006-02-06 00:10:12 ashted Exp $
+# $Id: plConvert,v 1.2 2006-02-06 22:47:38 ashted Exp $
 #
 # Convert from Octrope 1.2 to Octrope 1.3 with plCurve 1.0
 #
@@ -18,7 +18,7 @@ foreach my $file (@ARGV) {
   my $data = <IN>;
   # First change linklib_ to octrope_
   s/linklib_/octrope_/g
-  # Then call changes
+  # Then do call and macro changes
   s/octrope_link_new/plCurve_new/g;
   s/octrope_link_free/plCurve_free/g;
   s/octrope_link_read/plCurve_read/g;
@@ -29,6 +29,12 @@ foreach my $file (@ARGV) {
   s/octrope_curvelength/plCurve_arclength/g;
   s/octrope_dot/plcl_M_dot/g;
   s/octrope_norm/plcl_M_norm/g;
+  s/octrope_vplus/plcl_vect_sum/g;
+  s/octrope_vadd/plcl_M_addv/g;
+  s/octrope_vminus/plcl_vect_diff/g;
+  s/octrope_vsub/plcl_M_subv/g;
+  s/octrope_cross/plcl_cross_prod/g;
+  s/octrope_scalarmult/plcl_scale_vect/g;
   # Then type changes
   s/octrope_vector/plcl_vector/g;
   s/octrope_color/plCurve_color/g;
