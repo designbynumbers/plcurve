@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.13 2006-02-06 00:10:12 ashted Exp $
+ * $Id: vector.c,v 1.14 2006-02-06 22:49:52 ashted Exp $
  *
  */
 
@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /**************************************************************/
 
 /* Returns A + B. */
-inline plcl_vector linklib_vplus(plcl_vector A,plcl_vector B) { 
+inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B) { 
   plcl_vector C;
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -63,7 +63,7 @@ inline plcl_vector linklib_vplus(plcl_vector A,plcl_vector B) {
 }
   
 /* Returns A - B. */ 
-inline plcl_vector linklib_vminus(plcl_vector A,plcl_vector B) { 
+inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B) { 
   plcl_vector C;
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -76,7 +76,7 @@ inline plcl_vector linklib_vminus(plcl_vector A,plcl_vector B) {
 }
   
 /* Returns A x B. */
-inline plcl_vector linklib_cross(plcl_vector A,plcl_vector B) { 
+inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B) { 
   plcl_vector C;
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -88,15 +88,15 @@ inline plcl_vector linklib_cross(plcl_vector A,plcl_vector B) {
   return C;
 }
 
-/* Returns xA. */
-inline plcl_vector linklib_scalarmult(double x,plcl_vector A) { 
+/* Returns sA. */
+inline plcl_vector plcl_scale_vect(double s,plcl_vector A) { 
   plcl_vector C;
 
   plcl_error_num = plcl_error_str[0] = 0;
 
-  C.c[0] = x * A.c[0];
-  C.c[1] = x * A.c[1];
-  C.c[2] = x * A.c[2];
+  C.c[0] = s * A.c[0];
+  C.c[1] = s * A.c[1];
+  C.c[2] = s * A.c[2];
 
   return C;
 }
@@ -114,14 +114,14 @@ inline plcl_vector linklib_vdivide(plcl_vector A,plcl_vector B) {
 }
 
 /* Returns the dot product of A and B */
-inline double plcl_dot(plcl_vector A, plcl_vector B) {
+inline double plcl_dot_prod(plcl_vector A, plcl_vector B) {
   plcl_error_num = plcl_error_str[0] = 0;
   return A.c[0]*B.c[0] + A.c[1]*B.c[1] + A.c[2]*B.c[2];
 }
 
 inline double plcl_norm(plcl_vector A) {
   plcl_error_num = plcl_error_str[0] = 0;
-  return sqrt(plcl_dot(A,A));
+  return sqrt(plcl_dot_prod(A,A));
 }
 
 inline double linklib_vdist(plcl_vector A,plcl_vector B) 
@@ -131,19 +131,18 @@ inline double linklib_vdist(plcl_vector A,plcl_vector B)
   plcl_error_num = plcl_error_str[0] = 0;
 
   diff = A;
-  linklib_vsub(diff,B);
+  plcl_M_subv(diff,B);
   
   return plcl_M_norm(diff);
 }
 
 /* Procedure replaces V with a unit vector (if possible). */
-void plcl_vector_normalize(plcl_vector *V)
-{
+inline plcl_vector plcl_vector_normalize(const plcl_vector V) {
   double vnrm;
 
   plcl_error_num = plcl_error_str[0] = 0;
 
-  vnrm = plcl_M_norm((*V));
+  vnrm = plcl_M_norm(V);
   if (vnrm == 0) {
     plcl_error_num = PLCL_E_ZERO_VECTOR;
 #ifdef HAVE_STRLCPY
@@ -156,8 +155,9 @@ void plcl_vector_normalize(plcl_vector *V)
       sizeof(plcl_error_str)-1);
     plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
 #endif
+    return V;
   }
-  linklib_vsmult(1/vnrm,(*V));
+  return plcl_scale_vect(1.0/vnrm,V);
 }
 
 /*
@@ -180,8 +180,7 @@ plcl_vector plcl_vector_random()
     R.c[2] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
 
     if (plcl_M_norm(R) > 0.1 && plcl_M_norm(R) < 0.9) {
-      plcl_vector_normalize(&R);
-      return R;
+      return plcl_vector_normalize(R);
     }
   }
 
