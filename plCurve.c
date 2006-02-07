@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.31 2006-02-06 22:47:39 ashted Exp $
+ *  $Id: plCurve.c,v 1.32 2006-02-07 22:29:32 ashted Exp $
  *
  */
 
@@ -318,7 +318,7 @@ double plCurve_cst_check(const plCurve L, const plCurve_constraint cst) {
     return -1;
   }
 
-  return linklib_vdist(L.cp[cst.cp].vt[cst.vt],closest);
+  return plcl_M_distance(L.cp[cst.cp].vt[cst.vt],closest);
 }
 
 /*
@@ -347,7 +347,7 @@ double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst) {
     return -1;
   }
 
-  double dist = linklib_vdist(L.cp[cst.cp].vt[cst.vt],closest);
+  double dist = plcl_M_distance(L.cp[cst.cp].vt[cst.vt],closest);
   L.cp[cst.cp].vt[cst.vt] = closest;
 
   return dist;
@@ -951,28 +951,28 @@ plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt) {
       tan = plcl_vect_diff(link->cp[cp].vt[1],
                   link->cp[cp].vt[0]);
 
-      return plcl_vector_normalize(tan);
+      return plcl_normalize_vect(tan);
     } else if (vt == link->cp[cp].nv-1) {
        tan = plcl_vect_diff(link->cp[cp].vt[link->cp[cp].nv-1],
                    link->cp[cp].vt[link->cp[cp].nv-2]);
 
-       return plcl_vector_normalize(tan);
+       return plcl_normalize_vect(tan);
     }
   }
 
   /* We now know that either we are on a closed 
      component, or we are not at an endpoint.   */
   
-   in = plcl_vector_normalize(
+   in = plcl_normalize_vect(
      plcl_vect_diff(link->cp[cp].vt[vt+1],link->cp[cp].vt[vt])
    );
 
-   out = plcl_vector_normalize(
+   out = plcl_normalize_vect(
      plcl_vect_diff(link->cp[cp].vt[vt],link->cp[cp].vt[vt-1])
    );
 
-   linklib_vweighted(tan,0.5,in,out);
-   return plcl_vector_normalize(tan);
+   plcl_M_vweighted(tan,0.5,in,out);
+   return plcl_normalize_vect(tan);
 }
 
 
@@ -998,9 +998,7 @@ double plCurve_arclength(plCurve *L,double *component_lengths)
     nv = (cp->open) ? cp->nv-1 : cp->nv;
 
     for (vert = 0; vert < nv; vert++) {
-
-      component_lengths[cmp] += linklib_vdist(cp->vt[vert+1],cp->vt[vert]);
-
+      component_lengths[cmp] += plcl_M_distance(cp->vt[vert+1],cp->vt[vert]);
     }
 
     tot_length += component_lengths[cmp];
@@ -1050,7 +1048,7 @@ double plCurve_parameter(plCurve *L,int cmp,int vertnum) {
 
   for (vert = 0; vert < vertnum; vert++) {
     temp_vect = cp->vt[vert+1];
-    plcl_M_subv(temp_vect,cp->vt[vert]);
+    plcl_M_sub_vect(temp_vect,cp->vt[vert]);
     tot_length += plcl_M_norm(temp_vect);
   }
 
@@ -1074,7 +1072,7 @@ void plCurve_force_closed(plCurve *link)
 
       /* Compute the error in closure */
       diff = link->cp[cmp].vt[link->cp[cmp].nv-1];   
-      plcl_M_subv(diff,link->cp[cmp].vt[0]);
+      plcl_M_sub_vect(diff,link->cp[cmp].vt[0]);
 
       for (i=0;i<link->cp[cmp].nv;i++) {
         plcl_M_vlincomb(link->cp[cmp].vt[i],

@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.11 2006-02-06 22:47:39 ashted Exp $
+ *  $Id: plCurve.h,v 1.12 2006-02-07 22:29:32 ashted Exp $
  *
  */
 
@@ -102,9 +102,12 @@ inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B);   /* A + B */
 inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B);  /* A - B */
 inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
 inline plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
-inline plcl_vector plcl_vector_normalize(const plcl_vector V);   /* V / |V| */
-inline plcl_vector plcl_vector_random();                         
-inline plcl_vector linklib_vdivide(plcl_vector A,plcl_vector B);
+inline plcl_vector plcl_normalize_vect(const plcl_vector V);     /* V / |V| */
+inline plcl_vector plcl_random_vect();                         
+
+/* Multiply or divide two ordered triples componetwise */
+inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B);
+inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B);
 
 /* Return a linear combination: a*A + b*B */
 inline plcl_vector plcl_vlincomb(double a,plcl_vector A,
@@ -112,7 +115,6 @@ inline plcl_vector plcl_vlincomb(double a,plcl_vector A,
 
 inline double plcl_dot_prod(plcl_vector A,plcl_vector B);
 inline double plcl_norm(plcl_vector A);
-inline double linklib_vdist(plcl_vector A,plcl_vector B);
 
 /*
  * Macros for vector work (requires careful programming)
@@ -125,41 +127,43 @@ inline double linklib_vdist(plcl_vector A,plcl_vector B);
 #define plcl_M_norm(A)       \
   sqrt(plcl_M_dot((A),(A)))
 
-#define plcl_M_addv(A,B)    \
+#define plcl_M_add_vect(A,B)    \
   (A).c[0] += (B).c[0]; (A).c[1] += (B).c[1]; (A).c[2] += (B).c[2];
 
-#define plcl_M_subv(A,B)    \
+#define plcl_M_sub_vect(A,B)    \
   (A).c[0] -= (B).c[0]; (A).c[1] -= (B).c[1]; (A).c[2] -= (B).c[2];
 
-#define linklib_vsmult(s,V)  \
+#define plcl_M_scale_vect(s,V)  \
   (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
 
   /* Add a multiple of B to A */
 #define linklib_vmadd(A,s,B) \
   (A).c[0] += (s)*(B).c[0]; (A).c[1] += (s)*(B).c[1]; (A).c[2] += (s)*(B).c[2];
 
-  /* A = B + s(C-B)                               *
-   * equivalent to                                *
-   *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
-#define linklib_vweighted(A,s,B,C)  \
-    (A).c[0] = (B).c[0] + s*((C).c[0] - (B).c[0]); \
-    (A).c[1] = (B).c[1] + s*((C).c[1] - (B).c[1]); \
-    (A).c[2] = (B).c[2] + s*((C).c[2] - (B).c[2]); 
-
+/* A becomes a linear combination of B and C */
 #define plcl_M_vlincomb(A,s,B,t,C) \
     (A).c[0] = s*(B).c[0] + t*(C).c[0]; \
     (A).c[1] = s*(B).c[1] + t*(C).c[1]; \
     (A).c[2] = s*(B).c[2] + t*(C).c[2]; 
 
-#define linklib_vdiv(A,B) \
+  /* A = B + s(C-B)                               *
+   * equivalent to                                *
+   *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
+#define plcl_M_vweighted(A,s,B,C)  \
+    plcl_M_vlincomb(A,(1.0-s),B,s,C)
+
+#define plcl_M_component_mult(A,B) \
+    (A).c[0] *= (B).c[0]; \
+    (A).c[1] *= (B).c[1]; \
+    (A).c[2] *= (B).c[2];
+
+#define plcl_M_component_div(A,B) \
     (A).c[0] /= (B).c[0]; \
     (A).c[1] /= (B).c[1]; \
     (A).c[2] /= (B).c[2];
 
-#define linklib_vmul(A,B) \
-    (A).c[0] *= (B).c[0]; \
-    (A).c[1] *= (B).c[1]; \
-    (A).c[2] *= (B).c[2];
+#define plcl_M_distance(A,B) \
+    plcl_norm(plcl_vect_diff((A),(B)));
 
 /* 
  * Prototypes for routines to deal with plCurves.

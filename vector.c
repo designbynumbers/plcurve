@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.14 2006-02-06 22:49:52 ashted Exp $
+ * $Id: vector.c,v 1.15 2006-02-07 22:29:32 ashted Exp $
  *
  */
 
@@ -101,7 +101,19 @@ inline plcl_vector plcl_scale_vect(double s,plcl_vector A) {
   return C;
 }
 
-inline plcl_vector linklib_vdivide(plcl_vector A,plcl_vector B) {
+inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B) {
+  plcl_vector C;
+
+  plcl_error_num = plcl_error_str[0] = 0;
+
+  C.c[0] = A.c[0]*B.c[0];
+  C.c[1] = A.c[1]*B.c[1];
+  C.c[2] = A.c[2]*B.c[2];
+
+  return C;
+}
+
+inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B) {
   plcl_vector C;
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -124,20 +136,8 @@ inline double plcl_norm(plcl_vector A) {
   return sqrt(plcl_dot_prod(A,A));
 }
 
-inline double linklib_vdist(plcl_vector A,plcl_vector B) 
-{
-  plcl_vector diff;
-
-  plcl_error_num = plcl_error_str[0] = 0;
-
-  diff = A;
-  plcl_M_subv(diff,B);
-  
-  return plcl_M_norm(diff);
-}
-
 /* Procedure replaces V with a unit vector (if possible). */
-inline plcl_vector plcl_vector_normalize(const plcl_vector V) {
+inline plcl_vector plcl_normalize_vect(const plcl_vector V) {
   double vnrm;
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -147,11 +147,11 @@ inline plcl_vector plcl_vector_normalize(const plcl_vector V) {
     plcl_error_num = PLCL_E_ZERO_VECTOR;
 #ifdef HAVE_STRLCPY
     strlcpy(plcl_error_str,
-      "plcl_vector_normalize: Can't normalize zero vector.\n",
+      "plcl_normalize_vect: Can't normalize zero vector.\n",
       sizeof(plcl_error_str));
 #else
     strncpy(plcl_error_str,
-      "plcl_vector_normalize: Can't normalize zero vector.\n",
+      "plcl_normalize_vect: Can't normalize zero vector.\n",
       sizeof(plcl_error_str)-1);
     plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
 #endif
@@ -164,7 +164,7 @@ inline plcl_vector plcl_vector_normalize(const plcl_vector V) {
  * Procedure assumes that the "rand" random number generator exists on this
  * system and has been seeded. It generates a random unit vector. 
  */
-plcl_vector plcl_vector_random()
+plcl_vector plcl_random_vect()
 {
   int i;
   plcl_vector R;
@@ -180,11 +180,11 @@ plcl_vector plcl_vector_random()
     R.c[2] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
 
     if (plcl_M_norm(R) > 0.1 && plcl_M_norm(R) < 0.9) {
-      return plcl_vector_normalize(R);
+      return plcl_normalize_vect(R);
     }
   }
 
   plcl_error_num = PLCL_E_BAD_RANDOM;
-  sprintf(plcl_error_str,"plcl_vector_random: Apparent error in rand().\n");
+  sprintf(plcl_error_str,"plcl_random_vect: Apparent error in rand().\n");
   return R;
 }

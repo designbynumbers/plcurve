@@ -1,6 +1,6 @@
 #!perl
 #
-# $Id: plConvert,v 1.2 2006-02-06 22:47:38 ashted Exp $
+# $Id: plConvert,v 1.3 2006-02-07 22:29:32 ashted Exp $
 #
 # Convert from Octrope 1.2 to Octrope 1.3 with plCurve 1.0
 #
@@ -30,11 +30,17 @@ foreach my $file (@ARGV) {
   s/octrope_dot/plcl_M_dot/g;
   s/octrope_norm/plcl_M_norm/g;
   s/octrope_vplus/plcl_vect_sum/g;
-  s/octrope_vadd/plcl_M_addv/g;
+  s/octrope_vadd/plcl_M_add_vect/g;
   s/octrope_vminus/plcl_vect_diff/g;
-  s/octrope_vsub/plcl_M_subv/g;
+  s/octrope_vsub/plcl_M_sub_vect/g;
   s/octrope_cross/plcl_cross_prod/g;
   s/octrope_scalarmult/plcl_scale_vect/g;
+  s/octrope_vsmult/plcl_M_scale_vect/g;
+  s/octrope_vdiv/plcl_M_component_div/g;
+  s/octrope_vdivide/plcl_component_div/g;
+  s/octrope_vmul/plcl_M_component_mult/g;
+  s/octrope_vweighted/plcl_M_vweighted/g;
+  s/octrope_vdist/plcl_M_distance/g; # CHANGES FUNCTION TO MACRO
   # Then type changes
   s/octrope_vector/plcl_vector/g;
   s/octrope_color/plCurve_color/g;
