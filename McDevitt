@@ -1,0 +1,31 @@
+#!perl
+#
+# $Id: McDevitt,v 1.1 2006-02-07 22:33:54 ashted Exp $
+# 
+# Explore the formulas given by Tim McDevitt in his talk "Differentiating Noisy
+# Data", Jan 15, 2006, San Antoniio Joint Mathematics Meetings.
+#
+
+use strict;
+use warnings;
+use Math::Random;
+
+open(OUT,">McDevitt.gnuplot");
+my @idx = map { $_/100 } (-100..200);
+my @rnd = random_normal(scalar(@idx),0,0.1);
+my @sqr = map { $_*$_ } @idx;
+my @sqr_p = map { $sqr[$_]+$rnd[$_] } (0..$#rnd);
+my @deriv = ('',(map { 
+    ($sqr[$_+1]-$sqr[$_-1])/($idx[$_+1]-$idx[$_-1]) } (1..$#idx-1)),'');
+my @deriv_p = ('',(map { 
+    ($sqr_p[$_+1]-$sqr_p[$_-1])/($idx[$_+1]-$idx[$_-1]) } (1..$#idx-1)),'');
+my @d_5 = ('','',
+  (map { ($sqr_p[$_+2]/5 + $sqr_p[$_+1]/10 - 
+          $sqr_p[$_-1]/10 - $sqr_p[$_-2]/5)/(($idx[$_+2]-$idx[$_-2])/4) }
+    (2..$#idx-2)), '','');
+format OUT=
+@>>>> @>>>>> @>>>>>>>>>>>> @>>>>>>>>>>>> @>>>>>>>>>>> @>>>>>>>>>>> @>>>>>>>>>>>
+$idx[$_], $sqr[$_], $sqr_p[$_], $deriv[$_], $deriv_p[$_], $d_5[$_],''
+.
+write OUT for (0..$#idx);
+close OUT;
