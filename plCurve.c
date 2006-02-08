@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.32 2006-02-07 22:29:32 ashted Exp $
+ *  $Id: plCurve.c,v 1.33 2006-02-08 17:44:11 ashted Exp $
  *
  */
 
@@ -64,7 +64,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * We allocate two extra vertices, at -1 and nv to make "wrap-around" much 
  * simpler.
  */
-static void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
+static inline void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
  
   if (nv < 1) {
     plcl_error_num = PLCL_E_TOO_FEW_VERTS;
@@ -223,7 +223,7 @@ plCurve *plCurve_new(int components, const int *nv,
  *              a^2 + c^2 + e^2
  *
  */
-static plcl_vector Closest_line_point(const plcl_vector point, 
+static inline plcl_vector Closest_line_point(const plcl_vector point, 
                                       const double *coef) {
 
   plcl_vector ret_vect;
@@ -269,7 +269,7 @@ static plcl_vector Closest_line_point(const plcl_vector point,
  *                 a^2 + b^2 + c^2
  *
  */
-static plcl_vector Closest_plane_point(const plcl_vector point, 
+static inline plcl_vector Closest_plane_point(const plcl_vector point, 
                                        const double *coef) {
 
   plcl_vector ret_vect;
@@ -360,7 +360,7 @@ double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst) {
  * twice on the same pline without fear. 
  *
  */ 
-static void pline_free(plCurve_pline *Pl) {
+static inline void pline_free(plCurve_pline *Pl) {
   
   if (Pl == NULL) {
     return;
@@ -580,7 +580,7 @@ int plCurve_write(FILE *file, const plCurve *L) {
 /* Procedure positions the file pointer on next non-whitespace character,   *
  * returning FALSE if EOF happens first. We skip anything between a # and a *
  * newline.                                                                 */
-static int skip_whitespace_and_comments(FILE *infile)
+static inline int skip_whitespace_and_comments(FILE *infile)
 {
   int thischar,commentflag = {FALSE};
 
@@ -614,7 +614,7 @@ static int skip_whitespace_and_comments(FILE *infile)
  * whitespace and comments between them. We expect the variable length       *
  * arguments to contain a collection of pointers to doubles. If not, there's *
  * trouble.                                                                  */
-static int scandoubles(FILE *infile,int ndoubles, ...)
+static inline int scandoubles(FILE *infile,int ndoubles, ...)
 {
   int nconverted = 0,i;
   va_list ap;
@@ -661,7 +661,7 @@ static int scandoubles(FILE *infile,int ndoubles, ...)
  * comments between them. We expect the variable length arguments  *
  * to contain a collection of pointers to ints. If not,            *
  * there's trouble.                                                */
-static int scanints(FILE *infile,int nints, ...)
+static inline int scanints(FILE *infile,int nints, ...)
 {
   int nconverted = 0,i;
   va_list ap;

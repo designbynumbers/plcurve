@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, and convert spline_links (and spline_plines)
  * 
- *  $Id: splines.c,v 1.8 2006-02-07 22:29:32 ashted Exp $
+ *  $Id: splines.c,v 1.9 2006-02-08 17:44:11 ashted Exp $
  *
  */
 
@@ -41,19 +41,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <stdlib.h>
 #endif
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
 #include <spline_links.h>
 
-extern int  linklib_error_num;
-extern char linklib_error_str[80];
-
-static void spline_pline_new(linklib_spline_pline *Pl,
-                                              int  ns, 
-                                              int  open, 
-                                              int  cc) {
+static inline void spline_pline_new(linklib_spline_pline *Pl,
+                                                     int  ns, 
+                                                     int  open, 
+                                                     int  cc) {
  
   if (ns < 1) {
-    linklib_error_num = 71;
-    sprintf(linklib_error_str,"spline_pline_new: Can't create a spline_pline with %d samples.\n",ns);
+    plcl_error_num = PLCL_E_TOO_FEW_SAMPS;
+    sprintf(plcl_error_str,
+      "spline_pline_new: Can't create a spline_pline with %d samples.\n",ns);
     return;
   }
 
@@ -61,9 +63,8 @@ static void spline_pline_new(linklib_spline_pline *Pl,
   Pl->ns = ns;
 
   if ((Pl->svals = (double *)malloc((ns+2)*sizeof(double))) == NULL) {
-
-    linklib_error_num = 317;
-    sprintf(linklib_error_str,"spline_pline_new: Can't allocation space for %d"
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,"spline_pline_new: Can't allocation space for %d"
             " samples in spline_pline_new.\n",ns);
     return;
   }
@@ -71,29 +72,33 @@ static void spline_pline_new(linklib_spline_pline *Pl,
 
   if ((Pl->vt = 
        (plcl_vector *)malloc((ns+2)*sizeof(plcl_vector))) == NULL) {
-    linklib_error_num = 72;
-    sprintf(linklib_error_str,"spline_pline_new: Can't allocate space for %d samples in spline_pline_new.\n",ns);
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,"spline_pline_new: Can't allocate space for %d "
+      "samples in spline_pline_new.\n",ns);
     return;
   }
   Pl->vt++; /* so that Pl->vt[-1] is a valid space */
 
   if ((Pl->vt2 = 
        (plcl_vector *)malloc((ns+2)*sizeof(plcl_vector))) == NULL) {
-    linklib_error_num = 72;
-    sprintf(linklib_error_str,"spline_pline_new: Can't allocate space for %d samples in spline_pline_new.\n",ns);
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,"spline_pline_new: Can't allocate space for %d "
+      "samples in spline_pline_new.\n",ns);
     return;
   }
   Pl->vt2++; /* so that Pl->vt2[-1] is a valid space */
 
   Pl->cc = cc;
   if ((Pl->clr = (plCurve_color *)malloc(cc*sizeof(plCurve_color))) == NULL) {
-    linklib_error_num = 73;
-    sprintf(linklib_error_str,"spline_pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,"spline_pline_new: Can't allocate space for %d "
+      "colors in pline_new.\n",cc);
     return;
   }
   if ((Pl->clr2 = (plCurve_color *)malloc(cc*sizeof(plCurve_color))) == NULL) {
-    linklib_error_num = 73;
-    sprintf(linklib_error_str,"spline_pline_new: Can't allocate space for %d colors in pline_new.\n",cc);
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,"spline_pline_new: Can't allocate space for %d "
+      "colors in pline_new.\n",cc);
     return;
   }
 }
@@ -115,30 +120,65 @@ linklib_spline_link *linklib_spline_link_new(int components,
 
   /* First, we check to see that the input values are reasonable. */
 
+  plcl_error_num = plcl_error_str[0] = 0;
+
   if (components < 1) {
-    linklib_error_num = 81;
-    sprintf(linklib_error_str,"linklib_spline_link_new: Can't create a link with %d components.",components);
+    plcl_error_num = PLCL_E_TOO_FEW_COMPS;
+    sprintf(plcl_error_str,"linklib_spline_link_new: Can't create a link "
+      "with %d components.",components);
     return NULL;
   }
 
-  if (ns == NULL || open == NULL || cc == NULL) {
-    linklib_error_num = 82;
-    sprintf(linklib_error_str,"linklib_spline_link_new: "
-            "ns, open or cc is NULL.");
+  if (ns == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+#ifdef HAVE_STRLCPY
+    strlcpy(plcl_error_str,"plCurve_new: ns is NULL.\n",
+      sizeof(plcl_error_str));
+#else
+    strlncpy(plcl_error_str,"plCurve_new: ns is NULL.\n",
+      sizeof(plcl_error_str)-1);
+    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+#endif
+    return NULL;
+  }
+  if (open == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+#ifdef HAVE_STRLCPY
+    strlcpy(plcl_error_str,"plCurve_new: open is NULL.\n",
+      sizeof(plcl_error_str));
+#else
+    strlncpy(plcl_error_str,"plCurve_new: open is NULL.\n",
+      sizeof(plcl_error_str)-1);
+    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+#endif
+    return NULL;
+  }
+  if (cc == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+#ifdef HAVE_STRLCPY
+    strlcpy(plcl_error_str,"plCurve_new: cc is NULL.\n",
+      sizeof(plcl_error_str));
+#else
+    strlncpy(plcl_error_str,"plCurve_new: cc is NULL.\n",
+      sizeof(plcl_error_str)-1);
+    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+#endif
     return NULL;
   }
 
   /* Now we attempt to allocate space for these components. */
   
-  if ((L = (linklib_spline_link *)malloc(sizeof(linklib_spline_link))) == NULL) {
-    linklib_error_num = 83;
-    sprintf(linklib_error_str,"linklib_spline_link_new: Could not allocate space for link in link_new.\n");
+  if ((L = malloc(sizeof(linklib_spline_link))) == NULL) {
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,"linklib_spline_link_new: Could not allocate "
+      "space for link in link_new.\n");
     return NULL;
   }
   L->nc = components;
-  if ((L->cp = (linklib_spline_pline *)malloc(L->nc*sizeof(linklib_spline_pline))) == NULL) {
-    linklib_error_num = 84;
-    sprintf(linklib_error_str,"Can't allocate array of spline_pline ptrs in link_new.\n");
+  if ((L->cp = malloc(L->nc*sizeof(linklib_spline_pline))) == NULL) {
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,"Can't allocate array of spline_pline ptrs "
+      "in link_new.\n");
     return NULL;
   }
 
@@ -156,7 +196,7 @@ linklib_spline_link *linklib_spline_link_new(int components,
  * twice on the same pline without fear. 
  *
  */ 
-void spline_pline_free(linklib_spline_pline *Pl) {
+static inline void spline_pline_free(linklib_spline_pline *Pl) {
   
   if (Pl == NULL) {
     return;
@@ -194,15 +234,11 @@ void spline_pline_free(linklib_spline_pline *Pl) {
 void linklib_spline_link_free(linklib_spline_link *L) {
   int i;
 
+  plcl_error_num = plcl_error_str[0] = 0;
+
   /* First, we check the input. */
   if (L == NULL) {
     return; /* Move along, nothing to see here */
-  }
-
-  if (L->nc < 0) {
-    linklib_error_num = 91;
-    sprintf(linklib_error_str,"linklib_spline_link_free: Link appears corrupted. L.nc = %d.",L->nc);
-    return;
   }
 
   /* Now we can get to work. */
@@ -218,12 +254,12 @@ void linklib_spline_link_free(linklib_spline_link *L) {
 } /* linklib_spline_link_free */
 
 
+/*
+ * Converts a regular link to spline link form. The spline code is adapted from
+ * the "Numerical recipes" spline code. Each line from NR is commented next to
+ * the (hopefully) equivalent vectorized version below. 
+ */
 linklib_spline_link *convert_to_spline_link(plCurve *L)
-
-     /* Converts a regular link to spline link form. The spline */
-     /* code is adapted from the "Numerical recipes" spline code. */
-     /* Each line from NR is commented next to the (hopefully) */
-     /* equivalent vectorized version below. */
 {
   int    i;
   int    *ns,*cc,*open;
@@ -233,22 +269,20 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
   /* First, we check for sanity */
 
-  if (L == NULL) {
+  plcl_error_num = plcl_error_str[0] = 0;
 
-    linklib_error_num = 519;
-    sprintf(linklib_error_str,"convert_to_spline_link: Passed NULL "
+  if (L == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str,"convert_to_spline_link: Passed NULL "
             "pointer.\n");
     return NULL;
-
   }
 
   if (L->nc < 1) {
-
-    linklib_error_num = 520;
-    sprintf(linklib_error_str,"convert_to_spline_link: Link pointer "
+    plcl_error_num = PLCL_E_TOO_FEW_COMPS;
+    sprintf(plcl_error_str,"convert_to_spline_link: Link pointer "
             "appears corrupted (%d components).\n",L->nc);
     return NULL;
-
   }
 
   plCurve_fix_wrap(L);
@@ -258,43 +292,38 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
   cc = calloc(L->nc,sizeof(int));
 
   if (ns == NULL || open == NULL || cc == NULL) {
-
-    linklib_error_num = 521;
-    sprintf(linklib_error_str,"convert_to_spline_link: Couldn't allocate"
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,"convert_to_spline_link: Couldn't allocate"
             " memory for buffers to make %d component spline_link.",L->nc);
     return NULL;
-
   } 
 
   for(i=0;i<L->nc;i++) {
-
     ns[i] = L->cp[i].nv;
     cc[i] = L->cp[i].cc;
     open[i] = L->cp[i].open;
-
   }
 
   /* Now we allocate the new spline link. */
 
   spline_L = linklib_spline_link_new(L->nc,ns,open,cc);
 
-  if (linklib_error_num != 0 || spline_L == NULL) {
-
-    return NULL;
-
-  }
-
+  /* Done with this space now, no matter what happened */
   free(ns); free(open); free(cc);
+
+  if (plcl_error_num != 0 || spline_L == NULL) {
+    return NULL;
+  }
           
   /* We now go component-by-component. */
 
-  for(comp = 0;comp < L->nc;comp++) {
+  for (comp = 0;comp < L->nc;comp++) {
 
     /* Our first task is to assemble svals: the arclength of each vertex. */
 
     spline_L->cp[comp].svals[0] = 0.0;
 
-    for(i=1;i<L->cp[comp].nv;i++) {
+    for (i=1;i<L->cp[comp].nv;i++) {
 
       spline_L->cp[comp].svals[i] = 
         spline_L->cp[comp].svals[i-1] + plcl_M_distance(L->cp[comp].vt[i-1],
@@ -350,8 +379,8 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
 
     if (u == NULL) {
 
-      linklib_error_num = 522;
-      sprintf(linklib_error_str,"convert_to_spline_link: Unable to allocate"
+      plcl_error_num = PLCL_E_CANT_ALLOC;
+      sprintf(plcl_error_str,"convert_to_spline_link: Unable to allocate"
               " splining buffer for %d verts.\n",spline_L->cp[comp].ns+2);
       return NULL;
 
@@ -471,19 +500,17 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
   }
 
   return spline_L;
-  
   /* Note to self: color splining is not yet implemented! */
-
 }
 
+/*
+ * Converts spline_link back to regular link, but changes the number of verts
+ * to those in nv. We require that the number of components in nv match those
+ * in spL. 
+ *
+ * A new plCurve is allocated. 
+ */
 plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
-
-     /* Converts spline_link back to regular link, but changes the number 
-        of verts to those in nv. We require that the number of components 
-        in nv match those in spL. 
-
-        A new plCurve is allocated. */
-
 {
   int *cc, *open;
   int comp, i;
@@ -496,18 +523,19 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
   /* First, we do some elementary sanity checking. */
 
+  plcl_error_num = plcl_error_str[0] = 0;
+
   if (spL == NULL) {
 
-    linklib_error_num = 709;
-    sprintf(linklib_error_str,"convert_spline_to_link: Passed NULL pointer.\n");
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str,"convert_spline_to_link: Passed NULL pointer.\n");
     return NULL;
 
   }
 
   if (spL->nc < 1) {
-
-    linklib_error_num = 710;
-    sprintf(linklib_error_str,
+    plcl_error_num = PLCL_E_TOO_FEW_COMPS;
+    sprintf(plcl_error_str,
             "convert_spline_to_link: spline_link appears corrupt (nc = %d).\n",
             spL->nc);
     return NULL;
@@ -520,8 +548,8 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
   if (cc == NULL || open == NULL) {
 
-    linklib_error_num = 711;
-    sprintf(linklib_error_str,
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str,
             "convert_spline_to_link: Couldn't allocate cc, open buffer"
             " of size %d.\n",spL->nc);
     return NULL;
@@ -532,7 +560,7 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
   L = plCurve_new(spL->nc,nv,open,cc,0,NULL);
   
-  if (L == NULL || linklib_error_num != 0) { return NULL; }
+  if (L == NULL || plcl_error_num != 0) { return NULL; }
 
   free(open); free(cc);
 
@@ -559,8 +587,8 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
       if (h < 10e-14) { 
         
-        linklib_error_num = 713;
-        sprintf(linklib_error_str,"convert_spline_to_link: svals of samples %d "
+        plcl_error_num = PLCL_E_SMP_TOO_CLOSE;
+        sprintf(plcl_error_str,"convert_spline_to_link: svals of samples %d "
                 "and %d are"
                 " too close for spline algorithm (svals are %g and %g).\n",
                 shi,slo,spL->cp[comp].svals[shi],spL->cp[comp].svals[slo]);
@@ -596,11 +624,11 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 
 }
 
-plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
 
 /* Procedure evaluates the spline link at a particular s value, 
    returning a spatial position. */
 
+plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
 {
   int klo,khi,k;
   double cmpLen;
@@ -613,14 +641,14 @@ plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
   /* We begin with a bit of checking to make sure that cmp and s seem
      compatible with the given spL. */
 
-  if (cmp < 0 || cmp > spL->nc) {
+  plcl_error_num = plcl_error_str[0] = 0;
 
-    linklib_error_num = 1813;
-    sprintf(linklib_error_str,"evaluate_spline_link: Can't find position %g"
+  if (cmp < 0 || cmp > spL->nc) {
+    plcl_error_num = PLCL_E_CANT_FIND_POS;
+    sprintf(plcl_error_str,"evaluate_spline_link: Can't find position %g"
             " on component %d of the %d component link spL.\n",
             s,cmp,spL->nc);
     return zeroVec;
-
   }
 
   /* Now fix any wraparound, so that the s value given is in [0,cmpLen). */
@@ -649,8 +677,8 @@ plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
 
   if (h < 10e-14) { 
     
-    linklib_error_num = 3030;
-    sprintf(linklib_error_str,"evaluate_spline_link: svals of samples %d "
+    plcl_error_num = PLCL_E_SMP_TOO_CLOSE;
+    sprintf(plcl_error_str,"evaluate_spline_link: svals of samples %d "
             "and %d are"
             " too close for spline algorithm (svals are %g and %g).\n",
             khi,klo,spL->cp[cmp].svals[khi],spL->cp[cmp].svals[klo]);

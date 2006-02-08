@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.12 2006-02-07 22:29:32 ashted Exp $
+ *  $Id: plCurve.h,v 1.13 2006-02-08 17:44:11 ashted Exp $
  *
  */
 
@@ -238,6 +238,9 @@ double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst);
 #define PLCL_E_BAD_COMPONENT 18
 #define PLCL_E_BAD_VERTEX    19
 #define PLCL_E_ZERO_VECTOR   20
+#define PLCL_E_TOO_FEW_SAMPS 21
+#define PLCL_E_SMP_TOO_CLOSE 22
+#define PLCL_E_CANT_FIND_POS 23
 
 #if (__cplusplus || c_plusplus)
 };
