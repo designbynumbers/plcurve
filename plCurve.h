@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.13 2006-02-08 17:44:11 ashted Exp $
+ *  $Id: plCurve.h,v 1.14 2006-02-08 23:24:02 ashted Exp $
  *
  */
 
@@ -92,6 +92,23 @@ typedef struct plCurve_type {
   int ncst;                     /* Number of constraints */
   plCurve_constraint *cst;      /* The constraints themselves */
 } plCurve;
+
+/* PlCurve_spline types */
+typedef struct linklib_spline_pline_type {
+  int             open;     /* This is an "open" pline (with distinct ends) */
+  int             ns;       /* Number of samples used to build spline. */
+  double         *svals;    /* s values at samples */
+  plcl_vector    *vt;       /* positions at these s values */
+  plcl_vector    *vt2;      /* second derivatives at these s values */
+  int             cc;
+  plCurve_color  *clr;      /* color values at samples */
+  plCurve_color  *clr2;     /* second derivatives at these s values */
+} linklib_spline_pline;
+
+typedef struct plCurve_spline_type {	
+  int nc;			/* Number of components */
+  linklib_spline_pline *cp;     /* Components */
+} plCurve_spline;
 
 /*
  * Prototypes for vector routines. 
@@ -216,6 +233,24 @@ double plCurve_cst_check(const plCurve L, const plCurve_constraint cst);
  * satisfied it was 
  */
 double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst);
+
+/* Allocate new spline_link. */
+plCurve_spline *linklib_spline_link_new(int components, 
+					       const int *ns, 
+					       const int *open, 
+					       const int *cc);
+
+/* Free memory for spline_link. */
+void linklib_spline_link_free(plCurve_spline *L);
+
+/* Convert conventional link to spline_link. */
+plCurve_spline *convert_to_spline_link(plCurve *L);
+
+/* Convert spline_link to conventional link (with resampling). */
+plCurve *convert_spline_to_link(plCurve_spline *spL,int *nv);
+
+/* Evaluate a spline_link at a particular s value. */
+plcl_vector evaluate_spline_link(plCurve_spline *spL,int cmp,double s);
 
 /* Define the error codes */
 #define PLCL_E_BAD_RANDOM     1

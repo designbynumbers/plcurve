@@ -1,7 +1,10 @@
 /*
- *  Routines to create, destroy, and convert spline_links (and spline_plines)
- * 
- *  $Id: splines.c,v 1.9 2006-02-08 17:44:11 ashted Exp $
+ * Routines to create, destroy, and convert spline equivalents of plCurves
+ *
+ * $Id: splines.c,v 1.10 2006-02-08 23:24:02 ashted Exp $
+ *
+ * This code generates refinements of links, component by component, using the
+ * Numerical Recipes spline code for interpolation. 
  *
  */
 
@@ -45,7 +48,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <string.h>
 #endif
 
-#include <spline_links.h>
+#include "plCurve.h"
 
 static inline void spline_pline_new(linklib_spline_pline *Pl,
                                                      int  ns, 
@@ -110,12 +113,12 @@ static inline void spline_pline_new(linklib_spline_pline *Pl,
  * nature of each pline is given in the array pointed to by open.
  *
  */
-linklib_spline_link *linklib_spline_link_new(int components, 
-                                             const int *ns, 
-                                             const int *open, 
-                                             const int *cc) 
+plCurve_spline *linklib_spline_link_new(int components, 
+                                  const int *ns, 
+                                  const int *open, 
+                                  const int *cc) 
 {
-  linklib_spline_link *L;
+  plCurve_spline *L;
   int i;
 
   /* First, we check to see that the input values are reasonable. */
@@ -168,7 +171,7 @@ linklib_spline_link *linklib_spline_link_new(int components,
 
   /* Now we attempt to allocate space for these components. */
   
-  if ((L = malloc(sizeof(linklib_spline_link))) == NULL) {
+  if ((L = malloc(sizeof(plCurve_spline))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
     sprintf(plcl_error_str,"linklib_spline_link_new: Could not allocate "
       "space for link in link_new.\n");
@@ -231,7 +234,7 @@ static inline void spline_pline_free(linklib_spline_pline *Pl) {
  * We can call link_free twice on the same link without fear. 
  *
  */ 
-void linklib_spline_link_free(linklib_spline_link *L) {
+void linklib_spline_link_free(plCurve_spline *L) {
   int i;
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -259,13 +262,13 @@ void linklib_spline_link_free(linklib_spline_link *L) {
  * the "Numerical recipes" spline code. Each line from NR is commented next to
  * the (hopefully) equivalent vectorized version below. 
  */
-linklib_spline_link *convert_to_spline_link(plCurve *L)
+plCurve_spline *convert_to_spline_link(plCurve *L)
 {
   int    i;
   int    *ns,*cc,*open;
   int    comp;
 
-  linklib_spline_link *spline_L;
+  plCurve_spline *spline_L;
 
   /* First, we check for sanity */
 
@@ -510,7 +513,7 @@ linklib_spline_link *convert_to_spline_link(plCurve *L)
  *
  * A new plCurve is allocated. 
  */
-plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
+plCurve *convert_spline_to_link(plCurve_spline *spL,int *nv)
 {
   int *cc, *open;
   int comp, i;
@@ -628,7 +631,7 @@ plCurve *convert_spline_to_link(linklib_spline_link *spL,int *nv)
 /* Procedure evaluates the spline link at a particular s value, 
    returning a spatial position. */
 
-plcl_vector evaluate_spline_link(linklib_spline_link *spL,int cmp,double s)
+plcl_vector evaluate_spline_link(plCurve_spline *spL,int cmp,double s)
 {
   int klo,khi,k;
   double cmpLen;

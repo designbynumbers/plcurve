@@ -1,0 +1,22 @@
+\documentclass{amsart}
+
+\usepackage{amsrefs}
+
+\begin{document}
+In \cite {McDevittSlides}, Timothy McDevitt gives a formula for calculating
+first derivative which minimizes the effects of noisey data on the value of
+the derivative.  With some adaptation, that formula is:
+$$y'_k = \frac{3}{n(n+1)(2n+1) \Delta t} \sum_{j=-n}^n j y_{k+j}$$
+where $n$ in the formula above is $\frac{m-1}{2}$ in McDevitt's formula and
+our $k$ is his $k - \frac{m+1}{2}$.
+
+But what does it mean?  Well, let's look at the case $m=5 \Rightarrow n = 2$.
+This says that
+$$y'_k = \frac{1}{10 \Delta t} \left( -2 y_{k-2} - y_{k-1} + y_{k+1} + 2
+  y_{k+2} \right).$$
+Well, there are at least two ways to look at this.  First, let's see if we can
+find derivatives in it.  Here's option one:
+$$y'_k = \frac{1}{10} \left( 2 \frac{y_{k+2} - y_{k+1}}{\Delta t} 
+  + 3 \frac{y_{k+1} - y_k}{\Delta t} + 3 \frac{y_k - y_{k-1}}{\Delta t}
+  + 2 \frac{y_{k-1} - y_{k-2}}{\Delta t} \right).$$
+\end{document}

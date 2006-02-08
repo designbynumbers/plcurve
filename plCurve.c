@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.33 2006-02-08 17:44:11 ashted Exp $
+ *  $Id: plCurve.c,v 1.34 2006-02-08 23:24:02 ashted Exp $
  *
  */
 
@@ -790,6 +790,11 @@ plCurve *plCurve_read(FILE *file)
   /* We now allocate the link data structure. */
 
   L = plCurve_new(ncomp,nvarray,open,ccarray,0,NULL);
+
+  /* done with temorary arrays */
+  free(nvarray);
+  free(open);
+  free(ccarray);
 
   if (L == NULL) {   /* If we don't have this much memory, then return NULL. */
     sprintf(plcl_error_str,"plCurve_read: Error in plCurve_new: %d.\n",

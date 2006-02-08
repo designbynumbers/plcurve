@@ -1,6 +1,6 @@
 #!perl
 #
-# $Id: plConvert,v 1.3 2006-02-07 22:29:32 ashted Exp $
+# $Id: plConvert,v 1.4 2006-02-08 23:24:02 ashted Exp $
 #
 # Convert from Octrope 1.2 to Octrope 1.3 with plCurve 1.0
 #
@@ -46,6 +46,7 @@ foreach my $file (@ARGV) {
   s/octrope_color/plCurve_color/g;
   s/octrope_pline/plCurve_pline/g;
   s/octrope_link/plCurve/g;
+  s/octrope_spline_link/plCurve_spline/g;
   close OUT;
   close IN;
 }
@@ -54,6 +55,9 @@ print<<EON;
 * You still need to check for all the usages of        *
 *   octrope_error_num and                              *
 *   octrope_error_str                                  *
-* to see which need to be changed to plCurve_error_... *
+* to see which need to be changed to call              *
+*   plCurve_error_check()                              *
+* and which to call                                    *
+*   octrope_error_check()                              *
 ********************************************************
 EON
