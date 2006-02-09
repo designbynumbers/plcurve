@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.14 2006-02-08 23:24:02 ashted Exp $
+ *  $Id: plCurve.h,v 1.15 2006-02-09 21:22:16 ashted Exp $
  *
  */
 
@@ -233,6 +233,12 @@ double plCurve_cst_check(const plCurve L, const plCurve_constraint cst);
  * satisfied it was 
  */
 double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst);
+
+/* Check plcl_error_num, report on nonzero, terminate on positive */
+inline void plcl_status_check();
+
+/* Either return (if given a char *) or print out the library version number */
+inline void plCurve_version(char *version);
 
 /* Allocate new spline_link. */
 plCurve_spline *linklib_spline_link_new(int components, 

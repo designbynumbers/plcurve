@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.34 2006-02-08 23:24:02 ashted Exp $
+ *  $Id: plCurve.c,v 1.35 2006-02-09 21:22:16 ashted Exp $
  *
  */
 
@@ -838,10 +838,6 @@ plCurve *plCurve_read(FILE *file)
     }
   }
 
-  free(ccarray);
-  free(open);
-  free(nvarray);
-
   return L;
 }
 
@@ -1097,4 +1093,30 @@ void plCurve_force_closed(plCurve *link)
   }
 
   plCurve_fix_wrap(link);
+}
+
+/*
+ * Check plcl_error_num, report if there is an error or warning and exit if it
+ * is an error.
+ *
+ */
+inline void plcl_status_check() {
+  if (plcl_error_num != 0) {
+    fprintf(stderr,"%s",plcl_error_str);
+    if (plcl_error_num > 0) {
+      exit(plcl_error_num);
+    }
+  }
+}
+
+/* 
+ * Either return or display the library version number.
+ *
+ */
+inline void plCurve_version(char *version) {
+  if (version == NULL) {
+    printf("plCurve Version: %s\n",PACKAGE_VERSION);
+  } else {
+    sprintf(version,PACKAGE_VERSION);
+  }
 }
