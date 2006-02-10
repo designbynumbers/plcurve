@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.10 2006-02-08 23:24:02 ashted Exp $
+ * $Id: splines.c,v 1.11 2006-02-10 19:10:33 ashted Exp $
  *
  * This code generates refinements of links, component by component, using the
  * Numerical Recipes spline code for interpolation. 
@@ -702,3 +702,13 @@ plcl_vector evaluate_spline_link(plCurve_spline *spL,int cmp,double s)
   return retV;
 
 }
+
+/*
+ * Take a plCurve, make sure it satisfies its constraints, convert it to a
+ * spline and back, returning a plCurve with the desired number of points (or
+ * as close to it as can be, given the constraints.
+ *
+ */
+plCurve *meliorate(plCurve *L) {
+  return L;
+} 

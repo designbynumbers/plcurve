@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.15 2006-02-09 21:22:16 ashted Exp $
+ *  $Id: plCurve.h,v 1.16 2006-02-10 19:10:33 ashted Exp $
  *
  */
 
@@ -57,6 +57,7 @@ char plcl_error_str[80];
 /* Define 3-space vectors */
 typedef struct plcl_vector_type {  
   double c[3];
+  int cst; /* Which constraint, if any, this vertex satisfies */
 } plcl_vector;
 
 typedef struct plCurve_color_type {
@@ -80,8 +81,6 @@ typedef struct plCurve_pline_type {
 #define PLCL_IN_PLANE  3  /* Vertex must lie in the given plane */
 
 typedef struct plCurve_constraint_type {
-  int    cp;      /* Component */
-  int    vt;      /* Vertex */
   int    kind;    /* What kind of constraint */
   double coef[6]; /* Coefficients for defining plane or line */
 } plCurve_constraint;
@@ -195,6 +194,15 @@ plCurve *plCurve_new(int components, const int *nv,
 /* Free the link (and plines) */
 void plCurve_free(plCurve *L);
 
+/* Set a vertex */
+inline void plCurve_set_vertex(plCurve *L, const int cmp, const int vertex,
+                               const double x, const double y, const double z);
+
+/* Set a constraint */
+inline void plCurve_set_constraint(plCurve *L, const int cmp, const int vertex,
+                                   const int kind,
+                                   const int coef[6]);
+
 /* Read link data from a file */
 plCurve *plCurve_read(FILE *infile);
 
@@ -220,19 +228,19 @@ plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt);
 double plCurve_arclength(plCurve *L,double *component_lengths);
 
 /* Find the arclength position of a point on a link. */
-double plCurve_parameter(plCurve *L,int cmp,int vertnum);
+double plCurve_parameter(plCurve *L,int cmp,int vertex);
 
 /* Force a plCurve to close as gently as possible */
 void plCurve_force_closed(plCurve *link);
 
 /* Return a value for how far a constraint is from being satisfied */
-double plCurve_cst_check(const plCurve L, const plCurve_constraint cst);
+double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex);
 
 /* 
  * Force a constraint to be satisfied and return a value for how far from being
  * satisfied it was 
  */
-double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst);
+double plCurve_cst_fix(const plCurve *L, const int cmp, const int vertex);
 
 /* Check plcl_error_num, report on nonzero, terminate on positive */
 inline void plcl_status_check();

@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.35 2006-02-09 21:22:16 ashted Exp $
+ *  $Id: plCurve.c,v 1.36 2006-02-10 19:10:33 ashted Exp $
  *
  */
 
@@ -298,19 +298,37 @@ static inline plcl_vector Closest_plane_point(const plcl_vector point,
  *
  */
 
-double plCurve_cst_check(const plCurve L, const plCurve_constraint cst) {
-  
+double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex) {
   plcl_vector closest;
+  plCurve_constraint cst;
 
   plcl_error_num = plcl_error_str[0] = 0;
+
+  if (cmp < 0 || cmp >= L->nc) {
+    plcl_error_num = PLCL_E_BAD_COMPONENT;
+    sprintf(plcl_error_str,
+      "plCurve_parameter: Component value out of range (0..%d): %d.\n",
+      L->nc-1, cmp);
+    return -1;
+  }
+
+  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+    plcl_error_num = PLCL_E_BAD_VERTEX;
+    sprintf(plcl_error_str,
+      "plCurve_parameter: Vertex value out of range (0..%d): %d.\n",
+      L->cp[cmp].nv-1, vertex);
+    return -1;
+  }
+
+  cst = L->cst[L->cp[cmp].vt[vertex].cst];
   if (cst.kind == PLCL_FIXED) {
     closest.c[0] = cst.coef[0];
     closest.c[1] = cst.coef[1];
     closest.c[2] = cst.coef[2];
   } else if (cst.kind == PLCL_ON_LINE) {
-    closest = Closest_line_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
+    closest = Closest_line_point(L->cp[cmp].vt[vertex],cst.coef);
   } else if (cst.kind == PLCL_IN_PLANE) {
-    closest = Closest_plane_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
+    closest = Closest_plane_point(L->cp[cmp].vt[vertex],cst.coef);
   } else {
     plcl_error_num = PLCL_E_BAD_CST_KIND;
     sprintf(plcl_error_str,
@@ -318,7 +336,7 @@ double plCurve_cst_check(const plCurve L, const plCurve_constraint cst) {
     return -1;
   }
 
-  return plcl_M_distance(L.cp[cst.cp].vt[cst.vt],closest);
+  return plcl_M_distance(L->cp[cmp].vt[vertex],closest);
 }
 
 /*
@@ -327,19 +345,38 @@ double plCurve_cst_check(const plCurve L, const plCurve_constraint cst) {
  *
  */
 
-double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst) {
+double plCurve_cst_fix(const plCurve *L, const int cmp, const int vertex) {
   
   plcl_vector closest;
+  plCurve_constraint cst;
 
   plcl_error_num = plcl_error_str[0] = 0;
+
+  if (cmp < 0 || cmp >= L->nc) {
+    plcl_error_num = PLCL_E_BAD_COMPONENT;
+    sprintf(plcl_error_str,
+      "plCurve_parameter: Component value out of range (0..%d): %d.\n",
+      L->nc-1, cmp);
+    return -1;
+  }
+
+  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+    plcl_error_num = PLCL_E_BAD_VERTEX;
+    sprintf(plcl_error_str,
+      "plCurve_parameter: Vertex value out of range (0..%d): %d.\n",
+      L->cp[cmp].nv-1, vertex);
+    return -1;
+  }
+
+  cst = L->cst[L->cp[cmp].vt[vertex].cst];
   if (cst.kind == PLCL_FIXED) {
     closest.c[0] = cst.coef[0];
     closest.c[1] = cst.coef[1];
     closest.c[2] = cst.coef[2];
   } else if (cst.kind == PLCL_ON_LINE) {
-    closest = Closest_line_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
+    closest = Closest_line_point(L->cp[cmp].vt[vertex],cst.coef);
   } else if (cst.kind == PLCL_IN_PLANE) {
-    closest = Closest_plane_point(L.cp[cst.cp].vt[cst.vt],cst.coef);
+    closest = Closest_plane_point(L->cp[cmp].vt[vertex],cst.coef);
   } else {
     plcl_error_num = PLCL_E_BAD_CST_KIND;
     sprintf(plcl_error_str,
@@ -347,8 +384,8 @@ double plCurve_cst_fix(const plCurve L, const plCurve_constraint cst) {
     return -1;
   }
 
-  double dist = plcl_M_distance(L.cp[cst.cp].vt[cst.vt],closest);
-  L.cp[cst.cp].vt[cst.vt] = closest;
+  double dist = plcl_M_distance(L->cp[cmp].vt[vertex],closest);
+  L->cp[cmp].vt[vertex] = closest;
 
   return dist;
 }
@@ -414,6 +451,39 @@ void plCurve_free(plCurve *L) {
   L = NULL;
 } /* plCurve_free */
 
+/* Set a vertex to the desired triple.  */
+inline void plCurve_set_vertex(plCurve *L, const int cmp, const int vertex,
+                               const double x, const double y, const double z)
+{
+  plcl_error_num = plcl_error_str[0] = 0;
+
+  /* First, we check the input. */
+  if (L == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str, "plCurve_set_vertex: Called with NULL pointer.\n");
+    return;
+  }
+  if (cmp < 0 || cmp >= L->nc) {
+    plcl_error_num = PLCL_E_BAD_COMPONENT;
+    sprintf(plcl_error_str,
+      "plCurve_set_vertex: Component value out of range (0..%d): %d.\n",
+      L->nc-1, cmp);
+    return;
+  }
+  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+    plcl_error_num = PLCL_E_BAD_VERTEX;
+    sprintf(plcl_error_str,
+      "plCurve_set_vertex: Vertex value out of range (0..%d): %d.\n",
+      L->cp[cmp].nv-1, vertex);
+    return;
+  }
+  L->cp[cmp].vt[vertex].c[0] = x;
+  L->cp[cmp].vt[vertex].c[1] = y;
+  L->cp[cmp].vt[vertex].c[2] = z;
+
+  return;
+}
+
 /*
  * Writes the link to a file in Geomview VECT format.  The file format is:
  *
@@ -436,10 +506,10 @@ void plCurve_free(plCurve *L) {
  */
 
 int plCurve_write(FILE *file, const plCurve *L) {
-  int i,j;              /* Counter for the for loops */ 
-  int nverts = 0;       /* Total number of vertices of all components */
-  int colors = 0;       /* Total number of colors of all components */
-  char (*kind)[10];     /* The kinds of constraints */
+  int i,j;                  /* Counter for the for loops */ 
+  int nverts = 0;           /* Total number of vertices of all components */
+  int colors = 0;           /* Total number of colors of all components */
+  char (*kind)[10] = NULL;  /* The kinds of constraints */
 
   plcl_error_num = plcl_error_str[0] = 0;
 
@@ -542,13 +612,14 @@ int plCurve_write(FILE *file, const plCurve *L) {
   fprintf(file,"\n");
 
   
-  /* Write out the constraints, if any */
+  /* Write out the constraints, if any 
   for (i=0; i<L->ncst; i++) {
     fprintf(file,"COMMENT Cst%d_%d %s { %.16g %.16g %.16g %.16g %.16g %f }\n",
       L->cst[i].cp, L->cst[i].vt, kind[i], L->cst[i].coef[0],
       L->cst[i].coef[1], L->cst[i].coef[2], L->cst[i].coef[3],
       L->cst[i].coef[4], L->cst[i].coef[5]);
   }
+  */
 
   /* Now we write the vertex data . . . */
   for(i=0;i<L->nc;i++) {
@@ -1011,7 +1082,7 @@ double plCurve_arclength(plCurve *L,double *component_lengths)
 
 /* Procedure reports the arclength distance from the given vertex */
 /* to the 0th vertex of the given component of L. */
-double plCurve_parameter(plCurve *L,int cmp,int vertnum) {
+double plCurve_parameter(plCurve *L,int cmp,int vertex) {
 
   double tot_length;
   int vert,nv;
@@ -1035,11 +1106,11 @@ double plCurve_parameter(plCurve *L,int cmp,int vertnum) {
     return -1;
   }
 
-  if (vertnum < 0 || vertnum >= L->cp[cmp].nv) {
+  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
       "plCurve_parameter: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vertnum);
+      L->cp[cmp].nv-1, vertex);
     return -1;
   }
 
@@ -1047,7 +1118,7 @@ double plCurve_parameter(plCurve *L,int cmp,int vertnum) {
   cp = &L->cp[cmp];
   nv = (cp->open) ? cp->nv-1 : cp->nv;
 
-  for (vert = 0; vert < vertnum; vert++) {
+  for (vert = 0; vert < vertex; vert++) {
     temp_vect = cp->vt[vert+1];
     plcl_M_sub_vect(temp_vect,cp->vt[vert]);
     tot_length += plcl_M_norm(temp_vect);
