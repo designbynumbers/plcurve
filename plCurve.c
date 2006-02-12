@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.36 2006-02-10 19:10:33 ashted Exp $
+ *  $Id: plCurve.c,v 1.37 2006-02-12 19:37:01 ashted Exp $
  *
  */
 
@@ -65,6 +65,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * simpler.
  */
 static inline void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
+  int i;
  
   if (nv < 1) {
     plcl_error_num = PLCL_E_TOO_FEW_VERTS;
@@ -83,6 +84,11 @@ static inline void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
     return;
   }
   Pl->vt++; /* so that Pl->vt[-1] is a valid space */
+  
+  /* Set all of the vertices unconstrained */
+  for (i = -1; i <= nv; i++) {
+    Pl->vt[i].cst = 0 ;
+  }
 
   Pl->cc = cc;
   if ((Pl->clr = (plCurve_color *)calloc(cc,sizeof(plCurve_color))) == NULL) {
@@ -451,6 +457,144 @@ void plCurve_free(plCurve *L) {
   L = NULL;
 } /* plCurve_free */
 
+/* Set a constraint on a vertex or run of vertices */
+inline int plCurve_set_constraint(plCurve *L, const int cmp, 
+                                  const int vertex, const int num_verts, 
+                                  const int kind, const int coef0,
+                                  const int coef1, const int coef2,
+                                  const int coef3, const int coef4,
+                                  const int coef5) {
+  int i;
+  int cst;
+
+  plcl_error_num = plcl_error_str[0] = 0;
+
+  /* First, we check the input. */
+  if (L == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str, 
+      "plCurve_set_constraint: Called with NULL pointer.\n");
+    return -1;
+  }
+  if (cmp < 0 || cmp >= L->nc) {
+    plcl_error_num = PLCL_E_BAD_COMPONENT;
+    sprintf(plcl_error_str,
+      "plCurve_set_constraint: Component value out of range (0..%d): %d.\n",
+      L->nc-1, cmp);
+    return -1;
+  }
+  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+    plcl_error_num = PLCL_E_BAD_VERTEX;
+    sprintf(plcl_error_str,
+      "plCurve_set_constraint: Vertex value out of range (0..%d): %d.\n",
+      L->cp[cmp].nv-1, vertex);
+    return -1;
+  }
+  if (num_verts < 1) {
+    plcl_error_num = PLCL_E_TOO_FEW_VERTS;
+    sprintf(plcl_error_str,
+      "plCurve_set_constraint: Can't set constraint on %d vertices.\n",
+      num_verts);
+    return -1;
+  }
+  if (L->cp[cmp].nv < vertex+num_verts) {
+    plcl_error_num = PLCL_E_TOO_MANY_VRTS;
+    sprintf(plcl_error_str, "plCurve_set_constraint: Component only has %d "
+      "verts, can't set %d--%d.\n", L->cp[cmp].nv, vertex, vertex+num_verts-1);
+    return -1;
+  }
+
+  cst = -1;
+  for (i=0; i < L->ncst; i++) {
+    if (kind  == L->cst[i].kind    &&
+        coef0 == L->cst[i].coef[0] &&
+        coef1 == L->cst[i].coef[1] &&
+        coef2 == L->cst[i].coef[2] &&
+        coef3 == L->cst[i].coef[3] &&
+        coef4 == L->cst[i].coef[4] &&
+        coef5 == L->cst[i].coef[5]) {
+    /* found the constraint, use it */
+      cst = i; 
+      i = L->ncst;
+    }
+  }
+  printf("Here we are: %d\n",cst);
+  if (cst < 0) { /* Didn't find it */
+    if (L->ncst % 10 == 0) { /* Time to allocate more constraint space */
+      if ((L->cst = 
+        realloc(L->cst,(L->ncst+10)*sizeof(plCurve_constraint))) == NULL) {
+        plcl_error_num = PLCL_E_CANT_ALLOC;
+        sprintf(plcl_error_str,
+          "plCurve_set_constraint: Can't expand array of constraints.\n");
+        return -1;
+      }
+    }
+    cst = L->ncst;
+    L->cst[cst].kind = kind;
+    L->cst[cst].coef[0] = coef0;
+    L->cst[cst].coef[1] = coef1;
+    L->cst[cst].coef[2] = coef2;
+    L->cst[cst].coef[3] = coef3;
+    L->cst[cst].coef[4] = coef4;
+    L->cst[cst].coef[5] = coef5;
+    L->ncst++;
+  }
+
+  /* Now constrain those vertices */
+  for (i=vertex; i < vertex+num_verts; i++) {
+    L->cp[cmp].vt[i].cst = cst;
+  }
+  
+  return 0;
+}
+
+/* Set vertices to unconstrained */
+inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
+                                      const int vertex, const int num_verts) {
+  int i;
+  
+  plcl_error_num = plcl_error_str[0] = 0;
+
+  /* First, we check the input. */
+  if (L == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str, 
+      "plCurve_set_unconstrained: Called with NULL pointer.\n");
+    return;
+  }
+  if (cmp < 0 || cmp >= L->nc) {
+    plcl_error_num = PLCL_E_BAD_COMPONENT;
+    sprintf(plcl_error_str,
+      "plCurve_set_unconstrained: Component value out of range (0..%d): %d.\n",
+      L->nc-1, cmp);
+    return;
+  }
+  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+    plcl_error_num = PLCL_E_BAD_VERTEX;
+    sprintf(plcl_error_str,
+      "plCurve_set_unconstrained: Vertex value out of range (0..%d): %d.\n",
+      L->cp[cmp].nv-1, vertex);
+    return;
+  }
+  if (num_verts < 1) {
+    plcl_error_num = PLCL_E_TOO_FEW_VERTS;
+    sprintf(plcl_error_str,
+      "plCurve_set_unconstrained: Can't unconstrain %d vertices.\n",
+      num_verts);
+    return;
+  }
+  if (L->cp[cmp].nv < vertex+num_verts) {
+    plcl_error_num = PLCL_E_TOO_MANY_VRTS;
+    sprintf(plcl_error_str, "plCurve_set_unconstrained: Component only has %d "
+      "verts, can't set %d--%d.\n", L->cp[cmp].nv, vertex, vertex+num_verts-1);
+    return;
+  }
+
+  for (i = vertex; i < vertex+num_verts; i++) {
+    L->cp[cmp].vt[i].cst = 0;
+  }
+}
+
 /* Set a vertex to the desired triple.  */
 inline void plCurve_set_vertex(plCurve *L, const int cmp, const int vertex,
                                const double x, const double y, const double z)
@@ -506,9 +650,10 @@ inline void plCurve_set_vertex(plCurve *L, const int cmp, const int vertex,
  */
 
 int plCurve_write(FILE *file, const plCurve *L) {
-  int i,j;                  /* Counter for the for loops */ 
+  int i,j,cmp,vert;         /* Counters for the for loops */ 
   int nverts = 0;           /* Total number of vertices of all components */
   int colors = 0;           /* Total number of colors of all components */
+  char outstr[80] = "";     /* So we can wrap the constraint lines */
   char (*kind)[10] = NULL;  /* The kinds of constraints */
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -553,14 +698,14 @@ int plCurve_write(FILE *file, const plCurve *L) {
     plcl_error_num = PLCL_E_NEG_CST;
     sprintf(plcl_error_str,
       "plCurve_write: plCurve corrupted.  L.ncst == %d.\n",L->ncst);
-    return NULL;
+    return -1;
   }
 
   if (L->ncst > 0 && L->cst == NULL) {
     plcl_error_num = PLCL_E_NULL_PTR;
     sprintf(plcl_error_str,
       "plCurve_write: plCurve corrupted.  L.ncst=%d but cst NULL.\n",L->ncst);
-    return NULL;
+    return -1;
   }
 
   if (L->ncst > 0) {
@@ -611,15 +756,26 @@ int plCurve_write(FILE *file, const plCurve *L) {
   }
   fprintf(file,"\n");
 
-  
-  /* Write out the constraints, if any 
-  for (i=0; i<L->ncst; i++) {
-    fprintf(file,"COMMENT Cst%d_%d %s { %.16g %.16g %.16g %.16g %.16g %f }\n",
-      L->cst[i].cp, L->cst[i].vt, kind[i], L->cst[i].coef[0],
-      L->cst[i].coef[1], L->cst[i].coef[2], L->cst[i].coef[3],
-      L->cst[i].coef[4], L->cst[i].coef[5]);
+  /* Write out the constraints, if any */
+  for (i=0; i < L->ncst; i++) {
+    sprintf(outstr,
+      "COMMENT cst %d { %s %.16g %.16g %.16g %.16g %.16g %.16g ",
+      i, kind[i], L->cst[i].coef[0], L->cst[i].coef[1], L->cst[i].coef[2],
+      L->cst[i].coef[3], L->cst[i].coef[4], L->cst[i].coef[5]);
+    for (cmp = 0; cmp < L->nc; cmp++) {
+      for (vert = 0; vert < L->cp[cmp].nv; vert++) {
+        printf(">%s<\n",outstr);
+        if (L->cp[cmp].vt[vert].cst == i) {
+          sprintf(outstr,"%s%d %d ",outstr,cmp,vert);
+        }
+        if (strlen(outstr) > 65) {
+          fprintf(file,"%s\n",outstr);
+          outstr[0] = '\0';
+        }
+      }
+    }
+    fprintf(file,"%s}\n",outstr);
   }
-  */
 
   /* Now we write the vertex data . . . */
   for(i=0;i<L->nc;i++) {
@@ -988,7 +1144,7 @@ plCurve *plCurve_copy(const plCurve *L) {
     open[cnt] = L->cp[cnt].open;
     ccarray[cnt] = L->cp[cnt].cc;
   }
-  nL = plCurve_new(L->nc,nv,open,ccarray,0,NULL);
+  nL = plCurve_new(L->nc,nv,open,ccarray,L->ncst,L->cst);
 
   for (cnt = 0; cnt < L->nc; cnt++) {
     /*

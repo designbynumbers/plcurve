@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.16 2006-02-10 19:10:33 ashted Exp $
+ *  $Id: plCurve.h,v 1.17 2006-02-12 19:37:01 ashted Exp $
  *
  */
 
@@ -85,8 +85,8 @@ typedef struct plCurve_constraint_type {
   double coef[6]; /* Coefficients for defining plane or line */
 } plCurve_constraint;
   
-typedef struct plCurve_type {	
-  int nc;			/* Number of components */
+typedef struct plCurve_type {   
+  int nc;                       /* Number of components */
   plCurve_pline *cp;            /* Components */
   int ncst;                     /* Number of constraints */
   plCurve_constraint *cst;      /* The constraints themselves */
@@ -104,8 +104,8 @@ typedef struct linklib_spline_pline_type {
   plCurve_color  *clr2;     /* second derivatives at these s values */
 } linklib_spline_pline;
 
-typedef struct plCurve_spline_type {	
-  int nc;			/* Number of components */
+typedef struct plCurve_spline_type {    
+  int nc;                       /* Number of components */
   linklib_spline_pline *cp;     /* Components */
 } plCurve_spline;
 
@@ -152,34 +152,39 @@ inline double plcl_norm(plcl_vector A);
 #define plcl_M_scale_vect(s,V)  \
   (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
 
-  /* Add a multiple of B to A */
+/* Add a multiple of B to A */
 #define linklib_vmadd(A,s,B) \
   (A).c[0] += (s)*(B).c[0]; (A).c[1] += (s)*(B).c[1]; (A).c[2] += (s)*(B).c[2];
 
 /* A becomes a linear combination of B and C */
 #define plcl_M_vlincomb(A,s,B,t,C) \
-    (A).c[0] = s*(B).c[0] + t*(C).c[0]; \
-    (A).c[1] = s*(B).c[1] + t*(C).c[1]; \
-    (A).c[2] = s*(B).c[2] + t*(C).c[2]; 
+  (A).c[0] = s*(B).c[0] + t*(C).c[0]; \
+  (A).c[1] = s*(B).c[1] + t*(C).c[1]; \
+  (A).c[2] = s*(B).c[2] + t*(C).c[2]; 
 
-  /* A = B + s(C-B)                               *
-   * equivalent to                                *
-   *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
+/* A = B + s(C-B)                               *
+ * equivalent to                                *
+ *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
 #define plcl_M_vweighted(A,s,B,C)  \
-    plcl_M_vlincomb(A,(1.0-s),B,s,C)
+  plcl_M_vlincomb(A,(1.0-s),B,s,C)
 
 #define plcl_M_component_mult(A,B) \
-    (A).c[0] *= (B).c[0]; \
-    (A).c[1] *= (B).c[1]; \
-    (A).c[2] *= (B).c[2];
+  (A).c[0] *= (B).c[0]; \
+  (A).c[1] *= (B).c[1]; \
+  (A).c[2] *= (B).c[2];
 
 #define plcl_M_component_div(A,B) \
-    (A).c[0] /= (B).c[0]; \
-    (A).c[1] /= (B).c[1]; \
-    (A).c[2] /= (B).c[2];
+  (A).c[0] /= (B).c[0]; \
+  (A).c[1] /= (B).c[1]; \
+  (A).c[2] /= (B).c[2];
 
 #define plcl_M_distance(A,B) \
-    plcl_norm(plcl_vect_diff((A),(B)));
+  plcl_norm(plcl_vect_diff((A),(B)));
+
+#define plCurve_M_set_vertex(L,cmp,vertex,x,y,z) \
+  L->cp[cmp].vt[vertex].c[0] = x; \
+  L->cp[cmp].vt[vertex].c[1] = y; \
+  L->cp[cmp].vt[vertex].c[2] = z;
 
 /* 
  * Prototypes for routines to deal with plCurves.
@@ -198,10 +203,17 @@ void plCurve_free(plCurve *L);
 inline void plCurve_set_vertex(plCurve *L, const int cmp, const int vertex,
                                const double x, const double y, const double z);
 
-/* Set a constraint */
-inline void plCurve_set_constraint(plCurve *L, const int cmp, const int vertex,
-                                   const int kind,
-                                   const int coef[6]);
+/* Set a constraint on a vertex or run of vertices */
+inline int plCurve_set_constraint(plCurve *L, const int cmp, 
+                                  const int vertex, const int num_verts, 
+                                  const int kind, const int coef1,
+                                  const int coef2, const int coef3,
+                                  const int coef4, const int coef5,
+                                  const int coef6);
+
+/* Set a vertex or run of vertices to unconstrained */
+inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
+                                      const int vertex, const int num_verts);
 
 /* Read link data from a file */
 plCurve *plCurve_read(FILE *infile);
@@ -250,9 +262,9 @@ inline void plCurve_version(char *version);
 
 /* Allocate new spline_link. */
 plCurve_spline *linklib_spline_link_new(int components, 
-					       const int *ns, 
-					       const int *open, 
-					       const int *cc);
+                                               const int *ns, 
+                                               const int *open, 
+                                               const int *cc);
 
 /* Free memory for spline_link. */
 void linklib_spline_link_free(plCurve_spline *L);
@@ -290,6 +302,7 @@ plcl_vector evaluate_spline_link(plCurve_spline *spL,int cmp,double s);
 #define PLCL_E_TOO_FEW_SAMPS 21
 #define PLCL_E_SMP_TOO_CLOSE 22
 #define PLCL_E_CANT_FIND_POS 23
+#define PLCL_E_TOO_MANY_VRTS 24
 
 #if (__cplusplus || c_plusplus)
 };
