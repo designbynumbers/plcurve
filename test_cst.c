@@ -20,8 +20,22 @@ int main() {
   plCurve_M_set_vertex(L,1,1,0,0,1);
   plCurve_set_constraint(L,0,0,100,PLCL_IN_PLANE,0,0,1,0,0,0);
   plcl_status_check();
-  printf("Ncst: %d\n",L->ncst);
-  outfile = fopen("test.out","w");
+  plCurve_set_constraint(L,0,50,1,PLCL_ON_LINE,1,2,3,4,5,6);
+  plcl_status_check();
+  plCurve_set_constraint(L,1,0,1,PLCL_ON_LINE,3,2,3,4,5,6);
+  plcl_status_check();
+  plCurve_set_constraint(L,1,1,1,PLCL_ON_LINE,1,2,3,4,5,6);
+  plcl_status_check();
+  plCurve_set_unconstrained(L,0,75,5);
+  plcl_status_check();
+  plCurve_set_unconstrained(L,0,25,5);
+  plcl_status_check();
+  plCurve_set_constraint(L,0,32,1,PLCL_FIXED,32,0,32,0,0,32);
+  for (i = 0; i < 100; i++) {
+    printf("Constraint: %d -- %lf\n",i,plCurve_cst_check(L,0,i));
+    plcl_status_check();
+  }
+  outfile = fopen("test_cst.vect","w");
   plCurve_write(outfile,L);
   fclose(outfile);
   plcl_status_check();

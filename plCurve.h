@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.17 2006-02-12 19:37:01 ashted Exp $
+ *  $Id: plCurve.h,v 1.18 2006-02-13 21:06:56 ashted Exp $
  *
  */
 
@@ -284,7 +284,7 @@ plcl_vector evaluate_spline_link(plCurve_spline *spL,int cmp,double s);
 #define PLCL_E_CANT_ALLOC     3
 #define PLCL_E_TOO_FEW_COMPS  4
 #define PLCL_E_NULL_PTR       5
-#define PLCL_E_NEG_CST        6
+#define PLCL_E_BAD_CST        6
 #define PLCL_E_BAD_CST_KIND   7
 #define PLCL_E_TOO_FEW_DBLS   8
 #define PLCL_E_TOO_FEW_INTS   9
