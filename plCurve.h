@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.19 2006-02-14 02:38:06 ashted Exp $
+ *  $Id: plCurve.h,v 1.20 2006-02-14 21:58:35 ashted Exp $
  *
  */
 
@@ -85,6 +85,14 @@ typedef struct plCurve_constraint_type {
   double coef[6]; /* Coefficients for defining plane or line */
 } plCurve_constraint;
   
+typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
+  int    cmp;    /* component */
+  int    vert;   /* vertex */
+  char   tag[4]; /* 3-character tag */
+  double quant;  /* quantifier */
+  struct plCurve_vert_quant *next_quant;
+} plCurve_vert_quant;
+
 typedef struct plCurve_type {   
   int nc;                       /* Number of components */
   plCurve_pline *cp;            /* Components */
@@ -186,10 +194,10 @@ inline double plcl_norm(plcl_vector A);
   A.c[0], A.c[1], A.c[2]
 
 /* The one plCurve macro -- this deals with plCurve and not just vectors */
-#define plCurve_M_set_vertex(L,cmp,vertex,x,y,z) \
-  L->cp[cmp].vt[vertex].c[0] = x; \
-  L->cp[cmp].vt[vertex].c[1] = y; \
-  L->cp[cmp].vt[vertex].c[2] = z;
+#define plCurve_M_set_vert(L,cmp,vert,x,y,z) \
+  L->cp[cmp].vt[vert].c[0] = x; \
+  L->cp[cmp].vt[vert].c[1] = y; \
+  L->cp[cmp].vt[vert].c[2] = z;
 
 /* 
  * Prototypes for routines to deal with plCurves.
@@ -205,12 +213,12 @@ plCurve *plCurve_new(int components, const int *nv,
 void plCurve_free(plCurve *L);
 
 /* Set a vertex */
-inline void plCurve_set_vertex(plCurve *L, const int cmp, const int vertex,
+inline void plCurve_set_vert(plCurve *L, const int cmp, const int vert,
                                const double x, const double y, const double z);
 
 /* Set a constraint on a vertex or run of vertices */
 inline int plCurve_set_constraint(plCurve *L, const int cmp, 
-                                  const int vertex, const int num_verts, 
+                                  const int vert, const int num_verts, 
                                   const int kind, const double coef0,
                                   const double coef1, const double coef2,
                                   const double coef3, const double coef4,
@@ -218,7 +226,7 @@ inline int plCurve_set_constraint(plCurve *L, const int cmp,
 
 /* Set a vertex or run of vertices to unconstrained */
 inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
-                                      const int vertex, const int num_verts);
+                                      const int vert, const int num_verts);
 
 /* Read link data from a file */
 plCurve *plCurve_read(FILE *infile);
@@ -245,19 +253,19 @@ plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt);
 double plCurve_arclength(plCurve *L,double *component_lengths);
 
 /* Find the arclength position of a point on a link. */
-double plCurve_parameter(plCurve *L,int cmp,int vertex);
+double plCurve_parameter(plCurve *L,int cmp,int vert);
 
 /* Force a plCurve to close as gently as possible */
 void plCurve_force_closed(plCurve *link);
 
 /* Return a value for how far a constraint is from being satisfied */
-double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex);
+double plCurve_cst_check(const plCurve *L, const int cmp, const int vert);
 
 /* 
  * Force a constraint to be satisfied and return a value for how far from being
  * satisfied it was 
  */
-double plCurve_cst_fix(plCurve *L, const int cmp, const int vertex);
+double plCurve_cst_fix(plCurve *L, const int cmp, const int vert);
 
 /* Check plcl_error_num, report on nonzero, terminate on positive */
 inline void plcl_status_check();

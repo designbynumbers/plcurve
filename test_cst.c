@@ -14,7 +14,7 @@ int main() {
   L = plCurve_new(2,nv,open,cc,0,NULL);
   plcl_status_check();
   for (i = 0; i < 100; i++) {
-    plCurve_M_set_vertex(L,0,i,sin(0.03*i),cos(0.03*i),0);
+    plCurve_M_set_vert(L,0,i,sin(0.03*i),cos(0.03*i),0);
     L->cp[0].clr[i].r = sin(0.03*i);
     L->cp[0].clr[i].g = 0.0;
     L->cp[0].clr[i].b = cos(0.03*i);
@@ -24,8 +24,8 @@ int main() {
   L->cp[1].clr[0].g = 1.0;
   L->cp[1].clr[0].b = 0.0;
   L->cp[1].clr[0].alpha = 1;
-  plCurve_M_set_vertex(L,1,0,0,0,0);
-  plCurve_M_set_vertex(L,1,1,0,0,1);
+  plCurve_M_set_vert(L,1,0,0,0,0);
+  plCurve_M_set_vert(L,1,1,0,0,1);
   plCurve_set_constraint(L,0,0,100,PLCL_IN_PLANE,0,0,1,0,0,0);
   plcl_status_check();
   plCurve_set_constraint(L,0,50,1,PLCL_ON_LINE,1,2,3,4,5,6);

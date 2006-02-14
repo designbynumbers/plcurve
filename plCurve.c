@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.41 2006-02-14 20:35:20 ashted Exp $
+ *  $Id: plCurve.c,v 1.42 2006-02-14 21:58:35 ashted Exp $
  *
  */
 
@@ -62,7 +62,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 static inline int cst_runlength(const plCurve *L, 
                                 const int cmp, 
-                                const int vertex) {
+                                const int vert) {
   int i;
 
   if (L == NULL) {
@@ -78,17 +78,17 @@ static inline int cst_runlength(const plCurve *L,
       L->nc-1, cmp);
     return -1;
   }
-  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+  if (vert < 0 || vert >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
       "cst_runlength: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vertex);
+      L->cp[cmp].nv-1, vert);
     return -1;
   }
-  for (i = vertex; i < L->cp[cmp].nv && 
-    L->cp[cmp].vt[i].cst == L->cp[cmp].vt[vertex].cst; i++) {}
+  for (i = vert; i < L->cp[cmp].nv && 
+    L->cp[cmp].vt[i].cst == L->cp[cmp].vt[vert].cst; i++) {}
 
-  return i - vertex;
+  return i - vert;
 }
 
 /*
@@ -342,7 +342,7 @@ static inline plcl_vector Closest_plane_point(const plcl_vector point,
  *
  */
 
-double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex) {
+double plCurve_cst_check(const plCurve *L, const int cmp, const int vert) {
   plcl_vector closest;
   plCurve_constraint cst;
 
@@ -362,36 +362,36 @@ double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex) {
       L->nc-1, cmp);
     return -1;
   }
-  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+  if (vert < 0 || vert >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
       "plCurve_cst_check: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vertex);
+      L->cp[cmp].nv-1, vert);
     return -1;
   }
 
   /* Unconstrained */
-  if (L->cp[cmp].vt[vertex].cst == -1) {
+  if (L->cp[cmp].vt[vert].cst == -1) {
     return 0;
   }
-  if (L->cp[cmp].vt[vertex].cst < 0 ||
-      L->cp[cmp].vt[vertex].cst >= L->ncst) {
+  if (L->cp[cmp].vt[vert].cst < 0 ||
+      L->cp[cmp].vt[vert].cst >= L->ncst) {
     plcl_error_num = PLCL_E_BAD_CST;
     sprintf(plcl_error_str,
       "plCurve_cst_check: Constraint on %d:%d out of range (0..%d): %d.\n",
-      cmp,vertex,L->ncst-1,L->cp[cmp].vt[vertex].cst);
+      cmp,vert,L->ncst-1,L->cp[cmp].vt[vert].cst);
     return -1;
   }
 
-  cst = L->cst[L->cp[cmp].vt[vertex].cst];
+  cst = L->cst[L->cp[cmp].vt[vert].cst];
   if (cst.kind == PLCL_FIXED) {
     closest.c[0] = cst.coef[0];
     closest.c[1] = cst.coef[1];
     closest.c[2] = cst.coef[2];
   } else if (cst.kind == PLCL_ON_LINE) {
-    closest = Closest_line_point(L->cp[cmp].vt[vertex],cst.coef);
+    closest = Closest_line_point(L->cp[cmp].vt[vert],cst.coef);
   } else if (cst.kind == PLCL_IN_PLANE) {
-    closest = Closest_plane_point(L->cp[cmp].vt[vertex],cst.coef);
+    closest = Closest_plane_point(L->cp[cmp].vt[vert],cst.coef);
   } else {
     plcl_error_num = PLCL_E_BAD_CST_KIND;
     sprintf(plcl_error_str,
@@ -399,7 +399,7 @@ double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex) {
     return -1;
   }
 
-  return plcl_M_distance(L->cp[cmp].vt[vertex],closest);
+  return plcl_M_distance(L->cp[cmp].vt[vert],closest);
 }
 
 /*
@@ -408,7 +408,7 @@ double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex) {
  *
  */
 
-double plCurve_cst_fix(plCurve *L, const int cmp, const int vertex) {
+double plCurve_cst_fix(plCurve *L, const int cmp, const int vert) {
   
   plcl_vector closest;
   plCurve_constraint cst;
@@ -429,36 +429,36 @@ double plCurve_cst_fix(plCurve *L, const int cmp, const int vertex) {
       L->nc-1, cmp);
     return -1;
   }
-  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+  if (vert < 0 || vert >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
       "plCurve_cst_fix: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vertex);
+      L->cp[cmp].nv-1, vert);
     return -1;
   }
 
   /* Unconstrained */
-  if (L->cp[cmp].vt[vertex].cst == -1) {
+  if (L->cp[cmp].vt[vert].cst == -1) {
     return 0;
   }
-  if (L->cp[cmp].vt[vertex].cst < 0 ||
-      L->cp[cmp].vt[vertex].cst >= L->ncst) {
+  if (L->cp[cmp].vt[vert].cst < 0 ||
+      L->cp[cmp].vt[vert].cst >= L->ncst) {
     plcl_error_num = PLCL_E_BAD_CST;
     sprintf(plcl_error_str,
       "plCurve_cst_fix: Constraint on %d:%d out of range (0..%d): %d.\n",
-      cmp,vertex,L->ncst-1,L->cp[cmp].vt[vertex].cst);
+      cmp,vert,L->ncst-1,L->cp[cmp].vt[vert].cst);
     return -1;
   }
 
-  cst = L->cst[L->cp[cmp].vt[vertex].cst];
+  cst = L->cst[L->cp[cmp].vt[vert].cst];
   if (cst.kind == PLCL_FIXED) {
     closest.c[0] = cst.coef[0];
     closest.c[1] = cst.coef[1];
     closest.c[2] = cst.coef[2];
   } else if (cst.kind == PLCL_ON_LINE) {
-    closest = Closest_line_point(L->cp[cmp].vt[vertex],cst.coef);
+    closest = Closest_line_point(L->cp[cmp].vt[vert],cst.coef);
   } else if (cst.kind == PLCL_IN_PLANE) {
-    closest = Closest_plane_point(L->cp[cmp].vt[vertex],cst.coef);
+    closest = Closest_plane_point(L->cp[cmp].vt[vert],cst.coef);
   } else {
     plcl_error_num = PLCL_E_BAD_CST_KIND;
     sprintf(plcl_error_str,
@@ -466,8 +466,8 @@ double plCurve_cst_fix(plCurve *L, const int cmp, const int vertex) {
     return -1;
   }
 
-  double dist = plcl_M_distance(L->cp[cmp].vt[vertex],closest);
-  plCurve_set_vertex(L,cmp,vertex,plcl_M_clist(closest));
+  double dist = plcl_M_distance(L->cp[cmp].vt[vert],closest);
+  plCurve_set_vert(L,cmp,vert,plcl_M_clist(closest));
 
   return dist;
 }
@@ -534,7 +534,7 @@ void plCurve_free(plCurve *L) {
 } /* plCurve_free */
 
 /* Set a constraint on a vertex or run of vertices */
-int plCurve_set_constraint(plCurve *L, const int cmp, const int vertex, const
+int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
                            int num_verts, const int kind, const double coef0,
                            const double coef1, const double coef2, 
                            const double coef3, const double coef4, 
@@ -558,11 +558,11 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vertex, const
       L->nc-1, cmp);
     return -1;
   }
-  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+  if (vert < 0 || vert >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
       "plCurve_set_constraint: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vertex);
+      L->cp[cmp].nv-1, vert);
     return -1;
   }
   if (num_verts < 1) {
@@ -572,10 +572,10 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vertex, const
       num_verts);
     return -1;
   }
-  if (L->cp[cmp].nv < vertex+num_verts) {
+  if (L->cp[cmp].nv < vert+num_verts) {
     plcl_error_num = PLCL_E_TOO_MANY_VRTS;
     sprintf(plcl_error_str, "plCurve_set_constraint: Component only has %d "
-      "verts, can't set %d--%d.\n", L->cp[cmp].nv, vertex, vertex+num_verts-1);
+      "verts, can't set %d--%d.\n", L->cp[cmp].nv, vert, vert+num_verts-1);
     return -1;
   }
 
@@ -615,7 +615,7 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vertex, const
   }
 
   /* Now constrain those vertices */
-  for (i=vertex; i < vertex+num_verts; i++) {
+  for (i=vert; i < vert+num_verts; i++) {
     L->cp[cmp].vt[i].cst = cst;
   }
   
@@ -663,7 +663,7 @@ int plCurve_remove_constraint(const plCurve *L, const int cst) {
 
 /* Set vertices to unconstrained */
 inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
-                                      const int vertex, const int num_verts) {
+                                      const int vert, const int num_verts) {
   int i;
   
   plcl_error_num = plcl_error_str[0] = 0;
@@ -682,11 +682,11 @@ inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
       L->nc-1, cmp);
     return;
   }
-  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+  if (vert < 0 || vert >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
       "plCurve_set_unconstrained: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vertex);
+      L->cp[cmp].nv-1, vert);
     return;
   }
   if (num_verts < 1) {
@@ -696,48 +696,48 @@ inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
       num_verts);
     return;
   }
-  if (L->cp[cmp].nv < vertex+num_verts) {
+  if (L->cp[cmp].nv < vert+num_verts) {
     plcl_error_num = PLCL_E_TOO_MANY_VRTS;
     sprintf(plcl_error_str, "plCurve_set_unconstrained: Component only has %d "
-      "verts, can't set %d--%d.\n", L->cp[cmp].nv, vertex, vertex+num_verts-1);
+      "verts, can't set %d--%d.\n", L->cp[cmp].nv, vert, vert+num_verts-1);
     return;
   }
 
   /* Start with all the vertices unconstrained */
-  for (i = vertex; i < vertex+num_verts; i++) {
+  for (i = vert; i < vert+num_verts; i++) {
     L->cp[cmp].vt[i].cst = -1;
   }
 }
 
 /* Set a vertex to the desired triple.  */
-inline void plCurve_set_vertex(plCurve *L, const int cmp, const int vertex,
-                               const double x, const double y, const double z)
+inline void plCurve_set_vert(plCurve *L, const int cmp, const int vert,
+                             const double x, const double y, const double z)
 {
   plcl_error_num = plcl_error_str[0] = 0;
 
   /* First, we check the input. */
   if (L == NULL) {
     plcl_error_num = PLCL_E_NULL_PTR;
-    sprintf(plcl_error_str, "plCurve_set_vertex: Called with NULL pointer.\n");
+    sprintf(plcl_error_str, "plCurve_set_vert: Called with NULL pointer.\n");
     return;
   }
   if (cmp < 0 || cmp >= L->nc) {
     plcl_error_num = PLCL_E_BAD_COMPONENT;
     sprintf(plcl_error_str,
-      "plCurve_set_vertex: Component value out of range (0..%d): %d.\n",
+      "plCurve_set_vert: Component value out of range (0..%d): %d.\n",
       L->nc-1, cmp);
     return;
   }
-  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+  if (vert < 0 || vert >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
-      "plCurve_set_vertex: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vertex);
+      "plCurve_set_vert: Vertex value out of range (0..%d): %d.\n",
+      L->cp[cmp].nv-1, vert);
     return;
   }
-  L->cp[cmp].vt[vertex].c[0] = x;
-  L->cp[cmp].vt[vertex].c[1] = y;
-  L->cp[cmp].vt[vertex].c[2] = z;
+  L->cp[cmp].vt[vert].c[0] = x;
+  L->cp[cmp].vt[vert].c[1] = y;
+  L->cp[cmp].vt[vert].c[2] = z;
 
   return;
 }
@@ -1357,7 +1357,7 @@ double plCurve_arclength(plCurve *L,double *component_lengths)
 
 /* Procedure reports the arclength distance from the given vertex */
 /* to the 0th vertex of the given component of L. */
-double plCurve_parameter(plCurve *L,int cmp,int vertex) {
+double plCurve_parameter(plCurve *L,int cmp,int vert) {
 
   double tot_length;
   int vert,nv;
@@ -1381,11 +1381,11 @@ double plCurve_parameter(plCurve *L,int cmp,int vertex) {
     return -1;
   }
 
-  if (vertex < 0 || vertex >= L->cp[cmp].nv) {
+  if (vert < 0 || vert >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
       "plCurve_parameter: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vertex);
+      L->cp[cmp].nv-1, vert);
     return -1;
   }
 
@@ -1393,7 +1393,7 @@ double plCurve_parameter(plCurve *L,int cmp,int vertex) {
   cp = &L->cp[cmp];
   nv = (cp->open) ? cp->nv-1 : cp->nv;
 
-  for (vert = 0; vert < vertex; vert++) {
+  for (vert = 0; vert < vert; vert++) {
     temp_vect = cp->vt[vert+1];
     plcl_M_sub_vect(temp_vect,cp->vt[vert]);
     tot_length += plcl_M_norm(temp_vect);
