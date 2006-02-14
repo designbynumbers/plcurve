@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.39 2006-02-14 02:38:06 ashted Exp $
+ *  $Id: plCurve.c,v 1.40 2006-02-14 02:46:48 ashted Exp $
  *
  */
 
@@ -284,6 +284,7 @@ static inline plcl_vector Closest_line_point(const plcl_vector point,
   ret_vect.c[0] = a*t + b;
   ret_vect.c[1] = c*t + d;
   ret_vect.c[2] = e*t + f;
+  ret_vect.cst = point.cst;
 
   return ret_vect;
 }
@@ -330,6 +331,7 @@ static inline plcl_vector Closest_plane_point(const plcl_vector point,
   ret_vect.c[0] = x;
   ret_vect.c[1] = y;
   ret_vect.c[2] = (d - a*x - b*y)/c;
+  ret_vect.cst = point.cst;
 
   return ret_vect;
 }
@@ -872,9 +874,7 @@ int plCurve_write(FILE *file, const plCurve *L) {
   /* Now we write the vertex data . . . */
   for(i=0;i<L->nc;i++) {
     for(j=0;j<L->cp[i].nv;j++) {
-      fprintf(file,"%.16g %.16g %.16g \n", 
-              L->cp[i].vt[j].c[0], L->cp[i].vt[j].c[1],
-              L->cp[i].vt[j].c[2]);
+      fprintf(file,"%.16g %.16g %.16g \n", plcl_M_clist(L->cp[i].vt[j]));
     }
   }
 
@@ -1156,9 +1156,7 @@ plCurve *plCurve_read(FILE *file)
   for(i = 0; i < ncomp; i++) {
     nv = L->cp[i].nv;
     for(j = 0; j < nv; j++) {
-      if (scandoubles(file,3,&L->cp[i].vt[j].c[0],
-                             &L->cp[i].vt[j].c[1],
-                             &L->cp[i].vt[j].c[2]) != 3) {
+      if (scandoubles(file,3,plcl_M_clist(&L->cp[i].vt[j])) != 3) {
         plCurve_free(L);
         plcl_error_num = PLCL_E_BAD_VERT_LINE;
         sprintf(plcl_error_str,"plCurve_read: Couldn't parse "
