@@ -1,7 +1,7 @@
 /*
  * Sample program to show the use of liboctrope.a
  *
- * $Id: test_readwrite.c,v 1.4 2006-02-09 21:22:16 ashted Exp $
+ * $Id: test_readwrite.c,v 1.5 2006-02-14 20:35:20 ashted Exp $
  *
  */
 
@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 int main(int argc,char *argv[]) {
   plCurve *L;
   FILE *infile,*outfile;
-  char outname[L_tmpnam],command[200 + 2*L_tmpnam],diffname[L_tmpnam];
+  char outname[L_tmpnam],command[200 + 2*L_tmpnam];
 
   if (argc < 2) {
     printf("usage: test_readwrite <file.vect>\n");
@@ -46,7 +46,7 @@ int main(int argc,char *argv[]) {
   }
 
   plCurve_version(NULL);
-  printf("test_readwrite: $Revision: 1.4 $\n");
+  printf("test_readwrite: $Revision: 1.5 $\n");
 
   infile = fopen(argv[1],"r");
 
@@ -70,12 +70,13 @@ int main(int argc,char *argv[]) {
   outfile = fopen(outname,"w");
 
   plCurve_write(outfile,L);
+  plcl_status_check();
   printf("test_readwrite: Wrote file to temporary file %s.\n",outname);
-
-  sprintf(diffname,"diff_results.txt");
-  sprintf(command,"diff -bB %s %s > %s",argv[1],outname,diffname);
-  
   fclose(outfile);
 
+  sprintf(command,"diff -u -bB %s %s",argv[1],outname);
+
+  system(command);
+  
   return 0;
 }

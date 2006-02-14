@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.40 2006-02-14 02:46:48 ashted Exp $
+ *  $Id: plCurve.c,v 1.41 2006-02-14 20:35:20 ashted Exp $
  *
  */
 
@@ -1169,7 +1169,7 @@ plCurve *plCurve_read(FILE *file)
   plCurve_fix_wrap(L);
 
   /*
-   * And finally the colors. Unfortunately, to really comply with 
+   * And next the colors. Unfortunately, to really comply with 
    *   the Geomview standard here we have to be kind of careful. 
    */
   for (i=0; i < ncomp; i++) {
