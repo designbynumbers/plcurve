@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.20 2006-02-14 21:58:35 ashted Exp $
+ *  $Id: plCurve.h,v 1.21 2006-02-14 22:34:09 ashted Exp $
  *
  */
 
@@ -81,15 +81,19 @@ typedef struct plCurve_pline_type {
 #define PLCL_IN_PLANE  3  /* Vertex must lie in the given plane */
 
 typedef struct plCurve_constraint_type {
-  int    kind;    /* What kind of constraint */
-  double coef[6]; /* Coefficients for defining plane or line */
+  int    kind;      /* What kind of constraint */
+  double coef[6];   /* Coefficients for defining plane or line */
+  int    cmp;       /* Component */
+  int    vert;      /* Starting vertex */
+  int    num_verts; /* Length of run */
+  struct plCurve_constraint_type *next;
 } plCurve_constraint;
   
 typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
-  int    cmp;    /* component */
-  int    vert;   /* vertex */
+  int    cmp;    /* Component */
+  int    vert;   /* Vertex */
   char   tag[4]; /* 3-character tag */
-  double quant;  /* quantifier */
+  double quant;  /* Quantifier */
   struct plCurve_vert_quant *next_quant;
 } plCurve_vert_quant;
 
@@ -98,6 +102,7 @@ typedef struct plCurve_type {
   plCurve_pline *cp;            /* Components */
   int ncst;                     /* Number of constraints */
   plCurve_constraint *cst;      /* The constraints themselves */
+  plCurve_vert_quant *quant;    /* per-vertex quantifiers */
 } plCurve;
 
 /* PlCurve_spline types */

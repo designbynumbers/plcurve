@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.42 2006-02-14 21:58:35 ashted Exp $
+ *  $Id: plCurve.c,v 1.43 2006-02-14 22:34:09 ashted Exp $
  *
  */
 
@@ -840,7 +840,7 @@ int plCurve_write(FILE *file, const plCurve *L) {
       } else {
         plcl_error_num = PLCL_E_BAD_CST_KIND;
         sprintf(plcl_error_str,
-          "plCurve_cst_check: Unknown constraint kind: %d.\n",
+          "plCurve_write: Unknown constraint kind: %d.\n",
           L->cst[i].kind);
         return -1;
       }
@@ -855,7 +855,7 @@ int plCurve_write(FILE *file, const plCurve *L) {
 
   /* We are ready to write the link. */
   fprintf(file,"VECT \n");
-  fprintf(file,"%d %d %d \n",L->nc,nverts,colors);
+  fprintf(file,"%d %d %d # Components Vertices Colors\n",L->nc,nverts,colors);
   
   for(i=0;i<L->nc;i++) {
     if (L->cp[i].open) {
@@ -864,22 +864,28 @@ int plCurve_write(FILE *file, const plCurve *L) {
       fprintf(file,"%d ",-L->cp[i].nv);
     }
   }
-  fprintf(file,"\n");
+  fprintf(file,"# Vertices per Component\n");
 
   for(i=0;i<L->nc;i++) {
     fprintf(file,"%d ",L->cp[i].cc);
   }
-  fprintf(file,"\n");
+  fprintf(file,"# Colors per Compoment\n");
+  
+  fprintf(file,"# Vertex coordinates\n");
 
   /* Now we write the vertex data . . . */
   for(i=0;i<L->nc;i++) {
+    fprintf(file,"# Component %d\n",i);
     for(j=0;j<L->cp[i].nv;j++) {
       fprintf(file,"%.16g %.16g %.16g \n", plcl_M_clist(L->cp[i].vt[j]));
     }
   }
 
+  fprintf(file,"# Colors (red green blue alpha)\n");
+
   /* . . . and the color data. */
   for (i=0; i < L->nc; i++) {
+    fprintf(file,"# Component %d\n",i);
     for (j=0; j < L->cp[i].cc; j++) {
       fprintf(file,"%g %g %g %g\n", L->cp[i].clr[j].r, L->cp[i].clr[j].g,
         L->cp[i].clr[j].b, L->cp[i].clr[j].alpha);
@@ -1360,7 +1366,7 @@ double plCurve_arclength(plCurve *L,double *component_lengths)
 double plCurve_parameter(plCurve *L,int cmp,int vert) {
 
   double tot_length;
-  int vert,nv;
+  int v,nv;
   plCurve_pline *cp;
   plcl_vector temp_vect;
 
@@ -1393,9 +1399,9 @@ double plCurve_parameter(plCurve *L,int cmp,int vert) {
   cp = &L->cp[cmp];
   nv = (cp->open) ? cp->nv-1 : cp->nv;
 
-  for (vert = 0; vert < vert; vert++) {
-    temp_vect = cp->vt[vert+1];
-    plcl_M_sub_vect(temp_vect,cp->vt[vert]);
+  for (v = 0; v < vert; v++) {
+    temp_vect = cp->vt[v+1];
+    plcl_M_sub_vect(temp_vect,cp->vt[v]);
     tot_length += plcl_M_norm(temp_vect);
   }
 
