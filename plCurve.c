@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.43 2006-02-14 22:34:09 ashted Exp $
+ *  $Id: plCurve.c,v 1.44 2006-02-14 23:17:43 ashted Exp $
  *
  */
 
@@ -533,6 +533,31 @@ void plCurve_free(plCurve *L) {
   L = NULL;
 } /* plCurve_free */
 
+static inline 
+plCurve_constraint *new_constraint(int kind, double coef0, double coef1, 
+                                   double coef2, double coef3, double coef4,
+                                   double coef5, int cmp, int vert, 
+                                   int num_verts) {
+  plCurve_constraint *ncst;
+
+  if ((ncst = malloc(sizeof(plCurve_constraint))) == NULL) {
+    plcl_error_num = PLCL_E_CANT_ALLOC;
+    sprintf(plcl_error_str, 
+      "new_constraint: Couldn't allocate space for new constraint.\n");
+    return NULL;
+  }
+  ncst->kind = kind;
+  ncst->coef[0] = coef0;
+  ncst->coef[1] = coef1;
+  ncst->coef[2] = coef2;
+  ncst->coef[3] = coef3;
+  ncst->coef[4] = coef4;
+  ncst->coef[5] = coef5;
+  ncst->cmp = cmp;
+  ncst->vert = vert;
+  ncst->num_verts = num_verts;
+}
+
 /* Set a constraint on a vertex or run of vertices */
 int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
                            int num_verts, const int kind, const double coef0,
@@ -540,7 +565,7 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
                            const double coef3, const double coef4, 
                            const double coef5) {
   int i;
-  int cst;
+  plCurve_constraint *cst,*pcst,ncst;  /* Constraint, Previous Constraint */
 
   plcl_error_num = plcl_error_str[0] = 0;
 
@@ -579,7 +604,25 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
     return -1;
   }
 
-  cst = -1;
+  /* Seek down the list */
+  for (pcst = cst = L->cst; 
+       cst != NULL && (cst->cmp < cmp || cst->vert+cst->num_verts <= vert);
+       cst = cst->next) {
+    pcst = cst;
+  }
+  /* Now cst either points to a constraint which applies to the vertex in
+   * question (or some vertex after it) or it points to NULL because there was
+   * no such constraint found.  On the other hand, pcst either points to the
+   * constraint just prior to the constraint which cst points to or else it is
+   * NULL.  */
+  if (cst == NULL) {
+    /* Got to the end of the list without finding it. */
+    if (pcst == NULL) { 
+      /* There was no list */ 
+      L->cst = new_constraint(kind, coef0, coef1, coef2, coef3, coef4, coef5,
+                              cmp, vert, num_verts);
+    }
+  }
   for (i=0; i < L->ncst; i++) {
     if (kind  == L->cst[i].kind    &&
         coef0 == L->cst[i].coef[0] &&
