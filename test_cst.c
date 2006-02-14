@@ -1,3 +1,10 @@
+/*
+ * $id$
+ *
+ * Test the constraint-handling code
+ *
+ */
+
 #include <stdio.h>
 #include <math.h>
 
