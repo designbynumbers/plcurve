@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.18 2006-02-13 21:06:56 ashted Exp $
+ *  $Id: plCurve.h,v 1.19 2006-02-14 02:38:06 ashted Exp $
  *
  */
 
@@ -181,6 +181,11 @@ inline double plcl_norm(plcl_vector A);
 #define plcl_M_distance(A,B) \
   plcl_norm(plcl_vect_diff((A),(B)));
 
+/* The components of a vector, as a list */
+#define plcl_M_clist(A) \
+  A.c[0], A.c[1], A.c[2]
+
+/* The one plCurve macro -- this deals with plCurve and not just vectors */
 #define plCurve_M_set_vertex(L,cmp,vertex,x,y,z) \
   L->cp[cmp].vt[vertex].c[0] = x; \
   L->cp[cmp].vt[vertex].c[1] = y; \
@@ -206,10 +211,10 @@ inline void plCurve_set_vertex(plCurve *L, const int cmp, const int vertex,
 /* Set a constraint on a vertex or run of vertices */
 inline int plCurve_set_constraint(plCurve *L, const int cmp, 
                                   const int vertex, const int num_verts, 
-                                  const int kind, const int coef1,
-                                  const int coef2, const int coef3,
-                                  const int coef4, const int coef5,
-                                  const int coef6);
+                                  const int kind, const double coef0,
+                                  const double coef1, const double coef2,
+                                  const double coef3, const double coef4,
+                                  const double coef5);
 
 /* Set a vertex or run of vertices to unconstrained */
 inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
@@ -252,7 +257,7 @@ double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex);
  * Force a constraint to be satisfied and return a value for how far from being
  * satisfied it was 
  */
-double plCurve_cst_fix(const plCurve *L, const int cmp, const int vertex);
+double plCurve_cst_fix(plCurve *L, const int cmp, const int vertex);
 
 /* Check plcl_error_num, report on nonzero, terminate on positive */
 inline void plcl_status_check();

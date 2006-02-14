@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.38 2006-02-13 21:06:56 ashted Exp $
+ *  $Id: plCurve.c,v 1.39 2006-02-14 02:38:06 ashted Exp $
  *
  */
 
@@ -376,7 +376,7 @@ double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex) {
       L->cp[cmp].vt[vertex].cst >= L->ncst) {
     plcl_error_num = PLCL_E_BAD_CST;
     sprintf(plcl_error_str,
-      "plCurve_cst_fix: Constraint on %d:%d out of range (0..%d): %d.\n",
+      "plCurve_cst_check: Constraint on %d:%d out of range (0..%d): %d.\n",
       cmp,vertex,L->ncst-1,L->cp[cmp].vt[vertex].cst);
     return -1;
   }
@@ -406,7 +406,7 @@ double plCurve_cst_check(const plCurve *L, const int cmp, const int vertex) {
  *
  */
 
-double plCurve_cst_fix(const plCurve *L, const int cmp, const int vertex) {
+double plCurve_cst_fix(plCurve *L, const int cmp, const int vertex) {
   
   plcl_vector closest;
   plCurve_constraint cst;
@@ -465,7 +465,7 @@ double plCurve_cst_fix(const plCurve *L, const int cmp, const int vertex) {
   }
 
   double dist = plcl_M_distance(L->cp[cmp].vt[vertex],closest);
-  L->cp[cmp].vt[vertex] = closest;
+  plCurve_set_vertex(L,cmp,vertex,plcl_M_clist(closest));
 
   return dist;
 }
@@ -532,12 +532,11 @@ void plCurve_free(plCurve *L) {
 } /* plCurve_free */
 
 /* Set a constraint on a vertex or run of vertices */
-inline int plCurve_set_constraint(plCurve *L, const int cmp, 
-                                  const int vertex, const int num_verts, 
-                                  const int kind, const int coef0,
-                                  const int coef1, const int coef2,
-                                  const int coef3, const int coef4,
-                                  const int coef5) {
+int plCurve_set_constraint(plCurve *L, const int cmp, const int vertex, const
+                           int num_verts, const int kind, const double coef0,
+                           const double coef1, const double coef2, 
+                           const double coef3, const double coef4, 
+                           const double coef5) {
   int i;
   int cst;
 
@@ -619,6 +618,45 @@ inline int plCurve_set_constraint(plCurve *L, const int cmp,
   }
   
   return 0;
+}
+
+/*
+ * Remove a constraint from the list of constraints returning the number of
+ * vertices thus set unconstrained. 
+ *
+ */
+int plCurve_remove_constraint(const plCurve *L, const int cst) {
+  int i,cmp,vert;
+
+  if (L == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str, 
+      "plCurve_remove_constraint: Called with NULL pointer.\n");
+    return -1;
+  }
+  if (cst >= L->ncst || cst < 0) {
+    plcl_error_num = PLCL_E_BAD_CST;
+    sprintf(plcl_error_str, 
+      "plCurve_remove_constraint: Constraint %d not in range (0..%d).\n",
+      cst,L->ncst-1);
+    return -1;
+  }
+
+  for (i=cst; i < L->ncst-1; i++) {
+    L->cst[i] = L->cst[i+1];
+  }
+  i = 0;
+  for (cmp = 0; cmp < L->nc; cmp++) {
+    for (vert = 0; vert < L->cp[cmp].nv; vert++) {
+      if (L->cp[cmp].vt[vert].cst == cst) {
+        L->cp[cmp].vt[vert].cst = -1;  /* Set unconstrained */
+        i++;  /* Tally how many were using that constraint */
+      } else if (L->cp[cmp].vt[vert].cst > cst) {
+        L->cp[cmp].vt[vert].cst--;
+      }
+    }
+  }
+  return i;
 }
 
 /* Set vertices to unconstrained */
@@ -861,11 +899,16 @@ int plCurve_write(FILE *file, const plCurve *L) {
       for (vert = 0; vert < L->cp[cmp].nv; vert += (runlen > 0) ? runlen : 1) {
         runlen = cst_runlength(L,cmp,vert);
         if (L->cp[cmp].vt[vert].cst == i) {
-          sprintf(outstr,"%s, %d %d %d",outstr,cmp,vert,runlen);
-        }
-        if (strlen(outstr) > 65) {
-          fprintf(file,"%s\n",outstr);
-          outstr[0] = '\0';
+#ifdef HAVE_STRLCAT
+          strlcat(outstr,",",sizeof(outstr));
+#else
+          strcat(outstr,",");
+#endif
+          if (strlen(outstr) > 65) {
+            fprintf(file,"%s\n",outstr);
+            outstr[0] = '\0';
+          }
+          sprintf(outstr,"%s %d %d %d",outstr,cmp,vert,runlen);
         }
       }
     }
