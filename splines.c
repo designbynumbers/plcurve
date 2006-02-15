@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.11 2006-02-10 19:10:33 ashted Exp $
+ * $Id: splines.c,v 1.12 2006-02-15 03:54:38 ashted Exp $
  *
  * This code generates refinements of links, component by component, using the
  * Numerical Recipes spline code for interpolation. 
@@ -113,10 +113,10 @@ static inline void spline_pline_new(linklib_spline_pline *Pl,
  * nature of each pline is given in the array pointed to by open.
  *
  */
-plCurve_spline *linklib_spline_link_new(int components, 
-                                  const int *ns, 
-                                  const int *open, 
-                                  const int *cc) 
+plCurve_spline *linklib_spline_link_new(const int components, 
+                                        const int * const ns, 
+                                        const int * const open, 
+                                        const int * const cc) 
 {
   plCurve_spline *L;
   int i;
@@ -262,7 +262,7 @@ void linklib_spline_link_free(plCurve_spline *L) {
  * the "Numerical recipes" spline code. Each line from NR is commented next to
  * the (hopefully) equivalent vectorized version below. 
  */
-plCurve_spline *convert_to_spline_link(plCurve *L)
+plCurve_spline *convert_to_spline_link(plCurve * const L)
 {
   int    i;
   int    *ns,*cc,*open;
@@ -513,7 +513,8 @@ plCurve_spline *convert_to_spline_link(plCurve *L)
  *
  * A new plCurve is allocated. 
  */
-plCurve *convert_spline_to_link(plCurve_spline *spL,int *nv)
+plCurve *convert_spline_to_link(const plCurve_spline * const spL,
+                                const int * const nv)
 {
   int *cc, *open;
   int comp, i;
@@ -630,8 +631,9 @@ plCurve *convert_spline_to_link(plCurve_spline *spL,int *nv)
 
 /* Procedure evaluates the spline link at a particular s value, 
    returning a spatial position. */
-
-plcl_vector evaluate_spline_link(plCurve_spline *spL,int cmp,double s)
+plcl_vector evaluate_spline_link(const plCurve_spline * const spL,
+                                 const int cmp,
+                                 double s)
 {
   int klo,khi,k;
   double cmpLen;

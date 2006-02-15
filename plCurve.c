@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.45 2006-02-15 03:15:05 ashted Exp $
+ *  $Id: plCurve.c,v 1.46 2006-02-15 03:54:38 ashted Exp $
  *
  */
 
@@ -60,8 +60,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * use the same constraint as this one.
  *
  */
-static inline int cst_runlength(const plCurve *L, 
-                                const int cmp, 
+static inline int cst_runlength(plCurve * const L, 
+                                int const cmp, 
                                 const int vert) {
   int i;
 
@@ -142,9 +142,9 @@ static inline void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
  * the array pointed to by open.                           
  *
  */
-plCurve *plCurve_new(int components, const int *nv, 
-                     const int *open, const int *cc, 
-                     const int ncst, const plCurve_constraint *cst)
+plCurve *plCurve_new(const int components, const int * const nv, 
+                     const int * const open, const int * const cc, 
+                     const int ncst, const plCurve_constraint * const cst)
 {
   plCurve *L;
   int i;
@@ -342,7 +342,9 @@ static inline plcl_vector Closest_plane_point(const plcl_vector point,
  *
  */
 
-double plCurve_cst_check(const plCurve *L, const int cmp, const int vert) {
+double plCurve_cst_check(const plCurve * const L, 
+                         const int cmp, 
+                         const int vert) {
   plcl_vector closest;
   plCurve_constraint cst;
 
@@ -408,7 +410,7 @@ double plCurve_cst_check(const plCurve *L, const int cmp, const int vert) {
  *
  */
 
-double plCurve_cst_fix(plCurve *L, const int cmp, const int vert) {
+double plCurve_cst_fix(plCurve * const L, const int cmp, const int vert) {
   
   plcl_vector closest;
   plCurve_constraint cst;
@@ -557,12 +559,12 @@ plCurve_constraint *new_constraint(const int kind, const double coef[6],
 }
 
 /* Set a constraint on a vertex or run of vertices */
-int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
-                           int num_verts, const int kind, const double coef0,
+int plCurve_set_constraint(plCurve * const L, const int cmp, 
+                           const int vert, const int num_verts, 
+                           const int kind, const double coef0,
                            const double coef1, const double coef2, 
                            const double coef3, const double coef4, 
                            const double coef5) {
-  int i;
   double coef[6];
   plCurve_constraint *cst,*pcst;  /* constraint, previous constraint */
   plCurve_constraint *temp_cst; /* temporary -- for freeing */
@@ -666,7 +668,7 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
              cst->cmp == cmp &&
              cst->vert <= vert+num_verts) {
     /* The one pointed to can be extended to include our range. */
------------ HERE ------------
+/* HERE */
   } else if (cst == NULL || cst->cmp >cmp || cst->vert >= vert+num_verts) {
     /* Got to the end of the list without finding it or found one which deals
      * with vertices strictly beyond our range. */
@@ -690,45 +692,11 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
       }
     } 
     /* Now put in our new one */
-  }
-  for (i=0; i < L->ncst; i++) {
-    if (kind  == L->cst[i].kind    &&
-        coef0 == L->cst[i].coef[0] &&
-        coef1 == L->cst[i].coef[1] &&
-        coef2 == L->cst[i].coef[2] &&
-        coef3 == L->cst[i].coef[3] &&
-        coef4 == L->cst[i].coef[4] &&
-        coef5 == L->cst[i].coef[5]) {
-    /* found the constraint, use it */
-      cst = i; 
-      i = L->ncst;
-    }
-  }
-  if (cst < 0) { /* Didn't find it */
-    if (L->ncst % 10 == 0) { /* Time to allocate more constraint space */
-      if ((L->cst = 
-        realloc(L->cst,(L->ncst+10)*sizeof(plCurve_constraint))) == NULL) {
-        plcl_error_num = PLCL_E_CANT_ALLOC;
-        sprintf(plcl_error_str,
-          "plCurve_set_constraint: Can't expand array of constraints.\n");
-        return -1;
-      }
-    }
-    cst = L->ncst;
-    L->cst[cst].kind = kind;
-    L->cst[cst].coef[0] = coef0;
-    L->cst[cst].coef[1] = coef1;
-    L->cst[cst].coef[2] = coef2;
-    L->cst[cst].coef[3] = coef3;
-    L->cst[cst].coef[4] = coef4;
-    L->cst[cst].coef[5] = coef5;
-    L->ncst++;
+/* Here, too */
   }
 
-  /* Now constrain those vertices */
-  for (i=vert; i < vert+num_verts; i++) {
-    L->cp[cmp].vt[i].cst = cst;
-  }
+  fprintf(stderr,"This function is not yet done, stopping\n");
+  exit(-1); 
   
   return 0;
 }
@@ -738,7 +706,7 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
  * vertices thus set unconstrained. 
  *
  */
-int plCurve_remove_constraint(const plCurve *L, const int cst) {
+int plCurve_remove_constraint(plCurve * const L, const int cst) {
   int i,cmp,vert;
 
   if (L == NULL) {
@@ -773,7 +741,7 @@ int plCurve_remove_constraint(const plCurve *L, const int cst) {
 }
 
 /* Set vertices to unconstrained */
-inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
+inline void plCurve_set_unconstrained(plCurve * const L, const int cmp,
                                       const int vert, const int num_verts) {
   int i;
   
@@ -821,7 +789,7 @@ inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
 }
 
 /* Set a vertex to the desired triple.  */
-inline void plCurve_set_vert(plCurve *L, const int cmp, const int vert,
+inline void plCurve_set_vert(plCurve * const L, const int cmp, const int vert,
                              const double x, const double y, const double z)
 {
   plcl_error_num = plcl_error_str[0] = 0;
@@ -874,7 +842,7 @@ inline void plCurve_set_vert(plCurve *L, const int cmp, const int vert,
  *
  */
 
-int plCurve_write(FILE *file, const plCurve *L) {
+int plCurve_write(FILE *file, plCurve * const L) {
   int i,j,cmp,vert;         /* Counters for the for loops */ 
   int nverts = 0;           /* Total number of vertices of all components */
   int colors = 0;           /* Total number of colors of all components */
@@ -1171,7 +1139,7 @@ static inline int scanints(FILE *infile,int nints, ...)
  * used to implement "wraparound".
  *
  */
-void plCurve_fix_wrap(const plCurve *L) {
+void plCurve_fix_wrap(plCurve * const L) {
   int i,nv;
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -1308,7 +1276,7 @@ plCurve *plCurve_read(FILE *file)
 /* 
  *   Return the total number of edges in link. 
  */
-int plCurve_num_edges(const plCurve *L) 
+int plCurve_num_edges(plCurve * const L) 
 {
   int i, edges = 0;
 
@@ -1322,7 +1290,7 @@ int plCurve_num_edges(const plCurve *L)
 
 /* Compute the curvature of L at vertex vt of component cp */
 
-double plCurve_curvature(const plCurve *L, const int comp, const int vert) {
+double plCurve_curvature(plCurve * const L, const int comp, const int vert) {
   double      kappa;
   plcl_vector in,out;
   double      normin, normout;
@@ -1360,7 +1328,7 @@ double plCurve_curvature(const plCurve *L, const int comp, const int vert) {
  * Duplicate a link and return the duplicate 
  *
  */
-plCurve *plCurve_copy(const plCurve *L) {
+plCurve *plCurve_copy(plCurve * const L) {
   plCurve *nL;
   int *nv,*open,*ccarray;
   int cnt,cnt2;
@@ -1405,20 +1373,19 @@ plCurve *plCurve_copy(const plCurve *L) {
 
 /* Procedure computes a (unit) tangent vector to <link> 
    at the given vertex of the given component. */
-plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt) {
+plcl_vector plCurve_tangent_vector(plCurve * const L,int cp, int vt) {
   plcl_vector in, out, tan;
 
   plcl_error_num = plcl_error_str[0] = 0;
 
-  if (link->cp[cp].open) {
+  if (L->cp[cp].open) {
     if (vt == 0) {
-      tan = plcl_vect_diff(link->cp[cp].vt[1],
-                  link->cp[cp].vt[0]);
+      tan = plcl_vect_diff(L->cp[cp].vt[1], L->cp[cp].vt[0]);
 
       return plcl_normalize_vect(tan);
-    } else if (vt == link->cp[cp].nv-1) {
-       tan = plcl_vect_diff(link->cp[cp].vt[link->cp[cp].nv-1],
-                   link->cp[cp].vt[link->cp[cp].nv-2]);
+    } else if (vt == L->cp[cp].nv-1) {
+       tan = plcl_vect_diff(L->cp[cp].vt[L->cp[cp].nv-1],
+                            L->cp[cp].vt[L->cp[cp].nv-2]);
 
        return plcl_normalize_vect(tan);
     }
@@ -1428,11 +1395,11 @@ plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt) {
      component, or we are not at an endpoint.   */
   
    in = plcl_normalize_vect(
-     plcl_vect_diff(link->cp[cp].vt[vt+1],link->cp[cp].vt[vt])
+     plcl_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt])
    );
 
    out = plcl_normalize_vect(
-     plcl_vect_diff(link->cp[cp].vt[vt],link->cp[cp].vt[vt-1])
+     plcl_vect_diff(L->cp[cp].vt[vt],L->cp[cp].vt[vt-1])
    );
 
    plcl_M_vweighted(tan,0.5,in,out);
@@ -1440,13 +1407,12 @@ plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt) {
 }
 
 
-double plCurve_arclength(plCurve *L,double *component_lengths)
 
 /* Procedure computes the length of each component of the link,
    and fills in the array of doubles "component_lengths", which 
    must be as long as L->nc. It returns the total length. We assume
    that fix_wrap has been called. */
-
+double plCurve_arclength(const plCurve * const L,double *component_lengths)
 {
   double tot_length;
   int cmp, nv, vert;
@@ -1471,11 +1437,10 @@ double plCurve_arclength(plCurve *L,double *component_lengths)
   return tot_length;
 }
 
-
 /* Procedure reports the arclength distance from the given vertex */
 /* to the 0th vertex of the given component of L. */
-double plCurve_parameter(plCurve *L,int cmp,int vert) {
-
+double plCurve_parameter(const plCurve * const L,const int cmp,const int vert)
+{
   double tot_length;
   int v,nv;
   plCurve_pline *cp;
@@ -1524,38 +1489,38 @@ double plCurve_parameter(plCurve *L,int cmp,int vert) {
  * change of all vertices of each such component. It also changes the "open"
  * flag and calls fix_wrap. We lose one vertex in this process. 
  */
-void plCurve_force_closed(plCurve *link)
+void plCurve_force_closed(plCurve * const L)
 {
   int i, cmp;
   plcl_vector diff;
 
   plcl_error_num = plcl_error_str[0] = 0;
 
-  for (cmp=0;cmp < link->nc;cmp++) {
-    if (link->cp[cmp].open == TRUE) {  /* Isolate the open components. */
+  for (cmp=0;cmp < L->nc;cmp++) {
+    if (L->cp[cmp].open == TRUE) {  /* Isolate the open components. */
 
       /* Compute the error in closure */
-      diff = link->cp[cmp].vt[link->cp[cmp].nv-1];   
-      plcl_M_sub_vect(diff,link->cp[cmp].vt[0]);
+      diff = L->cp[cmp].vt[L->cp[cmp].nv-1];   
+      plcl_M_sub_vect(diff,L->cp[cmp].vt[0]);
 
-      for (i=0;i<link->cp[cmp].nv;i++) {
-        plcl_M_vlincomb(link->cp[cmp].vt[i],
-          1.0,link->cp[cmp].vt[i],
-         -1.0*i/(link->cp[cmp].nv-1),diff);
+      for (i=0;i<L->cp[cmp].nv;i++) {
+        plcl_M_vlincomb(L->cp[cmp].vt[i],
+          1.0,L->cp[cmp].vt[i],
+         -1.0*i/(L->cp[cmp].nv-1),diff);
       }
 
       /* We claim to have moved the last vertex on top of the first. */
-      diff = plcl_vect_diff(link->cp[cmp].vt[0],
-                            link->cp[cmp].vt[link->cp[cmp].nv-1]);
+      diff = plcl_vect_diff(L->cp[cmp].vt[0],
+                            L->cp[cmp].vt[L->cp[cmp].nv-1]);
       assert(plcl_M_norm(diff) < 1e-10);
 
       /* Thus we eliminate the last vertex. */
-      link->cp[cmp].nv--;
-      link->cp[cmp].open = FALSE;
+      L->cp[cmp].nv--;
+      L->cp[cmp].open = FALSE;
     }
   }
 
-  plCurve_fix_wrap(link);
+  plCurve_fix_wrap(L);
 }
 
 /*

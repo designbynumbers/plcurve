@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.21 2006-02-14 22:34:09 ashted Exp $
+ *  $Id: plCurve.h,v 1.22 2006-02-15 03:54:38 ashted Exp $
  *
  */
 
@@ -210,67 +210,69 @@ inline double plcl_norm(plcl_vector A);
  */
 
 /* Build a new link (with associated plines) */
-plCurve *plCurve_new(int components, const int *nv, 
-                     const int *open, const int *cc, 
-                     const int ncst, const plCurve_constraint *cst);
+plCurve *plCurve_new(const int components, const int * const nv, 
+                     const int * const open, const int * const cc, 
+                     const int ncst, const plCurve_constraint * const cst);
 
 /* Free the link (and plines) */
 void plCurve_free(plCurve *L);
 
 /* Set a vertex */
-inline void plCurve_set_vert(plCurve *L, const int cmp, const int vert,
-                               const double x, const double y, const double z);
+inline void plCurve_set_vert(plCurve * const L, const int cmp, const int vert,
+                             const double x, const double y, const double z);
 
 /* Set a constraint on a vertex or run of vertices */
-inline int plCurve_set_constraint(plCurve *L, const int cmp, 
-                                  const int vert, const int num_verts, 
-                                  const int kind, const double coef0,
-                                  const double coef1, const double coef2,
-                                  const double coef3, const double coef4,
-                                  const double coef5);
+int plCurve_set_constraint(plCurve * const L, const int cmp, 
+                           const int vert, const int num_verts, 
+                           const int kind, const double coef0,
+                           const double coef1, const double coef2,
+                           const double coef3, const double coef4,
+                           const double coef5);
 
 /* Set a vertex or run of vertices to unconstrained */
-inline void plCurve_set_unconstrained(const plCurve *L, const int cmp,
+inline void plCurve_set_unconstrained(plCurve * const L, const int cmp,
                                       const int vert, const int num_verts);
 
 /* Read link data from a file */
 plCurve *plCurve_read(FILE *infile);
 
 /* Write link data to a file */
-int plCurve_write(FILE *outfile, const plCurve *L);
+int plCurve_write(FILE *outfile, plCurve * const L);
 
 /* Fix the "hidden vertices" for easy handling of closed components */
-void plCurve_fix_wrap(const plCurve *L);
+void plCurve_fix_wrap(plCurve * const L);
 
 /* Count the edges in a link (correctly handling open/closed) */
-int plCurve_num_edges(const plCurve *L);
+int plCurve_num_edges(plCurve * const L);
 
 /* Compute the (minrad-based) curvature of L at vertex vt of component cp */
-double plCurve_curvature(const plCurve *L, const int cp, const int vt);
+double plCurve_curvature(plCurve * const L, const int cp, const int vt);
 
 /* Copy a link */
-plCurve *plCurve_copy(const plCurve *L);
+plCurve *plCurve_copy(plCurve * const L);
 
 /* Compute tangent vector */
-plcl_vector plCurve_tangent_vector(plCurve *link,int cp, int vt);
+plcl_vector plCurve_tangent_vector(plCurve * const L,int cp, int vt);
 
 /* Find the arclength of a link. */
-double plCurve_arclength(plCurve *L,double *component_lengths);
+double plCurve_arclength(const plCurve * const L,double *component_lengths);
 
 /* Find the arclength position of a point on a link. */
-double plCurve_parameter(plCurve *L,int cmp,int vert);
+double plCurve_parameter(const plCurve * const L,const int cmp,const int vert);
 
 /* Force a plCurve to close as gently as possible */
-void plCurve_force_closed(plCurve *link);
+void plCurve_force_closed(plCurve * const L);
 
 /* Return a value for how far a constraint is from being satisfied */
-double plCurve_cst_check(const plCurve *L, const int cmp, const int vert);
+double plCurve_cst_check(const plCurve * const L, 
+                         const int cmp, 
+                         const int vert);
 
 /* 
  * Force a constraint to be satisfied and return a value for how far from being
  * satisfied it was 
  */
-double plCurve_cst_fix(plCurve *L, const int cmp, const int vert);
+double plCurve_cst_fix(plCurve * const L, const int cmp, const int vert);
 
 /* Check plcl_error_num, report on nonzero, terminate on positive */
 inline void plcl_status_check();
@@ -279,23 +281,25 @@ inline void plcl_status_check();
 inline void plCurve_version(char *version);
 
 /* Allocate new spline_link. */
-plCurve_spline *linklib_spline_link_new(int components, 
-                                               const int *ns, 
-                                               const int *open, 
-                                               const int *cc);
+plCurve_spline *linklib_spline_link_new(const int components, 
+                                        const int * const ns, 
+                                        const int * const open, 
+                                        const int * const cc);
 
 /* Free memory for spline_link. */
 void linklib_spline_link_free(plCurve_spline *L);
 
 /* Convert conventional link to spline_link. */
-plCurve_spline *convert_to_spline_link(plCurve *L);
+plCurve_spline *convert_to_spline_link(plCurve * const L);
 
 /* Convert spline_link to conventional link (with resampling). */
-plCurve *convert_spline_to_link(plCurve_spline *spL,int *nv);
+plCurve *convert_spline_to_link(const plCurve_spline * const spL,
+                                const int * const nv);
 
 /* Evaluate a spline_link at a particular s value. */
-plcl_vector evaluate_spline_link(plCurve_spline *spL,int cmp,double s);
-
+plcl_vector evaluate_spline_link(const plCurve_spline * const spL,
+                                 const int cmp,
+                                 double s);
 /* Define the error codes */
 #define PLCL_E_BAD_RANDOM     1
 #define PLCL_E_TOO_FEW_VERTS  2
