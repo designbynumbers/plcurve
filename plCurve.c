@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.46 2006-02-15 03:54:38 ashted Exp $
+ *  $Id: plCurve.c,v 1.47 2006-02-15 22:39:19 ashted Exp $
  *
  */
 
@@ -55,40 +55,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <plCurve.h>
 
-/*
- * Find the number of consecutive vertices (starting with this one) which all
- * use the same constraint as this one.
- *
- */
-static inline int cst_runlength(plCurve * const L, 
-                                int const cmp, 
-                                const int vert) {
-  int i;
-
-  if (L == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
-    sprintf(plcl_error_str, 
-      "cst_runlength: Called with NULL pointer.\n");
-    return -1;
-  }
-  if (cmp < 0 || cmp >= L->nc) {
-    plcl_error_num = PLCL_E_BAD_COMPONENT;
-    sprintf(plcl_error_str,
-      "cst_runlength: Component value out of range (0..%d): %d.\n",
-      L->nc-1, cmp);
-    return -1;
-  }
-  if (vert < 0 || vert >= L->cp[cmp].nv) {
-    plcl_error_num = PLCL_E_BAD_VERTEX;
-    sprintf(plcl_error_str,
-      "cst_runlength: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vert);
-    return -1;
-  }
-  for (i = vert; i < L->cp[cmp].nv && 
-    L->cp[cmp].vt[i].cst == L->cp[cmp].vt[vert].cst; i++) {}
-
-  return i - vert;
+/* Utility routines */
+static inline double doublemin(const double a, const double b) {
+  return (a <= b) ? a : b;
+}
+static inline double doublemax(const double a, const double b) {
+  return (a >= b) ? a : b;
+}
+static inline int intmin(const int a, const int b) {
+  return (a <= b) ? a : b;
+}
+static inline int intmax(const int a, const int b) {
+  return (a >= b) ? a : b;
 }
 
 /*
@@ -101,7 +79,6 @@ static inline int cst_runlength(plCurve * const L,
  * simpler.
  */
 static inline void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
-  int i;
  
   if (nv < 1) {
     plcl_error_num = PLCL_E_TOO_FEW_VERTS;
@@ -121,11 +98,6 @@ static inline void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
   }
   Pl->vt++; /* so that Pl->vt[-1] is a valid space */
   
-  /* Set all of the vertices unconstrained */
-  for (i = -1; i <= nv; i++) {
-    Pl->vt[i].cst = -1;
-  }
-
   Pl->cc = cc;
   if ((Pl->clr = (plCurve_color *)calloc(cc,sizeof(plCurve_color))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
@@ -143,8 +115,7 @@ static inline void pline_new(plCurve_pline *Pl,int nv, int open, int cc) {
  *
  */
 plCurve *plCurve_new(const int components, const int * const nv, 
-                     const int * const open, const int * const cc, 
-                     const int ncst, const plCurve_constraint * const cst)
+                     const int * const open, const int * const cc)
 {
   plCurve *L;
   int i;
@@ -198,20 +169,6 @@ plCurve *plCurve_new(const int components, const int * const nv,
     }
   }
 
-  if (ncst < 0) {
-    plcl_error_num = PLCL_E_BAD_CST;
-    sprintf(plcl_error_str,
-      "plCurve_new: Can't have %d constraints.\n",ncst);
-    return NULL;
-  }
-
-  if (ncst > 0 && cst == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
-    sprintf(plcl_error_str,
-      "plCurve_new: Called with ncst=%d but cst NULL.\n",ncst);
-    return NULL;
-  }
-
   /* Now we attempt to allocate space for these components. */
   
   if ((L = (plCurve *)malloc(sizeof(plCurve))) == NULL) {
@@ -230,26 +187,16 @@ plCurve *plCurve_new(const int components, const int * const nv,
       return NULL;
     }
   }
-  L->ncst = ncst;
-  if (ncst > 0) {
-    if ((L->cst = (plCurve_constraint *)
-      malloc(L->ncst*sizeof(plCurve_constraint))) == NULL) {
-      plcl_error_num = PLCL_E_CANT_ALLOC;
-      sprintf(plcl_error_str,
-        "plCurve_new: Can't allocate array of constraints.\n");
-      return NULL;
-    }
-  }
 
   for (i = 0; i < L->nc; i++) {
     pline_new(&L->cp[i],nv[i],open[i],cc[i]);
   }
-  for (i = 0; i < L->ncst; i++) {
-    L->cst[i] = cst[i];
-  }
+
+  /* Start off with no constraints */
+  L->cst = NULL;
 
   return L;
-}
+} /* plCurve_new */
 
 /*
  * Find the closest point on the given line to the given point.
@@ -266,8 +213,7 @@ plCurve *plCurve_new(const int components, const int * const nv,
  *
  */
 static inline plcl_vector Closest_line_point(const plcl_vector point, 
-                                      const double *coef) {
-
+                                             const double coef[6]) {
   plcl_vector ret_vect;
   double a = coef[0];
   double b = coef[1];
@@ -279,12 +225,27 @@ static inline plcl_vector Closest_line_point(const plcl_vector point,
   double y = point.c[1];
   double z = point.c[2];
 
+  /* Make sure that we aren't about to divide by zero */
+  double denom = (a*a + c*c + e*e);
+  if (denom == 0.0) {
+    plcl_error_num = PLCL_E_BAD_CST;
+#ifdef HAVE_STRLCPY
+    strlcpy(plcl_error_str, "Closest_line_point: Constraint corrupted. "
+      "a, c, and e are all 0.\n", sizeof(plcl_error_str));
+#else
+    strncpy(plcl_error_str, "Closest_line_point: Constraint corrupted. "
+      "a, c, and e are all 0.\n", sizeof(plcl_error_str)-1);
+    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+#endif
+    plcl_M_set_vect(ret_vect,0,0,0);
+    return ret_vect;
+  }
+
   double t = (a*(x-b) + c*(y-d) + e*(z-f))/(a*a + c*c + e*e);
 
   ret_vect.c[0] = a*t + b;
   ret_vect.c[1] = c*t + d;
   ret_vect.c[2] = e*t + f;
-  ret_vect.cst = point.cst;
 
   return ret_vect;
 }
@@ -313,7 +274,7 @@ static inline plcl_vector Closest_line_point(const plcl_vector point,
  *
  */
 static inline plcl_vector Closest_plane_point(const plcl_vector point, 
-                                       const double *coef) {
+                                              const double coef[6]) {
 
   plcl_vector ret_vect;
   double a = coef[0];
@@ -323,30 +284,66 @@ static inline plcl_vector Closest_plane_point(const plcl_vector point,
   double x1 = point.c[0];
   double y1 = point.c[1];
   double z1 = point.c[2];
+  int i0 = 0;
+  int i1 = 1;
+  int i2 = 2;
 
-  double frac = (a*x1 + b*y1 + c*z1 - d)/(a*a + b*b + c*c);
+  /* 
+   * We need to make sure that we aren't dividing by some tiny number later on.
+   */
+  if (c <= 1e-12 && c >= -1e-12) {
+    if (b <= 1e-12 && b >= -1e-12) {
+      i0 = 2; 
+      i2 = 0;
+      c = a;
+      a = coef[2];
+    } else {
+      i1 = 2;
+      i2 = 1;
+      c = b;
+      b = coef[2];
+    }
+  }
+
+  /* And that we aren't dividing by zero now */
+  double denom = (a*a + b*b + c*c);
+  if (denom == 0) {
+    plcl_error_num = PLCL_E_BAD_CST;
+#ifdef HAVE_STRLCPY
+    strlcpy(plcl_error_str, "Closest_plane_point: Constraint corrupted. "
+      "First 3 coefficients are 0.\n", sizeof(plcl_error_str));
+#else
+    strncpy(plcl_error_str, "Closest_plane_point: Constraint corrupted. "
+      "First 3 coefficients are 0.\n", sizeof(plcl_error_str)-1);
+    plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
+#endif
+    plcl_M_set_vect(ret_vect,0,0,0);
+    return ret_vect;
+  }
+
+  double frac = (a*x1 + b*y1 + c*z1 - d)/denom;
   double x = x1 - a*frac;
   double y = y1 - b*frac;
 
-  ret_vect.c[0] = x;
-  ret_vect.c[1] = y;
-  ret_vect.c[2] = (d - a*x - b*y)/c;
-  ret_vect.cst = point.cst;
+  ret_vect.c[i0] = x;
+  ret_vect.c[i1] = y;
+  ret_vect.c[i2] = (d - a*x - b*y)/c;
 
   return ret_vect;
 }
 
 /*
  * Check to see if the given constraint is satisfied and return value for 
- * how far off it is.
+ * how far off it is.  If fix is set to TRUE, then move the vertex to the
+ * closest constraint-compliant spot.
  *
  */
-
-double plCurve_cst_check(const plCurve * const L, 
-                         const int cmp, 
-                         const int vert) {
+double plCurve_cst_check(const plCurve * const L, int fix) {
   plcl_vector closest;
-  plCurve_constraint cst;
+  plCurve_constraint *cst;
+  double max_err = 0.0;
+  int vert; 
+  double sq_dist;  /* The squared distance */
 
   plcl_error_num = plcl_error_str[0] = 0;
 
@@ -357,122 +354,55 @@ double plCurve_cst_check(const plCurve * const L,
       "plCurve_cst_check: Called with NULL pointer.\n");
     return -1;
   }
-  if (cmp < 0 || cmp >= L->nc) {
-    plcl_error_num = PLCL_E_BAD_COMPONENT;
-    sprintf(plcl_error_str,
-      "plCurve_cst_check: Component value out of range (0..%d): %d.\n",
-      L->nc-1, cmp);
-    return -1;
-  }
-  if (vert < 0 || vert >= L->cp[cmp].nv) {
-    plcl_error_num = PLCL_E_BAD_VERTEX;
-    sprintf(plcl_error_str,
-      "plCurve_cst_check: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vert);
-    return -1;
-  }
-
-  /* Unconstrained */
-  if (L->cp[cmp].vt[vert].cst == -1) {
-    return 0;
-  }
-  if (L->cp[cmp].vt[vert].cst < 0 ||
-      L->cp[cmp].vt[vert].cst >= L->ncst) {
-    plcl_error_num = PLCL_E_BAD_CST;
-    sprintf(plcl_error_str,
-      "plCurve_cst_check: Constraint on %d:%d out of range (0..%d): %d.\n",
-      cmp,vert,L->ncst-1,L->cp[cmp].vt[vert].cst);
-    return -1;
-  }
-
-  cst = L->cst[L->cp[cmp].vt[vert].cst];
-  if (cst.kind == PLCL_FIXED) {
-    closest.c[0] = cst.coef[0];
-    closest.c[1] = cst.coef[1];
-    closest.c[2] = cst.coef[2];
-  } else if (cst.kind == PLCL_ON_LINE) {
-    closest = Closest_line_point(L->cp[cmp].vt[vert],cst.coef);
-  } else if (cst.kind == PLCL_IN_PLANE) {
-    closest = Closest_plane_point(L->cp[cmp].vt[vert],cst.coef);
-  } else {
-    plcl_error_num = PLCL_E_BAD_CST_KIND;
-    sprintf(plcl_error_str,
-      "plCurve_cst_check: Unknown constraint kind: %d.\n",cst.kind);
-    return -1;
-  }
-
-  return plcl_M_distance(L->cp[cmp].vt[vert],closest);
-}
-
-/*
- * Move the vertex to the closest possible point which satisfies the
- * constraint.
- *
- */
-
-double plCurve_cst_fix(plCurve * const L, const int cmp, const int vert) {
-  
-  plcl_vector closest;
-  plCurve_constraint cst;
-
-  plcl_error_num = plcl_error_str[0] = 0;
-
-  /* Sanity check */
-  if (L == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
-    sprintf(plcl_error_str, 
-      "plCurve_cst_fix: Called with NULL pointer.\n");
-    return -1;
-  }
-  if (cmp < 0 || cmp >= L->nc) {
-    plcl_error_num = PLCL_E_BAD_COMPONENT;
-    sprintf(plcl_error_str,
-      "plCurve_cst_fix: Component value out of range (0..%d): %d.\n",
-      L->nc-1, cmp);
-    return -1;
-  }
-  if (vert < 0 || vert >= L->cp[cmp].nv) {
-    plcl_error_num = PLCL_E_BAD_VERTEX;
-    sprintf(plcl_error_str,
-      "plCurve_cst_fix: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vert);
-    return -1;
+  cst = L->cst;
+  while (cst != NULL) {
+    if (cst->kind == PLCL_FIXED) {
+      closest.c[0] = cst->coef[0];
+      closest.c[1] = cst->coef[1];
+      closest.c[2] = cst->coef[2];
+      for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
+        sq_dist = plcl_M_sq_dist(L->cp[cst->cmp].vt[vert],closest);
+        max_err = doublemax(max_err,sq_dist);
+        if (fix) {
+          L->cp[cst->cmp].vt[vert] = closest;
+        }
+      } 
+    } else if (cst->kind == PLCL_ON_LINE) {
+      for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
+        closest = Closest_line_point(L->cp[cst->cmp].vt[vert],cst->coef);
+        if (plcl_error_num != 0) {
+          return -1;
+        }
+        sq_dist = plcl_M_sq_dist(L->cp[cst->cmp].vt[vert],closest);
+        max_err = doublemax(max_err,sq_dist);
+        if (fix) {
+          L->cp[cst->cmp].vt[vert] = closest;
+        }
+      } 
+    } else if (cst->kind == PLCL_IN_PLANE) {
+      for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
+        closest = Closest_plane_point(L->cp[cst->cmp].vt[vert],cst->coef);
+        if (plcl_error_num != 0) {
+          return -1;
+        }
+        fprintf(stderr,"%lg %lg %lg",plcl_M_clist(closest));
+        sq_dist = plcl_M_sq_dist(L->cp[cst->cmp].vt[vert],closest);
+        max_err = doublemax(max_err,sq_dist);
+        if (fix) {
+          L->cp[cst->cmp].vt[vert] = closest;
+        }
+      } 
+    } else {
+      plcl_error_num = PLCL_E_BAD_CST_KIND;
+      sprintf(plcl_error_str,
+        "plCurve_cst_fix: Unknown constraint kind: %d.\n",cst->kind);
+      return -1;
+    }
+    cst = cst->next;
   }
 
-  /* Unconstrained */
-  if (L->cp[cmp].vt[vert].cst == -1) {
-    return 0;
-  }
-  if (L->cp[cmp].vt[vert].cst < 0 ||
-      L->cp[cmp].vt[vert].cst >= L->ncst) {
-    plcl_error_num = PLCL_E_BAD_CST;
-    sprintf(plcl_error_str,
-      "plCurve_cst_fix: Constraint on %d:%d out of range (0..%d): %d.\n",
-      cmp,vert,L->ncst-1,L->cp[cmp].vt[vert].cst);
-    return -1;
-  }
-
-  cst = L->cst[L->cp[cmp].vt[vert].cst];
-  if (cst.kind == PLCL_FIXED) {
-    closest.c[0] = cst.coef[0];
-    closest.c[1] = cst.coef[1];
-    closest.c[2] = cst.coef[2];
-  } else if (cst.kind == PLCL_ON_LINE) {
-    closest = Closest_line_point(L->cp[cmp].vt[vert],cst.coef);
-  } else if (cst.kind == PLCL_IN_PLANE) {
-    closest = Closest_plane_point(L->cp[cmp].vt[vert],cst.coef);
-  } else {
-    plcl_error_num = PLCL_E_BAD_CST_KIND;
-    sprintf(plcl_error_str,
-      "plCurve_cst_fix: Unknown constraint kind: %d.\n",cst.kind);
-    return -1;
-  }
-
-  double dist = plcl_M_distance(L->cp[cmp].vt[vert],closest);
-  plCurve_set_vert(L,cmp,vert,plcl_M_clist(closest));
-
-  return dist;
-}
+  return sqrt(max_err);
+} /* plCurve_cst_check */
 
 /*
  * Free the memory used to hold vertices in a given pline (not the memory of
@@ -528,8 +458,8 @@ void plCurve_free(plCurve *L) {
 
   if (L->cst != NULL) {
     free(L->cst);
+    L->cst = NULL;
   }
-  L->ncst = 0;
 
   free(L);
   L = NULL;
@@ -558,16 +488,54 @@ plCurve_constraint *new_constraint(const int kind, const double coef[6],
   return ncst;
 }
 
+/*
+ * Remove any overlap between this (presumably new) constraint and the ones
+ * which follow it. 
+ *
+ */
+static inline void overrun_check(plCurve_constraint *cst) {
+
+  plCurve_constraint *temp_cst;
+
+  while (cst->next != NULL && 
+         cst->next->cmp == cst->cmp &&
+         cst->next->vert < cst->vert+cst->num_verts) {
+    /* We overlap the next one, shrink or empty it */
+    if (cst->next->vert + cst->next->num_verts <= 
+        cst->vert       + cst->num_verts) {
+      /* It has been completely subsumed and must be eliminated */
+      temp_cst = cst->next;
+      cst->next = cst->next->next; /* take it out of the list */
+      free(temp_cst);
+    } else {
+      /* It just overlaps, either move the bottom up or join the two */
+      if (cst->next->kind == cst->kind &&
+          memcmp(cst->next->coef,cst->coef,sizeof(cst->coef)) == 0) {
+        /* Same constraint so join the two */
+        temp_cst = cst->next;
+        cst->num_verts = 
+          cst->next->vert+cst->next->num_verts - cst->vert;
+        cst->next = cst->next->next;
+        free(temp_cst);
+      } else {
+        /* Different constraint, just shorten the one ahead */
+        cst->next->num_verts -= 
+          cst->vert+cst->num_verts - cst->next->vert;
+        cst->next->vert = cst->vert+cst->num_verts;
+      }
+    }
+  }
+}
+
 /* Set a constraint on a vertex or run of vertices */
-int plCurve_set_constraint(plCurve * const L, const int cmp, 
-                           const int vert, const int num_verts, 
-                           const int kind, const double coef0,
-                           const double coef1, const double coef2, 
-                           const double coef3, const double coef4, 
-                           const double coef5) {
+void plCurve_set_constraint(plCurve * const L, const int cmp, 
+                            const int vert, const int num_verts, 
+                            const int kind, const double coef0,
+                            const double coef1, const double coef2, 
+                            const double coef3, const double coef4, 
+                            const double coef5) {
   double coef[6];
   plCurve_constraint *cst,*pcst;  /* constraint, previous constraint */
-  plCurve_constraint *temp_cst; /* temporary -- for freeing */
   plCurve_constraint **pfn; /* Place for new constraint */
 
   plcl_error_num = plcl_error_str[0] = 0;
@@ -577,34 +545,34 @@ int plCurve_set_constraint(plCurve * const L, const int cmp,
     plcl_error_num = PLCL_E_NULL_PTR;
     sprintf(plcl_error_str, 
       "plCurve_set_constraint: Called with NULL pointer.\n");
-    return -1;
+    return;
   }
   if (cmp < 0 || cmp >= L->nc) {
     plcl_error_num = PLCL_E_BAD_COMPONENT;
     sprintf(plcl_error_str,
       "plCurve_set_constraint: Component value out of range (0..%d): %d.\n",
       L->nc-1, cmp);
-    return -1;
+    return;
   }
   if (vert < 0 || vert >= L->cp[cmp].nv) {
     plcl_error_num = PLCL_E_BAD_VERTEX;
     sprintf(plcl_error_str,
       "plCurve_set_constraint: Vertex value out of range (0..%d): %d.\n",
       L->cp[cmp].nv-1, vert);
-    return -1;
+    return;
   }
   if (num_verts < 1) {
     plcl_error_num = PLCL_E_TOO_FEW_VERTS;
     sprintf(plcl_error_str,
       "plCurve_set_constraint: Can't set constraint on %d vertices.\n",
       num_verts);
-    return -1;
+    return;
   }
   if (L->cp[cmp].nv < vert+num_verts) {
     plcl_error_num = PLCL_E_TOO_MANY_VRTS;
     sprintf(plcl_error_str, "plCurve_set_constraint: Component only has %d "
       "verts, can't set %d--%d.\n", L->cp[cmp].nv, vert, vert+num_verts-1);
-    return -1;
+    return;
   }
 
   /* Put these in one spot for easier passage */
@@ -647,58 +615,64 @@ int plCurve_set_constraint(plCurve * const L, const int cmp,
     /* We just passed one which has a range contiguous with the range we
        want to set and has the same attributes.  We'll just extend it. */
     pcst->num_verts += num_verts;
-    while (pcst->next != NULL && 
-           pcst->next->vert < pcst->vert+pcst->num_verts) {
-      /* We now overlap the next one, shrink or empty it */
-      if (pcst->next->vert + pcst->next->num_verts <= 
-          pcst->vert       + pcst->num_verts) {
-        /* It has been completely subsumed and must be eliminated */
-        temp_cst = pcst->next;
-        pcst->next = pcst->next->next; /* take it out of the list */
-        free(temp_cst);
-      } else {
-        /* It just overlaps, move the bottom up */
-        pcst->next->num_verts -= pcst->vert+pcst->num_verts - pcst->next->vert;
-        pcst->next->vert = pcst->vert+pcst->num_verts;
-      }
-    }
+    overrun_check(pcst);
   } else if (cst != NULL &&
              cst->kind == kind &&
              memcmp(pcst->coef,coef,sizeof(coef)) == 0 &&
              cst->cmp == cmp &&
              cst->vert <= vert+num_verts) {
-    /* The one pointed to can be extended to include our range. */
-/* HERE */
+    /* The one found can be extended to include our range. */
+    cst->num_verts = intmax(vert+num_verts,cst->vert+cst->num_verts);
+    cst->vert = intmin(vert,cst->vert);
+    cst->num_verts -= cst->vert;
   } else if (cst == NULL || cst->cmp >cmp || cst->vert >= vert+num_verts) {
     /* Got to the end of the list without finding it or found one which deals
      * with vertices strictly beyond our range. */
-    (*pfn) = new_constraint(kind, coef, cmp, vert, num_verts, cst);
+    if (kind != PLCL_UNCST) {
+      (*pfn) = new_constraint(kind, coef, cmp, vert, num_verts, cst);
+      if (plcl_error_num != 0) { return; }
+    }
   } else {
-    /* The one we found has a range that somehow relates to the one we have */
+    /* The one we found has a range that somehow overlaps to the one we have.
+     * However, neither the one prior to it nor the one found are the same
+     * constraint as we are trying to establish (otherwise we would have
+     * extended them above).
+     */
     if (cst->vert < vert) {
       /* Its range starts before ours, we'll have to leave part */
-      (*pfn) = new_constraint(cst->kind, cst->coef, cst->cmp, cst->vert,
-                 vert - cst->vert, cst);
-      /* Make the pointer point to the next place we'll hang a new consain */
-      pfn = &((*pfn)->next);
-      if (pcst == cst) {
-        /* First one on the list */
-        L->cst = new_constraint(cst->kind, cst->coef, cst->cmp, cst->vert,
-          vert - cst->vert, cst);
-        pcst = L->cst;
+      if (cst->vert+cst->num_verts > vert+num_verts) {
+        /* It also exteds past ours, we go in the middle */
+        (*pfn) = new_constraint(cst->kind, cst->coef, cst->cmp, cst->vert,
+                   vert - cst->vert, cst);
+        if (plcl_error_num != 0) { return; }
+        if (kind != PLCL_UNCST) {
+          (*pfn)->next = new_constraint(kind, coef, cmp, vert, num_verts, cst);
+          if (plcl_error_num != 0) { return; }
+        }
+        cst->num_verts -= vert + num_verts - cst->vert;
+        cst->vert = vert + num_verts;
       } else {
-        pcst->next = new_constraint(cst->kind, cst->coef, cst->cmp, cst->vert,
-          vert - cst->vert, cst);
+        /* It's just before ours, but extends into ours, shorten it. */
+        cst->num_verts = vert - cst->vert;
+        /* And attach ours to the end */
+        if (kind != PLCL_UNCST) {
+          cst->next = 
+            new_constraint(kind, coef, cmp, vert, num_verts, cst->next);
+          if (plcl_error_num != 0) { return; }
+        }
+        /* And check to see if we overran the next one */
+        cst = cst->next;
+        overrun_check(cst);
       }
-    } 
-    /* Now put in our new one */
-/* Here, too */
+    } else {
+      /* It starts no earlier than ours, put ours in before it */
+      (*pfn) = new_constraint(kind, coef, cmp, vert, num_verts, cst);
+      if (plcl_error_num != 0) { return; }
+      overrun_check(*pfn);
+    }
   }
 
-  fprintf(stderr,"This function is not yet done, stopping\n");
-  exit(-1); 
-  
-  return 0;
+  return;
 }
 
 /*
@@ -706,85 +680,40 @@ int plCurve_set_constraint(plCurve * const L, const int cmp,
  * vertices thus set unconstrained. 
  *
  */
-int plCurve_remove_constraint(plCurve * const L, const int cst) {
-  int i,cmp,vert;
+int plCurve_remove_constraint(plCurve * const L, plCurve_constraint *cst) {
+  plCurve_constraint *cst_ptr;
+  int uncst = 0;
 
-  if (L == NULL) {
+  if (L == NULL || cst == NULL) {
     plcl_error_num = PLCL_E_NULL_PTR;
     sprintf(plcl_error_str, 
       "plCurve_remove_constraint: Called with NULL pointer.\n");
     return -1;
   }
-  if (cst >= L->ncst || cst < 0) {
-    plcl_error_num = PLCL_E_BAD_CST;
-    sprintf(plcl_error_str, 
-      "plCurve_remove_constraint: Constraint %d not in range (0..%d).\n",
-      cst,L->ncst-1);
-    return -1;
-  }
 
-  for (i=cst; i < L->ncst-1; i++) {
-    L->cst[i] = L->cst[i+1];
-  }
-  i = 0;
-  for (cmp = 0; cmp < L->nc; cmp++) {
-    for (vert = 0; vert < L->cp[cmp].nv; vert++) {
-      if (L->cp[cmp].vt[vert].cst == cst) {
-        L->cp[cmp].vt[vert].cst = -1;  /* Set unconstrained */
-        i++;  /* Tally how many were using that constraint */
-      } else if (L->cp[cmp].vt[vert].cst > cst) {
-        L->cp[cmp].vt[vert].cst--;
-      }
+  if (L->cst == cst) {
+    /* Top one on the list */
+    L->cst = cst->next;
+    uncst = cst->num_verts;
+    free(cst);
+    return uncst;
+  } else {
+    cst_ptr = L->cst;
+    while (cst_ptr->next != NULL &&
+           cst_ptr->next != cst) {
+      cst_ptr = cst_ptr->next;
     }
-  }
-  return i;
-}
-
-/* Set vertices to unconstrained */
-inline void plCurve_set_unconstrained(plCurve * const L, const int cmp,
-                                      const int vert, const int num_verts) {
-  int i;
-  
-  plcl_error_num = plcl_error_str[0] = 0;
-
-  /* First, we check the input. */
-  if (L == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
-    sprintf(plcl_error_str, 
-      "plCurve_set_unconstrained: Called with NULL pointer.\n");
-    return;
-  }
-  if (cmp < 0 || cmp >= L->nc) {
-    plcl_error_num = PLCL_E_BAD_COMPONENT;
-    sprintf(plcl_error_str,
-      "plCurve_set_unconstrained: Component value out of range (0..%d): %d.\n",
-      L->nc-1, cmp);
-    return;
-  }
-  if (vert < 0 || vert >= L->cp[cmp].nv) {
-    plcl_error_num = PLCL_E_BAD_VERTEX;
-    sprintf(plcl_error_str,
-      "plCurve_set_unconstrained: Vertex value out of range (0..%d): %d.\n",
-      L->cp[cmp].nv-1, vert);
-    return;
-  }
-  if (num_verts < 1) {
-    plcl_error_num = PLCL_E_TOO_FEW_VERTS;
-    sprintf(plcl_error_str,
-      "plCurve_set_unconstrained: Can't unconstrain %d vertices.\n",
-      num_verts);
-    return;
-  }
-  if (L->cp[cmp].nv < vert+num_verts) {
-    plcl_error_num = PLCL_E_TOO_MANY_VRTS;
-    sprintf(plcl_error_str, "plCurve_set_unconstrained: Component only has %d "
-      "verts, can't set %d--%d.\n", L->cp[cmp].nv, vert, vert+num_verts-1);
-    return;
-  }
-
-  /* Start with all the vertices unconstrained */
-  for (i = vert; i < vert+num_verts; i++) {
-    L->cp[cmp].vt[i].cst = -1;
+    if (cst_ptr->next == cst) {
+      cst_ptr->next = cst->next;
+      uncst = cst->num_verts;
+      free(cst);
+      return uncst;
+    } else {
+      plcl_error_num = PLCL_E_BAD_CST;
+      sprintf(plcl_error_str, "plCurve_remove_constraint: Constraint not in "
+        "list for plCurve given.\n");
+      return -1;
+    }
   }
 }
 
@@ -843,12 +772,12 @@ inline void plCurve_set_vert(plCurve * const L, const int cmp, const int vert,
  */
 
 int plCurve_write(FILE *file, plCurve * const L) {
-  int i,j,cmp,vert;         /* Counters for the for loops */ 
+  int i,j;                  /* Counters for the for loops */ 
   int nverts = 0;           /* Total number of vertices of all components */
   int colors = 0;           /* Total number of colors of all components */
-  char outstr[80] = "";     /* So we can wrap the constraint lines */
-  char (*kind)[10] = NULL;  /* The kinds of constraints */
-  int runlen = 1;           /* Consecutive vertices with given constraint */
+  char outstr[80] = "";     /* So we can wrap the vertex lines */
+  plCurve_constraint *cst;  /* Current constraint */
+  int cst_cnt;              /* Tally of constraints */
 
   plcl_error_num = plcl_error_str[0] = 0;
 
@@ -888,44 +817,6 @@ int plCurve_write(FILE *file, plCurve * const L) {
     return -1;
   }
 
-  if (L->ncst < 0) {
-    plcl_error_num = PLCL_E_BAD_CST;
-    sprintf(plcl_error_str,
-      "plCurve_write: plCurve corrupted.  L.ncst == %d.\n",L->ncst);
-    return -1;
-  }
-
-  if (L->ncst > 0 && L->cst == NULL) {
-    plcl_error_num = PLCL_E_NULL_PTR;
-    sprintf(plcl_error_str,
-      "plCurve_write: plCurve corrupted.  L.ncst=%d but cst NULL.\n",L->ncst);
-    return -1;
-  }
-
-  if (L->ncst > 0) {
-    if ((kind = malloc(L->ncst*sizeof(*kind))) == NULL) {
-      plcl_error_num = PLCL_E_CANT_ALLOC;
-      sprintf(plcl_error_str,
-        "plCurve_write: Can't malloc space for kind list.\n");
-      return -1;
-    }
-    for (i=0; i < L->ncst; i++) {
-      if (L->cst[i].kind == PLCL_FIXED) {
-        strcpy(kind[i],"Fixed");
-      } else if (L->cst[i].kind == PLCL_ON_LINE) {
-        strcpy(kind[i],"Line");
-      } else if (L->cst[i].kind == PLCL_IN_PLANE) {
-        strcpy(kind[i],"Plane");
-      } else {
-        plcl_error_num = PLCL_E_BAD_CST_KIND;
-        sprintf(plcl_error_str,
-          "plCurve_write: Unknown constraint kind: %d.\n",
-          L->cst[i].kind);
-        return -1;
-      }
-    }
-  }
-
   /* Now we begin work. */
   for(i=0;i<L->nc;i++) {
     nverts += L->cp[i].nv;
@@ -950,13 +841,39 @@ int plCurve_write(FILE *file, plCurve * const L) {
   }
   fprintf(file,"# Colors per Compoment\n");
   
+  /* Slide the constraints, if any, in here */
+  fprintf(file,"# Constraints\n");
+  cst = L->cst;
+  cst_cnt = 0;
+  while (cst != NULL) {
+    cst_cnt++;
+    if (cst->kind == PLCL_FIXED) {
+      fprintf(file, "#  %d Fixed %lg %lg %lg\n",cst_cnt, cst->coef[0],
+        cst->coef[1], cst->coef[2]);
+    } else if (cst->kind == PLCL_ON_LINE) {
+      fprintf(file, "#  %d Line %lg %lg %lg %lg %lg %lg\n", cst_cnt,
+        cst->coef[0], cst->coef[1], cst->coef[2],
+        cst->coef[3], cst->coef[4], cst->coef[5]);
+    } else if (cst->kind == PLCL_IN_PLANE) {
+      fprintf(file, "#  %d Plane %lg %lg %lg %lg\n", cst_cnt,
+        cst->coef[0], cst->coef[1], cst->coef[2], cst->coef[3]);
+    } else {
+      plcl_error_num = PLCL_E_BAD_CST_KIND;
+      sprintf(plcl_error_str,
+        "plCurve_write: Unknown constraint kind: %d.\n",cst->kind);
+      return -1;
+    }
+    cst = cst->next;
+  }
+
   fprintf(file,"# Vertex coordinates\n");
 
   /* Now we write the vertex data . . . */
+  cst = L->cst;
   for(i=0;i<L->nc;i++) {
     fprintf(file,"# Component %d\n",i);
     for(j=0;j<L->cp[i].nv;j++) {
-      fprintf(file,"%.16g %.16g %.16g \n", plcl_M_clist(L->cp[i].vt[j]));
+      sprintf(outstr,"%.16g %.16g %.16g \n", plcl_M_clist(L->cp[i].vt[j]));
     }
   }
 
@@ -971,35 +888,6 @@ int plCurve_write(FILE *file, plCurve * const L) {
     }
   }
       
-  /* Lastly, write out the constraints, if any */
-  if (L->ncst > 0) {
-    fprintf(file,"# Constraints \n");
-  }
-  for (i=0; i < L->ncst; i++) {
-    sprintf(outstr,
-      "COMMENT cst %d { %s %.16g %.16g %.16g %.16g %.16g %.16g",
-      i, kind[i], L->cst[i].coef[0], L->cst[i].coef[1], L->cst[i].coef[2],
-      L->cst[i].coef[3], L->cst[i].coef[4], L->cst[i].coef[5]);
-    for (cmp = 0; cmp < L->nc; cmp++) {
-      for (vert = 0; vert < L->cp[cmp].nv; vert += (runlen > 0) ? runlen : 1) {
-        runlen = cst_runlength(L,cmp,vert);
-        if (L->cp[cmp].vt[vert].cst == i) {
-#ifdef HAVE_STRLCAT
-          strlcat(outstr,",",sizeof(outstr));
-#else
-          strcat(outstr,",");
-#endif
-          if (strlen(outstr) > 65) {
-            fprintf(file,"%s\n",outstr);
-            outstr[0] = '\0';
-          }
-          sprintf(outstr,"%s %d %d %d",outstr,cmp,vert,runlen);
-        }
-      }
-    }
-    fprintf(file,"%s}\n",outstr);
-  }
-
   /* And we're done. */
   return 0;
 }
@@ -1222,7 +1110,7 @@ plCurve *plCurve_read(FILE *file)
 
   /* We now allocate the link data structure. */
 
-  L = plCurve_new(ncomp,nvarray,open,ccarray,0,NULL);
+  L = plCurve_new(ncomp,nvarray,open,ccarray);
 
   /* done with temorary arrays */
   free(nvarray);
@@ -1348,7 +1236,10 @@ plCurve *plCurve_copy(plCurve * const L) {
     open[cnt] = L->cp[cnt].open;
     ccarray[cnt] = L->cp[cnt].cc;
   }
-  nL = plCurve_new(L->nc,nv,open,ccarray,L->ncst,L->cst);
+  nL = plCurve_new(L->nc,nv,open,ccarray);
+
+  fprintf(stderr,"NEED TO HANDLE CONSTRAINTS ON COPY\n");
+  exit(1);
 
   for (cnt = 0; cnt < L->nc; cnt++) {
     /*

@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.12 2006-02-15 03:54:38 ashted Exp $
+ * $Id: splines.c,v 1.13 2006-02-15 22:39:19 ashted Exp $
  *
  * This code generates refinements of links, component by component, using the
  * Numerical Recipes spline code for interpolation. 
@@ -562,7 +562,7 @@ plCurve *convert_spline_to_link(const plCurve_spline * const spL,
 
   for(i=0;i<spL->nc;i++) { open[i] = spL->cp[i].open; cc[i] = spL->cp[i].cc; }
 
-  L = plCurve_new(spL->nc,nv,open,cc,0,NULL);
+  L = plCurve_new(spL->nc,nv,open,cc);
   
   if (L == NULL || plcl_error_num != 0) { return NULL; }
 

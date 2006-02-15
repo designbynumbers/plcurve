@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.16 2006-02-14 02:46:48 ashted Exp $
+ * $Id: vector.c,v 1.17 2006-02-15 22:39:19 ashted Exp $
  *
  */
 
@@ -173,7 +173,6 @@ plcl_vector plcl_random_vect()
 
   R.c[0] = 1;            /* The nonrandom vector */
   R.c[1] = R.c[2] = 0;
-  R.cst = -1;
 
   for(i=0;i<1000;i++) {
     R.c[0] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
