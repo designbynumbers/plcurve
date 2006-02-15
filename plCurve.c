@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write links (and plines)
  * 
- *  $Id: plCurve.c,v 1.44 2006-02-14 23:17:43 ashted Exp $
+ *  $Id: plCurve.c,v 1.45 2006-02-15 03:15:05 ashted Exp $
  *
  */
 
@@ -534,10 +534,10 @@ void plCurve_free(plCurve *L) {
 } /* plCurve_free */
 
 static inline 
-plCurve_constraint *new_constraint(int kind, double coef0, double coef1, 
-                                   double coef2, double coef3, double coef4,
-                                   double coef5, int cmp, int vert, 
-                                   int num_verts) {
+plCurve_constraint *new_constraint(const int kind, const double coef[6], 
+                                   const int cmp, const int vert, 
+                                   const int num_verts, 
+                                   plCurve_constraint *next) {
   plCurve_constraint *ncst;
 
   if ((ncst = malloc(sizeof(plCurve_constraint))) == NULL) {
@@ -547,15 +547,13 @@ plCurve_constraint *new_constraint(int kind, double coef0, double coef1,
     return NULL;
   }
   ncst->kind = kind;
-  ncst->coef[0] = coef0;
-  ncst->coef[1] = coef1;
-  ncst->coef[2] = coef2;
-  ncst->coef[3] = coef3;
-  ncst->coef[4] = coef4;
-  ncst->coef[5] = coef5;
+  memcpy(ncst->coef,coef,sizeof(coef));
   ncst->cmp = cmp;
   ncst->vert = vert;
   ncst->num_verts = num_verts;
+  ncst->next = next;
+
+  return ncst;
 }
 
 /* Set a constraint on a vertex or run of vertices */
@@ -565,7 +563,10 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
                            const double coef3, const double coef4, 
                            const double coef5) {
   int i;
-  plCurve_constraint *cst,*pcst,ncst;  /* Constraint, Previous Constraint */
+  double coef[6];
+  plCurve_constraint *cst,*pcst;  /* constraint, previous constraint */
+  plCurve_constraint *temp_cst; /* temporary -- for freeing */
+  plCurve_constraint **pfn; /* Place for new constraint */
 
   plcl_error_num = plcl_error_str[0] = 0;
 
@@ -604,24 +605,91 @@ int plCurve_set_constraint(plCurve *L, const int cmp, const int vert, const
     return -1;
   }
 
-  /* Seek down the list */
+  /* Put these in one spot for easier passage */
+  coef[0] = coef0;
+  coef[1] = coef1;
+  coef[2] = coef2;
+  coef[3] = coef3;
+  coef[4] = coef4;
+  coef[5] = coef5;
+
+  /* Seek down the list 
+   * Stop seeking when we either 
+   *   1) run off the end of the list, or
+   *   2) find one whose component is at least as large as ours and if it is
+   *      the same as ours, has a range whose end extends beyond the beginning
+   *      of ours. 
+   */
   for (pcst = cst = L->cst; 
-       cst != NULL && (cst->cmp < cmp || cst->vert+cst->num_verts <= vert);
+       cst != NULL && (cst->cmp < cmp || 
+                       (cst->cmp == cmp && cst->vert+cst->num_verts <= vert));
        cst = cst->next) {
     pcst = cst;
   }
+  if (pcst == cst) { /* Need to work at the head of the list */
+    pfn = &L->cst;
+  } else {
+    pfn = &pcst->next;
+  }
+
   /* Now cst either points to a constraint which applies to the vertex in
    * question (or some vertex after it) or it points to NULL because there was
    * no such constraint found.  On the other hand, pcst either points to the
    * constraint just prior to the constraint which cst points to or else it is
    * NULL.  */
-  if (cst == NULL) {
-    /* Got to the end of the list without finding it. */
-    if (pcst == NULL) { 
-      /* There was no list */ 
-      L->cst = new_constraint(kind, coef0, coef1, coef2, coef3, coef4, coef5,
-                              cmp, vert, num_verts);
+  if (pcst != NULL &&
+      pcst->kind == kind &&
+      memcmp(pcst->coef,coef,sizeof(coef)) == 0 &&
+      pcst->cmp == cmp &&
+      pcst->vert+pcst->num_verts == vert) {
+    /* We just passed one which has a range contiguous with the range we
+       want to set and has the same attributes.  We'll just extend it. */
+    pcst->num_verts += num_verts;
+    while (pcst->next != NULL && 
+           pcst->next->vert < pcst->vert+pcst->num_verts) {
+      /* We now overlap the next one, shrink or empty it */
+      if (pcst->next->vert + pcst->next->num_verts <= 
+          pcst->vert       + pcst->num_verts) {
+        /* It has been completely subsumed and must be eliminated */
+        temp_cst = pcst->next;
+        pcst->next = pcst->next->next; /* take it out of the list */
+        free(temp_cst);
+      } else {
+        /* It just overlaps, move the bottom up */
+        pcst->next->num_verts -= pcst->vert+pcst->num_verts - pcst->next->vert;
+        pcst->next->vert = pcst->vert+pcst->num_verts;
+      }
     }
+  } else if (cst != NULL &&
+             cst->kind == kind &&
+             memcmp(pcst->coef,coef,sizeof(coef)) == 0 &&
+             cst->cmp == cmp &&
+             cst->vert <= vert+num_verts) {
+    /* The one pointed to can be extended to include our range. */
+----------- HERE ------------
+  } else if (cst == NULL || cst->cmp >cmp || cst->vert >= vert+num_verts) {
+    /* Got to the end of the list without finding it or found one which deals
+     * with vertices strictly beyond our range. */
+    (*pfn) = new_constraint(kind, coef, cmp, vert, num_verts, cst);
+  } else {
+    /* The one we found has a range that somehow relates to the one we have */
+    if (cst->vert < vert) {
+      /* Its range starts before ours, we'll have to leave part */
+      (*pfn) = new_constraint(cst->kind, cst->coef, cst->cmp, cst->vert,
+                 vert - cst->vert, cst);
+      /* Make the pointer point to the next place we'll hang a new consain */
+      pfn = &((*pfn)->next);
+      if (pcst == cst) {
+        /* First one on the list */
+        L->cst = new_constraint(cst->kind, cst->coef, cst->cmp, cst->vert,
+          vert - cst->vert, cst);
+        pcst = L->cst;
+      } else {
+        pcst->next = new_constraint(cst->kind, cst->coef, cst->cmp, cst->vert,
+          vert - cst->vert, cst);
+      }
+    } 
+    /* Now put in our new one */
   }
   for (i=0; i < L->ncst; i++) {
     if (kind  == L->cst[i].kind    &&
