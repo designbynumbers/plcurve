@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.24 2006-02-16 04:27:37 ashted Exp $
+ *  $Id: plCurve.h,v 1.25 2006-02-16 20:28:18 ashted Exp $
  *
  */
 
@@ -105,7 +105,7 @@ typedef struct plCurve_type {
 } plCurve;
 
 /* PlCurve_spline types */
-typedef struct linklib_spline_strand_type {
+typedef struct plCurve_spline_strand_type {
   int             open;     /* This is an "open" strand (with distinct ends) */
   int             ns;       /* Number of samples used to build spline. */
   double         *svals;    /* s values at samples */
@@ -114,11 +114,11 @@ typedef struct linklib_spline_strand_type {
   int             cc;
   plCurve_color  *clr;      /* color values at samples */
   plCurve_color  *clr2;     /* second derivatives at these s values */
-} linklib_spline_strand;
+} plCurve_spline_strand;
 
 typedef struct plCurve_spline_type {    
   int nc;                       /* Number of components */
-  linklib_spline_strand *cp;     /* Components */
+  plCurve_spline_strand *cp;     /* Components */
 } plCurve_spline;
 
 /*
@@ -165,7 +165,7 @@ inline double plcl_norm(plcl_vector A);
   (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
 
 /* Add a multiple of B to A */
-#define linklib_vmadd(A,s,B) \
+#define plcl_M_vmadd(A,s,B) \
   (A).c[0] += (s)*(B).c[0]; (A).c[1] += (s)*(B).c[1]; (A).c[2] += (s)*(B).c[2];
 
 /* A becomes a linear combination of B and C */
@@ -214,11 +214,11 @@ inline double plcl_norm(plcl_vector A);
  *
  */
 
-/* Build a new link (with associated strands) */
+/* Build a new plCurve (with associated strands) */
 plCurve *plCurve_new(const int components, const int * const nv, 
                      const int * const open, const int * const cc);
 
-/* Free the link (and strands) */
+/* Free the plCurve (and strands) */
 void plCurve_free(plCurve *L);
 
 /* Set a vertex */
@@ -240,31 +240,31 @@ int plCurve_remove_constraint(plCurve * const L, plCurve_constraint *cst);
 /* Remove all constraints */
 void plCurve_remove_all_constraints(plCurve * const L);
 
-/* Read link data from a file */
+/* Read plCurve data from a file */
 plCurve *plCurve_read(FILE *infile);
 
-/* Write link data to a file */
+/* Write plCurve data to a file */
 int plCurve_write(FILE *outfile, plCurve * const L);
 
 /* Fix the "hidden vertices" for easy handling of closed components */
 void plCurve_fix_wrap(plCurve * const L);
 
-/* Count the edges in a link (correctly handling open/closed) */
+/* Count the edges in a plCurve (correctly handling open/closed) */
 int plCurve_num_edges(plCurve * const L);
 
 /* Compute the (minrad-based) curvature of L at vertex vt of component cp */
 double plCurve_curvature(plCurve * const L, const int cp, const int vt);
 
-/* Copy a link */
+/* Copy a plCurve */
 plCurve *plCurve_copy(plCurve * const L);
 
 /* Compute tangent vector */
 plcl_vector plCurve_tangent_vector(plCurve * const L,int cp, int vt);
 
-/* Find the arclength of a link. */
+/* Find the arclength of a plCurve. */
 double plCurve_arclength(const plCurve * const L,double *component_lengths);
 
-/* Find the arclength position of a point on a link. */
+/* Find the arclength position of a point on a plCurve. */
 double plCurve_parameter(const plCurve * const L,const int cmp,const int vert);
 
 /* Force a plCurve to close as gently as possible. */
@@ -282,26 +282,26 @@ inline void plcl_status_check();
 /* Either return (if given a char *) or print out the library version number */
 inline void plCurve_version(char *version);
 
-/* Allocate new spline_link. */
-plCurve_spline *linklib_spline_link_new(const int components, 
-                                        const int * const ns, 
-                                        const int * const open, 
-                                        const int * const cc);
+/* Allocate new spline. */
+plCurve_spline *plCurve_spline_new(const int components, 
+                                   const int * const ns, 
+                                   const int * const open, 
+                                   const int * const cc);
 
-/* Free memory for spline_link. */
-void linklib_spline_link_free(plCurve_spline *L);
+/* Free memory for spline. */
+void plCurve_spline_free(plCurve_spline *L);
 
-/* Convert conventional link to spline_link. */
-plCurve_spline *convert_to_spline_link(plCurve * const L);
+/* Convert plCurve to spline representation. */
+plCurve_spline *plCurve_convert_to_spline(plCurve * const L);
 
-/* Convert spline_link to conventional link (with resampling). */
-plCurve *convert_spline_to_link(const plCurve_spline * const spL,
-                                const int * const nv);
+/* Convert splined curve to plCurve (with resampling). */
+plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
+                                     const int * const nv);
 
-/* Evaluate a spline_link at a particular s value. */
-plcl_vector evaluate_spline_link(const plCurve_spline * const spL,
-                                 const int cmp,
-                                 double s);
+/* Samples a spline at a particular s value. */
+plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
+                                  const int cmp,
+                                  double s);
 /* Define the error codes */
 #define PLCL_E_BAD_RANDOM     1
 #define PLCL_E_TOO_FEW_VERTS  2

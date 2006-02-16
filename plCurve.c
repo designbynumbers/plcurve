@@ -1,7 +1,7 @@
 /*
- *  Routines to create, destroy, read and write links (and strands)
+ *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.48 2006-02-16 04:27:37 ashted Exp $
+ *  $Id: plCurve.c,v 1.49 2006-02-16 20:28:18 ashted Exp $
  *
  */
 
@@ -108,10 +108,11 @@ static inline void strand_new(plCurve_strand *Pl,int nv, int open, int cc) {
 }
 
 /*
- * Procedure allocates memory for a new link. The number of components is given
- * by components. The number of vertices in each component shows up in the
- * buffer pointed to be nv.  The closed/open nature of each strand is given in
- * the array pointed to by open.                           
+ * Procedure allocates memory for a new plCurve. The number of components is
+ * given by components. The number of vertices in each component shows up in
+ * the buffer pointed to by nv.  The closed/open nature of each strand is given
+ * in the array pointed to by open, and the number of colors per strand is 
+ * found in the array cc.
  *
  */
 plCurve *plCurve_new(const int components, const int * const nv, 
@@ -125,7 +126,7 @@ plCurve *plCurve_new(const int components, const int * const nv,
   if (components < 0) {
     plcl_error_num = PLCL_E_TOO_FEW_COMPS;
     sprintf(plcl_error_str,
-      "plCurve_new: Can't create a link with %d components.\n",components);
+      "plCurve_new: Can't create a plCurve with %d components.\n",components);
     return NULL;
   }
 
@@ -446,9 +447,9 @@ void plCurve_fix_cst(plCurve * const L) {
 
 /*
  * Free the memory used to hold vertices in a given strand (not the memory of
- * the strand itself).  We then set all the values in the link data structure to
- * reflect the fact that the memory has been freed.  We can call strand_free
- * twice on the same strand without fear. 
+ * the strand itself).  We then set all the values in the strand data structure
+ * to reflect the fact that the memory has been freed.  We can call strand_free
+ * twice on the same strand pointer without fear. 
  *
  */ 
 static inline void strand_free(plCurve_strand *Pl) {
@@ -471,9 +472,10 @@ static inline void strand_free(plCurve_strand *Pl) {
 } /* strand_free */
 
 /*
- * Free the memory associated with a given link.  We then set all the values in
- * the link data structure to reflect the fact that the memory has been freed.
- * We can call link_free twice on the same link without fear. 
+ * Free the memory associated with a given plCurve.  We then set all the values
+ * in the plCurve data structure to reflect the fact that the memory has been
+ * freed.  We can call plCurve_free twice on the same plCurve pointer without
+ * fear. 
  *
  */ 
 void plCurve_free(plCurve *L) {
@@ -823,21 +825,22 @@ inline void plCurve_set_vert(plCurve * const L, const int cmp, const int vert,
 }
 
 /*
- * Writes the link to a file in Geomview VECT format.  The file format is:
+ * Writes the plCurve to a file in Geomview VECT format.  The file format is:
  *
  * VECT                           # mandatory keyword
  * Ncomponents Nvertices Ncolors  # total number of components and vertices
  * Nv[0] ... Nv[NPolylines-1]     # number of vertices in each polyline 
  *                                # closed polylines use negative numbers
  * Nc[0] ... Nc[NPolylines-1]     # number of colors for each polyline 
- *
+ * # Constraint information
  * Vert[0] ... Vert[Nvertices-1]  # All the vertices, as triples of doubles
+ *                                # with constraints listed in comments 
  * Color[0] ... Color[NColors]    # All the colors, in RGBA format
  *
  * Comments begin with #, and proceed to the end of the line. They are allowed
  * wherever a newline is allowed.
  *
- * We assume that file is open for writing.  Colors are arbitrarily assigned.
+ * We assume that file is open for writing.
  *
  * Returns TRUE if successful write, FALSE otherwise.
  *
@@ -895,7 +898,7 @@ int plCurve_write(FILE *file, plCurve * const L) {
     colors += L->cp[i].cc;
   }
 
-  /* We are ready to write the link. */
+  /* We are ready to write the plCurve. */
   fprintf(file,"VECT \n");
   fprintf(file,"%d %d %d # Components Vertices Colors\n",L->nc,nverts,colors);
   
@@ -979,14 +982,18 @@ int plCurve_write(FILE *file, plCurve * const L) {
 }
 
 
-/* The next section of the library file includes some (private) procedures *
- * for reading link data reliably from Geomview VECT files. We also add a  *
- * "color" structure to store the color information that may be present in *
- * the files, though we don't do anything with it as yet.                  */
+/*
+ * The next section of the library file includes some (private) procedures for
+ * reading plCurve data reliably from Geomview VECT files.
+ *
+ */
 
-/* Procedure positions the file pointer on next non-whitespace character,   *
- * returning FALSE if EOF happens first. We skip anything between a # and a *
- * newline.                                                                 */
+/*
+ * skip_whitespace_and_comments positions the file pointer on next
+ * non-whitespace character, returning FALSE if EOF happens first. We skip
+ * anything between a # and a newline.
+ * 
+ */
 static inline int skip_whitespace_and_comments(FILE *infile)
 {
   int thischar,commentflag = {FALSE};
@@ -1133,10 +1140,10 @@ void plCurve_fix_wrap(plCurve * const L) {
 }
 
 /*
- * Read a Geomview VECT file and create a link.  Color information is not 
- * preserved.  File is assumed to be open for reading. Returns either a 
- * pointer to a newly allocated link structure (don't forget to FREE it!)
- * or NULL on failure. 
+ * Read a Geomview VECT file and create a plCurve.  Color information is not
+ * preserved.  File is assumed to be open for reading. Returns either a pointer
+ * to a newly allocated plCurve structure (don't forget to FREE it!) or NULL on
+ * failure. 
  *
  */
 plCurve *plCurve_read(FILE *file) 
@@ -1194,7 +1201,7 @@ plCurve *plCurve_read(FILE *file)
     }
   }
 
-  /* We now allocate the link data structure. */
+  /* We now allocate the plCurve data structure. */
 
   L = plCurve_new(ncomp,nvarray,open,ccarray);
 
@@ -1237,7 +1244,7 @@ plCurve *plCurve_read(FILE *file)
            &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha) != 4) {
         plcl_error_num = PLCL_E_BAD_COLOR;
         sprintf(plcl_error_str,"plCurve_read: Couldn't parse color %d "
-          "in component %d of link.\n",j,i);
+          "in component %d of plCurve.\n",j,i);
         return NULL;
       }
     }
@@ -1248,7 +1255,7 @@ plCurve *plCurve_read(FILE *file)
 
 #define strand_edges(P) (((P).open) ? (P).nv-1 : (P).nv)
 /* 
- *   Return the total number of edges in link. 
+ *   Return the total number of edges in plCurve. 
  */
 int plCurve_num_edges(plCurve * const L) 
 {
@@ -1299,7 +1306,7 @@ double plCurve_curvature(plCurve * const L, const int comp, const int vert) {
 }
 
 /* 
- * Duplicate a link and return the duplicate 
+ * Duplicate a plCurve and return the duplicate.
  *
  */
 plCurve *plCurve_copy(plCurve * const L) {
@@ -1314,7 +1321,7 @@ plCurve *plCurve_copy(plCurve * const L) {
       (ccarray = (int *)malloc((L->nc)*sizeof(int))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
     sprintf(plcl_error_str,
-      "plCurve_copy: Unable to malloc space for alternate link.\n");
+      "plCurve_copy: Unable to malloc space for new plCurve.\n");
     return NULL;
   }
   for (cnt = 0; cnt < L->nc; cnt++) {
@@ -1347,22 +1354,23 @@ plCurve *plCurve_copy(plCurve * const L) {
   return nL;
 }
 
-
-/* Procedure computes a (unit) tangent vector to <link> 
-   at the given vertex of the given component. */
-plcl_vector plCurve_tangent_vector(plCurve * const L,int cp, int vt) {
+/*
+ * Compute a (unit) tangent vector to L at vertex vert of component cmp. 
+ *
+ */
+plcl_vector plCurve_tangent_vector(plCurve * const L,int cmp, int vert) {
   plcl_vector in, out, tan;
 
   plcl_error_num = plcl_error_str[0] = 0;
 
-  if (L->cp[cp].open) {
-    if (vt == 0) {
-      tan = plcl_vect_diff(L->cp[cp].vt[1], L->cp[cp].vt[0]);
+  if (L->cp[cmp].open) {
+    if (vert == 0) {
+      tan = plcl_vect_diff(L->cp[cmp].vt[1], L->cp[cmp].vt[0]);
 
       return plcl_normalize_vect(tan);
-    } else if (vt == L->cp[cp].nv-1) {
-       tan = plcl_vect_diff(L->cp[cp].vt[L->cp[cp].nv-1],
-                            L->cp[cp].vt[L->cp[cp].nv-2]);
+    } else if (vert == L->cp[cmp].nv-1) {
+       tan = plcl_vect_diff(L->cp[cmp].vt[L->cp[cmp].nv-1],
+                            L->cp[cmp].vt[L->cp[cmp].nv-2]);
 
        return plcl_normalize_vect(tan);
     }
@@ -1372,20 +1380,18 @@ plcl_vector plCurve_tangent_vector(plCurve * const L,int cp, int vt) {
      component, or we are not at an endpoint.   */
   
    in = plcl_normalize_vect(
-     plcl_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt])
+     plcl_vect_diff(L->cp[cmp].vt[vert+1],L->cp[cmp].vt[vert])
    );
 
    out = plcl_normalize_vect(
-     plcl_vect_diff(L->cp[cp].vt[vt],L->cp[cp].vt[vt-1])
+     plcl_vect_diff(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert-1])
    );
 
    plcl_M_vweighted(tan,0.5,in,out);
    return plcl_normalize_vect(tan);
-}
+} /* plCurve_tangent_vector */
 
-
-
-/* Procedure computes the length of each component of the link,
+/* Procedure computes the length of each component of the plCurve,
    and fills in the array of doubles "component_lengths", which 
    must be as long as L->nc. It returns the total length. We assume
    that fix_wrap has been called. */
@@ -1412,7 +1418,7 @@ double plCurve_arclength(const plCurve * const L,double *component_lengths)
   }
 
   return tot_length;
-}
+} /* plCurve_arclength */
 
 /* Procedure reports the arclength distance from the given vertex */
 /* to the 0th vertex of the given component of L. */
@@ -1462,9 +1468,9 @@ double plCurve_parameter(const plCurve * const L,const int cmp,const int vert)
 }
 
 /*
- * This procedure closes all open components of link by distributing a small
+ * This procedure closes all open components of plCurve by distributing a small
  * change of all vertices of each such component. It also changes the "open"
- * flag and calls fix_wrap. We lose one vertex in this process. 
+ * flag and calls fix_wrap. We remove one vertex in this process. 
  */
 void plCurve_force_closed(plCurve * const L)
 {

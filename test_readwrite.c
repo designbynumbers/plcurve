@@ -1,7 +1,7 @@
 /*
  * Sample program to show the use of liboctrope.a
  *
- * $Id: test_readwrite.c,v 1.5 2006-02-14 20:35:20 ashted Exp $
+ * $Id: test_readwrite.c,v 1.6 2006-02-16 20:28:18 ashted Exp $
  *
  */
 
@@ -46,7 +46,7 @@ int main(int argc,char *argv[]) {
   }
 
   plCurve_version(NULL);
-  printf("test_readwrite: $Revision: 1.5 $\n");
+  printf("test_readwrite: $Revision: 1.6 $\n");
 
   infile = fopen(argv[1],"r");
 
@@ -59,9 +59,9 @@ int main(int argc,char *argv[]) {
   fclose(infile);
 
   if (plcl_error_num == 0) {
-    printf("test_readwrite: Loaded link from %s.\n",argv[1]);
+    printf("test_readwrite: Loaded plCurve from %s.\n",argv[1]);
   } else {
-    printf("test_readwrite: Couldn't load link from %s. \n",argv[1]);
+    printf("test_readwrite: Couldn't load plCurve from %s. \n",argv[1]);
     printf("  %s",plcl_error_str);
     exit(1);
   }

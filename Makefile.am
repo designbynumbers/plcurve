@@ -3,8 +3,7 @@ AM_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 noinst_LIBRARIES = libplCurve.a
 noinst_PROGRAMS = test_readwrite test_cst
 
-libplCurve_a_SOURCES = plCurve.c plCurve.h vector.c \
-                       spline_links.h spline_links.c 
+libplCurve_a_SOURCES = plCurve.c plCurve.h vector.c splines.c 
 
 test_readwrite_SOURCE = test_readwrite.c
 test_readwrite_LDADD = libplCurve.a
