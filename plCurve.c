@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.49 2006-02-16 20:28:18 ashted Exp $
+ *  $Id: plCurve.c,v 1.50 2006-02-16 22:20:46 ashted Exp $
  *
  */
 
@@ -1056,11 +1056,13 @@ static inline int scandoubles(FILE *infile,int ndoubles, ...)
   for (i=0;i<ndoubles;i++) {    /* We expect to exit from the loop by */
                                 /* returning, but this is a safety.   */
     if (skip_whitespace_and_comments(infile) == 0) { /* Failed */
+      va_end(ap);              
       return nconverted;
     }
 
     thisdouble = va_arg(ap,double *);
     if (fscanf(infile,"%lf",thisdouble) != 1) { /* We couldn't scan. */
+      va_end(ap);              
       return nconverted;        /* So give up here */
     } else {                    /* Else record our victory */
       nconverted++;
@@ -1101,11 +1103,13 @@ static inline int scanints(FILE *infile,int nints, ...)
   for (i=0;i<nints;i++) {       /* We expect to exit from the loop by */
                                 /* returning, but this is a safety.   */
     if (skip_whitespace_and_comments(infile) == 0) { /* Failed */
+      va_end(ap);              
       return nconverted;
     }
     thisint = va_arg(ap,int *);
 
     if (fscanf(infile,"%d",thisint) != 1) {     /* We couldn't scan. */
+      va_end(ap);              
       return nconverted;        /* So give up here */
     } else {                    /* Else record our victory */
       nconverted++;
