@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.23 2006-02-15 22:39:19 ashted Exp $
+ *  $Id: plCurve.h,v 1.24 2006-02-16 04:27:37 ashted Exp $
  *
  */
 
@@ -66,13 +66,13 @@ typedef struct plCurve_color_type {
   double alpha;
 } plCurve_color;
 
-typedef struct plCurve_pline_type {
-  int            open;   /* This is an "open" pline (with distinct ends) */
+typedef struct plCurve_strand_type {
+  int            open;   /* This is an "open" strand (with distinct ends) */
   int            nv;     /* Number of vertices */
   int            cc;     /* Color count (number of colors) */
   plcl_vector   *vt;     /* Actual vertices */
   plCurve_color *clr;    /* Colors */
-} plCurve_pline;
+} plCurve_strand;
 
 /* Curve constraint kind */
 #define PLCL_UNCST     0  /* Vertex is unconstrained */
@@ -99,14 +99,14 @@ typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
 
 typedef struct plCurve_type {   
   int nc;                       /* Number of components */
-  plCurve_pline *cp;            /* Components */
-  plCurve_constraint *cst;      /* The constraints themselves */
+  plCurve_strand *cp;           /* Components */
+  plCurve_constraint *cst;      /* Constraints */
   plCurve_vert_quant *quant;    /* per-vertex quantifiers */
 } plCurve;
 
 /* PlCurve_spline types */
-typedef struct linklib_spline_pline_type {
-  int             open;     /* This is an "open" pline (with distinct ends) */
+typedef struct linklib_spline_strand_type {
+  int             open;     /* This is an "open" strand (with distinct ends) */
   int             ns;       /* Number of samples used to build spline. */
   double         *svals;    /* s values at samples */
   plcl_vector    *vt;       /* positions at these s values */
@@ -114,11 +114,11 @@ typedef struct linklib_spline_pline_type {
   int             cc;
   plCurve_color  *clr;      /* color values at samples */
   plCurve_color  *clr2;     /* second derivatives at these s values */
-} linklib_spline_pline;
+} linklib_spline_strand;
 
 typedef struct plCurve_spline_type {    
   int nc;                       /* Number of components */
-  linklib_spline_pline *cp;     /* Components */
+  linklib_spline_strand *cp;     /* Components */
 } plCurve_spline;
 
 /*
@@ -214,11 +214,11 @@ inline double plcl_norm(plcl_vector A);
  *
  */
 
-/* Build a new link (with associated plines) */
+/* Build a new link (with associated strands) */
 plCurve *plCurve_new(const int components, const int * const nv, 
                      const int * const open, const int * const cc);
 
-/* Free the link (and plines) */
+/* Free the link (and strands) */
 void plCurve_free(plCurve *L);
 
 /* Set a vertex */
@@ -232,6 +232,13 @@ void plCurve_set_constraint(plCurve * const L, const int cmp,
                             const double coef1, const double coef2,
                             const double coef3, const double coef4,
                             const double coef5);
+
+/* Remove a constraint from the list of constraints returning the number of
+ * vertices thus set unconstrained.  */
+int plCurve_remove_constraint(plCurve * const L, plCurve_constraint *cst);
+
+/* Remove all constraints */
+void plCurve_remove_all_constraints(plCurve * const L);
 
 /* Read link data from a file */
 plCurve *plCurve_read(FILE *infile);
@@ -260,12 +267,14 @@ double plCurve_arclength(const plCurve * const L,double *component_lengths);
 /* Find the arclength position of a point on a link. */
 double plCurve_parameter(const plCurve * const L,const int cmp,const int vert);
 
-/* Force a plCurve to close as gently as possible */
+/* Force a plCurve to close as gently as possible. */
 void plCurve_force_closed(plCurve * const L);
 
-/* Return a value for how far a constraint is from being satisfied (sup norm)
- * and, if fix is TRUE, move the vertices to be ok. */
-double plCurve_cst_check(const plCurve * const L, int fix);
+/* Return how far a constraint is from being satisfied (sup norm). */
+double plCurve_check_cst(const plCurve * const L);
+
+/* Fix all the vertices which are out of compliance with their constraints. */
+void plCurve_fix_cst(plCurve * const L);
 
 /* Check plcl_error_num, report on nonzero, terminate on positive */
 inline void plcl_status_check();

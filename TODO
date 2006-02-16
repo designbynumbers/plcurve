@@ -1,0 +1,14 @@
+1) Create constraint-aware resample call for increasing or decreasing the
+   number of vertices a plCurve has.
+
+2) Add a per-vertex quantifier to the file format.  Should be expressed as
+   TAG: 0.123456  (three-character, case-insensitive tag, colon, space,
+   double).  These will be stored along with the cst: quantifiers in the 
+   # comments following each vertex.  They should be read in, stored and
+   written out automatically.  There should be a way to extract them from 
+   memory into a structure paralleling the plCurve (but with only one 
+   double per vertex) and a way to put them back into memory.  Once extracted 
+   they should be considered separate from the plCurve and unless put back into
+   it will not automatically be written.
+
+3) Variable args in plCurve_set_constraint.

@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.13 2006-02-15 22:39:19 ashted Exp $
+ * $Id: splines.c,v 1.14 2006-02-16 04:27:37 ashted Exp $
  *
  * This code generates refinements of links, component by component, using the
  * Numerical Recipes spline code for interpolation. 
@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "plCurve.h"
 
-static inline void spline_pline_new(linklib_spline_pline *Pl,
+static inline void spline_strand_new(linklib_spline_strand *Pl,
                                                      int  ns, 
                                                      int  open, 
                                                      int  cc) {
@@ -58,7 +58,7 @@ static inline void spline_pline_new(linklib_spline_pline *Pl,
   if (ns < 1) {
     plcl_error_num = PLCL_E_TOO_FEW_SAMPS;
     sprintf(plcl_error_str,
-      "spline_pline_new: Can't create a spline_pline with %d samples.\n",ns);
+      "spline_strand_new: Can't create a spline_strand with %d samples.\n",ns);
     return;
   }
 
@@ -67,8 +67,8 @@ static inline void spline_pline_new(linklib_spline_pline *Pl,
 
   if ((Pl->svals = (double *)malloc((ns+2)*sizeof(double))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
-    sprintf(plcl_error_str,"spline_pline_new: Can't allocation space for %d"
-            " samples in spline_pline_new.\n",ns);
+    sprintf(plcl_error_str,"spline_strand_new: Can't allocation space for %d"
+            " samples in spline_strand_new.\n",ns);
     return;
   }
   Pl->svals++; /* so that Pl->svals[-1] is valid. */
@@ -76,8 +76,8 @@ static inline void spline_pline_new(linklib_spline_pline *Pl,
   if ((Pl->vt = 
        (plcl_vector *)malloc((ns+2)*sizeof(plcl_vector))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
-    sprintf(plcl_error_str,"spline_pline_new: Can't allocate space for %d "
-      "samples in spline_pline_new.\n",ns);
+    sprintf(plcl_error_str,"spline_strand_new: Can't allocate space for %d "
+      "samples in spline_strand_new.\n",ns);
     return;
   }
   Pl->vt++; /* so that Pl->vt[-1] is a valid space */
@@ -85,8 +85,8 @@ static inline void spline_pline_new(linklib_spline_pline *Pl,
   if ((Pl->vt2 = 
        (plcl_vector *)malloc((ns+2)*sizeof(plcl_vector))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
-    sprintf(plcl_error_str,"spline_pline_new: Can't allocate space for %d "
-      "samples in spline_pline_new.\n",ns);
+    sprintf(plcl_error_str,"spline_strand_new: Can't allocate space for %d "
+      "samples in spline_strand_new.\n",ns);
     return;
   }
   Pl->vt2++; /* so that Pl->vt2[-1] is a valid space */
@@ -94,14 +94,14 @@ static inline void spline_pline_new(linklib_spline_pline *Pl,
   Pl->cc = cc;
   if ((Pl->clr = (plCurve_color *)malloc(cc*sizeof(plCurve_color))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
-    sprintf(plcl_error_str,"spline_pline_new: Can't allocate space for %d "
-      "colors in pline_new.\n",cc);
+    sprintf(plcl_error_str,"spline_strand_new: Can't allocate space for %d "
+      "colors in strand_new.\n",cc);
     return;
   }
   if ((Pl->clr2 = (plCurve_color *)malloc(cc*sizeof(plCurve_color))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
-    sprintf(plcl_error_str,"spline_pline_new: Can't allocate space for %d "
-      "colors in pline_new.\n",cc);
+    sprintf(plcl_error_str,"spline_strand_new: Can't allocate space for %d "
+      "colors in strand_new.\n",cc);
     return;
   }
 }
@@ -110,7 +110,7 @@ static inline void spline_pline_new(linklib_spline_pline *Pl,
  * Procedure allocates memory for a new spline_link. The number of
  * components is given by components. The number of data samples in each
  * component shows up in the buffer pointed to by ns.  The closed/open
- * nature of each pline is given in the array pointed to by open.
+ * nature of each strand is given in the array pointed to by open.
  *
  */
 plCurve_spline *linklib_spline_link_new(const int components, 
@@ -178,28 +178,28 @@ plCurve_spline *linklib_spline_link_new(const int components,
     return NULL;
   }
   L->nc = components;
-  if ((L->cp = malloc(L->nc*sizeof(linklib_spline_pline))) == NULL) {
+  if ((L->cp = malloc(L->nc*sizeof(linklib_spline_strand))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
-    sprintf(plcl_error_str,"Can't allocate array of spline_pline ptrs "
+    sprintf(plcl_error_str,"Can't allocate array of spline_strand ptrs "
       "in link_new.\n");
     return NULL;
   }
 
   for (i = 0; i < L->nc; i++) {
-    spline_pline_new(&L->cp[i],ns[i],open[i],cc[i]);
+    spline_strand_new(&L->cp[i],ns[i],open[i],cc[i]);
   }
 
   return L;
 }
 
 /*
- * Free the memory used to hold vertices in a given pline (not the memory of
- * the pline itself).  We then set all the values in the link data structure to
- * reflect the fact that the memory has been freed.  We can call pline_free
- * twice on the same pline without fear. 
+ * Free the memory used to hold vertices in a given strand (not the memory of
+ * the strand itself).  We then set all the values in the link data structure to
+ * reflect the fact that the memory has been freed.  We can call strand_free
+ * twice on the same strand without fear. 
  *
  */ 
-static inline void spline_pline_free(linklib_spline_pline *Pl) {
+static inline void spline_strand_free(linklib_spline_strand *Pl) {
   
   if (Pl == NULL) {
     return;
@@ -226,7 +226,7 @@ static inline void spline_pline_free(linklib_spline_pline *Pl) {
     free(Pl->clr2);
   }
 
-} /* pline_free */
+} /* strand_free */
 
 /*
  * Free the memory associated with a given link.  We then set all the values in
@@ -246,7 +246,7 @@ void linklib_spline_link_free(plCurve_spline *L) {
 
   /* Now we can get to work. */
   for (i=0; i<L->nc; i++) {
-    spline_pline_free(&L->cp[i]);
+    spline_strand_free(&L->cp[i]);
   }
 
   free(L->cp);
