@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.17 2006-02-15 22:39:19 ashted Exp $
+ * $Id: vector.c,v 1.18 2006-02-17 20:11:03 ashted Exp $
  *
  */
 
@@ -187,4 +187,11 @@ plcl_vector plcl_random_vect()
   plcl_error_num = PLCL_E_BAD_RANDOM;
   sprintf(plcl_error_str,"plcl_random_vect: Apparent error in rand().\n");
   return R;
+}
+
+inline plcl_vector plcl_build_vect(const double x, 
+                                   const double y,
+                                   const double z) {
+  plcl_vector V = { { x, y, z } };
+  return V;
 }

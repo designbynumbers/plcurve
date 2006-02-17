@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.27 2006-02-17 16:48:46 ashted Exp $
+ *  $Id: plCurve.h,v 1.28 2006-02-17 20:11:03 ashted Exp $
  *
  */
 
@@ -81,12 +81,12 @@ typedef struct plCurve_strand_type {
 #define PLCL_IN_PLANE  3  /* Vertex must lie in the given plane */
 
 typedef struct plCurve_constraint_type {
-  int    kind;      /* What kind of constraint */
-  double coef[6];   /* Coefficients for defining plane or line */
-  int    cmp;       /* Component */
-  int    vert;      /* Starting vertex */
-  int    num_verts; /* Length of run */
-  struct plCurve_constraint_type *next;
+  int         kind;      /* What kind of constraint */
+  plcl_vector vect[2];   /* Vectors for defining plane, line or fixed point */
+  int         cmp;       /* Component */
+  int         vert;      /* Starting vertex */
+  int         num_verts; /* Length of run */
+  struct      plCurve_constraint_type *next;
 } plCurve_constraint;
   
 typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
@@ -132,6 +132,11 @@ inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
 inline plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
 inline plcl_vector plcl_normalize_vect(const plcl_vector V);     /* V / |V| */
 inline plcl_vector plcl_random_vect();                         
+
+/* Translate three doubles into a vector */
+inline plcl_vector plcl_build_vect(const double x, 
+                                   const double y, 
+                                   const double z);
 
 /* Multiply or divide two ordered triples componetwise */
 inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B);
@@ -203,12 +208,6 @@ inline double plcl_norm(plcl_vector A);
 #define plcl_M_clist(A) \
   A.c[0], A.c[1], A.c[2]
 
-/* The one plCurve macro -- this deals with plCurve and not just vectors */
-#define plcl_M_set_vect(A,x,y,z) \
-  A.c[0] = x; \
-  A.c[1] = y; \
-  A.c[2] = z;
-
 /* 
  * Prototypes for routines to deal with plCurves.
  *
@@ -221,16 +220,29 @@ plCurve *plCurve_new(const int components, const int * const nv,
 /* Free the plCurve (and strands) */
 void plCurve_free(plCurve *L);
 
-/* Set a vertex */
-inline void plCurve_set_vert(plCurve * const L, const int cmp, const int vert,
-                             const double x, const double y, const double z);
-
 /* Set a constraint on a vertex or run of vertices */
-# define plCurve_set_constraint(L,cmp,vert,num_verts,...) \
-  _plCurve_set_constraint(L,cmp,vert,num_verts,__VA_ARGS__,0,0,0,0,0,0);
-void _plCurve_set_constraint(plCurve * const L, const int cmp, 
-                             const int vert, const int num_verts, 
-                             const int kind, ...);
+void plCurve_set_fixed(plCurve * const L, 
+                       const int cmp, 
+                       const int vert, 
+                       const int num_verts, 
+                       const plcl_vector point);
+
+void plCurve_constrain_to_line(plCurve * const L, 
+                               const int cmp, 
+                               const int vert, 
+                               const int num_verts, 
+                               const plcl_vector tangent, 
+                               const plcl_vector point_on_line);
+
+void plCurve_constrain_to_plane(plCurve * const L, 
+                                const int cmp, 
+                                const int vert, 
+                                const int num_verts, 
+                                const plcl_vector normal, 
+                                const double dist_from_origin);
+
+void plCurve_unconstrain(plCurve * const L, const int cmp, 
+                         const int vert, const int num_verts);
 
 /* Remove a constraint from the list of constraints returning the number of
  * vertices thus set unconstrained.  */
