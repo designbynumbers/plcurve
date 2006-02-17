@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.50 2006-02-16 22:20:46 ashted Exp $
+ *  $Id: plCurve.c,v 1.51 2006-02-17 04:50:42 ashted Exp $
  *
  */
 
@@ -89,6 +89,7 @@ static inline void strand_new(plCurve_strand *Pl,int nv, int open, int cc) {
 
   Pl->open = open;
   Pl->nv = nv;
+  if (Pl->vt != NULL) { free(Pl->vt); Pl->vt = NULL; }
   if ((Pl->vt = 
        (plcl_vector *)calloc((nv+2),sizeof(plcl_vector))) == NULL) {
     plcl_error_num = PLCL_E_CANT_ALLOC;
@@ -116,7 +117,7 @@ static inline void strand_new(plCurve_strand *Pl,int nv, int open, int cc) {
  *
  */
 plCurve *plCurve_new(const int components, const int * const nv, 
-                     const int * const open, const int * const cc) {
+                                const int * const open, const int * const cc) {
   plCurve *L;
   int i;
 
@@ -552,7 +553,7 @@ static inline void overrun_check(plCurve_constraint *cst) {
     } else {
       /* It just overlaps, either move the bottom up or join the two */
       if (cst->next->kind == cst->kind &&
- //       cst->kind != PLCL_FIXED && /* Never extend a fixed constraint */
+          cst->kind != PLCL_FIXED && /* Never extend a fixed constraint */
           memcmp(cst->next->coef,cst->coef,sizeof(cst->coef)) == 0) {
         /* Same constraint so join the two */
         temp_cst = cst->next;
@@ -658,7 +659,7 @@ void plCurve_set_constraint(plCurve * const L, const int cmp,
    * NULL.  */
   if (pcst != NULL &&
       pcst->kind == kind &&
-//    kind != PLCL_FIXED && /* Never extend a fixed constraint */
+      kind != PLCL_FIXED && /* Never extend a fixed constraint */
       memcmp(pcst->coef,coef,sizeof(coef)) == 0 &&
       pcst->cmp == cmp &&
       pcst->vert+pcst->num_verts == vert) {
@@ -668,7 +669,7 @@ void plCurve_set_constraint(plCurve * const L, const int cmp,
     overrun_check(pcst);
   } else if (cst != NULL &&
              cst->kind == kind &&
-//           kind != PLCL_FIXED && /* Never extend a fixed constraint */
+             kind != PLCL_FIXED && /* Never extend a fixed constraint */
              memcmp(pcst->coef,coef,sizeof(coef)) == 0 &&
              cst->cmp == cmp &&
              cst->vert <= vert+num_verts) {
@@ -842,11 +843,9 @@ inline void plCurve_set_vert(plCurve * const L, const int cmp, const int vert,
  *
  * We assume that file is open for writing.
  *
- * Returns TRUE if successful write, FALSE otherwise.
- *
  */
 
-int plCurve_write(FILE *file, plCurve * const L) {
+void plCurve_write(FILE *file, plCurve * const L) {
   int i,j;                  /* Counters for the for loops */ 
   int nverts = 0;           /* Total number of vertices of all components */
   int colors = 0;           /* Total number of colors of all components */
@@ -860,21 +859,21 @@ int plCurve_write(FILE *file, plCurve * const L) {
   if (file == NULL) {
     plcl_error_num = PLCL_E_NULL_PTR;
     sprintf(plcl_error_str,"plCurve_write: Passed NULL pointer as file.\n");
-    return -1;
+    return;
   }
 
   if (L == NULL) {
     plcl_error_num = PLCL_E_NULL_PTR;
     sprintf(plcl_error_str,
       "plCurve_write: Passed NULL pointer as plCurve.\n");
-    return -1;
+    return;
   }
 
   if (L->nc < 0) {
     plcl_error_num = PLCL_E_TOO_FEW_COMPS;
     sprintf(plcl_error_str,
       "plCurve_write: plCurve corrupted. L.nc = %d.\n",L->nc);
-    return -1;
+    return;
   }
 
   if (L->nc > 0 && L->cp == NULL) {
@@ -889,7 +888,7 @@ int plCurve_write(FILE *file, plCurve * const L) {
       sizeof(plcl_error_str)-1);
     plcl_error_str[sizeof(plcl_error_str)-1] = '\0';
 #endif
-    return -1;
+    return;
   }
 
   /* Now we begin work. */
@@ -936,7 +935,7 @@ int plCurve_write(FILE *file, plCurve * const L) {
       plcl_error_num = PLCL_E_BAD_CST_KIND;
       sprintf(plcl_error_str,
         "plCurve_write: Unknown constraint kind: %d.\n",cst->kind);
-      return -1;
+      return;
     }
     cst = cst->next;
   }
@@ -978,7 +977,7 @@ int plCurve_write(FILE *file, plCurve * const L) {
   }
       
   /* And we're done. */
-  return 0;
+  return;
 }
 
 
@@ -987,6 +986,76 @@ int plCurve_write(FILE *file, plCurve * const L) {
  * reading plCurve data reliably from Geomview VECT files.
  *
  */
+
+/* 
+ * Starting at the present position, scan to the end of the line, ignoring all
+ * characters until the first '#'.  If no '#' is found by the end of the line,
+ * return an empty string.  If a '#' was found, check to see if the comment is
+ * continued on the next line (that is, the first nonspace character is a '#')
+ * and if so, continue getting comment characters.  Discard any of the comment
+ * which will not fit into the buffer.  Return the number of characters found.
+ */
+#define end_str_and_return \
+  if (i < buflen) { buf[i] = '\0'; } \
+  return i;
+#define add_char_to_buf(c) \
+  if (i < buflen-1) { buf[i++] = c; } 
+
+static inline int get_comment(FILE *infile, char *buf, const int buflen) {
+  int i = 0;
+  int commentflag = FALSE;
+  int skip_spaces = FALSE; /* skip spaces after a hash, \n or other space */
+  int just_wrapped = FALSE;
+  int inchar;
+
+  /* First, we check to make sure that infile looks legit. */
+  if (infile == NULL) {
+    plcl_error_num = PLCL_E_NULL_PTR;
+    sprintf(plcl_error_str,
+      "get_comment: infile is a null pointer.\n");
+    return -1;
+  }
+  
+  while (TRUE) {
+    inchar = fgetc(infile);
+
+    if (inchar == EOF) {
+      end_str_and_return;
+    } else if (inchar == '#') { /* Started a comment. */
+      commentflag = skip_spaces = TRUE;
+    } else if (inchar == '\n') {
+      if (!commentflag) { /* No comment on this line */
+        end_str_and_return;
+      } else {
+        add_char_to_buf(' ') /* \n is replaced by space */
+        skip_spaces = TRUE; 
+        just_wrapped = TRUE;
+      }
+    } else if (isspace(inchar)) { /* blank */
+      if (commentflag && !skip_spaces) {
+        add_char_to_buf(' '); /* Any amount of any type of whitespace becomes
+                                 one space. */
+        skip_spaces = TRUE;
+      }
+    } else {
+      skip_spaces = FALSE;
+      if (just_wrapped) {
+        if (inchar == '#') { /* Comment continuation */
+          skip_spaces = TRUE;
+          just_wrapped = FALSE;
+        } else {
+          /* Comment does not continue */
+          end_str_and_return;
+        }
+      } else {
+        if (commentflag) {
+          add_char_to_buf(inchar);
+        }
+        /* Silently ignore characters before the first '#' */
+      }
+    }
+  }
+}
 
 /*
  * skip_whitespace_and_comments positions the file pointer on next
@@ -1157,6 +1226,8 @@ plCurve *plCurve_read(FILE *file)
   int *nvarray, *open, *ccarray;
   int i, j;
   int nv;
+  int comment_length;
+  char comment[256]; /* Space to store per-vertex comments */
   
   plcl_error_num = plcl_error_str[0] = 0;
 
@@ -1233,6 +1304,8 @@ plCurve *plCurve_read(FILE *file)
           " <x> <y> <z> data for vertex %d of component %d.\n",j,i);
         return NULL;
       }
+      comment_length = get_comment(file,comment,sizeof(comment));
+      printf("%d:%d # %s\n",i,j,comment);
     }
   }
   /* Now set the "wrap-around" vertices */

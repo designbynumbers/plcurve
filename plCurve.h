@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.25 2006-02-16 20:28:18 ashted Exp $
+ *  $Id: plCurve.h,v 1.26 2006-02-17 04:50:42 ashted Exp $
  *
  */
 
@@ -244,7 +244,7 @@ void plCurve_remove_all_constraints(plCurve * const L);
 plCurve *plCurve_read(FILE *infile);
 
 /* Write plCurve data to a file */
-int plCurve_write(FILE *outfile, plCurve * const L);
+void plCurve_write(FILE *outfile, plCurve * const L);
 
 /* Fix the "hidden vertices" for easy handling of closed components */
 void plCurve_fix_wrap(plCurve * const L);
