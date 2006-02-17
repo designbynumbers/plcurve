@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.26 2006-02-17 04:50:42 ashted Exp $
+ *  $Id: plCurve.h,v 1.27 2006-02-17 16:48:46 ashted Exp $
  *
  */
 
@@ -226,12 +226,11 @@ inline void plCurve_set_vert(plCurve * const L, const int cmp, const int vert,
                              const double x, const double y, const double z);
 
 /* Set a constraint on a vertex or run of vertices */
-void plCurve_set_constraint(plCurve * const L, const int cmp, 
-                            const int vert, const int num_verts, 
-                            const int kind, const double coef0,
-                            const double coef1, const double coef2,
-                            const double coef3, const double coef4,
-                            const double coef5);
+# define plCurve_set_constraint(L,cmp,vert,num_verts,...) \
+  _plCurve_set_constraint(L,cmp,vert,num_verts,__VA_ARGS__,0,0,0,0,0,0);
+void _plCurve_set_constraint(plCurve * const L, const int cmp, 
+                             const int vert, const int num_verts, 
+                             const int kind, ...);
 
 /* Remove a constraint from the list of constraints returning the number of
  * vertices thus set unconstrained.  */

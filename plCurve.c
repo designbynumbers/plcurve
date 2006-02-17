@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.51 2006-02-17 04:50:42 ashted Exp $
+ *  $Id: plCurve.c,v 1.52 2006-02-17 16:48:46 ashted Exp $
  *
  */
 
@@ -572,13 +572,12 @@ static inline void overrun_check(plCurve_constraint *cst) {
 } /* overrun_check */
 
 /* Set a constraint on a vertex or run of vertices */
-void plCurve_set_constraint(plCurve * const L, const int cmp, 
-                            const int vert, const int num_verts, 
-                            const int kind, const double coef0,
-                            const double coef1, const double coef2, 
-                            const double coef3, const double coef4, 
-                            const double coef5) {
+void _plCurve_set_constraint(plCurve * const L, const int cmp, 
+                             const int vert, const int num_verts, 
+                             const int kind, ...) {
+
   double coef[6];
+  va_list arg_list;
   plCurve_constraint *cst,*pcst;  /* constraint, previous constraint */
   plCurve_constraint **pfn; /* Place for new constraint */
 
@@ -626,12 +625,14 @@ void plCurve_set_constraint(plCurve * const L, const int cmp,
   }
 
   /* Put these in one spot for easier passage */
-  coef[0] = coef0;
-  coef[1] = coef1;
-  coef[2] = coef2;
-  coef[3] = coef3;
-  coef[4] = coef4;
-  coef[5] = coef5;
+  va_start(arg_list,kind);
+  coef[0] = va_arg(arg_list, double);
+  coef[1] = va_arg(arg_list, double);
+  coef[2] = va_arg(arg_list, double);
+  coef[3] = va_arg(arg_list, double);
+  coef[4] = va_arg(arg_list, double);
+  coef[5] = va_arg(arg_list, double);
+  va_end(arg_list);
 
   /* Seek down the list 
    * Stop seeking when we either 

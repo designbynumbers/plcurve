@@ -11,8 +11,6 @@
    they should be considered separate from the plCurve and unless put back into
    it will not automatically be written.
 
-3) Variable args in plCurve_set_constraint.
-
-4) Fix the color handling for spline conversion.  In the case of
+3) Fix the color handling for spline conversion.  In the case of
    one-color-per-vertex, the spline code should do its best to make sure
    that that remains true after it has converted.
