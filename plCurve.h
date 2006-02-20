@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.28 2006-02-17 20:11:03 ashted Exp $
+ *  $Id: plCurve.h,v 1.29 2006-02-20 05:32:27 ashted Exp $
  *
  */
 
@@ -34,21 +34,28 @@ extern "C" {
 #endif
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+  #include "config.h"
 #endif
 
 /* We need to define FILE */
 #ifdef HAVE_STDIO_H
-#include <stdio.h>
+  #include <stdio.h>
 #endif 
 
-/* Define TRUE and FALSE */
-#ifndef FALSE
-#define FALSE (1 == 0)
-#endif /* FALSE */
-#ifndef TRUE
-#define TRUE (1 == 1)
-#endif /* TRUE */
+#ifdef HAVE_STDBOOL_H
+  #include <stdbool.h>
+#else
+  /* Define true and false */
+  #ifndef false
+    #define false (1 == 0)
+  #endif /* false */
+  #ifndef true
+    #define true (1 == 1)
+  #endif /* true */
+  #ifndef bool
+    typedef bool int;
+  #endif
+#endif
 
 /* Variables for reporting errors */
 int  plcl_error_num;
@@ -67,8 +74,8 @@ typedef struct plCurve_color_type {
 } plCurve_color;
 
 typedef struct plCurve_strand_type {
-  int            open;   /* This is an "open" strand (with distinct ends) */
   int            nv;     /* Number of vertices */
+  bool           open;   /* This is an "open" strand (with distinct ends) */
   int            cc;     /* Color count (number of colors) */
   plcl_vector   *vt;     /* Actual vertices */
   plCurve_color *clr;    /* Colors */
@@ -94,14 +101,14 @@ typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
   int    vert;   /* Vertex */
   char   tag[4]; /* 3-character tag */
   double quant;  /* Quantifier */
-  struct plCurve_vert_quant *next_quant;
+  /*@owned@*/ struct plCurve_vert_quant *next_quant;
 } plCurve_vert_quant;
 
 typedef struct plCurve_type {   
   int nc;                       /* Number of components */
   plCurve_strand *cp;           /* Components */
-  plCurve_constraint *cst;      /* Constraints */
-  plCurve_vert_quant *quant;    /* per-vertex quantifiers */
+  /*@owned@*/ /*@null@*/ plCurve_constraint *cst;      /* Constraints */
+  /*@null@*/ plCurve_vert_quant *quant;    /* per-vertex quantifiers */
 } plCurve;
 
 /* PlCurve_spline types */
@@ -200,13 +207,19 @@ inline double plcl_norm(plcl_vector A);
 
 /* The squared distance from A to B */
 #define plcl_M_sq_dist(A,B) \
-  (A.c[0]-B.c[0])*(A.c[0]-B.c[0])+ \
-  (A.c[1]-B.c[1])*(A.c[1]-B.c[1])+ \
-  (A.c[2]-B.c[2])*(A.c[2]-B.c[2]);
+  ((A).c[0]-(B).c[0])*((A).c[0]-(B).c[0])+ \
+  ((A).c[1]-(B).c[1])*((A).c[1]-(B).c[1])+ \
+  ((A).c[2]-(B).c[2])*((A).c[2]-(B).c[2]);
 
 /* The coordinates of a vector, as a list */
 #define plcl_M_clist(A) \
   A.c[0], A.c[1], A.c[2]
+
+/* Are two vectors equal? */
+#define plcl_M_vecteq(A,B) \
+  ((A).c[0] - (B).c[0] < DBL_EPSILON && -((A).c[0]-(B).c[0]) < DBL_EPSILON && \
+   (A).c[1] - (B).c[1] < DBL_EPSILON && -((A).c[1]-(B).c[1]) < DBL_EPSILON && \
+   (A).c[2] - (B).c[2] < DBL_EPSILON && -((A).c[2]-(B).c[2]) < DBL_EPSILON)
 
 /* 
  * Prototypes for routines to deal with plCurves.
@@ -214,11 +227,11 @@ inline double plcl_norm(plcl_vector A);
  */
 
 /* Build a new plCurve (with associated strands) */
-plCurve *plCurve_new(const int components, const int * const nv, 
-                     const int * const open, const int * const cc);
+/*@only@*/ plCurve *plCurve_new(const int components, const int * const nv, 
+                                const bool * const open, const int * const cc);
 
 /* Free the plCurve (and strands) */
-void plCurve_free(plCurve *L);
+void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L);
 
 /* Set a constraint on a vertex or run of vertices */
 void plCurve_set_fixed(plCurve * const L, 
@@ -246,13 +259,14 @@ void plCurve_unconstrain(plCurve * const L, const int cmp,
 
 /* Remove a constraint from the list of constraints returning the number of
  * vertices thus set unconstrained.  */
-int plCurve_remove_constraint(plCurve * const L, plCurve_constraint *cst);
+int plCurve_remove_constraint(plCurve * const L, 
+                   /*@only@*/ plCurve_constraint *cst);
 
 /* Remove all constraints */
 void plCurve_remove_all_constraints(plCurve * const L);
 
 /* Read plCurve data from a file */
-plCurve *plCurve_read(FILE *infile);
+/*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *infile);
 
 /* Write plCurve data to a file */
 void plCurve_write(FILE *outfile, plCurve * const L);

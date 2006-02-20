@@ -1,19 +1,26 @@
 /*
- * $id$
+ * $Id: test_cst.c,v 1.11 2006-02-20 05:32:27 ashted Exp $
  *
  * Test the constraint-handling code
  *
  */
 
-#include <stdio.h>
-#include <math.h>
-
 #include "plCurve.h"
+
+#ifdef HAVE_STDIO_H
+  #include <stdio.h>
+#endif
+#ifdef HAVE_MATH_H
+  #include <math.h>
+#endif
+#ifdef HAVE_STDBOOL_H
+  #include <stdbool.h>
+#endif
 
 int main() {
   plCurve *L;
   int nv[2] = { 100, 2 };
-  int open[2] = { FALSE, TRUE };
+  bool open[2] = { false, true };
   int cc[2] = { 100, 1 };
   FILE *outfile;
   int i;

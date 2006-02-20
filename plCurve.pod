@@ -25,14 +25,14 @@ B<Octrope> library (liboctrope, -loctrope)
 } octrope_color;
 
 typedef struct octrope_strand_type {
-  int             acyclic;   /* True if strand has distinct ends */
+  int             open;   /* True if strand has distinct ends */
   int             nv;        /* Number of vertices */
   int             cc;        /* Color count (number of colors) */
   octrope_vector *vt;        /* Vertex buffer */
   octrope_color  *clr;       /* Actual colors */
 } octrope_strand;>
 
-octrope_link *octrope_link_new(int components, int *nv, int *acyclic);
+octrope_link *octrope_link_new(int components, int *nv, int *open);
 void octrope_link_free(octrope_link *L);
 
 octrope_link *octrope_link_read(FILE *infile);
@@ -54,10 +54,10 @@ As expected, the I<octrope_vector> is a 3-vector.
 =head2 The I<octrope_strand> type
 
 The I<octrope_strand> is a bit more subtle. The data type contains a buffer 
-of I<nv> vertices and the I<acyclic> tag. The value of I<acyclic> is 
-TRUE (nonzero) when the space polygon has two ends, and FALSE (zero) when the
+of I<nv> vertices and the I<open> tag. The value of I<open> is 
+true when the space polygon has two ends, and false when the
 space polygon is closed. For example, a line segment has I<nv> == 2 and 
-I<acyclic> == TRUE, while a triangle has I<nv> == 3 and I<acyclic> == FALSE.
+I<open> == true, while a triangle has I<nv> == 3 and I<open> == false.
 
 However, I<nv> is B<not> the size of the buffer I<vt> allocated by
 octrope_link_new() and freed by octrope_link_free(). The reason for
@@ -74,7 +74,7 @@ instance, a test implementation of the library with this interface was
 almost 30% slower than the current version. Therefore, we have chosen
 to implement one step of wraparound by adding copies of the last and
 first vertices to the buffer locations I<vt>[-1] and I<vt>[nv]
-when I<acyclic> == FALSE. As long as the extra memory is correctly
+when I<open> == FALSE. As long as the extra memory is correctly
 allocated (by octrope_link_new()) and freed (by octrope_link_free()), 
 this should be transparent to users of this code.
 
@@ -107,18 +107,18 @@ library is as an I<octrope_link> with one component.
 
 =head2 octrope_link_new(): Allocating the I<octrope_link> type
 
- octrope_link *octrope_link_new(int components, int *nv, int *acyclic);
+ octrope_link *octrope_link_new(int components, int *nv, int *open);
 
 creates a pointer to an I<octrope_link> structure containing space for 
 I<components> I<octrope_strand> structures where the ith I<octrope_strand>
 has space for I<nv[i]> vertices. The I<octrope_link> structure itself
 is allocated inside I<octrope_link_new>, and must be later freed (the
 function octrope_link_free() handles this automatically). The 
-buffers I<nv> and I<acyclic> are copied into new memory locations inside
+buffers I<nv> and I<open> are copied into new memory locations inside
 I<octrope_link_new>. It is hence safe to free them after a call to 
 I<octrope_link_new> if desired.
 
-The I<acyclic> array contains TRUE in I<acyclic[i]> if the ith component
+The I<open> array contains TRUE in I<open[i]> if the ith component
 of the link has distinct end vertices and FALSE if the ith component is closed.
 
 =head2 octrope_link_free(): Destroying the I<octrope_link> type
@@ -157,7 +157,7 @@ was successful, FALSE otherwise.
 
 updates the I<vt> (vertex) buffers in the members of I<L>'s I<cp>
 array so that if a component I<L>->cp[i] is closed (that is, 
-I<L>->cp[i]->acyclic == FALSE), then
+I<L>->cp[i]->open == FALSE), then
 
    L->cp[i]->vt[-1] == L->cp[i]->vt[L->cp[i]->nv-1] 
 
