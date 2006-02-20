@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.19 2006-02-20 05:32:27 ashted Exp $
+ * $Id: vector.c,v 1.20 2006-02-20 22:23:39 ashted Exp $
  *
  */
 
@@ -38,6 +38,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_STDLIB_H
   #include <stdlib.h>
 #endif 
+#ifdef HAVE_FLOAT_H
+  #include <float.h>
+#endif
 
 
 /**************************************************************/
@@ -47,8 +50,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /* Returns A + B. */
 inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B) { 
   plcl_vector C;
-
-  plcl_error_num = 0;
 
   C.c[0] = A.c[0] + B.c[0];
   C.c[1] = A.c[1] + B.c[1];
@@ -61,8 +62,6 @@ inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B) {
 inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B) { 
   plcl_vector C;
 
-  plcl_error_num = 0;
-
   C.c[0] = A.c[0] - B.c[0];
   C.c[1] = A.c[1] - B.c[1];
   C.c[2] = A.c[2] - B.c[2];
@@ -73,8 +72,6 @@ inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B) {
 /* Returns A x B. */
 inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B) { 
   plcl_vector C;
-
-  plcl_error_num = 0;
 
   C.c[0] = A.c[1] * B.c[2] - A.c[2] * B.c[1];
   C.c[1] = A.c[2] * B.c[0] - A.c[0] * B.c[2];
@@ -87,8 +84,6 @@ inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B) {
 inline plcl_vector plcl_scale_vect(double s,plcl_vector A) { 
   plcl_vector C;
 
-  plcl_error_num = 0;
-
   C.c[0] = s * A.c[0];
   C.c[1] = s * A.c[1];
   C.c[2] = s * A.c[2];
@@ -98,8 +93,6 @@ inline plcl_vector plcl_scale_vect(double s,plcl_vector A) {
 
 inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B) {
   plcl_vector C;
-
-  plcl_error_num = 0;
 
   C.c[0] = A.c[0]*B.c[0];
   C.c[1] = A.c[1]*B.c[1];
@@ -111,8 +104,6 @@ inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B) {
 inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B) {
   plcl_vector C;
 
-  plcl_error_num = 0;
-
   C.c[0] = A.c[0]/B.c[0];
   C.c[1] = A.c[1]/B.c[1];
   C.c[2] = A.c[2]/B.c[2];
@@ -122,12 +113,10 @@ inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B) {
 
 /* Returns the dot product of A and B */
 inline double plcl_dot_prod(plcl_vector A, plcl_vector B) {
-  plcl_error_num = 0;
   return A.c[0]*B.c[0] + A.c[1]*B.c[1] + A.c[2]*B.c[2];
 }
 
 inline double plcl_norm(plcl_vector A) {
-  plcl_error_num = 0;
   return sqrt(plcl_dot_prod(A,A));
 }
 
@@ -138,7 +127,7 @@ inline plcl_vector plcl_normalize_vect(const plcl_vector V) {
   plcl_error_num = 0;
 
   vnrm = plcl_M_norm(V);
-  if (vnrm == 0) {
+  if (vnrm < DBL_EPSILON && -vnrm < DBL_EPSILON) {
     plcl_error_num = PLCL_E_ZERO_VECTOR;
     snprintf(plcl_error_str,sizeof(plcl_error_str),
       "plcl_normalize_vect: Can't normalize zero vector.\n");
@@ -172,7 +161,7 @@ plcl_vector plcl_random_vect()
   }
 
   plcl_error_num = PLCL_E_BAD_RANDOM;
-  sprintf(plcl_error_str,sizeof(plcl_error_str),
+  snprintf(plcl_error_str,sizeof(plcl_error_str),
       "plcl_random_vect: Apparent error in rand().\n");
   return R;
 }

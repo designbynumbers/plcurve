@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.29 2006-02-20 05:32:27 ashted Exp $
+ *  $Id: plCurve.h,v 1.30 2006-02-20 22:23:39 ashted Exp $
  *
  */
 
@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+/*@-exportlocal@*/
 #ifndef __PLCURVE_H
 #define __PLCURVE_H
 
@@ -58,8 +59,8 @@ extern "C" {
 #endif
 
 /* Variables for reporting errors */
-int  plcl_error_num;
-char plcl_error_str[80];
+/*@checkedstrict@*/ int  plcl_error_num;   
+/*@checkedstrict@*/ char plcl_error_str[80];
 
 /* Define 3-space vectors */
 typedef struct plcl_vector_type {  
@@ -93,7 +94,7 @@ typedef struct plCurve_constraint_type {
   int         cmp;       /* Component */
   int         vert;      /* Starting vertex */
   int         num_verts; /* Length of run */
-  struct      plCurve_constraint_type *next;
+  /*@only@*/ /*@null@*/ struct      plCurve_constraint_type *next;
 } plCurve_constraint;
   
 typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
@@ -101,14 +102,14 @@ typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
   int    vert;   /* Vertex */
   char   tag[4]; /* 3-character tag */
   double quant;  /* Quantifier */
-  /*@owned@*/ struct plCurve_vert_quant *next_quant;
+  /*@only@*/ /*@null@*/ struct plCurve_vert_quant *next_quant;
 } plCurve_vert_quant;
 
 typedef struct plCurve_type {   
   int nc;                       /* Number of components */
   plCurve_strand *cp;           /* Components */
-  /*@owned@*/ /*@null@*/ plCurve_constraint *cst;      /* Constraints */
-  /*@null@*/ plCurve_vert_quant *quant;    /* per-vertex quantifiers */
+  /*@only@*/ /*@null@*/ plCurve_constraint *cst;   /* Constraints */
+  /*@only@*/ /*@null@*/ plCurve_vert_quant *quant; /* per-vertex quantifiers */
 } plCurve;
 
 /* PlCurve_spline types */
@@ -260,13 +261,15 @@ void plCurve_unconstrain(plCurve * const L, const int cmp,
 /* Remove a constraint from the list of constraints returning the number of
  * vertices thus set unconstrained.  */
 int plCurve_remove_constraint(plCurve * const L, 
-                   /*@only@*/ plCurve_constraint *cst);
+                              const int kind,
+                              const plcl_vector vect[]);
 
 /* Remove all constraints */
 void plCurve_remove_all_constraints(plCurve * const L);
 
 /* Read plCurve data from a file */
-/*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *infile);
+/*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *infile)
+/*@globals plcl_error_num, plcl_error_str@*/;
 
 /* Write plCurve data to a file */
 void plCurve_write(FILE *outfile, plCurve * const L);
@@ -302,7 +305,7 @@ double plCurve_check_cst(const plCurve * const L);
 void plCurve_fix_cst(plCurve * const L);
 
 /* Check plcl_error_num, report on nonzero, terminate on positive */
-inline void plcl_status_check();
+inline void plcl_status_check()/*@globals plcl_error_num, plcl_error_str@*/;
 
 /* Either return (if given a char *) or print out the library version number */
 inline void plCurve_version(char *version);
@@ -357,3 +360,4 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
 };
 #endif
 #endif
+/*@=exportlocal@*/

@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.54 2006-02-20 05:32:27 ashted Exp $
+ *  $Id: plCurve.c,v 1.55 2006-02-20 22:23:39 ashted Exp $
  *
  */
 
@@ -92,6 +92,7 @@ static inline int intmax(const int a, const int b) {
   L->nc = components;
   L->cp = (plCurve_strand *)malloc(L->nc*sizeof(plCurve_strand));
   assert(L->cp != NULL);
+  /*@+loopexec@*/
   for (i = 0; i < components; i++) {
     assert(nv[i] >= 1); /* Need to have at least one vertex */
 
@@ -100,13 +101,16 @@ static inline int intmax(const int a, const int b) {
     L->cp[i].vt = 
       (plcl_vector *)calloc((size_t)(nv[i]+2),sizeof(plcl_vector));
     assert(L->cp[i].vt != NULL);
+    /*@-usedef@*/ /* Splint gets this one wrong */
     L->cp[i].vt++; /* so that L->cp[i].vt[-1] is a valid space */
+    /*@=usedef@*/
     
     L->cp[i].cc = cc[i];
     L->cp[i].clr = 
       (plCurve_color *)calloc((size_t)cc[i],sizeof(plCurve_color));
     assert(L->cp[i].clr != NULL);
   }
+  /*@=loopexec@*/
 
   /* Start off with no constraints */
   L->cst = NULL;
@@ -114,7 +118,10 @@ static inline int intmax(const int a, const int b) {
   /* Space for vertex quantifiers to be stored (someday) */
   L->quant = NULL;
 
+  /*@-compdef@*/ /* Frustratingly, splint thinks that L->cp[i].nv, .open, .cc,
+                    .vt and .clr don't get defined. */
   return L;
+  /*@=compdef@*/
 } /* plCurve_new */
 
 /*
@@ -281,8 +288,6 @@ void plCurve_fix_cst(plCurve * const L) {
   plCurve_constraint *cst;
   int vert; 
 
-  plcl_error_num = 0;
-
   /* Sanity check */
   assert(L != NULL);
 
@@ -324,8 +329,6 @@ void plCurve_fix_cst(plCurve * const L) {
 void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L) {
   int i;
 
-  plcl_error_num = 0;
-
   /* First, we check the input. */
   if (L == NULL) {
     return; /* Move along, nothing to see here */
@@ -333,6 +336,7 @@ void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L) {
 
   /* Now we can get to work. */
   if (L->cp != NULL) {
+    /*@+loopexec@*/
     for (i=0; i<L->nc; i++) {
       L->cp[i].nv = 0;
       if (L->cp[i].vt != NULL) {
@@ -346,8 +350,11 @@ void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L) {
         free(L->cp[i].clr);
       }
     }
+    /*@=loopexec@*/
   
+    /*@-compdestroy@*/ /* Splint thinks we aren't freeing .vt and .clr */
     free(L->cp);
+    /*@=compdestroy@*/
     L->nc = 0;
   }
 
@@ -364,7 +371,7 @@ void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L) {
 plCurve_constraint *new_constraint(const int kind, const plcl_vector vect[], 
                                    const int cmp, const int vert, 
                                    const int num_verts, 
-                                   /*@owned@*/ plCurve_constraint *next) {
+             /*@only@*/ /*@null@*/ plCurve_constraint *next) {
   plCurve_constraint *ncst;
 
   ncst = malloc(sizeof(plCurve_constraint));
@@ -389,6 +396,7 @@ static inline void overrun_check(plCurve_constraint *cst) {
 
   plCurve_constraint *temp_cst;
 
+  assert(cst != NULL);
   while (cst->next != NULL && 
          cst->next->cmp == cst->cmp &&
          cst->next->vert < cst->vert+cst->num_verts) {
@@ -401,6 +409,7 @@ static inline void overrun_check(plCurve_constraint *cst) {
       free(temp_cst);
     } else {
       /* It just overlaps, either move the bottom up or join the two */
+      assert(cst->next != NULL);
       if (cst->next->kind == cst->kind &&
           cst->kind != PLCL_FIXED && /* Never extend a fixed constraint */
           memcmp(cst->next->vect,cst->vect,sizeof(cst->vect)) == 0) {
@@ -426,10 +435,8 @@ static inline void plCurve_set_constraint(plCurve * const L, const int cmp,
                                           const int kind, 
                                           const plcl_vector vect[]) {
 
-  /*@dependent@*/ plCurve_constraint *cst,*pcst;  /* constraint, previous constraint */
+  plCurve_constraint *cst,*pcst;  /* constraint, previous constraint */
   plCurve_constraint **pfn; /* Place for new constraint */
-
-  plcl_error_num = 0;
 
   /* First, we check the input. */
   assert(L != NULL);
@@ -491,7 +498,6 @@ static inline void plCurve_set_constraint(plCurve * const L, const int cmp,
      * with vertices strictly beyond our range. */
     if (kind != PLCL_UNCST) {
       (*pfn) = new_constraint(kind, vect, cmp, vert, num_verts, cst);
-      if (plcl_error_num != 0) { return; }
     }
   } else {
     /* The one we found has a range that somehow overlaps to the one we have.
@@ -503,15 +509,16 @@ static inline void plCurve_set_constraint(plCurve * const L, const int cmp,
       /* Its range starts before ours, we'll have to leave part */
       if (cst->vert+cst->num_verts > vert+num_verts) {
         /* It also exteds past ours, we go in the middle */
+        /*@-usereleased@*/
         (*pfn) = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
                    vert - cst->vert, cst);
-        if (plcl_error_num != 0) { return; }
         if (kind != PLCL_UNCST) {
-          (*pfn)->next = new_constraint(kind, vect, cmp, vert, num_verts, cst);
-          if (plcl_error_num != 0) { return; }
+          (*pfn)->next = new_constraint(kind, vect, cmp, vert, num_verts, 
+                                        (*pfn)->next);
         }
         cst->num_verts -= vert + num_verts - cst->vert;
         cst->vert = vert + num_verts;
+        /*@=usereleased@*/
       } else {
         /* It's just before ours, but extends into ours, shorten it. */
         cst->num_verts = vert - cst->vert;
@@ -519,16 +526,16 @@ static inline void plCurve_set_constraint(plCurve * const L, const int cmp,
         if (kind != PLCL_UNCST) {
           cst->next = 
             new_constraint(kind, vect, cmp, vert, num_verts, cst->next);
-          if (plcl_error_num != 0) { return; }
         }
         /* And check to see if we overran the next one */
+        /*@-usereleased@*/
         cst = cst->next;
+        /*@=usereleased@*/
         overrun_check(cst);
       }
     } else {
       /* It starts no earlier than ours, put ours in before it */
       (*pfn) = new_constraint(kind, vect, cmp, vert, num_verts, cst);
-      if (plcl_error_num != 0) { return; }
       overrun_check(*pfn);
     }
   }
@@ -542,7 +549,8 @@ void plCurve_set_fixed(plCurve * const L,
                        const int vert, 
                        const int num_verts, 
                        const plcl_vector point) {
-  plcl_vector vect[2] = { point, { { 0, 0, 0 } } };
+  plcl_vector zv = {{0, 0, 0}};
+  plcl_vector vect[2] = { point, zv };
 
   plCurve_set_constraint(L,cmp,vert,num_verts,PLCL_FIXED,vect);
 }
@@ -564,7 +572,8 @@ void plCurve_constrain_to_plane(plCurve * const L,
                                 const int num_verts, 
                                 const plcl_vector normal, 
                                 const double dist_from_origin) {
-  plcl_vector vect[2] = { normal, { { dist_from_origin, 0, 0 } } };
+  plcl_vector dz = {{dist_from_origin, 0, 0}};
+  plcl_vector vect[2] = { normal, dz };
 
   plCurve_set_constraint(L,cmp,vert,num_verts,PLCL_IN_PLANE,vect);
 }
@@ -572,52 +581,55 @@ void plCurve_constrain_to_plane(plCurve * const L,
 void plCurve_unconstrain(plCurve * const L, const int cmp, 
                          const int vert, const int num_verts) {
         
-  plcl_vector zero_vect[2] = { { {0, 0, 0} }, { {0, 0, 0} } };
+  plcl_vector zv = {{0, 0, 0}};
+  plcl_vector zero_vect[2] = {zv, zv};
 
   plCurve_set_constraint(L,cmp,vert,num_verts,PLCL_UNCST,zero_vect);
 }
 
 /*
- * Remove a constraint from the list of constraints returning the number of
- * vertices thus set unconstrained. 
+ * Remove any constraint from the list which matches the data given.  Return
+ * the number of vertices thus set unconstrained. 
  *
  */
 int plCurve_remove_constraint(plCurve * const L, 
-                              /*@only@*/ plCurve_constraint *cst) {
-  plCurve_constraint *cst_ptr;
+                              const int kind,
+                              const plcl_vector vect[]) {
+  plCurve_constraint **cst_pptr,*cst_ptr;
   int uncst = 0;
 
-  plcl_error_num = 0;
-
   assert(L != NULL);
-  assert(cst != NULL);
+  assert(kind == PLCL_FIXED || kind == PLCL_ON_LINE || kind == PLCL_IN_PLANE);
 
-  if (L->cst == cst) {
-    /* Top one on the list */
-    L->cst = cst->next;
-    uncst = cst->num_verts;
-    free(cst);
-    return uncst;
-  } else {
-    cst_ptr = L->cst;
-    while (cst_ptr->next != NULL &&
-           cst_ptr->next != cst) {
-      cst_ptr = cst_ptr->next;
+  /* This code gives splint fits (perhaps I just don't understand yet how to
+   * explain to splint what is going on).  That's not unreasonable.  It's
+   * tricky code.  Contact Ted if you think it has a bug. */
+  cst_pptr = &L->cst;
+  while ((*cst_pptr) != NULL) {
+    if ((*cst_pptr)->kind == kind &&
+        plcl_M_vecteq((*cst_pptr)->vect[0],vect[0]) &&
+        plcl_M_vecteq((*cst_pptr)->vect[1],vect[1])) {
+      cst_ptr = *cst_pptr; /* So we can free the space */
+      *cst_pptr = (*cst_pptr)->next; /* Take it out of the list */
+      uncst += cst_ptr->num_verts;
+      /*@-compdestroy@*/
+      free(cst_ptr);
+      /*@=compdestroy@*/
+      cst_ptr = NULL;
+    } else {
+      cst_pptr = &((*cst_pptr)->next);
     }
-    assert(cst_ptr->next == cst);
-    cst_ptr->next = cst->next;
-    uncst = cst->num_verts;
-    free(cst);
-    return uncst;
   }
+  /*@-usereleased -compdef@*/
+  return uncst;
+  /*@=usereleased =compdef@*/
 } /* plCurve_remove_constraint */
 
 /* Remove all constraints */
 void plCurve_remove_all_constraints(plCurve * const L) {
   plCurve_constraint *cst;
 
-  plcl_error_num = 0;
-
+  /* Start with a sanity check */
   assert(L != NULL);
 
   cst = L->cst;
@@ -659,8 +671,6 @@ void plCurve_write(FILE *file, plCurve * const L) {
   /* All the constraints (without duplicates) */
   plCurve_constraint *cst_list = NULL; 
   bool found;
-
-  plcl_error_num = 0;
 
   /* First, do a little sanity checking. */
   assert(file != NULL);
@@ -951,8 +961,6 @@ static inline int scanints(FILE *infile,int nints, ...)
 void plCurve_fix_wrap(plCurve * const L) {
   int i,nv;
 
-  plcl_error_num = 0;
-
   for (i = 0; i < L->nc; i++) {
     nv = L->cp[i].nv;
     if (L->cp[i].open) {
@@ -974,7 +982,8 @@ void plCurve_fix_wrap(plCurve * const L) {
  * failure. 
  *
  */
-/*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file) {
+/*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file) 
+/*@globals plcl_error_num, plcl_error_str@*/ {
   plCurve *L;
   int nverts = 0, ncomp = 0, ncolors = 0;
   int *nvarray, *ccarray;
@@ -1014,11 +1023,14 @@ void plCurve_fix_wrap(plCurve * const L) {
 
   nvarray = (int *)malloc(ncomp*sizeof(int));
   assert(nvarray != NULL);
+  nvarray[0] = 0;
   open    = (bool *)malloc(ncomp*sizeof(bool));
   assert(open != NULL);
   ccarray = (int *)malloc(ncomp*sizeof(int));
   assert(ccarray != NULL);
+  ccarray[0] = 0;
 
+  /*@+loopexec@*/
   for(i=0; i<ncomp; i++) {
     if (scanints(file,1,&(nvarray[i])) != 1) {
       plcl_error_num = PLCL_E_BAD_CVRT_LINE;
@@ -1034,10 +1046,12 @@ void plCurve_fix_wrap(plCurve * const L) {
     open[i] = (nvarray[i] >= 0);
     nvarray[i] = abs(nvarray[i]);
   }
+  /*@=loopexec@*/
 
   /* We have set nvarray and open and are ready to read the color data.  */
 
-  for(i=0;i<ncomp;i++) {
+  /*@+loopexec@*/
+  for(i=0; i<ncomp; i++) {
     if (scanints(file,1,&(ccarray[i])) != 1) {
       plcl_error_num = PLCL_E_BAD_CLR_LINE;
       (void)snprintf(plcl_error_str,sizeof(plcl_error_str),
@@ -1048,6 +1062,7 @@ void plCurve_fix_wrap(plCurve * const L) {
       return NULL;
     }
   }
+  /*@=loopexec@*/
 
   /* We now allocate the plCurve data structure. */
 
@@ -1108,9 +1123,7 @@ int plCurve_num_edges(plCurve * const L)
 {
   int i, edges = 0;
 
-  plcl_error_num = 0;
-
-  for (i=0;i<L->nc;i++) {
+  for (i=0; i<L->nc; i++) {
     edges += strand_edges(L->cp[i]);
   }
   return edges;
@@ -1126,7 +1139,6 @@ double plCurve_curvature(plCurve * const L, const int comp, const int vert) {
 
   /* We start with some initializations. */
   
-  plcl_error_num = 0;
   plCurve_fix_wrap(L);
   
   /* Now we work. */
@@ -1157,6 +1169,7 @@ plCurve *plCurve_copy(plCurve * const L) {
   int *nv, *ccarray;
   bool *open;
   int cnt,cnt2;
+  plCurve_constraint *cst,*cst2;
 
   assert(L->nc >= 1);
 
@@ -1167,24 +1180,36 @@ plCurve *plCurve_copy(plCurve * const L) {
   ccarray = (int *)malloc((L->nc)*sizeof(int));
   assert(ccarray != NULL);
 
-  /* This seems an odd thing to do, but makes Splint happier :-{ */
-  nv[0] = L->cp[0].nv;
-  open[0] = L->cp[0].open;
-  ccarray[0] = L->cp[0].cc;
-
-  for (cnt = 1; cnt < L->nc; cnt++) {
+  /*@+loopexec@*/
+  for (cnt = 0; cnt < L->nc; cnt++) {
     nv[cnt] = L->cp[cnt].nv;
     open[cnt] = L->cp[cnt].open;
     ccarray[cnt] = L->cp[cnt].cc;
   }
+  /*@=loopexec@*/
   nL = plCurve_new(L->nc,nv,open,ccarray);
+  assert(nL->cst == NULL);
 
   free(ccarray);
   free(open);
   free(nv);
 
-  fprintf(stderr,"NEED TO HANDLE CONSTRAINTS ON COPY\n");
-  exit(EXIT_FAILURE);
+  /* Constraints */
+  cst = L->cst;
+  if (cst != NULL) {
+    nL->cst = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert, 
+                             cst->num_verts, NULL);
+    cst2 = nL->cst;
+    while (cst->next != NULL) {
+      cst = cst->next;
+      assert(cst2->next == NULL);
+      cst2->next = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
+                                  cst->num_verts, NULL);
+      cst2 = cst2->next;
+    }
+  } else {
+    nL->cst = NULL;
+  }
 
   for (cnt = 0; cnt < L->nc; cnt++) {
     /*
@@ -1208,8 +1233,6 @@ plCurve *plCurve_copy(plCurve * const L) {
  */
 plcl_vector plCurve_tangent_vector(plCurve * const L,int cmp, int vert) {
   plcl_vector in, out, tan;
-
-  plcl_error_num = 0;
 
   if (L->cp[cmp].open) {
     if (vert == 0) {
@@ -1252,8 +1275,6 @@ double plCurve_arclength(const plCurve * const L,
   int vert;
   plCurve_strand *cp;
 
-  plcl_error_num = 0;
-
   tot_length = 0;
   for (cmp = 0; cmp < L->nc; cmp++) {
 
@@ -1279,8 +1300,6 @@ double plCurve_parameter(const plCurve * const L,const int cmp,const int vert)
   int v,nv;
   plCurve_strand *cp;
   plcl_vector temp_vect;
-
-  plcl_error_num = 0;
 
   assert(L != NULL);
   assert(cmp >= 0);
@@ -1310,8 +1329,6 @@ void plCurve_force_closed(plCurve * const L)
 {
   int i, cmp;
   plcl_vector diff;
-
-  plcl_error_num = 0;
 
   for (cmp=0;cmp < L->nc;cmp++) {
     if (L->cp[cmp].open == true) {  /* Isolate the open components. */
@@ -1345,7 +1362,7 @@ void plCurve_force_closed(plCurve * const L)
  * is an error.
  *
  */
-inline void plcl_status_check() {
+inline void plcl_status_check() /*@globals plcl_error_num, plcl_error_str@*/ {
   if (plcl_error_num != 0) {
     fprintf(stderr,"%s",plcl_error_str);
     if (plcl_error_num > 0) {
