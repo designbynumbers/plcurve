@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.20 2006-02-20 22:23:39 ashted Exp $
+ * $Id: vector.c,v 1.21 2006-02-21 03:52:14 ashted Exp $
  *
  */
 
@@ -40,6 +40,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif 
 #ifdef HAVE_FLOAT_H
   #include <float.h>
+#endif
+#ifdef HAVE_ASSERT_H
+  #include <assert.h>
 #endif
 
 
@@ -137,6 +140,36 @@ inline plcl_vector plcl_normalize_vect(const plcl_vector V) {
 }
 
 /*
+ * George Masaglia's "new method" for finding a random point on a 3-sphere,
+ * from his short article "Choosing a Point from the Surface of a Sphere"
+ * in The Annals of Mathematical Statistics, v. 43, no. 2 (Apr, 1972) 645-646.
+ *
+ */
+plcl_vector plcl_random_2()
+{
+  int i;
+  plcl_vector R;
+  double V1, V2;
+  double S = 0.0;
+  double sqt;
+
+  for (i = 0; i < 1000 && 
+              (S - 1.0 > DBL_EPSILON ||
+               S - 0.01 < DBL_EPSILON); i++) {
+    V1 = 2*(double)(rand())/(double)(RAND_MAX) - 1;
+    V2 = 2*(double)(rand())/(double)(RAND_MAX) - 1;
+    S = V1*V1 + V2*V2;
+  }
+  assert(S - 0.01 >= DBL_EPSILON && S - 1.0 <= DBL_EPSILON);
+  sqt = sqrt(1-S);
+  R.c[0] = 2*V1*sqt;
+  R.c[1] = 2*V2*sqt;
+  R.c[2] = 1-2*S;
+
+  return R;
+}
+
+/*
  * Procedure assumes that the "rand" random number generator exists on this
  * system and has been seeded. It generates a random unit vector. 
  */
@@ -144,11 +177,6 @@ plcl_vector plcl_random_vect()
 {
   int i;
   plcl_vector R;
-
-  plcl_error_num = 0;
-
-  R.c[0] = 1;            /* The nonrandom vector */
-  R.c[1] = R.c[2] = 0;
 
   for(i=0;i<1000;i++) {
     R.c[0] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
@@ -159,13 +187,13 @@ plcl_vector plcl_random_vect()
       return plcl_normalize_vect(R);
     }
   }
-
-  plcl_error_num = PLCL_E_BAD_RANDOM;
-  snprintf(plcl_error_str,sizeof(plcl_error_str),
-      "plcl_random_vect: Apparent error in rand().\n");
-  return R;
+  /* If we make it to here, there is evidently a problem with the random 
+     number generator, we haven't had any acceptable vectors in 1000 tries. */
+  assert(false);
+  return plcl_build_vect(1,0,0);
 }
 
+/* Put together a vector from 3 doubles */
 inline plcl_vector plcl_build_vect(const double x, 
                                    const double y,
                                    const double z) {
