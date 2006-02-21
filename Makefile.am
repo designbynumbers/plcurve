@@ -1,4 +1,4 @@
-AM_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
+AM_CFLAGS = -g -Wall # -fprofile-arcs -ftest-coverage
 
 noinst_LIBRARIES = libplCurve.a libplCurve_safe.a
 noinst_PROGRAMS = test_readwrite test_cst test_rand
