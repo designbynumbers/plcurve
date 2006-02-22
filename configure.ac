@@ -16,6 +16,12 @@ AC_COPYRIGHT(
  Distributed under terms of the GNU General Public License version 2.1
                        or later (see COPYING.LIB-2.1).
 )
+
+# Don't forget to change the LIB_VERSION (and read the note if you are
+# wondering what the numbers mean.
+AC_INIT(libplCurve, 0.0.0, cantarel@math.uga.edu)
+AM_INIT_AUTOMAKE
+
 #
 # The version number below has a very specific meaning.  It is in the form
 # a:b:c.  The first number, a, is the interface version number.  Any time we
@@ -29,11 +35,13 @@ AC_COPYRIGHT(
 # that the old version provided and in the same way.  So the
 # backward-compatibility count gets incremented.  Of course it gets reset to 0
 # when a new interface is not binary-compatible with the old one.
+#
+# Due to various broken ideas, we have to have two versions of this number, one
+# with colons below and one with periods above.  Please keep them in sync!
 # 
-AC_INIT(libplCurve, 0:0:0, cantarel@math.uga.edu)
-AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([config.h])
-AM_CONFIG_HEADER([config.h])
+AC_SUBST(LIB_VERSION, 0:0:0)
+AC_CONFIG_SRCDIR([configure])
+AM_CONFIG_HEADER([config.h plCurve.h])
 
 # Checks for programs.
 AC_PROG_AWK

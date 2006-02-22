@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.22 2006-02-22 17:08:24 cantarel Exp $
+ * $Id: vector.c,v 1.23 2006-02-22 22:54:12 ashted Exp $
  *
  */
 
@@ -27,7 +27,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-#include "plCurve.h"
+#include <config.h>
+#include <plCurve.h>
 
 #ifdef HAVE_MATH_H
   #include <math.h>
@@ -123,18 +124,20 @@ inline double plcl_norm(plcl_vector A) {
   return sqrt(plcl_dot_prod(A,A));
 }
 
-/* Procedure replaces V with a unit vector (if possible). */
-inline plcl_vector plcl_normalize_vect(const plcl_vector V) {
+/* Procedure returns a vector which points in the same direction as V but has
+ * length 1.  It sets *ok to false if the norm is too small. */
+inline plcl_vector plcl_normalize_vect(const plcl_vector V, bool *ok) {
   double vnrm;
-
-  plcl_error_num = 0;
 
   vnrm = plcl_M_norm(V);
   if (vnrm < DBL_EPSILON && -vnrm < DBL_EPSILON) {
-    plcl_error_num = PLCL_E_ZERO_VECTOR;
-    snprintf(plcl_error_str,sizeof(plcl_error_str),
-      "plcl_normalize_vect: Can't normalize zero vector.\n");
-    return V;
+    if (ok != NULL) {
+      *ok = false;
+    } else {
+      fprintf(stderr,
+        "plcl_normalize_vect: Attempted to normalize zero vector.\n");
+      exit(EXIT_FAILURE);
+    }
   }
   return plcl_scale_vect(1.0/vnrm,V);
 }
@@ -145,7 +148,7 @@ inline plcl_vector plcl_normalize_vect(const plcl_vector V) {
  * in The Annals of Mathematical Statistics, v. 43, no. 2 (Apr, 1972) 645-646.
  *
  */
-plcl_vector plcl_random_2()
+plcl_vector plcl_random_vect()
 {
   int i;
   plcl_vector R;
@@ -153,6 +156,7 @@ plcl_vector plcl_random_2()
   double S = 0.0;
   double sqt;
 
+  /*@+loopexec@*/
   for (i = 0; i < 1000 && 
               (S - 1.0 > DBL_EPSILON ||
                S - 0.01 < DBL_EPSILON); i++) {
@@ -160,6 +164,7 @@ plcl_vector plcl_random_2()
     V2 = 2*(double)(rand())/(double)(RAND_MAX) - 1;
     S = V1*V1 + V2*V2;
   }
+  /*@=loopexec@*/
   assert(S - 0.01 >= DBL_EPSILON && S - 1.0 <= DBL_EPSILON);
   sqt = sqrt(1-S);
   R.c[0] = 2*V1*sqt;
@@ -167,30 +172,6 @@ plcl_vector plcl_random_2()
   R.c[2] = 1-2*S;
 
   return R;
-}
-
-/*
- * Procedure assumes that the "rand" random number generator exists on this
- * system and has been seeded. It generates a random unit vector. 
- */
-plcl_vector plcl_random_vect()
-{
-  int i;
-  plcl_vector R;
-
-  for(i=0;i<1000;i++) {
-    R.c[0] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
-    R.c[1] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
-    R.c[2] = 2*(double)(rand())/(double)(RAND_MAX) - 1;
-
-    if (plcl_M_norm(R) > 0.1 && plcl_M_norm(R) < 0.9) {
-      return plcl_normalize_vect(R);
-    }
-  }
-  /* If we make it to here, there is evidently a problem with the random 
-     number generator, we haven't had any acceptable vectors in 1000 tries. */
-  assert(false);
-  return plcl_build_vect(1,0,0);
 }
 
 /* Put together a vector from 3 doubles */

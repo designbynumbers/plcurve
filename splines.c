@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.17 2006-02-20 22:23:39 ashted Exp $
+ * $Id: splines.c,v 1.18 2006-02-22 22:54:11 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation. 
@@ -28,7 +28,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-#include "plCurve.h"
+#include <config.h>
+#include <plCurve.h>
 
 #ifdef HAVE_MATH_H
   #include <math.h>
@@ -161,8 +162,6 @@ static inline void spline_strand_free(plCurve_spline_strand *Pl) {
 void plCurve_spline_free(plCurve_spline *L) {
   int i;
 
-  plcl_error_num = 0;
-
   /* First, we check the input. */
   if (L == NULL) {
     return; /* Move along, nothing to see here */
@@ -196,8 +195,6 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L)
 
   /* First, we check for sanity */
 
-  plcl_error_num = 0;
-
   assert(L != NULL);
   assert(L->nc >= 1);
 
@@ -225,9 +222,7 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L)
   /* Done with this space now, no matter what happened */
   free(ns); free(open); free(cc);
 
-  if (plcl_error_num != 0 || spline_L == NULL) {
-    return NULL;
-  }
+  assert(spline_L != NULL);
           
   /* We now go component-by-component. */
 
@@ -449,8 +444,7 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
   /*@=loopexec@*/
 
   L = plCurve_new(spL->nc,nv,open,cc);
-  
-  if (L == NULL || plcl_error_num != 0) { return NULL; }
+  assert(L != NULL);
 
   free(open); free(cc);
 

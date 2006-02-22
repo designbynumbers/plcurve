@@ -1,7 +1,7 @@
 /*
  * Sample program to show the use of liboctrope.a
  *
- * $Id: test_readwrite.c,v 1.8 2006-02-20 22:23:39 ashted Exp $
+ * $Id: test_readwrite.c,v 1.9 2006-02-22 22:54:11 ashted Exp $
  *
  */
 
@@ -25,7 +25,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-#include "plCurve.h"
+#include <config.h>
+#include <plCurve.h>
 
 #ifdef HAVE_STDLIB_H
   #include <stdlib.h>
@@ -42,7 +43,7 @@ int main(int argc,char *argv[]) {
   }
 
   plCurve_version(NULL);
-  printf("test_readwrite: $Revision: 1.8 $\n");
+  printf("test_readwrite: $Revision: 1.9 $\n");
 
   infile = fopen(argv[1],"r");
 

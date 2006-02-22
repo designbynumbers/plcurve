@@ -5,10 +5,10 @@ noinst_PROGRAMS = test_readwrite test_cst test_rand
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c 
 libplCurve_la_CFLAGS = -DNDEBUG -O2 $(AM_CFLAGS)
-libplCurve_la_LDFLAGS = -version @PACKAGE_VERSION@
+libplCurve_la_LDFLAGS = -version-info @LIB_VERSION@
 
 libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
-libplCurve_safe_la_LDFLAGS = -version @PACKAGE_VERSION@
+libplCurve_safe_la_LDFLAGS = -version-info @LIB_VERSION@
 
 test_readwrite_SOURCE = test_readwrite.c libplCurve.la
 test_readwrite_LDADD = libplCurve_safe.la

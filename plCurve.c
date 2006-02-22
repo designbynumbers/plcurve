@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.55 2006-02-20 22:23:39 ashted Exp $
+ *  $Id: plCurve.c,v 1.56 2006-02-22 22:54:10 ashted Exp $
  *
  */
 
@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-#include "config.h"
-#include "plCurve.h"
+#include <config.h>
+#include <plCurve.h>
 
 #ifdef HAVE_STDLIB_H
   #include <stdlib.h>
@@ -151,10 +151,10 @@ static inline plcl_vector Closest_line_point(const plcl_vector point,
   double x = point.c[0];
   double y = point.c[1];
   double z = point.c[2];
-  double t = (a*(x-b) + c*(y-d) + e*(z-f))/(a*a + b*b + c*c);
+  double t = (a*(x-b) + c*(y-d) + e*(z-f))/(a*a + c*c + e*e);
 
   /* Make sure that we aren't about to divide by zero */
-  assert(a*a + b*b + c*c > DBL_EPSILON);
+  assert(a*a + c*c + e*e > DBL_EPSILON);
 
   ret_vect.c[0] = a*t + b;
   ret_vect.c[1] = c*t + d;
@@ -675,7 +675,7 @@ void plCurve_write(FILE *file, plCurve * const L) {
   /* First, do a little sanity checking. */
   assert(file != NULL);
   assert(L != NULL);
-  assert(L->nc >= 0);
+  assert(L->nc >= 1);
   assert(L->cp != NULL);
 
   /* Now we begin work. */
@@ -982,8 +982,10 @@ void plCurve_fix_wrap(plCurve * const L) {
  * failure. 
  *
  */
-/*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file) 
-/*@globals plcl_error_num, plcl_error_str@*/ {
+/*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file, 
+                                            int error_num, 
+                                            char error_str[], 
+                                            size_t error_str_len) {
   plCurve *L;
   int nverts = 0, ncomp = 0, ncolors = 0;
   int *nvarray, *ccarray;
@@ -993,12 +995,12 @@ void plCurve_fix_wrap(plCurve * const L) {
   char comment[256] = ""; /* Space to store per-vertex comments */
   int ds; /* Doubles scanned */
   
-  plcl_error_num = 0;
+  error_num = 0;
 
   /* First, we check for the 'VECT' keyword. */
   if (fscanf(file," VECT ") == EOF) {
-    plcl_error_num = PLCL_E_NO_VECT;
-    (void)snprintf(plcl_error_str,sizeof(plcl_error_str),
+    error_num = PLCL_E_NO_VECT;
+    (void)snprintf(error_str,error_str_len,
         "plCurve_read: Couldn't find VECT keyword.\n");
     return NULL;
   }
@@ -1006,15 +1008,15 @@ void plCurve_fix_wrap(plCurve * const L) {
   /* Now we read the three integers giving vertices, components, and colors. */
 
   if (scanints(file,3,&ncomp,&nverts,&ncolors) != 3) {
-    plcl_error_num = PLCL_E_BAD_CVC_LINE;
-    (void)snprintf(plcl_error_str,sizeof(plcl_error_str),
+    error_num = PLCL_E_BAD_CVC_LINE;
+    (void)snprintf(error_str,error_str_len,
       "plCurve_read: Couldn't parse <ncomp> <nverts> <ncolors> line.\n");
     return NULL;
   }
 
   if (ncomp <= 0) {
-    plcl_error_num = PLCL_E_BAD_CVC_LINE;
-    (void)snprintf(plcl_error_str,sizeof(plcl_error_str),
+    error_num = PLCL_E_BAD_CVC_LINE;
+    (void)snprintf(error_str,error_str_len,
         "plCurve_read: VECT file defines plCurve with %d compoments.\n",ncomp);
     return NULL;
   } 
@@ -1033,8 +1035,8 @@ void plCurve_fix_wrap(plCurve * const L) {
   /*@+loopexec@*/
   for(i=0; i<ncomp; i++) {
     if (scanints(file,1,&(nvarray[i])) != 1) {
-      plcl_error_num = PLCL_E_BAD_CVRT_LINE;
-      (void)snprintf(plcl_error_str,sizeof(plcl_error_str),
+      error_num = PLCL_E_BAD_CVRT_LINE;
+      (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse number of vertices in component %d.\n",
           i);    
       free(nvarray);
@@ -1053,8 +1055,8 @@ void plCurve_fix_wrap(plCurve * const L) {
   /*@+loopexec@*/
   for(i=0; i<ncomp; i++) {
     if (scanints(file,1,&(ccarray[i])) != 1) {
-      plcl_error_num = PLCL_E_BAD_CLR_LINE;
-      (void)snprintf(plcl_error_str,sizeof(plcl_error_str),
+      error_num = PLCL_E_BAD_CLR_LINE;
+      (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse <ncolors> for component %d.\n", i);   
       free(nvarray);
       free(open);
@@ -1082,8 +1084,8 @@ void plCurve_fix_wrap(plCurve * const L) {
     for(j = 0; j < nv; j++) {
       if (scandoubles(file,3,plcl_M_clist(&L->cp[i].vt[j])) != 3) {
         plCurve_free(L);
-        plcl_error_num = PLCL_E_BAD_VERT_LINE;
-        (void)snprintf(plcl_error_str,sizeof(plcl_error_str),
+        error_num = PLCL_E_BAD_VERT_LINE;
+        (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse <x> <y> <z> data for vertex %d of "
           "component %d.\n",j,i);
         return NULL;
@@ -1103,8 +1105,8 @@ void plCurve_fix_wrap(plCurve * const L) {
       if ((ds = scandoubles(file,4, &L->cp[i].clr[j].r, &L->cp[i].clr[j].g,
            &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha)) != 4) {
         plCurve_free(L);
-        plcl_error_num = PLCL_E_BAD_COLOR;
-        (void)snprintf(plcl_error_str,sizeof(plcl_error_str),
+        error_num = PLCL_E_BAD_COLOR;
+        (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse color %d in component %d of "
           "plCurve (%d).\n",j,i,ds);
         return NULL;
@@ -1152,7 +1154,7 @@ double plCurve_curvature(plCurve * const L, const int comp, const int vert) {
   cross_prod_norm = plcl_M_norm(plcl_cross_prod(in,out));
 
   /* Check for infinite curvature condition */
-  assert(normin*normout + dot_prod > DBL_EPSILON);
+  assert(normin*normout + dot_prod > DBL_EPSILON);  /* PERHAPS RETURN ERROR? */
       
   kappa = (2*cross_prod_norm)/(normin*normout + dot_prod);
   kappa /= (normin - normout < DBL_EPSILON) ? normin : normout;
@@ -1355,20 +1357,6 @@ void plCurve_force_closed(plCurve * const L)
   }
 
   plCurve_fix_wrap(L);
-}
-
-/*
- * Check plcl_error_num, report if there is an error or warning and exit if it
- * is an error.
- *
- */
-inline void plcl_status_check() /*@globals plcl_error_num, plcl_error_str@*/ {
-  if (plcl_error_num != 0) {
-    fprintf(stderr,"%s",plcl_error_str);
-    if (plcl_error_num > 0) {
-      exit(plcl_error_num);
-    }
-  }
 }
 
 /* 

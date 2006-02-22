@@ -1,11 +1,12 @@
 /*
- * $Id: test_cst.c,v 1.11 2006-02-20 05:32:27 ashted Exp $
+ * $Id: test_cst.c,v 1.12 2006-02-22 22:54:11 ashted Exp $
  *
  * Test the constraint-handling code
  *
  */
 
-#include "plCurve.h"
+#include <config.h>
+#include <plCurve.h>
 
 #ifdef HAVE_STDIO_H
   #include <stdio.h>
