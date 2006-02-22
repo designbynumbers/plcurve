@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.21 2006-02-21 03:52:14 ashted Exp $
+ * $Id: vector.c,v 1.22 2006-02-22 17:08:24 cantarel Exp $
  *
  */
 
@@ -149,7 +149,7 @@ plcl_vector plcl_random_2()
 {
   int i;
   plcl_vector R;
-  double V1, V2;
+  double V1 = 0.0, V2 = 0.0;
   double S = 0.0;
   double sqt;
 
