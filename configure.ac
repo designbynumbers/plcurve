@@ -16,7 +16,21 @@ AC_COPYRIGHT(
  Distributed under terms of the GNU General Public License version 2.1
                        or later (see COPYING.LIB-2.1).
 )
-AC_INIT(libplCurve, 1.0, cantarel@math.uga.edu)
+#
+# The version number below has a very specific meaning.  It is in the form
+# a:b:c.  The first number, a, is the interface version number.  Any time we
+# add or remove a function, or change the order of parameters or change the way
+# that the library reads or writes files, this number needs to be incremented.
+# The second number, b, is the implementation number *of this interface*.  When
+# a changes, b goes back to zero.  This is the number that needs to change
+# every time we put out a new library distribution.  The third number, c, is 
+# the interface backward-compatibility count.  Suppose that we simply add a
+# needed function to the library.  The new interface still provides everything
+# that the old version provided and in the same way.  So the
+# backward-compatibility count gets incremented.  Of course it gets reset to 0
+# when a new interface is not binary-compatible with the old one.
+# 
+AC_INIT(libplCurve, 0:0:0, cantarel@math.uga.edu)
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([config.h])
 AM_CONFIG_HEADER([config.h])
@@ -29,7 +43,7 @@ AC_PROG_CPP
 AM_PROG_LEX
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB(m,sqrt)

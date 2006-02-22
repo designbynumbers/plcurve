@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.31 2006-02-22 03:42:53 cantarel Exp $
+ *  $Id: plCurve.h,v 1.32 2006-02-22 17:20:20 ashted Exp $
  *
  */
 
@@ -27,8 +27,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*@-exportlocal@*/
-#ifndef __PLCURVE_H
-#define __PLCURVE_H
+#ifndef PLCURVE_H
+#define PLCURVE_H
 
 #if (__cplusplus || c_plusplus)
 extern "C" {
@@ -59,8 +59,8 @@ extern "C" {
 #endif
 
 /* Variables for reporting errors */
-/*@checkedstrict@*/ int  plcl_error_num;   
-/*@checkedstrict@*/ char plcl_error_str[80];
+/*@checkedstrict@*/ static int  plcl_error_num;   
+/*@checkedstrict@*/ static char plcl_error_str[80];
 
 /* Define 3-space vectors */
 typedef struct plcl_vector_type {  
@@ -359,5 +359,5 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
 #if (__cplusplus || c_plusplus)
 };
 #endif
-#endif
+#endif /* PLCURVE_H */
 /*@=exportlocal@*/
