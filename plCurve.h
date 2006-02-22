@@ -2,7 +2,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.30 2006-02-20 22:23:39 ashted Exp $
+ *  $Id: plCurve.h,v 1.31 2006-02-22 03:42:53 cantarel Exp $
  *
  */
 
@@ -54,7 +54,7 @@ extern "C" {
     #define true (1 == 1)
   #endif /* true */
   #ifndef bool
-    typedef bool int;
+    typedef int bool;
   #endif
 #endif
 
