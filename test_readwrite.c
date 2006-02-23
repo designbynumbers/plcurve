@@ -1,7 +1,7 @@
 /*
  * Sample program to show the use of liboctrope.a
  *
- * $Id: test_readwrite.c,v 1.9 2006-02-22 22:54:11 ashted Exp $
+ * $Id: test_readwrite.c,v 1.10 2006-02-23 04:35:44 ashted Exp $
  *
  */
 
@@ -36,6 +36,8 @@ int main(int argc,char *argv[]) {
   plCurve *L;
   FILE *infile,*outfile;
   char outname[L_tmpnam],command[200 + 2*L_tmpnam];
+  char err_str[80];
+  int err_num;
 
   if (argc < 2) {
     printf("usage: test_readwrite <file.vect>\n");
@@ -43,7 +45,7 @@ int main(int argc,char *argv[]) {
   }
 
   plCurve_version(NULL);
-  printf("test_readwrite: $Revision: 1.9 $\n");
+  printf("test_readwrite: $Revision: 1.10 $\n");
 
   infile = fopen(argv[1],"r");
 
@@ -52,14 +54,14 @@ int main(int argc,char *argv[]) {
     exit(2);
   }
 
-  L = plCurve_read(infile);
+  L = plCurve_read(infile,&err_num,err_str,sizeof(err_str));
   fclose(infile);
 
-  if (plcl_error_num == 0) {
+  if (err_num == 0) {
     printf("test_readwrite: Loaded plCurve from %s.\n",argv[1]);
   } else {
     printf("test_readwrite: Couldn't load plCurve from %s. \n",argv[1]);
-    printf("  %s",plcl_error_str);
+    printf("  %s",err_str);
     exit(1);
   }
 
@@ -67,7 +69,6 @@ int main(int argc,char *argv[]) {
   outfile = fopen(outname,"w");
 
   plCurve_write(outfile,L);
-  plcl_status_check();
   printf("test_readwrite: Wrote file to temporary file %s.\n",outname);
   fclose(outfile);
 

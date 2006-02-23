@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.33 2006-02-22 22:54:11 ashted Exp $
+ *  $Id: plCurve.h,v 1.34 2006-02-23 04:35:44 ashted Exp $
  *
  */
 
@@ -253,7 +253,7 @@ void plCurve_remove_all_constraints(plCurve * const L);
 
 /* Read plCurve data from a file */
 /*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file,
-                                            int error_num,
+                                            int *error_num,
                                             char error_str[],
                                             size_t error_str_len);
 
@@ -273,7 +273,8 @@ double plCurve_curvature(plCurve * const L, const int cp, const int vt);
 plCurve *plCurve_copy(plCurve * const L);
 
 /* Compute tangent vector */
-plcl_vector plCurve_tangent_vector(plCurve * const L,int cp, int vt);
+plcl_vector plCurve_tangent_vector(plCurve * const L, int cmp, int vert,
+                                   bool *ok);
 
 /* Find the arclength of a plCurve. */
 double plCurve_arclength(const plCurve * const L,double *component_lengths);
@@ -290,11 +291,8 @@ double plCurve_check_cst(const plCurve * const L);
 /* Fix all the vertices which are out of compliance with their constraints. */
 void plCurve_fix_cst(plCurve * const L);
 
-/* Check plcl_error_num, report on nonzero, terminate on positive */
-inline void plcl_status_check();
-
 /* Either return (if given a char *) or print out the library version number */
-inline void plCurve_version(char *version);
+void plCurve_version(char *version);
 
 /* Allocate new spline. */
 plCurve_spline *plCurve_spline_new(const int components,
@@ -306,7 +304,7 @@ plCurve_spline *plCurve_spline_new(const int components,
 void plCurve_spline_free(plCurve_spline *L);
 
 /* Convert plCurve to spline representation. */
-plCurve_spline *plCurve_convert_to_spline(plCurve * const L);
+plCurve_spline *plCurve_convert_to_spline(plCurve * const L, bool *ok);
 
 /* Convert splined curve to plCurve (with resampling). */
 plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
@@ -317,30 +315,13 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
                                   const int cmp,
                                   double s);
 /* Define the error codes */
-#define PLCL_E_BAD_RANDOM     1
-#define PLCL_E_TOO_FEW_VERTS  2
-#define PLCL_E_CANT_ALLOC     3
-#define PLCL_E_TOO_FEW_COMPS  4
-#define PLCL_E_NULL_PTR       5
-#define PLCL_E_BAD_CST        6
-#define PLCL_E_BAD_CST_KIND   7
-#define PLCL_E_TOO_FEW_DBLS   8
-#define PLCL_E_TOO_FEW_INTS   9
-#define PLCL_E_NO_VECT       10
-#define PLCL_E_BAD_CVC_LINE  11
-#define PLCL_E_BAD_CVRT_LINE 12
-#define PLCL_E_BAD_CLR_LINE  13
-#define PLCL_E_NEW_FAILED    14
-#define PLCL_E_BAD_COLOR     15
-#define PLCL_E_BAD_VERT_LINE 16
-#define PLCL_E_INF_KAPPA     17
-#define PLCL_E_BAD_COMPONENT 18
-#define PLCL_E_BAD_VERTEX    19
-#define PLCL_E_ZERO_VECTOR   20
-#define PLCL_E_TOO_FEW_SAMPS 21
-#define PLCL_E_SMP_TOO_CLOSE 22
-#define PLCL_E_CANT_FIND_POS 23
-#define PLCL_E_TOO_MANY_VRTS 24
+#define PLCL_E_NO_VECT       1
+#define PLCL_E_BAD_CVC_LINE  2
+#define PLCL_E_BAD_CMP_NUM   3
+#define PLCL_E_BAD_CVRT_LINE 4
+#define PLCL_E_BAD_CLR_LINE  5
+#define PLCL_E_BAD_COLOR     6
+#define PLCL_E_BAD_VERT_LINE 7
 
 #if (__cplusplus || c_plusplus)
 };

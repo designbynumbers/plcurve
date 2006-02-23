@@ -41,7 +41,7 @@ AM_INIT_AUTOMAKE
 # 
 AC_SUBST(LIB_VERSION, 0:0:0)
 AC_CONFIG_SRCDIR([configure])
-AM_CONFIG_HEADER([config.h plCurve.h])
+AM_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_AWK

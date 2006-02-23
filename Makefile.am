@@ -1,4 +1,4 @@
-AM_CFLAGS = -g -Wall # -fprofile-arcs -ftest-coverage
+AM_CFLAGS = -g -finline-functions -Wall # -fprofile-arcs -ftest-coverage
 
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_PROGRAMS = test_readwrite test_cst test_rand

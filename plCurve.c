@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.56 2006-02-22 22:54:10 ashted Exp $
+ *  $Id: plCurve.c,v 1.57 2006-02-23 04:35:44 ashted Exp $
  *
  */
 
@@ -983,7 +983,7 @@ void plCurve_fix_wrap(plCurve * const L) {
  *
  */
 /*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file, 
-                                            int error_num, 
+                                            int *error_num, 
                                             char error_str[], 
                                             size_t error_str_len) {
   plCurve *L;
@@ -995,11 +995,11 @@ void plCurve_fix_wrap(plCurve * const L) {
   char comment[256] = ""; /* Space to store per-vertex comments */
   int ds; /* Doubles scanned */
   
-  error_num = 0;
+  *error_num = 0;
 
   /* First, we check for the 'VECT' keyword. */
   if (fscanf(file," VECT ") == EOF) {
-    error_num = PLCL_E_NO_VECT;
+    *error_num = PLCL_E_NO_VECT;
     (void)snprintf(error_str,error_str_len,
         "plCurve_read: Couldn't find VECT keyword.\n");
     return NULL;
@@ -1008,14 +1008,14 @@ void plCurve_fix_wrap(plCurve * const L) {
   /* Now we read the three integers giving vertices, components, and colors. */
 
   if (scanints(file,3,&ncomp,&nverts,&ncolors) != 3) {
-    error_num = PLCL_E_BAD_CVC_LINE;
+    *error_num = PLCL_E_BAD_CVC_LINE;
     (void)snprintf(error_str,error_str_len,
       "plCurve_read: Couldn't parse <ncomp> <nverts> <ncolors> line.\n");
     return NULL;
   }
 
   if (ncomp <= 0) {
-    error_num = PLCL_E_BAD_CVC_LINE;
+    *error_num = PLCL_E_BAD_CMP_NUM;
     (void)snprintf(error_str,error_str_len,
         "plCurve_read: VECT file defines plCurve with %d compoments.\n",ncomp);
     return NULL;
@@ -1035,7 +1035,7 @@ void plCurve_fix_wrap(plCurve * const L) {
   /*@+loopexec@*/
   for(i=0; i<ncomp; i++) {
     if (scanints(file,1,&(nvarray[i])) != 1) {
-      error_num = PLCL_E_BAD_CVRT_LINE;
+      *error_num = PLCL_E_BAD_CVRT_LINE;
       (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse number of vertices in component %d.\n",
           i);    
@@ -1055,7 +1055,7 @@ void plCurve_fix_wrap(plCurve * const L) {
   /*@+loopexec@*/
   for(i=0; i<ncomp; i++) {
     if (scanints(file,1,&(ccarray[i])) != 1) {
-      error_num = PLCL_E_BAD_CLR_LINE;
+      *error_num = PLCL_E_BAD_CLR_LINE;
       (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse <ncolors> for component %d.\n", i);   
       free(nvarray);
@@ -1084,7 +1084,7 @@ void plCurve_fix_wrap(plCurve * const L) {
     for(j = 0; j < nv; j++) {
       if (scandoubles(file,3,plcl_M_clist(&L->cp[i].vt[j])) != 3) {
         plCurve_free(L);
-        error_num = PLCL_E_BAD_VERT_LINE;
+        *error_num = PLCL_E_BAD_VERT_LINE;
         (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse <x> <y> <z> data for vertex %d of "
           "component %d.\n",j,i);
@@ -1105,7 +1105,7 @@ void plCurve_fix_wrap(plCurve * const L) {
       if ((ds = scandoubles(file,4, &L->cp[i].clr[j].r, &L->cp[i].clr[j].g,
            &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha)) != 4) {
         plCurve_free(L);
-        error_num = PLCL_E_BAD_COLOR;
+        *error_num = PLCL_E_BAD_COLOR;
         (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse color %d in component %d of "
           "plCurve (%d).\n",j,i,ds);
@@ -1233,19 +1233,20 @@ plCurve *plCurve_copy(plCurve * const L) {
  * Compute a (unit) tangent vector to L at vertex vert of component cmp. 
  *
  */
-plcl_vector plCurve_tangent_vector(plCurve * const L,int cmp, int vert) {
+plcl_vector plCurve_tangent_vector(plCurve * const L, int cmp, int vert,
+                                   bool *ok) {
   plcl_vector in, out, tan;
 
   if (L->cp[cmp].open) {
     if (vert == 0) {
       tan = plcl_vect_diff(L->cp[cmp].vt[1], L->cp[cmp].vt[0]);
 
-      return plcl_normalize_vect(tan);
+      return plcl_normalize_vect(tan,ok);
     } else if (vert == L->cp[cmp].nv-1) {
-       tan = plcl_vect_diff(L->cp[cmp].vt[L->cp[cmp].nv-1],
-                            L->cp[cmp].vt[L->cp[cmp].nv-2]);
+      tan = plcl_vect_diff(L->cp[cmp].vt[L->cp[cmp].nv-1],
+                           L->cp[cmp].vt[L->cp[cmp].nv-2]);
 
-       return plcl_normalize_vect(tan);
+      return plcl_normalize_vect(tan,ok);
     }
   }
 
@@ -1253,15 +1254,15 @@ plcl_vector plCurve_tangent_vector(plCurve * const L,int cmp, int vert) {
      component, or we are not at an endpoint.   */
   
    in = plcl_normalize_vect(
-     plcl_vect_diff(L->cp[cmp].vt[vert+1],L->cp[cmp].vt[vert])
+     plcl_vect_diff(L->cp[cmp].vt[vert+1],L->cp[cmp].vt[vert]),ok
    );
 
    out = plcl_normalize_vect(
-     plcl_vect_diff(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert-1])
+     plcl_vect_diff(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert-1]),ok
    );
 
    plcl_M_vweighted(tan,0.5,in,out);
-   return plcl_normalize_vect(tan);
+   return plcl_normalize_vect(tan,ok);
 } /* plCurve_tangent_vector */
 
 /* Procedure computes the length of each component of the plCurve,
@@ -1363,7 +1364,7 @@ void plCurve_force_closed(plCurve * const L)
  * Either return or display the library version number.
  *
  */
-inline void plCurve_version(char *version) {
+void plCurve_version(char *version) {
   if (version == NULL) {
     printf("plCurve Version: %s\n",PACKAGE_VERSION);
   } else {

@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.18 2006-02-22 22:54:11 ashted Exp $
+ * $Id: splines.c,v 1.19 2006-02-23 04:35:44 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation. 
@@ -185,7 +185,7 @@ void plCurve_spline_free(plCurve_spline *L) {
  * the "Numerical recipes" spline code. Each line from NR is commented next to
  * the (hopefully) equivalent vectorized version below. 
  */
-plCurve_spline *plCurve_convert_to_spline(plCurve * const L)
+plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 {
   int    i;
   int    *ns,*cc,*open;
@@ -292,11 +292,11 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L)
 
     plcl_vector yp1,ypn;
 
-    yp1 = plCurve_tangent_vector(L,comp,0);
+    yp1 = plCurve_tangent_vector(L,comp,0, ok);
 
     if (L->cp[comp].open) { 
 
-      ypn = plCurve_tangent_vector(L,comp,L->cp[comp].nv-1);
+      ypn = plCurve_tangent_vector(L,comp,L->cp[comp].nv-1, ok);
 
     } else {
 
