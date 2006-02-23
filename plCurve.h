@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.34 2006-02-23 04:35:44 ashted Exp $
+ *  $Id: plCurve.h,v 1.35 2006-02-23 22:36:51 ashted Exp $
  *
  */
 
@@ -67,38 +67,40 @@ typedef struct plCurve_strand_type {
 } plCurve_strand;
 
 /* Curve constraint kind */
-#define PLCL_UNCST     0  /* Vertex is unconstrained */
-#define PLCL_FIXED     1  /* Vertex is not allowed to move */
-#define PLCL_ON_LINE   2  /* Vertex must lie on the given line */
-#define PLCL_IN_PLANE  3  /* Vertex must lie in the given plane */
+typedef enum plCurve_constraint_kind {
+  unconstrained = 0,
+  fixed,
+  on_line,
+  in_plane
+} plCurve_cst_kind;
 
 typedef struct plCurve_constraint_type {
-  int         kind;      /* What kind of constraint */
-  plcl_vector vect[2];   /* Vectors for defining plane, line or fixed point */
-  int         cmp;       /* Component */
-  int         vert;      /* Starting vertex */
-  int         num_verts; /* Length of run */
-  /*@only@*/ /*@null@*/ struct      plCurve_constraint_type *next;
+  plCurve_cst_kind kind;    /* What kind of constraint */
+  plcl_vector      vect[2]; /* Vectors to define plane, line or fixed point */
+  int              cmp;     /* Component */
+  int              vert;    /* Starting vertex */
+  int              num_verts; /* Length of run */
+  /*@only@*/ /*@null@*/ struct plCurve_constraint_type *next;
 } plCurve_constraint;
 
 typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
-  int    cmp;    /* Component */
-  int    vert;   /* Vertex */
-  char   tag[4]; /* 3-character tag */
-  double quant;  /* Quantifier */
+  int              cmp;    /* Component */
+  int              vert;   /* Vertex */
+  char             tag[4]; /* 3-character tag */
+  double           quant;  /* Quantifier */
   /*@only@*/ /*@null@*/ struct plCurve_vert_quant *next_quant;
 } plCurve_vert_quant;
 
 typedef struct plCurve_type {
-  int nc;                       /* Number of components */
-  plCurve_strand *cp;           /* Components */
+  int             nc;                              /* Number of components */
+  plCurve_strand *cp;                              /* Components */
   /*@only@*/ /*@null@*/ plCurve_constraint *cst;   /* Constraints */
   /*@only@*/ /*@null@*/ plCurve_vert_quant *quant; /* per-vertex quantifiers */
 } plCurve;
 
 /* PlCurve_spline types */
 typedef struct plCurve_spline_strand_type {
-  int             open;     /* This is an "open" strand (with distinct ends) */
+  bool            open;     /* This is an "open" strand (with distinct ends) */
   int             ns;       /* Number of samples used to build spline. */
   double         *svals;    /* s values at samples */
   plcl_vector    *vt;       /* positions at these s values */
@@ -109,7 +111,7 @@ typedef struct plCurve_spline_strand_type {
 } plCurve_spline_strand;
 
 typedef struct plCurve_spline_type {
-  int nc;                       /* Number of components */
+  int                    nc;     /* Number of components */
   plCurve_spline_strand *cp;     /* Components */
 } plCurve_spline;
 
@@ -123,7 +125,7 @@ inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B);  /* A - B */
 inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
 inline plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
 inline plcl_vector plcl_normalize_vect(const plcl_vector V, bool *ok);/*V/|V|*/
-inline plcl_vector plcl_random_vect();
+inline plcl_vector plcl_random_vect(void);
 
 /* Translate three doubles into a vector */
 inline plcl_vector plcl_build_vect(const double x,
@@ -212,40 +214,43 @@ inline double plcl_norm(plcl_vector A);
  */
 
 /* Build a new plCurve (with associated strands) */
-/*@only@*/ plCurve *plCurve_new(const int components, const int * const nv,
-                                const bool * const open, const int * const cc);
+/*@only@*/ plCurve *plCurve_new(const int          components, 
+                                const int          * const nv,
+                                const         bool * const open, 
+                                const int          * const cc);
 
 /* Free the plCurve (and strands) */
 void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L);
 
 /* Set a constraint on a vertex or run of vertices */
 void plCurve_set_fixed(plCurve * const L,
-                       const int cmp,
-                       const int vert,
-                       const int num_verts,
+                       const int          cmp,
+                       const int          vert,
                        const plcl_vector point);
 
 void plCurve_constrain_to_line(plCurve * const L,
-                               const int cmp,
-                               const int vert,
-                               const int num_verts,
+                               const int          cmp,
+                               const int          vert,
+                               const int          num_verts,
                                const plcl_vector tangent,
                                const plcl_vector point_on_line);
 
 void plCurve_constrain_to_plane(plCurve * const L,
-                                const int cmp,
-                                const int vert,
-                                const int num_verts,
+                                const int          cmp,
+                                const int          vert,
+                                const int          num_verts,
                                 const plcl_vector normal,
                                 const double dist_from_origin);
 
-void plCurve_unconstrain(plCurve * const L, const int cmp,
-                         const int vert, const int num_verts);
+void plCurve_unconstrain(plCurve * const L, 
+                         const int          cmp,
+                         const int          vert, 
+                         const int          num_verts);
 
 /* Remove a constraint from the list of constraints returning the number of
  * vertices thus set unconstrained.  */
 int plCurve_remove_constraint(plCurve * const L,
-                              const int kind,
+                              const plCurve_cst_kind kind,
                               const plcl_vector vect[]);
 
 /* Remove all constraints */
@@ -267,20 +272,26 @@ void plCurve_fix_wrap(plCurve * const L);
 int plCurve_num_edges(plCurve * const L);
 
 /* Compute the (minrad-based) curvature of L at vertex vt of component cp */
-double plCurve_curvature(plCurve * const L, const int cp, const int vt);
+double plCurve_curvature(plCurve * const L, 
+                         const int          cmp, 
+                         const int          vert);
 
 /* Copy a plCurve */
 plCurve *plCurve_copy(plCurve * const L);
 
 /* Compute tangent vector */
-plcl_vector plCurve_tangent_vector(plCurve * const L, int cmp, int vert,
+plcl_vector plCurve_tangent_vector(const plCurve * const L, 
+                                   const int          cmp, 
+                                   const int          vert,
                                    bool *ok);
 
 /* Find the arclength of a plCurve. */
 double plCurve_arclength(const plCurve * const L,double *component_lengths);
 
 /* Find the arclength position of a point on a plCurve. */
-double plCurve_parameter(const plCurve * const L,const int cmp,const int vert);
+double plCurve_parameter(const plCurve * const L,
+                         const int          cmp,
+                         const int          vert);
 
 /* Force a plCurve to close as gently as possible. */
 void plCurve_force_closed(plCurve * const L);
@@ -295,24 +306,24 @@ void plCurve_fix_cst(plCurve * const L);
 void plCurve_version(char *version);
 
 /* Allocate new spline. */
-plCurve_spline *plCurve_spline_new(const int components,
-                                   const int * const ns,
-                                   const int * const open,
-                                   const int * const cc);
+plCurve_spline *plCurve_spline_new(const int          components,
+                                   const int  * const ns,
+                                   const bool * const open,
+                                   const int  * const cc);
 
 /* Free memory for spline. */
-void plCurve_spline_free(plCurve_spline *L);
+void plCurve_spline_free(/*@only@*/ /*@null@*/ plCurve_spline *L);
 
 /* Convert plCurve to spline representation. */
 plCurve_spline *plCurve_convert_to_spline(plCurve * const L, bool *ok);
 
 /* Convert splined curve to plCurve (with resampling). */
 plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
-                                     const int * const nv);
+                                     const int          * const nv);
 
 /* Samples a spline at a particular s value. */
 plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
-                                  const int cmp,
+                                  const int          cmp,
                                   double s);
 /* Define the error codes */
 #define PLCL_E_NO_VECT       1

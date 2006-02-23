@@ -1,5 +1,5 @@
 /*
- * $Id: test_cst.c,v 1.13 2006-02-23 04:35:44 ashted Exp $
+ * $Id: test_cst.c,v 1.14 2006-02-23 22:36:51 ashted Exp $
  *
  * Test the constraint-handling code
  *
@@ -79,7 +79,7 @@ int main() {
       (void)fclose(outfile);
       printf("->"); (void)fgetc(stdin);
     }
-  plCurve_set_fixed(L,0,32,1,plcl_build_vect(3.2,0,3.2));
+  plCurve_set_fixed(L,0,32,plcl_build_vect(3.2,0,3.2));
     if ((outfile = fopen("test_cst.vect","w")) != NULL) {
       plCurve_write(outfile,L);
       (void)fclose(outfile);

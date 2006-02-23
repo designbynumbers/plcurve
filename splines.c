@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.19 2006-02-23 04:35:44 ashted Exp $
+ * $Id: splines.c,v 1.20 2006-02-23 22:36:51 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation. 
@@ -50,10 +50,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
   #include <float.h>
 #endif
 
-static inline void spline_strand_new(plCurve_spline_strand *Pl,
-                                                     int  ns, 
-                                                     int  open, 
-                                                     int  cc) {
+static inline void spline_strand_new(/*@out@*/ plCurve_spline_strand *Pl,
+                                     int  ns, bool  open, int  cc) {
  
   assert(ns >= 1);
 
@@ -86,10 +84,10 @@ static inline void spline_strand_new(plCurve_spline_strand *Pl,
  * nature of each strand is given in the array pointed to by open.
  *
  */
-plCurve_spline *plCurve_spline_new(const int components, 
-                                   const int * const ns, 
-                                   const int * const open, 
-                                   const int * const cc) 
+plCurve_spline *plCurve_spline_new(const int          components, 
+                                   const int  * const ns, 
+                                   const bool * const open, 
+                                   const int  * const cc) 
 {
   plCurve_spline *L;
   int i;
@@ -113,7 +111,9 @@ plCurve_spline *plCurve_spline_new(const int components,
     spline_strand_new(&L->cp[i],ns[i],open[i],cc[i]);
   }
 
+  /*@-compdef@*/ /* Splint isn't sure that everything gets defined */
   return L;
+  /*@=compdef@*/
 } /* plCurve_spline_new */
 
 /*
@@ -123,7 +123,7 @@ plCurve_spline *plCurve_spline_new(const int components,
  * spline_strand_free twice on the same strand pointer without fear. 
  *
  */ 
-static inline void spline_strand_free(plCurve_spline_strand *Pl) {
+static inline void spline_strand_free(/*@null@*/ plCurve_spline_strand *Pl) {
   
   if (Pl == NULL) {
     return;
@@ -145,11 +145,16 @@ static inline void spline_strand_free(plCurve_spline_strand *Pl) {
   Pl->cc = 0;
   if (Pl->clr != NULL) {
     free(Pl->clr);
+    Pl->clr = NULL;
   }
   if (Pl->clr2 != NULL) {
     free(Pl->clr2);
+    Pl->clr2 = NULL;
   }
-
+ 
+  /*@-nullstate@*/ /* We expect to return null fields, it's ok :-) */
+  return;
+  /*@=nullstate@*/
 } /* strand_free */
 
 /*
@@ -159,7 +164,7 @@ static inline void spline_strand_free(plCurve_spline_strand *Pl) {
  * without fear. 
  *
  */ 
-void plCurve_spline_free(plCurve_spline *L) {
+void plCurve_spline_free(/*@only@*/ /*@null@*/ plCurve_spline *L) {
   int i;
 
   /* First, we check the input. */
@@ -168,11 +173,16 @@ void plCurve_spline_free(plCurve_spline *L) {
   }
 
   /* Now we can get to work. */
+  /*@+loopexec@*/
   for (i=0; i<L->nc; i++) {
     spline_strand_free(&L->cp[i]);
   }
+  /*@=loopexec@*/
 
+  /*@-compdestroy@*/
   free(L->cp);
+  /*@=compdestroy@*/
+  L->cp = NULL;
   L->nc = 0;
 
   free(L);
@@ -187,9 +197,18 @@ void plCurve_spline_free(plCurve_spline *L) {
  */
 plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 {
-  int    i;
-  int    *ns,*cc,*open;
-  int    comp;
+  int   i;
+  int  *ns;
+  int  *cc;
+  bool *open;
+  int   comp;
+
+  int         k, I;
+  plcl_vector p, un, *u;
+  double      sig, qn;
+  plcl_vector yp1,ypn;
+  double      scrx;
+  plcl_vector scrV,scrW;
 
   plCurve_spline *spline_L;
 
@@ -200,11 +219,11 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
   plCurve_fix_wrap(L);
 
-  ns = calloc(L->nc,sizeof(int));
+  ns = (int*)calloc((size_t)L->nc,sizeof(int));
   assert(ns != NULL);
-  open = calloc(L->nc,sizeof(int));
+  open = (bool *)calloc((size_t)L->nc,sizeof(bool));
   assert(open != NULL);
-  cc = calloc(L->nc,sizeof(int));
+  cc = (int *)calloc((size_t)L->nc,sizeof(int));
   assert(cc != NULL);
 
   /*@+loopexec@*/
@@ -221,6 +240,7 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
   /* Done with this space now, no matter what happened */
   free(ns); free(open); free(cc);
+  ns = NULL; open = NULL; cc = NULL;
 
   assert(spline_L != NULL);
           
@@ -275,12 +295,9 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
     /* We are now prepared to compute vt2 and clr2, which will
        determine the actual form of the splined polyline. */
 
-    int i,k,I;
-
     /* double p, qn, sig, un, *u */
 
-    plcl_vector p,un,*u;
-    double sig,qn;
+    /* Definitions moved to the top of the routine */
 
     /* u = malloc(n,sizeof(double)); */
 
@@ -289,8 +306,6 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
     /* ...together with values yp1 and ypn for the first derivative at 
        the first and last samples... */
-
-    plcl_vector yp1,ypn;
 
     yp1 = plCurve_tangent_vector(L,comp,0, ok);
 
@@ -314,18 +329,16 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
     /* u[1] = (3.0/(x[2]-x[1]))*((y[2]-y[1])/(x[2]-x[1])-yp1); */
 
-    double scrx;
-    plcl_vector scrV,scrW;
-
     scrV = plcl_vect_diff(spline_L->cp[comp].vt[1],spline_L->cp[comp].vt[0]);
     scrx = spline_L->cp[comp].svals[1] - spline_L->cp[comp].svals[0];
-    plcl_M_vlincomb(u[0],3.0/pow(scrx,2),scrV,-3.0/scrx,yp1);
+    plcl_M_vlincomb(u[0],3.0/(scrx*scrx),scrV,-3.0/scrx,yp1);
     
     /* for (i=2;i<=n-1;i++) { */
 
     I = L->cp[comp].open ? L->cp[comp].nv-2 : L->cp[comp].nv-1;
 
-    for(i=1;i<=I;i++) {
+    /*@+loopexec@*/
+    for (i=1; i<=I; i++) {
 
       /* sig=(x[i]-x[i-1])/(x[i+1]-x[i-1]); */
 
@@ -362,6 +375,7 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
       plcl_M_component_div(u[i],p);
  
     }
+    /*@=loopexec@*/
 
     /* qn = 0.5; */
 
@@ -372,13 +386,15 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
     scrx = spline_L->cp[comp].svals[i] - spline_L->cp[comp].svals[i-1];
     scrV = plcl_vect_diff(spline_L->cp[comp].vt[i],spline_L->cp[comp].vt[i-1]);
 
-    plcl_M_vlincomb(un,3.0/scrx,ypn,-3.0/pow(scrx,2),scrV);
+    plcl_M_vlincomb(un,3.0/scrx,ypn,-3.0/(scrx*scrx),scrV);
 
     /* y2[n] = (un - qn*u[n-1])/(qn*y2[n-1]+1.0); */
 
     scrV.c[0] = scrV.c[1] = scrV.c[2] = 1.0;
     plcl_M_vlincomb(scrW,qn,spline_L->cp[comp].vt2[i-1],1.0,scrV);
+    /*@-usedef@*/
     plcl_M_vlincomb(scrV,1.0,un,-qn,u[i-1]);
+    /*@=usedef@*/
 
     spline_L->cp[comp].vt2[i] = plcl_component_div(scrV,scrW);
                      
@@ -390,13 +406,16 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
       plcl_M_component_mult(spline_L->cp[comp].vt2[k],
                             spline_L->cp[comp].vt2[k+1]);
+      /*@-usedef@*/
       plcl_M_add_vect(spline_L->cp[comp].vt2[k],u[k]);
+      /*@=usedef@*/
 
     }
 
     /* free(u); */
 
     free(u);
+    u = NULL;
 
   }
 
@@ -447,23 +466,29 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
   assert(L != NULL);
 
   free(open); free(cc);
+  open = NULL; cc = NULL;
 
   /* Now we can start filling in vertex positions, component by component. */
 
-  for(comp=0;comp < L->nc;comp++) {
+  for (comp=0; comp < L->nc; comp++) {
 
     s_step = spL->cp[comp].svals[spL->cp[comp].ns] / 
       (L->cp[comp].open ? L->cp[comp].nv-1 : L->cp[comp].nv);
 
-    for(i=0,s=0,slo=0,shi=1;i<L->cp[comp].nv;i++,s+=s_step) {
+    for (i=0,s=0.0,slo=0,shi=1; i<L->cp[comp].nv; i++,s+=s_step) {
 
-      /* First, search to make sure that slo and shi bracket our current s.*/
 
-      s = (s > spL->cp[comp].svals[spL->cp[comp].ns] ? 
-           spL->cp[comp].svals[spL->cp[comp].ns] : s);
+      /* Cap s at the largest value on the component */
+      s = (s <= spL->cp[comp].svals[spL->cp[comp].ns] ? 
+           s : spL->cp[comp].svals[spL->cp[comp].ns]); 
 
-      while(spL->cp[comp].svals[shi] < s && slo < spL->cp[comp].ns) 
-        { shi++; slo++; }
+      /* Search to make sure that slo and shi bracket our current s.*/
+
+      while (spL->cp[comp].svals[shi] <= s && shi < spL->cp[comp].ns - 1) { 
+        shi++; 
+        slo++; 
+      }
+      assert(spL->cp[comp].svals[shi] >= s);
 
       /* Now we can evaluate the spline polynomial. */
 
@@ -495,8 +520,8 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
 /* Procedure samples the spline at a particular s value, returning a
  * spatial position. */
 plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
-                                 const int cmp,
-                                 double s)
+                                  const int cmp,
+                                  double s)
 {
   int klo,khi,k;
   double cmpLen;
@@ -514,7 +539,7 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
   /* Now fix any wraparound, so that the s value given is in [0,cmpLen). */
 
   cmpLen = spL->cp[cmp].svals[spL->cp[cmp].ns];
-  while (s < 0) {    s += cmpLen; }
+  while (s < DBL_EPSILON) {    s += cmpLen; }
   while (s >= cmpLen) { s -= cmpLen; }
 
   /* We now search for the correct s value. */
@@ -524,8 +549,10 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
 
   while (khi-klo > 1) {
 
+    /*@-shiftimplementation@*/
     k = (khi+klo) >> 1;
-    if (spL->cp[cmp].svals[k] > s) khi=k;
+    /*@=shiftimplementation@*/
+    if (spL->cp[cmp].svals[k] >= s) khi=k;
     else klo = k;
 
   }
@@ -547,13 +574,3 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
   retV = plcl_vect_sum(scrV,scrW);  
   return retV;
 }
-
-/*
- * Take a plCurve, make sure it satisfies its constraints, convert it to a
- * spline and back, returning a plCurve with the desired number of points (or
- * as close to it as can be, given the constraints.
- *
- */
-plCurve *meliorate(plCurve *L) {
-  return L;
-} 

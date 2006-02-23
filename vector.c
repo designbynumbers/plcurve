@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.23 2006-02-22 22:54:12 ashted Exp $
+ * $Id: vector.c,v 1.24 2006-02-23 22:36:51 ashted Exp $
  *
  */
 
@@ -171,6 +171,15 @@ plcl_vector plcl_random_vect()
   R.c[1] = 2*V2*sqt;
   R.c[2] = 1-2*S;
 
+  return R;
+}
+
+/* Return a linear combination: a*A + b*B */
+inline plcl_vector plcl_vlincomb(double a,plcl_vector A,
+                                 double b,plcl_vector B) {
+  plcl_vector R;
+
+  plcl_M_vlincomb(R,a,A,b,B);
   return R;
 }
 
