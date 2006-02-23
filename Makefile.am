@@ -1,13 +1,14 @@
-AM_CFLAGS = -g -finline-functions -Wall # -fprofile-arcs -ftest-coverage
+# AM_CFLAGS = -fprofile-arcs -ftest-coverage
 
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_PROGRAMS = test_readwrite test_cst test_rand
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c 
-libplCurve_la_CFLAGS = -DNDEBUG -O2 $(AM_CFLAGS)
+libplCurve_la_CFLAGS = -DNDEBUG -O2 -finline-functions -Wall $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info @LIB_VERSION@
 
 libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
+libplCurve_safe_la_CFLAGS = -g -O2 -finline-functions -Wall $(AM_CFLAGS)
 libplCurve_safe_la_LDFLAGS = -version-info @LIB_VERSION@
 
 test_readwrite_SOURCE = test_readwrite.c libplCurve.la

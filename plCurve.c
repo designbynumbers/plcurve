@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.57 2006-02-23 04:35:44 ashted Exp $
+ *  $Id: plCurve.c,v 1.58 2006-02-23 12:33:06 ashted Exp $
  *
  */
 
@@ -127,7 +127,7 @@ static inline int intmax(const int a, const int b) {
 /*
  * Find the closest point on the given line to the given point.
  *
- * coef should hold 6 doulbes, which we will call a,b,c,d,e,f
+ * coef should hold 6 doubles, which we will call a,b,c,d,e,f
  * the components of the vector point we will call x,y,z
  *
  * The line is given parametrically by (at + b, ct + d, et + f) and the
@@ -509,16 +509,15 @@ static inline void plCurve_set_constraint(plCurve * const L, const int cmp,
       /* Its range starts before ours, we'll have to leave part */
       if (cst->vert+cst->num_verts > vert+num_verts) {
         /* It also exteds past ours, we go in the middle */
-        /*@-usereleased@*/
         (*pfn) = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
                    vert - cst->vert, cst);
+        assert((*pfn)->next != NULL);
+        (*pfn)->next->num_verts -= vert + num_verts - (*pfn)->next->vert;
+        (*pfn)->next->vert = vert + num_verts;
         if (kind != PLCL_UNCST) {
           (*pfn)->next = new_constraint(kind, vect, cmp, vert, num_verts, 
                                         (*pfn)->next);
         }
-        cst->num_verts -= vert + num_verts - cst->vert;
-        cst->vert = vert + num_verts;
-        /*@=usereleased@*/
       } else {
         /* It's just before ours, but extends into ours, shorten it. */
         cst->num_verts = vert - cst->vert;
@@ -532,6 +531,8 @@ static inline void plCurve_set_constraint(plCurve * const L, const int cmp,
         cst = cst->next;
         /*@=usereleased@*/
         overrun_check(cst);
+        /* Perhaps splint does have this right.  This code needs to be
+         * re-thought. */
       }
     } else {
       /* It starts no earlier than ours, put ours in before it */
