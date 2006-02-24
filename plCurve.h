@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.36 2006-02-24 16:57:28 ashted Exp $
+ *  $Id: plCurve.h,v 1.37 2006-02-24 21:18:15 ashted Exp $
  *
  */
 
@@ -89,7 +89,7 @@ typedef struct plCurve_vert_quant_type { /* Vertex quantifiers */
   int              vert;   /* Vertex */
   char             tag[4]; /* 3-character tag */
   double           quant;  /* Quantifier */
-  /*@only@*/ /*@null@*/ struct plCurve_vert_quant *next_quant;
+  /*@only@*/ /*@null@*/ struct plCurve_vert_quant_type *next;
 } plCurve_vert_quant;
 
 typedef struct plCurve_type {
@@ -302,6 +302,12 @@ void plCurve_fix_cst(plCurve * const L);
 
 /* Either return (if given a char *) or print out the library version number */
 void plCurve_version(/*@null@*/ char *version);
+
+/* Put 4 doubles together into a color */
+plCurve_color plCurve_build_color(const double r, 
+                                  const double g,
+                                  const double b,
+                                  const double alpha);
 
 /* Allocate new spline. */
 plCurve_spline *plCurve_spline_new(const int          components,

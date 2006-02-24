@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.61 2006-02-24 16:57:28 ashted Exp $
+ *  $Id: plCurve.c,v 1.62 2006-02-24 21:18:15 ashted Exp $
  *
  */
 
@@ -1410,3 +1410,13 @@ void plCurve_version(/*@null@*/ char *version) {
     (void)snprintf(version,sizeof(version),PACKAGE_VERSION);
   }
 }
+
+/* Put 4 doubles together into a color */
+plCurve_color plCurve_build_color(const double r, 
+                                  const double g,
+                                  const double b,
+                                  const double alpha) {
+  plCurve_color C = { r, g, b, alpha };
+  return C;
+}
+
