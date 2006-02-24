@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.59 2006-02-23 22:36:51 ashted Exp $
+ *  $Id: plCurve.c,v 1.60 2006-02-24 05:15:24 ashted Exp $
  *
  */
 
@@ -442,6 +442,7 @@ static inline void plCurve_set_constraint(plCurve * const L,
 
   plCurve_constraint *cst,*pcst;  /* constraint, previous constraint */
   plCurve_constraint **pfn; /* Place for new constraint */
+  plCurve_constraint *temp_cst;
 
   /* First, we check the input. */
   assert(L != NULL);
@@ -460,9 +461,10 @@ static inline void plCurve_set_constraint(plCurve * const L,
    *      the same as ours, has a range whose end extends to or beyond the
    *      beginning of ours. 
    */
-  for (pcst = cst = L->cst; 
-       cst != NULL && (cst->cmp < cmp || 
-                       (cst->cmp == cmp && cst->vert+cst->num_verts <= vert));
+  pcst = L->cst;
+  cst = L->cst;
+  for (; cst != NULL && (cst->cmp < cmp || 
+                        (cst->cmp == cmp && cst->vert+cst->num_verts <= vert));
        cst = cst->next) {
     pcst = cst;
   }
@@ -489,11 +491,11 @@ static inline void plCurve_set_constraint(plCurve * const L,
     pcst->num_verts += num_verts;
     overrun_check(pcst);
   } else if (cst != NULL &&
-             cst->kind == kind &&
              kind != fixed && /* Never extend a fixed constraint */
-             memcmp(pcst->vect,vect,sizeof(pcst->vect)) == 0 &&
+             cst->kind == kind &&
              cst->cmp == cmp &&
-             cst->vert <= vert+num_verts) {
+             cst->vert <= vert+num_verts &&
+             memcmp(cst->vect,vect,sizeof(cst->vect)) == 0) {
     /* The one found can be extended to include our range. */
     cst->num_verts = intmax(vert+num_verts,cst->vert+cst->num_verts);
     cst->vert = intmin(vert,cst->vert);
@@ -510,34 +512,53 @@ static inline void plCurve_set_constraint(plCurve * const L,
      * constraint as we are trying to establish (otherwise we would have
      * extended them above).
      */
+    assert(cst != NULL);
     if (cst->vert < vert) {
       /* Its range starts before ours, we'll have to leave part */
       if (cst->vert+cst->num_verts > vert+num_verts) {
-        /* It also exteds past ours, we go in the middle */
+        /* It also extends past ours, we go in the middle */
         (*pfn) = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
                    vert - cst->vert, cst);
-        assert((*pfn)->next != NULL);
-        (*pfn)->next->num_verts -= vert + num_verts - (*pfn)->next->vert;
-        (*pfn)->next->vert = vert + num_verts;
+        cst = (*pfn)->next;
+        assert(cst != NULL);
+        cst->num_verts -= vert + num_verts - cst->vert;
+        cst->vert = vert + num_verts;
         if (kind != unconstrained) {
-          (*pfn)->next = new_constraint(kind, vect, cmp, vert, num_verts, 
-                                        (*pfn)->next);
+          (*pfn)->next = new_constraint(kind, vect, cmp, vert, num_verts, cst);
         }
       } else {
         /* It's just before ours, but extends into ours, shorten it. */
         cst->num_verts = vert - cst->vert;
         /* And attach ours to the end */
         if (kind != unconstrained) {
-          cst->next = 
+          pfn = &cst->next;
+          (*pfn) = 
             new_constraint(kind, vect, cmp, vert, num_verts, cst->next);
+          /* And check to see if we overran the next one */
+          overrun_check(*pfn);
+        } else {
+          /* Since it was unconstrained, we have nothing to hand to
+           * overrun_check.  We need to do the work ourselves */
+          while (cst->next != NULL && 
+                 cst->next->cmp == cmp &&
+                 cst->next->vert < vert+num_verts) {
+            /* We overlap the next one, shrink or empty it */
+            if (cst->next->vert + cst->next->num_verts <= vert + num_verts) {
+              /* It has been completely subsumed and must be eliminated */
+              temp_cst = cst->next;
+              cst->next = temp_cst->next; /* take it out of the list */
+              free(temp_cst);
+              temp_cst = NULL;
+            } else {
+              /* Shorten the one ahead */
+              assert(cst->next != NULL);
+              cst->next->num_verts -= 
+                cst->vert+cst->num_verts - cst->next->vert;
+              cst->next->vert = cst->vert+cst->num_verts;
+            }
+          }
+        
         }
-        /* And check to see if we overran the next one */
-        /*@-usereleased@*/
-        cst = cst->next;
-        /*@=usereleased@*/
-        overrun_check(cst);
-        /* Perhaps splint does have this right.  This code needs to be
-         * re-thought. */
       }
     } else {
       /* It starts no earlier than ours, put ours in before it */
@@ -546,7 +567,10 @@ static inline void plCurve_set_constraint(plCurve * const L,
     }
   }
 
+  /* Splint believes that L->cst->next was freed and is yet accessible :-( */
+  /*@-usereleased -compdef@*/
   return;
+  /*@=usereleased =compdef@*/
 } /* plCurve_set_constraint */
 
 /* Now the four functions which call plCurve_set_constraint */
