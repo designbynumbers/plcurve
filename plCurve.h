@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.35 2006-02-23 22:36:51 ashted Exp $
+ *  $Id: plCurve.h,v 1.36 2006-02-24 16:57:28 ashted Exp $
  *
  */
 
@@ -33,16 +33,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #if (__cplusplus || c_plusplus)
 extern "C" {
-#else
-/* Define to `__inline__' or `__inline' if that's what the C compiler
-   calls it, or to nothing if 'inline' is not supported under any name.  */
-/* #undef inline */
 #endif
 
-/* Define to empty if `const' does not conform to ANSI C. */
-/* #undef const */
-
-/* Take our chances that stdio.h and stdbool.h exist */
+/*
+ * Take our chances that stdio.h and stdbool.h exist.  We need stdio to define
+ * the FILE type and stdbool to define bool.  If stdbool doesn't exist, one 
+ * option is to just 
+ *   typedef int bool;
+ * and 
+ *   #define true 1 
+ *   #define false 0
+ */
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -120,31 +121,28 @@ typedef struct plCurve_spline_type {
  *
  */
 
-inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B);   /* A + B */
-inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B);  /* A - B */
-inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
-inline plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
-inline plcl_vector plcl_normalize_vect(const plcl_vector V, bool *ok);/*V/|V|*/
-inline plcl_vector plcl_random_vect(void);
+plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B);   /* A + B */
+plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B);  /* A - B */
+plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
+plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
+plcl_vector plcl_normalize_vect(const plcl_vector V, bool *ok);/*V/|V|*/
+plcl_vector plcl_random_vect(void);
 
 /* Translate three doubles into a vector */
-inline plcl_vector plcl_build_vect(const double x,
-                                   const double y,
-                                   const double z);
+plcl_vector plcl_build_vect(const double x, const double y, const double z);
 
 /* Multiply or divide two ordered triples componetwise */
-inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B);
-inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B);
+plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B);
+plcl_vector plcl_component_div(plcl_vector A,plcl_vector B);
 
 /* Return a linear combination: a*A + b*B */
-inline plcl_vector plcl_vlincomb(double a,plcl_vector A,
-                                 double b,plcl_vector B);
+plcl_vector plcl_vlincomb(double a,plcl_vector A, double b,plcl_vector B);
 
-inline double plcl_dot_prod(plcl_vector A,plcl_vector B);
-inline double plcl_norm(plcl_vector A);
+double plcl_dot_prod(plcl_vector A,plcl_vector B);
+double plcl_norm(plcl_vector A);
 
 /*
- * Macros for vector work (requires careful programming)
+ * Macros for vector work (require careful programming)
  *
  */
 
@@ -258,8 +256,8 @@ void plCurve_remove_all_constraints(plCurve * const L);
 
 /* Read plCurve data from a file */
 /*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file,
-                                            int *error_num,
-                                            char error_str[],
+                                  /*@out@*/ int *error_num,
+                                  /*@out@*/ char error_str[],
                                             size_t error_str_len);
 
 /* Write plCurve data to a file */
@@ -303,7 +301,7 @@ double plCurve_check_cst(const plCurve * const L);
 void plCurve_fix_cst(plCurve * const L);
 
 /* Either return (if given a char *) or print out the library version number */
-void plCurve_version(char *version);
+void plCurve_version(/*@null@*/ char *version);
 
 /* Allocate new spline. */
 plCurve_spline *plCurve_spline_new(const int          components,

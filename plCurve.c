@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.60 2006-02-24 05:15:24 ashted Exp $
+ *  $Id: plCurve.c,v 1.61 2006-02-24 16:57:28 ashted Exp $
  *
  */
 
@@ -1013,8 +1013,8 @@ void plCurve_fix_wrap(plCurve * const L) {
  *
  */
 /*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file, 
-                                            int *error_num, 
-                                            char error_str[], 
+                                  /*@out@*/ int *error_num, 
+                                  /*@out@*/ char error_str[], 
                                             size_t error_str_len) {
   plCurve *L;
   int nverts = 0, ncomp = 0, ncolors = 0;
@@ -1025,6 +1025,9 @@ void plCurve_fix_wrap(plCurve * const L) {
   char comment[256]; /* Space to store per-vertex comments */
   int ds; /* Doubles scanned */
   
+  assert(file != NULL);
+  assert(error_str_len > 0);
+  error_str[0] = '\0';
   *error_num = 0;
 
   /* First, we check for the 'VECT' keyword. */
@@ -1400,7 +1403,7 @@ void plCurve_force_closed(plCurve * const L)
  * Either return or display the library version number.
  *
  */
-void plCurve_version(char *version) {
+void plCurve_version(/*@null@*/ char *version) {
   if (version == NULL) {
     printf("plCurve Version: %s\n",PACKAGE_VERSION);
   } else {

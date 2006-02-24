@@ -2,7 +2,7 @@
 #include "stdio.h"
 
 #define POINTS 1000
-int main () {
+int main (void) {
   int i;
   plcl_vector R;
 
@@ -17,8 +17,8 @@ int main () {
   printf("\n");
   for (i = 0; i < POINTS; i++) {
     R = plcl_random_vect();
-    printf("%lg %lg %lg\n",plcl_M_clist(0.9*R));
-    printf("%lg %lg %lg\n",plcl_M_clist(R));
+    printf("%g %g %g\n",plcl_M_clist(0.9*R));
+    printf("%g %g %g\n",plcl_M_clist(R));
   }
 
   return 0;
