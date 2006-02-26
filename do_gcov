@@ -1,3 +1,6 @@
+make
+rm *.gcda
+run_tests
 gcov -o libplCurve_cov_la-plCurve plCurve.c
 gcov -o libplCurve_cov_la-splines splines.c
 gcov -o libplCurve_cov_la-vector vector.c

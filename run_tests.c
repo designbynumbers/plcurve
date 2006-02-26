@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.2 2006-02-26 02:33:21 ashted Exp $
+ * $Id: run_tests.c,v 1.3 2006-02-26 04:35:59 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -88,6 +88,18 @@ static bool curves_match(const plCurve A, const plCurve B)
   return true;
 }
 
+static inline void list_csts(plCurve *L) {
+  plCurve_constraint *cst;
+  
+  cst = L->cst;
+  printf("Constraint list:\n");
+  while (cst != NULL) {
+    printf("  %d %d %d %d %g %g %g %g %g %g\n",
+        (int)cst->kind, cst->cmp, cst->vert, cst->num_verts, 
+        plcl_M_clist(cst->vect[0]), plcl_M_clist(cst->vect[1]));
+    cst = cst->next;
+  }
+}
 
 int main(void) {
   plCurve S; /* The standard against which to measure */
@@ -97,7 +109,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 2 };
   char version[80];
-  char revision[] = "$Revision: 1.2 $";
+  char revision[] = "$Revision: 1.3 $";
 
   plCurve_version(NULL,0);
   version[0] = '\0';
@@ -109,7 +121,6 @@ int main(void) {
   S.nc = 2;
   S.cp = (plCurve_strand *)calloc((size_t)2,sizeof(plCurve_strand));
   assert(S.cp != NULL);
-  S.cst = NULL;
   S.quant = NULL;
   S.cp[0].nv = nv[0];
   S.cp[0].open = open[0];
@@ -172,6 +183,34 @@ int main(void) {
   S.cp[1].clr[1].g = 1.0;
   S.cp[1].clr[1].b = 0.0;
   S.cp[1].clr[1].alpha = 1.0;
+  
+  S.cst = (plCurve_constraint *)calloc((size_t)1,sizeof(plCurve_constraint));
+  assert(S.cst != NULL);
+  assert(S.cst->next == NULL);
+  S.cst->next = 
+    (plCurve_constraint *)calloc((size_t)1,sizeof(plCurve_constraint));
+  assert(S.cst->next != NULL);
+  assert(S.cst->next->next == NULL);
+  S.cst->kind = in_plane;
+  S.cst->vect[0].c[0] = 0.0;
+  S.cst->vect[0].c[1] = 0.0;
+  S.cst->vect[0].c[2] = 1.0;
+  S.cst->vect[1].c[0] = 0.0;
+  S.cst->vect[1].c[1] = 0.0;
+  S.cst->vect[1].c[2] = 0.0;
+  S.cst->cmp = 0;
+  S.cst->vert = 0;
+  S.cst->num_verts = 3;
+  S.cst->next->kind = on_line;
+  S.cst->next->vect[0].c[0] = 0.0;
+  S.cst->next->vect[0].c[1] = 0.0;
+  S.cst->next->vect[0].c[2] = 1.0;
+  S.cst->next->vect[1].c[0] = 1.0;
+  S.cst->next->vect[1].c[1] = 1.0;
+  S.cst->next->vect[1].c[2] = 0.0;
+  S.cst->next->cmp = 1;
+  S.cst->next->vert = 0;
+  S.cst->next->num_verts = 4;
 
   L = plCurve_new(components,nv,open,cc);
   L->cp[0].vt[0] = plcl_build_vect(0.0,0.0,0.0);
@@ -185,19 +224,48 @@ int main(void) {
   L->cp[0].clr[0] = plCurve_build_color(1.0,0.0,1.0,1.0);
   L->cp[1].clr[0] = plCurve_build_color(0.0,1.0,0.0,1.0);
   L->cp[1].clr[1] = plCurve_build_color(1.0,1.0,0.0,1.0);
+  list_csts(&S);
+  plCurve_constrain_to_line(L,1,0,4,plcl_build_vect(0.0,0.0,1.0),
+                                    plcl_build_vect(1.0,1.0,0.0));
+  list_csts(L);
+  plCurve_constrain_to_plane(L,0,0,2,plcl_build_vect(0.0,0.0,1.0),0.0);
+  list_csts(L);
+  plCurve_constrain_to_plane(L,0,1,2,plcl_build_vect(0.0,0.0,1.0),0.0);
+  list_csts(L);
+  plCurve_constrain_to_line(L,1,2,1,plcl_build_vect(0.0,0.0,1.0),
+                                    plcl_build_vect(1.0,1.0,2.0));
+  list_csts(L);
+  plCurve_constrain_to_line(L,1,1,2,plcl_build_vect(0.0,0.0,1.0),
+                                    plcl_build_vect(1.0,1.0,0.0));
+  list_csts(L);
   
   assert(curves_match(S,*L));
 
   plCurve_free(L);
 
   /* Cleanup phase */
+  free(S.cst->next);
+  S.cst->next = NULL;
+  free(S.cst);
+  S.cst = NULL;
   assert(S.cp[0].vt != NULL);
   S.cp[0].vt--;
   free(S.cp[0].vt);
   S.cp[0].vt = NULL;
+  assert(S.cp[0].vt == NULL); /* For the sake of splint */
   assert(S.cp[0].clr != NULL);
   free(S.cp[0].clr);
   S.cp[0].clr = NULL;
+  assert(S.cp[0].clr == NULL); /* For the sake of splint */
+  assert(S.cp[1].vt != NULL);
+  S.cp[1].vt--;
+  free(S.cp[1].vt);
+  S.cp[1].vt = NULL;
+  assert(S.cp[1].vt == NULL); /* For the sake of splint */
+  assert(S.cp[1].clr != NULL);
+  free(S.cp[1].clr);
+  S.cp[1].clr = NULL;
+  assert(S.cp[1].clr == NULL); /* For the sake of splint */
   free(S.cp);
   return(EXIT_SUCCESS);
 }
