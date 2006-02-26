@@ -1,3 +1,9 @@
+#!sh
+#
+# $Id: do_gcov,v 1.3 2006-02-26 13:18:18 ashted Exp $ 
+#
+# Compile, run and check coverage on the test code.
+#
 make
 rm *.gcda
 run_tests
