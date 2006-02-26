@@ -1,7 +1,7 @@
 /*
  * Sample program to show the use of liboctrope.a
  *
- * $Id: test_readwrite.c,v 1.11 2006-02-24 16:57:28 ashted Exp $
+ * $Id: test_readwrite.c,v 1.12 2006-02-26 02:33:21 ashted Exp $
  *
  */
 
@@ -45,8 +45,8 @@ int main(int argc,char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  plCurve_version(NULL);
-  printf("test_readwrite: $Revision: 1.11 $\n");
+  plCurve_version(NULL,0);
+  printf("test_readwrite: $Revision: 1.12 $\n");
 
   infile = fopen(argv[1],"r");
 

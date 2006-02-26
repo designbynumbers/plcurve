@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.1 2006-02-24 21:18:15 ashted Exp $
+ * $Id: run_tests.c,v 1.2 2006-02-26 02:33:21 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -96,6 +96,15 @@ int main(void) {
   int nv[components] = { 3, 4 };
   bool open[components] = { false, true };
   int cc[components] = { 1, 2 };
+  char version[80];
+  char revision[] = "$Revision: 1.2 $";
+
+  plCurve_version(NULL,0);
+  version[0] = '\0';
+  plCurve_version(version,sizeof(version));
+  revision[strlen(revision)-2] = '\0';
+  printf("run_tests %s (plCurve v. %s)\n", revision+11, version);
+  assert(strcmp(PACKAGE_VERSION,version) == 0);
 
   S.nc = 2;
   S.cp = (plCurve_strand *)calloc((size_t)2,sizeof(plCurve_strand));
@@ -178,8 +187,6 @@ int main(void) {
   L->cp[1].clr[1] = plCurve_build_color(1.0,1.0,0.0,1.0);
   
   assert(curves_match(S,*L));
-
-  plCurve_write(stdout,&S);
 
   plCurve_free(L);
 

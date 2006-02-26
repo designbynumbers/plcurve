@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.62 2006-02-24 21:18:15 ashted Exp $
+ *  $Id: plCurve.c,v 1.63 2006-02-26 02:33:21 ashted Exp $
  *
  */
 
@@ -1403,11 +1403,11 @@ void plCurve_force_closed(plCurve * const L)
  * Either return or display the library version number.
  *
  */
-void plCurve_version(/*@null@*/ char *version) {
+void plCurve_version(/*@null@*/ char *version, size_t strlen) {
   if (version == NULL) {
     printf("plCurve Version: %s\n",PACKAGE_VERSION);
   } else {
-    (void)snprintf(version,sizeof(version),PACKAGE_VERSION);
+    (void)snprintf(version,strlen,PACKAGE_VERSION);
   }
 }
 

@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.37 2006-02-24 21:18:15 ashted Exp $
+ *  $Id: plCurve.h,v 1.38 2006-02-26 02:33:21 ashted Exp $
  *
  */
 
@@ -301,7 +301,7 @@ double plCurve_check_cst(const plCurve * const L);
 void plCurve_fix_cst(plCurve * const L);
 
 /* Either return (if given a char *) or print out the library version number */
-void plCurve_version(/*@null@*/ char *version);
+void plCurve_version(/*@null@*/ char *version, size_t strlen);
 
 /* Put 4 doubles together into a color */
 plCurve_color plCurve_build_color(const double r, 

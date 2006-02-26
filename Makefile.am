@@ -12,8 +12,8 @@ libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
-libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
-libplCurve_cov_la_LDFLAGS = -static -version-info $(LIB_VERSION)
+libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage -fbranch-probabilities
+libplCurve_cov_la_LDFLAGS = -static -version-info -fprofile-arcs $(LIB_VERSION)
 
 test_readwrite_SOURCE = test_readwrite.c libplCurve_safe.la
 test_readwrite_LDADD = libplCurve_safe.la
@@ -28,5 +28,5 @@ test_rand_LDFLAGS = -pg $(AM_LDFLAGS)
 
 run_tests_SOURCE = run_tests.c libplCurve_cov.la
 run_tests_LDADD = libplCurve_cov.la
-run_tests_LDFLAGS = -static
+run_tests_LDFLAGS = -static -fprofile-arcs
 run_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
