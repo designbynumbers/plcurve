@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.64 2006-02-27 04:06:38 ashted Exp $
+ *  $Id: plCurve.c,v 1.65 2006-02-27 22:50:50 ashted Exp $
  *
  */
 
@@ -324,6 +324,8 @@ void plCurve_fix_cst(plCurve * const L) {
  */ 
 void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L) {
   int i;
+  plCurve_constraint *cst;
+  plCurve_vert_quant *qnt;
 
   /* First, we check the input. */
   if (L == NULL) {
@@ -356,13 +358,21 @@ void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L) {
     L->nc = 0;
   }
 
-  if (L->cst != NULL) {
-    free(L->cst);
-    L->cst = NULL;
+  while (L->cst != NULL) {
+    cst = L->cst;
+    L->cst = cst->next;
+    free(cst);
+    cst = NULL;
+  }
+
+  while (L->quant != NULL) {
+    qnt = L->quant;
+    L->quant = qnt->next;
+    free(qnt);
+    qnt = NULL;
   }
 
   free(L);
-  L = NULL;
 } /* plCurve_free */
 
 /*@only@*/ static inline 
@@ -438,7 +448,7 @@ static inline void plCurve_set_constraint(plCurve * const L,
                                           const plCurve_cst_kind kind, 
                                           const plcl_vector vect[]) {
 
-  plCurve_constraint *cst,*pcst;  /* constraint, previous constraint */
+  plCurve_constraint *cst,*pcst; /* constraint, previous constraint */
   plCurve_constraint **pfn; /* Place for new constraint */
   plCurve_constraint *temp_cst;
 
@@ -530,71 +540,34 @@ static inline void plCurve_set_constraint(plCurve * const L,
         /* It's just before ours, but extends into ours, shorten it. */
         cst->num_verts = vert - cst->vert;
         /* And attach ours to the end */
-        if (kind != unconstrained) {
-          pfn = &cst->next;
-          (*pfn) = 
-            new_constraint(kind, vect, cmp, vert, num_verts, cst->next);
-          /* And check to see if we overran the next one */
-          overrun_check(*pfn);
-        } else {
-          /* Since it was unconstrained, we have nothing to hand to
-           * overrun_check.  We need to do the work ourselves */
-          while (cst->next != NULL && 
-                 cst->next->cmp == cmp &&
-                 cst->next->vert < vert+num_verts) {
-            /* We overlap the next one, shrink or empty it */
-            if (cst->next->vert + cst->next->num_verts <= vert + num_verts) {
-              /* It has been completely subsumed and must be eliminated */
-              temp_cst = cst->next;
-              cst->next = temp_cst->next; /* take it out of the list */
-              free(temp_cst);
-              temp_cst = NULL;
-            } else {
-              /* Shorten the one ahead */
-              assert(cst->next != NULL);
-              cst->next->num_verts -= 
-                cst->vert+cst->num_verts - cst->next->vert;
-              cst->next->vert = cst->vert+cst->num_verts;
-            }
-          }
-        
+        temp_cst = cst->next;
+        cst->next = new_constraint(kind, vect, cmp, vert, num_verts, temp_cst);
+        /* And check to see if we overran the next one */
+        overrun_check(cst->next);
+        if (kind == unconstrained) {
+          /* Now remove the "unconstraint" */
+          temp_cst = cst->next;
+          cst->next = cst->next->next;
+          free(temp_cst);
+          temp_cst = NULL;
         }
       }
     } else {
       /* It starts no earlier than ours, put ours in before it */
-      if (kind != unconstrained) {
-        (*pfn) = new_constraint(kind, vect, cmp, vert, num_verts, cst);
-        overrun_check(*pfn);
-      } else {
-        /* Since it was unconstrained, we have nothing to hand to
-         * overrun_check.  We need to do the work ourselves */
-
-        /* This code (and the code above) needs to be changed to handle
-         * deleting the first constraint on the list. */
-        cst = pcst;
-        while (cst->next != NULL && 
-               cst->next->cmp == cmp &&
-               cst->next->vert < vert+num_verts) {
-          /* We overlap the next one, shrink or empty it */
-          if (cst->next->vert + cst->next->num_verts <= vert + num_verts) {
-            /* It has been completely subsumed and must be eliminated */
-            temp_cst = cst->next;
-            cst->next = temp_cst->next; /* take it out of the list */
-            free(temp_cst);
-            temp_cst = NULL;
-          } else {
-            /* Shorten the one ahead */
-            assert(cst->next != NULL);
-            cst->next->num_verts -= 
-              cst->vert+cst->num_verts - cst->next->vert;
-            cst->next->vert = cst->vert+cst->num_verts;
-          }
-        }
+      temp_cst = new_constraint(kind, vect, cmp, vert, num_verts, cst);
+      (*pfn) = temp_cst;
+      overrun_check(temp_cst);
+      if (kind == unconstrained) {
+        /* Now remove the "unconstraint" */
+        temp_cst = (*pfn);  /* This line here for splint's benefit */
+        (*pfn) = temp_cst->next;
+        free(temp_cst);
+        pcst = NULL;
       }
     }
   }
 
-  /* Splint believes that L->cst->next was freed and is yet accessible :-( */
+  /* Splint believes that L->cst was freed and is yet accessible :-( */
   /*@-usereleased -compdef@*/
   return;
   /*@=usereleased =compdef@*/
@@ -1388,31 +1361,33 @@ double plCurve_parameter(const plCurve * const L,
 }
 
 /*
- * This procedure closes all open components of plCurve by distributing a small
- * change of all vertices of each such component. It also changes the "open"
- * flag and calls fix_wrap. We remove one vertex in this process. 
+ * This procedure closes all open components of plCurve by distributing the
+ * necessary change over all the vertices of each such component. It also
+ * removes the now duplicate vertex, changes the "open" flag and calls
+ * fix_wrap.
+ *
  */
-void plCurve_force_closed(plCurve * const L)
-{
-  int i, cmp;
+void plCurve_force_closed(plCurve * const L) {
+  int i, cmp, nv;
   plcl_vector diff;
+  double half;
 
   for (cmp=0;cmp < L->nc;cmp++) {
     if (L->cp[cmp].open == true) {  /* Isolate the open components. */
+      nv = L->cp[cmp].nv;
+      half = (nv-1.0)/2.0;
 
       /* Compute the error in closure */
-      diff = L->cp[cmp].vt[L->cp[cmp].nv-1];   
-      plcl_M_sub_vect(diff,L->cp[cmp].vt[0]);
+      diff = plcl_vect_diff(L->cp[cmp].vt[nv-1],L->cp[cmp].vt[0]);
 
-      for (i=0;i<L->cp[cmp].nv;i++) {
-        plcl_M_vlincomb(L->cp[cmp].vt[i],
-          1.0,L->cp[cmp].vt[i],
-         -1.0*i/(L->cp[cmp].nv-1),diff);
+      for (i=0; i < nv; i++) {
+        /* add half of diff to vt[0] and subtract half of diff from vt[0] and
+         * prarate the others :-) */
+        plcl_M_vmadd(L->cp[cmp].vt[i],(half-i)/(nv-1.0),diff);
       }
 
       /* We claim to have moved the last vertex on top of the first. */
-      diff = plcl_vect_diff(L->cp[cmp].vt[0],
-                            L->cp[cmp].vt[L->cp[cmp].nv-1]);
+      diff = plcl_vect_diff(L->cp[cmp].vt[0], L->cp[cmp].vt[nv-1]);
       assert(plcl_M_dot(diff,diff) < DBL_EPSILON);
 
       /* Thus we eliminate the last vertex. */
@@ -1422,7 +1397,7 @@ void plCurve_force_closed(plCurve * const L)
   }
 
   plCurve_fix_wrap(L);
-}
+} /* plCurve_force_closed */
 
 /* 
  * Either return or display the library version number.

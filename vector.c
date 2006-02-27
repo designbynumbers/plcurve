@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.25 2006-02-27 04:06:39 ashted Exp $
+ * $Id: vector.c,v 1.26 2006-02-27 22:50:50 ashted Exp $
  *
  */
 
@@ -53,24 +53,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /* Returns A + B. */
 inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B) { 
-  plcl_vector C;
-
-  C.c[0] = A.c[0] + B.c[0];
-  C.c[1] = A.c[1] + B.c[1];
-  C.c[2] = A.c[2] + B.c[2];
-
-  return C;
+  plcl_M_add_vect(A,B);
+  return A;
 }
   
 /* Returns A - B. */ 
 inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B) { 
-  plcl_vector C;
-
-  C.c[0] = A.c[0] - B.c[0];
-  C.c[1] = A.c[1] - B.c[1];
-  C.c[2] = A.c[2] - B.c[2];
-
-  return C;
+  plcl_M_sub_vect(A,B);
+  return A;
 }
   
 /* Returns A x B. */
@@ -86,38 +76,34 @@ inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B) {
 
 /* Returns sA. */
 inline plcl_vector plcl_scale_vect(double s,plcl_vector A) { 
-  plcl_vector C;
-
-  C.c[0] = s * A.c[0];
-  C.c[1] = s * A.c[1];
-  C.c[2] = s * A.c[2];
-
-  return C;
+  plcl_M_scale_vect(s,A);
+  return A;
 }
 
 inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B) {
-  plcl_vector C;
-
-  C.c[0] = A.c[0]*B.c[0];
-  C.c[1] = A.c[1]*B.c[1];
-  C.c[2] = A.c[2]*B.c[2];
-
-  return C;
+  plcl_M_component_mult(A,B);
+  return A;
 }
 
 /* Should we add an "ok" parameter here as in _normalize_vect? */
-inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B) {
-  plcl_vector C;
-
-  C.c[0] = A.c[0]/B.c[0];
-  C.c[1] = A.c[1]/B.c[1];
-  C.c[2] = A.c[2]/B.c[2];
-
-  return C;
+inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B,
+                                      /*@null@*/ bool *ok) {
+  if (ok != NULL) {
+    *ok = ((fabs(B.c[0]) > DBL_EPSILON) &&
+           (fabs(B.c[1]) > DBL_EPSILON) &&
+           (fabs(B.c[2]) > DBL_EPSILON));
+    if (*ok) {
+      plcl_M_component_div(A,B);
+    } 
+  } else {
+    plcl_M_component_div(A,B);
+  }
+  return A;
 }
 
 /* Returns the dot product of A and B */
-inline double plcl_dot_prod(plcl_vector A, plcl_vector B) {
+inline double plcl_dot_prod(plcl_vector A, plcl_vector B) 
+/*@modifies nothing@*/ {
   return plcl_M_dot(A,B);
 }
 
@@ -125,9 +111,23 @@ inline double plcl_norm(plcl_vector A) {
   return plcl_M_norm(A);
 }
 
+inline double plcl_distance(plcl_vector A, plcl_vector B) {
+  return plcl_M_norm(plcl_vect_diff(A,B));
+}
+
+/* The square of the distance between A and B (faster than _distance) */
+inline double plcl_sq_dist(plcl_vector A, plcl_vector B) {
+  return plcl_M_sq_dist(A,B);
+}
+
+inline bool plcl_vecteq(plcl_vector A, plcl_vector B) /*@modifies nothing@*/ {
+  return plcl_M_vecteq(A,B);
+}
+
 /* Procedure returns a vector which points in the same direction as V but has
  * length 1.  It sets *ok to false if the norm is too small. */
-inline plcl_vector plcl_normalize_vect(const plcl_vector V, bool *ok) {
+inline plcl_vector plcl_normalize_vect(const plcl_vector V, 
+                                       /*@null@*/ bool *ok) {
   double vnrm;
 
   vnrm = plcl_M_norm(V);
@@ -184,10 +184,21 @@ inline plcl_vector plcl_vlincomb(double a,plcl_vector A,
   return R;
 }
 
+inline plcl_vector plcl_vmadd(plcl_vector A, double s, plcl_vector B) {
+  plcl_M_vmadd(A,s,B);
+  return A;
+}
+
+inline plcl_vector plcl_vweighted(double s, plcl_vector A, plcl_vector B) {
+  plcl_vector R;
+  plcl_M_vweighted(R,s,A,B);
+  return R;
+}
+
 /* Put together a vector from 3 doubles */
 inline plcl_vector plcl_build_vect(const double x, 
                                    const double y,
-                                   const double z) {
+                                   const double z) /*@modifies nothing@*/ {
   plcl_vector V = { { x, y, z } };
   return V;
 }

@@ -2,7 +2,8 @@ AM_CFLAGS = -g -O2 -finline-functions -Wall
 
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_LTLIBRARIES = libplCurve_cov.la
-noinst_PROGRAMS = test_readwrite test_cst test_rand run_tests
+noinst_PROGRAMS = test_readwrite test_cst test_rand run_tests \
+                  exit_failure_tests
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c 
 libplCurve_la_CFLAGS = -DNDEBUG $(AM_CFLAGS)
@@ -30,3 +31,8 @@ run_tests_SOURCE = run_tests.c libplCurve_cov.la
 run_tests_LDADD = libplCurve_cov.la
 run_tests_LDFLAGS = -static -fprofile-arcs
 run_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
+
+exit_failure_tests_SOURCE = exit_failure_tests libplCurve_cov.la
+exit_failure_tests_LDADD = libplCurve_cov.la
+exit_failure_tests_LDFLAGS = -static -fprofile-arcs
+exit_failure_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage

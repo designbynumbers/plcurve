@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.38 2006-02-26 02:33:21 ashted Exp $
+ *  $Id: plCurve.h,v 1.39 2006-02-27 22:50:50 ashted Exp $
  *
  */
 
@@ -125,21 +125,32 @@ plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B);   /* A + B */
 plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B);  /* A - B */
 plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
 plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
-plcl_vector plcl_normalize_vect(const plcl_vector V, bool *ok);/*V/|V|*/
+plcl_vector plcl_normalize_vect(const plcl_vector V, 
+                                /*@null@*/ bool *ok);/*V/|V|*/
 plcl_vector plcl_random_vect(void);
 
 /* Translate three doubles into a vector */
 plcl_vector plcl_build_vect(const double x, const double y, const double z);
 
 /* Multiply or divide two ordered triples componetwise */
-plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B);
-plcl_vector plcl_component_div(plcl_vector A,plcl_vector B);
+plcl_vector plcl_component_mult(plcl_vector A, plcl_vector B);
+plcl_vector plcl_component_div(plcl_vector A, plcl_vector B,
+                               /*@null@*/ bool *ok);
 
 /* Return a linear combination: a*A + b*B */
 plcl_vector plcl_vlincomb(double a,plcl_vector A, double b,plcl_vector B);
+plcl_vector plcl_vmadd(plcl_vector A, double s, plcl_vector B); /* A + sB */
+plcl_vector plcl_vweighted(double s, plcl_vector A, plcl_vector B); 
+  /* (1-s)A + sB */
 
+/* Different vector measurements */
 double plcl_dot_prod(plcl_vector A,plcl_vector B);
 double plcl_norm(plcl_vector A);
+double plcl_distance(plcl_vector A, plcl_vector B);
+double plcl_sq_dist(plcl_vector A, plcl_vector B);
+
+/* Do two vectors match ? */
+bool plcl_vecteq(plcl_vector A, plcl_vector B);
 
 /*
  * Macros for vector work (require careful programming)

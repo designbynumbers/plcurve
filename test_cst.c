@@ -1,5 +1,5 @@
 /*
- * $Id: test_cst.c,v 1.15 2006-02-24 16:57:28 ashted Exp $
+ * $Id: test_cst.c,v 1.16 2006-02-27 22:50:50 ashted Exp $
  *
  * Test the constraint-handling code
  *
@@ -98,6 +98,7 @@ int main(void) {
       printf("->"); (void)fgetc(stdin);
     }
   plCurve_free(L);
+  L = NULL;
 
   return 0;
 }

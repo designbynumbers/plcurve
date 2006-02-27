@@ -1,7 +1,7 @@
 /*
  * Sample program to show the use of liboctrope.a
  *
- * $Id: test_readwrite.c,v 1.12 2006-02-26 02:33:21 ashted Exp $
+ * $Id: test_readwrite.c,v 1.13 2006-02-27 22:50:50 ashted Exp $
  *
  */
 
@@ -46,7 +46,7 @@ int main(int argc,char *argv[]) {
   }
 
   plCurve_version(NULL,0);
-  printf("test_readwrite: $Revision: 1.12 $\n");
+  printf("test_readwrite: $Revision: 1.13 $\n");
 
   infile = fopen(argv[1],"r");
 
@@ -71,6 +71,7 @@ int main(int argc,char *argv[]) {
   if (outfile == NULL) {
     printf("test_readwrite: Couldn't open temporary file %s.\n",outname);
     plCurve_free(L);
+    L = NULL;
     exit(EXIT_FAILURE);
   }
 
@@ -84,5 +85,6 @@ int main(int argc,char *argv[]) {
   }
 
   plCurve_free(L);
+  L = NULL;
   return 0;
 }

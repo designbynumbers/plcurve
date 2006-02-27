@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.20 2006-02-23 22:36:51 ashted Exp $
+ * $Id: splines.c,v 1.21 2006-02-27 22:50:50 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation. 
@@ -353,7 +353,7 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
       /* y2[i] = (sig-1.0)/p; */
 
       scrV.c[0] = scrV.c[1] = scrV.c[2] = sig - 1.0;
-      spline_L->cp[comp].vt2[i] = plcl_component_div(scrV,p);
+      spline_L->cp[comp].vt2[i] = plcl_component_div(scrV,p,NULL);
 
       /* u[i]=(y[i+1]-y[i])/(x[i+1]-x[i]) - (y[i]-y[i-1])/(x[i]-x[i-1]); */
 
@@ -396,7 +396,7 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
     plcl_M_vlincomb(scrV,1.0,un,-qn,u[i-1]);
     /*@=usedef@*/
 
-    spline_L->cp[comp].vt2[i] = plcl_component_div(scrV,scrW);
+    spline_L->cp[comp].vt2[i] = plcl_component_div(scrV,scrW,NULL);
                      
     /* for (k=n-1;k>=1;k--) { */
 

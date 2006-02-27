@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.4 2006-02-27 04:06:39 ashted Exp $
+ * $Id: run_tests.c,v 1.5 2006-02-27 22:50:50 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -25,6 +25,13 @@
 #endif
 #ifdef HAVE_STRING_H
   #include <string.h>
+#endif
+/* To get the macro WEXITSTATUS */
+#ifdef HAVE_WAIT_H
+  #include <wait.h>
+#endif
+#ifdef HAVE_SYS_WAIT_H
+  #include <sys/wait.h>
 #endif
 
 #define require(C) \
@@ -110,11 +117,13 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 2 };
   char version[80];
-  char revision[] = "$Revision: 1.4 $";
+  char revision[] = "$Revision: 1.5 $";
   plCurve_constraint *cst;
   int vert;
   double dist;
   bool ok;
+  plcl_vector temp_vect;
+  int sysret;
 
   plCurve_version(NULL,0);
   version[0] = '\0';
@@ -196,13 +205,44 @@ int main(void) {
   L->cp[0].vt[2] = plcl_build_vect(0.0,1.0,0.0);
   L->cp[1].vt[0] = plcl_build_vect(1.0,1.0,2.0);
   L->cp[1].vt[1] = plcl_build_vect(1.0,1.0,1.0);
-  L->cp[1].vt[2] = plcl_build_vect(1.0,1.0,0.0);
+  L->cp[1].vt[2] = plcl_vmadd(L->cp[0].vt[1],1.0,L->cp[0].vt[2]);
+  assert(plcl_M_vecteq(L->cp[1].vt[2],plcl_build_vect(1.0,1.0,0.0)));
   L->cp[1].vt[3] = plcl_build_vect(1.0,1.0,-1.0);
   plCurve_fix_wrap(L);
   L->cp[0].clr[0] = plCurve_build_color(1.0,0.0,1.0,1.0);
   L->cp[1].clr[0] = plCurve_build_color(0.0,1.0,0.0,1.0);
   L->cp[1].clr[1] = plCurve_build_color(1.0,1.0,0.0,1.0);
   assert(curves_match(S,*L));
+
+  temp_vect = plcl_cross_prod(L->cp[0].vt[1],L->cp[0].vt[2]);
+  assert(fabs(temp_vect.c[0]) < DBL_EPSILON);
+  assert(fabs(temp_vect.c[1]) < DBL_EPSILON);
+  assert(fabs(temp_vect.c[2] - 1.0) < DBL_EPSILON);
+
+  ok = true;
+  temp_vect = plcl_component_div(L->cp[1].vt[1],L->cp[1].vt[0],&ok);
+  assert(ok);
+  assert(plcl_vecteq(temp_vect,plcl_build_vect(1.0,1.0,0.5)));
+
+  temp_vect = plcl_vweighted(0.7,L->cp[0].vt[1],L->cp[0].vt[2]);
+  assert(plcl_M_vecteq(temp_vect,plcl_build_vect(0.3,0.7,0.0)));
+
+  /* Check to see if plcl_normalize_vect fails on zero vectors with no bool
+   * passed in, as advertised. */
+  sysret = system("./exit_failure_tests 1");
+  assert(WEXITSTATUS(sysret) == EXIT_FAILURE);
+  sysret = system("./exit_failure_tests 2");
+  assert(WEXITSTATUS(sysret) == EXIT_FAILURE);
+  sysret = system("./exit_failure_tests 3");
+  assert(WEXITSTATUS(sysret) == EXIT_SUCCESS);
+
+  assert(fabs(plcl_dot_prod(L->cp[1].vt[0],L->cp[1].vt[3])) < DBL_EPSILON);
+
+  dist = plcl_distance(L->cp[1].vt[3],L->cp[0].vt[2]) - sqrt(2.0);
+  assert(fabs(dist) < DBL_EPSILON);
+
+  dist = plcl_sq_dist(L->cp[0].vt[2],L->cp[1].vt[3]);
+  assert(fabs(dist - 2.0) < DBL_EPSILON);
 
   S.cst = (plCurve_constraint *)calloc((size_t)1,sizeof(plCurve_constraint));
   assert(S.cst != NULL);
@@ -288,12 +328,12 @@ int main(void) {
   }
   assert(curves_match(S,*L));
 
-  dist = fabs(plcl_norm(S.cp[1].vt[1]) - sqrt(3.0));
-  assert(dist < DBL_EPSILON);
+  dist = plcl_norm(S.cp[1].vt[1]) - sqrt(3.0);
+  assert(fabs(dist) < DBL_EPSILON);
   ok = true;
-  dist = fabs(plcl_norm(plcl_normalize_vect(plcl_random_vect(),&ok)) - 1.0);
+  dist = plcl_norm(plcl_normalize_vect(plcl_random_vect(),&ok)) - 1.0;
   assert(ok);
-  assert(dist < DBL_EPSILON);
+  assert(fabs(dist) < DBL_EPSILON);
   (void)plcl_normalize_vect(plcl_build_vect(0.0,0.0,0.0),&ok);
   assert(!ok);
 
@@ -331,25 +371,19 @@ int main(void) {
       plcl_component_mult(S.cst->next->vect[0],L->cp[1].vt[2]));
   assert(curves_match(S,*L));
 
-  list_csts(&S);
-  list_csts(L);
   cst = S.cst->next->next;
   S.cst->next->next = S.cst->next->next->next;
   free(cst);
   cst = NULL;
   assert(cst == NULL);
   plCurve_unconstrain(L,1,1,2);
-  list_csts(&S);
-  list_csts(L);
   assert(curves_match(S,*L));
 
   S.cp[1].vt[0] = S.cst->next->vect[0];
   S.cp[1].vt[3] = S.cst->next->next->vect[0];
+  dist = plCurve_check_cst(L) - sqrt(3.0);
+  assert(fabs(dist) < DBL_EPSILON);
   plCurve_fix_cst(L);
-  for (vert = 0; vert < S.cp[1].nv; vert++) {
-    printf("%g %g %g   ?   %g %g %g\n",
-        plcl_M_clist(S.cp[1].vt[vert]),plcl_M_clist(L->cp[1].vt[vert]));
-  }
   assert(curves_match(S,*L));
 
   cst = S.cst;
@@ -358,11 +392,23 @@ int main(void) {
   cst = NULL;
   assert(cst == NULL);
   plCurve_unconstrain(L,0,0,3);
-  list_csts(&S);
-  list_csts(L);
+  assert(curves_match(S,*L));
+
+  /* Try forcing the second component to close */
+  S.cp[1].vt[0].c[2] -= 1.0/2.0;
+  S.cp[1].vt[1].c[2] -= 1.0/6.0;
+  S.cp[1].vt[2].c[2] += 1.0/6.0;
+  S.cp[1].open = false;
+  S.cp[1].nv--;
+  S.cp[1].vt[-1] = S.cp[1].vt[2];
+  S.cp[1].vt[3] = S.cp[1].vt[0];
+  plCurve_force_closed(L);
   assert(curves_match(S,*L));
 
   /* Cleanup phase */
+  plCurve_free(L);
+  L = NULL;
+  /* And just to make sure that it works */
   plCurve_free(L);
 
   free(S.cst->next);

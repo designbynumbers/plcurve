@@ -1,13 +1,20 @@
-#!sh
 #
-# $Id: do_gcov,v 1.4 2006-02-27 04:06:38 ashted Exp $ 
+# $Id: do_gcov,v 1.5 2006-02-27 22:50:50 ashted Exp $ 
 #
 # Compile, run and check coverage on the test code.
 #
-make run_tests.exe
-rm *.gcda
-run_tests
+if [ `uname` = "Darwin" ]
+then
+  make run_tests
+  make exit_failure_tests
+  rm *.da
+else
+  make run_tests.exe
+  make exit_failure_tests.exe
+  rm *.gcda
+fi
+./run_tests
 gcov -o libplCurve_cov_la-plCurve plCurve.c
 gcov -o libplCurve_cov_la-splines splines.c
 gcov -o libplCurve_cov_la-vector vector.c
-splint +checks -I. plCurve.c vector.c splines.c run_tests.c
+splint +checks +posixlib -I. plCurve.c vector.c splines.c run_tests.c
