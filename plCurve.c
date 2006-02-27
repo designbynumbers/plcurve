@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.63 2006-02-26 02:33:21 ashted Exp $
+ *  $Id: plCurve.c,v 1.64 2006-02-27 04:06:38 ashted Exp $
  *
  */
 
@@ -196,15 +196,12 @@ static inline plcl_vector Closest_plane_point(const plcl_vector point,
   double a = normal.c[0];
   double b = normal.c[1];
   double c = normal.c[2];
-  double x1 = point.c[0];
-  double y1 = point.c[1];
-  double z1 = point.c[2];
   int i0 = 0;
   int i1 = 1;
   int i2 = 2;
-  double frac = (a*x1 + b*y1 + c*z1 - d)/(a*a + b*b + c*c);
-  double x = x1 - a*frac;
-  double y = y1 - b*frac;
+  double frac;
+  double x;
+  double y;
 
   assert(a*a + b*b + c*c > DBL_EPSILON);
 
@@ -225,8 +222,9 @@ static inline plcl_vector Closest_plane_point(const plcl_vector point,
     }
   }
 
-  /* And that we aren't dividing by zero now */
-
+  frac = (a*point.c[i0] + b*point.c[i1] + c*point.c[i2] - d)/(a*a + b*b + c*c);
+  x = point.c[i0] - a*frac;
+  y = point.c[i1] - b*frac;
   ret_vect.c[i0] = x;
   ret_vect.c[i1] = y;
   ret_vect.c[i2] = (d - a*x - b*y)/c;
@@ -500,7 +498,8 @@ static inline void plCurve_set_constraint(plCurve * const L,
     cst->num_verts = intmax(vert+num_verts,cst->vert+cst->num_verts);
     cst->vert = intmin(vert,cst->vert);
     cst->num_verts -= cst->vert;
-  } else if (cst == NULL || cst->cmp >cmp || cst->vert >= vert+num_verts) {
+    overrun_check(cst);
+  } else if (cst == NULL || cst->cmp > cmp || cst->vert >= vert+num_verts) {
     /* Got to the end of the list without finding it or found one which deals
      * with vertices strictly beyond our range. */
     if (kind != unconstrained) {
@@ -513,6 +512,7 @@ static inline void plCurve_set_constraint(plCurve * const L,
      * extended them above).
      */
     assert(cst != NULL);
+    assert(pcst != NULL);
     if (cst->vert < vert) {
       /* Its range starts before ours, we'll have to leave part */
       if (cst->vert+cst->num_verts > vert+num_verts) {
@@ -562,8 +562,35 @@ static inline void plCurve_set_constraint(plCurve * const L,
       }
     } else {
       /* It starts no earlier than ours, put ours in before it */
-      (*pfn) = new_constraint(kind, vect, cmp, vert, num_verts, cst);
-      overrun_check(*pfn);
+      if (kind != unconstrained) {
+        (*pfn) = new_constraint(kind, vect, cmp, vert, num_verts, cst);
+        overrun_check(*pfn);
+      } else {
+        /* Since it was unconstrained, we have nothing to hand to
+         * overrun_check.  We need to do the work ourselves */
+
+        /* This code (and the code above) needs to be changed to handle
+         * deleting the first constraint on the list. */
+        cst = pcst;
+        while (cst->next != NULL && 
+               cst->next->cmp == cmp &&
+               cst->next->vert < vert+num_verts) {
+          /* We overlap the next one, shrink or empty it */
+          if (cst->next->vert + cst->next->num_verts <= vert + num_verts) {
+            /* It has been completely subsumed and must be eliminated */
+            temp_cst = cst->next;
+            cst->next = temp_cst->next; /* take it out of the list */
+            free(temp_cst);
+            temp_cst = NULL;
+          } else {
+            /* Shorten the one ahead */
+            assert(cst->next != NULL);
+            cst->next->num_verts -= 
+              cst->vert+cst->num_verts - cst->next->vert;
+            cst->next->vert = cst->vert+cst->num_verts;
+          }
+        }
+      }
     }
   }
 
@@ -607,10 +634,8 @@ void plCurve_constrain_to_plane(plCurve * const L,
   plCurve_set_constraint(L,cmp,vert,num_verts,in_plane,vect);
 }
 
-void plCurve_unconstrain(plCurve * const L, 
-                         const int          cmp, 
-                         const int          vert, 
-                         const int          num_verts) {
+void plCurve_unconstrain(plCurve * const L, const int cmp, 
+                         const int vert, const int num_verts) {
         
   plcl_vector zv = {{ 0.0, 0.0, 0.0 }};
   plcl_vector zero_vect[2] = {zv, zv};

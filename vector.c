@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.24 2006-02-23 22:36:51 ashted Exp $
+ * $Id: vector.c,v 1.25 2006-02-27 04:06:39 ashted Exp $
  *
  */
 
@@ -105,6 +105,7 @@ inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B) {
   return C;
 }
 
+/* Should we add an "ok" parameter here as in _normalize_vect? */
 inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B) {
   plcl_vector C;
 
@@ -117,11 +118,11 @@ inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B) {
 
 /* Returns the dot product of A and B */
 inline double plcl_dot_prod(plcl_vector A, plcl_vector B) {
-  return A.c[0]*B.c[0] + A.c[1]*B.c[1] + A.c[2]*B.c[2];
+  return plcl_M_dot(A,B);
 }
 
 inline double plcl_norm(plcl_vector A) {
-  return sqrt(plcl_dot_prod(A,A));
+  return plcl_M_norm(A);
 }
 
 /* Procedure returns a vector which points in the same direction as V but has
