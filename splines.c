@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.21 2006-02-27 22:50:50 ashted Exp $
+ * $Id: splines.c,v 1.22 2006-02-27 23:05:24 cantarel Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation. 
@@ -376,6 +376,11 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
  
     }
     /*@=loopexec@*/
+
+    /* We are now at the last vertex of the curve, with index i=I.
+       We will continue to refer to this as vertex "i" while we clean 
+       up the spline stuff. In this case, it's _not_ a bug to use the
+       loop index i outside the loop. */
 
     /* qn = 0.5; */
 
