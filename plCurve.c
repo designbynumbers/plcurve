@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.66 2006-02-28 20:33:24 ashted Exp $
+ *  $Id: plCurve.c,v 1.67 2006-02-28 23:35:41 ashted Exp $
  *
  */
 
@@ -1048,7 +1048,7 @@ void plCurve_fix_wrap(plCurve * const L) {
   size_t orig_len, parsed;
   plCurve_constraint *cst_list;
   size_t cst_list_len = 2;
-  int cst_num;
+  int cst_num, prev_cst_num;
   
   assert(file != NULL);
   assert(error_str_len > 0);
@@ -1180,7 +1180,7 @@ void plCurve_fix_wrap(plCurve * const L) {
       parsed += strlen(place)+1;
       if (strcasestr(place,"Fixed") != NULL) {
         cst_list[cst_num].kind = fixed;
-        if (sscanf(comment[parsed],"%lf %lf %lf",
+        if (sscanf(&comment[parsed],"%lf %lf %lf",
               &cst_list[cst_num].vect[0].c[0],
               &cst_list[cst_num].vect[0].c[1],
               &cst_list[cst_num].vect[0].c[2]) != 3) {
@@ -1196,11 +1196,11 @@ void plCurve_fix_wrap(plCurve * const L) {
           place_not_null;
           parsed += strlen(place)+1;
         }
-        memmove(comment,comment[parsed],strlen(comment[parsed])+1);
+        memmove(comment,&comment[parsed],strlen(&comment[parsed])+1);
         get_comment(file, comment, sizeof(comment));
       } else if (strcasestr(place,"Line") != NULL) {
         cst_list[cst_num].kind = on_line;
-        if (sscanf(comment[parsed],"%lf %lf %lf %lf %lf %lf",
+        if (sscanf(&comment[parsed],"%lf %lf %lf %lf %lf %lf",
               &cst_list[cst_num].vect[0].c[0],
               &cst_list[cst_num].vect[0].c[1],
               &cst_list[cst_num].vect[0].c[2],
@@ -1218,15 +1218,15 @@ void plCurve_fix_wrap(plCurve * const L) {
           place_not_null;
           parsed += strlen(place)+1;
         }
-        memmove(comment,comment[parsed],strlen(comment[parsed])+1);
+        memmove(comment,&comment[parsed],strlen(&comment[parsed])+1);
         get_comment(file, comment, sizeof(comment));
       } else if (strcasestr(place,"Plane") != NULL) {
         cst_list[cst_num].kind = in_plane;
-        if (sscanf(comment[parsed],"%lf %lf %lf %lf",
+        if (sscanf(&comment[parsed],"%lf %lf %lf %lf",
               &cst_list[cst_num].vect[0].c[0],
               &cst_list[cst_num].vect[0].c[1],
               &cst_list[cst_num].vect[0].c[2],
-              &cst_list[cst_num].vect[1].c[0]) != 6) {
+              &cst_list[cst_num].vect[1].c[0]) != 4) {
           plCurve_free(L);
           *error_num = PLCL_E_BAD_CST_KIND;
           (void)snprintf(error_str,error_str_len,
@@ -1240,7 +1240,7 @@ void plCurve_fix_wrap(plCurve * const L) {
           place_not_null;
           parsed += strlen(place)+1;
         }
-        memmove(comment,comment[parsed],strlen(comment[parsed])+1);
+        memmove(comment,&comment[parsed],strlen(&comment[parsed])+1);
         get_comment(file, comment, sizeof(comment));
       } else {
         plCurve_free(L);
@@ -1250,13 +1250,14 @@ void plCurve_fix_wrap(plCurve * const L) {
         return NULL;
       }
     } else {
-      memmove(comment, comment[sizeof(comment)-10], 10);
+      memmove(comment, &comment[sizeof(comment)-10], 10);
       get_comment(file, comment, sizeof(comment));
     }
   }
 
   /* And get ready to read the actual data. */
 
+  prev_cst_num = 0;
   for(i = 0; i < ncomp; i++) {
     nv = L->cp[i].nv;
     for(j = 0; j < nv; j++) {
@@ -1270,6 +1271,32 @@ void plCurve_fix_wrap(plCurve * const L) {
       }
       comment[0] = '\0';
       get_comment(file,comment,sizeof(comment));
+      cst_num = 0;
+      printf("Comment: %s\n",comment);
+      while (cst_num == 0 &&
+             ((place = strcasestr(comment,"Cst: ")) != NULL ||
+               strlen(comment) == sizeof(comment)-1)) {
+        printf("comment: %s\n",comment);
+        if (place == NULL) {
+          memmove(comment,&comment[strlen(comment)-10],10);
+          get_comment(file, comment, sizeof(comment));
+        } else {
+          memmove(comment,place,strlen(place)+1);
+          get_comment(file, comment, sizeof(comment));
+          place = strtok(comment,space); /* Cst: */
+          place_not_null;
+          if (sscanf(&comment[5],"%d",&cst_num) != 1) {
+            plCurve_free(L);
+            *error_num = PLCL_E_BAD_CST_NUM;
+            (void)snprintf(error_str,error_str_len,
+              "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
+            return NULL;
+          }
+        }
+      }
+      printf("%d : %d : %d\n",i,j,cst_num);
+      plCurve_set_constraint(L, i, j, 1, cst_list[cst_num].kind,
+          cst_list[cst_num].vect);
     }
   }
   /* Now set the "wrap-around" vertices */

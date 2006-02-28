@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.6 2006-02-28 20:33:24 ashted Exp $
+ * $Id: run_tests.c,v 1.7 2006-02-28 23:35:41 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -120,7 +120,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 2 };
   char version[80];
-  char revision[] = "$Revision: 1.6 $";
+  char revision[] = "$Revision: 1.7 $";
   plCurve_constraint *cst;
   plCurve_vert_quant *quant;
   int vert;
@@ -401,6 +401,9 @@ int main(void) {
   outfile = fopen(outname,"r");
   assert(outfile != NULL);
   L = plCurve_read(outfile,&err_num,err_str,sizeof(err_str));
+  if (err_num != 0) {
+    printf("Trouble reading file: %s\n",err_str);
+  }
   assert(L != NULL);
   sysret = fclose(outfile);
   assert(sysret == 0);
