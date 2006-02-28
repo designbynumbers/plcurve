@@ -4,11 +4,14 @@
 #ifdef HAVE_STDLIB_H
   #include <stdlib.h>
 #endif
+#ifdef HAVE_STDIO_H
+  #include <stdio.h>
+#endif
 
 int main(int argc,char **argv) {
 
-  if (argc == 1) {
-    switch (argv[0][0]) {
+  if (argc == 2) {
+    switch (argv[1][0]) {
       case '1' :
         (void)plcl_normalize_vect(plcl_build_vect(0.0,0.0,0.0),NULL);
         break;

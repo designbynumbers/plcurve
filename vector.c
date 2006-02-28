@@ -3,7 +3,7 @@
  * 
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.26 2006-02-27 22:50:50 ashted Exp $
+ * $Id: vector.c,v 1.27 2006-02-28 20:33:24 ashted Exp $
  *
  */
 
@@ -96,7 +96,13 @@ inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B,
       plcl_M_component_div(A,B);
     } 
   } else {
-    plcl_M_component_div(A,B);
+    if ((fabs(B.c[0]) > DBL_EPSILON) && (fabs(B.c[1]) > DBL_EPSILON) &&
+      (fabs(B.c[2]) > DBL_EPSILON)) {
+      plcl_M_component_div(A,B);
+    } else {
+      fprintf(stderr,"plcl_component_div: Divisor has zero component.\n");
+      exit(EXIT_FAILURE);
+    }
   }
   return A;
 }

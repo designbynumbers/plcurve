@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.65 2006-02-27 22:50:50 ashted Exp $
+ *  $Id: plCurve.c,v 1.66 2006-02-28 20:33:24 ashted Exp $
  *
  */
 
@@ -489,14 +489,16 @@ static inline void plCurve_set_constraint(plCurve * const L,
    * constraint just prior to the constraint which cst points to or else it is
    * NULL.  */
   if (pcst != NULL &&
-      pcst->kind == kind &&
       kind != fixed && /* Never extend a fixed constraint */
-      memcmp(pcst->vect,vect,sizeof(pcst->vect)) == 0 &&
+      pcst->kind == kind &&
       pcst->cmp == cmp &&
-      pcst->vert+pcst->num_verts == vert) {
+      pcst->vert+pcst->num_verts >= vert &&
+      memcmp(pcst->vect,vect,sizeof(pcst->vect)) == 0) {
     /* We just passed one which has a range contiguous with the range we
        want to set and has the same attributes.  We'll just extend it. */
-    pcst->num_verts += num_verts;
+    pcst->num_verts = intmax(vert+num_verts,pcst->vert+pcst->num_verts);
+    pcst->vert = intmin(vert,pcst->vert);
+    pcst->num_verts -= pcst->vert;
     overrun_check(pcst);
   } else if (cst != NULL &&
              kind != fixed && /* Never extend a fixed constraint */
@@ -690,11 +692,12 @@ void plCurve_remove_all_constraints(plCurve * const L) {
  */
 
 void plCurve_write(FILE *outfile, plCurve * const L) {
-  int          i,j;         /* Counters for the for loops */ 
+  int i,j;                  /* Counters for the for loops */ 
   int nverts = 0;           /* Total number of vertices of all components */
   int colors = 0;           /* Total number of colors of all components */
   char outstr[80];          /* So we can wrap the vertex lines */
-  int num_cst = 0;          /* Tally of constraints */
+  int cst_num;              /* This constraint */
+  int **cst_nums;           /* All constraint numbers */
   plCurve_constraint *cst;  /* Current constraint */
   plCurve_constraint *cst2;
   /* All the constraints (without duplicates) */
@@ -707,10 +710,16 @@ void plCurve_write(FILE *outfile, plCurve * const L) {
   assert(L->nc >= 1);
   assert(L->cp != NULL);
 
+  cst_nums = (int **)calloc((size_t)L->nc,sizeof(int *));
+  assert(cst_nums != NULL);
+
   /* Now we begin work. */
-  for(i=0;i<L->nc;i++) {
+  for (i=0; i<L->nc; i++) {
     nverts += L->cp[i].nv;
     colors += L->cp[i].cc;
+    /* Make space for the constraint numbers and set them all to zero */
+    cst_nums[i] = (int *)calloc((size_t)L->cp[i].nv,sizeof(int));
+    assert(cst_nums[i] != NULL);
   }
 
   /* We are ready to write the plCurve. */
@@ -733,57 +742,55 @@ void plCurve_write(FILE *outfile, plCurve * const L) {
   fprintf(outfile,"# Colors per Compoment\n");
   
   /* Slide the constraints, if any, in here */
-  found = false;
   for (cst = L->cst; cst != NULL; cst = cst->next) {
+    assert(cst->kind == fixed || cst->kind == on_line || cst->kind == in_plane);
+    found = false;
+    cst_num = 0;
     for (cst2 = cst_list; cst2 != NULL && !found; cst2 = cst2->next) { 
+      cst_num++;
       if (cst->kind == cst2->kind &&
           plcl_M_vecteq(cst->vect[0],cst2->vect[0]) &&
           plcl_M_vecteq(cst->vect[1],cst2->vect[1])) {
         found = true;
       }
     }
-  }
-  fprintf(outfile,"# Constraints: %d\n",num_cst);
-  cst = L->cst;
-  num_cst = 0;
-  while (cst != NULL) {
-    num_cst++;
-    assert(cst->kind == fixed || cst->kind == on_line || cst->kind == in_plane);
-    if (cst->kind == fixed) {
-      fprintf(outfile, "#  %d Fixed %g %g %g\n",num_cst,
-        plcl_M_clist(cst->vect[0]));
-    } else if (cst->kind == on_line) {
-      fprintf(outfile, "#  %d Line %g %g %g %g %g %g\n", num_cst,
-        plcl_M_clist(cst->vect[0]), plcl_M_clist(cst->vect[1]));
-    } else if (cst->kind == in_plane) {
-      fprintf(outfile, "#  %d Plane %g %g %g %g\n", num_cst,
-        plcl_M_clist(cst->vect[0]), cst->vect[1].c[0]);
+    if (!found) {
+      /* It's a new one, add it to the list */
+      cst_list = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
+                                cst->num_verts, cst_list);
+      cst_num++;
+      if (cst->kind == fixed) {
+        fprintf(outfile, "# Constraint %d Fixed %g %g %g\n", cst_num,
+          plcl_M_clist(cst->vect[0]));
+      } else if (cst->kind == on_line) {
+        fprintf(outfile, "# Constraint %d Line %g %g %g %g %g %g\n", cst_num,
+          plcl_M_clist(cst->vect[0]), plcl_M_clist(cst->vect[1]));
+      } else if (cst->kind == in_plane) {
+      fprintf(outfile, "# Constraint %d Plane %g %g %g %g\n", cst_num,
+          plcl_M_clist(cst->vect[0]), cst->vect[1].c[0]);
+      }
+    } 
+    /* Now mark it down in the list */
+    for (i = cst->vert; i < cst->vert + cst->num_verts; i++) {
+      cst_nums[cst->cmp][i] = cst_num;
     }
-    cst = cst->next;
   }
 
   fprintf(outfile,"# Vertex coordinates\n");
 
   /* Now we write the vertex data . . . */
-  cst = L->cst;
-  num_cst = 1;
   for (i=0; i<L->nc; i++) {
     fprintf(outfile,"# Component %d\n",i);
     for (j=0; j<L->cp[i].nv; j++) {
       (void)snprintf(outstr,sizeof(outstr),"%.16g %.16g %.16g",
           plcl_M_clist(L->cp[i].vt[j]));
-      while (cst != NULL &&
-             (cst->cmp < i ||
-              (cst->cmp == i && cst->vert+cst->num_verts <= j))) {
-        cst = cst->next;
-        num_cst++;
+      if (cst_nums[i][j] != 0) {
+        (void)snprintf(outstr,sizeof(outstr),
+                       "%s # Cst: %d",outstr,cst_nums[i][j]);
       }
-      /* Now either we have nothing, or something yet to come, or something
-       * currently applicable. */
-      if (cst != NULL && cst->cmp == i && cst->vert <= j) {
-        /* Something applicable */
-        (void)snprintf(outstr,sizeof(outstr),"%s # Cst: %d",outstr,num_cst);
-      }
+      /* Here is where we will eventually write out the quantifiers, wrapping
+       * as necessary */
+      /* Now complete the string. */
       fprintf(outfile,"%s\n",outstr);
     }
   }
@@ -798,6 +805,14 @@ void plCurve_write(FILE *outfile, plCurve * const L) {
         L->cp[i].clr[j].b, L->cp[i].clr[j].alpha);
     }
   }
+  
+  /* Clean up temporary storage */
+  for (i=0; i < L->nc; i++) {
+    free(cst_nums[i]);
+    cst_nums[i] = NULL;
+  }
+  free(cst_nums);
+  cst_nums = NULL;
       
   /* And we're done. */
   return;
@@ -811,30 +826,35 @@ void plCurve_write(FILE *outfile, plCurve * const L) {
  */
 
 /* 
- * get_comment acts just like skip_whitespace_and_comments but returns any
- * (possibly multi-line) comment in the given buffer.  
- *
- * If buflen > 0, get_comment makes sure that it contains a \0-terminated
- * string.
+ * get_comment acts like skip_whitespace_and_comments but returns any (possibly
+ * multi-line) comment in the given buffer.  It will read until the buffer is
+ * full and then return, so one needs to check the length of the returned
+ * string to see that it is less than the buffer length.  Otherwise we may not
+ * yet have read the entire comment.  get_comment appends what it reads to the
+ * end of the buffer, so the buffer needs to be emptied (at least somewhat)
+ * before passing it.
  * 
  */
 #define end_str_and_return \
-  if (i < (int)buflen) { buf[i] = '\0'; } \
+  buf[i] = '\0'; \
   return;
 #define add_char_to_buf(c) \
-  if (i < (int)(buflen-1)) { buf[i++] = (char)c; } 
+  if (i < buflen-1) { buf[i++] = (char)c; } 
 
 static inline void get_comment(FILE *infile, char *buf, const size_t buflen) {
-  int i = 0;
   bool commentflag = false;
   bool skip_spaces = false; /* skip spaces after a hash, \n or other space */
   bool just_wrapped = false;
+  size_t i;
   int inchar;
 
   /* First, we check to make sure that infile looks legit. */
   assert(infile != NULL);
+  assert(buflen > 0);
+  assert(buf != NULL);
   
-  while (true) {
+  i = strlen(buf);
+  while (i < buflen-1) {
     inchar = fgetc(infile);
 
     if (inchar == EOF) {
@@ -873,6 +893,7 @@ static inline void get_comment(FILE *infile, char *buf, const size_t buflen) {
       } 
     }
   }
+  end_str_and_return;
 }
 
 /*
@@ -1022,6 +1043,12 @@ void plCurve_fix_wrap(plCurve * const L) {
   int nv;
   char comment[256]; /* Space to store per-vertex comments */
   int ds; /* Doubles scanned */
+  char *place;
+  char *space = " ";
+  size_t orig_len, parsed;
+  plCurve_constraint *cst_list;
+  size_t cst_list_len = 2;
+  int cst_num;
   
   assert(file != NULL);
   assert(error_str_len > 0);
@@ -1107,6 +1134,127 @@ void plCurve_fix_wrap(plCurve * const L) {
 
   assert(L != NULL);
 
+  /* Now get the constraint definitions, if any */
+
+  cst_list = (plCurve_constraint *)
+    calloc(cst_list_len,sizeof(plCurve_constraint));
+  comment[0] = '\0';
+  get_comment(file, comment, sizeof(comment));
+  while ((place = strcasestr(comment,"Constraint ")) != NULL || 
+         strlen(comment) == sizeof(comment)-1) {
+    if (place != NULL) {
+      /* Move the word "Constraint to the beginning of the string */
+      memmove(comment,place,strlen(place)+1);
+      /* And fill the string as much as possible */
+      get_comment(file, comment, sizeof(comment));
+      /* Now start tokenizing */
+      orig_len = strlen(comment);
+      place = strtok(comment, space); /* "Constraint" */
+#define place_not_null \
+      if (place == NULL) { \
+        plCurve_free(L); \
+        *error_num = PLCL_E_BAD_CST_LINE; \
+        (void)snprintf(error_str,error_str_len, \
+          "plCurve_read: Couldn't parse constraint line.\n"); \
+        return NULL; \
+      }
+      place_not_null;
+      parsed = strlen(place)+1;
+      place = strtok(NULL, space); /* The constraint number */
+      place_not_null;
+      parsed += strlen(place)+1;
+      if (sscanf(place,"%d",&cst_num) != 1) {
+        plCurve_free(L);
+        *error_num = PLCL_E_BAD_CST_NUM;
+        (void)snprintf(error_str,error_str_len,
+          "plCurve_read: Couldn't parse constraint number from '%s'.\n",place);
+        return NULL;
+      }
+      if (cst_num+1 > cst_list_len) {
+        cst_list_len = 10*((cst_num+11) % 10); /* Allocate by 10s */
+        realloc(cst_list,cst_list_len*sizeof(plCurve_constraint));
+        assert(cst_list != NULL);
+      }
+      place = strtok(NULL, space); /* The constraint type */
+      place_not_null;
+      parsed += strlen(place)+1;
+      if (strcasestr(place,"Fixed") != NULL) {
+        cst_list[cst_num].kind = fixed;
+        if (sscanf(comment[parsed],"%lf %lf %lf",
+              &cst_list[cst_num].vect[0].c[0],
+              &cst_list[cst_num].vect[0].c[1],
+              &cst_list[cst_num].vect[0].c[2]) != 3) {
+          plCurve_free(L);
+          *error_num = PLCL_E_BAD_CST_KIND;
+          (void)snprintf(error_str,error_str_len,
+            "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
+          return NULL;
+        }
+        cst_list[cst_num].vect[1] = plcl_build_vect(0.0, 0.0, 0.0);
+        for (i=0; i < 3; i++) {
+          place = strtok(NULL, space); /* Step over the numbers */
+          place_not_null;
+          parsed += strlen(place)+1;
+        }
+        memmove(comment,comment[parsed],strlen(comment[parsed])+1);
+        get_comment(file, comment, sizeof(comment));
+      } else if (strcasestr(place,"Line") != NULL) {
+        cst_list[cst_num].kind = on_line;
+        if (sscanf(comment[parsed],"%lf %lf %lf %lf %lf %lf",
+              &cst_list[cst_num].vect[0].c[0],
+              &cst_list[cst_num].vect[0].c[1],
+              &cst_list[cst_num].vect[0].c[2],
+              &cst_list[cst_num].vect[1].c[0],
+              &cst_list[cst_num].vect[1].c[1],
+              &cst_list[cst_num].vect[1].c[2]) != 6) {
+          plCurve_free(L);
+          *error_num = PLCL_E_BAD_CST_KIND;
+          (void)snprintf(error_str,error_str_len,
+            "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
+          return NULL;
+        }
+        for (i=0; i < 6; i++) {
+          place = strtok(NULL, space); /* Step over the numbers */
+          place_not_null;
+          parsed += strlen(place)+1;
+        }
+        memmove(comment,comment[parsed],strlen(comment[parsed])+1);
+        get_comment(file, comment, sizeof(comment));
+      } else if (strcasestr(place,"Plane") != NULL) {
+        cst_list[cst_num].kind = in_plane;
+        if (sscanf(comment[parsed],"%lf %lf %lf %lf",
+              &cst_list[cst_num].vect[0].c[0],
+              &cst_list[cst_num].vect[0].c[1],
+              &cst_list[cst_num].vect[0].c[2],
+              &cst_list[cst_num].vect[1].c[0]) != 6) {
+          plCurve_free(L);
+          *error_num = PLCL_E_BAD_CST_KIND;
+          (void)snprintf(error_str,error_str_len,
+            "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
+          return NULL;
+        }
+        cst_list[cst_num].vect[1].c[1] = 0.0;
+        cst_list[cst_num].vect[1].c[2] = 0.0;
+        for (i=0; i < 4; i++) {
+          place = strtok(NULL, space); /* Step over the numbers */
+          place_not_null;
+          parsed += strlen(place)+1;
+        }
+        memmove(comment,comment[parsed],strlen(comment[parsed])+1);
+        get_comment(file, comment, sizeof(comment));
+      } else {
+        plCurve_free(L);
+        *error_num = PLCL_E_BAD_CST_KIND;
+        (void)snprintf(error_str,error_str_len,
+          "plCurve_read: Unrecognized constraint kind '%s'.\n",place);
+        return NULL;
+      }
+    } else {
+      memmove(comment, comment[sizeof(comment)-10], 10);
+      get_comment(file, comment, sizeof(comment));
+    }
+  }
+
   /* And get ready to read the actual data. */
 
   for(i = 0; i < ncomp; i++) {
@@ -1152,7 +1300,7 @@ void plCurve_fix_wrap(plCurve * const L) {
 /* 
  *   Return the total number of edges in plCurve. 
  */
-int plCurve_num_edges(plCurve * const L) 
+int plCurve_num_edges(plCurve * const L) /*@modifies nothing@*/
 {
   int i, edges = 0;
 

@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.39 2006-02-27 22:50:50 ashted Exp $
+ *  $Id: plCurve.h,v 1.40 2006-02-28 20:33:24 ashted Exp $
  *
  */
 
@@ -348,7 +348,10 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
 #define PLCL_E_BAD_CLR_LINE  5
 #define PLCL_E_BAD_COLOR     6
 #define PLCL_E_BAD_VERT_LINE 7
-
+#define PLCL_E_BAD_CST_NUM   8
+#define PLCL_E_BAD_CST_LINE  9
+#define PLCL_E_BAD_CST_KIND  10
+#define PLCL_E_BAD_CST_NUMS  11
 #if (__cplusplus || c_plusplus)
 };
 #endif
