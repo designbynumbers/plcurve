@@ -70,7 +70,7 @@ AM_CONDITIONAL([BUILD_DEMOS],[test "$builddemos" = true])
 AC_C_CONST
 
 # Checks for library functions.
-AC_CHECK_FUNCS([])
+AC_CHECK_FUNCS([strcasestr])
 
 # Can we inline and/or const?
 AC_C_INLINE

@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  * 
- *  $Id: plCurve.c,v 1.67 2006-02-28 23:35:41 ashted Exp $
+ *  $Id: plCurve.c,v 1.68 2006-03-01 13:25:10 ashted Exp $
  *
  */
 
@@ -1047,7 +1047,7 @@ void plCurve_fix_wrap(plCurve * const L) {
   char *space = " ";
   size_t orig_len, parsed;
   plCurve_constraint *cst_list;
-  size_t cst_list_len = 2;
+  size_t cst_list_len = (size_t)2;
   int cst_num, prev_cst_num;
   
   assert(file != NULL);
@@ -1138,8 +1138,12 @@ void plCurve_fix_wrap(plCurve * const L) {
 
   cst_list = (plCurve_constraint *)
     calloc(cst_list_len,sizeof(plCurve_constraint));
+  assert(cst_list != NULL);
   comment[0] = '\0';
   get_comment(file, comment, sizeof(comment));
+#ifndef HAVE_STRCASESTR
+  #define strcasestr strstr
+#endif
   while ((place = strcasestr(comment,"Constraint ")) != NULL || 
          strlen(comment) == sizeof(comment)-1) {
     if (place != NULL) {
@@ -1153,6 +1157,8 @@ void plCurve_fix_wrap(plCurve * const L) {
 #define place_not_null \
       if (place == NULL) { \
         plCurve_free(L); \
+        assert(cst_list->next == NULL); \
+        free(cst_list); \
         *error_num = PLCL_E_BAD_CST_LINE; \
         (void)snprintf(error_str,error_str_len, \
           "plCurve_read: Couldn't parse constraint line.\n"); \
@@ -1165,13 +1171,16 @@ void plCurve_fix_wrap(plCurve * const L) {
       parsed += strlen(place)+1;
       if (sscanf(place,"%d",&cst_num) != 1) {
         plCurve_free(L);
+        assert(cst_list->next == NULL); 
+        free(cst_list);
         *error_num = PLCL_E_BAD_CST_NUM;
         (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse constraint number from '%s'.\n",place);
         return NULL;
       }
-      if (cst_num+1 > cst_list_len) {
-        cst_list_len = 10*((cst_num+11) % 10); /* Allocate by 10s */
+      if (cst_num+1 > (int)cst_list_len) {
+        cst_list_len = (size_t)(10*((cst_num+11) % 10)); /* Allocate by 10s */
+        assert(cst_list->next == NULL);
         realloc(cst_list,cst_list_len*sizeof(plCurve_constraint));
         assert(cst_list != NULL);
       }
@@ -1185,6 +1194,8 @@ void plCurve_fix_wrap(plCurve * const L) {
               &cst_list[cst_num].vect[0].c[1],
               &cst_list[cst_num].vect[0].c[2]) != 3) {
           plCurve_free(L);
+          assert(cst_list->next == NULL); 
+          free(cst_list);
           *error_num = PLCL_E_BAD_CST_KIND;
           (void)snprintf(error_str,error_str_len,
             "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
@@ -1208,6 +1219,8 @@ void plCurve_fix_wrap(plCurve * const L) {
               &cst_list[cst_num].vect[1].c[1],
               &cst_list[cst_num].vect[1].c[2]) != 6) {
           plCurve_free(L);
+          assert(cst_list->next == NULL); 
+          free(cst_list);
           *error_num = PLCL_E_BAD_CST_KIND;
           (void)snprintf(error_str,error_str_len,
             "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
@@ -1228,6 +1241,8 @@ void plCurve_fix_wrap(plCurve * const L) {
               &cst_list[cst_num].vect[0].c[2],
               &cst_list[cst_num].vect[1].c[0]) != 4) {
           plCurve_free(L);
+          assert(cst_list->next == NULL); 
+          free(cst_list);
           *error_num = PLCL_E_BAD_CST_KIND;
           (void)snprintf(error_str,error_str_len,
             "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
@@ -1244,13 +1259,15 @@ void plCurve_fix_wrap(plCurve * const L) {
         get_comment(file, comment, sizeof(comment));
       } else {
         plCurve_free(L);
+        assert(cst_list->next == NULL); 
+        free(cst_list);
         *error_num = PLCL_E_BAD_CST_KIND;
         (void)snprintf(error_str,error_str_len,
           "plCurve_read: Unrecognized constraint kind '%s'.\n",place);
         return NULL;
       }
     } else {
-      memmove(comment, &comment[sizeof(comment)-10], 10);
+      memmove(comment, &comment[sizeof(comment)-10], (size_t)10);
       get_comment(file, comment, sizeof(comment));
     }
   }
@@ -1263,6 +1280,8 @@ void plCurve_fix_wrap(plCurve * const L) {
     for(j = 0; j < nv; j++) {
       if (scandoubles(file,3,plcl_M_clist(&L->cp[i].vt[j])) != 3) {
         plCurve_free(L);
+        assert(cst_list->next == NULL); 
+        free(cst_list);
         *error_num = PLCL_E_BAD_VERT_LINE;
         (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse <x> <y> <z> data for vertex %d of "
@@ -1278,7 +1297,7 @@ void plCurve_fix_wrap(plCurve * const L) {
                strlen(comment) == sizeof(comment)-1)) {
         printf("comment: %s\n",comment);
         if (place == NULL) {
-          memmove(comment,&comment[strlen(comment)-10],10);
+          memmove(comment,&comment[strlen(comment)-10], (size_t)10);
           get_comment(file, comment, sizeof(comment));
         } else {
           memmove(comment,place,strlen(place)+1);
@@ -1287,6 +1306,8 @@ void plCurve_fix_wrap(plCurve * const L) {
           place_not_null;
           if (sscanf(&comment[5],"%d",&cst_num) != 1) {
             plCurve_free(L);
+            assert(cst_list->next == NULL); 
+            free(cst_list);
             *error_num = PLCL_E_BAD_CST_NUM;
             (void)snprintf(error_str,error_str_len,
               "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
@@ -1311,6 +1332,8 @@ void plCurve_fix_wrap(plCurve * const L) {
       if ((ds = scandoubles(file,4, &L->cp[i].clr[j].r, &L->cp[i].clr[j].g,
            &L->cp[i].clr[j].b, &L->cp[i].clr[j].alpha)) != 4) {
         plCurve_free(L);
+        assert(cst_list->next == NULL); 
+        free(cst_list);
         *error_num = PLCL_E_BAD_COLOR;
         (void)snprintf(error_str,error_str_len,
           "plCurve_read: Couldn't parse color %d in component %d of "
