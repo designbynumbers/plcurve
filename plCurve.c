@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.69 2006-03-01 15:51:05 ashted Exp $
+ *  $Id: plCurve.c,v 1.70 2006-03-01 23:12:46 ashted Exp $
  *
  */
 
@@ -249,20 +249,20 @@ double plCurve_check_cst(const plCurve * const L) {
 
   cst = L->cst;
   while (cst != NULL) {
-    assert(cst->kind == fixed || cst->kind == on_line || cst->kind == in_plane);
+    assert(cst->kind == fixed || cst->kind == line || cst->kind == plane);
     if (cst->kind == fixed) {
       closest = cst->vect[0];
       /* PLCL_FIXED constraints only ever apply to one vertex */
       sq_dist = plcl_M_sq_dist(L->cp[cst->cmp].vt[cst->vert],closest);
       max_err = fmax(max_err,sq_dist);
-    } else if (cst->kind == on_line) {
+    } else if (cst->kind == line) {
       for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
         closest = Closest_line_point(L->cp[cst->cmp].vt[vert],
                                      cst->vect[0], cst->vect[1]);
         sq_dist = plcl_M_sq_dist(L->cp[cst->cmp].vt[vert],closest);
         max_err = fmax(max_err,sq_dist);
       }
-    } else if (cst->kind == in_plane) {
+    } else if (cst->kind == plane) {
       for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
         closest = Closest_plane_point(L->cp[cst->cmp].vt[vert],
                                       cst->vect[0], cst->vect[1].c[0]);
@@ -290,18 +290,18 @@ void plCurve_fix_cst(plCurve * const L) {
 
   cst = L->cst;
   while (cst != NULL) {
-    assert(cst->kind == fixed || cst->kind == on_line || cst->kind == in_plane);
+    assert(cst->kind == fixed || cst->kind == line || cst->kind == plane);
     if (cst->kind == fixed) {
       closest = cst->vect[0];
       /* PLCL_FIXED constraint is only ever allowed to be length 1 */
       L->cp[cst->cmp].vt[cst->vert] = closest;
-    } else if (cst->kind == on_line) {
+    } else if (cst->kind == line) {
       for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
         closest = Closest_line_point(L->cp[cst->cmp].vt[vert],
                                      cst->vect[0], cst->vect[1]);
         L->cp[cst->cmp].vt[vert] = closest;
       }
-    } else if (cst->kind == in_plane) {
+    } else if (cst->kind == plane) {
       for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
         closest = Closest_plane_point(L->cp[cst->cmp].vt[vert],
                                       cst->vect[0], cst->vect[1].c[0]);
@@ -408,7 +408,7 @@ static inline void overrun_check(plCurve_constraint *cst) {
   while (cst->next != NULL &&
          cst->next->cmp == cst->cmp &&
          cst->next->vert < cst->vert+cst->num_verts) {
-    /* We overlap the next one, shrink or empty it */
+    /* We overlap (or almost overlap) the next one, shrink or empty it */
     if (cst->next->vert + cst->next->num_verts <=
         cst->vert       + cst->num_verts) {
       /* It has been completely subsumed and must be eliminated */
@@ -423,9 +423,8 @@ static inline void overrun_check(plCurve_constraint *cst) {
           cst->kind != fixed && /* Never extend a fixed constraint */
           memcmp(cst->next->vect,cst->vect,sizeof(cst->vect)) == 0) {
         /* Same constraint so join the two */
+        cst->num_verts = cst->next->vert+cst->next->num_verts - cst->vert;
         temp_cst = cst->next;
-        cst->num_verts =
-          cst->next->vert+cst->next->num_verts - cst->vert;
         cst->next = cst->next->next;
         free(temp_cst);
         temp_cst = NULL;
@@ -436,6 +435,18 @@ static inline void overrun_check(plCurve_constraint *cst) {
         cst->next->vert = cst->vert+cst->num_verts;
       }
     }
+  }
+  /* Now combine adjacent constraints if possible */
+  while (cst->next != NULL &&
+         cst->next->vert == cst->vert+cst->num_verts &&
+         cst->next->kind == cst->kind &&
+         cst->kind != fixed &&
+         memcmp(cst->next->vect,cst->vect,sizeof(cst->vect)) == 0) {
+    /* Same constraint so join the two */
+    cst->num_verts = cst->next->vert+cst->next->num_verts - cst->vert;
+    temp_cst = cst->next->next;
+    free(cst->next);
+    cst->next = temp_cst;
   }
 } /* overrun_check */
 
@@ -487,7 +498,28 @@ static inline void plCurve_set_constraint(plCurve * const L,
    * no such constraint found.  On the other hand, pcst either points to the
    * constraint just prior to the constraint which cst points to or else it is
    * NULL.  */
+#define disp_cond(C) \
+  if (C) { printf(#C "\n"); }
+  disp_cond(pcst == NULL);
+  disp_cond(pcst != NULL && pcst == cst);
+  disp_cond(pcst != NULL && pcst != cst && kind == fixed);
+  disp_cond(pcst != NULL && pcst != cst &&
+      kind != fixed && pcst->kind != kind);
+  disp_cond(pcst != NULL && pcst != cst &&
+      kind != fixed && pcst->kind == kind && pcst->cmp != cmp);
+  disp_cond(pcst != NULL && pcst != cst &&
+      kind != fixed && pcst->kind == kind && pcst->cmp == cmp &&
+      pcst->vert+pcst->num_verts < vert);
+  disp_cond(pcst != NULL && pcst != cst &&
+      kind != fixed && pcst->kind == kind && pcst->cmp == cmp &&
+      pcst->vert+pcst->num_verts >= vert &&
+      memcmp(pcst->vect,vect,sizeof(pcst->vect)) != 0);
+  disp_cond(pcst != NULL && pcst != cst &&
+      kind != fixed && pcst->kind == kind && pcst->cmp == cmp &&
+      pcst->vert+pcst->num_verts >= vert &&
+      memcmp(pcst->vect,vect,sizeof(pcst->vect)) == 0);
   if (pcst != NULL &&
+      pcst != cst &&
       kind != fixed && /* Never extend a fixed constraint */
       pcst->kind == kind &&
       pcst->cmp == cmp &&
@@ -593,7 +625,7 @@ void plCurve_constrain_to_line(plCurve * const L,
                                const plcl_vector point_on_line) {
   plcl_vector vect[2] = { tangent, point_on_line };
 
-  plCurve_set_constraint(L,cmp,vert,num_verts,on_line,vect);
+  plCurve_set_constraint(L,cmp,vert,num_verts,line,vect);
 }
 
 void plCurve_constrain_to_plane(plCurve * const L,
@@ -605,7 +637,7 @@ void plCurve_constrain_to_plane(plCurve * const L,
   plcl_vector dz = {{ dist_from_origin, 0.0, 0.0 }};
   plcl_vector vect[2] = { normal, dz };
 
-  plCurve_set_constraint(L,cmp,vert,num_verts,in_plane,vect);
+  plCurve_set_constraint(L,cmp,vert,num_verts,plane,vect);
 }
 
 void plCurve_unconstrain(plCurve * const L, const int cmp,
@@ -629,7 +661,7 @@ int plCurve_remove_constraint(plCurve * const L,
   int uncst = 0;
 
   assert(L != NULL);
-  assert(kind == fixed || kind == on_line || kind == in_plane);
+  assert(kind == fixed || kind == line || kind == plane);
 
   /* This code gives splint fits (perhaps I just don't understand yet how to
    * explain to splint what is going on).  That's not unreasonable.  It's
@@ -742,7 +774,7 @@ void plCurve_write(FILE *outfile, plCurve * const L) {
 
   /* Slide the constraints, if any, in here */
   for (cst = L->cst; cst != NULL; cst = cst->next) {
-    assert(cst->kind == fixed || cst->kind == on_line || cst->kind == in_plane);
+    assert(cst->kind == fixed || cst->kind == line || cst->kind == plane);
     found = false;
     cst_num = 0;
     for (cst2 = cst_list; cst2 != NULL && !found; cst2 = cst2->next) {
@@ -761,10 +793,10 @@ void plCurve_write(FILE *outfile, plCurve * const L) {
       if (cst->kind == fixed) {
         fprintf(outfile, "# Constraint %d Fixed %g %g %g\n", cst_num,
           plcl_M_clist(cst->vect[0]));
-      } else if (cst->kind == on_line) {
+      } else if (cst->kind == line) {
         fprintf(outfile, "# Constraint %d Line %g %g %g %g %g %g\n", cst_num,
           plcl_M_clist(cst->vect[0]), plcl_M_clist(cst->vect[1]));
-      } else if (cst->kind == in_plane) {
+      } else if (cst->kind == plane) {
       fprintf(outfile, "# Constraint %d Plane %g %g %g %g\n", cst_num,
           plcl_M_clist(cst->vect[0]), cst->vect[1].c[0]);
       }
@@ -1140,7 +1172,10 @@ void plCurve_fix_wrap(plCurve * const L) {
   assert(cst_list != NULL);
   comment[0] = '\0';
   get_comment(file, comment, sizeof(comment));
-#ifndef HAVE_STRCASESTR
+/* If we don't know about strcasestr, use strstr instead, losing case
+ * insensitivity.  Because some systems don't have strcasestr, we need to 
+ * write our checks with the case we wrote out to the file. */
+#if (defined(S_SPLINT_S)) || (!defined(HAVE_STRCASESTR))
   #define strcasestr strstr
 #endif
   while ((place = strcasestr(comment,"Constraint ")) != NULL ||
@@ -1180,7 +1215,7 @@ void plCurve_fix_wrap(plCurve * const L) {
       if (cst_num+1 > (int)cst_list_len) {
         cst_list_len = (size_t)(10*((cst_num+11) % 10)); /* Allocate by 10s */
         assert(cst_list->next == NULL);
-        realloc(cst_list,cst_list_len*sizeof(plCurve_constraint));
+        cst_list = realloc(cst_list,cst_list_len*sizeof(plCurve_constraint));
         assert(cst_list != NULL);
       }
       place = strtok(NULL, space); /* The constraint type */
@@ -1209,7 +1244,7 @@ void plCurve_fix_wrap(plCurve * const L) {
         memmove(comment,&comment[parsed],strlen(&comment[parsed])+1);
         get_comment(file, comment, sizeof(comment));
       } else if (strcasestr(place,"Line") != NULL) {
-        cst_list[cst_num].kind = on_line;
+        cst_list[cst_num].kind = line;
         if (sscanf(&comment[parsed],"%lf %lf %lf %lf %lf %lf",
               &cst_list[cst_num].vect[0].c[0],
               &cst_list[cst_num].vect[0].c[1],
@@ -1233,7 +1268,7 @@ void plCurve_fix_wrap(plCurve * const L) {
         memmove(comment,&comment[parsed],strlen(&comment[parsed])+1);
         get_comment(file, comment, sizeof(comment));
       } else if (strcasestr(place,"Plane") != NULL) {
-        cst_list[cst_num].kind = in_plane;
+        cst_list[cst_num].kind = plane;
         if (sscanf(&comment[parsed],"%lf %lf %lf %lf",
               &cst_list[cst_num].vect[0].c[0],
               &cst_list[cst_num].vect[0].c[1],
@@ -1290,11 +1325,9 @@ void plCurve_fix_wrap(plCurve * const L) {
       comment[0] = '\0';
       get_comment(file,comment,sizeof(comment));
       cst_num = 0;
-      printf("Comment: %s\n",comment);
       while (cst_num == 0 &&
              ((place = strcasestr(comment,"Cst: ")) != NULL ||
                strlen(comment) == sizeof(comment)-1)) {
-        printf("comment: %s\n",comment);
         if (place == NULL) {
           memmove(comment,&comment[strlen(comment)-10], (size_t)10);
           get_comment(file, comment, sizeof(comment));
@@ -1314,7 +1347,6 @@ void plCurve_fix_wrap(plCurve * const L) {
           }
         }
       }
-      printf("%d : %d : %d\n",i,j,cst_num);
       plCurve_set_constraint(L, i, j, 1, cst_list[cst_num].kind,
           cst_list[cst_num].vect);
     }
@@ -1342,6 +1374,8 @@ void plCurve_fix_wrap(plCurve * const L) {
     }
   }
 
+  assert(cst_list->next == NULL);
+  free(cst_list);
   return L;
 }
 

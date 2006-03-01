@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.41 2006-03-01 15:51:05 ashted Exp $
+ *  $Id: plCurve.h,v 1.42 2006-03-01 23:12:46 ashted Exp $
  *
  */
 
@@ -71,8 +71,8 @@ typedef struct plCurve_strand_type {
 typedef enum plCurve_constraint_kind {
   unconstrained = 0,
   fixed,
-  on_line,
-  in_plane
+  line,
+  plane,
 } plCurve_cst_kind;
 
 typedef struct plCurve_constraint_type {
