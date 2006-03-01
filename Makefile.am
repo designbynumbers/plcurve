@@ -5,7 +5,7 @@ noinst_LTLIBRARIES = libplCurve_cov.la
 noinst_PROGRAMS = test_readwrite test_cst test_rand run_tests \
                   exit_failure_tests
 
-libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c 
+libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
 libplCurve_la_CFLAGS = -DNDEBUG $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
@@ -13,7 +13,7 @@ libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
-libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage 
+libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 libplCurve_cov_la_LDFLAGS = -static -version-info -fprofile-arcs $(LIB_VERSION)
 
 test_readwrite_SOURCE = test_readwrite.c libplCurve_safe.la

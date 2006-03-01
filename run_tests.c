@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.7 2006-02-28 23:35:41 ashted Exp $
+ * $Id: run_tests.c,v 1.8 2006-03-01 15:51:05 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -44,7 +44,7 @@
   }
 
 /* Compare two plCurves and make sure that they match */
-static bool curves_match(const plCurve A, const plCurve B) 
+static bool curves_match(const plCurve A, const plCurve B)
   /*@modifies nothing@*/ {
   int cmp, vert, clr;
   plCurve_constraint *cstA,*cstB;
@@ -63,7 +63,7 @@ static bool curves_match(const plCurve A, const plCurve B)
       require(fabs(A.cp[cmp].clr[clr].r - B.cp[cmp].clr[clr].r) < DBL_EPSILON);
       require(fabs(A.cp[cmp].clr[clr].g - B.cp[cmp].clr[clr].g) < DBL_EPSILON);
       require(fabs(A.cp[cmp].clr[clr].b - B.cp[cmp].clr[clr].b) < DBL_EPSILON);
-      require(fabs(A.cp[cmp].clr[clr].alpha - 
+      require(fabs(A.cp[cmp].clr[clr].alpha -
                   B.cp[cmp].clr[clr].alpha) < DBL_EPSILON);
     }
   }
@@ -101,12 +101,12 @@ static bool curves_match(const plCurve A, const plCurve B)
 #define list_csts(S) list_constraints(S,#S);
 /*@unused@*/ static inline void list_constraints(plCurve *L, const char *str) {
   plCurve_constraint *cst;
-  
+
   cst = L->cst;
   printf("Constraint list (%s):\n",str);
   while (cst != NULL) {
     printf("  %d %d %d %d %g %g %g %g %g %g\n",
-        (int)cst->kind, cst->cmp, cst->vert, cst->num_verts, 
+        (int)cst->kind, cst->cmp, cst->vert, cst->num_verts,
         plcl_M_clist(cst->vect[0]), plcl_M_clist(cst->vect[1]));
     cst = cst->next;
   }
@@ -120,7 +120,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 2 };
   char version[80];
-  char revision[] = "$Revision: 1.7 $";
+  char revision[] = "$Revision: 1.8 $";
   plCurve_constraint *cst;
   plCurve_vert_quant *quant;
   int vert;
@@ -206,7 +206,7 @@ int main(void) {
   S.cp[1].clr[1].g = 1.0;
   S.cp[1].clr[1].b = 0.0;
   S.cp[1].clr[1].alpha = 1.0;
-  
+
   L = plCurve_new(components,nv,open,cc);
   L->cp[0].vt[0] = plcl_build_vect(0.0,0.0,0.0);
   L->cp[0].vt[1] = plcl_build_vect(1.0,0.0,0.0);
@@ -302,7 +302,7 @@ int main(void) {
                                     plcl_build_vect(1.0,2.0,0.0));
   /* list_csts(&S) */
   /* list_csts(L) */
-  
+
   assert(curves_match(S,*L));
 
   dist = plCurve_check_cst(L);
@@ -311,7 +311,7 @@ int main(void) {
   dist = plCurve_check_cst(L);
   assert(fabs(dist) < DBL_EPSILON);
   for (vert = 0; vert < S.cp[1].nv; vert++) {
-    L->cp[1].vt[vert] = 
+    L->cp[1].vt[vert] =
       plcl_vect_sum(L->cp[1].vt[vert],plcl_build_vect(0.0,-1.0,0.0));
 /*  printf("%g %g %g %g %g %g\n",
       plcl_M_clist(L->cp[1].vt[vert]),plcl_M_clist(S.cp[1].vt[vert])); */
@@ -337,7 +337,7 @@ int main(void) {
   assert(fabs(dist - 1.0) < DBL_EPSILON);
   plCurve_fix_cst(L);
   for (vert = 0; vert < S.cp[1].nv; vert++) {
-    L->cp[1].vt[vert] = 
+    L->cp[1].vt[vert] =
       plcl_vect_diff(L->cp[1].vt[vert],plcl_build_vect(1.0,0.0,0.0));
   }
   assert(curves_match(S,*L));
@@ -410,7 +410,7 @@ int main(void) {
   sysret = unlink(outname);
   assert(sysret == 0);
   assert(curves_match(S,*L));
-  
+
   cst = S.cst->next->next;
   S.cst->next->next = S.cst->next->next->next;
   free(cst);
@@ -458,19 +458,19 @@ int main(void) {
   S.cst = cst;
   plCurve_constrain_to_plane(L,0,0,3,plcl_build_vect(1.0,1.0,1.0),2.3);
   plCurve_constrain_to_line(L,0,1,1,S.cst->vect[0],S.cst->vect[1]);
-  assert(L->cst != NULL && 
+  assert(L->cst != NULL &&
          L->cst->kind == in_plane &&
          L->cst->cmp == 0);
-  assert(L->cst->next != NULL && 
+  assert(L->cst->next != NULL &&
          L->cst->next->kind == on_line &&
          L->cst->next->cmp == 0);
-  assert(L->cst->next->next != NULL && 
+  assert(L->cst->next->next != NULL &&
          L->cst->next->next->kind == in_plane &&
          L->cst->next->next->cmp == 0);
-  assert(L->cst->next->next->next != NULL && 
+  assert(L->cst->next->next->next != NULL &&
          L->cst->next->next->next->kind == fixed &&
          L->cst->next->next->next->cmp == 1);
-  assert(L->cst->next->next->next->next != NULL && 
+  assert(L->cst->next->next->next->next != NULL &&
          L->cst->next->next->next->next->kind == fixed &&
          L->cst->next->next->next->next->cmp == 1);
   assert(L->cst->next->next->next->next->next == NULL);

@@ -1,5 +1,5 @@
 #
-# $Id: do_gcov,v 1.5 2006-02-27 22:50:50 ashted Exp $ 
+# $Id: do_gcov,v 1.6 2006-03-01 15:51:05 ashted Exp $
 #
 # Compile, run and check coverage on the test code.
 #

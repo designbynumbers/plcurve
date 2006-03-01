@@ -1,16 +1,16 @@
 /*
  * @COPYRIGHT@
- * 
+ *
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.27 2006-02-28 20:33:24 ashted Exp $
+ * $Id: vector.c,v 1.28 2006-03-01 15:51:05 ashted Exp $
  *
  */
 
 /* Copyright 2004 The University of Georgia. */
 
 /* This file is part of plCurve.
-   
+
 plCurve is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -35,10 +35,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 #ifdef HAVE_STRING_H
   #include <string.h>
-#endif 
+#endif
 #ifdef HAVE_STDLIB_H
   #include <stdlib.h>
-#endif 
+#endif
 #ifdef HAVE_FLOAT_H
   #include <float.h>
 #endif
@@ -52,19 +52,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /**************************************************************/
 
 /* Returns A + B. */
-inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B) { 
+inline plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B) {
   plcl_M_add_vect(A,B);
   return A;
 }
-  
-/* Returns A - B. */ 
-inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B) { 
+
+/* Returns A - B. */
+inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B) {
   plcl_M_sub_vect(A,B);
   return A;
 }
-  
+
 /* Returns A x B. */
-inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B) { 
+inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B) {
   plcl_vector C;
 
   C.c[0] = A.c[1] * B.c[2] - A.c[2] * B.c[1];
@@ -75,7 +75,7 @@ inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B) {
 }
 
 /* Returns sA. */
-inline plcl_vector plcl_scale_vect(double s,plcl_vector A) { 
+inline plcl_vector plcl_scale_vect(double s,plcl_vector A) {
   plcl_M_scale_vect(s,A);
   return A;
 }
@@ -94,7 +94,7 @@ inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B,
            (fabs(B.c[2]) > DBL_EPSILON));
     if (*ok) {
       plcl_M_component_div(A,B);
-    } 
+    }
   } else {
     if ((fabs(B.c[0]) > DBL_EPSILON) && (fabs(B.c[1]) > DBL_EPSILON) &&
       (fabs(B.c[2]) > DBL_EPSILON)) {
@@ -108,7 +108,7 @@ inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B,
 }
 
 /* Returns the dot product of A and B */
-inline double plcl_dot_prod(plcl_vector A, plcl_vector B) 
+inline double plcl_dot_prod(plcl_vector A, plcl_vector B)
 /*@modifies nothing@*/ {
   return plcl_M_dot(A,B);
 }
@@ -132,7 +132,7 @@ inline bool plcl_vecteq(plcl_vector A, plcl_vector B) /*@modifies nothing@*/ {
 
 /* Procedure returns a vector which points in the same direction as V but has
  * length 1.  It sets *ok to false if the norm is too small. */
-inline plcl_vector plcl_normalize_vect(const plcl_vector V, 
+inline plcl_vector plcl_normalize_vect(const plcl_vector V,
                                        /*@null@*/ bool *ok) {
   double vnrm;
 
@@ -164,7 +164,7 @@ plcl_vector plcl_random_vect()
   double sqt;
 
   /*@+loopexec@*/
-  for (i = 0; i < 1000 && 
+  for (i = 0; i < 1000 &&
               (S - 1.0 > DBL_EPSILON ||
                S - 0.01 < DBL_EPSILON); i++) {
     V1 = 2*(double)(rand())/(double)(RAND_MAX) - 1;
@@ -202,7 +202,7 @@ inline plcl_vector plcl_vweighted(double s, plcl_vector A, plcl_vector B) {
 }
 
 /* Put together a vector from 3 doubles */
-inline plcl_vector plcl_build_vect(const double x, 
+inline plcl_vector plcl_build_vect(const double x,
                                    const double y,
                                    const double z) /*@modifies nothing@*/ {
   plcl_vector V = { { x, y, z } };

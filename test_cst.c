@@ -1,5 +1,5 @@
 /*
- * $Id: test_cst.c,v 1.16 2006-02-27 22:50:50 ashted Exp $
+ * $Id: test_cst.c,v 1.17 2006-03-01 15:51:05 ashted Exp $
  *
  * Test the constraint-handling code
  *
@@ -25,7 +25,7 @@ int main(void) {
   int cc[2] = { 100, 1 };
   FILE *outfile;
   int i;
- 
+
   L = plCurve_new(2,nv,open,cc);
   for (i = 0; i < 100; i++) {
     L->cp[0].vt[i] = plcl_build_vect(sin(0.03*i),cos(0.03*i),0.0);

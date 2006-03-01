@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.40 2006-02-28 20:33:24 ashted Exp $
+ *  $Id: plCurve.h,v 1.41 2006-03-01 15:51:05 ashted Exp $
  *
  */
 
@@ -37,11 +37,11 @@ extern "C" {
 
 /*
  * Take our chances that stdio.h and stdbool.h exist.  We need stdio to define
- * the FILE type and stdbool to define bool.  If stdbool doesn't exist, one 
- * option is to just 
+ * the FILE type and stdbool to define bool.  If stdbool doesn't exist, one
+ * option is to just
  *   typedef int bool;
- * and 
- *   #define true 1 
+ * and
+ *   #define true 1
  *   #define false 0
  */
 #include <stdio.h>
@@ -125,7 +125,7 @@ plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B);   /* A + B */
 plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B);  /* A - B */
 plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
 plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
-plcl_vector plcl_normalize_vect(const plcl_vector V, 
+plcl_vector plcl_normalize_vect(const plcl_vector V,
                                 /*@null@*/ bool *ok);/*V/|V|*/
 plcl_vector plcl_random_vect(void);
 
@@ -140,7 +140,7 @@ plcl_vector plcl_component_div(plcl_vector A, plcl_vector B,
 /* Return a linear combination: a*A + b*B */
 plcl_vector plcl_vlincomb(double a,plcl_vector A, double b,plcl_vector B);
 plcl_vector plcl_vmadd(plcl_vector A, double s, plcl_vector B); /* A + sB */
-plcl_vector plcl_vweighted(double s, plcl_vector A, plcl_vector B); 
+plcl_vector plcl_vweighted(double s, plcl_vector A, plcl_vector B);
   /* (1-s)A + sB */
 
 /* Different vector measurements */
@@ -223,10 +223,10 @@ bool plcl_vecteq(plcl_vector A, plcl_vector B);
  */
 
 /* Build a new plCurve (with associated strands) */
-/*@only@*/ plCurve *plCurve_new(const int          components, 
-                                const int          * const nv,
-                                const         bool * const open, 
-                                const int          * const cc);
+/*@only@*/ plCurve *plCurve_new(const int components,
+                                const int * const nv,
+                                const bool * const open,
+                                const int * const cc);
 
 /* Free the plCurve (and strands) */
 void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L);
@@ -251,10 +251,8 @@ void plCurve_constrain_to_plane(plCurve * const L,
                                 const plcl_vector normal,
                                 const double dist_from_origin);
 
-void plCurve_unconstrain(plCurve * const L, 
-                         const int          cmp,
-                         const int          vert, 
-                         const int          num_verts);
+void plCurve_unconstrain(plCurve * const L, const int cmp,
+                         const int vert, const int num_verts);
 
 /* Remove a constraint from the list of constraints returning the number of
  * vertices thus set unconstrained.  */
@@ -281,17 +279,15 @@ void plCurve_fix_wrap(plCurve * const L);
 int plCurve_num_edges(plCurve * const L);
 
 /* Compute the (minrad-based) curvature of L at vertex vt of component cp */
-double plCurve_curvature(plCurve * const L, 
-                         const int          cmp, 
-                         const int          vert);
+double plCurve_curvature(plCurve * const L, const int cmp, const int vert);
 
 /* Copy a plCurve */
 plCurve *plCurve_copy(plCurve * const L);
 
 /* Compute tangent vector */
-plcl_vector plCurve_tangent_vector(const plCurve * const L, 
-                                   const int          cmp, 
-                                   const int          vert,
+plcl_vector plCurve_tangent_vector(const plCurve * const L,
+                                   const int cmp,
+                                   const int vert,
                                    bool *ok);
 
 /* Find the arclength of a plCurve. */
@@ -299,8 +295,8 @@ double plCurve_arclength(const plCurve * const L,double *component_lengths);
 
 /* Find the arclength position of a point on a plCurve. */
 double plCurve_parameter(const plCurve * const L,
-                         const int          cmp,
-                         const int          vert);
+                         const int cmp,
+                         const int vert);
 
 /* Force a plCurve to close as gently as possible. */
 void plCurve_force_closed(plCurve * const L);
@@ -315,7 +311,7 @@ void plCurve_fix_cst(plCurve * const L);
 void plCurve_version(/*@null@*/ char *version, size_t strlen);
 
 /* Put 4 doubles together into a color */
-plCurve_color plCurve_build_color(const double r, 
+plCurve_color plCurve_build_color(const double r,
                                   const double g,
                                   const double b,
                                   const double alpha);

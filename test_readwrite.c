@@ -1,14 +1,14 @@
 /*
  * Sample program to show the use of liboctrope.a
  *
- * $Id: test_readwrite.c,v 1.13 2006-02-27 22:50:50 ashted Exp $
+ * $Id: test_readwrite.c,v 1.14 2006-03-01 15:51:05 ashted Exp $
  *
  */
 
 /* Copyright 2004 The University of Georgia. */
 
 /* This file is part of liboctrope.
-   
+
 liboctrope is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -46,7 +46,7 @@ int main(int argc,char *argv[]) {
   }
 
   plCurve_version(NULL,0);
-  printf("test_readwrite: $Revision: 1.13 $\n");
+  printf("test_readwrite: $Revision: 1.14 $\n");
 
   infile = fopen(argv[1],"r");
 

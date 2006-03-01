@@ -1,7 +1,7 @@
 #!perl
 #
-# $Id: McDevitt,v 1.2 2006-02-08 04:48:21 ashted Exp $
-# 
+# $Id: McDevitt,v 1.3 2006-03-01 15:51:05 ashted Exp $
+#
 # Explore the formulas given by Tim McDevitt in his talk "Differentiating Noisy
 # Data", Jan 15, 2006, San Antonio Joint Mathematics Meetings.
 #
@@ -21,16 +21,16 @@ my @idx = map { $_*delta_t } (- pi/delta_t..pi/delta_t);
 my @rnd = random_normal(scalar(@idx),0,0.01);
 my @f = map { ($_+4)*($_+1)*($_+1)*($_-1)*($_-2)*($_-7) } @idx;
 my @f_p = map { $f[$_]+$rnd[$_] } (0..$#rnd);
-my @deriv = ('',(map { 
+my @deriv = ('',(map {
     ($f[$_+1]-$f[$_-1])/($idx[$_+1]-$idx[$_-1]) } (1..$#idx-1)),'');
-my @deriv_p = ('',(map { 
+my @deriv_p = ('',(map {
     ($f_p[$_+1]-$f_p[$_-1])/($idx[$_+1]-$idx[$_-1]) } (1..$#idx-1)),'');
 my @dm = ('') x @idx;
 my @err = ('') x @idx;
 my $err = 0;
 foreach ((M-1)/2..$#idx-(M-1)/2) {
   $dm[$_] = 0;
-  foreach my $j (1..M) { 
+  foreach my $j (1..M) {
     $dm[$_] += mult*($j - (M+1)/2)*$f_p[$_+(M+1)/2-$j];
   }
   $err[$_] = $deriv[$_] - $dm[$_];

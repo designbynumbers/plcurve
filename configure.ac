@@ -29,7 +29,7 @@ AM_INIT_AUTOMAKE
 # that the library reads or writes files, this number needs to be incremented.
 # The second number, b, is the implementation number *of this interface*.  When
 # a changes, b goes back to zero.  This is the number that needs to change
-# every time we put out a new library distribution.  The third number, c, is 
+# every time we put out a new library distribution.  The third number, c, is
 # the interface backward-compatibility count.  Suppose that we simply add a
 # needed function to the library.  The new interface still provides everything
 # that the old version provided and in the same way.  So the
@@ -38,7 +38,7 @@ AM_INIT_AUTOMAKE
 #
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
-# 
+#
 AC_SUBST(LIB_VERSION, 0:0:0)
 AC_CONFIG_SRCDIR([configure])
 AM_CONFIG_HEADER([config.h])
