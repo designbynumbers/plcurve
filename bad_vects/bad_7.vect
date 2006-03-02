@@ -1,0 +1,8 @@
+VECT
+1 2 0
+2
+0 # This is to be a long comment
+    # which is continued on the next line for the sake of testing
+# continuation code and which ends at EOF.  
+# Also, we should embed at least one # in a comment to see what
+# happens.

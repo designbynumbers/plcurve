@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.43 2006-03-02 05:32:57 ashted Exp $
+ *  $Id: plCurve.h,v 1.44 2006-03-02 22:05:51 ashted Exp $
  *
  */
 
@@ -283,25 +283,24 @@ void plCurve_fix_wrap(plCurve * const L);
 /* Count the edges in a plCurve (correctly handling open/closed) */
 int plCurve_num_edges(plCurve * const L);
 
-/* Compute the (minrad-based) curvature of L at vertex vt of component cp */
-double plCurve_curvature(plCurve * const L, const int cmp, const int vert);
+/* Compute the MinRad-based curvature of L at vertex vt of component cp */
+double plCurve_MR_curvature(plCurve * const L, const int cmp, const int vert);
 
 /* Copy a plCurve */
 plCurve *plCurve_copy(plCurve * const L);
 
-/* Compute tangent vector */
-plcl_vector plCurve_tangent_vector(const plCurve * const L,
-                                   const int cmp,
-                                   const int vert,
-                                   bool *ok);
+/* Compute average of inward and outward tangents (and normalize) */
+plcl_vector plCurve_mean_tangent(const plCurve * const L, const int cmp,
+                                 const int vert, bool *ok);
 
 /* Find the arclength of a plCurve. */
-double plCurve_arclength(const plCurve * const L,double *component_lengths);
+double plCurve_arclength(const plCurve * const L,
+               /*@out@*/ double *component_lengths);
 
-/* Find the arclength position of a point on a plCurve. */
-double plCurve_parameter(const plCurve * const L,
-                         const int cmp,
-                         const int vert);
+/* Find the arclength distance from one vertex to another.  On closed
+ * strands, give the shortest of the two options.  */
+double plCurve_subarc_length(const plCurve * const L, const int cmp,
+                             const int vert1, const int vert2);
 
 /* Force a plCurve to close as gently as possible. */
 void plCurve_force_closed(plCurve * const L);

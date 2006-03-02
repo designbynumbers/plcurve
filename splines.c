@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.23 2006-03-01 15:51:05 ashted Exp $
+ * $Id: splines.c,v 1.24 2006-03-02 22:05:51 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation.
@@ -307,11 +307,11 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
     /* ...together with values yp1 and ypn for the first derivative at
        the first and last samples... */
 
-    yp1 = plCurve_tangent_vector(L,comp,0, ok);
+    yp1 = plCurve_mean_tangent(L,comp,0, ok);
 
     if (L->cp[comp].open) {
 
-      ypn = plCurve_tangent_vector(L,comp,L->cp[comp].nv-1, ok);
+      ypn = plCurve_mean_tangent(L,comp,L->cp[comp].nv-1, ok);
 
     } else {
 
@@ -388,24 +388,24 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
     /* un = (3.0/(x[n]-x[n-1]))*(ypn-(y[n]-y[n-1])/(x[n]-x[n-1])); */
 
-    scrx = spline_L->cp[comp].svals[i] - spline_L->cp[comp].svals[i-1];
-    scrV = plcl_vect_diff(spline_L->cp[comp].vt[i],spline_L->cp[comp].vt[i-1]);
+    scrx = spline_L->cp[comp].svals[I] - spline_L->cp[comp].svals[I-1];
+    scrV = plcl_vect_diff(spline_L->cp[comp].vt[I],spline_L->cp[comp].vt[I-1]);
 
     plcl_M_vlincomb(un,3.0/scrx,ypn,-3.0/(scrx*scrx),scrV);
 
     /* y2[n] = (un - qn*u[n-1])/(qn*y2[n-1]+1.0); */
 
     scrV.c[0] = scrV.c[1] = scrV.c[2] = 1.0;
-    plcl_M_vlincomb(scrW,qn,spline_L->cp[comp].vt2[i-1],1.0,scrV);
+    plcl_M_vlincomb(scrW,qn,spline_L->cp[comp].vt2[I-1],1.0,scrV);
     /*@-usedef@*/
-    plcl_M_vlincomb(scrV,1.0,un,-qn,u[i-1]);
+    plcl_M_vlincomb(scrV,1.0,un,-qn,u[I-1]);
     /*@=usedef@*/
 
-    spline_L->cp[comp].vt2[i] = plcl_component_div(scrV,scrW,NULL);
+    spline_L->cp[comp].vt2[I] = plcl_component_div(scrV,scrW,NULL);
 
     /* for (k=n-1;k>=1;k--) { */
 
-    for (k=i-1;k>=0;k--) {
+    for (k = I - 1; k >= 0; k--) {
 
       /* y2[k] = y2[k]*y2[k+1] + u[k]; */
 

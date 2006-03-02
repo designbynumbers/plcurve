@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.10 2006-03-02 05:32:57 ashted Exp $
+ * $Id: run_tests.c,v 1.11 2006-03-02 22:05:51 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -118,6 +118,7 @@ static bool curves_match(const plCurve A, const plCurve B)
   assert(C); \
   printf("Passed %d\r",__LINE__); \
   (void)fflush(stdout);
+
 int main(void) {
   plCurve S; /* The standard against which to measure */
   plCurve *L;
@@ -125,19 +126,22 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.10 $";
-  plCurve_constraint *cst;
+  char revision[] = "$Revision: 1.11 $";
   plCurve_vert_quant *quant;
-  int vert;
-  double dist;
+  int vert, ctr;
+  double dist, temp_dbl;
   bool ok;
   plcl_vector temp_vect, temp_vect2, zero_vect;
   plCurve_color temp_clr, temp_clr2;
   int sysret;
-  FILE *outfile;
-  char *outname;
+  FILE *filehandle;
+  char *filename;
   int err_num;
   char err_str[80];
+#define num_bad_vect_files 14
+  int bad_read_results[num_bad_vect_files+1] = 
+    { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11, 8 };
+  double clens[2];
 
   zero_vect = plcl_build_vect(0.0,0.0,0.0);
 
@@ -231,8 +235,8 @@ int main(void) {
   S.cp[1].vt[-1] = S.cp[1].vt[1];
   S.cp[1].clr[0] = plCurve_build_color(0.00,1.0,0.0,1.0);
   S.cp[1].clr[1] = plCurve_build_color(0.33,1.0,0.0,1.0);
-  S.cp[1].clr[0] = plCurve_build_color(0.67,1.0,0.0,1.0);
-  S.cp[1].clr[1] = plCurve_build_color(1.00,1.0,0.0,1.0);
+  S.cp[1].clr[2] = plCurve_build_color(0.67,1.0,0.0,1.0);
+  S.cp[1].clr[3] = plCurve_build_color(1.00,1.0,0.0,1.0);
 
   L = plCurve_new(components,nv,open,cc);
   L->cp[0].vt[0] = zero_vect;
@@ -247,8 +251,8 @@ int main(void) {
   L->cp[0].clr[0] = plCurve_build_color(1.0,0.0,1.0,1.0);
   L->cp[1].clr[0] = plCurve_build_color(0.00,1.0,0.0,1.0);
   L->cp[1].clr[1] = plCurve_build_color(0.33,1.0,0.0,1.0);
-  L->cp[1].clr[0] = plCurve_build_color(0.67,1.0,0.0,1.0);
-  L->cp[1].clr[1] = plCurve_build_color(1.00,1.0,0.0,1.0);
+  L->cp[1].clr[2] = plCurve_build_color(0.67,1.0,0.0,1.0);
+  L->cp[1].clr[3] = plCurve_build_color(1.00,1.0,0.0,1.0);
   check(curves_match(S,*L));
 
   /* Check plcl_cross_prod */
@@ -445,8 +449,6 @@ int main(void) {
   plCurve_unconstrain(L,1,2,1);
   check(curves_match(S,*L));
 
-  /* End of constraint-setting code checks */
-
   /* Remove a specific type of constraint from all components (we check 
    * our code to remove all constraints just before cleanup below). */
   S.cst[0] = S.cst[1];
@@ -454,6 +456,35 @@ int main(void) {
   vert = plCurve_remove_constraint(L,line,S.cst[2].vect);
   check(vert == 4);
   check(curves_match(S,*L));
+
+  /* A little more code needs covering in overrun_check */
+  S.cst[1].kind = plane;
+  S.cst[1].vect[0] = S.cp[0].vt[1];
+  S.cst[1].vect[1] = zero_vect;
+  S.cst[1].cmp = 1;
+  S.cst[1].vert = 0;
+  S.cst[1].num_verts = 3;
+  S.cst[2].kind = plane;
+  S.cst[2].vect[0] = zero_vect;
+  S.cst[2].vect[1] = S.cp[0].vt[1];
+  S.cst[2].cmp = 1;
+  S.cst[2].vert = 3;
+  S.cst[2].num_verts = 1;
+  S.cst[0].next = &(S.cst[1]);
+  S.cst[1].next = &(S.cst[2]);
+  S.cst[2].next = NULL;
+  plCurve_constrain_to_plane(L,1,0,1,S.cp[0].vt[1],0.0);
+  plCurve_constrain_to_plane(L,1,2,2,zero_vect,1.0);
+  plCurve_constrain_to_plane(L,1,1,2,S.cp[0].vt[1],0.0);
+  check(curves_match(S,*L));
+  S.cst[1].next = NULL;
+  S.cst[1].num_verts = 4;
+  plCurve_unconstrain(L,1,0,4);
+  plCurve_constrain_to_plane(L,1,0,1,S.cp[0].vt[1],0.0);
+  plCurve_constrain_to_plane(L,1,2,2,S.cp[0].vt[1],0.0);
+  plCurve_constrain_to_plane(L,1,1,2,S.cp[0].vt[1],0.0);
+  check(curves_match(S,*L));
+  /* End of constraint-setting code checks */
 
   /* Now set somewhat reasonable constraints and get ready to test reading and
    * writing. */
@@ -496,9 +527,26 @@ int main(void) {
 
   /*@=immediatetrans@*/
 
-  /* Now plCurve_check_cst */
+  /* Now plCurve_check_cst, plcl_component_mult and plcl_vlincomb */
+  plCurve_constrain_to_plane(L,0,0,1,S.cp[0].vt[1],0.0);
+  plCurve_constrain_to_plane(L,0,1,1,S.cp[0].vt[2],0.0);
   dist = plCurve_check_cst(L) - sqrt(3.0);
   check(fabs(dist) < DBL_EPSILON);
+  for (vert = 2; vert >= 0; vert--) {
+    plCurve_constrain_to_plane(L,0,vert,3-vert,
+        (vert == 2) ?
+      plcl_component_mult(S.cst[0].vect[0],plcl_build_vect(-1.0,-1.0,-1.0)) :
+      plcl_vlincomb(-1.0,S.cp[0].vt[vert+1],1.0*vert,S.cp[0].vt[0]),0.0);
+  }
+  dist = plCurve_check_cst(L) - sqrt(3.0);
+  check(fabs(dist) < DBL_EPSILON);
+
+  /* Now put the constraint back the way it was */
+  plCurve_constrain_to_plane(L,0,0,3,S.cst[0].vect[0],0.0);
+  plCurve_unconstrain(L,0,1,1);
+  check(curves_match(S,*L));
+
+  /* And plCurve_fix_cst */
   plCurve_fix_cst(L);
   dist = plCurve_check_cst(L);
   check(fabs(dist) < DBL_EPSILON);
@@ -511,83 +559,87 @@ int main(void) {
   check(curves_match(S,*L));
 
   /* Now check _write and _read */ 
-  outname = tmpnam(NULL);
-  check(outname != NULL);
-  outfile = fopen(outname,"w");
-  check(outfile != NULL);
-  plCurve_write(outfile,L);
-  sysret = fclose(outfile);
+  filename = tmpnam(NULL);
+  check(filename != NULL);
+  filehandle = fopen(filename,"w");
+  check(filehandle != NULL);
+  plCurve_write(filehandle,L);
+  sysret = fclose(filehandle);
   check(sysret == 0);
   plCurve_free(L);
   L = NULL;
-  outfile = fopen(outname,"r");
-  check(outfile != NULL);
-  L = plCurve_read(outfile,&err_num,err_str,sizeof(err_str));
+  filehandle = fopen(filename,"r");
+  check(filehandle != NULL);
+  L = plCurve_read(filehandle,&err_num,err_str,sizeof(err_str));
   if (err_num != 0) {
     printf("Trouble reading file: %s\n",err_str);
   }
   check(err_num == 0);
   check(L != NULL);
-  sysret = fclose(outfile);
-  outfile = NULL;
+  sysret = fclose(filehandle);
+  filehandle = NULL;
   check(sysret == 0);
-  sysret = unlink(outname);
+  sysret = unlink(filename);
   check(sysret == 0);
-  plCurve_write(stdout,&S);
-  plCurve_write(stdout,L);
   check(curves_match(S,*L));
 
-  /*@=compmempass@*/
+  /* Read invalid testfiles to exercise get_comment and PlCurve_read */
+  filename = (char *)malloc((size_t)40);
+  check(filename != NULL);
+  for (ctr = 1; ctr <= num_bad_vect_files; ctr++) {
+    (void)snprintf(filename,(size_t)40,"bad_vects/bad_%d.vect",ctr);
+    filehandle = fopen(filename,"r");
+    check(filehandle != NULL);
+    (void)plCurve_read(filehandle,&err_num,err_str,sizeof(err_str));
+    check(err_num == bad_read_results[ctr]);
+  }
+  free(filename);
+  filename = NULL;
 
-#if 0
+  /* See if we can compute local minrad-curvature */
+  dist = plCurve_MR_curvature(L,1,1) - 2.0;
+  check(fabs(dist) < DBL_EPSILON);
 
-  /* Try forcing the second component to close */
-  S.cp[1].vt[0].c[2] -= 1.0/2.0;
-  S.cp[1].vt[1].c[2] -= 1.0/6.0;
-  S.cp[1].vt[2].c[2] += 1.0/6.0;
-  S.cp[1].open = false;
-  S.cp[1].nv--;
-  S.cp[1].vt[-1] = S.cp[1].vt[2];
-  S.cp[1].vt[3] = S.cp[1].vt[0];
-  plCurve_force_closed(L);
+  /* Find a unit tangent vector */
+  ok = true;
+  temp_vect = plCurve_mean_tangent(L,0,0,&ok);
+  check(ok);
+  temp_dbl = sqrt(2.0)/2.0;
+  temp_vect = plcl_vect_diff(temp_vect,plcl_build_vect(temp_dbl,-temp_dbl,0.0));
+  check(plcl_vecteq(temp_vect,zero_vect));
+  temp_vect = plCurve_mean_tangent(L,1,0,&ok);
+  check(ok);
+  check(plcl_vecteq(temp_vect,plcl_build_vect(0.0,-1.0,0.0)));
+  temp_vect = plCurve_mean_tangent(L,1,1,&ok);
+  check(ok);
+  check(plcl_vecteq(temp_vect,plcl_build_vect(0.0,-temp_dbl,-temp_dbl)));
+  temp_vect = plCurve_mean_tangent(L,1,3,&ok);
+  check(ok);
+  check(plcl_vecteq(temp_vect,plcl_build_vect(0.0,1.0,0.0)));
+
+  /* And the lengths of the components */
+  dist = plCurve_arclength(L,clens);
+  dist -= 5.0 + sqrt(2.0);
+  clens[0] -= 2.0 + sqrt(2.0);
+  clens[1] -= 3.0;
+  check(fabs(dist) < DBL_EPSILON);
+  check(fabs(clens[0]) < DBL_EPSILON);
+  check(fabs(clens[1]) < DBL_EPSILON);
+
+  /* Now subarc lengths */
+  dist = plCurve_subarc_length(L,0,2,1);
+  printf("%g ->\n",dist);
+  dist -= sqrt(2.0);
+  check(fabs(dist) < DBL_EPSILON);
+  dist = plCurve_subarc_length(L,0,0,2) - 1.0;
+  check(fabs(dist) < DBL_EPSILON);
+  dist = plCurve_subarc_length(L,1,0,3) - 3.0;
+  check(fabs(dist) < DBL_EPSILON);
+
+  /* Check out copying of plCurves */
+  plCurve_free(L);
+  L = plCurve_copy(&S);
   check(curves_match(S,*L));
-
-  list_csts(L);
-  cst = (plCurve_constraint *)calloc((size_t)1,sizeof(plCurve_constraint));
-  check(cst != NULL);
-  cst->kind = line;
-  cst->vect[0] = plcl_build_vect(1.0,0.0,0.0);
-  cst->vect[1] = cst->vect[0];
-  cst->cmp = 0;
-  cst->vert = 1;
-  cst->num_verts = 1;
-  cst->next = S.cst;
-  S.cst = cst;
-  plCurve_constrain_to_plane(L,0,0,3,plcl_build_vect(1.0,1.0,1.0),2.3);
-  plCurve_constrain_to_line(L,0,1,1,S.cst->vect[0],S.cst->vect[1]);
-  check(L->cst != NULL &&
-         L->cst->kind == plane &&
-         L->cst->cmp == 0);
-  check(L->cst->next != NULL &&
-         L->cst->next->kind == line &&
-         L->cst->next->cmp == 0);
-  check(L->cst->next->next != NULL &&
-         L->cst->next->next->kind == plane &&
-         L->cst->next->next->cmp == 0);
-  check(L->cst->next->next->next != NULL &&
-         L->cst->next->next->next->kind == fixed &&
-         L->cst->next->next->next->cmp == 1);
-  check(L->cst->next->next->next->next != NULL &&
-         L->cst->next->next->next->next->kind == fixed &&
-         L->cst->next->next->next->next->cmp == 1);
-  check(L->cst->next->next->next->next->next == NULL);
-  /* Should remove both first and third constraints */
-  vert = plCurve_remove_constraint(L,plane,L->cst->vect);
-  check(vert == 2);
-  check(curves_match(S,*L));
-
-
-#endif
 
   /* Now check to see if we can remove all constraints */
   /*@-kepttrans@*/
@@ -597,7 +649,13 @@ int main(void) {
   plCurve_remove_all_constraints(L);
   check(curves_match(S,*L));
 
-  /* Eventually quantifier testing code goes here */
+  /* And check on the copying of curves without constraints. */
+  plCurve_free(L);
+  L = plCurve_copy(&S);
+  check(curves_match(S,*L));
+
+  /* Eventually quantifier testing code goes here.  For now, but a blank 
+   * quantifier in to make sure that plCurve_free cleans it up. */
   check(L->quant == NULL);
   L->quant = (plCurve_vert_quant *)calloc((size_t)1,sizeof(plCurve_vert_quant));
   check(L->quant != NULL);
@@ -637,4 +695,6 @@ int main(void) {
   free(S.cp);
   printf("Passed all tests.\n");
   return(EXIT_SUCCESS);
+
+  /*@=compmempass@*/
 }
