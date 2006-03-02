@@ -3,7 +3,7 @@
  *
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.28 2006-03-01 15:51:05 ashted Exp $
+ * $Id: vector.c,v 1.29 2006-03-02 05:32:57 ashted Exp $
  *
  */
 
@@ -66,11 +66,7 @@ inline plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B) {
 /* Returns A x B. */
 inline plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B) {
   plcl_vector C;
-
-  C.c[0] = A.c[1] * B.c[2] - A.c[2] * B.c[1];
-  C.c[1] = A.c[2] * B.c[0] - A.c[0] * B.c[2];
-  C.c[2] = A.c[0] * B.c[1] - A.c[1] * B.c[0];
-
+  plcl_M_cross(C,A,B);
   return C;
 }
 

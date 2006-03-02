@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.70 2006-03-01 23:12:46 ashted Exp $
+ *  $Id: plCurve.c,v 1.71 2006-03-02 05:32:57 ashted Exp $
  *
  */
 
@@ -311,6 +311,8 @@ void plCurve_fix_cst(plCurve * const L) {
     cst = cst->next;
   }
 
+  plCurve_fix_wrap(L);
+
   return;
 } /* plCurve_fix_cst */
 
@@ -479,17 +481,16 @@ static inline void plCurve_set_constraint(plCurve * const L,
    *      the same as ours, has a range whose end extends to or beyond the
    *      beginning of ours.
    */
-  pcst = L->cst;
+  pcst = NULL;
   cst = L->cst;
   for (; cst != NULL && (cst->cmp < cmp ||
                         (cst->cmp == cmp && cst->vert+cst->num_verts <= vert));
        cst = cst->next) {
     pcst = cst;
   }
-  if (pcst == cst) { /* Need to work at the head of the list */
+  if (pcst == NULL) { /* Need to work at the head of the list */
     pfn = &L->cst;
   } else {
-    assert(pcst != NULL);
     pfn = &pcst->next;
   }
 
@@ -500,26 +501,7 @@ static inline void plCurve_set_constraint(plCurve * const L,
    * NULL.  */
 #define disp_cond(C) \
   if (C) { printf(#C "\n"); }
-  disp_cond(pcst == NULL);
-  disp_cond(pcst != NULL && pcst == cst);
-  disp_cond(pcst != NULL && pcst != cst && kind == fixed);
-  disp_cond(pcst != NULL && pcst != cst &&
-      kind != fixed && pcst->kind != kind);
-  disp_cond(pcst != NULL && pcst != cst &&
-      kind != fixed && pcst->kind == kind && pcst->cmp != cmp);
-  disp_cond(pcst != NULL && pcst != cst &&
-      kind != fixed && pcst->kind == kind && pcst->cmp == cmp &&
-      pcst->vert+pcst->num_verts < vert);
-  disp_cond(pcst != NULL && pcst != cst &&
-      kind != fixed && pcst->kind == kind && pcst->cmp == cmp &&
-      pcst->vert+pcst->num_verts >= vert &&
-      memcmp(pcst->vect,vect,sizeof(pcst->vect)) != 0);
-  disp_cond(pcst != NULL && pcst != cst &&
-      kind != fixed && pcst->kind == kind && pcst->cmp == cmp &&
-      pcst->vert+pcst->num_verts >= vert &&
-      memcmp(pcst->vect,vect,sizeof(pcst->vect)) == 0);
   if (pcst != NULL &&
-      pcst != cst &&
       kind != fixed && /* Never extend a fixed constraint */
       pcst->kind == kind &&
       pcst->cmp == cmp &&
@@ -555,7 +537,6 @@ static inline void plCurve_set_constraint(plCurve * const L,
      * extended them above).
      */
     assert(cst != NULL);
-    assert(pcst != NULL);
     if (cst->vert < vert) {
       /* Its range starts before ours, we'll have to leave part */
       if (cst->vert+cst->num_verts > vert+num_verts) {
@@ -595,7 +576,6 @@ static inline void plCurve_set_constraint(plCurve * const L,
         temp_cst = (*pfn);  /* This line here for splint's benefit */
         (*pfn) = temp_cst->next;
         free(temp_cst);
-        pcst = NULL;
       }
     }
   }
@@ -1079,7 +1059,7 @@ void plCurve_fix_wrap(plCurve * const L) {
   size_t orig_len, parsed;
   plCurve_constraint *cst_list;
   size_t cst_list_len = (size_t)2;
-  int cst_num, prev_cst_num;
+  int cst_num, prev_cst_num, prev_cst_vert;
 
   assert(file != NULL);
   assert(error_str_len > 0);
@@ -1308,10 +1288,10 @@ void plCurve_fix_wrap(plCurve * const L) {
 
   /* And get ready to read the actual data. */
 
-  prev_cst_num = 0;
-  for(i = 0; i < ncomp; i++) {
+  for (i = 0; i < ncomp; i++) {
+    prev_cst_num = prev_cst_vert = cst_num = 0;
     nv = L->cp[i].nv;
-    for(j = 0; j < nv; j++) {
+    for (j = 0; j < nv; j++) {
       if (scandoubles(file,3,plcl_M_clist(&L->cp[i].vt[j])) != 3) {
         plCurve_free(L);
         assert(cst_list->next == NULL);
@@ -1347,8 +1327,20 @@ void plCurve_fix_wrap(plCurve * const L) {
           }
         }
       }
-      plCurve_set_constraint(L, i, j, 1, cst_list[cst_num].kind,
-          cst_list[cst_num].vect);
+      if (cst_num != prev_cst_num) {
+        if (prev_cst_num != 0) {
+          printf("%d\n",prev_cst_num);
+          plCurve_set_constraint(L, i, prev_cst_vert, j - prev_cst_vert,
+              cst_list[prev_cst_num].kind, cst_list[prev_cst_num].vect);
+        }
+        prev_cst_num = cst_num;
+        prev_cst_vert = j;
+      }
+    }
+    if (prev_cst_num != 0) {
+      printf(" * %d\n",prev_cst_num);
+      plCurve_set_constraint(L, i, prev_cst_vert, j - prev_cst_vert,
+          cst_list[cst_num].kind, cst_list[cst_num].vect);
     }
   }
   /* Now set the "wrap-around" vertices */
@@ -1603,6 +1595,8 @@ void plCurve_force_closed(plCurve * const L) {
   plcl_vector diff;
   double half;
 
+  assert("This code needs to deal appropriately with colors and constraints"
+         "and eventually quantifiers.");
   for (cmp=0;cmp < L->nc;cmp++) {
     if (L->cp[cmp].open == true) {  /* Isolate the open components. */
       nv = L->cp[cmp].nv;

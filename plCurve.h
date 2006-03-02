@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.42 2006-03-01 23:12:46 ashted Exp $
+ *  $Id: plCurve.h,v 1.43 2006-03-02 05:32:57 ashted Exp $
  *
  */
 
@@ -159,6 +159,11 @@ bool plcl_vecteq(plcl_vector A, plcl_vector B);
 
 #define plcl_M_dot(A,B)      \
   ((A).c[0]*(B).c[0] + (A).c[1]*(B).c[1] + (A).c[2]*(B).c[2])
+
+#define plcl_M_cross(A,B,C) \
+  (A).c[0] = (B).c[1] * (C).c[2] - (B).c[2] * (C).c[1]; \
+  (A).c[1] = (B).c[2] * (C).c[0] - (B).c[0] * (C).c[2]; \
+  (A).c[2] = (B).c[0] * (C).c[1] - (B).c[1] * (C).c[0];
 
 #define plcl_M_norm(A)       \
   sqrt(plcl_M_dot((A),(A)))
