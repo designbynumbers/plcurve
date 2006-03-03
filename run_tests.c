@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.11 2006-03-02 22:05:51 ashted Exp $
+ * $Id: run_tests.c,v 1.12 2006-03-03 22:51:52 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -39,8 +39,8 @@
 
 #define require(C) \
   if (!(C)) { \
-    fprintf(stderr,"--------------======================-------------\n" \
-        "%s:%d: failed requirement `%s'\n",__FILE__,__LINE__,#C); \
+    fprintf(stderr,"\n--------------======================-------------\n" \
+        "%s:%d: failed requirement `%s'\n\n",__FILE__,__LINE__,#C); \
     return false; \
   }
 
@@ -126,7 +126,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.11 $";
+  char revision[] = "$Revision: 1.12 $";
   plCurve_vert_quant *quant;
   int vert, ctr;
   double dist, temp_dbl;
@@ -628,7 +628,6 @@ int main(void) {
 
   /* Now subarc lengths */
   dist = plCurve_subarc_length(L,0,2,1);
-  printf("%g ->\n",dist);
   dist -= sqrt(2.0);
   check(fabs(dist) < DBL_EPSILON);
   dist = plCurve_subarc_length(L,0,0,2) - 1.0;
@@ -640,6 +639,33 @@ int main(void) {
   plCurve_free(L);
   L = plCurve_copy(&S);
   check(curves_match(S,*L));
+
+  /* Here we close the second component */
+  S.cst[3].next = NULL;
+  S.cp[1].nv--;
+  plcl_M_add_vect(S.cp[1].vt[0],plcl_build_vect(0.0,0.0,-1.0/2.0));
+  plcl_M_add_vect(S.cp[1].vt[1],plcl_build_vect(0.0,0.0,-1.0/6.0));
+  plcl_M_add_vect(S.cp[1].vt[2],plcl_build_vect(0.0,0.0,+1.0/6.0));
+  S.cp[1].vt[-1] = S.cp[1].vt[2];
+  S.cp[1].vt[3] = S.cp[1].vt[0];
+  S.cp[1].open = false;
+  S.cp[1].cc--;
+  plCurve_force_closed(L);
+  check(curves_match(S,*L));
+
+  /* And slice open and reclose the first component */
+  S.cst[0] = S.cst[2];
+  S.cp[0].vt[0] = plcl_build_vect(0.0,0.5,0.0);
+  S.cp[0].nv--;
+  S.cp[0].vt[-1] = S.cp[0].vt[1];
+  S.cp[0].vt[2] = S.cp[0].vt[0];
+  L->cp[0].open = true;
+  plCurve_unconstrain(L,0,0,1);
+  plCurve_force_closed(L);
+  /*@-usereleased@*/
+  assert(S.cst != NULL);
+  check(curves_match(S,*L));
+  /*@=usereleased@*/
 
   /* Now check to see if we can remove all constraints */
   /*@-kepttrans@*/

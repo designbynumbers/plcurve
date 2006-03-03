@@ -3,7 +3,7 @@
  *
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.29 2006-03-02 05:32:57 ashted Exp $
+ * $Id: vector.c,v 1.30 2006-03-03 22:51:52 ashted Exp $
  *
  */
 
@@ -45,6 +45,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_ASSERT_H
   #include <assert.h>
 #endif
+#if (defined(HAVE_DLFCN_H)) && (!defined(S_SPLINT_S))
+  #include <dlfcn.h>
+#endif
 
 
 /**************************************************************/
@@ -84,6 +87,10 @@ inline plcl_vector plcl_component_mult(plcl_vector A,plcl_vector B) {
 /* Should we add an "ok" parameter here as in _normalize_vect? */
 inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B,
                                       /*@null@*/ bool *ok) {
+#if (defined(HAVE_DLFCN_H)) && (!defined(S_SPLINT_S))
+  Dl_info dli;
+#endif
+
   if (ok != NULL) {
     *ok = ((fabs(B.c[0]) > DBL_EPSILON) &&
            (fabs(B.c[1]) > DBL_EPSILON) &&
@@ -97,6 +104,10 @@ inline plcl_vector plcl_component_div(plcl_vector A,plcl_vector B,
       plcl_M_component_div(A,B);
     } else {
       fprintf(stderr,"plcl_component_div: Divisor has zero component.\n");
+#if (defined(HAVE_DLFCN_H)) && (!defined(S_SPLINT_S))
+      dladdr(__builtin_return_address(0), &dli);
+      fprintf(stderr,"plcl_component_div: called from: %s\n",dli.dli_fname);
+#endif
       exit(EXIT_FAILURE);
     }
   }
@@ -131,6 +142,9 @@ inline bool plcl_vecteq(plcl_vector A, plcl_vector B) /*@modifies nothing@*/ {
 inline plcl_vector plcl_normalize_vect(const plcl_vector V,
                                        /*@null@*/ bool *ok) {
   double vnrm;
+#if (defined(HAVE_DLFCN_H)) && (!defined(S_SPLINT_S))
+  Dl_info dli;
+#endif
 
   vnrm = plcl_M_norm(V);
   if (vnrm < DBL_EPSILON && -vnrm < DBL_EPSILON) {
@@ -139,6 +153,10 @@ inline plcl_vector plcl_normalize_vect(const plcl_vector V,
     } else {
       fprintf(stderr,
         "plcl_normalize_vect: Attempted to normalize zero vector.\n");
+#if (defined(HAVE_DLFCN_H)) && (!defined(S_SPLINT_S))
+      dladdr(__builtin_return_address(0), &dli);
+      fprintf(stderr,"plcl_normalize_vect: called from: %s\n",dli.dli_fname);
+#endif
       exit(EXIT_FAILURE);
     }
   }

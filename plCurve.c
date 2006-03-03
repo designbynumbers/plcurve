@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.72 2006-03-02 22:05:51 ashted Exp $
+ *  $Id: plCurve.c,v 1.73 2006-03-03 22:51:52 ashted Exp $
  *
  */
 
@@ -1480,35 +1480,26 @@ plCurve *plCurve_copy(plCurve * const L) {
  */
 plcl_vector plCurve_mean_tangent(const plCurve * const L, const int cmp,
                                  const int vert, bool *ok) {
-  plcl_vector in, out, tan;
 
   if (L->cp[cmp].open) {
     /* For open strands, take the only tangent we have. */
     if (vert == 0) {
-      tan = plcl_vect_diff(L->cp[cmp].vt[1], L->cp[cmp].vt[0]);
-
-      return plcl_normalize_vect(tan,ok);
+      return plcl_normalize_vect(
+          plcl_vect_diff(L->cp[cmp].vt[vert+1],L->cp[cmp].vt[vert]),
+          ok);
     } else if (vert == L->cp[cmp].nv-1) {
-      tan = plcl_vect_diff(L->cp[cmp].vt[L->cp[cmp].nv-1],
-                           L->cp[cmp].vt[L->cp[cmp].nv-2]);
-
-      return plcl_normalize_vect(tan,ok);
+      return plcl_normalize_vect(
+          plcl_vect_diff(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert-1]),
+          ok);
     }
   }
 
   /* We now know that either we are on a closed
      component, or we are not at an endpoint.   */
 
-   in = plcl_normalize_vect(
-     plcl_vect_diff(L->cp[cmp].vt[vert+1],L->cp[cmp].vt[vert]),ok
-   );
-
-   out = plcl_normalize_vect(
-     plcl_vect_diff(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert-1]),ok
-   );
-
-   plcl_M_vweighted(tan,0.5,in,out);
-   return plcl_normalize_vect(tan,ok);
+  return plcl_normalize_vect(
+      plcl_vect_diff(L->cp[cmp].vt[vert+1],L->cp[cmp].vt[vert-1]),
+      ok);
 } /* plCurve_tangent_vector */
 
 /*
@@ -1606,10 +1597,8 @@ void plCurve_force_closed(plCurve * const L) {
   int i, cmp, nv;
   plcl_vector diff;
   double half;
+  plCurve_constraint *pcst,*cst;
 
-  printf("This code needs to deal appropriately with colors and constraints"
-         "and eventually quantifiers.\n");
-  assert(false);
   for (cmp=0;cmp < L->nc;cmp++) {
     if (L->cp[cmp].open == true) {  /* Isolate the open components. */
       nv = L->cp[cmp].nv;
@@ -1620,7 +1609,7 @@ void plCurve_force_closed(plCurve * const L) {
 
       for (i=0; i < nv; i++) {
         /* add half of diff to vt[0] and subtract half of diff from vt[0] and
-         * prarate the others :-) */
+         * prorate the others :-) */
         plcl_M_vmadd(L->cp[cmp].vt[i],(half-i)/(nv-1.0),diff);
       }
 
@@ -1631,11 +1620,48 @@ void plCurve_force_closed(plCurve * const L) {
       /* Thus we eliminate the last vertex. */
       L->cp[cmp].nv--;
       L->cp[cmp].open = false;
+
+      /* And perhaps the last color. */
+      L->cp[cmp].cc = intmin(L->cp[cmp].cc,L->cp[cmp].nv);
+
+      pcst = NULL;
+      cst = L->cst;
+      while (cst != NULL && (cst->cmp < cmp ||
+          (cst->cmp == cmp && cst->vert + cst->num_verts <= L->cp[cmp].nv))) {
+        pcst = cst;
+        cst = cst->next;
+      }
+      if (cst != NULL && cst->cmp == cmp) {
+        cst->num_verts = L->cp[cmp].nv - cst->vert;
+        if (cst->num_verts == 0) {
+          /*@-kepttrans@*/
+          if (pcst != NULL) {
+            /*@-mustfreeonly@*/
+            pcst->next = cst->next;
+            /*@=mustfreeonly@*/
+            free(cst);
+            cst = NULL;
+          } else {
+            /*@-nullderef@*/
+            L->cst = cst->next;
+            /*@=nullderef@*/
+            free(cst);
+            cst = NULL;
+          /*@-branchstate@*/
+          }
+          /*@=kepttrans@*/
+        }
+      }
     }
+    /*@=branchstate@*/
   }
+  
+  /* Someday we'll deal with quantifiers here */
 
   plCurve_fix_wrap(L);
+/*@-compdef -usereleased@*/
 } /* plCurve_force_closed */
+/*@=compdef =usereleased@*/
 
 /*
  * Either return or display the library version number.
