@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.12 2006-03-03 22:51:52 ashted Exp $
+ * $Id: run_tests.c,v 1.13 2006-03-05 17:03:32 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -126,7 +126,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.12 $";
+  char revision[] = "$Revision: 1.13 $";
   plCurve_vert_quant *quant;
   int vert, ctr;
   double dist, temp_dbl;
@@ -589,6 +589,9 @@ int main(void) {
   for (ctr = 1; ctr <= num_bad_vect_files; ctr++) {
     (void)snprintf(filename,(size_t)40,"bad_vects/bad_%d.vect",ctr);
     filehandle = fopen(filename,"r");
+    if (filehandle == NULL) {
+      fprintf(stderr,"Unable to open bad_vects/bad_%d.vect\n",ctr);
+    }
     check(filehandle != NULL);
     (void)plCurve_read(filehandle,&err_num,err_str,sizeof(err_str));
     check(err_num == bad_read_results[ctr]);
