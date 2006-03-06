@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.73 2006-03-03 22:51:52 ashted Exp $
+ *  $Id: plCurve.c,v 1.74 2006-03-06 22:37:20 ashted Exp $
  *
  */
 
@@ -1684,3 +1684,68 @@ plCurve_color plCurve_build_color(const double r,
   return C;
 }
 
+/* Add a component with nv vertices read from the array vt and cc colors 
+   read from the array clr */
+void plCurve_add_component(plCurve *L, const int nv, 
+                      const bool open, const int cc,
+                      const plcl_vector * const vt,
+           /*@null@*/ const plCurve_color * const clr) {
+  plCurve_strand *cp;
+
+  assert(L != NULL);
+  assert(nv >= 1);
+  assert(vt != NULL);
+  assert(cc >= 0);
+  assert(cc == 0 || clr != NULL);
+
+  L->nc++;
+  /*@-compdestroy@*/
+  L->cp = realloc(L->cp,L->nc*sizeof(plCurve_strand));
+  /*@=compdestroy@*/
+  assert(L->cp != NULL);
+  cp = &L->cp[L->nc-1];
+  cp->open = open;
+
+  cp->nv = nv;
+  cp->vt = (plcl_vector *)calloc((size_t)(nv+2),sizeof(plcl_vector));
+  assert(cp->vt != NULL);
+  /*@-usedef@*/ /* Splint gets this one wrong */
+  cp->vt++; /* so that cp->vt[-1] is a valid space */
+  /*@=usedef@*/
+
+  memmove(cp->vt,vt,nv*sizeof(plcl_vector));
+
+  cp->cc = cc;
+  if (clr != NULL) {
+    cp->clr = (plCurve_color *)calloc((size_t)cc,sizeof(plCurve_color));
+    assert(cp->clr != NULL);
+    memmove(cp->clr,clr,cc*sizeof(plCurve_color));
+  } else {
+    cp->clr = NULL;
+  }
+/*@-nullstate@*/
+  plCurve_fix_wrap(L);
+}
+/*@=nullstate@*/
+
+void plCurve_drop_component(plCurve *L, const int cmp) {
+  int cnt;
+
+  assert(L != NULL);
+  assert(cmp >= 0);
+  assert(cmp < L->nc);
+  assert(L->nc > 1);
+
+  L->nc--;
+  L->cp[cmp].vt--;
+  free(L->cp[cmp].vt);
+  free(L->cp[cmp].clr);
+  for (cnt = cmp; cnt < L->nc; cnt++) {
+    L->cp[cnt] = L->cp[cnt+1];
+  }
+  /* Leave the memory sitting as the cost of the extra few bytes is small 
+     compared to the cost of a realloc.  It will get cleaned up at the end and
+     may get reused before then. */
+  /*@-compdef -usereleased@*/
+}
+/*@=compdef =usereleased@*/

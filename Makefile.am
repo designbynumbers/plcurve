@@ -4,6 +4,7 @@ lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_LTLIBRARIES = libplCurve_cov.la
 
 check_PROGRAMS = run_tests exit_failure_tests
+noinst_PROGRAMS = knot_diagram
 
 TESTS = run_tests
 
@@ -29,3 +30,6 @@ exit_failure_tests_SOURCE = exit_failure_tests libplCurve_cov.la
 exit_failure_tests_LDADD = libplCurve_cov.la
 exit_failure_tests_LDFLAGS = -static -fprofile-arcs
 exit_failure_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
+
+knot_diagram_SOURCE = knot_diagram.c libplCurve.la
+knot_diagram_LDADD = libplCurve.la

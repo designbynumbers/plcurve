@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.13 2006-03-05 17:03:32 ashted Exp $
+ * $Id: run_tests.c,v 1.14 2006-03-06 22:37:20 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -126,7 +126,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.13 $";
+  char revision[] = "$Revision: 1.14 $";
   plCurve_vert_quant *quant;
   int vert, ctr;
   double dist, temp_dbl;
@@ -201,7 +201,9 @@ int main(void) {
   /* Now to see if we can create plCurves.  Tests plCurve_new, plcl_vmadd, and
    * plCurve_fix_wrap. */
   S.nc = components;
-  S.cp = (plCurve_strand *)calloc((size_t)2,sizeof(plCurve_strand));
+  /* Allocate two extra components which we will use when we test
+   * _add_component and _drop component */
+  S.cp = (plCurve_strand *)calloc((size_t)4,sizeof(plCurve_strand));
   check(S.cp != NULL);
   S.quant = NULL;
   S.cst = NULL;
@@ -681,6 +683,21 @@ int main(void) {
   /* And check on the copying of curves without constraints. */
   plCurve_free(L);
   L = plCurve_copy(&S);
+  check(curves_match(S,*L));
+
+  /* Can we add and remove components? */
+  S.nc += 2;
+  S.cp[2] = S.cp[0]; 
+  S.cp[3] = S.cp[0]; 
+  S.cp[3].cc = 0;
+  plCurve_add_component(L,L->cp[0].nv,L->cp[0].open,L->cp[0].cc,L->cp[0].vt,
+      L->cp[0].clr);
+  plCurve_add_component(L,L->cp[0].nv,L->cp[0].open,0,L->cp[0].vt,NULL);
+  check(curves_match(S,*L));
+
+  S.nc -= 2;
+  plCurve_drop_component(L,2);
+  plCurve_drop_component(L,2);
   check(curves_match(S,*L));
 
   /* Eventually quantifier testing code goes here.  For now, but a blank 

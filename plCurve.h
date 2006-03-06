@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.44 2006-03-02 22:05:51 ashted Exp $
+ *  $Id: plCurve.h,v 1.45 2006-03-06 22:37:20 ashted Exp $
  *
  */
 
@@ -235,6 +235,15 @@ bool plcl_vecteq(plcl_vector A, plcl_vector B);
 
 /* Free the plCurve (and strands) */
 void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L);
+
+/* Add a component to the curve */
+void plCurve_add_component(plCurve *L, const int nv, 
+                      const bool open, const int cc,
+                      const plcl_vector * const vt,
+           /*@null@*/ const plCurve_color * const clr);
+
+/* And remove one */
+void plCurve_drop_component(plCurve *L, const int cmp);
 
 /* Set a constraint on a vertex or run of vertices */
 void plCurve_set_fixed(plCurve * const L,
