@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.74 2006-03-06 22:37:20 ashted Exp $
+ *  $Id: plCurve.c,v 1.75 2006-03-07 03:50:10 ashted Exp $
  *
  */
 
@@ -814,8 +814,8 @@ void plCurve_write(FILE *outfile, plCurve * const L) {
   for (i=0; i < L->nc; i++) {
     fprintf(outfile,"# Component %d\n",i);
     for (j=0; j < L->cp[i].cc; j++) {
-      fprintf(outfile,"%g %g %g %g\n", L->cp[i].clr[j].r, L->cp[i].clr[j].g,
-        L->cp[i].clr[j].b, L->cp[i].clr[j].alpha);
+      fprintf(outfile,"%.16g %.16g %.16g %.16g\n", L->cp[i].clr[j].r,
+          L->cp[i].clr[j].g, L->cp[i].clr[j].b, L->cp[i].clr[j].alpha);
     }
   }
 
