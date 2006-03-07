@@ -202,10 +202,13 @@ static plCurve *flatten(const plCurve * const L,
               if (start_over) {
                 /* Run this component again */
                 vert = -1;
-                cmp2 = F->nc-1;
-                vert2 = F->cp[cmp2].nv-1;
-                if (vert2 < last_to_check) { vert2 = last_to_check; }
+              } else {
+                /* Just run this vertex again */
+                vert--;
               }
+              cmp2 = F->nc-1;
+              vert2 = F->cp[cmp2].nv-1;
+              if (vert2 < last_to_check) { vert2 = last_to_check; }
             }
           }
         }
