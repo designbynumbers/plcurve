@@ -161,6 +161,30 @@ static void add_convex_hull(plCurve *L) {
   free(clr);
 }
 
+/* Rotate (in 2-dimensions) the first n-1 components based on the convex hull
+ * in the nth component, so that the shortest "diameter" lies in the y
+ * direction.  */
+typedef struct vect_and_dist_type {
+  double dist;
+  plcl_vector dir;
+} vect_and_dist;
+
+static void rotate_2pic(plCurve *L) {
+  plCurve_strand *cp;
+  int cnt,cmp,vert;
+  plcl_vector side_direction;
+  vect_and_dist vals[1024];
+
+  for (cnt=0; cnt < 1024; cnt++) {
+    vals[cnt].dist = DBL_MAX;
+  }
+  cp = &(L->cp[L->nc-1]);
+  for (vert = 0; vert < cp->nv; vert++) {
+    side_direction =
+      plcl_normalize_vect(plcl_vect_diff(cp->vt[vert+1],cp->vt[vert]),NULL);
+  }
+}
+
 int main() {
   FILE *vectfile;
   plCurve *L, *F;
@@ -179,6 +203,7 @@ int main() {
   F = flatten(L,plcl_random_vect());
   assert(F != NULL);
   add_convex_hull(F);
+  rotate_2pic(F);
   vectfile = fopen("kl_3_1_flat.vect","w");
   assert(vectfile != NULL);
   plCurve_write(vectfile,F);
