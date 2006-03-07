@@ -178,7 +178,7 @@ static plCurve *flatten(const plCurve * const L,
            cmp2 < F->nc; cmp2++) {
         /* Another component is always "far enough away" to form a crossing. */
         far_enough = far_enough || (cmp != cmp2);
-        for (vert2 = ((vert == F->cp[cmp].nv-1) ? 0 : vert+1);
+        for (vert2 = ((cmp2 == cmp) ? vert+1 : 0);
              vert2 < ((cmp2 == cmp) ? last_to_check+1 : F->cp[cmp2].nv); 
              vert2++) {
           /* Wander along, looking for any time the other point comes within
@@ -193,8 +193,19 @@ static plCurve *flatten(const plCurve * const L,
             if (H->cp[cmp].vt[vert].c[2] >= H->cp[cmp2].vt[vert2].c[2]) {
               remove_vertex(F,cmp2,vert2,&start_over);
               remove_vertex(H,cmp2,vert2,&start_over);
+              vert2--;
               if (start_over) {
-                vert2 = (vert == F->cp[cmp].nv-1) ? -1 : vert;
+                if (cmp2 != cmp) {
+                  far_enough = true;
+                  vert2 = -1;
+                } else {
+                  far_enough = false;
+                  vert2 = vert;
+                }
+              }
+              if (cmp2 == cmp) {
+                /* This is now an open strand, check all vertices */
+                last_to_check = F->cp[cmp].nv-1;
               }
             } else {
               remove_vertex(F,cmp,vert,&start_over);
@@ -358,7 +369,7 @@ int main() {
     exit(EXIT_FAILURE);
   }
   average_edge = plCurve_arclength(L,NULL)/plCurve_num_edges(L);
-  F = flatten(L,plcl_random_vect(),10*average_edge);
+  F = flatten(L,plcl_random_vect(),average_edge);
   assert(F != NULL);
   add_convex_hull(F);
 //rotate_2pic(F);
