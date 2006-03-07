@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.45 2006-03-06 22:37:20 ashted Exp $
+ *  $Id: plCurve.h,v 1.46 2006-03-07 18:59:25 ashted Exp $
  *
  */
 
@@ -296,7 +296,7 @@ int plCurve_num_edges(plCurve * const L);
 double plCurve_MR_curvature(plCurve * const L, const int cmp, const int vert);
 
 /* Copy a plCurve */
-plCurve *plCurve_copy(plCurve * const L);
+plCurve *plCurve_copy(const plCurve * const L);
 
 /* Compute average of inward and outward tangents (and normalize) */
 plcl_vector plCurve_mean_tangent(const plCurve * const L, const int cmp,
@@ -304,7 +304,7 @@ plcl_vector plCurve_mean_tangent(const plCurve * const L, const int cmp,
 
 /* Find the arclength of a plCurve. */
 double plCurve_arclength(const plCurve * const L,
-               /*@out@*/ double *component_lengths);
+    /*@null@*/ /*@out@*/ double *component_lengths);
 
 /* Find the arclength distance from one vertex to another.  On closed
  * strands, give the shortest of the two options.  */

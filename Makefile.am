@@ -1,4 +1,4 @@
-AM_CFLAGS = -g -O2 -finline-functions -Wall
+AM_CFLAGS = -g -finline-functions -Wall
 
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_LTLIBRARIES = libplCurve_cov.la
@@ -33,3 +33,4 @@ exit_failure_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 
 knot_diagram_SOURCE = knot_diagram.c libplCurve.la
 knot_diagram_LDADD = libplCurve.la
+knot_diagram_LDFLAGS = -static

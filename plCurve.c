@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.75 2006-03-07 03:50:10 ashted Exp $
+ *  $Id: plCurve.c,v 1.76 2006-03-07 18:59:25 ashted Exp $
  *
  */
 
@@ -1408,7 +1408,7 @@ double plCurve_MR_curvature(plCurve * const L, const int cmp, const int vert) {
  * Duplicate a plCurve and return the duplicate.
  *
  */
-plCurve *plCurve_copy(plCurve * const L) {
+plCurve *plCurve_copy(const plCurve * const L) {
   plCurve *nL;
   int *nv, *ccarray;
   bool *open;
@@ -1504,35 +1504,38 @@ plcl_vector plCurve_mean_tangent(const plCurve * const L, const int cmp,
 
 /*
  * Procedure computes the length of each component of the plCurve, and fills in
- * the array of doubles "component_lengths", which must be as long as L->nc. It
- * returns the total length. We assume that fix_wrap has been called. 
+ * the array of doubles "component_lengths" (if it exists), which must be as
+ * long as L->nc. It returns the total length. We assume that fix_wrap has been
+ * called. 
  *
  */
 double plCurve_arclength(const plCurve * const L,
-               /*@out@*/ double *component_lengths)
+    /*@null@*/ /*@out@*/ double *component_lengths)
 {
-  double tot_length;
+  double tot_length,c_length;
   int cmp;
   int nv = 0;
   int vert;
   plCurve_strand *cp;
 
   assert(L != NULL);
-  assert(component_lengths != NULL);
 
   tot_length = 0.0;
   /*@+loopexec@*/
   for (cmp = 0; cmp < L->nc; cmp++) {
 
-    component_lengths[cmp] = 0.0;
+    c_length = 0.0;
     cp = &L->cp[cmp];
     nv = (cp->open) ? cp->nv-1 : cp->nv;
 
     for (vert = 0; vert < nv; vert++) {
-      component_lengths[cmp] += plcl_M_distance(cp->vt[vert+1],cp->vt[vert]);
+      c_length += plcl_M_distance(cp->vt[vert+1],cp->vt[vert]);
     }
 
-    tot_length += component_lengths[cmp];
+    tot_length += c_length;
+    if (component_lengths != NULL) {
+      component_lengths[cmp] = c_length;
+    }
   }
   /*@=loopexec@*/
 
