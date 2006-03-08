@@ -22,6 +22,12 @@
 #ifdef HAVE_STRING_H
   #include <string.h>
 #endif
+#ifdef HAVE_UNISTD_H
+  #include <unistd.h>
+#endif
+#ifdef HAVE_TIME_H
+  #include <time.h>
+#endif
 
 /* Remove a vertex from a plCurve by breaking components into pieces */
 static void remove_vertex(plCurve * const L, const int cmp, const int vert,
@@ -109,11 +115,21 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
   plCurve_fix_wrap(L);
 }
 
+#define pi 3.1415926
+#define showCurve(F) \
+  if (show_work > 0) { \
+    fprintf(geomview,"(geometry Curve "); \
+    plCurve_write(geomview,F); \
+    fprintf(geomview,") (look-recenter Curve) (look-encompass Curve)\n"); \
+  }
 /* Project the vertices onto the plane to which N is normal (returning them
  * as (x,y,0) vectors in a plCurve framework. */
 static plCurve *flatten(const plCurve * const L, 
                         const plcl_vector N, 
-                        const double gap) {
+                        const double gap,
+                        const double neighbor_gap,
+                              FILE *geomview,
+                        const int show_work) {
   plCurve *F,*H;  /* Flattened knot, heights of flattened points */
   int cmp,cmp2,vert,vert2;
   plcl_vector n;
@@ -123,12 +139,15 @@ static plCurve *flatten(const plCurve * const L,
   plcl_vector axle,u_para,u_perp,v_cross_u;
   bool ok,far_enough;
   double gap_sq = gap*gap;
+  double n_gap_sq = neighbor_gap*neighbor_gap;
   double dist;
   int last_to_check;
   bool start_over;
+  int wherecnt;
 
   F = plCurve_copy(L);
 
+  printf("Flattening using vector (%g,%g,%g) . . .\n",plcl_M_clist(N));
   /* First rotate so that the given normal vector lies along the z axis. */
   n = plcl_normalize_vect(N,NULL); /* Bail out if we give it a bad vector */
   e3 = plcl_build_vect(0.0,0.0,1.0);
@@ -155,6 +174,7 @@ static plCurve *flatten(const plCurve * const L,
       }
     }
   }
+  showCurve(F);
 
   H = plCurve_copy(F);
   assert(H != NULL);
@@ -164,18 +184,30 @@ static plCurve *flatten(const plCurve * const L,
       F->cp[cmp].vt[vert].c[2] = 0.0;
     }
   }
+  showCurve(F);
 
   /* Now eliminate vertices to show crossings. */
   for (cmp = 0; cmp < F->nc; cmp++) {
     for (vert = 0; vert < F->cp[cmp].nv; vert++) {
+      if (show_work > 1) {
+        fprintf(geomview,"(geometry Where VECT 1 16 1 -16 1 ");
+        for (wherecnt = 0; wherecnt < 16; wherecnt++) {
+          fprintf(geomview,"%g %g 0.0 ",
+              F->cp[cmp].vt[vert].c[0]+gap*cos(wherecnt*2*pi/16),
+              F->cp[cmp].vt[vert].c[1]+gap*sin(wherecnt*2*pi/16));
+        }
+        fprintf(geomview,"1 0 0 1)\n");
+        fflush(geomview);
+        usleep(16000);
+      }
       far_enough = false;
       vt = &(F->cp[cmp].vt[vert]);
       last_to_check = F->cp[cmp].nv-1;
-      if (!F->cp[cmp].open && plcl_sq_dist(*vt,F->cp[cmp].vt[0]) <= gap_sq) {
+      if (!F->cp[cmp].open && plcl_sq_dist(*vt,F->cp[cmp].vt[0]) <= n_gap_sq) {
         /* We are close to the beginning of a closed strand, perhaps we
          * should avoid checking some of the end vertices. */
         while (last_to_check > vert &&
-            plcl_sq_dist(*vt,F->cp[cmp].vt[last_to_check]) <= gap_sq) {
+            plcl_sq_dist(*vt,F->cp[cmp].vt[last_to_check]) <= n_gap_sq) {
           last_to_check--;
         }
       }
@@ -186,35 +218,57 @@ static plCurve *flatten(const plCurve * const L,
         for (vert2 = ((cmp2 == cmp) ? vert+1 : 0);
              vert2 < ((cmp2 == cmp) ? last_to_check+1 : F->cp[cmp2].nv); 
              vert2++) {
+          if (show_work > 2) {
+            fprintf(geomview,"(geometry Versus VECT 2 4 2 2 2 1 1 "
+                "%g %g 0 %g %g 0 %g %g 0 %g %g 0 0 0 1 1 0 0 1 1)\n",
+                F->cp[cmp2].vt[vert2].c[0]-gap/2.0,
+                F->cp[cmp2].vt[vert2].c[1]-gap/2.0,
+                F->cp[cmp2].vt[vert2].c[0]+gap/2.0,
+                F->cp[cmp2].vt[vert2].c[1]+gap/2.0,
+                F->cp[cmp2].vt[vert2].c[0]-gap/2.0,
+                F->cp[cmp2].vt[vert2].c[1]+gap/2.0,
+                F->cp[cmp2].vt[vert2].c[0]+gap/2.0,
+                F->cp[cmp2].vt[vert2].c[1]-gap/2.0);
+            fflush(geomview);
+            if (show_work > 3) {
+              usleep(16000);
+            }
+          }
           /* Wander along, looking for any time the other point comes within
            * gap of cmp:vert (after it first gets at least gap away from it).
            * That marks a crossing and we remove one of the vertices in
            * question -- the lower one. */
           dist = plcl_sq_dist(F->cp[cmp].vt[vert],F->cp[cmp2].vt[vert2]);
-          far_enough = far_enough || (dist >= gap_sq);
+          far_enough = far_enough || (dist >= n_gap_sq);
           if ((dist <= gap_sq) && far_enough) {
             /* Found a crossing */
             start_over = false;
             if (H->cp[cmp].vt[vert].c[2] >= H->cp[cmp2].vt[vert2].c[2]) {
               remove_vertex(F,cmp2,vert2,&start_over);
               remove_vertex(H,cmp2,vert2,&start_over);
+              showCurve(F);
               vert2--;
+              if (cmp2 == cmp) {
+                /* This is now an open strand, check all vertices */
+                last_to_check = F->cp[cmp].nv-1;
+              }
               if (start_over) {
                 if (cmp2 != cmp) {
                   far_enough = true;
                   vert2 = -1;
                 } else {
+                  /* Could be we just renumbered every vertex in this
+                   * component.  We'd better start clear over from scratch. */
                   far_enough = false;
-                  vert2 = vert;
+                  vert = -1;
+                  cmp2 = F->nc-1;
+                  vert2 = F->cp[cmp2].nv-1;
                 }
-              }
-              if (cmp2 == cmp) {
-                /* This is now an open strand, check all vertices */
-                last_to_check = F->cp[cmp].nv-1;
               }
             } else {
               remove_vertex(F,cmp,vert,&start_over);
               remove_vertex(H,cmp,vert,&start_over);
+              showCurve(F);
               if (start_over) {
                 /* Run this component again */
                 vert = -1;
@@ -410,15 +464,30 @@ int main() {
   int cnt;
   int verts_left, max_verts_left;
 
-  srand(time(0));
-  vectfile = fopen("kl_3_1_I.vect","r");
+  int show_work = 2;
+  FILE *geomview;
+
+  srand((unsigned int)time((time_t *)NULL));
+  vectfile = fopen("kl_2_2_1_I.vect","r");
   assert(vectfile != NULL);
   L = plCurve_read(vectfile,&err_num,err_str,80);
   assert(L != NULL);
   (void)fclose(vectfile);
   if (err_num != 0) {
-    fprintf(stderr,"Error reading file %s:\n%s\n","kl_3_1_I.vect",err_str);
+    fprintf(stderr,"Error reading file %s:\n%s\n","kl_2_2_1_I.vect",err_str);
     exit(EXIT_FAILURE);
+  }
+
+  /* Fire up geomview, if requested */
+  if (show_work > 0) {
+    geomview = popen("geomview -c -","w");
+    if (geomview == NULL) {
+      printf("Unable to start geomview.");
+      show_work = 0;
+    } else {
+      fprintf(geomview,"(normalization World none) (bbox-draw World no)\n");
+      showCurve(L);
+    }
   }
   max_edge = 0.0;
   for (cmp = 0; cmp < L->nc; cmp++) {
@@ -429,7 +498,9 @@ int main() {
   }
   max_verts_left = 0;
   for (cnt = 0; cnt < 20; cnt++) {
-    G = flatten(L,plcl_random_vect(),2.0*max_edge);
+    G = flatten(L,plcl_random_vect(),max_edge/1.4,2.0*max_edge,
+          geomview,show_work);
+    showCurve(G);
     verts_left = 0;
     for (cmp = 0; cmp < G->nc; cmp++) {
       verts_left += G->cp[cmp].nv;
@@ -442,10 +513,18 @@ int main() {
       plCurve_free(G);
     }
   }
+  if (show_work > 1) {
+    fprintf(geomview,"(delete Where)");
+    if (show_work > 2) {
+      fprintf(geomview,"(delete Versus)");
+    }
+  }
   assert(F != NULL);
   add_convex_hull(F);
+  showCurve(F);
   rotate_2pic(F);
-  vectfile = fopen("kl_3_1_flat.vect","w");
+  showCurve(F);
+  vectfile = fopen("kl_2_2_1_flat.vect","w");
   assert(vectfile != NULL);
   plCurve_write(vectfile,F);
   (void)fclose(vectfile);
