@@ -124,7 +124,9 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
     fprintf(geomview,"(geometry Curve "); \
     plCurve_write(geomview,F); \
     fprintf(geomview,") (look-recenter Curve) (look-encompass Curve)\n"); \
+    fflush(geomview); \
   }
+
 /* Project the vertices onto the plane to which N is normal (returning them
  * as (x,y,0) vectors in a plCurve framework. */
 static plCurve *flatten(const plCurve * const L, 
@@ -132,6 +134,7 @@ static plCurve *flatten(const plCurve * const L,
                         const double gap,
                         const double neighbor_gap,
                               FILE *geomview,
+                        const int delay,
                         const int show_work) {
   plCurve *F,*H;  /* Flattened knot, heights of flattened points */
   int cmp,cmp2,vert,vert2;
@@ -150,7 +153,6 @@ static plCurve *flatten(const plCurve * const L,
 
   F = plCurve_copy(L);
 
-  printf("Flattening using vector (%g,%g,%g) . . .\n",plcl_M_clist(N));
   /* First rotate so that the given normal vector lies along the z axis. */
   n = plcl_normalize_vect(N,NULL); /* Bail out if we give it a bad vector */
   e3 = plcl_build_vect(0.0,0.0,1.0);
@@ -178,6 +180,7 @@ static plCurve *flatten(const plCurve * const L,
     }
   }
   showCurve(F);
+  usleep(delay*100);
 
   H = plCurve_copy(F);
   assert(H != NULL);
@@ -188,6 +191,7 @@ static plCurve *flatten(const plCurve * const L,
     }
   }
   showCurve(F);
+  usleep(delay*100);
 
   /* Now eliminate vertices to show crossings. */
   for (cmp = 0; cmp < F->nc; cmp++) {
@@ -202,7 +206,7 @@ static plCurve *flatten(const plCurve * const L,
         fprintf(geomview,"1 0 0 1)\n");
         fflush(geomview);
         if (show_work >= 15) {
-          usleep(16000);
+          usleep(delay);
         }
       }
       far_enough = false;
@@ -236,7 +240,7 @@ static plCurve *flatten(const plCurve * const L,
                 F->cp[cmp2].vt[vert2].c[1]-gap/2.0);
             fflush(geomview);
             if (show_work >= 25) {
-              usleep(16000);
+              usleep(delay);
             }
           }
           /* Wander along, looking for any time the other point comes within
@@ -372,9 +376,6 @@ static void add_convex_hull(plCurve *L) {
         }
       }
     }
-    if (plcl_vecteq(next,vt[verts-1])) {
-      fprintf(stderr,"Looping...\n");
-    }
     vt[verts++] = next;
     first = next;
   } /* while */
@@ -461,7 +462,8 @@ static void rotate_2pic(plCurve *L) {
 
 int main(int argc, char *argv[]) {
   FILE *vectfile;
-  plCurve *L, *F, *G;
+  plCurve *L, *G;
+  plCurve *F = NULL; 
   char err_str[80];
   int err_num;
   double max_edge,cur_edge;
@@ -469,17 +471,89 @@ int main(int argc, char *argv[]) {
   int cnt;
   int verts_left, max_verts_left;
 
-  int show_work = 10;
+  int show_work = 0;
+  int tries = 20;
+  int delay = 16000;
   FILE *geomview;
+  char revision[20] = "$Revision: 1.10 $";
+  char *dollar;
 
 #ifdef HAVE_ARGTABLE2_H
+  struct arg_file *filename = arg_file1(NULL,NULL,"<file>",
+      "The input VECT file");
+  struct arg_file *outname = arg_file0("o","outfile","<file>",
+      "The output VECT file, by default stdout");
+  struct arg_lit *help = arg_lit0("h","help","Print this help and exit");
+  struct arg_int *view = arg_int0("v","view","<int>",
+      "search view level (0,5,10,15,20,25) [0]");
+  struct arg_int *tryopt = arg_int0("t","tries","<int>",
+      "Number of different views to choose amongst [20]");
+  struct arg_int *delayopt = arg_int0(NULL,"delay","<int>",
+      "Delay in ms to use with -v 15 and -v 25 [16]");
+  struct arg_end *end = arg_end(20);
+
+  void *argtable[] = {help,view,tryopt,delayopt,outname,filename,end};
+  int nerrors;
+
+#else
   if (argc < 2 || strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0) {
-    printf("usage: %s <file>\n",argv[0]);
+    fprintf(stderr,"usage: %s <file>\n",argv[0]);
     exit(EXIT_SUCCESS);
   }
   vectfile = fopen(argv[1],"r");
 #endif
         
+  dollar = strchr(&revision[1],'$');
+  dollar[0] = '\0';
+  plCurve_version(NULL,0);
+  fprintf(stderr,"knot_diagram v%s\n",&revision[11]);
+  fprintf(stderr,"  Produce a knot diagram from a VECT file.\n");
+
+#ifdef HAVE_ARGTABLE2_H
+  if (arg_nullcheck(argtable) != 0) {
+    /* NULL entries detected, allocations must have failed. */
+    fprintf(stderr,"%s: insufficient memory\n",argv[0]);
+    arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+    exit(EXIT_FAILURE);
+  }
+
+  /* Parse the command line as defined by argtable[] */
+  nerrors = arg_parse(argc,argv,argtable);
+
+  /* special case: '--help' takes preceence over error reporting */
+  if (help->count > 0) {
+    fprintf(stderr,"Usage: %s ",argv[0]);
+    arg_print_syntax(stderr,argtable,"\n");
+    arg_print_glossary(stderr,argtable,"  %-25s %s\n");
+    arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+    return 0;
+  }
+
+  /* If the parser returned any errors then display them and exit */
+  if (nerrors > 0) {
+    /* Display the error details contained in the arg_end struct.*/
+    fprintf(stderr,"\n");
+    arg_print_errors(stderr,end,argv[0]);
+    fprintf(stderr,"\nUsage: %s ",argv[0]);
+    arg_print_syntax(stderr,argtable,"\n");
+    arg_print_glossary(stderr,argtable,"  %-25s %s\n");
+    arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+    return 1;
+  }
+
+  if (delayopt->count > 0) {
+    delay = delayopt->ival[delayopt->count-1]*1000;
+  }
+  if (tryopt->count > 0) {
+    tries = tryopt->ival[tryopt->count-1];
+  }
+  if (view->count > 0) {
+    show_work = view->ival[view->count-1];
+  }
+
+  vectfile = fopen(filename->filename[0],"r");
+#endif
+
   assert(vectfile != NULL);
   L = plCurve_read(vectfile,&err_num,err_str,80);
   assert(L != NULL);
@@ -495,11 +569,12 @@ int main(int argc, char *argv[]) {
   if (show_work > 0) {
     geomview = popen("geomview -c -","w");
     if (geomview == NULL) {
-      printf("Unable to start geomview.");
+      fprintf(stderr,"Unable to start geomview.");
       show_work = 0;
     } else {
       fprintf(geomview,"(normalization World none) (bbox-draw World no)\n");
       showCurve(L);
+      usleep(delay*100);
     }
   }
   max_edge = 0.0;
@@ -510,10 +585,11 @@ int main(int argc, char *argv[]) {
     }
   }
   max_verts_left = 0;
-  for (cnt = 0; cnt < 20; cnt++) {
-    G = flatten(L,plcl_random_vect(),max_edge/1.4,2.0*max_edge,
-          geomview,show_work);
+  for (cnt = 0; cnt < tries; cnt++) {
+    G = flatten(L,plcl_random_vect(),max_edge/1.2,2.0*max_edge,
+          geomview,delay,show_work);
     showCurve(G);
+    usleep(delay*100);
     verts_left = 0;
     for (cmp = 0; cmp < G->nc; cmp++) {
       verts_left += G->cp[cmp].nv;
@@ -535,15 +611,20 @@ int main(int argc, char *argv[]) {
   assert(F != NULL);
   add_convex_hull(F);
   showCurve(F);
+  usleep(delay*500);
   rotate_2pic(F);
   showCurve(F);
 #ifdef HAVE_ARGTABLE2_H
-  plCurve_write(stdout,F);
+  if (outname->count > 0) {
+    vectfile = fopen(outname->filename[0],"w");
+    assert(vectfile != NULL);
+    plCurve_write(vectfile,F);
+    (void)fclose(vectfile);
+  } else {
+    plCurve_write(stdout,F);
+  }
 #else
-  vectfile = fopen("kl_2_2_1_flat.vect","w");
-  assert(vectfile != NULL);
-  plCurve_write(vectfile,F);
-  (void)fclose(vectfile);
+  plCurve_write(stdout,F);
 #endif
   exit(EXIT_SUCCESS);
 }

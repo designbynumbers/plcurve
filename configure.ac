@@ -55,7 +55,7 @@ AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(argtable2,arg_parse,[builddemos=true],[builddemos=false; AC_MSG_WARN([[Demo programs require the argtable 2.0 library.]])])
+AC_CHECK_LIB(argtable2,arg_parse,[have_argtable2=true],[have_argtable2=false])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -65,7 +65,7 @@ AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h \
 
 # Signal to AUTOMAKE if we have argtable2
 
-AM_CONDITIONAL([BUILD_DEMOS],[test "$builddemos" = true])
+AM_CONDITIONAL([HAVE_ARGTABLE2],[test "$have_argtable2" = true])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
