@@ -101,6 +101,11 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
     }
     /*@=branchstate@*/
   }
+  if (L->cp[cmp].nv <= 1) {
+    /* Ran out of edges here, get rid of the component */
+    plCurve_drop_component(L,cmp);
+    *start_over = true;
+  }
   plCurve_fix_wrap(L);
 }
 
@@ -331,34 +336,81 @@ static void add_convex_hull(plCurve *L) {
 /* Rotate (in 2-dimensions) the first n-1 components based on the convex hull
  * in the nth component, so that the shortest "diameter" lies in the y
  * direction.  */
-typedef struct vect_and_dist_type {
-  double dist;
-  plcl_vector dir;
-} vect_and_dist;
-
 static void rotate_2pic(plCurve *L) {
   plCurve_strand *cp;
-  int cnt,cmp,vert;
-  plcl_vector side_direction;
-  vect_and_dist vals[1024];
+  int this,that;
+  plcl_vector dir;
+  double dist = DBL_MAX;
+  double first,second,third;
+  plcl_vector this_edge,edge1,edge2,edge3;
+  double cur_dist;
+  double cos_theta,sin_theta;
+  int cmp,vert;
+  bool ok;
 
-  for (cnt=0; cnt < 1024; cnt++) {
-    vals[cnt].dist = DBL_MAX;
-  }
+  this = 0;
+  that = 2;
   cp = &(L->cp[L->nc-1]);
-  for (vert = 0; vert < cp->nv; vert++) {
-    side_direction =
-      plcl_normalize_vect(plcl_vect_diff(cp->vt[vert+1],cp->vt[vert]),NULL);
+  while (that < cp->nv-1) {
+    this_edge = plcl_normalize_vect(
+        plcl_vect_diff(cp->vt[this+1],cp->vt[this]),&ok);
+    edge1 = plcl_normalize_vect(
+        plcl_vect_diff(cp->vt[that],cp->vt[that-1]),&ok);
+    edge2 = plcl_normalize_vect(
+        plcl_vect_diff(cp->vt[that+1],cp->vt[that]),&ok);
+    edge3 = plcl_normalize_vect(
+        plcl_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
+    first = plcl_M_dot(this_edge,edge1);
+    second = plcl_M_dot(this_edge,edge2);
+    third = plcl_M_dot(this_edge,edge3);
+    /* Go looking for the most-negative dot product */
+    while (second - first > DBL_EPSILON ||
+        (that < cp->nv-1 && second - third > DBL_EPSILON)) {
+      first = second;
+      edge1 = edge2;
+      second = third;
+      edge2 = edge3;
+      that++;
+      edge3 = plcl_normalize_vect(
+          plcl_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
+      third = plcl_M_dot(this_edge,edge3);
+    }
+    cur_dist = plcl_sq_dist(cp->vt[this],cp->vt[that]);
+    if (cur_dist <= dist) {
+      dist = cur_dist;
+      dir = plcl_normalize_vect(plcl_vect_diff(cp->vt[that],cp->vt[this]),&ok);
+    }
+    this++;
+  }
+  cos_theta = dir.c[1];
+  sin_theta = dir.c[0];
+
+  /* Drop the convex hull */
+  plCurve_drop_component(L,L->nc-1);
+
+  /* Rotate */
+  for (cmp = 0; cmp < L->nc; cmp++) {
+    for (vert = 0; vert < L->cp[cmp].nv; vert++) {
+      L->cp[cmp].vt[vert] = 
+        plcl_build_vect(cos_theta*L->cp[cmp].vt[vert].c[0] -
+                        sin_theta*L->cp[cmp].vt[vert].c[1],
+                        sin_theta*L->cp[cmp].vt[vert].c[0] +
+                        cos_theta*L->cp[cmp].vt[vert].c[1],0.0);
+    }
   }
 }
 
 int main() {
   FILE *vectfile;
-  plCurve *L, *F;
+  plCurve *L, *F, *G;
   char err_str[80];
   int err_num;
-  double average_edge;
+  double max_edge,cur_edge;
+  int cmp,vert;
+  int cnt;
+  int verts_left, max_verts_left;
 
+  srand(time(0));
   vectfile = fopen("kl_3_1_I.vect","r");
   assert(vectfile != NULL);
   L = plCurve_read(vectfile,&err_num,err_str,80);
@@ -368,11 +420,31 @@ int main() {
     fprintf(stderr,"Error reading file %s:\n%s\n","kl_3_1_I.vect",err_str);
     exit(EXIT_FAILURE);
   }
-  average_edge = plCurve_arclength(L,NULL)/plCurve_num_edges(L);
-  F = flatten(L,plcl_random_vect(),average_edge);
+  max_edge = 0.0;
+  for (cmp = 0; cmp < L->nc; cmp++) {
+    for (vert = 0; vert < L->cp[cmp].nv; vert++) {
+      cur_edge = plcl_distance(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert+1]);
+      max_edge = (max_edge >= cur_edge) ? max_edge : cur_edge;
+    }
+  }
+  max_verts_left = 0;
+  for (cnt = 0; cnt < 20; cnt++) {
+    G = flatten(L,plcl_random_vect(),2.0*max_edge);
+    verts_left = 0;
+    for (cmp = 0; cmp < G->nc; cmp++) {
+      verts_left += G->cp[cmp].nv;
+    }
+    if (verts_left > max_verts_left) {
+      if (F != NULL) { plCurve_free(F); }
+      F = G;
+      max_verts_left = verts_left;
+    } else {
+      plCurve_free(G);
+    }
+  }
   assert(F != NULL);
   add_convex_hull(F);
-//rotate_2pic(F);
+  rotate_2pic(F);
   vectfile = fopen("kl_3_1_flat.vect","w");
   assert(vectfile != NULL);
   plCurve_write(vectfile,F);
