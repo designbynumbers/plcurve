@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.76 2006-03-07 18:59:25 ashted Exp $
+ *  $Id: plCurve.c,v 1.77 2006-03-08 22:43:41 ashted Exp $
  *
  */
 
@@ -1386,6 +1386,12 @@ double plCurve_MR_curvature(plCurve * const L, const int cmp, const int vert) {
   plcl_vector in,out;
   double      normin, normout;
   double      dot_prod,cross_prod_norm;
+
+  if (L->cp[cmp].open && 
+    /* There is no curvature at the endpoints of an open strand */
+      (vert == 0 || vert == L->cp[cmp].nv-1)) {
+    return 0.0;
+  }
 
   in = plcl_vect_diff(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert-1]);
   normin = plcl_M_norm(in);

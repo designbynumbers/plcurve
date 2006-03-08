@@ -470,12 +470,13 @@ int main(int argc, char *argv[]) {
   int cmp,vert;
   int cnt;
   int verts_left, max_verts_left;
+  double total_curvature, min_total_curvature;
 
   int show_work = 0;
   int tries = 20;
   int delay = 16000;
   FILE *geomview;
-  char revision[20] = "$Revision: 1.11 $";
+  char revision[20] = "$Revision: 1.12 $";
   char *dollar;
 
 #ifdef HAVE_ARGTABLE2_H
@@ -586,22 +587,41 @@ int main(int argc, char *argv[]) {
     }
   }
   max_verts_left = 0;
+  min_total_curvature = DBL_MAX;
   for (cnt = 0; cnt < tries; cnt++) {
     G = flatten(L,plcl_random_vect(),max_edge/1.2,2.0*max_edge,
           geomview,delay,show_work);
     showCurve(G);
     if (show_work >= 5) { usleep(delay*100); }
     verts_left = 0;
+    total_curvature = 0.0;
     for (cmp = 0; cmp < G->nc; cmp++) {
       verts_left += G->cp[cmp].nv;
+      for (vert = 0; vert < G->cp[cmp].nv; vert++) {
+        total_curvature += plCurve_MR_curvature(G,cmp,vert);
+      }
     }
-    if (verts_left > max_verts_left) {
+    if (show_work > 0) {
+      fprintf(stderr,"Verts: %d  Total Curvature: %g",
+          verts_left,total_curvature);
+    }
+    if ((verts_left > max_verts_left && 
+        total_curvature/1.21 < min_total_curvature) ||
+        (verts_left >= max_verts_left*0.99 && 
+         total_curvature < min_total_curvature)) {
+      if (show_work > 0) { fprintf(stderr,"*\n"); }
       if (F != NULL) { plCurve_free(F); }
       F = G;
       max_verts_left = verts_left;
+      min_total_curvature = total_curvature;
     } else {
+      if (show_work > 0) { fprintf(stderr,"\n"); }
       plCurve_free(G);
     }
+  }
+  if (show_work > 0) {
+    fprintf(stderr,"Final selection -- Verts: %d  Total Curvature: %g\n",
+        max_verts_left,min_total_curvature);
   }
   if (show_work >= 10) {
     fprintf(geomview,"(delete Where)");
