@@ -180,7 +180,7 @@ static plCurve *flatten(const plCurve * const L,
     }
   }
   showCurve(F);
-  usleep(delay*100);
+  if (show_work >=5) { usleep(delay*100); }
 
   H = plCurve_copy(F);
   assert(H != NULL);
@@ -191,7 +191,7 @@ static plCurve *flatten(const plCurve * const L,
     }
   }
   showCurve(F);
-  usleep(delay*100);
+  if (show_work >= 5) { usleep(delay*100); }
 
   /* Now eliminate vertices to show crossings. */
   for (cmp = 0; cmp < F->nc; cmp++) {
@@ -475,7 +475,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview;
-  char revision[20] = "$Revision: 1.10 $";
+  char revision[20] = "$Revision: 1.11 $";
   char *dollar;
 
 #ifdef HAVE_ARGTABLE2_H
@@ -556,12 +556,13 @@ int main(int argc, char *argv[]) {
 
   assert(vectfile != NULL);
   L = plCurve_read(vectfile,&err_num,err_str,80);
-  assert(L != NULL);
   (void)fclose(vectfile);
   if (err_num != 0) {
-    fprintf(stderr,"Error reading file %s:\n%s\n","kl_2_2_1_I.vect",err_str);
+    fprintf(stderr,"Error reading file %s:\n%s\n",
+        filename->filename[0],err_str);
     exit(EXIT_FAILURE);
   }
+  assert(L != NULL);
 
   srand((unsigned int)time((time_t *)NULL));
 
@@ -574,7 +575,7 @@ int main(int argc, char *argv[]) {
     } else {
       fprintf(geomview,"(normalization World none) (bbox-draw World no)\n");
       showCurve(L);
-      usleep(delay*100);
+      if (show_work >= 5) { usleep(delay*100); }
     }
   }
   max_edge = 0.0;
@@ -589,7 +590,7 @@ int main(int argc, char *argv[]) {
     G = flatten(L,plcl_random_vect(),max_edge/1.2,2.0*max_edge,
           geomview,delay,show_work);
     showCurve(G);
-    usleep(delay*100);
+    if (show_work >= 5) { usleep(delay*100); }
     verts_left = 0;
     for (cmp = 0; cmp < G->nc; cmp++) {
       verts_left += G->cp[cmp].nv;
@@ -611,7 +612,7 @@ int main(int argc, char *argv[]) {
   assert(F != NULL);
   add_convex_hull(F);
   showCurve(F);
-  usleep(delay*500);
+  if (show_work >= 5) { usleep(delay*500); }
   rotate_2pic(F);
   showCurve(F);
 #ifdef HAVE_ARGTABLE2_H
