@@ -28,6 +28,9 @@
 #ifdef HAVE_TIME_H
   #include <time.h>
 #endif
+#ifdef HAVE_ARGTABLE2_H
+  #include <argtable2.h>
+#endif
 
 /* Remove a vertex from a plCurve by breaking components into pieces */
 static void remove_vertex(plCurve * const L, const int cmp, const int vert,
@@ -117,7 +120,7 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
 
 #define pi 3.1415926
 #define showCurve(F) \
-  if (show_work > 0) { \
+  if (show_work >= 5) { \
     fprintf(geomview,"(geometry Curve "); \
     plCurve_write(geomview,F); \
     fprintf(geomview,") (look-recenter Curve) (look-encompass Curve)\n"); \
@@ -189,7 +192,7 @@ static plCurve *flatten(const plCurve * const L,
   /* Now eliminate vertices to show crossings. */
   for (cmp = 0; cmp < F->nc; cmp++) {
     for (vert = 0; vert < F->cp[cmp].nv; vert++) {
-      if (show_work > 1) {
+      if (show_work >= 10) {
         fprintf(geomview,"(geometry Where VECT 1 16 1 -16 1 ");
         for (wherecnt = 0; wherecnt < 16; wherecnt++) {
           fprintf(geomview,"%g %g 0.0 ",
@@ -198,7 +201,9 @@ static plCurve *flatten(const plCurve * const L,
         }
         fprintf(geomview,"1 0 0 1)\n");
         fflush(geomview);
-        usleep(16000);
+        if (show_work >= 15) {
+          usleep(16000);
+        }
       }
       far_enough = false;
       vt = &(F->cp[cmp].vt[vert]);
@@ -218,7 +223,7 @@ static plCurve *flatten(const plCurve * const L,
         for (vert2 = ((cmp2 == cmp) ? vert+1 : 0);
              vert2 < ((cmp2 == cmp) ? last_to_check+1 : F->cp[cmp2].nv); 
              vert2++) {
-          if (show_work > 2) {
+          if (show_work >= 20) {
             fprintf(geomview,"(geometry Versus VECT 2 4 2 2 2 1 1 "
                 "%g %g 0 %g %g 0 %g %g 0 %g %g 0 0 0 1 1 0 0 1 1)\n",
                 F->cp[cmp2].vt[vert2].c[0]-gap/2.0,
@@ -230,7 +235,7 @@ static plCurve *flatten(const plCurve * const L,
                 F->cp[cmp2].vt[vert2].c[0]+gap/2.0,
                 F->cp[cmp2].vt[vert2].c[1]-gap/2.0);
             fflush(geomview);
-            if (show_work > 3) {
+            if (show_work >= 25) {
               usleep(16000);
             }
           }
@@ -454,7 +459,7 @@ static void rotate_2pic(plCurve *L) {
   }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   FILE *vectfile;
   plCurve *L, *F, *G;
   char err_str[80];
@@ -464,11 +469,17 @@ int main() {
   int cnt;
   int verts_left, max_verts_left;
 
-  int show_work = 2;
+  int show_work = 10;
   FILE *geomview;
 
-  srand((unsigned int)time((time_t *)NULL));
-  vectfile = fopen("kl_2_2_1_I.vect","r");
+#ifdef HAVE_ARGTABLE2_H
+  if (argc < 2 || strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0) {
+    printf("usage: %s <file>\n",argv[0]);
+    exit(EXIT_SUCCESS);
+  }
+  vectfile = fopen(argv[1],"r");
+#endif
+        
   assert(vectfile != NULL);
   L = plCurve_read(vectfile,&err_num,err_str,80);
   assert(L != NULL);
@@ -477,6 +488,8 @@ int main() {
     fprintf(stderr,"Error reading file %s:\n%s\n","kl_2_2_1_I.vect",err_str);
     exit(EXIT_FAILURE);
   }
+
+  srand((unsigned int)time((time_t *)NULL));
 
   /* Fire up geomview, if requested */
   if (show_work > 0) {
@@ -513,9 +526,9 @@ int main() {
       plCurve_free(G);
     }
   }
-  if (show_work > 1) {
+  if (show_work >= 10) {
     fprintf(geomview,"(delete Where)");
-    if (show_work > 2) {
+    if (show_work >= 20) {
       fprintf(geomview,"(delete Versus)");
     }
   }
@@ -524,9 +537,13 @@ int main() {
   showCurve(F);
   rotate_2pic(F);
   showCurve(F);
+#ifdef HAVE_ARGTABLE2_H
+  plCurve_write(stdout,F);
+#else
   vectfile = fopen("kl_2_2_1_flat.vect","w");
   assert(vectfile != NULL);
   plCurve_write(vectfile,F);
   (void)fclose(vectfile);
+#endif
   exit(EXIT_SUCCESS);
 }
