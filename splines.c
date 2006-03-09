@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.24 2006-03-02 22:05:51 ashted Exp $
+ * $Id: splines.c,v 1.25 2006-03-09 13:25:06 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation.
@@ -73,7 +73,7 @@ static inline void spline_strand_new(/*@out@*/ plCurve_spline_strand *Pl,
   Pl->cc = cc;
   Pl->clr = (plCurve_color *)malloc(cc*sizeof(plCurve_color));
   assert(Pl->clr != NULL);
-  Pl->clr2 = (plCurve_color *)malloc(cc*sizeof(plCurve_color));
+  Pl->clr2 = (plCurve_color *)calloc((size_t)cc,sizeof(plCurve_color));
   assert(Pl->clr2 != NULL);
 }
 
@@ -347,13 +347,13 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
       /* p = sig*y2[i-1] + 2.0; */
 
-      scrV.c[0] = scrV.c[1] = scrV.c[2] = 2.0;
-      plcl_M_vlincomb(p,sig,spline_L->cp[comp].vt2[i-1],1.0,scrV);
+      plcl_M_vlincomb(p,sig,spline_L->cp[comp].vt2[i-1],1.0,
+          plcl_build_vect(2.0,2.0,2.0));
 
       /* y2[i] = (sig-1.0)/p; */
 
-      scrV.c[0] = scrV.c[1] = scrV.c[2] = sig - 1.0;
-      spline_L->cp[comp].vt2[i] = plcl_component_div(scrV,p,NULL);
+      spline_L->cp[comp].vt2[i] = plcl_component_div(
+          plcl_build_vect(sig - 1.0,sig - 1.0,sig - 1.0),p,NULL);
 
       /* u[i]=(y[i+1]-y[i])/(x[i+1]-x[i]) - (y[i]-y[i-1])/(x[i]-x[i-1]); */
 
@@ -370,8 +370,7 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
       scrx = spline_L->cp[comp].svals[i+1] - spline_L->cp[comp].svals[i-1];
       plcl_M_scale_vect(6.0/scrx,u[i]);
-      scrV = plcl_scale_vect(sig,u[i-1]);
-      plcl_M_sub_vect(u[i],scrV);
+      plcl_M_sub_vect(u[i],plcl_scale_vect(sig,u[i-1]));
       plcl_M_component_div(u[i],p);
 
     }

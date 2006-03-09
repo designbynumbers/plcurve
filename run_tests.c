@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.16 2006-03-09 04:31:20 ashted Exp $
+ * $Id: run_tests.c,v 1.17 2006-03-09 13:25:06 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -126,7 +126,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.16 $";
+  char revision[] = "$Revision: 1.17 $";
   plCurve_vert_quant *quant;
   int vert, ctr;
   double dist, temp_dbl;
@@ -711,6 +711,55 @@ int main(void) {
   ok = true;
   spL = plCurve_convert_to_spline(L,&ok);
   check(ok);
+  check(spL->nc == 2);
+  check(spL->cp[0].open == true);
+  check(spL->cp[0].ns == 2);
+  check(fabs(spL->cp[0].svals[0] - 0.0) < DBL_EPSILON);
+  dist = plcl_distance(L->cp[0].vt[0],L->cp[0].vt[1]);
+  check(fabs(spL->cp[0].svals[1] - dist) < DBL_EPSILON);
+  check(plcl_vecteq(spL->cp[0].vt[0],L->cp[0].vt[0]));
+  check(plcl_vecteq(spL->cp[0].vt[1],L->cp[0].vt[1]));
+  check(plcl_vecteq(spL->cp[0].vt2[0], plcl_build_vect(-0.5,-0.5,-0.5)));
+  check(spL->cp[0].cc == 1);
+  check(fabs(spL->cp[0].clr[0].r - L->cp[0].clr[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].g - L->cp[0].clr[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].b - L->cp[0].clr[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].alpha-L->cp[0].clr[0].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr2[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr2[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr2[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr2[0].alpha) < DBL_EPSILON);
+  check(spL->cp[1].ns == 3);
+  check(fabs(spL->cp[1].svals[0] - 0.0) < DBL_EPSILON);
+  dist = plcl_distance(L->cp[1].vt[0],L->cp[1].vt[1]);
+  check(fabs(spL->cp[1].svals[1] - dist) < DBL_EPSILON);
+  dist = plcl_distance(L->cp[1].vt[1],L->cp[1].vt[2]);
+  check(fabs(spL->cp[1].svals[2] - spL->cp[1].svals[1] - dist) < DBL_EPSILON);
+  check(spL->cp[1].cc == 3);
+  check(fabs(spL->cp[1].clr[0].r - L->cp[1].clr[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[0].g - L->cp[1].clr[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[0].b - L->cp[1].clr[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[0].alpha - L->cp[1].clr[0].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[1].r - L->cp[1].clr[1].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[1].g - L->cp[1].clr[1].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[1].b - L->cp[1].clr[1].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[1].alpha - L->cp[1].clr[1].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[2].r - L->cp[1].clr[2].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[2].g - L->cp[1].clr[2].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[2].b - L->cp[1].clr[2].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[2].alpha - L->cp[1].clr[2].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[0].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[1].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[1].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[1].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[1].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[2].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[2].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[2].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[2].alpha) < DBL_EPSILON);
 
   plCurve_free(L);
   L = NULL;
