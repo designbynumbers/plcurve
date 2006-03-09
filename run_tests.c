@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.15 2006-03-09 04:10:46 ashted Exp $
+ * $Id: run_tests.c,v 1.16 2006-03-09 04:31:20 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -126,7 +126,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.15 $";
+  char revision[] = "$Revision: 1.16 $";
   plCurve_vert_quant *quant;
   int vert, ctr;
   double dist, temp_dbl;
@@ -661,12 +661,15 @@ int main(void) {
   plCurve_force_closed(L);
   check(curves_match(S,*L));
 
-  /* And slice open and reclose the first component */
+  /* And slice open and reclose the first component.  On this pass, we get 
+   * down to 2 vertices and so have an open strand.  fix_wrap will note that
+   * for us. */
   S.cst[0] = S.cst[2];
   S.cp[0].vt[0] = plcl_build_vect(0.0,0.5,0.0);
   S.cp[0].nv--;
   S.cp[0].vt[-1] = S.cp[0].vt[1];
   S.cp[0].vt[2] = S.cp[0].vt[0];
+  S.cp[0].open = true;
   L->cp[0].open = true;
   plCurve_unconstrain(L,0,0,1);
   plCurve_force_closed(L);

@@ -14,3 +14,12 @@
 3) Fix the color handling for spline conversion.  In the case of
    one-color-per-vertex, the spline code should do its best to make sure
    that that remains true after it has converted.
+
+4) Finish rolling spline testing into the test code (probably does need to 
+   handle splining of 2-vertex components :-/).
+
+5) Add a component-to-add-after parameter to add_component.
+
+6) Remove force_closed from the library.
+
+7) Allocate vertex blocks in one large chunk instead of multiple mallocs.

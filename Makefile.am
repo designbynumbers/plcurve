@@ -29,7 +29,7 @@ gcov_tests_LDADD = libplCurve_cov.la
 gcov_tests_LDFLAGS = -static -fprofile-arcs
 gcov_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 
-exit_failure_tests_SOURCES = exit_failure_tests libplCurve_cov.la
+exit_failure_tests_SOURCES = exit_failure_tests.c libplCurve_cov.la
 exit_failure_tests_LDADD = libplCurve_cov.la
 exit_failure_tests_LDFLAGS = -static -fprofile-arcs
 exit_failure_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
