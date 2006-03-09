@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.46 2006-03-07 18:59:25 ashted Exp $
+ *  $Id: plCurve.h,v 1.47 2006-03-09 04:10:46 ashted Exp $
  *
  */
 
@@ -226,6 +226,7 @@ bool plcl_vecteq(plcl_vector A, plcl_vector B);
  * Prototypes for routines to deal with plCurves.
  *
  */
+void plCurve_force_closed(plCurve * const L);
 
 /* Build a new plCurve (with associated strands) */
 /*@only@*/ plCurve *plCurve_new(const int components,
@@ -310,9 +311,6 @@ double plCurve_arclength(const plCurve * const L,
  * strands, give the shortest of the two options.  */
 double plCurve_subarc_length(const plCurve * const L, const int cmp,
                              const int vert1, const int vert2);
-
-/* Force a plCurve to close as gently as possible. */
-void plCurve_force_closed(plCurve * const L);
 
 /* Return how far a constraint is from being satisfied (sup norm). */
 double plCurve_check_cst(const plCurve * const L);

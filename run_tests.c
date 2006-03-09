@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.14 2006-03-06 22:37:20 ashted Exp $
+ * $Id: run_tests.c,v 1.15 2006-03-09 04:10:46 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -126,7 +126,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.14 $";
+  char revision[] = "$Revision: 1.15 $";
   plCurve_vert_quant *quant;
   int vert, ctr;
   double dist, temp_dbl;
@@ -142,6 +142,7 @@ int main(void) {
   int bad_read_results[num_bad_vect_files+1] = 
     { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11, 8 };
   double clens[2];
+  plCurve_spline *spL;
 
   zero_vect = plcl_build_vect(0.0,0.0,0.0);
 
@@ -604,6 +605,8 @@ int main(void) {
   /* See if we can compute local minrad-curvature */
   dist = plCurve_MR_curvature(L,1,1) - 2.0;
   check(fabs(dist) < DBL_EPSILON);
+  dist = plCurve_MR_curvature(L,1,0);
+  check(fabs(dist) < DBL_EPSILON);
 
   /* Find a unit tangent vector */
   ok = true;
@@ -700,7 +703,22 @@ int main(void) {
   plCurve_drop_component(L,2);
   check(curves_match(S,*L));
 
-  /* Eventually quantifier testing code goes here.  For now, but a blank 
+  /* Now can we convert to a spline and back?  We test this here as conversion
+   * to splines removes constraints (and probably quantifiers) anyway. */
+  ok = true;
+  spL = plCurve_convert_to_spline(L,&ok);
+  check(ok);
+
+  plCurve_free(L);
+  L = NULL;
+  L = plCurve_convert_from_spline(spL,nv);
+  check(L != NULL);
+  check(curves_match(S,*L));
+
+  plCurve_spline_free(spL);
+  spL = NULL;
+
+  /* Eventually quantifier testing code goes here.  For now, put a blank 
    * quantifier in to make sure that plCurve_free cleans it up. */
   check(L->quant == NULL);
   L->quant = (plCurve_vert_quant *)calloc((size_t)1,sizeof(plCurve_vert_quant));

@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.77 2006-03-08 22:43:41 ashted Exp $
+ *  $Id: plCurve.c,v 1.78 2006-03-09 04:10:46 ashted Exp $
  *
  */
 
@@ -1023,7 +1023,8 @@ static inline int scanints(FILE *infile,int nints, ...)
 
 /*
  * Touchup the "extra" vertices at each end of the component strands which are
- * used to implement "wraparound".
+ * used to implement "wraparound".  Also, if the number of vertices is less
+ * than 3, require the component to be considered open.
  *
  */
 void plCurve_fix_wrap(plCurve * const L) {
@@ -1031,6 +1032,9 @@ void plCurve_fix_wrap(plCurve * const L) {
 
   for (i = 0; i < L->nc; i++) {
     nv = L->cp[i].nv;
+    if (nv < 3) {
+      L->cp[i].open = true;
+    }
     if (L->cp[i].open) {
       /* fold it back on itself: v_{-1} = v_1 and v_{nv} = v_{nv-2} */
       L->cp[i].vt[-1] = L->cp[i].vt[1];
