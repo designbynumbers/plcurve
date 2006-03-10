@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.19 2006-03-10 04:02:36 ashted Exp $
+ * $Id: run_tests.c,v 1.20 2006-03-10 21:52:51 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -58,6 +58,11 @@ static bool curves_match(const plCurve A, const plCurve B)
     require(A.cp[cmp].open == B.cp[cmp].open);
     require(A.cp[cmp].cc == B.cp[cmp].cc);
     for (vert = -1; vert <= A.cp[cmp].nv; vert++) {
+      if (!plcl_M_vecteq(A.cp[cmp].vt[vert],B.cp[cmp].vt[vert])) {
+        printf("Vertex difference %d:%d: %.20g,%.20g,%.20g\n",cmp,vert,
+            plcl_M_clist(plcl_vect_diff(A.cp[cmp].vt[vert],
+                                        B.cp[cmp].vt[vert])));
+      }
       require(plcl_M_vecteq(A.cp[cmp].vt[vert],B.cp[cmp].vt[vert]));
     }
     for (clr = 0; clr < A.cp[cmp].cc; clr++) {
@@ -126,9 +131,9 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.19 $";
+  char revision[] = "$Revision: 1.20 $";
   plCurve_vert_quant *quant;
-  int vert, ctr;
+  int cmp, vert, ctr;
   double dist, temp_dbl;
   bool ok;
   plcl_vector temp_vect, temp_vect2, zero_vect;
@@ -143,6 +148,7 @@ int main(void) {
     { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11, 8 };
   double clens[2];
   plCurve_spline *spL;
+  plCurve_constraint *temp_cst;
 
   zero_vect = plcl_build_vect(0.0,0.0,0.0);
 
@@ -650,33 +656,60 @@ int main(void) {
 
   /* Now can we convert to a spline and back?  We remember that conversion
    * to splines removes constraints (and probably quantifiers) anyway. */
-  plCurve_write(stdout,L);
   ok = true;
   spL = plCurve_convert_to_spline(L,&ok);
+  /* Overall data */
   check(ok);
   check(spL->nc == 2);
   check(spL->cp[0].open == false);
+  check(spL->cp[1].open == true);
   check(spL->cp[0].ns == 3);
+  check(spL->cp[1].ns == 4);
+  check(spL->cp[0].cc == 1);
+  check(spL->cp[1].cc == 4);
+  /* Vertices */
+  for (cmp = 0; cmp < L->nc; cmp++) {
+    for (vert = -1; vert <= L->cp[cmp].nv; vert++) {
+      check(plcl_vecteq(spL->cp[cmp].vt[vert],L->cp[cmp].vt[vert]));
+    }
+  }
+  /* Second derivatives */
+  check(plcl_vecteq(spL->cp[0].vt2[-1], plcl_build_vect(0.0, 0.0, 0.0)));
+  /*
+  printf("%.16g %.16g %.16g\n",plcl_M_clist(
+        plcl_vect_diff(spL->cp[0].vt2[0],
+        plcl_build_vect(2.4065244382070420, 1.3770871866841826, 0.0))));
+  printf("%.16g %.16g %.16g\n",plcl_M_clist(
+        plcl_vect_diff(spL->cp[0].vt2[1],
+        plcl_build_vect(-3.0556895635333689, 1.4884663137509202, 0.0))));
+  printf("%.16g %.16g %.16g\n",plcl_M_clist(
+        plcl_vect_diff(spL->cp[0].vt2[2],
+        plcl_build_vect(1.4884663137509202, -3.0556895635333694, 0.0))));
+  printf("%.16g %.16g %.16g\n",plcl_M_clist(
+        plcl_vect_diff(spL->cp[0].vt2[3],
+        plcl_build_vect(1.3770871866841824, 2.4065244382070418, 0.0))));
+  */
+  check(plcl_vecteq(spL->cp[0].vt2[0],
+        plcl_build_vect(2.4065244382070420, 1.3770871866841826, 0.0)));
+  check(plcl_vecteq(spL->cp[0].vt2[1],
+        plcl_build_vect(-3.0556895635333689, 1.4884663137509202, 0.0)));
+  check(plcl_vecteq(spL->cp[0].vt2[2],
+        plcl_build_vect(1.4884663137509202, -3.0556895635333694, 0.0)));
+  check(plcl_vecteq(spL->cp[0].vt2[3],
+        plcl_build_vect(1.3770871866841824, 2.4065244382070418, 0.0)));
+  check(plcl_vecteq(spL->cp[1].vt2[-1], plcl_build_vect(0.0, 0.0, 0.0)));
+  check(plcl_vecteq(spL->cp[1].vt2[0],
+        plcl_build_vect(0.0, -0.6666666666666666, 1.2)));
+  check(plcl_vecteq(spL->cp[1].vt2[1],
+        plcl_build_vect(0.0, 1.3333333333333333, -2.4)));
+  check(plcl_vecteq(spL->cp[1].vt2[2],
+        plcl_build_vect(0.0, 1.3333333333333332, 2.4000000000000004)));
+  check(plcl_vecteq(spL->cp[1].vt2[3],
+        plcl_build_vect(0.0, -0.6666666666666666, -1.2)));
+  check(plcl_vecteq(spL->cp[1].vt2[4], plcl_build_vect(0.0, 0.0, 0.0)));
   check(fabs(spL->cp[0].svals[0] - 0.0) < DBL_EPSILON);
   dist = plcl_distance(L->cp[0].vt[0],L->cp[0].vt[1]);
   check(fabs(spL->cp[0].svals[1] - dist) < DBL_EPSILON);
-  check(plcl_vecteq(spL->cp[0].vt[-1],L->cp[0].vt[-1]));
-  check(plcl_vecteq(spL->cp[0].vt[0],L->cp[0].vt[0]));
-  check(plcl_vecteq(spL->cp[0].vt[1],L->cp[0].vt[1]));
-  check(plcl_vecteq(spL->cp[0].vt[2],L->cp[0].vt[2]));
-  check(plcl_vecteq(spL->cp[0].vt[3],L->cp[0].vt[3]));
-  /* We don't (yet) check the vt2 values */
-  check(spL->cp[0].cc == 1);
-  check(fabs(spL->cp[0].clr[0].r - L->cp[0].clr[0].r) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr[0].g - L->cp[0].clr[0].g) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr[0].b - L->cp[0].clr[0].b) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr[0].alpha-L->cp[0].clr[0].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr2[0].r) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr2[0].g) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr2[0].b) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr2[0].alpha) < DBL_EPSILON);
-  check(spL->cp[1].ns == 4);
-  check(spL->cp[1].open == true);
   check(fabs(spL->cp[1].svals[0] - 0.0) < DBL_EPSILON);
   dist = plcl_distance(L->cp[1].vt[0],L->cp[1].vt[1]);
   check(fabs(spL->cp[1].svals[1] - dist) < DBL_EPSILON);
@@ -684,6 +717,11 @@ int main(void) {
   check(fabs(spL->cp[1].svals[2] - spL->cp[1].svals[1] - dist) < DBL_EPSILON);
   dist = plcl_distance(L->cp[1].vt[2],L->cp[1].vt[3]);
   check(fabs(spL->cp[1].svals[3] - spL->cp[1].svals[2] - dist) < DBL_EPSILON);
+  check(spL->cp[0].cc == 1);
+  check(fabs(spL->cp[0].clr[0].r - L->cp[0].clr[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].g - L->cp[0].clr[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].b - L->cp[0].clr[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].alpha-L->cp[0].clr[0].alpha) < DBL_EPSILON);
   check(plcl_vecteq(spL->cp[1].vt[-1],L->cp[1].vt[-1]));
   check(plcl_vecteq(spL->cp[1].vt[0],L->cp[1].vt[0]));
   check(plcl_vecteq(spL->cp[1].vt[1],L->cp[1].vt[1]));
@@ -707,61 +745,49 @@ int main(void) {
   check(fabs(spL->cp[1].clr[3].g - L->cp[1].clr[3].g) < DBL_EPSILON);
   check(fabs(spL->cp[1].clr[3].b - L->cp[1].clr[3].b) < DBL_EPSILON);
   check(fabs(spL->cp[1].clr[3].alpha - L->cp[1].clr[3].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[0].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[0].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[0].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[0].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[1].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[1].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[1].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[1].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[2].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[2].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[2].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[2].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[3].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[3].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[3].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[3].alpha) < DBL_EPSILON);
+
+  /* Get ready for conversion back from spline */
+  S.cp[0].vt[1] = plcl_build_vect(1.0250988714690254, 0.11297231598867286, 0.0);
+  S.cp[0].vt[2] = plcl_build_vect(0.11297231598867283, 1.0250988714690255, 0.0);
+  S.cp[0].vt[-1] = S.cp[0].vt[2];
+  temp_cst = S.cst;
+  S.cst = NULL;
 
   plCurve_free(L);
   L = NULL;
   L = plCurve_convert_from_spline(spL,nv);
   check(L != NULL);
+  for (cmp = 0; cmp < L->nc; cmp++) {
+    for (vert = 0; vert < L->cp[cmp].nv; vert++) {
+    }
+  }
   check(curves_match(S,*L));
+
+  temp_vect = plCurve_sample_spline(spL,1,1.5);
+  check(plcl_vecteq(temp_vect,plcl_build_vect(2.0,2.5/3.0,0.5)));
 
   plCurve_spline_free(spL);
+
+  /* A little exercise in the spline code */
+  spL = (plCurve_spline *)malloc(sizeof(plCurve_spline));
+  check(spL != NULL);
+  spL->nc = 1;
+  spL->cp = NULL;
+  /*@-nullstate@*/
+  plCurve_spline_free(spL);
+  /*@=nullstate@*/
   spL = NULL;
+  plCurve_spline_free(spL);
 
-  /* Here we close the second component */
-  S.cst[3].next = NULL;
-  S.cp[1].nv--;
-  plcl_M_add_vect(S.cp[1].vt[0],plcl_build_vect(0.0,0.0,-1.0/2.0));
-  plcl_M_add_vect(S.cp[1].vt[1],plcl_build_vect(0.0,0.0,-1.0/6.0));
-  plcl_M_add_vect(S.cp[1].vt[2],plcl_build_vect(0.0,0.0,+1.0/6.0));
-  S.cp[1].vt[-1] = S.cp[1].vt[2];
-  S.cp[1].vt[3] = S.cp[1].vt[0];
-  S.cp[1].open = false;
-  S.cp[1].cc--;
-  plCurve_force_closed(L);
+  /* Now put things back where we expect them */
+  S.cst = temp_cst;
+  temp_cst = NULL;
+  S.cp[0].vt[-1] = S.cp[0].vt[2] = plcl_build_vect(1.0,0.0,0.0);
+  S.cp[0].vt[1] = plcl_build_vect(0.0,1.0,0.0);
+  plCurve_free(L);
+  L = plCurve_copy(&S);
+  check(L != NULL);
   check(curves_match(S,*L));
-
-  /* And slice open and reclose the first component.  On this pass, we get 
-   * down to 2 vertices and so have an open strand.  fix_wrap will note that
-   * for us. */
-  S.cst[0] = S.cst[2];
-  S.cp[0].vt[0] = plcl_build_vect(0.0,0.5,0.0);
-  S.cp[0].nv--;
-  S.cp[0].vt[-1] = S.cp[0].vt[1];
-  S.cp[0].vt[2] = S.cp[0].vt[0];
-  S.cp[0].open = true;
-  L->cp[0].open = true;
-  plCurve_unconstrain(L,0,0,1);
-  plCurve_force_closed(L);
-  /*@-usereleased@*/
-  assert(S.cst != NULL);
-  check(curves_match(S,*L));
-  /*@=usereleased@*/
 
   /* Now check to see if we can remove all constraints */
   /*@-kepttrans@*/
@@ -778,16 +804,18 @@ int main(void) {
 
   /* Can we add and remove components? */
   S.nc += 2;
-  S.cp[2] = S.cp[0]; 
-  S.cp[3] = S.cp[0]; 
-  S.cp[3].cc = 0;
+  S.cp[2] = S.cp[1]; 
+  S.cp[1] = S.cp[3] = S.cp[0]; 
+  S.cp[0].cc = 0;
   plCurve_add_component(L, L->nc, L->cp[0].nv, L->cp[0].open, L->cp[0].cc,
       L->cp[0].vt, L->cp[0].clr);
-  plCurve_add_component(L,L->nc,L->cp[0].nv,L->cp[0].open,0,L->cp[0].vt,NULL);
+  plCurve_add_component(L,0,L->cp[0].nv,L->cp[0].open,0,L->cp[0].vt,NULL);
   check(curves_match(S,*L));
 
   S.nc -= 2;
-  plCurve_drop_component(L,2);
+  S.cp[0].cc = S.cp[1].cc;
+  S.cp[1] = S.cp[2];
+  plCurve_drop_component(L,0);
   plCurve_drop_component(L,2);
   check(curves_match(S,*L));
 

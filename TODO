@@ -1,5 +1,5 @@
-1) Create constraint-aware resample call for increasing or decreasing the
-   number of vertices a plCurve has.
+1) Create constraint-aware resample call for increasing or decreasing (or just
+   equilateralizing the number of vertices a plCurve has.
 
 2) Add a per-vertex quantifier to the file format.  Should be expressed as
    TAG: 0.123456  (three-character, case-insensitive tag, colon, space,
@@ -11,15 +11,4 @@
    they should be considered separate from the plCurve and unless put back into
    it will not automatically be written.
 
-3) Fix the color handling for spline conversion.  In the case of
-   one-color-per-vertex, the spline code should do its best to make sure
-   that that remains true after it has converted.
-
-4) Finish rolling spline testing into the test code (probably does need to 
-   handle splining of 2-vertex components :-/).
-
-5) Add a component-to-add-after parameter to add_component.
-
-6) Remove force_closed from the library.
-
-7) Allocate vertex blocks in one large chunk instead of multiple mallocs.
+3) Allocate vertex blocks in one large chunk instead of multiple mallocs.

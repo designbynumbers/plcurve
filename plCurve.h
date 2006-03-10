@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.48 2006-03-10 02:27:11 ashted Exp $
+ *  $Id: plCurve.h,v 1.49 2006-03-10 21:52:51 ashted Exp $
  *
  */
 
@@ -105,10 +105,9 @@ typedef struct plCurve_spline_strand_type {
   int             ns;       /* Number of samples used to build spline. */
   double         *svals;    /* s values at samples */
   plcl_vector    *vt;       /* positions at these s values */
-  plcl_vector    *vt2;      /* second derivatives at these s values */
-  int             cc;
+  plcl_vector    *vt2;      /* _second_ derivatives at these s values */
+  int             cc;       /* Number of colors */
   plCurve_color  *clr;      /* color values at samples */
-  plCurve_color  *clr2;     /* second derivatives at these s values */
 } plCurve_spline_strand;
 
 typedef struct plCurve_spline_type {
@@ -218,15 +217,17 @@ bool plcl_vecteq(plcl_vector A, plcl_vector B);
 
 /* Are two vectors equal? */
 #define plcl_M_vecteq(A,B) \
-  ((A).c[0] - (B).c[0] < DBL_EPSILON && -((A).c[0]-(B).c[0]) < DBL_EPSILON && \
-   (A).c[1] - (B).c[1] < DBL_EPSILON && -((A).c[1]-(B).c[1]) < DBL_EPSILON && \
-   (A).c[2] - (B).c[2] < DBL_EPSILON && -((A).c[2]-(B).c[2]) < DBL_EPSILON)
+  (  (A).c[0] - (B).c[0]  <= 2*DBL_EPSILON && \
+   -((A).c[0] - (B).c[0]) <= 2*DBL_EPSILON && \
+     (A).c[1] - (B).c[1]  <= 2*DBL_EPSILON && \
+   -((A).c[1] - (B).c[1]) <= 2*DBL_EPSILON && \
+     (A).c[2] - (B).c[2]  <= 2*DBL_EPSILON && \
+   -((A).c[2] - (B).c[2]) <= 2*DBL_EPSILON)
 
 /*
  * Prototypes for routines to deal with plCurves.
  *
  */
-void plCurve_force_closed(plCurve * const L);
 
 /* Build a new plCurve (with associated strands) */
 /*@only@*/ plCurve *plCurve_new(const int components,

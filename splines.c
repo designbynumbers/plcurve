@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.27 2006-03-10 04:02:36 ashted Exp $
+ * $Id: splines.c,v 1.28 2006-03-10 21:52:51 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation.
@@ -73,8 +73,6 @@ static inline void spline_strand_new(/*@out@*/ plCurve_spline_strand *Pl,
   Pl->cc = cc;
   Pl->clr = (plCurve_color *)malloc(cc*sizeof(plCurve_color));
   assert(Pl->clr != NULL);
-  Pl->clr2 = (plCurve_color *)calloc((size_t)cc,sizeof(plCurve_color));
-  assert(Pl->clr2 != NULL);
 }
 
 /*
@@ -146,10 +144,6 @@ static inline void spline_strand_free(/*@null@*/ plCurve_spline_strand *Pl) {
   if (Pl->clr != NULL) {
     free(Pl->clr);
     Pl->clr = NULL;
-  }
-  if (Pl->clr2 != NULL) {
-    free(Pl->clr2);
-    Pl->clr2 = NULL;
   }
 
   /*@-nullstate@*/ /* We expect to return null fields, it's ok :-) */
@@ -248,36 +242,18 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
   for (comp = 0;comp < L->nc;comp++) {
 
-    /* Our first task is to assemble svals: the arclength of each vertex. */
+    /* Our first task is to assemble svals: the arclength of each vertex. 
+     * On an n-vertex open strand, the first point should be at 0 and the nth
+     * at the length of the strand.  On an n-vertex closed strand, the first
+     * point should be at 0 and the n+1st at the length of the strand. */
 
+    spline_L->cp[comp].svals[-1] = 
+      -plcl_M_distance(L->cp[comp].vt[0],L->cp[comp].vt[-1]);
     spline_L->cp[comp].svals[0] = 0.0;
 
-    for (i=1;i<L->cp[comp].nv;i++) {
-
-      spline_L->cp[comp].svals[i] =
-        spline_L->cp[comp].svals[i-1] + plcl_M_distance(L->cp[comp].vt[i-1],
-                                            L->cp[comp].vt[i]);
-    }
-
-    /* Note that at this point i = L->cp[comp].nv */
-
-    if (!L->cp[comp].open) {
-
-      spline_L->cp[comp].svals[i] =
-        spline_L->cp[comp].svals[i-1] + plcl_M_distance(L->cp[comp].vt[i-1],
-                                                      L->cp[comp].vt[i]);
-
-      spline_L->cp[comp].svals[-1] = -plcl_M_distance(L->cp[comp].vt[0],
-                                                    L->cp[comp].vt[-1]);
-
-    } else {
-
-      /* The "hidden" vertices have the s values of the end vertices.  This may
-       * or may not be a good idea, as they have the R^3 values of the
-       * penultimate vertices. */
-      spline_L->cp[comp].svals[i] = spline_L->cp[comp].svals[i-1];
-      spline_L->cp[comp].svals[-1] = spline_L->cp[comp].svals[0];
-
+    for (i = 1; i <= L->cp[comp].nv; i++) {
+      spline_L->cp[comp].svals[i] = spline_L->cp[comp].svals[i-1] +
+        plcl_M_distance(L->cp[comp].vt[i-1], L->cp[comp].vt[i]);
     }
 
     /* We have now assembled the "s" values for the spline. */
@@ -291,7 +267,7 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
     memcpy(spline_L->cp[comp].clr,L->cp[comp].clr,
         (L->cp[comp].cc)*sizeof(plCurve_color));
 
-    /* We are now prepared to compute vt2 and clr2, which will
+    /* We are now prepared to compute vt2 (the second derivatives), which will
        determine the actual form of the splined polyline. */
 
     /* double p, qn, sig, un, *u */
@@ -320,6 +296,8 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
          want to be able to smooth the last corner as well. */
 
     }
+
+    spline_L->cp[comp].vt2[-1] = plcl_build_vect(0.0,0.0,0.0);
 
     /* y2[1] = -0.5; */
 
@@ -417,7 +395,32 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
   }
 
   return spline_L;
-  /* Note to self: color splining is not yet implemented! */
+}
+
+inline static plcl_vector evaluate_poly(const plCurve_spline * const spL,
+                                        const int comp, 
+                                        const int shi, 
+                                        const int slo, 
+                                        const double s,
+                                    /*@out@*/ double *a,
+                                    /*@out@*/ double *b) {
+  double h;
+  plcl_vector scrV, scrW;
+
+  h = spL->cp[comp].svals[shi] - spL->cp[comp].svals[slo];
+  assert(h > DBL_EPSILON); /* They'd best not be the same point */
+
+  /* FInd the appropriate weights */
+  *a = (spL->cp[comp].svals[shi] - s)/h;
+  *b = (s - spL->cp[comp].svals[slo])/h;
+
+  plcl_M_vlincomb(scrV,*a,spL->cp[comp].vt[slo],*b,spL->cp[comp].vt[shi]);
+
+  plcl_M_vlincomb(scrW, 
+      ((*a)*(*a)*(*a) - (*a))*(h*h)/6.0, spL->cp[comp].vt2[slo],
+      ((*b)*(*b)*(*b) - (*b))*(h*h)/6.0, spL->cp[comp].vt2[shi]);
+
+  return plcl_vect_sum(scrV,scrW);
 }
 
 /*
@@ -433,13 +436,11 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
   int *cc;
   bool *open;
   int comp, i;
-  double s,s_step;
+  double s, s_max;
   int shi, slo;
-  double h, b, a;
+  double b, a;
   bool do_colors;
-  plcl_vector cvhi, cvlo, cv;
 
-  plcl_vector scrV, scrW;
   plCurve *L;
 
   /* First, we do some elementary sanity checking. */
@@ -477,50 +478,38 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
       L->cp[comp].clr[0] = spL->cp[comp].clr[0];
     } 
 
-    s_step = spL->cp[comp].svals[spL->cp[comp].ns] /
-      (L->cp[comp].open ? L->cp[comp].nv-1 : L->cp[comp].nv);
+    if (spL->cp[comp].open) {
+      s_max = spL->cp[comp].svals[spL->cp[comp].ns-1] * 
+        ((double)L->cp[comp].nv / (double)(L->cp[comp].nv - 1));
+    } else {
+      s_max = spL->cp[comp].svals[spL->cp[comp].ns];
+    }
 
-    for (i=0,s=0.0,slo=0,shi=1; i<L->cp[comp].nv; i++,s+=s_step) {
+    for (i=0, slo=0, shi=1; i < L->cp[comp].nv; i++) {
 
-      /* Cap s at the largest value on the component */
-      s = (s <= spL->cp[comp].svals[spL->cp[comp].ns] ?
-           s : spL->cp[comp].svals[spL->cp[comp].ns]);
+      s = s_max*i/L->cp[comp].nv;
 
       /* Search to make sure that slo and shi bracket our current s.*/
 
-      while (spL->cp[comp].svals[shi] <= s && shi < spL->cp[comp].ns - 1) {
+      while (spL->cp[comp].svals[shi] <= s && 
+          shi < ((L->cp[comp].open) ? spL->cp[comp].ns-1 : spL->cp[comp].ns)) {
         shi++;
         slo++;
       }
       assert(spL->cp[comp].svals[shi] >= s);
+      assert(spL->cp[comp].svals[slo] <= s);
 
       /* Now we can evaluate the spline polynomial. */
 
-      h = spL->cp[comp].svals[shi] - spL->cp[comp].svals[slo];
-      assert(h > DBL_EPSILON);
-
-      a = (spL->cp[comp].svals[shi] - s)/h;
-      b = (s - spL->cp[comp].svals[slo])/h;
-
-      plcl_M_vlincomb(scrV,a,spL->cp[comp].vt[slo],b,spL->cp[comp].vt[shi]);
-
-      plcl_M_vlincomb(scrW, (a*a*a - a)*(h*h)/6.0, spL->cp[comp].vt2[slo],
-                            (b*b*b - b)*(h*h)/6.0, spL->cp[comp].vt2[shi]);
-
-      L->cp[comp].vt[i] = plcl_vect_sum(scrV,scrW);
+      L->cp[comp].vt[i] = evaluate_poly(spL,comp,shi,slo,s,&a,&b);
 
       /* And interpolate the colors */
       if (do_colors) {
-        cvhi = plcl_build_vect(spL->cp[comp].clr[shi].r,
-                               spL->cp[comp].clr[shi].g,
-                               spL->cp[comp].clr[shi].b);
-        cvlo = plcl_build_vect(spL->cp[comp].clr[slo].r,
-                               spL->cp[comp].clr[slo].g,
-                               spL->cp[comp].clr[slo].b);
-        plcl_M_vlincomb(cv,a,cvlo,b,cvhi);
-        L->cp[comp].clr[i] = plCurve_build_color(plcl_M_clist(cv),
-            a*spL->cp[comp].clr[slo].alpha+
-            b*spL->cp[comp].clr[shi].alpha);
+        L->cp[comp].clr[i] = plCurve_build_color(
+            a*spL->cp[comp].clr[slo].r     + b*spL->cp[comp].clr[shi].r,
+            a*spL->cp[comp].clr[slo].g     + b*spL->cp[comp].clr[shi].g,
+            a*spL->cp[comp].clr[slo].b     + b*spL->cp[comp].clr[shi].b,
+            a*spL->cp[comp].clr[slo].alpha + b*spL->cp[comp].clr[shi].alpha);
       }
     }
   }
@@ -538,10 +527,7 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
 {
   int klo,khi,k;
   double cmpLen;
-  double h, b, a;
-
-  plcl_vector scrV, scrW;
-  plcl_vector retV;
+  double b, a;
 
   /* We begin with a bit of checking to make sure that cmp and s seem
      compatible with the given spL. */
@@ -570,20 +556,5 @@ plcl_vector plCurve_sample_spline(const plCurve_spline * const spL,
 
   }
 
-  /* Now we can evaluate the polynomial. */
-
-  h = spL->cp[cmp].svals[khi] - spL->cp[cmp].svals[klo];
-  assert(h > DBL_EPSILON);
-
-  a = (spL->cp[cmp].svals[khi] - s)/h;
-  b = (s - spL->cp[cmp].svals[klo])/h;
-
-  plcl_M_vlincomb(scrV,a,spL->cp[cmp].vt[klo],b,spL->cp[cmp].vt[khi]);
-
-  plcl_M_vlincomb(scrW,
-    (a*a*a - a)*(h*h)/6.0,spL->cp[cmp].vt2[klo],
-    (b*b*b - b)*(h*h)/6.0,spL->cp[cmp].vt2[khi]);
-
-  retV = plcl_vect_sum(scrV,scrW);
-  return retV;
+  return evaluate_poly(spL,cmp,khi,klo,s,&a,&b);
 }

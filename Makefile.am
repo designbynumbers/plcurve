@@ -3,8 +3,9 @@ AM_CFLAGS = -g -O2 -finline-functions -Wall
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_LTLIBRARIES = libplCurve_cov.la
 
-check_PROGRAMS = run_tests exit_failure_tests gcov_tests
-noinst_PROGRAMS = knot_diagram spline_view
+check_PROGRAMS = run_tests exit_failure_tests
+bin_PROGRAMS = knot_diagram
+noinst_PROGRAMS = spline_view gcov_tests
 
 TESTS = run_tests
 
@@ -21,7 +22,7 @@ libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
 libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
-libplCurve_cov_la_LDFLAGS = -static -version-info -fprofile-arcs $(LIB_VERSION)
+libplCurve_cov_la_LDFLAGS = -static -fprofile-arcs
 
 run_tests_SOURCES = run_tests.c libplCurve_safe.la
 run_tests_LDADD = libplCurve_safe.la
