@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.17 2006-03-09 13:25:06 ashted Exp $
+ * $Id: run_tests.c,v 1.18 2006-03-10 02:27:11 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -126,7 +126,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.17 $";
+  char revision[] = "$Revision: 1.18 $";
   plCurve_vert_quant *quant;
   int vert, ctr;
   double dist, temp_dbl;
@@ -648,6 +648,72 @@ int main(void) {
   L = plCurve_copy(&S);
   check(curves_match(S,*L));
 
+  /* Now can we convert to a spline and back?  We remember that conversion
+   * to splines removes constraints (and probably quantifiers) anyway. */
+  plCurve_write(stdout,L);
+  ok = true;
+  spL = plCurve_convert_to_spline(L,&ok);
+  check(ok);
+  check(spL->nc == 2);
+  check(spL->cp[0].open == false);
+  check(spL->cp[0].ns == 3);
+  check(fabs(spL->cp[0].svals[0] - 0.0) < DBL_EPSILON);
+  dist = plcl_distance(L->cp[0].vt[0],L->cp[0].vt[1]);
+  check(fabs(spL->cp[0].svals[1] - dist) < DBL_EPSILON);
+  check(plcl_vecteq(spL->cp[0].vt[0],L->cp[0].vt[0]));
+  check(plcl_vecteq(spL->cp[0].vt[1],L->cp[0].vt[1]));
+  /* We don't (yet) check the vt2 values */
+  check(spL->cp[0].cc == 1);
+  check(fabs(spL->cp[0].clr[0].r - L->cp[0].clr[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].g - L->cp[0].clr[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].b - L->cp[0].clr[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr[0].alpha-L->cp[0].clr[0].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr2[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr2[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr2[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[0].clr2[0].alpha) < DBL_EPSILON);
+  check(spL->cp[1].ns == 4);
+  check(spL->cp[1].open == true);
+  check(fabs(spL->cp[1].svals[0] - 0.0) < DBL_EPSILON);
+  dist = plcl_distance(L->cp[1].vt[0],L->cp[1].vt[1]);
+  check(fabs(spL->cp[1].svals[1] - dist) < DBL_EPSILON);
+  dist = plcl_distance(L->cp[1].vt[1],L->cp[1].vt[2]);
+  check(fabs(spL->cp[1].svals[2] - spL->cp[1].svals[1] - dist) < DBL_EPSILON);
+  check(spL->cp[1].cc == 4);
+  check(fabs(spL->cp[1].clr[0].r - L->cp[1].clr[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[0].g - L->cp[1].clr[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[0].b - L->cp[1].clr[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[0].alpha - L->cp[1].clr[0].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[1].r - L->cp[1].clr[1].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[1].g - L->cp[1].clr[1].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[1].b - L->cp[1].clr[1].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[1].alpha - L->cp[1].clr[1].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[2].r - L->cp[1].clr[2].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[2].g - L->cp[1].clr[2].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[2].b - L->cp[1].clr[2].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr[2].alpha - L->cp[1].clr[2].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[0].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[0].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[0].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[0].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[1].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[1].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[1].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[1].alpha) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[2].r) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[2].g) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[2].b) < DBL_EPSILON);
+  check(fabs(spL->cp[1].clr2[2].alpha) < DBL_EPSILON);
+
+  plCurve_free(L);
+  L = NULL;
+  L = plCurve_convert_from_spline(spL,nv);
+  check(L != NULL);
+  check(curves_match(S,*L));
+
+  plCurve_spline_free(spL);
+  spL = NULL;
+
   /* Here we close the second component */
   S.cst[3].next = NULL;
   S.cp[1].nv--;
@@ -696,79 +762,15 @@ int main(void) {
   S.cp[2] = S.cp[0]; 
   S.cp[3] = S.cp[0]; 
   S.cp[3].cc = 0;
-  plCurve_add_component(L,L->cp[0].nv,L->cp[0].open,L->cp[0].cc,L->cp[0].vt,
-      L->cp[0].clr);
-  plCurve_add_component(L,L->cp[0].nv,L->cp[0].open,0,L->cp[0].vt,NULL);
+  plCurve_add_component(L, L->nc, L->cp[0].nv, L->cp[0].open, L->cp[0].cc,
+      L->cp[0].vt, L->cp[0].clr);
+  plCurve_add_component(L,L->nc,L->cp[0].nv,L->cp[0].open,0,L->cp[0].vt,NULL);
   check(curves_match(S,*L));
 
   S.nc -= 2;
   plCurve_drop_component(L,2);
   plCurve_drop_component(L,2);
   check(curves_match(S,*L));
-
-  /* Now can we convert to a spline and back?  We test this here as conversion
-   * to splines removes constraints (and probably quantifiers) anyway. */
-  ok = true;
-  spL = plCurve_convert_to_spline(L,&ok);
-  check(ok);
-  check(spL->nc == 2);
-  check(spL->cp[0].open == true);
-  check(spL->cp[0].ns == 2);
-  check(fabs(spL->cp[0].svals[0] - 0.0) < DBL_EPSILON);
-  dist = plcl_distance(L->cp[0].vt[0],L->cp[0].vt[1]);
-  check(fabs(spL->cp[0].svals[1] - dist) < DBL_EPSILON);
-  check(plcl_vecteq(spL->cp[0].vt[0],L->cp[0].vt[0]));
-  check(plcl_vecteq(spL->cp[0].vt[1],L->cp[0].vt[1]));
-  check(plcl_vecteq(spL->cp[0].vt2[0], plcl_build_vect(-0.5,-0.5,-0.5)));
-  check(spL->cp[0].cc == 1);
-  check(fabs(spL->cp[0].clr[0].r - L->cp[0].clr[0].r) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr[0].g - L->cp[0].clr[0].g) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr[0].b - L->cp[0].clr[0].b) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr[0].alpha-L->cp[0].clr[0].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr2[0].r) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr2[0].g) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr2[0].b) < DBL_EPSILON);
-  check(fabs(spL->cp[0].clr2[0].alpha) < DBL_EPSILON);
-  check(spL->cp[1].ns == 3);
-  check(fabs(spL->cp[1].svals[0] - 0.0) < DBL_EPSILON);
-  dist = plcl_distance(L->cp[1].vt[0],L->cp[1].vt[1]);
-  check(fabs(spL->cp[1].svals[1] - dist) < DBL_EPSILON);
-  dist = plcl_distance(L->cp[1].vt[1],L->cp[1].vt[2]);
-  check(fabs(spL->cp[1].svals[2] - spL->cp[1].svals[1] - dist) < DBL_EPSILON);
-  check(spL->cp[1].cc == 3);
-  check(fabs(spL->cp[1].clr[0].r - L->cp[1].clr[0].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[0].g - L->cp[1].clr[0].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[0].b - L->cp[1].clr[0].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[0].alpha - L->cp[1].clr[0].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[1].r - L->cp[1].clr[1].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[1].g - L->cp[1].clr[1].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[1].b - L->cp[1].clr[1].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[1].alpha - L->cp[1].clr[1].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[2].r - L->cp[1].clr[2].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[2].g - L->cp[1].clr[2].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[2].b - L->cp[1].clr[2].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr[2].alpha - L->cp[1].clr[2].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[0].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[0].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[0].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[0].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[1].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[1].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[1].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[1].alpha) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[2].r) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[2].g) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[2].b) < DBL_EPSILON);
-  check(fabs(spL->cp[1].clr2[2].alpha) < DBL_EPSILON);
-
-  plCurve_free(L);
-  L = NULL;
-  L = plCurve_convert_from_spline(spL,nv);
-  check(L != NULL);
-  check(curves_match(S,*L));
-
-  plCurve_spline_free(spL);
-  spL = NULL;
 
   /* Eventually quantifier testing code goes here.  For now, put a blank 
    * quantifier in to make sure that plCurve_free cleans it up. */

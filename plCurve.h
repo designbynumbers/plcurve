@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.47 2006-03-09 04:10:46 ashted Exp $
+ *  $Id: plCurve.h,v 1.48 2006-03-10 02:27:11 ashted Exp $
  *
  */
 
@@ -237,8 +237,8 @@ void plCurve_force_closed(plCurve * const L);
 /* Free the plCurve (and strands) */
 void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L);
 
-/* Add a component to the curve */
-void plCurve_add_component(plCurve *L, const int nv, 
+/* Add a component to the curve which will become component number add_as. */
+void plCurve_add_component(plCurve *L, const int add_as, const int nv, 
                       const bool open, const int cc,
                       const plcl_vector * const vt,
            /*@null@*/ const plCurve_color * const clr);

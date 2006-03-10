@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.25 2006-03-09 13:25:06 ashted Exp $
+ * $Id: splines.c,v 1.26 2006-03-10 02:27:11 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation.
@@ -259,6 +259,8 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
                                             L->cp[comp].vt[i]);
     }
 
+    /* Note that at this point i = L->cp[comp].nv */
+
     if (!L->cp[comp].open) {
 
       spline_L->cp[comp].svals[i] =
@@ -270,6 +272,9 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
     } else {
 
+      /* The "hidden" vertices have the s values of the end vertices.  This may
+       * or may not be a good idea, as they have the R^3 values of the
+       * penultimate vertices. */
       spline_L->cp[comp].svals[i] = spline_L->cp[comp].svals[i-1];
       spline_L->cp[comp].svals[-1] = spline_L->cp[comp].svals[0];
 
@@ -278,19 +283,13 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
     /* We have now assembled the "s" values for the spline. */
     /* We go ahead and copy the corresponding positions into place. */
 
-    for(i=-1;i<=L->cp[comp].nv;i++) {
-
-      spline_L->cp[comp].vt[i] = L->cp[comp].vt[i];
-
-    }
+    memcpy(&(spline_L->cp[comp].vt[-1]),&(L->cp[comp].vt[-1]),
+        (L->cp[comp].nv+2)*sizeof(plcl_vector));
 
     /* Last, we go ahead and copy color values in. */
 
-    for(i=0;i<L->cp[comp].cc;i++) {
-
-      spline_L->cp[comp].clr[i] = L->cp[comp].clr[i];
-
-    }
+    memcpy(spline_L->cp[comp].clr,L->cp[comp].clr,
+        (L->cp[comp].cc)*sizeof(plCurve_color));
 
     /* We are now prepared to compute vt2 and clr2, which will
        determine the actual form of the splined polyline. */
@@ -301,17 +300,17 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
     /* u = malloc(n,sizeof(double)); */
 
-    u = malloc((spline_L->cp[comp].ns+2)*sizeof(plcl_vector));
+    u = malloc((L->cp[comp].nv)*sizeof(plcl_vector));
     assert(u != NULL);
 
     /* ...together with values yp1 and ypn for the first derivative at
        the first and last samples... */
 
-    yp1 = plCurve_mean_tangent(L,comp,0, ok);
+    yp1 = plCurve_mean_tangent(L,comp,0,ok);
 
     if (L->cp[comp].open) {
 
-      ypn = plCurve_mean_tangent(L,comp,L->cp[comp].nv-1, ok);
+      ypn = plCurve_mean_tangent(L,comp,L->cp[comp].nv-1,ok);
 
     } else {
 
@@ -324,8 +323,7 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
     /* y2[1] = -0.5; */
 
-    spline_L->cp[comp].vt2[0].c[0] = spline_L->cp[comp].vt2[0].c[1]
-      = spline_L->cp[comp].vt2[0].c[2] = -0.5;
+    spline_L->cp[comp].vt2[0] = plcl_build_vect(-0.5,-0.5,-0.5);
 
     /* u[1] = (3.0/(x[2]-x[1]))*((y[2]-y[1])/(x[2]-x[1])-yp1); */
 
@@ -335,10 +333,10 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
     /* for (i=2;i<=n-1;i++) { */
 
-    I = L->cp[comp].open ? L->cp[comp].nv-2 : L->cp[comp].nv-1;
+    I = L->cp[comp].open ? L->cp[comp].nv-1 : L->cp[comp].nv;
 
     /*@+loopexec@*/
-    for (i=1; i<=I; i++) {
+    for (i=1; i < I; i++) {
 
       /* sig=(x[i]-x[i-1])/(x[i+1]-x[i-1]); */
 
@@ -375,11 +373,6 @@ plCurve_spline *plCurve_convert_to_spline(plCurve * const L,bool *ok)
 
     }
     /*@=loopexec@*/
-
-    /* We are now at the last vertex of the curve, with index i=I.
-       We will continue to refer to this as vertex "i" while we clean
-       up the spline stuff. In this case, it's _not_ a bug to use the
-       loop index i outside the loop. */
 
     /* qn = 0.5; */
 

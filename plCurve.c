@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.78 2006-03-09 04:10:46 ashted Exp $
+ *  $Id: plCurve.c,v 1.79 2006-03-10 02:27:11 ashted Exp $
  *
  */
 
@@ -1697,9 +1697,10 @@ plCurve_color plCurve_build_color(const double r,
   return C;
 }
 
-/* Add a component with nv vertices read from the array vt and cc colors 
-   read from the array clr */
-void plCurve_add_component(plCurve *L, const int nv, 
+/* Add a component with nv vertices read from the array vt and cc colors read
+ * from the array clr.  The parameter add_as tells what the new component
+ * number will be (any components above it will be moved up by 1. */
+void plCurve_add_component(plCurve *L, const int add_as, const int nv, 
                       const bool open, const int cc,
                       const plcl_vector * const vt,
            /*@null@*/ const plCurve_color * const clr) {
@@ -1710,13 +1711,19 @@ void plCurve_add_component(plCurve *L, const int nv,
   assert(vt != NULL);
   assert(cc >= 0);
   assert(cc == 0 || clr != NULL);
+  assert(add_as >= 0);
+  assert(add_as <= L->nc);
 
   L->nc++;
   /*@-compdestroy@*/
   L->cp = realloc(L->cp,L->nc*sizeof(plCurve_strand));
   /*@=compdestroy@*/
   assert(L->cp != NULL);
-  cp = &L->cp[L->nc-1];
+  if (L->nc - add_as > 1) {
+    memmove(&(L->cp[add_as+1]),&(L->cp[add_as]),
+        (L->nc-add_as-1)*sizeof(plCurve_strand));
+  }
+  cp = &L->cp[add_as];
   cp->open = open;
 
   cp->nv = nv;

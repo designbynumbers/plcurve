@@ -35,8 +35,6 @@
 /* Remove a vertex from a plCurve by breaking components into pieces */
 static void remove_vertex(plCurve * const L, const int cmp, const int vert,
                           bool *start_over) {
-  int ctr;
-  plCurve_strand temp_strand;
   plcl_vector *vt;
   plCurve_color *clr;
 
@@ -64,7 +62,7 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
   } else {
     /* Middle vertex */
     if (L->cp[cmp].open) {
-      plCurve_add_component(L,L->cp[cmp].nv-(vert+1),true,
+      plCurve_add_component(L,cmp+1,L->cp[cmp].nv-(vert+1),true,
           (L->cp[cmp].cc < L->cp[cmp].nv) ? L->cp[cmp].cc :
           L->cp[cmp].nv-(vert+1),&(L->cp[cmp].vt[vert+1]),
           (L->cp[cmp].cc < L->cp[cmp].nv) ? L->cp[cmp].clr :
@@ -73,13 +71,6 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
       if (L->cp[cmp].cc > L->cp[cmp].nv) { 
         L->cp[cmp].cc = L->cp[cmp].nv;
       }
-      temp_strand = L->cp[L->nc-1];
-      for (ctr = L->nc-1; ctr > cmp+1; ctr--) {
-        L->cp[ctr] = L->cp[ctr-1];
-        /*@-branchstate@*/
-      }
-      /*@=branchstate@*/
-      L->cp[cmp+1] = temp_strand;
     } else {
       /* We're eliminating a middle vertex on a closed component.  We need to
          open the component, but do so *at that point*.  This will require
@@ -388,7 +379,7 @@ static void add_convex_hull(plCurve *L) {
     clr[vert].alpha = 1.0;
   }
   /*@=loopexec@*/
-  plCurve_add_component(L,verts,false,verts,vt,clr);
+  plCurve_add_component(L,L->nc,verts,false,verts,vt,clr);
   free(vt);
   free(clr);
 }
@@ -476,7 +467,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview;
-  char revision[20] = "$Revision: 1.12 $";
+  char revision[20] = "$Revision: 1.13 $";
   char *dollar;
 
 #ifdef HAVE_ARGTABLE2_H

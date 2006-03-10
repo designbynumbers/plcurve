@@ -4,11 +4,13 @@ lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_LTLIBRARIES = libplCurve_cov.la
 
 check_PROGRAMS = run_tests exit_failure_tests gcov_tests
-noinst_PROGRAMS = knot_diagram
+noinst_PROGRAMS = knot_diagram spline_view
 
 TESTS = run_tests
 
 EXTRA_DIST = bad_vects
+
+LDADD = libplCurve.la
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
 libplCurve_la_CFLAGS = -DNDEBUG $(AM_CFLAGS)
