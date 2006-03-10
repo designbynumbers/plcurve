@@ -29,21 +29,15 @@ int main(void) {
 
   L->cp[0].vt[0] = plcl_build_vect(1,0,0);
   L->cp[0].vt[1] = plcl_build_vect(0,1,0);
-  L->cp[0].vt[2] = plcl_build_vect(0,0,0);
+  L->cp[0].vt[2] = plcl_build_vect(1,1,0);
   L->cp[0].clr[0] = plCurve_build_color(0.0,1.0,0.0,1.0);
   L->cp[0].clr[1] = plCurve_build_color(1.0,1.0,0.0,1.0);
   L->cp[0].clr[2] = plCurve_build_color(1.0,0.0,0.0,1.0);
 
   plCurve_fix_wrap(L);
 
-  L->cp[0].cc = 1;
-  L->cp[0].clr[0] = plCurve_build_color(0.0,0.0,1.0,1.0);
-
   spL = plCurve_convert_to_spline(L,NULL);
   assert(spL != NULL);
-
-  L->cp[0].cc = 3;
-  L->cp[0].clr[0] = plCurve_build_color(0.0,1.0,0.0,1.0);
 
   for (vert = 0; vert < 3; vert++) {
     v[0] = spL->cp[0].vt[vert];
@@ -55,9 +49,7 @@ int main(void) {
   printf("(geometry plCurve \n");
   plCurve_write(stdout,L);
   printf(")\n");
-
-  L->cp[0].cc = 1;
-  L->cp[0].clr[0] = plCurve_build_color(0.0,0.0,1.0,1.0);
+  fflush(stdout);
 
   plCurve_free(L);
   nv[0] = 200;

@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.26 2006-03-10 02:27:11 ashted Exp $
+ * $Id: splines.c,v 1.27 2006-03-10 04:02:36 ashted Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation.
@@ -436,6 +436,8 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
   double s,s_step;
   int shi, slo;
   double h, b, a;
+  bool do_colors;
+  plcl_vector cvhi, cvlo, cv;
 
   plcl_vector scrV, scrW;
   plCurve *L;
@@ -447,15 +449,15 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
 
   /* Now we allocate the new plCurve. */
 
-  cc = (int *)malloc(spL->nc*sizeof(int));
-  assert(cc != NULL);
   open = (bool *)malloc(spL->nc*sizeof(bool));
   assert(open != NULL);
+  cc = (int *)malloc(spL->nc*sizeof(int));
+  assert(cc != NULL);
 
   /*@+loopexec@*/
   for (i=0; i<spL->nc; i++) {
     open[i] = spL->cp[i].open;
-    cc[i] = spL->cp[i].cc;
+    cc[i] = (spL->cp[i].cc <= 1) ? spL->cp[i].cc : nv[i];
   }
   /*@=loopexec@*/
 
@@ -469,11 +471,16 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
 
   for (comp=0; comp < L->nc; comp++) {
 
+    do_colors = (L->cp[comp].cc > 1);
+    
+    if (L->cp[comp].cc == 1) {
+      L->cp[comp].clr[0] = spL->cp[comp].clr[0];
+    } 
+
     s_step = spL->cp[comp].svals[spL->cp[comp].ns] /
       (L->cp[comp].open ? L->cp[comp].nv-1 : L->cp[comp].nv);
 
     for (i=0,s=0.0,slo=0,shi=1; i<L->cp[comp].nv; i++,s+=s_step) {
-
 
       /* Cap s at the largest value on the component */
       s = (s <= spL->cp[comp].svals[spL->cp[comp].ns] ?
@@ -501,15 +508,24 @@ plCurve *plCurve_convert_from_spline(const plCurve_spline * const spL,
                             (b*b*b - b)*(h*h)/6.0, spL->cp[comp].vt2[shi]);
 
       L->cp[comp].vt[i] = plcl_vect_sum(scrV,scrW);
-    }
 
-    /* Now we copy color data back to the buffer. */
-    /* This is probably meaningless, unless cc == 1. */
-
-    for (i=0;i<L->cp[comp].cc;i++) {
-      L->cp[comp].clr[i] = spL->cp[comp].clr[i];
+      /* And interpolate the colors */
+      if (do_colors) {
+        cvhi = plcl_build_vect(spL->cp[comp].clr[shi].r,
+                               spL->cp[comp].clr[shi].g,
+                               spL->cp[comp].clr[shi].b);
+        cvlo = plcl_build_vect(spL->cp[comp].clr[slo].r,
+                               spL->cp[comp].clr[slo].g,
+                               spL->cp[comp].clr[slo].b);
+        plcl_M_vlincomb(cv,a,cvlo,b,cvhi);
+        L->cp[comp].clr[i] = plCurve_build_color(plcl_M_clist(cv),
+            a*spL->cp[comp].clr[slo].alpha+
+            b*spL->cp[comp].clr[shi].alpha);
+      }
     }
   }
+
+  plCurve_fix_wrap(L);
   return L;
 }
 
