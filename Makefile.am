@@ -37,8 +37,8 @@ exit_failure_tests_LDADD = libplCurve_cov.la
 exit_failure_tests_LDFLAGS = -static -fprofile-arcs
 exit_failure_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 
-knot_diagram_SOURCES = knot_diagram.c libplCurve.la
-knot_diagram_LDADD = libplCurve.la
+knot_diagram_SOURCES = knot_diagram.c libplCurve_safe.la
+knot_diagram_LDADD = libplCurve_safe.la
 if HAVE_ARGTABLE2
 knot_diagram_LDFLAGS = -static -largtable2
 else

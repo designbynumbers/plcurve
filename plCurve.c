@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.80 2006-03-10 21:52:51 ashted Exp $
+ *  $Id: plCurve.c,v 1.81 2006-03-13 21:21:16 ashted Exp $
  *
  */
 
@@ -73,9 +73,9 @@ static inline int intmax(const int a, const int b) {
  *
  */
 /*@only@*/ plCurve *plCurve_new(const int          components,
-                                const int  * const nv,
-                                const bool * const open,
-                                const int  * const cc) {
+                             const int  * const nv,
+                             const bool * const open,
+                             const int  * const cc) {
   plCurve *L;
   int i;
 
@@ -108,7 +108,7 @@ static inline int intmax(const int a, const int b) {
 
     L->cp[i].cc = cc[i];
     L->cp[i].clr =
-      (plCurve_color *)calloc((size_t)cc[i],sizeof(plCurve_color));
+      (plcl_color *)calloc((size_t)cc[i],sizeof(plcl_color));
     assert(L->cp[i].clr != NULL);
   }
   /*@=loopexec@*/
@@ -236,10 +236,10 @@ static inline plcl_vector Closest_plane_point(const plcl_vector point,
  * how far off it is.
  *
  */
-double plCurve_check_cst(const plCurve * const L) {
+double plcl_check_cst(const plCurve * const L) {
 
   plcl_vector closest;
-  plCurve_constraint *cst;
+  plcl_constraint *cst;
   double max_err = 0.0;
   int vert;
   double sq_dist;  /* The squared distance */
@@ -274,15 +274,15 @@ double plCurve_check_cst(const plCurve * const L) {
   }
 
   return sqrt(max_err);
-} /* plCurve_check_cst */
+} /* plcl_check_cst */
 
 /*
  * Fix any vertices which are out of compliance with their constraints.
  *
  */
-void plCurve_fix_cst(plCurve * const L) {
+void plcl_fix_cst(plCurve * const L) {
   plcl_vector closest;
-  plCurve_constraint *cst;
+  plcl_constraint *cst;
   int vert;
 
   /* Sanity check */
@@ -311,10 +311,10 @@ void plCurve_fix_cst(plCurve * const L) {
     cst = cst->next;
   }
 
-  plCurve_fix_wrap(L);
+  plcl_fix_wrap(L);
 
   return;
-} /* plCurve_fix_cst */
+} /* plcl_fix_cst */
 
 /*
  * Free the memory associated with a given plCurve.  We then set all the values
@@ -325,8 +325,8 @@ void plCurve_fix_cst(plCurve * const L) {
  */
 void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L) {
   int i;
-  plCurve_constraint *cst;
-  plCurve_vert_quant *qnt;
+  plcl_constraint *cst;
+  plcl_vert_quant *qnt;
 
   /* First, we check the input. */
   if (L == NULL) {
@@ -377,15 +377,15 @@ void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L) {
 } /* plCurve_free */
 
 /*@only@*/ static inline
-plCurve_constraint *new_constraint(const plCurve_cst_kind kind,
+plcl_constraint *new_constraint(const plcl_cst_kind kind,
                                    const plcl_vector vect[],
                                    const int cmp,
                                    const int vert,
                                    const int num_verts,
-             /*@only@*/ /*@null@*/ plCurve_constraint *next) {
-  plCurve_constraint *ncst;
+             /*@only@*/ /*@null@*/ plcl_constraint *next) {
+  plcl_constraint *ncst;
 
-  ncst = malloc(sizeof(plCurve_constraint));
+  ncst = malloc(sizeof(plcl_constraint));
   assert(ncst != NULL);
   ncst->kind = kind;
   ncst->vect[0] = vect[0];
@@ -403,9 +403,9 @@ plCurve_constraint *new_constraint(const plCurve_cst_kind kind,
  * which follow it.
  *
  */
-static inline void overrun_check(plCurve_constraint *cst) {
+static inline void overrun_check(plcl_constraint *cst) {
 
-  plCurve_constraint *temp_cst;
+  plcl_constraint *temp_cst;
 
   while (cst->next != NULL &&
          cst->next->cmp == cst->cmp &&
@@ -453,16 +453,16 @@ static inline void overrun_check(plCurve_constraint *cst) {
 } /* overrun_check */
 
 /* Set a constraint on a vertex or run of vertices */
-static inline void plCurve_set_constraint(plCurve * const L,
+static inline void plcl_set_constraint(plCurve * const L,
                                           const int          cmp,
                                           const int          vert,
                                           const int          num_verts,
-                                          const plCurve_cst_kind kind,
+                                          const plcl_cst_kind kind,
                                           const plcl_vector vect[]) {
 
-  plCurve_constraint *cst,*pcst; /* constraint, previous constraint */
-  plCurve_constraint **pfn; /* Place for new constraint */
-  plCurve_constraint *temp_cst;
+  plcl_constraint *cst,*pcst; /* constraint, previous constraint */
+  plcl_constraint **pfn; /* Place for new constraint */
+  plcl_constraint *temp_cst;
 
   /* First, we check the input. */
   assert(L != NULL);
@@ -586,20 +586,20 @@ static inline void plCurve_set_constraint(plCurve * const L,
   /*@-usereleased -compdef@*/
   return;
   /*@=usereleased =compdef@*/
-} /* plCurve_set_constraint */
+} /* plcl_set_constraint */
 
-/* Now the four functions which call plCurve_set_constraint */
-void plCurve_set_fixed(plCurve * const L,
+/* Now the four functions which call plcl_set_constraint */
+void plcl_set_fixed(plCurve * const L,
                        const int          cmp,
                        const int          vert,
                        const plcl_vector point) {
   plcl_vector zv = {{ 0.0, 0.0, 0.0 }};
   plcl_vector vect[2] = { point, zv };
 
-  plCurve_set_constraint(L,cmp,vert,1,fixed,vect);
+  plcl_set_constraint(L,cmp,vert,1,fixed,vect);
 }
 
-void plCurve_constrain_to_line(plCurve * const L,
+void plcl_constrain_to_line(plCurve * const L,
                                const int          cmp,
                                const int          vert,
                                const int          num_verts,
@@ -607,10 +607,10 @@ void plCurve_constrain_to_line(plCurve * const L,
                                const plcl_vector point_on_line) {
   plcl_vector vect[2] = { tangent, point_on_line };
 
-  plCurve_set_constraint(L,cmp,vert,num_verts,line,vect);
+  plcl_set_constraint(L,cmp,vert,num_verts,line,vect);
 }
 
-void plCurve_constrain_to_plane(plCurve * const L,
+void plcl_constrain_to_plane(plCurve * const L,
                                 const int          cmp,
                                 const int          vert,
                                 const int          num_verts,
@@ -619,16 +619,16 @@ void plCurve_constrain_to_plane(plCurve * const L,
   plcl_vector dz = {{ dist_from_origin, 0.0, 0.0 }};
   plcl_vector vect[2] = { normal, dz };
 
-  plCurve_set_constraint(L,cmp,vert,num_verts,plane,vect);
+  plcl_set_constraint(L,cmp,vert,num_verts,plane,vect);
 }
 
-void plCurve_unconstrain(plCurve * const L, const int cmp,
+void plcl_unconstrain(plCurve * const L, const int cmp,
                          const int vert, const int num_verts) {
 
   plcl_vector zv = {{ 0.0, 0.0, 0.0 }};
   plcl_vector zero_vect[2] = {zv, zv};
 
-  plCurve_set_constraint(L,cmp,vert,num_verts,unconstrained,zero_vect);
+  plcl_set_constraint(L,cmp,vert,num_verts,unconstrained,zero_vect);
 }
 
 /*
@@ -636,10 +636,10 @@ void plCurve_unconstrain(plCurve * const L, const int cmp,
  * the number of vertices thus set unconstrained.
  *
  */
-int plCurve_remove_constraint(plCurve * const L,
-                              const plCurve_cst_kind kind,
+int plcl_remove_constraint(plCurve * const L,
+                              const plcl_cst_kind kind,
                               const plcl_vector vect[]) {
-  plCurve_constraint **cst_pptr,*cst_ptr;
+  plcl_constraint **cst_pptr,*cst_ptr;
   int uncst = 0;
 
   assert(L != NULL);
@@ -667,11 +667,11 @@ int plCurve_remove_constraint(plCurve * const L,
   /*@-usereleased -compdef@*/
   return uncst;
   /*@=usereleased =compdef@*/
-} /* plCurve_remove_constraint */
+} /* plcl_remove_constraint */
 
 /* Remove all constraints */
-void plCurve_remove_all_constraints(plCurve * const L) {
-  plCurve_constraint *cst;
+void plcl_remove_all_constraints(plCurve * const L) {
+  plcl_constraint *cst;
 
   /* Start with a sanity check */
   assert(L != NULL);
@@ -682,7 +682,7 @@ void plCurve_remove_all_constraints(plCurve * const L) {
     free(cst);
     cst = L->cst;
   }
-} /* plCurve_remove_all_constraints */
+} /* plcl_remove_all_constraints */
 
 /*
  * Writes the plCurve to a file in Geomview VECT format.  The file format is:
@@ -704,17 +704,17 @@ void plCurve_remove_all_constraints(plCurve * const L) {
  *
  */
 
-void plCurve_write(FILE *outfile, plCurve * const L) {
+void plcl_write(FILE *outfile, plCurve * const L) {
   int i,j;                  /* Counters for the for loops */
   int nverts = 0;           /* Total number of vertices of all components */
   int colors = 0;           /* Total number of colors of all components */
   char outstr[80];          /* So we can wrap the vertex lines */
   int cst_num;              /* This constraint */
   int **cst_nums;           /* All constraint numbers */
-  plCurve_constraint *cst;  /* Current constraint */
-  plCurve_constraint *cst2;
+  plcl_constraint *cst;  /* Current constraint */
+  plcl_constraint *cst2;
   /* All the constraints (without duplicates) */
-  plCurve_constraint *cst_list = NULL;
+  plcl_constraint *cst_list = NULL;
   bool found;
 
   /* First, do a little sanity checking. */
@@ -1027,7 +1027,7 @@ static inline int scanints(FILE *infile,int nints, ...)
  * than 3, require the component to be considered open.
  *
  */
-void plCurve_fix_wrap(plCurve * const L) {
+void plcl_fix_wrap(plCurve * const L) {
   int          i,nv;
 
   for (i = 0; i < L->nc; i++) {
@@ -1054,7 +1054,7 @@ void plCurve_fix_wrap(plCurve * const L) {
  * failure.
  *
  */
-/*@only@*/ /*@null@*/ plCurve *plCurve_read(FILE *file,
+/*@only@*/ /*@null@*/ plCurve *plcl_read(FILE *file,
                                   /*@out@*/ int *error_num,
                                   /*@out@*/ char error_str[],
                                             size_t error_str_len) {
@@ -1069,7 +1069,7 @@ void plCurve_fix_wrap(plCurve * const L) {
   /*@temp@*/ char *place;
   char *space = " ";
   size_t parsed;
-  plCurve_constraint *cst_list;
+  plcl_constraint *cst_list;
   size_t cst_list_len = (size_t)2;
   int cst_num, prev_cst_num, prev_cst_vert;
 
@@ -1082,7 +1082,7 @@ void plCurve_fix_wrap(plCurve * const L) {
   if (fscanf(file," VECT ") == EOF) {
     *error_num = PLCL_E_NO_VECT;
     (void)snprintf(error_str,error_str_len,
-        "plCurve_read: Couldn't find VECT keyword.\n");
+        "plcl_read: Couldn't find VECT keyword.\n");
     return NULL;
   }
 
@@ -1091,14 +1091,14 @@ void plCurve_fix_wrap(plCurve * const L) {
   if (scanints(file,3,&ncomp,&nverts,&ncolors) != 3) {
     *error_num = PLCL_E_BAD_CVC_LINE;
     (void)snprintf(error_str,error_str_len,
-      "plCurve_read: Couldn't parse <ncomp> <nverts> <ncolors> line.\n");
+      "plcl_read: Couldn't parse <ncomp> <nverts> <ncolors> line.\n");
     return NULL;
   }
 
   if (ncomp <= 0) {
     *error_num = PLCL_E_BAD_CMP_NUM;
     (void)snprintf(error_str,error_str_len,
-        "plCurve_read: VECT file defines plCurve with %d compoments.\n",ncomp);
+        "plcl_read: VECT file defines plCurve with %d compoments.\n",ncomp);
     return NULL;
   }
 
@@ -1118,7 +1118,7 @@ void plCurve_fix_wrap(plCurve * const L) {
     if (scanints(file,1,&(nvarray[i])) != 1) {
       *error_num = PLCL_E_BAD_CVRT_LINE;
       (void)snprintf(error_str,error_str_len,
-          "plCurve_read: Couldn't parse number of vertices in component %d.\n",
+          "plcl_read: Couldn't parse number of vertices in component %d.\n",
           i);
       free(nvarray);
       free(open);
@@ -1138,7 +1138,7 @@ void plCurve_fix_wrap(plCurve * const L) {
     if (scanints(file,1,&(ccarray[i])) != 1) {
       *error_num = PLCL_E_BAD_CLR_LINE;
       (void)snprintf(error_str,error_str_len,
-          "plCurve_read: Couldn't parse <ncolors> for component %d.\n", i);
+          "plcl_read: Couldn't parse <ncolors> for component %d.\n", i);
       free(nvarray);
       free(open);
       free(ccarray);
@@ -1159,8 +1159,8 @@ void plCurve_fix_wrap(plCurve * const L) {
 
   /* Now get the constraint definitions, if any */
 
-  cst_list = (plCurve_constraint *)
-    calloc(cst_list_len,sizeof(plCurve_constraint));
+  cst_list = (plcl_constraint *)
+    calloc(cst_list_len,sizeof(plcl_constraint));
   assert(cst_list != NULL);
   comment = get_comment(file);
 /* If we don't know about strcasestr, use strstr instead, losing case
@@ -1182,7 +1182,7 @@ void plCurve_fix_wrap(plCurve * const L) {
       free(comment); \
       *error_num = PLCL_E_BAD_CST_LINE; \
       (void)snprintf(error_str,error_str_len, \
-        "plCurve_read: Couldn't parse constraint line.\n"); \
+        "plcl_read: Couldn't parse constraint line.\n"); \
       return NULL; \
     }
     place_not_null;
@@ -1198,13 +1198,13 @@ void plCurve_fix_wrap(plCurve * const L) {
       free(comment);
       *error_num = PLCL_E_BAD_CST_NUM;
       (void)snprintf(error_str,error_str_len,
-        "plCurve_read: Couldn't parse constraint number from '%s'.\n",place);
+        "plcl_read: Couldn't parse constraint number from '%s'.\n",place);
       return NULL;
     }
     if (cst_num+1 > (int)cst_list_len) {
       cst_list_len = (size_t)(10*((cst_num+11) % 10)); /* Allocate by 10s */
       assert(cst_list->next == NULL);
-      cst_list = realloc(cst_list,cst_list_len*sizeof(plCurve_constraint));
+      cst_list = realloc(cst_list,cst_list_len*sizeof(plcl_constraint));
       assert(cst_list != NULL);
     }
     place = strtok(NULL, space); /* The constraint type */
@@ -1222,7 +1222,7 @@ void plCurve_fix_wrap(plCurve * const L) {
         free(comment);
         *error_num = PLCL_E_BAD_CST_NUMS;
         (void)snprintf(error_str,error_str_len,
-          "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
+          "plcl_read: Bad numbers for constraint %d.\n",cst_num);
         return NULL;
       }
       cst_list[cst_num].vect[1] = plcl_build_vect(0.0, 0.0, 0.0);
@@ -1247,7 +1247,7 @@ void plCurve_fix_wrap(plCurve * const L) {
         free(comment);
         *error_num = PLCL_E_BAD_CST_NUMS;
         (void)snprintf(error_str,error_str_len,
-            "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
+            "plcl_read: Bad numbers for constraint %d.\n",cst_num);
         return NULL;
       }
       for (i=0; i < 6; i++) {
@@ -1269,7 +1269,7 @@ void plCurve_fix_wrap(plCurve * const L) {
         free(comment);
         *error_num = PLCL_E_BAD_CST_NUMS;
         (void)snprintf(error_str,error_str_len,
-          "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
+          "plcl_read: Bad numbers for constraint %d.\n",cst_num);
         return NULL;
       }
       cst_list[cst_num].vect[1].c[1] = 0.0;
@@ -1287,7 +1287,7 @@ void plCurve_fix_wrap(plCurve * const L) {
       free(comment);
       *error_num = PLCL_E_BAD_CST_KIND;
       (void)snprintf(error_str,error_str_len,
-        "plCurve_read: Unrecognized constraint kind '%s'.\n",place);
+        "plcl_read: Unrecognized constraint kind '%s'.\n",place);
       return NULL;
     }
   }
@@ -1305,7 +1305,7 @@ void plCurve_fix_wrap(plCurve * const L) {
         free(cst_list);
         *error_num = PLCL_E_BAD_VERT_LINE;
         (void)snprintf(error_str,error_str_len,
-          "plCurve_read: Couldn't parse <x> <y> <z> data for vertex %d of "
+          "plcl_read: Couldn't parse <x> <y> <z> data for vertex %d of "
           "component %d.\n",j,i);
         return NULL;
       }
@@ -1322,14 +1322,14 @@ void plCurve_fix_wrap(plCurve * const L) {
           free(comment);
           *error_num = PLCL_E_BAD_CST_NUM;
           (void)snprintf(error_str,error_str_len,
-            "plCurve_read: Bad numbers for constraint %d.\n",cst_num);
+            "plcl_read: Bad numbers for constraint %d.\n",cst_num);
           return NULL;
         }
       }
       free(comment);
       if (cst_num != prev_cst_num) {
         if (prev_cst_num != 0) {
-          plCurve_set_constraint(L, i, prev_cst_vert, j - prev_cst_vert,
+          plcl_set_constraint(L, i, prev_cst_vert, j - prev_cst_vert,
               cst_list[prev_cst_num].kind, cst_list[prev_cst_num].vect);
         }
         prev_cst_num = cst_num;
@@ -1337,12 +1337,12 @@ void plCurve_fix_wrap(plCurve * const L) {
       }
     }
     if (prev_cst_num != 0) {
-      plCurve_set_constraint(L, i, prev_cst_vert, j - prev_cst_vert,
+      plcl_set_constraint(L, i, prev_cst_vert, j - prev_cst_vert,
           cst_list[cst_num].kind, cst_list[cst_num].vect);
     }
   }
   /* Now set the "wrap-around" vertices */
-  plCurve_fix_wrap(L);
+  plcl_fix_wrap(L);
 
   /*
    * And next the colors. Unfortunately, to really comply with
@@ -1357,7 +1357,7 @@ void plCurve_fix_wrap(plCurve * const L) {
         free(cst_list);
         *error_num = PLCL_E_BAD_COLOR;
         (void)snprintf(error_str,error_str_len,
-          "plCurve_read: Couldn't parse color %d in component %d of "
+          "plcl_read: Couldn't parse color %d in component %d of "
           "plCurve (%d).\n",j,i,ds);
         return NULL;
       }
@@ -1373,7 +1373,7 @@ void plCurve_fix_wrap(plCurve * const L) {
 /*
  *   Return the total number of edges in plCurve.
  */
-int plCurve_num_edges(plCurve * const L) /*@modifies nothing@*/
+int plcl_num_edges(plCurve * const L) /*@modifies nothing@*/
 {
   int i, edges = 0;
 
@@ -1384,7 +1384,7 @@ int plCurve_num_edges(plCurve * const L) /*@modifies nothing@*/
 }
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
-double plCurve_MR_curvature(plCurve * const L, const int cmp, const int vert) {
+double plcl_MR_curvature(plCurve * const L, const int cmp, const int vert) {
 
   double      kappa;
   plcl_vector in,out;
@@ -1418,12 +1418,12 @@ double plCurve_MR_curvature(plCurve * const L, const int cmp, const int vert) {
  * Duplicate a plCurve and return the duplicate.
  *
  */
-plCurve *plCurve_copy(const plCurve * const L) {
+plCurve *plcl_copy(const plCurve * const L) {
   plCurve *nL;
   int *nv, *ccarray;
   bool *open;
   int cnt,cnt2;
-  plCurve_constraint *cst,*cst2;
+  plcl_constraint *cst,*cst2;
 
   assert(L->nc >= 1);
 
@@ -1468,7 +1468,7 @@ plCurve *plCurve_copy(const plCurve * const L) {
   for (cnt = 0; cnt < L->nc; cnt++) {
     /*
      * Copy the vertices (including the "hidden" ones, so we don't have to call
-     * plCurve_fix_wrap).
+     * plcl_fix_wrap).
      */
     for (cnt2 = -1; cnt2 <= L->cp[cnt].nv; cnt2++) {
       nL->cp[cnt].vt[cnt2] = L->cp[cnt].vt[cnt2];
@@ -1488,7 +1488,7 @@ plCurve *plCurve_copy(const plCurve * const L) {
  * and (8.0,0.0,0.0) is (4.0,0.0,3.0) which normalizes to (0.8,0.0,0.6)
  *
  */
-plcl_vector plCurve_mean_tangent(const plCurve * const L, const int cmp,
+plcl_vector plcl_mean_tangent(const plCurve * const L, const int cmp,
                                  const int vert, bool *ok) {
 
   if (L->cp[cmp].open) {
@@ -1510,7 +1510,7 @@ plcl_vector plCurve_mean_tangent(const plCurve * const L, const int cmp,
   return plcl_normalize_vect(
       plcl_vect_diff(L->cp[cmp].vt[vert+1],L->cp[cmp].vt[vert-1]),
       ok);
-} /* plCurve_tangent_vector */
+} /* plcl_tangent_vector */
 
 /*
  * Procedure computes the length of each component of the plCurve, and fills in
@@ -1519,7 +1519,7 @@ plcl_vector plCurve_mean_tangent(const plCurve * const L, const int cmp,
  * called. 
  *
  */
-double plCurve_arclength(const plCurve * const L,
+double plcl_arclength(const plCurve * const L,
     /*@null@*/ /*@out@*/ double *component_lengths)
 {
   double tot_length,c_length;
@@ -1550,14 +1550,14 @@ double plCurve_arclength(const plCurve * const L,
   /*@=loopexec@*/
 
   return tot_length;
-} /* plCurve_arclength */
+} /* plcl_arclength */
 
 /*
  * Report the arclength distance from one vertex to another.  On closed
  * strands, give the shortest of the two options. 
  *
  */
-double plCurve_subarc_length(const plCurve * const L, const int cmp, 
+double plcl_subarc_length(const plCurve * const L, const int cmp, 
                              const int vert1, const int vert2)
 {
   double length1, length2;
@@ -1603,7 +1603,7 @@ double plCurve_subarc_length(const plCurve * const L, const int cmp,
  * Either return or display the library version number.
  *
  */
-void plCurve_version(/*@null@*/ char *version, size_t strlen) {
+void plcl_version(/*@null@*/ char *version, size_t strlen) {
   if (version == NULL) {
     printf("plCurve Version: %s\n",PACKAGE_VERSION);
   } else {
@@ -1612,21 +1612,21 @@ void plCurve_version(/*@null@*/ char *version, size_t strlen) {
 }
 
 /* Put 4 doubles together into a color */
-plCurve_color plCurve_build_color(const double r,
+plcl_color plcl_build_color(const double r,
                                   const double g,
                                   const double b,
                                   const double alpha) {
-  plCurve_color C = { r, g, b, alpha };
+  plcl_color C = { r, g, b, alpha };
   return C;
 }
 
 /* Add a component with nv vertices read from the array vt and cc colors read
  * from the array clr.  The parameter add_as tells what the new component
  * number will be (any components above it will be moved up by 1. */
-void plCurve_add_component(plCurve *L, const int add_as, const int nv, 
+void plcl_add_component(plCurve *L, const int add_as, const int nv, 
                       const bool open, const int cc,
                       const plcl_vector * const vt,
-           /*@null@*/ const plCurve_color * const clr) {
+           /*@null@*/ const plcl_color * const clr) {
   plCurve_strand *cp;
 
   assert(L != NULL);
@@ -1660,18 +1660,18 @@ void plCurve_add_component(plCurve *L, const int add_as, const int nv,
 
   cp->cc = cc;
   if (clr != NULL) {
-    cp->clr = (plCurve_color *)calloc((size_t)cc,sizeof(plCurve_color));
+    cp->clr = (plcl_color *)calloc((size_t)cc,sizeof(plcl_color));
     assert(cp->clr != NULL);
-    memmove(cp->clr,clr,cc*sizeof(plCurve_color));
+    memmove(cp->clr,clr,cc*sizeof(plcl_color));
   } else {
     cp->clr = NULL;
   }
 /*@-nullstate@*/
-  plCurve_fix_wrap(L);
+  plcl_fix_wrap(L);
 }
 /*@=nullstate@*/
 
-void plCurve_drop_component(plCurve *L, const int cmp) {
+void plcl_drop_component(plCurve *L, const int cmp) {
   int cnt;
 
   assert(L != NULL);

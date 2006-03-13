@@ -36,7 +36,13 @@
 static void remove_vertex(plCurve * const L, const int cmp, const int vert,
                           bool *start_over) {
   plcl_vector *vt;
-  plCurve_color *clr;
+  plcl_color *clr;
+
+  assert(L != NULL);
+  assert(cmp >= 0);
+  assert(cmp < L->nc);
+  assert(vert >= 0);
+  assert(vert < L->cp[cmp].nv);
 
   *start_over = false;
   
@@ -56,13 +62,13 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
     if (L->cp[cmp].cc > L->cp[cmp].nv) { 
       L->cp[cmp].cc = L->cp[cmp].nv;
       memmove(L->cp[cmp].clr, &(L->cp[cmp].clr[vert+1]),
-          L->cp[cmp].nv*sizeof(plCurve_color));
+          L->cp[cmp].nv*sizeof(plcl_color));
     }
     L->cp[cmp].open = true;
   } else {
     /* Middle vertex */
     if (L->cp[cmp].open) {
-      plCurve_add_component(L,cmp+1,L->cp[cmp].nv-(vert+1),true,
+      plcl_add_component(L,cmp+1,L->cp[cmp].nv-(vert+1),true,
           (L->cp[cmp].cc < L->cp[cmp].nv) ? L->cp[cmp].cc :
           L->cp[cmp].nv-(vert+1),&(L->cp[cmp].vt[vert+1]),
           (L->cp[cmp].cc < L->cp[cmp].nv) ? L->cp[cmp].clr :
@@ -86,14 +92,14 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
       memcpy(&(vt[L->cp[cmp].nv-vert]),L->cp[cmp].vt,vert*sizeof(plcl_vector));
       memcpy(L->cp[cmp].vt,vt,L->cp[cmp].nv*sizeof(plcl_vector));
       if (L->cp[cmp].cc > L->cp[cmp].nv) {
-        clr = malloc(L->cp[cmp].nv*sizeof(plCurve_color));
+        clr = malloc(L->cp[cmp].nv*sizeof(plcl_color));
         assert(clr != NULL);
         L->cp[cmp].cc = L->cp[cmp].nv;
         memcpy(clr,&(L->cp[cmp].clr[vert+1]),
-            (L->cp[cmp].nv-vert)*sizeof(plCurve_color));
+            (L->cp[cmp].nv-vert)*sizeof(plcl_color));
         memcpy(&(clr[L->cp[cmp].nv-vert]),L->cp[cmp].clr,
-            vert*sizeof(plCurve_color));
-        memcpy(L->cp[cmp].clr,clr,L->cp[cmp].nv*sizeof(plCurve_color));
+            vert*sizeof(plcl_color));
+        memcpy(L->cp[cmp].clr,clr,L->cp[cmp].nv*sizeof(plcl_color));
         free(clr);
       }
       free(vt);
@@ -103,17 +109,17 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
   }
   if (L->cp[cmp].nv <= 1) {
     /* Ran out of edges here, get rid of the component */
-    plCurve_drop_component(L,cmp);
+    plcl_drop_component(L,cmp);
     *start_over = true;
   }
-  plCurve_fix_wrap(L);
+  plcl_fix_wrap(L);
 }
 
 #define pi 3.1415926
 #define showCurve(F) \
   if (show_work >= 5) { \
     fprintf(geomview,"(geometry Curve "); \
-    plCurve_write(geomview,F); \
+    plcl_write(geomview,F); \
     fprintf(geomview,") (look-recenter Curve) (look-encompass Curve)\n"); \
     fflush(geomview); \
   }
@@ -142,7 +148,9 @@ static plCurve *flatten(const plCurve * const L,
   bool start_over;
   int wherecnt;
 
-  F = plCurve_copy(L);
+  assert(L != NULL);
+
+  F = plcl_copy(L);
 
   /* First rotate so that the given normal vector lies along the z axis. */
   n = plcl_normalize_vect(N,NULL); /* Bail out if we give it a bad vector */
@@ -173,7 +181,7 @@ static plCurve *flatten(const plCurve * const L,
   showCurve(F);
   if (show_work >=5) { usleep(delay*100); }
 
-  H = plCurve_copy(F);
+  H = plcl_copy(F);
   assert(H != NULL);
   /* Flatten F.  Retain heights in H. */
   for (cmp = 0; cmp < F->nc; cmp++) {
@@ -299,7 +307,7 @@ static void add_convex_hull(plCurve *L) {
   int cmp,vert;
   plcl_vector first,next;
   plcl_vector x_vect,y_vect,cross;
-  plCurve_color *clr;
+  plcl_color *clr;
 
   for (nv = 0, cmp = 0; cmp < L->nc; cmp++) {
     nv += L->cp[cmp].nv;
@@ -379,7 +387,7 @@ static void add_convex_hull(plCurve *L) {
     clr[vert].alpha = 1.0;
   }
   /*@=loopexec@*/
-  plCurve_add_component(L,L->nc,verts,false,verts,vt,clr);
+  plcl_add_component(L,L->nc,verts,false,verts,vt,clr);
   free(vt);
   free(clr);
 }
@@ -437,7 +445,7 @@ static void rotate_2pic(plCurve *L) {
   sin_theta = dir.c[0];
 
   /* Drop the convex hull */
-  plCurve_drop_component(L,L->nc-1);
+  plcl_drop_component(L,L->nc-1);
 
   /* Rotate */
   for (cmp = 0; cmp < L->nc; cmp++) {
@@ -466,8 +474,8 @@ int main(int argc, char *argv[]) {
   int show_work = 0;
   int tries = 20;
   int delay = 16000;
-  FILE *geomview;
-  char revision[20] = "$Revision: 1.13 $";
+  FILE *geomview = NULL;
+  char revision[20] = "$Revision: 1.14 $";
   char *dollar;
 
 #ifdef HAVE_ARGTABLE2_H
@@ -497,7 +505,7 @@ int main(int argc, char *argv[]) {
         
   dollar = strchr(&revision[1],'$');
   dollar[0] = '\0';
-  plCurve_version(NULL,0);
+  plcl_version(NULL,0);
   fprintf(stderr,"knot_diagram v%s\n",&revision[11]);
   fprintf(stderr,"  Produce a knot diagram from a VECT file.\n");
 
@@ -547,7 +555,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   assert(vectfile != NULL);
-  L = plCurve_read(vectfile,&err_num,err_str,80);
+  L = plcl_read(vectfile,&err_num,err_str,80);
   (void)fclose(vectfile);
   if (err_num != 0) {
     fprintf(stderr,"Error reading file %s:\n%s\n",
@@ -582,6 +590,7 @@ int main(int argc, char *argv[]) {
   for (cnt = 0; cnt < tries; cnt++) {
     G = flatten(L,plcl_random_vect(),max_edge/1.2,2.0*max_edge,
           geomview,delay,show_work);
+    assert(G != NULL);
     showCurve(G);
     if (show_work >= 5) { usleep(delay*100); }
     verts_left = 0;
@@ -589,7 +598,7 @@ int main(int argc, char *argv[]) {
     for (cmp = 0; cmp < G->nc; cmp++) {
       verts_left += G->cp[cmp].nv;
       for (vert = 0; vert < G->cp[cmp].nv; vert++) {
-        total_curvature += plCurve_MR_curvature(G,cmp,vert);
+        total_curvature += plcl_MR_curvature(G,cmp,vert);
       }
     }
     if (show_work > 0) {
@@ -630,13 +639,18 @@ int main(int argc, char *argv[]) {
   if (outname->count > 0) {
     vectfile = fopen(outname->filename[0],"w");
     assert(vectfile != NULL);
-    plCurve_write(vectfile,F);
+    plcl_write(vectfile,F);
     (void)fclose(vectfile);
   } else {
-    plCurve_write(stdout,F);
+    plcl_write(stdout,F);
   }
 #else
-  plCurve_write(stdout,F);
+  plcl_write(stdout,F);
 #endif
+
+  plCurve_free(F);
+  plCurve_free(L);
+  arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+
   exit(EXIT_SUCCESS);
 }

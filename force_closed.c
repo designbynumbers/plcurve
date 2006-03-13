@@ -5,11 +5,11 @@
  * fix_wrap.
  *
  */
-void plCurve_force_closed(plCurve * const L) {
+void plcl_force_closed(plCurve * const L) {
   int i, cmp, nv;
   plcl_vector diff;
   double half;
-  plCurve_constraint *pcst,*cst;
+  plcl_constraint *pcst,*cst;
 
   for (cmp=0;cmp < L->nc;cmp++) {
     if (L->cp[cmp].open == true) {  /* Isolate the open components. */
@@ -70,7 +70,7 @@ void plCurve_force_closed(plCurve * const L) {
   
   /* Someday we'll deal with quantifiers here */
 
-  plCurve_fix_wrap(L);
+  plcl_fix_wrap(L);
 /*@-compdef -usereleased@*/
-} /* plCurve_force_closed */
+} /* plcl_force_closed */
 /*@=compdef =usereleased@*/
