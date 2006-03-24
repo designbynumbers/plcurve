@@ -13,11 +13,11 @@ int main(int argc,char **argv) {
   if (argc == 2) {
     switch (argv[1][0]) {
       case '1' :
-        (void)plcl_normalize_vect(plcl_build_vect(0.0,0.0,0.0),NULL);
+        (void)plc_normalize_vect(plc_build_vect(0.0,0.0,0.0),NULL);
         break;
       case '2' :
-        (void)plcl_component_div(plcl_build_vect(1.0,1.0,1.0),
-                                 plcl_build_vect(1.0,1.0,0.0),NULL);
+        (void)plc_component_div(plc_build_vect(1.0,1.0,1.0),
+                                plc_build_vect(1.0,1.0,0.0),NULL);
         break;
       case '3' :
         exit(EXIT_SUCCESS);

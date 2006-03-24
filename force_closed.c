@@ -5,11 +5,11 @@
  * fix_wrap.
  *
  */
-void plcl_force_closed(plCurve * const L) {
+void plc_force_closed(plCurve * const L) {
   int i, cmp, nv;
-  plcl_vector diff;
+  plc_vector diff;
   double half;
-  plcl_constraint *pcst,*cst;
+  plc_constraint *pcst,*cst;
 
   for (cmp=0;cmp < L->nc;cmp++) {
     if (L->cp[cmp].open == true) {  /* Isolate the open components. */
@@ -17,17 +17,17 @@ void plcl_force_closed(plCurve * const L) {
       half = (nv-1.0)/2.0;
 
       /* Compute the error in closure */
-      diff = plcl_vect_diff(L->cp[cmp].vt[nv-1],L->cp[cmp].vt[0]);
+      diff = plc_vect_diff(L->cp[cmp].vt[nv-1],L->cp[cmp].vt[0]);
 
       for (i=0; i < nv; i++) {
         /* add half of diff to vt[0] and subtract half of diff from vt[0] and
          * prorate the others :-) */
-        plcl_M_vmadd(L->cp[cmp].vt[i],(half-i)/(nv-1.0),diff);
+        plc_M_vmadd(L->cp[cmp].vt[i],(half-i)/(nv-1.0),diff);
       }
 
       /* We claim to have moved the last vertex on top of the first. */
-      diff = plcl_vect_diff(L->cp[cmp].vt[0], L->cp[cmp].vt[nv-1]);
-      assert(plcl_M_dot(diff,diff) < DBL_EPSILON);
+      diff = plc_vect_diff(L->cp[cmp].vt[0], L->cp[cmp].vt[nv-1]);
+      assert(plc_M_dot(diff,diff) < DBL_EPSILON);
 
       /* Thus we eliminate the last vertex. */
       L->cp[cmp].nv--;
@@ -70,7 +70,7 @@ void plcl_force_closed(plCurve * const L) {
   
   /* Someday we'll deal with quantifiers here */
 
-  plcl_fix_wrap(L);
+  plc_fix_wrap(L);
 /*@-compdef -usereleased@*/
-} /* plcl_force_closed */
+} /* plc_force_closed */
 /*@=compdef =usereleased@*/

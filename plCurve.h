@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.50 2006-03-13 21:21:16 ashted Exp $
+ *  $Id: plCurve.h,v 1.51 2006-03-24 19:43:31 ashted Exp $
  *
  */
 
@@ -48,140 +48,140 @@ extern "C" {
 #include <stdbool.h>
 
 /* Define 3-space vectors */
-typedef struct plcl_vector_type {
+typedef struct plc_vector_type {
   double c[3];
-} plcl_vector;
+} plc_vector;
 
-typedef struct plcl_color_type {
+typedef struct plc_color_type {
   double r;
   double g;
   double b;
   double alpha;
-} plcl_color;
+} plc_color;
 
-typedef struct plCurve_strand_type {
+typedef struct plc_strand_type {
   int            nv;     /* Number of vertices */
   bool           open;   /* This is an "open" strand (with distinct ends) */
   int            cc;     /* Color count (number of colors) */
-  plcl_vector   *vt;     /* Actual vertices */
-  plcl_color    *clr;    /* Colors */
-} plCurve_strand;
+  plc_vector   *vt;     /* Actual vertices */
+  plc_color    *clr;    /* Colors */
+} plc_strand;
 
 /* Curve constraint kind */
-typedef enum plcl_cst_kind_type {
+typedef enum plc_cst_kind_type {
   unconstrained = 0,
   fixed,
   line,
   plane,
-} plcl_cst_kind;
+} plc_cst_kind;
 
-typedef struct plcl_constraint_type {
-  plcl_cst_kind kind;    /* What kind of constraint */
-  plcl_vector   vect[2]; /* Vectors to define plane, line or fixed point */
+typedef struct plc_constraint_type {
+  plc_cst_kind kind;    /* What kind of constraint */
+  plc_vector   vect[2]; /* Vectors to define plane, line or fixed point */
   int           cmp;     /* Component */
   int           vert;    /* Starting vertex */
   int           num_verts; /* Length of run */
-  /*@only@*/ /*@null@*/ struct plcl_constraint_type *next;
-} plcl_constraint;
+  /*@only@*/ /*@null@*/ struct plc_constraint_type *next;
+} plc_constraint;
 
-typedef struct plcl_vert_quant_type { /* Vertex quantifiers */
+typedef struct plc_vert_quant_type { /* Vertex quantifiers */
   int              cmp;    /* Component */
   int              vert;   /* Vertex */
   char             tag[4]; /* 3-character tag */
   double           quant;  /* Quantifier */
-  /*@only@*/ /*@null@*/ struct plcl_vert_quant_type *next;
-} plcl_vert_quant;
+  /*@only@*/ /*@null@*/ struct plc_vert_quant_type *next;
+} plc_vert_quant;
 
-typedef struct plCurve_type {
+typedef struct plc_type {
   int             nc;                           /* Number of components */
-  plCurve_strand *cp;                           /* Components */
-  /*@only@*/ /*@null@*/ plcl_constraint *cst;   /* Constraints */
-  /*@only@*/ /*@null@*/ plcl_vert_quant *quant; /* per-vertex quantifiers */
+  plc_strand *cp;                           /* Components */
+  /*@only@*/ /*@null@*/ plc_constraint *cst;   /* Constraints */
+  /*@only@*/ /*@null@*/ plc_vert_quant *quant; /* per-vertex quantifiers */
 } plCurve;
 
 /* PlCurve_spline types */
-typedef struct plcl_spline_strand_type {
+typedef struct plc_spline_strand_type {
   bool         open;     /* This is an "open" strand (with distinct ends) */
   int          ns;       /* Number of samples used to build spline. */
   double      *svals;    /* s values at samples */
-  plcl_vector *vt;       /* positions at these s values */
-  plcl_vector *vt2;      /* _second_ derivatives at these s values */
+  plc_vector *vt;       /* positions at these s values */
+  plc_vector *vt2;      /* _second_ derivatives at these s values */
   int          cc;       /* Number of colors */
-  plcl_color  *clr;      /* color values at samples */
-} plcl_spline_strand;
+  plc_color  *clr;      /* color values at samples */
+} plc_spline_strand;
 
-typedef struct plcl_spline_type {
+typedef struct plc_spline_type {
   int                 nc;     /* Number of components */
-  plcl_spline_strand *cp;     /* Components */
-} plcl_spline;
+  plc_spline_strand *cp;     /* Components */
+} plc_spline;
 
 /*
  * Prototypes for vector routines.
  *
  */
 
-plcl_vector plcl_vect_sum(plcl_vector A,plcl_vector B);   /* A + B */
-plcl_vector plcl_vect_diff(plcl_vector A,plcl_vector B);  /* A - B */
-plcl_vector plcl_cross_prod(plcl_vector A,plcl_vector B); /* A x B */
-plcl_vector plcl_scale_vect(double s,plcl_vector A);      /* sA */
-plcl_vector plcl_normalize_vect(const plcl_vector V,
+plc_vector plc_vect_sum(plc_vector A,plc_vector B);   /* A + B */
+plc_vector plc_vect_diff(plc_vector A,plc_vector B);  /* A - B */
+plc_vector plc_cross_prod(plc_vector A,plc_vector B); /* A x B */
+plc_vector plc_scale_vect(double s,plc_vector A);      /* sA */
+plc_vector plc_normalize_vect(const plc_vector V,
                                 /*@null@*/ bool *ok);     /* V/|V| */
-plcl_vector plcl_random_vect(void);
+plc_vector plc_random_vect(void);
 
 /* Translate three doubles into a vector */
-plcl_vector plcl_build_vect(const double x, const double y, const double z);
+plc_vector plc_build_vect(const double x, const double y, const double z);
 
 /* Multiply or divide two ordered triples componetwise */
-plcl_vector plcl_component_mult(plcl_vector A, plcl_vector B);
-plcl_vector plcl_component_div(plcl_vector A, plcl_vector B,
+plc_vector plc_component_mult(plc_vector A, plc_vector B);
+plc_vector plc_component_div(plc_vector A, plc_vector B,
                                /*@null@*/ bool *ok);
 
 /* Return a linear combination: a*A + b*B */
-plcl_vector plcl_vlincomb(double a,plcl_vector A, double b,plcl_vector B);
-plcl_vector plcl_vmadd(plcl_vector A, double s, plcl_vector B); /* A + sB */
-plcl_vector plcl_vweighted(double s, plcl_vector A, plcl_vector B);
+plc_vector plc_vlincomb(double a,plc_vector A, double b,plc_vector B);
+plc_vector plc_vmadd(plc_vector A, double s, plc_vector B); /* A + sB */
+plc_vector plc_vweighted(double s, plc_vector A, plc_vector B);
   /* (1-s)A + sB */
 
 /* Different vector measurements */
-double plcl_dot_prod(plcl_vector A,plcl_vector B);
-double plcl_norm(plcl_vector A);
-double plcl_distance(plcl_vector A, plcl_vector B);
-double plcl_sq_dist(plcl_vector A, plcl_vector B);
+double plc_dot_prod(plc_vector A,plc_vector B);
+double plc_norm(plc_vector A);
+double plc_distance(plc_vector A, plc_vector B);
+double plc_sq_dist(plc_vector A, plc_vector B);
 
 /* Do two vectors match ? */
-bool plcl_vecteq(plcl_vector A, plcl_vector B);
+bool plc_vecteq(plc_vector A, plc_vector B);
 
 /*
  * Macros for vector work (require careful programming)
  *
  */
 
-#define plcl_M_dot(A,B)      \
+#define plc_M_dot(A,B)      \
   ((A).c[0]*(B).c[0] + (A).c[1]*(B).c[1] + (A).c[2]*(B).c[2])
 
-#define plcl_M_cross(A,B,C) \
+#define plc_M_cross(A,B,C) \
   (A).c[0] = (B).c[1] * (C).c[2] - (B).c[2] * (C).c[1]; \
   (A).c[1] = (B).c[2] * (C).c[0] - (B).c[0] * (C).c[2]; \
   (A).c[2] = (B).c[0] * (C).c[1] - (B).c[1] * (C).c[0];
 
-#define plcl_M_norm(A)       \
-  sqrt(plcl_M_dot((A),(A)))
+#define plc_M_norm(A)       \
+  sqrt(plc_M_dot((A),(A)))
 
-#define plcl_M_add_vect(A,B)    \
+#define plc_M_add_vect(A,B)    \
   (A).c[0] += (B).c[0]; (A).c[1] += (B).c[1]; (A).c[2] += (B).c[2];
 
-#define plcl_M_sub_vect(A,B)    \
+#define plc_M_sub_vect(A,B)    \
   (A).c[0] -= (B).c[0]; (A).c[1] -= (B).c[1]; (A).c[2] -= (B).c[2];
 
-#define plcl_M_scale_vect(s,V)  \
+#define plc_M_scale_vect(s,V)  \
   (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
 
 /* Add a multiple of B to A */
-#define plcl_M_vmadd(A,s,B) \
+#define plc_M_vmadd(A,s,B) \
   (A).c[0] += (s)*(B).c[0]; (A).c[1] += (s)*(B).c[1]; (A).c[2] += (s)*(B).c[2];
 
 /* A becomes a linear combination of B and C */
-#define plcl_M_vlincomb(A,s,B,t,C) \
+#define plc_M_vlincomb(A,s,B,t,C) \
   (A).c[0] = s*(B).c[0] + t*(C).c[0]; \
   (A).c[1] = s*(B).c[1] + t*(C).c[1]; \
   (A).c[2] = s*(B).c[2] + t*(C).c[2];
@@ -189,34 +189,34 @@ bool plcl_vecteq(plcl_vector A, plcl_vector B);
 /* A = B + s(C-B)                               *
  * equivalent to                                *
  *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
-#define plcl_M_vweighted(A,s,B,C)  \
-  plcl_M_vlincomb(A,(1.0-s),B,s,C)
+#define plc_M_vweighted(A,s,B,C)  \
+  plc_M_vlincomb(A,(1.0-s),B,s,C)
 
-#define plcl_M_component_mult(A,B) \
+#define plc_M_component_mult(A,B) \
   (A).c[0] *= (B).c[0]; \
   (A).c[1] *= (B).c[1]; \
   (A).c[2] *= (B).c[2];
 
-#define plcl_M_component_div(A,B) \
+#define plc_M_component_div(A,B) \
   (A).c[0] /= (B).c[0]; \
   (A).c[1] /= (B).c[1]; \
   (A).c[2] /= (B).c[2];
 
-#define plcl_M_distance(A,B) \
-  plcl_norm(plcl_vect_diff((A),(B)));
+#define plc_M_distance(A,B) \
+  plc_norm(plc_vect_diff((A),(B)));
 
 /* The squared distance from A to B */
-#define plcl_M_sq_dist(A,B) \
+#define plc_M_sq_dist(A,B) \
   ((A).c[0]-(B).c[0])*((A).c[0]-(B).c[0])+ \
   ((A).c[1]-(B).c[1])*((A).c[1]-(B).c[1])+ \
   ((A).c[2]-(B).c[2])*((A).c[2]-(B).c[2]);
 
 /* The coordinates of a vector, as a list */
-#define plcl_M_clist(A) \
+#define plc_M_clist(A) \
   A.c[0], A.c[1], A.c[2]
 
 /* Are two vectors equal? */
-#define plcl_M_vecteq(A,B) \
+#define plc_M_vecteq(A,B) \
   (  (A).c[0] - (B).c[0]  <= 2*DBL_EPSILON && \
    -((A).c[0] - (B).c[0]) <= 2*DBL_EPSILON && \
      (A).c[1] - (B).c[1]  <= 2*DBL_EPSILON && \
@@ -230,137 +230,135 @@ bool plcl_vecteq(plcl_vector A, plcl_vector B);
  */
 
 /* Build a new plCurve (with associated strands) */
-/*@only@*/ plCurve *plCurve_new(const int components,
-                                const int * const nv,
-                                const bool * const open,
-                                const int * const cc);
+/*@only@*/ plCurve *plc_new(const int components,
+                            const int * const nv,
+                            const bool * const open,
+                            const int * const cc);
 
 /* Free the plCurve (and strands) */
-void plCurve_free(/*@only@*/ /*@null@*/ plCurve *L);
+void plc_free(/*@only@*/ /*@null@*/ plCurve *L);
 
 /* Add a component to the curve which will become component number add_as. */
-void plcl_add_component(plCurve *L, const int add_as, const int nv, 
-                        const bool open, const int cc,
-                        const plcl_vector * const vt,
-             /*@null@*/ const plcl_color  * const clr);
+void plc_add_component(plCurve *L, const int add_as, const int nv, 
+                       const bool open, const int cc,
+                       const plc_vector * const vt,
+            /*@null@*/ const plc_color  * const clr);
 
 /* And remove one */
-void plcl_drop_component(plCurve *L, const int cmp);
+void plc_drop_component(plCurve *L, const int cmp);
 
 /* Set a constraint on a vertex or run of vertices */
-void plcl_set_fixed(plCurve * const L,
-                    const int          cmp,
-                    const int          vert,
-                    const plcl_vector point);
+void plc_set_fixed(plCurve * const L,
+                   const int cmp,
+                   const int vert,
+                   const plc_vector point);
 
-void plcl_constrain_to_line(plCurve * const L,
+void plc_constrain_to_line(plCurve * const L,
+                           const int cmp,
+                           const int vert,
+                           const int num_verts,
+                           const plc_vector tangent,
+                           const plc_vector point_on_line);
+
+void plc_constrain_to_plane(plCurve * const L,
                             const int cmp,
                             const int vert,
                             const int num_verts,
-                            const plcl_vector tangent,
-                            const plcl_vector point_on_line);
+                            const plc_vector normal,
+                            const double dist_from_origin);
 
-void plcl_constrain_to_plane(plCurve * const L,
-                             const int cmp,
-                             const int vert,
-                             const int num_verts,
-                             const plcl_vector normal,
-                             const double dist_from_origin);
-
-void plcl_unconstrain(plCurve * const L, const int cmp,
-                      const int vert, const int num_verts);
+void plc_unconstrain(plCurve * const L, const int cmp,
+                     const int vert, const int num_verts);
 
 /* Remove a constraint from the list of constraints returning the number of
  * vertices thus set unconstrained.  */
-int plcl_remove_constraint(plCurve * const L,
-                           const plcl_cst_kind kind,
-                           const plcl_vector vect[]);
+int plc_remove_constraint(plCurve * const L,
+                          const plc_cst_kind kind,
+                          const plc_vector vect[]);
 
 /* Remove all constraints */
-void plcl_remove_all_constraints(plCurve * const L);
+void plc_remove_all_constraints(plCurve * const L);
 
 /* Read plCurve data from a file */
-/*@only@*/ /*@null@*/ plCurve *plcl_read(FILE *file,
-                               /*@out@*/ int *error_num,
-                               /*@out@*/ char error_str[],
-                                         size_t error_str_len);
+/*@only@*/ /*@null@*/ plCurve *plc_read(FILE *file,
+                              /*@out@*/ int *error_num,
+                              /*@out@*/ char error_str[],
+                                        size_t error_str_len);
 
 /* Write plCurve data to a file */
-void plcl_write(FILE *outfile, plCurve * const L);
+void plc_write(FILE *outfile, plCurve * const L);
 
 /* Fix the "hidden vertices" for easy handling of closed components */
-void plcl_fix_wrap(plCurve * const L);
+void plc_fix_wrap(plCurve * const L);
 
 /* Count the edges in a plCurve (correctly handling open/closed) */
-int plcl_num_edges(plCurve * const L);
+int plc_num_edges(plCurve * const L);
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
-double plcl_MR_curvature(plCurve * const L, const int cmp, const int vert);
+double plc_MR_curvature(plCurve * const L, const int cmp, const int vert);
 
 /* Copy a plCurve */
-plCurve *plcl_copy(const plCurve * const L);
+plCurve *plc_copy(const plCurve * const L);
 
 /* Compute average of inward and outward tangents (and normalize) */
-plcl_vector plcl_mean_tangent(const plCurve * const L, const int cmp,
-                              const int vert, bool *ok);
+plc_vector plc_mean_tangent(const plCurve * const L, const int cmp,
+                            const int vert, bool *ok);
 
 /* Find the arclength of a plCurve. */
-double plcl_arclength(const plCurve * const L,
- /*@null@*/ /*@out@*/ double *component_lengths);
+double plc_arclength(const plCurve * const L,
+/*@null@*/ /*@out@*/ double *component_lengths);
 
 /* Find the arclength distance from one vertex to another.  On closed
  * strands, give the shortest of the two options.  */
-double plcl_subarc_length(const plCurve * const L, const int cmp,
-                          const int vert1, const int vert2);
+double plc_subarc_length(const plCurve * const L, const int cmp,
+                         const int vert1, const int vert2);
 
 /* Return how far a constraint is from being satisfied (sup norm). */
-double plcl_check_cst(const plCurve * const L);
+double plc_check_cst(const plCurve * const L);
 
 /* Fix all the vertices which are out of compliance with their constraints. */
-void plcl_fix_cst(plCurve * const L);
+void plc_fix_cst(plCurve * const L);
 
 /* Either return (if given a char *) or print out the library version number */
-void plcl_version(/*@null@*/ char *version, size_t strlen);
+void plc_version(/*@null@*/ char *version, size_t strlen);
 
 /* Put 4 doubles together into a color */
-plcl_color plcl_build_color(const double r,
-                            const double g,
-                            const double b,
-                            const double alpha);
+plc_color plc_build_color(const double r, const double g,
+                          const double b, const double alpha);
 
 /* Allocate new spline. */
-plcl_spline *plcl_spline_new(const int          components,
-                             const int  * const ns,
-                             const bool * const open,
-                             const int  * const cc);
+plc_spline *plc_spline_new(const int          components,
+                           const int  * const ns,
+                           const bool * const open,
+                           const int  * const cc);
 
 /* Free memory for spline. */
-void plcl_spline_free(/*@only@*/ /*@null@*/ plcl_spline *L);
+void plc_spline_free(/*@only@*/ /*@null@*/ plc_spline *L);
 
 /* Convert plCurve to spline representation. */
-plcl_spline *plcl_convert_to_spline(plCurve * const L, bool *ok);
+plc_spline *plc_convert_to_spline(plCurve * const L, bool *ok);
 
 /* Convert splined curve to plCurve (with resampling). */
-plCurve *plcl_convert_from_spline(const plcl_spline * const spL,
-                                  const int * const nv);
+plCurve *plc_convert_from_spline(const plc_spline * const spL,
+                                 const int * const nv);
 
 /* Samples a spline at a particular s value. */
-plcl_vector plcl_sample_spline(const plcl_spline * const spL,
-                               const int cmp,
-                               double s);
+plc_vector plc_sample_spline(const plc_spline * const spL,
+                             const int cmp,
+                             double s);
 
 /* Define the error codes */
-#define PLCL_E_NO_VECT       1
-#define PLCL_E_BAD_CVC_LINE  2
-#define PLCL_E_BAD_CMP_NUM   3
-#define PLCL_E_BAD_CVRT_LINE 4
-#define PLCL_E_BAD_CLR_LINE  5
-#define PLCL_E_BAD_COLOR     6
-#define PLCL_E_BAD_VERT_LINE 7
-#define PLCL_E_BAD_CST_NUM   8
-#define PLCL_E_BAD_CST_LINE  9
-#define PLCL_E_BAD_CST_KIND  10
-#define PLCL_E_BAD_CST_NUMS  11
+#define PLC_E_NO_VECT       1
+#define PLC_E_BAD_CVC_LINE  2
+#define PLC_E_BAD_CMP_NUM   3
+#define PLC_E_BAD_CVRT_LINE 4
+#define PLC_E_BAD_CLR_LINE  5
+#define PLC_E_BAD_COLOR     6
+#define PLC_E_BAD_VERT_LINE 7
+#define PLC_E_BAD_CST_NUM   8
+#define PLC_E_BAD_CST_LINE  9
+#define PLC_E_BAD_CST_KIND  10
+#define PLC_E_BAD_CST_NUMS  11
 #if (__cplusplus || c_plusplus)
 };
 #endif

@@ -12,3 +12,6 @@
    it will not automatically be written.
 
 3) Allocate vertex blocks in one large chunk instead of multiple mallocs.
+
+4) Do something nicer, if there is something nicer to be done, regarding 
+   inlining in the library itself.

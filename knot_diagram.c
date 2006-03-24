@@ -35,8 +35,8 @@
 /* Remove a vertex from a plCurve by breaking components into pieces */
 static void remove_vertex(plCurve * const L, const int cmp, const int vert,
                           bool *start_over) {
-  plcl_vector *vt;
-  plcl_color *clr;
+  plc_vector *vt;
+  plc_color *clr;
 
   assert(L != NULL);
   assert(cmp >= 0);
@@ -58,17 +58,17 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
     /* similarly for first or second-on-open vertex */
     L->cp[cmp].nv -= (vert + 1);
     memmove(L->cp[cmp].vt, &(L->cp[cmp].vt[vert+1]),
-        L->cp[cmp].nv*sizeof(plcl_vector));
+        L->cp[cmp].nv*sizeof(plc_vector));
     if (L->cp[cmp].cc > L->cp[cmp].nv) { 
       L->cp[cmp].cc = L->cp[cmp].nv;
       memmove(L->cp[cmp].clr, &(L->cp[cmp].clr[vert+1]),
-          L->cp[cmp].nv*sizeof(plcl_color));
+          L->cp[cmp].nv*sizeof(plc_color));
     }
     L->cp[cmp].open = true;
   } else {
     /* Middle vertex */
     if (L->cp[cmp].open) {
-      plcl_add_component(L,cmp+1,L->cp[cmp].nv-(vert+1),true,
+      plc_add_component(L,cmp+1,L->cp[cmp].nv-(vert+1),true,
           (L->cp[cmp].cc < L->cp[cmp].nv) ? L->cp[cmp].cc :
           L->cp[cmp].nv-(vert+1),&(L->cp[cmp].vt[vert+1]),
           (L->cp[cmp].cc < L->cp[cmp].nv) ? L->cp[cmp].clr :
@@ -85,21 +85,21 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
       *start_over = true;
       L->cp[cmp].open = true;
       L->cp[cmp].nv--;
-      vt = malloc(L->cp[cmp].nv*sizeof(plcl_vector));
+      vt = malloc(L->cp[cmp].nv*sizeof(plc_vector));
       assert(vt != NULL);
       memcpy(vt,&(L->cp[cmp].vt[vert+1]),
-          (L->cp[cmp].nv-vert)*sizeof(plcl_vector));
-      memcpy(&(vt[L->cp[cmp].nv-vert]),L->cp[cmp].vt,vert*sizeof(plcl_vector));
-      memcpy(L->cp[cmp].vt,vt,L->cp[cmp].nv*sizeof(plcl_vector));
+          (L->cp[cmp].nv-vert)*sizeof(plc_vector));
+      memcpy(&(vt[L->cp[cmp].nv-vert]),L->cp[cmp].vt,vert*sizeof(plc_vector));
+      memcpy(L->cp[cmp].vt,vt,L->cp[cmp].nv*sizeof(plc_vector));
       if (L->cp[cmp].cc > L->cp[cmp].nv) {
-        clr = malloc(L->cp[cmp].nv*sizeof(plcl_color));
+        clr = malloc(L->cp[cmp].nv*sizeof(plc_color));
         assert(clr != NULL);
         L->cp[cmp].cc = L->cp[cmp].nv;
         memcpy(clr,&(L->cp[cmp].clr[vert+1]),
-            (L->cp[cmp].nv-vert)*sizeof(plcl_color));
+            (L->cp[cmp].nv-vert)*sizeof(plc_color));
         memcpy(&(clr[L->cp[cmp].nv-vert]),L->cp[cmp].clr,
-            vert*sizeof(plcl_color));
-        memcpy(L->cp[cmp].clr,clr,L->cp[cmp].nv*sizeof(plcl_color));
+            vert*sizeof(plc_color));
+        memcpy(L->cp[cmp].clr,clr,L->cp[cmp].nv*sizeof(plc_color));
         free(clr);
       }
       free(vt);
@@ -109,17 +109,17 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
   }
   if (L->cp[cmp].nv <= 1) {
     /* Ran out of edges here, get rid of the component */
-    plcl_drop_component(L,cmp);
+    plc_drop_component(L,cmp);
     *start_over = true;
   }
-  plcl_fix_wrap(L);
+  plc_fix_wrap(L);
 }
 
 #define pi 3.1415926
 #define showCurve(F) \
   if (show_work >= 5) { \
     fprintf(geomview,"(geometry Curve "); \
-    plcl_write(geomview,F); \
+    plc_write(geomview,F); \
     fprintf(geomview,") (look-recenter Curve) (look-encompass Curve)\n"); \
     fflush(geomview); \
   }
@@ -127,7 +127,7 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
 /* Project the vertices onto the plane to which N is normal (returning them
  * as (x,y,0) vectors in a plCurve framework. */
 static plCurve *flatten(const plCurve * const L, 
-                        const plcl_vector N, 
+                        const plc_vector N, 
                         const double gap,
                         const double neighbor_gap,
                               FILE *geomview,
@@ -135,11 +135,11 @@ static plCurve *flatten(const plCurve * const L,
                         const int show_work) {
   plCurve *F,*H;  /* Flattened knot, heights of flattened points */
   int cmp,cmp2,vert,vert2;
-  plcl_vector n;
-  plcl_vector *vt;
-  plcl_vector e3;
+  plc_vector n;
+  plc_vector *vt;
+  plc_vector e3;
   double cos_theta,sin_theta;
-  plcl_vector axle,u_para,u_perp,v_cross_u;
+  plc_vector axle,u_para,u_perp,v_cross_u;
   bool ok,far_enough;
   double gap_sq = gap*gap;
   double n_gap_sq = neighbor_gap*neighbor_gap;
@@ -150,15 +150,15 @@ static plCurve *flatten(const plCurve * const L,
 
   assert(L != NULL);
 
-  F = plcl_copy(L);
+  F = plc_copy(L);
 
   /* First rotate so that the given normal vector lies along the z axis. */
-  n = plcl_normalize_vect(N,NULL); /* Bail out if we give it a bad vector */
-  e3 = plcl_build_vect(0.0,0.0,1.0);
+  n = plc_normalize_vect(N,NULL); /* Bail out if we give it a bad vector */
+  e3 = plc_build_vect(0.0,0.0,1.0);
   /* What should we rotate around? */
-  axle = plcl_cross_prod(n,e3);
+  axle = plc_cross_prod(n,e3);
   ok = true;
-  axle = plcl_normalize_vect(axle,&ok);
+  axle = plc_normalize_vect(axle,&ok);
   if (ok) { 
     /* We actually do need to do some rotation */
     for (cmp = 0; cmp < F->nc; cmp++) {
@@ -168,20 +168,20 @@ static plCurve *flatten(const plCurve * const L,
            the first two components.  Formulas from
              http://en.wikipedia.org/wiki/Coordinate_rotation#Three_dimensions
          */
-        cos_theta = plcl_dot_prod(n,e3);
+        cos_theta = plc_dot_prod(n,e3);
         sin_theta = sqrt(1-cos_theta*cos_theta);
-        u_para = plcl_scale_vect(plcl_dot_prod(*vt,axle),axle);
-        u_perp = plcl_vect_diff(*vt,u_para);
-        v_cross_u = plcl_cross_prod(*vt,axle);
-        *vt = plcl_vect_sum(u_para,
-            plcl_vlincomb(cos_theta,u_perp,sin_theta,v_cross_u));
+        u_para = plc_scale_vect(plc_dot_prod(*vt,axle),axle);
+        u_perp = plc_vect_diff(*vt,u_para);
+        v_cross_u = plc_cross_prod(*vt,axle);
+        *vt = plc_vect_sum(u_para,
+            plc_vlincomb(cos_theta,u_perp,sin_theta,v_cross_u));
       }
     }
   }
   showCurve(F);
   if (show_work >=5) { usleep(delay*100); }
 
-  H = plcl_copy(F);
+  H = plc_copy(F);
   assert(H != NULL);
   /* Flatten F.  Retain heights in H. */
   for (cmp = 0; cmp < F->nc; cmp++) {
@@ -211,11 +211,11 @@ static plCurve *flatten(const plCurve * const L,
       far_enough = false;
       vt = &(F->cp[cmp].vt[vert]);
       last_to_check = F->cp[cmp].nv-1;
-      if (!F->cp[cmp].open && plcl_sq_dist(*vt,F->cp[cmp].vt[0]) <= n_gap_sq) {
+      if (!F->cp[cmp].open && plc_sq_dist(*vt,F->cp[cmp].vt[0]) <= n_gap_sq) {
         /* We are close to the beginning of a closed strand, perhaps we
          * should avoid checking some of the end vertices. */
         while (last_to_check > vert &&
-            plcl_sq_dist(*vt,F->cp[cmp].vt[last_to_check]) <= n_gap_sq) {
+            plc_sq_dist(*vt,F->cp[cmp].vt[last_to_check]) <= n_gap_sq) {
           last_to_check--;
         }
       }
@@ -246,7 +246,7 @@ static plCurve *flatten(const plCurve * const L,
            * gap of cmp:vert (after it first gets at least gap away from it).
            * That marks a crossing and we remove one of the vertices in
            * question -- the lower one. */
-          dist = plcl_sq_dist(F->cp[cmp].vt[vert],F->cp[cmp2].vt[vert2]);
+          dist = plc_sq_dist(F->cp[cmp].vt[vert],F->cp[cmp2].vt[vert2]);
           far_enough = far_enough || (dist >= n_gap_sq);
           if ((dist <= gap_sq) && far_enough) {
             /* Found a crossing */
@@ -294,7 +294,7 @@ static plCurve *flatten(const plCurve * const L,
     }
   }
             
-  plCurve_free(H);
+  plc_free(H);
   return F;
 }
 
@@ -302,19 +302,19 @@ static plCurve *flatten(const plCurve * const L,
  * (looking only at the first 2 dimensions, of course).  We'll be using the
  * gift-wrapping algorithm. */
 static void add_convex_hull(plCurve *L) {
-  plcl_vector *vt;
+  plc_vector *vt;
   int nv,verts;
   int cmp,vert;
-  plcl_vector first,next;
-  plcl_vector x_vect,y_vect,cross;
-  plcl_color *clr;
+  plc_vector first,next;
+  plc_vector x_vect,y_vect,cross;
+  plc_color *clr;
 
   for (nv = 0, cmp = 0; cmp < L->nc; cmp++) {
     nv += L->cp[cmp].nv;
   }
-  vt = malloc(nv*sizeof(plcl_vector));
+  vt = malloc(nv*sizeof(plc_vector));
   assert(vt != NULL);
-  clr = malloc(nv*sizeof(plcl_vector));
+  clr = malloc(nv*sizeof(plc_vector));
   assert(clr != NULL);
   verts = 0;
 
@@ -345,15 +345,15 @@ static void add_convex_hull(plCurve *L) {
          2 
    */
 
-  next = plcl_build_vect(0.0,0.0,0.0);
+  next = plc_build_vect(0.0,0.0,0.0);
   /*@-compdef@*/
-  while (!plcl_vecteq(vt[0],next) && verts < nv) {
+  while (!plc_vecteq(vt[0],next) && verts < nv) {
   /*@=compdef@*/
     /* There is one other vertex out there which, when it is the other end of a
      * line segment with "first" all of the other vectors are to the left of
      * the line.  Find it in as pedantic a way as possible, ye olde brute
      * search (and a particularly stupid one at that). */
-    next = (plcl_vecteq(L->cp[0].vt[0],first)) ?
+    next = (plc_vecteq(L->cp[0].vt[0],first)) ?
       L->cp[0].vt[1] : L->cp[0].vt[0];
     x_vect.c[0] = first.c[0];
     y_vect.c[0] = first.c[1];
@@ -361,11 +361,11 @@ static void add_convex_hull(plCurve *L) {
     y_vect.c[1] = next.c[1];
     for (cmp = 0; cmp < L->nc; cmp++) {
       for (vert = 0; vert < L->cp[cmp].nv; vert++) {
-        if (!plcl_vecteq(L->cp[cmp].vt[vert],first) &&
-            !plcl_vecteq(L->cp[cmp].vt[vert],next)) {
+        if (!plc_vecteq(L->cp[cmp].vt[vert],first) &&
+            !plc_vecteq(L->cp[cmp].vt[vert],next)) {
           x_vect.c[2] = L->cp[cmp].vt[vert].c[0];
           y_vect.c[2] = L->cp[cmp].vt[vert].c[1];
-          cross = plcl_cross_prod(x_vect,y_vect);
+          cross = plc_cross_prod(x_vect,y_vect);
           if (- cross.c[0] - cross.c[1] - cross.c[2] > DBL_EPSILON) {
             /* cmp:vert is to the right of (or same as) next, take it instead */
             next = L->cp[cmp].vt[vert];
@@ -387,7 +387,7 @@ static void add_convex_hull(plCurve *L) {
     clr[vert].alpha = 1.0;
   }
   /*@=loopexec@*/
-  plcl_add_component(L,L->nc,verts,false,verts,vt,clr);
+  plc_add_component(L,L->nc,verts,false,verts,vt,clr);
   free(vt);
   free(clr);
 }
@@ -396,12 +396,12 @@ static void add_convex_hull(plCurve *L) {
  * in the nth component, so that the shortest "diameter" lies in the y
  * direction.  */
 static void rotate_2pic(plCurve *L) {
-  plCurve_strand *cp;
+  plc_strand *cp;
   int this,that;
-  plcl_vector dir;
+  plc_vector dir;
   double dist = DBL_MAX;
   double first,second,third;
-  plcl_vector this_edge,edge1,edge2,edge3;
+  plc_vector this_edge,edge1,edge2,edge3;
   double cur_dist;
   double cos_theta,sin_theta;
   int cmp,vert;
@@ -411,17 +411,17 @@ static void rotate_2pic(plCurve *L) {
   that = 2;
   cp = &(L->cp[L->nc-1]);
   while (that < cp->nv-1) {
-    this_edge = plcl_normalize_vect(
-        plcl_vect_diff(cp->vt[this+1],cp->vt[this]),&ok);
-    edge1 = plcl_normalize_vect(
-        plcl_vect_diff(cp->vt[that],cp->vt[that-1]),&ok);
-    edge2 = plcl_normalize_vect(
-        plcl_vect_diff(cp->vt[that+1],cp->vt[that]),&ok);
-    edge3 = plcl_normalize_vect(
-        plcl_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
-    first = plcl_M_dot(this_edge,edge1);
-    second = plcl_M_dot(this_edge,edge2);
-    third = plcl_M_dot(this_edge,edge3);
+    this_edge = plc_normalize_vect(
+        plc_vect_diff(cp->vt[this+1],cp->vt[this]),&ok);
+    edge1 = plc_normalize_vect(
+        plc_vect_diff(cp->vt[that],cp->vt[that-1]),&ok);
+    edge2 = plc_normalize_vect(
+        plc_vect_diff(cp->vt[that+1],cp->vt[that]),&ok);
+    edge3 = plc_normalize_vect(
+        plc_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
+    first = plc_M_dot(this_edge,edge1);
+    second = plc_M_dot(this_edge,edge2);
+    third = plc_M_dot(this_edge,edge3);
     /* Go looking for the most-negative dot product */
     while (second - first > DBL_EPSILON ||
         (that < cp->nv-1 && second - third > DBL_EPSILON)) {
@@ -430,14 +430,14 @@ static void rotate_2pic(plCurve *L) {
       second = third;
       edge2 = edge3;
       that++;
-      edge3 = plcl_normalize_vect(
-          plcl_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
-      third = plcl_M_dot(this_edge,edge3);
+      edge3 = plc_normalize_vect(
+          plc_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
+      third = plc_M_dot(this_edge,edge3);
     }
-    cur_dist = plcl_sq_dist(cp->vt[this],cp->vt[that]);
+    cur_dist = plc_sq_dist(cp->vt[this],cp->vt[that]);
     if (cur_dist <= dist) {
       dist = cur_dist;
-      dir = plcl_normalize_vect(plcl_vect_diff(cp->vt[that],cp->vt[this]),&ok);
+      dir = plc_normalize_vect(plc_vect_diff(cp->vt[that],cp->vt[this]),&ok);
     }
     this++;
   }
@@ -445,13 +445,13 @@ static void rotate_2pic(plCurve *L) {
   sin_theta = dir.c[0];
 
   /* Drop the convex hull */
-  plcl_drop_component(L,L->nc-1);
+  plc_drop_component(L,L->nc-1);
 
   /* Rotate */
   for (cmp = 0; cmp < L->nc; cmp++) {
     for (vert = 0; vert < L->cp[cmp].nv; vert++) {
       L->cp[cmp].vt[vert] = 
-        plcl_build_vect(cos_theta*L->cp[cmp].vt[vert].c[0] -
+        plc_build_vect(cos_theta*L->cp[cmp].vt[vert].c[0] -
                         sin_theta*L->cp[cmp].vt[vert].c[1],
                         sin_theta*L->cp[cmp].vt[vert].c[0] +
                         cos_theta*L->cp[cmp].vt[vert].c[1],0.0);
@@ -475,7 +475,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.14 $";
+  char revision[20] = "$Revision: 1.15 $";
   char *dollar;
 
 #ifdef HAVE_ARGTABLE2_H
@@ -505,7 +505,7 @@ int main(int argc, char *argv[]) {
         
   dollar = strchr(&revision[1],'$');
   dollar[0] = '\0';
-  plcl_version(NULL,0);
+  plc_version(NULL,0);
   fprintf(stderr,"knot_diagram v%s\n",&revision[11]);
   fprintf(stderr,"  Produce a knot diagram from a VECT file.\n");
 
@@ -555,7 +555,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   assert(vectfile != NULL);
-  L = plcl_read(vectfile,&err_num,err_str,80);
+  L = plc_read(vectfile,&err_num,err_str,80);
   (void)fclose(vectfile);
   if (err_num != 0) {
     fprintf(stderr,"Error reading file %s:\n%s\n",
@@ -581,14 +581,14 @@ int main(int argc, char *argv[]) {
   max_edge = 0.0;
   for (cmp = 0; cmp < L->nc; cmp++) {
     for (vert = 0; vert < L->cp[cmp].nv; vert++) {
-      cur_edge = plcl_distance(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert+1]);
+      cur_edge = plc_distance(L->cp[cmp].vt[vert],L->cp[cmp].vt[vert+1]);
       max_edge = (max_edge >= cur_edge) ? max_edge : cur_edge;
     }
   }
   max_verts_left = 0;
   min_total_curvature = DBL_MAX;
   for (cnt = 0; cnt < tries; cnt++) {
-    G = flatten(L,plcl_random_vect(),max_edge/1.2,2.0*max_edge,
+    G = flatten(L,plc_random_vect(),max_edge/1.2,2.0*max_edge,
           geomview,delay,show_work);
     assert(G != NULL);
     showCurve(G);
@@ -598,7 +598,7 @@ int main(int argc, char *argv[]) {
     for (cmp = 0; cmp < G->nc; cmp++) {
       verts_left += G->cp[cmp].nv;
       for (vert = 0; vert < G->cp[cmp].nv; vert++) {
-        total_curvature += plcl_MR_curvature(G,cmp,vert);
+        total_curvature += plc_MR_curvature(G,cmp,vert);
       }
     }
     if (show_work > 0) {
@@ -610,13 +610,13 @@ int main(int argc, char *argv[]) {
         (verts_left >= max_verts_left*0.99 && 
          total_curvature < min_total_curvature)) {
       if (show_work > 0) { fprintf(stderr,"*\n"); }
-      if (F != NULL) { plCurve_free(F); }
+      if (F != NULL) { plc_free(F); }
       F = G;
       max_verts_left = verts_left;
       min_total_curvature = total_curvature;
     } else {
       if (show_work > 0) { fprintf(stderr,"\n"); }
-      plCurve_free(G);
+      plc_free(G);
     }
   }
   if (show_work > 0) {
@@ -639,17 +639,17 @@ int main(int argc, char *argv[]) {
   if (outname->count > 0) {
     vectfile = fopen(outname->filename[0],"w");
     assert(vectfile != NULL);
-    plcl_write(vectfile,F);
+    plc_write(vectfile,F);
     (void)fclose(vectfile);
   } else {
-    plcl_write(stdout,F);
+    plc_write(stdout,F);
   }
 #else
-  plcl_write(stdout,F);
+  plc_write(stdout,F);
 #endif
 
-  plCurve_free(F);
-  plCurve_free(L);
+  plc_free(F);
+  plc_free(L);
   arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
 
   exit(EXIT_SUCCESS);
