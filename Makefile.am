@@ -1,5 +1,6 @@
 AM_CFLAGS = -g -O2 -finline-functions -Wall
 
+include_HEADERS = plCurve.h
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_LTLIBRARIES = libplCurve_cov.la
 
