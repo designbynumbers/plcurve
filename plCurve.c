@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.82 2006-03-24 19:43:31 ashted Exp $
+ *  $Id: plCurve.c,v 1.83 2006-04-03 16:46:16 cantarel Exp $
  *
  */
 
@@ -1592,8 +1592,11 @@ double plc_subarc_length(const plCurve * const L, const int cmp,
 
   length1 = length2 = 0.0;
   for (v = start; v < end; v++) {
-    ((v >= v1 && v < v2) ? length1 : length2) += 
-      plc_M_norm(plc_vect_diff(cp->vt[v+1],cp->vt[v]));
+    if (v >= v1 && v < v2) {
+      length1 += plc_M_norm(plc_vect_diff(cp->vt[v+1],cp->vt[v]));
+    } else {
+      length2 += plc_M_norm(plc_vect_diff(cp->vt[v+1],cp->vt[v]));
+    }
   }
 
   return ((cp->open) ? length1 : ((length1 <= length2) ? length1 : length2));

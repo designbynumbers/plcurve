@@ -1,15 +1,23 @@
 
 =head1 NAME
 
+<<<<<<< plCurve.pod
+plCurve, plCurve_pline, plCurve_constraint, plCurve_color, 
+plCurve_new, plCurve_free, plCurve_read, plCurve_write,
+plCurve_fix_wrap, plCurve_copy, plCurve_cst_check
+- interface functions and data types for storing space polygons in the 
+B<plCurve> library.
+=======
 octrope_link, octrope_linkstruct, octrope_link_new,
 octrope_link_free, octrope_link_read, octrope_link_write,
 octrope_link_edges, octrope_link_fix_wrap, strand - interface
 functions and data types for storing links in the B<octrope>
 library.
+>>>>>>> 1.2
 
 =head1 LIBRARY
 
-B<Octrope> library (liboctrope, -loctrope)
+B<plCurve> library (libplCurve, -lplCurve)
 
 =head1 SYNOPSIS
 
