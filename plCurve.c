@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.83 2006-04-03 16:46:16 cantarel Exp $
+ *  $Id: plCurve.c,v 1.84 2006-04-18 16:16:49 ashted Exp $
  *
  */
 
@@ -1373,7 +1373,7 @@ void plc_fix_wrap(plCurve * const L) {
 /*
  *   Return the total number of edges in plCurve.
  */
-int plc_num_edges(plCurve * const L) /*@modifies nothing@*/
+int plc_num_edges(const plCurve * const L) /*@modifies nothing@*/
 {
   int i, edges = 0;
 
@@ -1381,6 +1381,19 @@ int plc_num_edges(plCurve * const L) /*@modifies nothing@*/
     edges += strand_edges(L->cp[i]);
   }
   return edges;
+}
+
+/* 
+ * Return the total number of vertices in plCurve.
+ */
+int plc_num_verts(const plCurve * const L) /*@modifies nothing@*/
+{
+  int cmp, verts = 0;
+  
+  for (cmp = 0; cmp < L->nc; cmp++) {
+    verts += L->cp[cmp].nv;
+  }
+  return verts;
 }
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */

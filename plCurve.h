@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.51 2006-03-24 19:43:31 ashted Exp $
+ *  $Id: plCurve.h,v 1.52 2006-04-18 16:16:49 ashted Exp $
  *
  */
 
@@ -292,7 +292,10 @@ void plc_write(FILE *outfile, plCurve * const L);
 void plc_fix_wrap(plCurve * const L);
 
 /* Count the edges in a plCurve (correctly handling open/closed) */
-int plc_num_edges(plCurve * const L);
+int plc_num_edges(const plCurve * const L);
+
+/* Count the vertices in a plCurve */
+int plc_num_verts(const plCurve * const L);
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert);

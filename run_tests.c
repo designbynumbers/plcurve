@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.22 2006-03-24 19:43:31 ashted Exp $
+ * $Id: run_tests.c,v 1.23 2006-04-18 16:16:49 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -131,7 +131,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.22 $";
+  char revision[] = "$Revision: 1.23 $";
   plc_vert_quant *quant;
   int cmp, vert, ctr;
   double dist, temp_dbl;
@@ -295,6 +295,7 @@ int main(void) {
 
   /* Check plc_num_edges */
   check(plc_num_edges(L) == 6);
+  check(plc_num_verts(L) == 7);
 
   /* Check all the constraint-setting code!  Be very careful when editing 
    * the code between here and the "End of constraint-setting code checks"
