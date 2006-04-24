@@ -1,4 +1,4 @@
-AM_CFLAGS = -g -O2 -finline-functions -Wall
+AM_CFLAGS = -g -finline-functions -Wall
 
 include_HEADERS = plCurve.h
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
@@ -15,7 +15,7 @@ EXTRA_DIST = bad_vects
 LDADD = libplCurve.la
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
-libplCurve_la_CFLAGS = -DNDEBUG $(AM_CFLAGS)
+libplCurve_la_CFLAGS = -DNDEBUG -O2 $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c

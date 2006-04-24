@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.84 2006-04-18 16:16:49 ashted Exp $
+ *  $Id: plCurve.c,v 1.85 2006-04-24 21:30:21 ashted Exp $
  *
  */
 
@@ -710,7 +710,7 @@ void plc_write(FILE *outfile, plCurve * const L) {
   int colors = 0;           /* Total number of colors of all components */
   char outstr[80];          /* So we can wrap the vertex lines */
   int cst_num;              /* This constraint */
-  int **cst_nums;           /* All constraint numbers */
+  int **cst_nums = NULL;    /* All constraint numbers */
   plc_constraint *cst;  /* Current constraint */
   plc_constraint *cst2;
   /* All the constraints (without duplicates) */
