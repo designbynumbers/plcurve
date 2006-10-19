@@ -475,7 +475,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.15 $";
+  char revision[20] = "$Revision: 1.16 $";
   char *dollar;
 
 #ifdef HAVE_ARGTABLE2_H
@@ -558,8 +558,13 @@ int main(int argc, char *argv[]) {
   L = plc_read(vectfile,&err_num,err_str,80);
   (void)fclose(vectfile);
   if (err_num != 0) {
+#ifdef HAVE_ARGTABLE2_H
     fprintf(stderr,"Error reading file %s:\n%s\n",
         filename->filename[0],err_str);
+#else
+    fprintf(stderr,"Error reading file %s:\n%s\n",
+        argv[1],err_str);
+#endif
     exit(EXIT_FAILURE);
   }
   assert(L != NULL);
@@ -650,7 +655,9 @@ int main(int argc, char *argv[]) {
 
   plc_free(F);
   plc_free(L);
+#ifdef HAVE_ARGTABLE2_H
   arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+#endif
 
   exit(EXIT_SUCCESS);
 }
