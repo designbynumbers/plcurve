@@ -1,6 +1,6 @@
 #!perl
 #
-# $Id: plConvert,v 1.5 2006-02-16 20:28:17 ashted Exp $
+# $Id: plConvert,v 1.6 2006-11-17 19:47:57 ashted Exp $
 #
 # Convert from Octrope 1.2 to Octrope 1.3 with plCurve 1.0
 #
@@ -17,7 +17,7 @@ foreach my $file (@ARGV) {
   open(OUT,">$file") or die "Could not open $file for writing";
   my $data = <IN>;
   # First change linklib_ to octrope_
-  s/linklib_/octrope_/g
+  s/linklib_/octrope_/g;
   # Then do call and macro changes
   s/octrope_link_new/plCurve_new/g;
   s/octrope_link_free/plCurve_free/g;
