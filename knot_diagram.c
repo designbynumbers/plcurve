@@ -395,10 +395,9 @@ static void add_convex_hull(plCurve *L) {
 /* Rotate (in 2-dimensions) the first n-1 components based on the convex hull
  * in the nth component, so that the shortest "diameter" lies in the y
  * direction.  */
-static void rotate_2pic(plCurve *L) {
+static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
   plc_strand *cp;
   int this,that;
-  plc_vector dir;
   double dist = DBL_MAX;
   double first,second,third;
   plc_vector this_edge,edge1,edge2,edge3;
@@ -407,42 +406,44 @@ static void rotate_2pic(plCurve *L) {
   int cmp,vert;
   bool ok;
 
-  this = 0;
-  that = 2;
-  cp = &(L->cp[L->nc-1]);
-  while (that < cp->nv-1) {
-    this_edge = plc_normalize_vect(
-        plc_vect_diff(cp->vt[this+1],cp->vt[this]),&ok);
-    edge1 = plc_normalize_vect(
-        plc_vect_diff(cp->vt[that],cp->vt[that-1]),&ok);
-    edge2 = plc_normalize_vect(
-        plc_vect_diff(cp->vt[that+1],cp->vt[that]),&ok);
-    edge3 = plc_normalize_vect(
-        plc_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
-    first = plc_M_dot(this_edge,edge1);
-    second = plc_M_dot(this_edge,edge2);
-    third = plc_M_dot(this_edge,edge3);
-    /* Go looking for the most-negative dot product */
-    while (second - first > DBL_EPSILON ||
-        (that < cp->nv-1 && second - third > DBL_EPSILON)) {
-      first = second;
-      edge1 = edge2;
-      second = third;
-      edge2 = edge3;
-      that++;
+  if (!dir_given) { 
+    this = 0;
+    that = 2;
+    cp = &(L->cp[L->nc-1]);
+    while (that < cp->nv-1) {
+      this_edge = plc_normalize_vect(
+          plc_vect_diff(cp->vt[this+1],cp->vt[this]),&ok);
+      edge1 = plc_normalize_vect(
+          plc_vect_diff(cp->vt[that],cp->vt[that-1]),&ok);
+      edge2 = plc_normalize_vect(
+          plc_vect_diff(cp->vt[that+1],cp->vt[that]),&ok);
       edge3 = plc_normalize_vect(
           plc_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
+      first = plc_M_dot(this_edge,edge1);
+      second = plc_M_dot(this_edge,edge2);
       third = plc_M_dot(this_edge,edge3);
+      /* Go looking for the most-negative dot product */
+      while (second - first > DBL_EPSILON ||
+          (that < cp->nv-1 && second - third > DBL_EPSILON)) {
+        first = second;
+        edge1 = edge2;
+        second = third;
+        edge2 = edge3;
+        that++;
+        edge3 = plc_normalize_vect(
+            plc_vect_diff(cp->vt[that+2],cp->vt[that+1]),&ok);
+        third = plc_M_dot(this_edge,edge3);
+      }
+      cur_dist = plc_sq_dist(cp->vt[this],cp->vt[that]);
+      if (cur_dist <= dist) {
+        dist = cur_dist;
+        *dir = plc_normalize_vect(plc_vect_diff(cp->vt[that],cp->vt[this]),&ok);
+      }
+      this++;
     }
-    cur_dist = plc_sq_dist(cp->vt[this],cp->vt[that]);
-    if (cur_dist <= dist) {
-      dist = cur_dist;
-      dir = plc_normalize_vect(plc_vect_diff(cp->vt[that],cp->vt[this]),&ok);
-    }
-    this++;
   }
-  cos_theta = dir.c[1];
-  sin_theta = dir.c[0];
+  cos_theta = dir->c[1];
+  sin_theta = dir->c[0];
 
   /* Drop the convex hull */
   plc_drop_component(L,L->nc-1);
@@ -475,8 +476,12 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.16 $";
+  char revision[20] = "$Revision: 1.17 $";
   char *dollar;
+
+  plc_vector direction;
+  plc_vector F_dir;
+  plc_vector rot_dir;
 
 #ifdef HAVE_ARGTABLE2_H
   struct arg_file *filename = arg_file1(NULL,NULL,"<file>",
@@ -490,14 +495,26 @@ int main(int argc, char *argv[]) {
       "Number of different views to choose amongst [20]");
   struct arg_int *delayopt = arg_int0(NULL,"delay","<int>",
       "Delay in ms to use with -v 15 and -v 25 [16]");
+  struct arg_dbl *rot_x = arg_dbl0("p","rot_x","<dbl>",
+      "x comp. of rot. vect. (forces -t 1)");
+  struct arg_dbl *rot_y = arg_dbl0("q","rot_y","<dbl>",
+      "y comp. of rot. vect.");
+  struct arg_dbl *proj_x = arg_dbl0("x","proj_x","<dbl>",
+      "x comp. of proj. vect. (forces -t 1)");
+  struct arg_dbl *proj_y = arg_dbl0("y","proj_y","<dbl>",
+      "y comp. of proj. vect.");
+  struct arg_dbl *proj_z = arg_dbl0("z","proj_z","<dbl>",
+      "z comp. of proj. vect.");
   struct arg_end *end = arg_end(20);
 
-  void *argtable[] = {help,view,tryopt,delayopt,outname,filename,end};
+  void *argtable[] = {help,view,tryopt,delayopt,
+      proj_x,proj_y,proj_z,rot_x,rot_y,outname,filename,end};
   int nerrors;
 
 #else
   if (argc < 2 || strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0) {
     fprintf(stderr,"usage: %s <file>\n",argv[0]);
+    fprintf(stderr,"  (to get more options, rebuild using argtable2)\n");
     exit(EXIT_SUCCESS);
   }
   vectfile = fopen(argv[1],"r");
@@ -547,6 +564,23 @@ int main(int argc, char *argv[]) {
   if (tryopt->count > 0) {
     tries = tryopt->ival[tryopt->count-1];
   }
+  if (proj_x->count+proj_y->count+proj_z->count + 
+      rot_x->count+rot_y->count > 0) {
+    if (proj_x->count*proj_y->count*proj_z->count * 
+        rot_x->count*rot_y->count==0) {
+      fprintf(stderr,
+        "Must specify complete projection and rotation vectors.\n");
+      arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+      return 1;
+    } 
+    tries = 1;
+    direction = plc_normalize_vect(plc_build_vect(
+      proj_x->dval[proj_x->count-1],
+      proj_y->dval[proj_y->count-1],
+      proj_z->dval[proj_z->count-1]),NULL);
+    rot_dir = plc_normalize_vect(plc_build_vect(
+      rot_x->dval[rot_x->count-1],rot_y->dval[rot_y->count-1],0.0),NULL);
+  }
   if (view->count > 0) {
     show_work = view->ival[view->count-1];
   }
@@ -592,9 +626,13 @@ int main(int argc, char *argv[]) {
   }
   max_verts_left = 0;
   min_total_curvature = DBL_MAX;
+
+  /* Main loop.  Try different directions */
   for (cnt = 0; cnt < tries; cnt++) {
-    G = flatten(L,plc_random_vect(),max_edge/1.2,2.0*max_edge,
-          geomview,delay,show_work);
+    if (proj_x->count == 0) {
+      direction = plc_random_vect();
+    }
+    G = flatten(L,direction,max_edge/1.2,2.0*max_edge,geomview,delay,show_work);
     assert(G != NULL);
     showCurve(G);
     if (show_work >= 5) { usleep(delay*100); }
@@ -617,6 +655,7 @@ int main(int argc, char *argv[]) {
       if (show_work > 0) { fprintf(stderr,"*\n"); }
       if (F != NULL) { plc_free(F); }
       F = G;
+      F_dir = direction;
       max_verts_left = verts_left;
       min_total_curvature = total_curvature;
     } else {
@@ -625,8 +664,10 @@ int main(int argc, char *argv[]) {
     }
   }
   if (show_work > 0) {
-    fprintf(stderr,"Final selection -- Verts: %d  Total Curvature: %g\n",
-        max_verts_left,min_total_curvature);
+    fprintf(stderr,
+      "Final selection -- Verts: %d  Total Curvature: %g\n"
+      "  Direction: %g,%g,%g\n",
+        max_verts_left,min_total_curvature,plc_M_clist(F_dir));
   }
   if (show_work >= 10) {
     fprintf(geomview,"(delete Where)");
@@ -637,20 +678,26 @@ int main(int argc, char *argv[]) {
   assert(F != NULL);
   add_convex_hull(F);
   showCurve(F);
-  if (show_work >= 5) { usleep(delay*500); }
-  rotate_2pic(F);
+  if (show_work >= 5 && rot_x->count == 0) { usleep(delay*250); }
+  rotate_2pic(F,&rot_dir,rot_x->count > 0);
   showCurve(F);
 #ifdef HAVE_ARGTABLE2_H
   if (outname->count > 0) {
     vectfile = fopen(outname->filename[0],"w");
     assert(vectfile != NULL);
     plc_write(vectfile,F);
+    fprintf(vectfile,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
+      plc_M_clist(F_dir),plc_M_clist(rot_dir));
     (void)fclose(vectfile);
   } else {
     plc_write(stdout,F);
+    fprintf(stdout,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
+      plc_M_clist(F_dir),plc_M_clist(rot_dir));
   }
 #else
   plc_write(stdout,F);
+  fprintf(stdout,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
+    plc_M_clist(F_dir),plc_M_clist(rot_dir));
 #endif
 
   plc_free(F);
