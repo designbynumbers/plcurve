@@ -476,7 +476,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.17 $";
+  char revision[20] = "$Revision: 1.18 $";
   char *dollar;
 
   plc_vector direction;
@@ -520,6 +520,8 @@ int main(int argc, char *argv[]) {
   vectfile = fopen(argv[1],"r");
 #endif
         
+  direction = F_dir = rot_dir = plc_build_vect(0,0,0);
+
   dollar = strchr(&revision[1],'$');
   dollar[0] = '\0';
   plc_version(NULL,0);
