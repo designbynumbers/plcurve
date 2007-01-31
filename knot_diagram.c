@@ -34,12 +34,18 @@
 
 /* Remove a vertex from a plCurve by breaking components into pieces */
 static void remove_vertex(plCurve * const L, const int cmp, const int vert,
-                          bool *start_over) {
+                          bool *start_over, plc_vector N) {
   plc_vector *vt;
   plc_color *clr;
 
   assert(L != NULL);
   assert(cmp >= 0);
+  if (cmp >= L->nc) {
+    /* For some reason, we are asking to deal with too large a component.
+       Print data so that the problem can be reproduced */
+    fprintf(stderr,"Error: %d = cmp >= L->nc = %d",cmp,L->nc);
+    fprintf(stderr,"  Angle: %g,%g,%g\n",plc_M_clist(N));
+  }
   assert(cmp < L->nc);
   assert(vert >= 0);
   assert(vert < L->cp[cmp].nv);
@@ -252,8 +258,8 @@ static plCurve *flatten(const plCurve * const L,
             /* Found a crossing */
             start_over = false;
             if (H->cp[cmp].vt[vert].c[2] >= H->cp[cmp2].vt[vert2].c[2]) {
-              remove_vertex(F,cmp2,vert2,&start_over);
-              remove_vertex(H,cmp2,vert2,&start_over);
+              remove_vertex(F,cmp2,vert2,&start_over,N);
+              remove_vertex(H,cmp2,vert2,&start_over,N);
               showCurve(F);
               vert2--;
               if (cmp2 == cmp) {
@@ -274,8 +280,8 @@ static plCurve *flatten(const plCurve * const L,
                 }
               }
             } else {
-              remove_vertex(F,cmp,vert,&start_over);
-              remove_vertex(H,cmp,vert,&start_over);
+              remove_vertex(F,cmp,vert,&start_over,N);
+              remove_vertex(H,cmp,vert,&start_over,N);
               showCurve(F);
               if (start_over) {
                 /* Run this component again */
@@ -476,7 +482,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.18 $";
+  char revision[20] = "$Revision: 1.19 $";
   char *dollar;
 
   plc_vector direction;
