@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.85 2006-04-24 21:30:21 ashted Exp $
+ *  $Id: plCurve.c,v 1.86 2007-02-02 17:51:12 ashted Exp $
  *
  */
 
@@ -1708,3 +1708,27 @@ void plc_drop_component(plCurve *L, const int cmp) {
   /*@-compdef -usereleased@*/
 }
 /*@=compdef =usereleased@*/
+
+double plc_pointset_diameter(const plCurve * const L) {
+  int cmp, vert, cmp2, vert2;
+  double diameter, dist;
+
+  assert(L != NULL);
+
+  diameter = 0.0;
+  for (cmp = 0; cmp < L->nc; cmp++) {
+    for (vert = 0; vert < L->cp[cmp].nv; vert++) {
+      for (cmp2 = cmp; cmp2 < L->nc; cmp2++) {
+        for (vert2 = (cmp == cmp2) ? vert : 0; 
+             vert2 < L->cp[cmp2].nv; vert2++) {
+          dist = plc_M_distance(L->cp[cmp].vt[vert],
+                                L->cp[cmp2].vt[vert2]);
+          if (dist > diameter) {
+            diameter = dist;
+          }
+        }
+      }
+    }
+  }
+  return diameter;
+}

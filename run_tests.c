@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.23 2006-04-18 16:16:49 ashted Exp $
+ * $Id: run_tests.c,v 1.24 2007-02-02 17:51:12 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -131,7 +131,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.23 $";
+  char revision[] = "$Revision: 1.24 $";
   plc_vert_quant *quant;
   int cmp, vert, ctr;
   double dist, temp_dbl;
@@ -146,7 +146,7 @@ int main(void) {
 #define num_bad_vect_files 14
   int bad_read_results[num_bad_vect_files+1] = 
     { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11, 8 };
-  double clens[2];
+  double clens[2],diameter;
   plc_spline *spL;
   plc_constraint *temp_cst;
 
@@ -263,6 +263,11 @@ int main(void) {
   L->cp[1].clr[2] = plc_build_color(0.67,1.0,0.0,1.0);
   L->cp[1].clr[3] = plc_build_color(1.00,1.0,0.0,1.0);
   check(curves_match(S,*L));
+
+  /* Calculate the diameter of the vertex set */
+  diameter = 0.0;
+  diameter = plc_pointset_diameter(L);
+  check(fabs(diameter - 3.0) < DBL_EPSILON);
 
   /* Check plc_cross_prod */
   temp_vect = plc_cross_prod(L->cp[0].vt[1],L->cp[0].vt[2]);

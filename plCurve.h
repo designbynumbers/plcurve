@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.52 2006-04-18 16:16:49 ashted Exp $
+ *  $Id: plCurve.h,v 1.53 2007-02-02 17:51:12 ashted Exp $
  *
  */
 
@@ -349,6 +349,10 @@ plCurve *plc_convert_from_spline(const plc_spline * const spL,
 plc_vector plc_sample_spline(const plc_spline * const spL,
                              const int cmp,
                              double s);
+
+/* Calculate the diameter of the plCurve, thinking of the vertices as 
+   a set of points in R^3 */
+double plc_pointset_diameter(const plCurve * const L);
 
 /* Define the error codes */
 #define PLC_E_NO_VECT       1
