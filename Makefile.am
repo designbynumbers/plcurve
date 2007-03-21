@@ -5,7 +5,13 @@ lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
 noinst_LTLIBRARIES = libplCurve_cov.la
 
 check_PROGRAMS = run_tests exit_failure_tests
-bin_PROGRAMS = knot_diagram resample
+
+if HAVE_ARGTABLE2
+bin_PROGRAMS = knot_diagram resample plcurvature
+else 
+bin_PROGRAMS = knot_diagram
+endif
+
 noinst_PROGRAMS = spline_view gcov_tests
 
 TESTS = run_tests
@@ -49,3 +55,7 @@ endif
 resample_SOURCES = resample.c libplCurve_safe.la
 resample_LDADD = libplCurve_safe.la
 resample_LDFLAGS = -static -largtable2
+
+plcurvature_SOURCES = plcurvature.c libplCurve_safe.la
+plcurvature_LDADD = libplCurve_safe.la
+plcurvature_LDFLAGS = -static -largtable2
