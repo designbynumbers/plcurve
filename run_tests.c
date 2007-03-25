@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.24 2007-02-02 17:51:12 ashted Exp $
+ * $Id: run_tests.c,v 1.25 2007-03-25 16:26:24 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -131,7 +131,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.24 $";
+  char revision[] = "$Revision: 1.25 $";
   plc_vert_quant *quant;
   int cmp, vert, ctr;
   double dist, temp_dbl;
@@ -141,6 +141,8 @@ int main(void) {
   int sysret;
   FILE *filehandle;
   char *filename;
+  char filemask[] = "/tmp/plCurve_test_XXXXXX";
+  int filedes;
   int err_num;
   char err_str[80];
 #define num_bad_vect_files 14
@@ -574,9 +576,16 @@ int main(void) {
   check(curves_match(S,*L));
 
   /* Now check _write and _read */ 
+#ifdef HAVE_MKSTEMP
+  filename = filemask;
+  filedes = mkstemp(filemask);
+  check(filedes != -1);
+  filehandle = fdopen(filedes,"w");
+#else
   filename = tmpnam(NULL);
   check(filename != NULL);
   filehandle = fopen(filename,"w");
+#endif
   check(filehandle != NULL);
   plc_write(filehandle,L);
   sysret = fclose(filehandle);
