@@ -466,6 +466,31 @@ static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
   }
 }
 
+static void writeout(FILE *out, plCurve *L, struct arg_str *format) {
+   bool pgf = false;
+   bool eepic = false;
+
+   plc_write(out,L);
+/* Let's get this back to working so I can check it in 
+   if (format->count > 0) {
+#ifdef HAVE_STRCASECMP
+     if (strcasecmp(format->sval[0],"pgf") == 0) {
+       fprintf(stderr,"PGF format selected\n");
+     }
+#elif HAVE_STRCASESTR
+     if (strlen(format->sval[0]) == 3 &&
+         strcasestr(format->sval[0],"pgf") != NULL) {
+       fprintf(stderr,"Selected PGF format\n");
+     }
+#else
+     if (strcmp(format->sval[0],"pgf")) {
+       fprintf(stderr,"Selected: PGF format\n");
+     }
+#endif
+   }
+*/
+}
+
 int main(int argc, char *argv[]) {
   FILE *vectfile;
   plCurve *L, *G;
@@ -482,7 +507,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.19 $";
+  char revision[20] = "$Revision: 1.20 $";
   char *dollar;
 
   plc_vector direction;
@@ -494,6 +519,8 @@ int main(int argc, char *argv[]) {
       "The input VECT file");
   struct arg_file *outname = arg_file0("o","outfile","<file>",
       "The output VECT file, by default stdout");
+  struct arg_str *format = arg_str0("O","format","<str>",
+      "Output format (vect,pgf,eepic");
   struct arg_lit *help = arg_lit0("h","help","Print this help and exit");
   struct arg_int *view = arg_int0("v","view","<int>",
       "search view level (0,5,10,15,20,25) [0]");
@@ -514,7 +541,7 @@ int main(int argc, char *argv[]) {
   struct arg_end *end = arg_end(20);
 
   void *argtable[] = {help,view,tryopt,delayopt,
-      proj_x,proj_y,proj_z,rot_x,rot_y,outname,filename,end};
+      proj_x,proj_y,proj_z,rot_x,rot_y,outname,format,filename,end};
   int nerrors;
 
 #else
@@ -693,12 +720,12 @@ int main(int argc, char *argv[]) {
   if (outname->count > 0) {
     vectfile = fopen(outname->filename[0],"w");
     assert(vectfile != NULL);
-    plc_write(vectfile,F);
+    writeout(vectfile,F,format);
     fprintf(vectfile,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
       plc_M_clist(F_dir),plc_M_clist(rot_dir));
     (void)fclose(vectfile);
   } else {
-    plc_write(stdout,F);
+    writeout(stdout,F,format);
     fprintf(stdout,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
       plc_M_clist(F_dir),plc_M_clist(rot_dir));
   }
