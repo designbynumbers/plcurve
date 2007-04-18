@@ -467,28 +467,61 @@ static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
 }
 
 static void writeout(FILE *out, plCurve *L, struct arg_str *format) {
-   bool pgf = false;
-   bool eepic = false;
+  bool pgf = false;
+  bool eepic = false;
+  double min_x,max_x,min_y,max_y;
+  int cmp,vert;
 
-   plc_write(out,L);
-/* Let's get this back to working so I can check it in 
-   if (format->count > 0) {
+  if (format->count > 0) {
 #ifdef HAVE_STRCASECMP
-     if (strcasecmp(format->sval[0],"pgf") == 0) {
-       fprintf(stderr,"PGF format selected\n");
-     }
+     pgf = (strcasecmp(format->sval[0],"pgf") == 0) ||
+           (strcasecmp(format->sval[0],"tikz") == 0);
+     eepic = (strcasecmp(format->sval[0],"eepic") == 0) ||
+             (strcasecmp(format->sval[0],"epic") == 0);
 #elif HAVE_STRCASESTR
-     if (strlen(format->sval[0]) == 3 &&
-         strcasestr(format->sval[0],"pgf") != NULL) {
-       fprintf(stderr,"Selected PGF format\n");
-     }
+     pgf = ((strlen(format->sval[0]) == 3) &&
+            (strcasestr(format->sval[0],"pgf") == 0)) ||
+           ((strlen(format->sval[0]) == 4) &&
+            (strcasestr(format->sval[0],"tikz") == 0));
+     eepic = ((strlen(format->sval[0]) == 5) &&
+              (strcasestr(format->sval[0],"eepic") == 0)) ||
+             ((strlen(format->sval[0]) == 4) &&
+              (strcasestr(format->sval[0],"epic") == 0));
 #else
-     if (strcmp(format->sval[0],"pgf")) {
-       fprintf(stderr,"Selected: PGF format\n");
-     }
+     pgf = (strcmp(format->sval[0],"pgf") == 0) ||
+           (strcmp(format->sval[0],"tikz") == 0);
+     eepic = (strcmp(format->sval[0],"eepic") == 0) ||
+             (strcmp(format->sval[0],"epic") == 0);
 #endif
-   }
-*/
+  }
+  if (pgf || eepic) {
+    /* Find the bounding box */
+    min_x = DBL_MAX;
+    min_y = DBL_MAX;
+    max_x = DBL_MIN;
+    max_y = DBL_MIN;
+    for (cmp = 0; cmp < L->nc; cmp++) {
+      for (vert = 0; vert < L->cp[cmp].nv; vert++) {
+        if (L->cp[cmp].vt[vert].c[0] > max_x) { 
+          max_x := L->cp[cmp].vt[vert].c[0];
+        }
+        if (L->cp[cmp].vt[vert].c[0] < min_x) { 
+          min_x := L->cp[cmp].vt[vert].c[0];
+        }
+        if (L->cp[cmp].vt[vert].c[1] > max_y) { 
+          max_y := L->cp[cmp].vt[vert].c[1];
+        }
+        if (L->cp[cmp].vt[vert].c[1] < min_y) { 
+          min_y := L->cp[cmp].vt[vert].c[1];
+        }
+      }
+    }
+  }
+  if (pgf) {
+  } else if (eepic) {
+  } else { 
+    plc_write(out,L);
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -507,7 +540,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.20 $";
+  char revision[20] = "$Revision: 1.21 $";
   char *dollar;
 
   plc_vector direction;
