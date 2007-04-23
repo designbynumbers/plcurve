@@ -3,7 +3,7 @@
  *
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.34 2006-03-24 19:43:31 ashted Exp $
+ * $Id: vector.c,v 1.35 2007-04-23 22:33:47 ashted Exp $
  *
  */
 
@@ -129,7 +129,7 @@ inline bool plc_vecteq(plc_vector A, plc_vector B) /*@modifies nothing@*/ {
 /* Procedure returns a vector which points in the same direction as V but has
  * length 1.  It sets *ok to false if the norm is too small. */
 inline plc_vector plc_normalize_vect(const plc_vector V,
-                                       /*@null@*/ bool *ok) {
+                                       /*@null@*//*@out@*/ bool *ok) {
   double vnrm;
 
   vnrm = plc_M_norm(V);

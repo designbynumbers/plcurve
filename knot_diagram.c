@@ -127,7 +127,7 @@ static void remove_vertex(plCurve * const L, const int cmp, const int vert,
     fprintf(geomview,"(geometry Curve "); \
     plc_write(geomview,F); \
     fprintf(geomview,") (look-recenter Curve) (look-encompass Curve)\n"); \
-    fflush(geomview); \
+    fflush(NULL); \
   }
 
 /* Project the vertices onto the plane to which N is normal (returning them
@@ -209,7 +209,7 @@ static plCurve *flatten(const plCurve * const L,
               F->cp[cmp].vt[vert].c[1]+gap*sin(wherecnt*2*pi/16));
         }
         fprintf(geomview,"1 0 0 1)\n");
-        fflush(geomview);
+        fflush(NULL);
         if (show_work >= 15) {
           usleep(delay);
         }
@@ -243,7 +243,7 @@ static plCurve *flatten(const plCurve * const L,
                 F->cp[cmp2].vt[vert2].c[1]+gap/2.0,
                 F->cp[cmp2].vt[vert2].c[0]+gap/2.0,
                 F->cp[cmp2].vt[vert2].c[1]-gap/2.0);
-            fflush(geomview);
+            fflush(NULL);
             if (show_work >= 25) {
               usleep(delay);
             }
@@ -267,7 +267,7 @@ static plCurve *flatten(const plCurve * const L,
                 last_to_check = F->cp[cmp].nv-1;
               }
               if (start_over) {
-                if (cmp2 != cmp) {
+                if ((cmp2 != cmp) && (cmp2 < F->nc)) {
                   far_enough = true;
                   vert2 = -1;
                 } else {
@@ -466,11 +466,15 @@ static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
   }
 }
 
-static void writeout(FILE *out, plCurve *L, struct arg_str *format) {
+static void writeout(FILE *out, plCurve *L, struct arg_str *format,
+                     const char * const revision,
+                     plc_vector F_dir, plc_vector rot_dir) {
   bool pgf = false;
   bool eepic = false;
   double min_x,max_x,min_y,max_y;
   int cmp,vert;
+  plc_color cur_col = {0.0,0.0,0.0,1.0};
+  plc_color new_col;
 
   if (format->count > 0) {
 #ifdef HAVE_STRCASECMP
@@ -494,12 +498,12 @@ static void writeout(FILE *out, plCurve *L, struct arg_str *format) {
              (strcmp(format->sval[0],"epic") == 0);
 #endif
   }
+  min_x = DBL_MAX;
+  min_y = DBL_MAX;
+  max_x = DBL_MIN;
+  max_y = DBL_MIN;
   if (pgf || eepic) {
     /* Find the bounding box */
-    min_x = DBL_MAX;
-    min_y = DBL_MAX;
-    max_x = DBL_MIN;
-    max_y = DBL_MIN;
     for (cmp = 0; cmp < L->nc; cmp++) {
       for (vert = 0; vert < L->cp[cmp].nv; vert++) {
         if (L->cp[cmp].vt[vert].c[0] > max_x) { 
@@ -519,10 +523,58 @@ static void writeout(FILE *out, plCurve *L, struct arg_str *format) {
   }
   if (pgf) {
   } else if (eepic) {
+    fprintf(out,"%% Knot code produced using knot_diagram version %s.\n",
+      &revision[11]);
+    fprintf(out,
+      "%% Remember to \\usepackage{epic,eepic,color,calc} in the preamble\n");
+    fprintf(out,"%% Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
+      plc_M_clist(F_dir),plc_M_clist(rot_dir));
+    fprintf(out,"\\begin{picture}(%3.3f,%3.3f)(%3.3f,%3.3f)\n", max_x - min_x,
+      max_y - min_y, min_x, min_y);
+    /* Default to a picture with maximum dimension 2 inches. */
+    fprintf(out,"\\setlength{\\unitlength}{2in / \\real{%3.3f}}\n", 
+      (max_x - min_x > max_y - min_y) ? max_x - min_x : max_y - min_y);
+    for (cmp = 0; cmp < L->nc; cmp++) {
+      if (L->cp[cmp].cc != 1) {
+        /* In case of no color give or of different colors for each vertex,
+           set the color for this strand to black */
+        new_col.r = 0.0; new_col.g = 0.0; new_col.b = 0.0;
+      } else {
+        new_col = L->cp[cmp].clr[0];
+      }
+      if (new_col.r != cur_col.r ||
+          new_col.g != cur_col.g ||
+          new_col.b != cur_col.b) {
+        if (cur_col.r != 0.0 || cur_col.g != 0.0 || cur_col.b != 0.0) {
+          fprintf(out,"\\end{color}");
+        }
+        if (new_col.r != 0.0 || new_col.g != 0.0 || new_col.b != 0.0) {
+          fprintf(out,"\\begin{color}[rgb]{%3.3f,%3.3f,%3.3f}",
+              new_col.r,new_col.g,new_col.b);
+        }
+        cur_col = new_col;
+      }
+      fprintf(out,"\\drawline ");
+      for (vert = 0; vert < L->cp[cmp].nv; vert++) {
+        fprintf(out,"(%3.3f,%3.3f) ",L->cp[cmp].vt[vert].c[0],
+                                     L->cp[cmp].vt[vert].c[1]);
+      }
+      fprintf(out,"\n");
+    }
+    if (cur_col.r != 0.0 || cur_col.g != 0.0 || cur_col.b != 0.0) {
+      fprintf(out,"\\end{color}");
+    }
+    fprintf(out,"\\end{picture}\n");
   } else { 
     plc_write(out,L);
+    fprintf(stdout,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
+      plc_M_clist(F_dir),plc_M_clist(rot_dir));
   }
 }
+/*
+Error: 3 = cmp >= L->nc = 3  Angle: 0.963819,-0.175632,0.200513
+Error: 7 = cmp >= L->nc = 7  Angle: -0.352259,-0.609383,0.710328
+*/
 
 int main(int argc, char *argv[]) {
   FILE *vectfile;
@@ -540,7 +592,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.22 $";
+  char revision[20] = "$Revision: 1.23 $";
   char *dollar;
 
   plc_vector direction;
@@ -589,7 +641,9 @@ int main(int argc, char *argv[]) {
   direction = F_dir = rot_dir = plc_build_vect(0,0,0);
 
   dollar = strchr(&revision[1],'$');
-  dollar[0] = '\0';
+  if (dollar != NULL) {
+    dollar[-1] = '\0';
+  }
   plc_version(NULL,0);
   fprintf(stderr,"knot_diagram v%s\n",&revision[11]);
   fprintf(stderr,"  Produce a knot diagram from a VECT file.\n");
@@ -656,7 +710,11 @@ int main(int argc, char *argv[]) {
   vectfile = fopen(filename->filename[0],"r");
 #endif
 
-  assert(vectfile != NULL);
+  if (vectfile == NULL) {
+    fprintf(stderr,"Unable to open file '%s' for reading.\n",
+      filename->filename[0]);
+    exit(EXIT_FAILURE);
+  }
   L = plc_read(vectfile,&err_num,err_str,80);
   (void)fclose(vectfile);
   if (err_num != 0) {
@@ -718,7 +776,7 @@ int main(int argc, char *argv[]) {
     }
     if ((verts_left > max_verts_left && 
         total_curvature/1.21 < min_total_curvature) ||
-        (verts_left >= max_verts_left*0.99 && 
+        (verts_left*1.0 >= max_verts_left*0.99 && 
          total_curvature < min_total_curvature)) {
       if (show_work > 0) { fprintf(stderr,"*\n"); }
       if (F != NULL) { plc_free(F); }
@@ -753,14 +811,10 @@ int main(int argc, char *argv[]) {
   if (outname->count > 0) {
     vectfile = fopen(outname->filename[0],"w");
     assert(vectfile != NULL);
-    writeout(vectfile,F,format);
-    fprintf(vectfile,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
-      plc_M_clist(F_dir),plc_M_clist(rot_dir));
+    writeout(vectfile,F,format,revision,F_dir,rot_dir);
     (void)fclose(vectfile);
   } else {
-    writeout(stdout,F,format);
-    fprintf(stdout,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
-      plc_M_clist(F_dir),plc_M_clist(rot_dir));
+    writeout(stdout,F,format,revision,F_dir,rot_dir);
   }
 #else
   plc_write(stdout,F);
