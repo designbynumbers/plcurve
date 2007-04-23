@@ -503,16 +503,16 @@ static void writeout(FILE *out, plCurve *L, struct arg_str *format) {
     for (cmp = 0; cmp < L->nc; cmp++) {
       for (vert = 0; vert < L->cp[cmp].nv; vert++) {
         if (L->cp[cmp].vt[vert].c[0] > max_x) { 
-          max_x := L->cp[cmp].vt[vert].c[0];
+          max_x = L->cp[cmp].vt[vert].c[0];
         }
         if (L->cp[cmp].vt[vert].c[0] < min_x) { 
-          min_x := L->cp[cmp].vt[vert].c[0];
+          min_x = L->cp[cmp].vt[vert].c[0];
         }
         if (L->cp[cmp].vt[vert].c[1] > max_y) { 
-          max_y := L->cp[cmp].vt[vert].c[1];
+          max_y = L->cp[cmp].vt[vert].c[1];
         }
         if (L->cp[cmp].vt[vert].c[1] < min_y) { 
-          min_y := L->cp[cmp].vt[vert].c[1];
+          min_y = L->cp[cmp].vt[vert].c[1];
         }
       }
     }
@@ -540,7 +540,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.21 $";
+  char revision[20] = "$Revision: 1.22 $";
   char *dollar;
 
   plc_vector direction;
