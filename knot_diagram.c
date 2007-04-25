@@ -637,7 +637,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.24 $";
+  char revision[20] = "$Revision: 1.25 $";
   char *dollar;
 
   plc_vector direction;
@@ -650,7 +650,7 @@ int main(int argc, char *argv[]) {
   struct arg_file *outname = arg_file0("o","outfile","<file>",
       "The output VECT file, by default stdout");
   struct arg_str *format = arg_str0("O","format","<str>",
-      "Output format (vect,pgf,eepic");
+      "Output format (vect,pgf,eepic)");
   struct arg_str *osize = arg_str0("S","size","<tex length>",
       "Size of largest dimension for pgf/eepic [2in]");
   struct arg_lit *help = arg_lit0("h","help","Print this help and exit");
