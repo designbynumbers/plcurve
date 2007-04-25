@@ -466,7 +466,9 @@ static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
   }
 }
 
-static void writeout(FILE *out, plCurve *L, struct arg_str *format,
+static void writeout(FILE *out, plCurve *L, 
+                     struct arg_str *format,
+                     struct arg_str *osize,
                      const char * const revision,
                      plc_vector F_dir, plc_vector rot_dir) {
   bool pgf = false;
@@ -475,6 +477,7 @@ static void writeout(FILE *out, plCurve *L, struct arg_str *format,
   int cmp,vert;
   plc_color cur_col = {0.0,0.0,0.0,1.0};
   plc_color new_col;
+  char colorspec[80];
 
   if (format->count > 0) {
 #ifdef HAVE_STRCASECMP
@@ -520,20 +523,62 @@ static void writeout(FILE *out, plCurve *L, struct arg_str *format,
         }
       }
     }
-  }
-  if (pgf) {
-  } else if (eepic) {
     fprintf(out,"%% Knot code produced using knot_diagram version %s.\n",
       &revision[11]);
-    fprintf(out,
-      "%% Remember to \\usepackage{epic,eepic,color,calc} in the preamble\n");
     fprintf(out,"%% Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
       plc_M_clist(F_dir),plc_M_clist(rot_dir));
+    fprintf(out, 
+      "%% To change the size of the picture, adjust the ``%s'' below.\n",
+      osize->sval[0]);
+  }
+  if (pgf) {
+    fprintf(out,
+      "%% Remember to \\usepackage{tikz} in the preamble\n");
+    fprintf(out,"\\ifdefined\\knotDiagramLength\\else"
+                "\\newlength{\\knotDiagramLength}\\fi\n");
+    fprintf(out,"\\setlength{\\knotDiagramLength}{%s / \\real{%3.3f}}\n",
+      osize->sval[0],
+      (max_x - min_x > max_y - min_y) ? max_x - min_x : max_y - min_y);
+    fprintf(out,
+      "\\begin{tikzpicture}[x=\\knotDiagramLength,y=\\knotDiagramLength]\n");
+    fprintf(out,"\\tikzstyle{firsthalf}=[thick,->]\n");
+    fprintf(out,"\\tikzstyle{secondhalf}=[thick]\n");
+    for (cmp = 0; cmp < L->nc; cmp++) {
+      if (L->cp[cmp].cc == 1 &&
+          (L->cp[cmp].clr[0].r != 0.0 ||
+           L->cp[cmp].clr[0].g != 0.0 ||
+           L->cp[cmp].clr[0].b != 0.0)) {
+        sprintf(colorspec,",draw={rgb,1:red,%3.3f;green,%3.3f;blue,%3.3f}",
+          L->cp[cmp].clr[0].r,L->cp[cmp].clr[0].g,L->cp[cmp].clr[0].b);
+      } else {
+        colorspec[0] = '\0';
+      }
+      fprintf(out,"\\draw[firsthalf%s] (%3.3f,%3.3f)",colorspec,
+        L->cp[cmp].vt[0].c[0],L->cp[cmp].vt[0].c[1]);
+      for (vert = 1; vert < L->cp[cmp].nv / 2; vert++) { 
+        fprintf(out," -- (%3.3f,%3.3f)",L->cp[cmp].vt[vert].c[0],
+          L->cp[cmp].vt[vert].c[1]);
+      }
+      fprintf(out,";\n\\draw[secondhalf%s] (%3.3f,%3.3f)",colorspec,
+        L->cp[cmp].vt[vert-2].c[0],L->cp[cmp].vt[vert-2].c[1]);
+      /* We overwrite the previous line segment so as to get continuity */
+      for (vert--; vert < L->cp[cmp].nv; vert++) { 
+        fprintf(out," -- (%3.3f,%3.3f)",L->cp[cmp].vt[vert].c[0],
+          L->cp[cmp].vt[vert].c[1]);
+      }
+      fprintf(out,";\n");
+    }
+    fprintf(out,"\\end{tikzpicture}");
+  } else if (eepic) {
+    fprintf(out,
+      "%% Remember to \\usepackage{epic,eepic,color,calc} in the preamble\n");
+    /* Default to a picture with maximum dimension 2 inches. */
+    fprintf(out,"{ %% To keep the effects of \\setlength contained \n");
+    fprintf(out,"\\setlength{\\unitlength}{%s / \\real{%3.3f}}\n", 
+      osize->sval[0],
+      (max_x - min_x > max_y - min_y) ? max_x - min_x : max_y - min_y);
     fprintf(out,"\\begin{picture}(%3.3f,%3.3f)(%3.3f,%3.3f)\n", max_x - min_x,
       max_y - min_y, min_x, min_y);
-    /* Default to a picture with maximum dimension 2 inches. */
-    fprintf(out,"\\setlength{\\unitlength}{2in / \\real{%3.3f}}\n", 
-      (max_x - min_x > max_y - min_y) ? max_x - min_x : max_y - min_y);
     for (cmp = 0; cmp < L->nc; cmp++) {
       if (L->cp[cmp].cc != 1) {
         /* In case of no color give or of different colors for each vertex,
@@ -546,10 +591,10 @@ static void writeout(FILE *out, plCurve *L, struct arg_str *format,
           new_col.g != cur_col.g ||
           new_col.b != cur_col.b) {
         if (cur_col.r != 0.0 || cur_col.g != 0.0 || cur_col.b != 0.0) {
-          fprintf(out,"\\end{color}");
+          fprintf(out,"\\end{color}%%\n");
         }
         if (new_col.r != 0.0 || new_col.g != 0.0 || new_col.b != 0.0) {
-          fprintf(out,"\\begin{color}[rgb]{%3.3f,%3.3f,%3.3f}",
+          fprintf(out,"\\begin{color}[rgb]{%3.3f,%3.3f,%3.3f}\n",
               new_col.r,new_col.g,new_col.b);
         }
         cur_col = new_col;
@@ -562,9 +607,9 @@ static void writeout(FILE *out, plCurve *L, struct arg_str *format,
       fprintf(out,"\n");
     }
     if (cur_col.r != 0.0 || cur_col.g != 0.0 || cur_col.b != 0.0) {
-      fprintf(out,"\\end{color}");
+      fprintf(out,"\\end{color}\n");
     }
-    fprintf(out,"\\end{picture}\n");
+    fprintf(out,"\\end{picture}\n}\n");
   } else { 
     plc_write(out,L);
     fprintf(stdout,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
@@ -592,7 +637,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.23 $";
+  char revision[20] = "$Revision: 1.24 $";
   char *dollar;
 
   plc_vector direction;
@@ -606,6 +651,8 @@ int main(int argc, char *argv[]) {
       "The output VECT file, by default stdout");
   struct arg_str *format = arg_str0("O","format","<str>",
       "Output format (vect,pgf,eepic");
+  struct arg_str *osize = arg_str0("S","size","<tex length>",
+      "Size of largest dimension for pgf/eepic [2in]");
   struct arg_lit *help = arg_lit0("h","help","Print this help and exit");
   struct arg_int *view = arg_int0("v","view","<int>",
       "search view level (0,5,10,15,20,25) [0]");
@@ -626,7 +673,7 @@ int main(int argc, char *argv[]) {
   struct arg_end *end = arg_end(20);
 
   void *argtable[] = {help,view,tryopt,delayopt,
-      proj_x,proj_y,proj_z,rot_x,rot_y,outname,format,filename,end};
+      proj_x,proj_y,proj_z,rot_x,rot_y,outname,format,osize,filename,end};
   int nerrors;
 
 #else
@@ -655,6 +702,9 @@ int main(int argc, char *argv[]) {
     arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
     exit(EXIT_FAILURE);
   }
+
+  /* Set the default output size */
+  osize->sval[0] = "2in";
 
   /* Parse the command line as defined by argtable[] */
   nerrors = arg_parse(argc,argv,argtable);
@@ -811,10 +861,10 @@ int main(int argc, char *argv[]) {
   if (outname->count > 0) {
     vectfile = fopen(outname->filename[0],"w");
     assert(vectfile != NULL);
-    writeout(vectfile,F,format,revision,F_dir,rot_dir);
+    writeout(vectfile,F,format,osize,revision,F_dir,rot_dir);
     (void)fclose(vectfile);
   } else {
-    writeout(stdout,F,format,revision,F_dir,rot_dir);
+    writeout(stdout,F,format,osize,revision,F_dir,rot_dir);
   }
 #else
   plc_write(stdout,F);
