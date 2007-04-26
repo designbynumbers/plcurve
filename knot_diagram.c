@@ -548,7 +548,7 @@ static void writeout(FILE *out, plCurve *L,
           (L->cp[cmp].clr[0].r != 0.0 ||
            L->cp[cmp].clr[0].g != 0.0 ||
            L->cp[cmp].clr[0].b != 0.0)) {
-        sprintf(colorspec,",draw={rgb,1:red,%3.3f;green,%3.3f;blue,%3.3f}",
+        sprintf(colorspec,",color={rgb,1:red,%3.3f;green,%3.3f;blue,%3.3f}",
           L->cp[cmp].clr[0].r,L->cp[cmp].clr[0].g,L->cp[cmp].clr[0].b);
       } else {
         colorspec[0] = '\0';
@@ -612,7 +612,7 @@ static void writeout(FILE *out, plCurve *L,
     fprintf(out,"\\end{picture}\n}\n");
   } else { 
     plc_write(out,L);
-    fprintf(stdout,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
+    fprintf(out,"# Projection: %g,%g,%g  Rotation: %g,%g,%g\n",
       plc_M_clist(F_dir),plc_M_clist(rot_dir));
   }
 }
@@ -637,7 +637,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.25 $";
+  char revision[20] = "$Revision: 1.26 $";
   char *dollar;
 
   plc_vector direction;
