@@ -473,33 +473,38 @@ static void writeout(FILE *out, plCurve *L,
                      plc_vector F_dir, plc_vector rot_dir) {
   bool pgf = false;
   bool eepic = false;
+  bool vect = true;
   double min_x,max_x,min_y,max_y;
   int cmp,vert;
   plc_color cur_col = {0.0,0.0,0.0,1.0};
   plc_color new_col;
   char colorspec[80];
+  char fmttmp[80],*fmt;
 
   if (format->count > 0) {
+    fmt = fmttmp;
+    fmt = strncpy(fmttmp,format->sval[0],79);
+    fmttmp[79] = '\0';
+    if (*fmt == '=') { fmt++; }
 #ifdef HAVE_STRCASECMP
-     pgf = (strcasecmp(format->sval[0],"pgf") == 0) ||
-           (strcasecmp(format->sval[0],"tikz") == 0);
-     eepic = (strcasecmp(format->sval[0],"eepic") == 0) ||
-             (strcasecmp(format->sval[0],"epic") == 0);
+    pgf = (strcasecmp(fmt,"pgf") == 0) || (strcasecmp(fmt,"tikz") == 0);
+    eepic = (strcasecmp(fmt,"eepic") == 0) || (strcasecmp(fmt,"epic") == 0);
+    vect = (strcasecmp(fmt,"vect") == 0);
 #elif HAVE_STRCASESTR
-     pgf = ((strlen(format->sval[0]) == 3) &&
-            (strcasestr(format->sval[0],"pgf") == 0)) ||
-           ((strlen(format->sval[0]) == 4) &&
-            (strcasestr(format->sval[0],"tikz") == 0));
-     eepic = ((strlen(format->sval[0]) == 5) &&
-              (strcasestr(format->sval[0],"eepic") == 0)) ||
-             ((strlen(format->sval[0]) == 4) &&
-              (strcasestr(format->sval[0],"epic") == 0));
+    pgf = ((strlen(fmt) == 3) && (strcasestr(fmt,"pgf") == 0)) ||
+          ((strlen(fmt) == 4) && (strcasestr(fmt,"tikz") == 0));
+    eepic = ((strlen(fmt) == 5) && (strcasestr(fmt,"eepic") == 0)) ||
+            ((strlen(fmt) == 4) && (strcasestr(fmt,"epic") == 0));
+    vect = ((strlen(fmt) == 4) && (strcasestr(fmt,"vect") == 0));
 #else
-     pgf = (strcmp(format->sval[0],"pgf") == 0) ||
-           (strcmp(format->sval[0],"tikz") == 0);
-     eepic = (strcmp(format->sval[0],"eepic") == 0) ||
-             (strcmp(format->sval[0],"epic") == 0);
+    pgf = (strcmp(fmt,"pgf") == 0) || (strcmp(fmt,"tikz") == 0);
+    eepic = (strcmp(fmt,"eepic") == 0) || (strcmp(fmt,"epic") == 0);
+    vect = (strcmp(fmt,"vect") == 0);
 #endif
+  }
+  if (!pgf && !eepic && !vect) {
+    fprintf(stderr,"Error: Unknown output format '%s'.\n",fmttmp);
+    exit(EXIT_FAILURE);
   }
   min_x = DBL_MAX;
   min_y = DBL_MAX;
@@ -534,6 +539,34 @@ static void writeout(FILE *out, plCurve *L,
   if (pgf) {
     fprintf(out,
       "%% Remember to \\usepackage{tikz} in the preamble\n");
+    fprintf(out,"%%\n%% We have to define our own arrow head since pgf's"
+      "arrows all \n%%   shorten their lines somewhat, which causes them to "
+      "point\n%%   in the wrong direction for short edge lengths.\n");
+    fprintf(out,"\\ifdefined\\knotDiagramArrowDimen\\else\\newdimen{\\knotDiagramArrowDimen}\n");
+    fprintf(out,"\\pgfarrowsdeclare{toKnotDiag}{toKnotDiag}\n");
+    fprintf(out,"{\n");
+    fprintf(out,"  \\pgfarrowsleftextend{0pt}\n");
+    fprintf(out,"  \\pgfarrowsrightextend{0pt}\n");
+    fprintf(out,"}\n");
+    fprintf(out,"{\n");
+    fprintf(out,"  \\knotDiagramArrowDimen=0.28pt%%\n");
+    fprintf(out,"  \\advance\\knotDiagramArrowDimen by.3\\pgflinewidth%%\n");
+    fprintf(out,"  \\pgfsetlinewidth{0.8\\pgflinewidth}\n");
+    fprintf(out,"  \\pgfsetdash{}{0pt}\n");
+    fprintf(out,"  \\pgfsetroundcap\n");
+    fprintf(out,"  \\pgfsetroundjoin\n");
+    fprintf(out,"  \\pgfpathmoveto{\\pgfpoint{-3\\knotDiagramArrowDimen}{4\\knotDiagramArrowDimen}}\n");
+    fprintf(out,"  \\pgfpathcurveto\n");
+    fprintf(out,"  {\\pgfpoint{-2.75\\knotDiagramArrowDimen}{2.5\\knotDiagramArrowDimen}}\n");
+    fprintf(out,"  {\\pgfpoint{0pt}{0.25\\knotDiagramArrowDimen}}\n");
+    fprintf(out,"  {\\pgfpoint{0.75\\knotDiagramArrowDimen}{0pt}}\n");
+    fprintf(out,"  \\pgfpathcurveto\n");
+    fprintf(out,"  {\\pgfpoint{0pt}{-0.25\\knotDiagramArrowDimen}}\n");
+    fprintf(out,"  {\\pgfpoint{-2.75\\knotDiagramArrowDimen}{-2.5\\knotDiagramArrowDimen}}\n");
+    fprintf(out,"  {\\pgfpoint{-3\\knotDiagramArrowDimen}{-4\\knotDiagramArrowDimen}}\n");
+    fprintf(out,"  \\pgfusepathqstroke\n");
+    fprintf(out,"}\n");
+    fprintf(out,"\\fi\n");
     fprintf(out,"\\ifdefined\\knotDiagramLength\\else"
                 "\\newlength{\\knotDiagramLength}\\fi\n");
     fprintf(out,"\\setlength{\\knotDiagramLength}{%s / \\real{%3.3f}}\n",
@@ -541,7 +574,7 @@ static void writeout(FILE *out, plCurve *L,
       (max_x - min_x > max_y - min_y) ? max_x - min_x : max_y - min_y);
     fprintf(out,
       "\\begin{tikzpicture}[x=\\knotDiagramLength,y=\\knotDiagramLength]\n");
-    fprintf(out,"\\tikzstyle{firsthalf}=[thick,->]\n");
+    fprintf(out,"\\tikzstyle{firsthalf}=[thick,-toKnotDiag]\n");
     fprintf(out,"\\tikzstyle{secondhalf}=[thick]\n");
     for (cmp = 0; cmp < L->nc; cmp++) {
       if (L->cp[cmp].cc == 1 &&
@@ -560,9 +593,9 @@ static void writeout(FILE *out, plCurve *L,
           L->cp[cmp].vt[vert].c[1]);
       }
       fprintf(out,";\n\\draw[secondhalf%s] (%3.3f,%3.3f)",colorspec,
-        L->cp[cmp].vt[vert-2].c[0],L->cp[cmp].vt[vert-2].c[1]);
+        L->cp[cmp].vt[vert-1].c[0],L->cp[cmp].vt[vert-1].c[1]);
       /* We overwrite the previous line segment so as to get continuity */
-      for (vert--; vert < L->cp[cmp].nv; vert++) { 
+      for (; vert < L->cp[cmp].nv; vert++) { 
         fprintf(out," -- (%3.3f,%3.3f)",L->cp[cmp].vt[vert].c[0],
           L->cp[cmp].vt[vert].c[1]);
       }
@@ -637,7 +670,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.26 $";
+  char revision[20] = "$Revision: 1.27 $";
   char *dollar;
 
   plc_vector direction;
