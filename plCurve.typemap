@@ -1,0 +1,142 @@
+TYPEMAP
+plCurve *	T_PLCURVE
+
+INPUT
+T_PLCURVE
+  { /* Convert from Perl Hash to plCurve */
+    int cmp,vert,clr,cpt;
+    int num_cmp;
+    int *nv,*open,*cc;
+    SV **val,**cds,**coord;
+
+    warn("10");
+    num_cmp = av_len($arg);
+    if ((nv = calloc(num_cmp,sizeof(int))) == NULL) {
+      croak("Unable to calloc space for nv in plCurve conversion");
+    }
+    if ((open = calloc(num_cmp,sizeof(int))) == NULL) {
+      free(nv);
+      croak("Unable to calloc space for open in plCurve conversion");
+    }
+    if ((cc = calloc(num_cmp,sizeof(int))) == NULL) {
+      free(nv); free(open);
+      croak("Unable to calloc space for cc in plCurve conversion");
+    }
+    warn("20");
+    for (cmp = 0; cmp < num_cmp; cmp++) {
+      val = hv_fetch(av_fetch($arg,cmp,0),"vert",4,0);
+      if (val == NULL) {
+        free(nv); free(open); free(cc);
+        croak("Unable to find number of vertices for component %d",cmp);
+      }
+      nv[cmp] = av_len(*val);
+      val = hv_fetch(av_fetch($arg,cmp,0),"color",5,0);
+      if (val == NULL) {
+        free(nv); free(open); free(cc);
+        croak("Unable to find number of colors for component %d",cmp);
+      }
+      cc[cmp] = av_len(*val);
+      val = hv_fetch(av_fetch($arg,cmp,0),"open",4,0);
+      open[cmp] = (val != NULL && SvTRUE(*val));
+    }
+    warn("30");
+    $var = plc_new(num_cmp,nv,open,cc);
+    $var->nc = num_cmp;
+    for (cmp = 0; cmp < num_cmp; cmp++) {
+      $var->cp[cmp].nv = nv[cmp];
+      $var->cp[cmp].open = open[cmp];
+      $var->cp[cmp].cc = cc[cmp];
+      val = hv_fetch(av_fetch($arg,cmp,0),"vert",4,0);
+      if (val == NULL) {
+        free(nv); free(open); free(cc);
+        croak("Unable to read vertices for component %d",cmp);
+      }
+      for (vert = 0; vert < nv[cmp]; vert++) {
+        cds = av_fetch(*val,vert,0);
+        if (cds == NULL) {
+          free(nv); free(open); free(cc);
+          croak("Unable to read vertex %d:%d",cmp,vert);
+        }
+        for (cpt = 0; cpt < 3; cpt++) {
+          coord = av_fetch(*cds,cpt,0);
+          if (coord == NULL) {
+            free(nv); free(open); free(cc);
+            croak("Unable to read coordinate %d:%d:%d",cmp,vert,cpt);
+          }
+          $var->cp[cmp].vt[vert].c[cpt] = SvNV(*coord);
+        }
+      }
+      val = hv_fetch(av_fetch($arg,cmp,0),"color",5,0);
+      if (val == NULL) {
+        free(nv); free(open); free(cc);
+        croak("Unable to read colors for component %d",cmp);
+      }
+      for (clr = 0; clr < nv[cmp]; clr++) {
+        cds = av_fetch(*val,clr,0);
+        if (cds == NULL) {
+          free(nv); free(open); free(cc);
+          croak("Unable to read color %d:%d",cmp,clr);
+        }
+        coord = hv_fetch(*cds,"r",1,0);
+        if (coord == NULL) {
+          free(nv); free(open); free(cc);
+          croak("Unable to read color %d:%d:r",cmp,clr);
+        }
+        $var->cp[cmp].clr[clr].r = SvNV(*coord);
+        coord = hv_fetch(*cds,"g",1,0);
+        if (coord == NULL) {
+          free(nv); free(open); free(cc);
+          croak("Unable to read color %d:%d:g",cmp,clr);
+        }
+        $var->cp[cmp].clr[clr].g = SvNV(*coord);
+        coord = hv_fetch(*cds,"b",1,0);
+        if (coord == NULL) {
+          free(nv); free(open); free(cc);
+          croak("Unable to read color %d:%d:b",cmp,clr);
+        }
+        $var->cp[cmp].clr[clr].b = SvNV(*coord);
+        coord = hv_fetch(*cds,"alpha",1,0);
+        if (coord == NULL) {
+          free(nv); free(open); free(cc);
+          croak("Unable to read color %d:%d:alpha",cmp,clr);
+        }
+        $var->cp[cmp].clr[clr].alpha = SvNV(*coord);
+      }
+    }
+    free(nv);
+    free(open);
+    free(cc);
+  }
+
+OUTPUT
+T_PLCURVE
+  { /* Convert from plCurve type to Perl Hash */
+    AV *link = newAV();
+    AV *vta,*vtsa; 
+    HV *cmph,*clrh; 
+    int cmp,vert,clr;
+  
+    for (cmp = 0; cmp < $var->nc; cmp++) {
+      av_store(link,cmp,newRV_noinc((SV*)cmph = newHV()));
+      if ($var->cp[cmp].open) {
+        hv_store(cmph,"open",4,newSViv(1),0);
+      }
+      hv_store(cmph,"vert",4,newRV_noinc((SV*)vta = newAV()),0);
+      for (vert = 0; vert < $var->cp[cmp].nv; vert++) {
+        av_store(vta,vert,newRV_noinc((SV*)vtsa = newAV()));
+        av_store(vtsa,0,newSVnv($var->cp[cmp].vt[vert].c[0]));
+        av_store(vtsa,1,newSVnv($var->cp[cmp].vt[vert].c[1]));
+        av_store(vtsa,2,newSVnv($var->cp[cmp].vt[vert].c[2]));
+      }
+      hv_store(cmph,"color",5,newRV_noinc((SV*)vta = newAV()),0);
+      for (clr = 0; clr < $var->cp[cmp].cc; clr++) {
+        av_store(vta,clr,newRV_noinc((SV*)clrh = newHV()));
+        hv_store(clrh,"r",1,newSVnv($var->cp[cmp].clr[clr].r),0);
+        hv_store(clrh,"g",1,newSVnv($var->cp[cmp].clr[clr].g),0);
+        hv_store(clrh,"b",1,newSVnv($var->cp[cmp].clr[clr].b),0);
+        hv_store(clrh,"alpha",5,newSVnv($var->cp[cmp].clr[clr].alpha),0);
+      }
+    }
+  
+    $arg = newRV_noinc((SV*)link);
+  }
