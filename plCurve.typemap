@@ -6,99 +6,122 @@ T_PLCURVE
   { /* Convert from Perl Hash to plCurve */
     int cmp,vert,clr,cpt;
     int num_cmp;
-    int *nv,*open,*cc;
-    SV **val,**cds,**coord;
-
-    warn("10");
-    num_cmp = av_len($arg);
+    int *nv, *cc;
+    bool *open;
+    SV **val,**aval,**cds,**coord;
+    HV *strand;
+    AV *link;
+ 
+    if (SvROK($arg) && SvTYPE(SvRV($arg))==SVt_PVAV) {
+      link = (AV*)SvRV($arg);
+    } else {
+      croak(\"$var is not an array reference\");
+    }
+    num_cmp = av_len(link)+1;
     if ((nv = calloc(num_cmp,sizeof(int))) == NULL) {
-      croak("Unable to calloc space for nv in plCurve conversion");
+      croak(\"Unable to calloc space for nv in plCurve conversion\");
     }
     if ((open = calloc(num_cmp,sizeof(int))) == NULL) {
       free(nv);
-      croak("Unable to calloc space for open in plCurve conversion");
+      croak(\"Unable to calloc space for open in plCurve conversion\");
     }
     if ((cc = calloc(num_cmp,sizeof(int))) == NULL) {
       free(nv); free(open);
-      croak("Unable to calloc space for cc in plCurve conversion");
+      croak(\"Unable to calloc space for cc in plCurve conversion\");
     }
-    warn("20");
+    warn(\"Number of components: %d\",num_cmp);
     for (cmp = 0; cmp < num_cmp; cmp++) {
-      val = hv_fetch(av_fetch($arg,cmp,0),"vert",4,0);
-      if (val == NULL) {
+      warn(\"cmp:%d\",cmp);
+      aval = av_fetch(link,cmp,0);
+      if (aval == NULL || !SvROK(*aval) || SvTYPE(SvRV(*aval)) != SVt_PVHV) {
         free(nv); free(open); free(cc);
-        croak("Unable to find number of vertices for component %d",cmp);
+        croak(\"Malformed link component %d.\",cmp);
       }
-      nv[cmp] = av_len(*val);
-      val = hv_fetch(av_fetch($arg,cmp,0),"color",5,0);
-      if (val == NULL) {
+      strand = (HV*)SvRV(*aval);
+      val = hv_fetch(strand,\"vert\",4,0);
+      if (val == NULL || !SvROK(*val) || SvTYPE(SvRV(*val)) != SVt_PVAV) {
         free(nv); free(open); free(cc);
-        croak("Unable to find number of colors for component %d",cmp);
+        croak(\"Unable to find number of vertices for component %d\",cmp);
       }
-      cc[cmp] = av_len(*val);
-      val = hv_fetch(av_fetch($arg,cmp,0),"open",4,0);
+      nv[cmp] = av_len((AV*)SvRV(*val))+1;
+      val = hv_fetch(strand,\"color\",5,0);
+      if (val == NULL || !SvROK(*val) || SvTYPE(SvRV(*val)) != SVt_PVAV) {
+        free(nv); free(open); free(cc);
+        croak(\"Unable to find number of colors for component %d\",cmp);
+      }
+      cc[cmp] = av_len((AV*)SvRV(*val))+1;
+      val = hv_fetch(strand,\"open\",4,0);
       open[cmp] = (val != NULL && SvTRUE(*val));
+      warn(\"nv[%d] = %d, cc[%d] = %d,  open[%d] = %d\",cmp,nv[cmp],
+        cmp,cc[cmp],cmp,open[cmp]);
     }
-    warn("30");
     $var = plc_new(num_cmp,nv,open,cc);
     $var->nc = num_cmp;
     for (cmp = 0; cmp < num_cmp; cmp++) {
+      warn(\"Processing component %d.\",cmp);
       $var->cp[cmp].nv = nv[cmp];
       $var->cp[cmp].open = open[cmp];
       $var->cp[cmp].cc = cc[cmp];
-      val = hv_fetch(av_fetch($arg,cmp,0),"vert",4,0);
-      if (val == NULL) {
+      aval = av_fetch(link,cmp,0);
+      if (aval == NULL || !SvROK(*aval) || SvTYPE(SvRV(*aval)) != SVt_PVHV) {
         free(nv); free(open); free(cc);
-        croak("Unable to read vertices for component %d",cmp);
+        croak(\"Malformed link component %d.\",cmp);
+      }
+      strand = (HV*)SvRV(*aval);
+      val = hv_fetch(strand,\"vert\",4,0);
+      if (val == NULL || !SvROK(*val) || SvTYPE(SvRV(*val)) != SVt_PVAV) {
+        free(nv); free(open); free(cc);
+        croak(\"Unable to read vertices for component %d\",cmp);
       }
       for (vert = 0; vert < nv[cmp]; vert++) {
-        cds = av_fetch(*val,vert,0);
-        if (cds == NULL) {
+        cds = av_fetch((AV*)SvRV(*val),vert,0);
+        if (cds == NULL || !SvROK(*cds) || SvTYPE(SvRV(*cds)) != SVt_PVAV) {
           free(nv); free(open); free(cc);
-          croak("Unable to read vertex %d:%d",cmp,vert);
+          croak(\"Unable to read vertex %d:%d\",cmp,vert);
         }
         for (cpt = 0; cpt < 3; cpt++) {
-          coord = av_fetch(*cds,cpt,0);
+          coord = av_fetch((AV*)SvRV(*cds),cpt,0);
           if (coord == NULL) {
             free(nv); free(open); free(cc);
-            croak("Unable to read coordinate %d:%d:%d",cmp,vert,cpt);
+            croak(\"Unable to read coordinate %d:%d:%d\",cmp,vert,cpt);
           }
           $var->cp[cmp].vt[vert].c[cpt] = SvNV(*coord);
         }
       }
-      val = hv_fetch(av_fetch($arg,cmp,0),"color",5,0);
-      if (val == NULL) {
+      val = hv_fetch(strand,\"color\",5,0);
+      if (val == NULL || !SvROK(*val) || SvTYPE(SvRV(*val)) != SVt_PVAV) {
         free(nv); free(open); free(cc);
-        croak("Unable to read colors for component %d",cmp);
+        croak(\"Unable to read colors for component %d\",cmp);
       }
-      for (clr = 0; clr < nv[cmp]; clr++) {
-        cds = av_fetch(*val,clr,0);
-        if (cds == NULL) {
+      for (clr = 0; clr < cc[cmp]; clr++) {
+        warn(\"Color: %d:%d of %d\",cmp,clr,cc[cmp]);
+        cds = av_fetch((AV*)SvRV(*val),clr,0);
+        if (cds == NULL || !SvROK(*cds) || SvTYPE(SvRV(*cds)) != SVt_PVHV) {
           free(nv); free(open); free(cc);
-          croak("Unable to read color %d:%d",cmp,clr);
+          croak(\"Unable to read color %d:%d\",cmp,clr);
         }
-        coord = hv_fetch(*cds,"r",1,0);
+        coord = hv_fetch((HV*)SvRV(*cds),\"r\",1,0);
         if (coord == NULL) {
           free(nv); free(open); free(cc);
-          croak("Unable to read color %d:%d:r",cmp,clr);
+          croak(\"Unable to read color %d:%d:r\",cmp,clr);
         }
         $var->cp[cmp].clr[clr].r = SvNV(*coord);
-        coord = hv_fetch(*cds,"g",1,0);
+        coord = hv_fetch((HV*)SvRV(*cds),\"g\",1,0);
         if (coord == NULL) {
           free(nv); free(open); free(cc);
-          croak("Unable to read color %d:%d:g",cmp,clr);
+          croak(\"Unable to read color %d:%d:g\",cmp,clr);
         }
         $var->cp[cmp].clr[clr].g = SvNV(*coord);
-        coord = hv_fetch(*cds,"b",1,0);
+        coord = hv_fetch((HV*)SvRV(*cds),\"b\",1,0);
         if (coord == NULL) {
           free(nv); free(open); free(cc);
-          croak("Unable to read color %d:%d:b",cmp,clr);
+          croak(\"Unable to read color %d:%d:b\",cmp,clr);
         }
         $var->cp[cmp].clr[clr].b = SvNV(*coord);
-        coord = hv_fetch(*cds,"alpha",1,0);
+        coord = hv_fetch((HV*)SvRV(*cds),\"alpha\",5,0);
         if (coord == NULL) {
           free(nv); free(open); free(cc);
-          croak("Unable to read color %d:%d:alpha",cmp,clr);
+          croak(\"Unable to read color %d:%d:alpha\",cmp,clr);
         }
         $var->cp[cmp].clr[clr].alpha = SvNV(*coord);
       }
