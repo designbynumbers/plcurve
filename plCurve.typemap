@@ -29,9 +29,7 @@ T_PLCURVE
       free(nv); free(open);
       croak(\"Unable to calloc space for cc in plCurve conversion\");
     }
-    warn(\"Number of components: %d\",num_cmp);
     for (cmp = 0; cmp < num_cmp; cmp++) {
-      warn(\"cmp:%d\",cmp);
       aval = av_fetch(link,cmp,0);
       if (aval == NULL || !SvROK(*aval) || SvTYPE(SvRV(*aval)) != SVt_PVHV) {
         free(nv); free(open); free(cc);
@@ -52,13 +50,10 @@ T_PLCURVE
       cc[cmp] = av_len((AV*)SvRV(*val))+1;
       val = hv_fetch(strand,\"open\",4,0);
       open[cmp] = (val != NULL && SvTRUE(*val));
-      warn(\"nv[%d] = %d, cc[%d] = %d,  open[%d] = %d\",cmp,nv[cmp],
-        cmp,cc[cmp],cmp,open[cmp]);
     }
     $var = plc_new(num_cmp,nv,open,cc);
     $var->nc = num_cmp;
     for (cmp = 0; cmp < num_cmp; cmp++) {
-      warn(\"Processing component %d.\",cmp);
       $var->cp[cmp].nv = nv[cmp];
       $var->cp[cmp].open = open[cmp];
       $var->cp[cmp].cc = cc[cmp];
@@ -94,7 +89,6 @@ T_PLCURVE
         croak(\"Unable to read colors for component %d\",cmp);
       }
       for (clr = 0; clr < cc[cmp]; clr++) {
-        warn(\"Color: %d:%d of %d\",cmp,clr,cc[cmp]);
         cds = av_fetch((AV*)SvRV(*val),clr,0);
         if (cds == NULL || !SvROK(*cds) || SvTYPE(SvRV(*cds)) != SVt_PVHV) {
           free(nv); free(open); free(cc);
