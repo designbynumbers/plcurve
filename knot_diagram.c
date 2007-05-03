@@ -539,7 +539,7 @@ static void writeout(FILE *out, plCurve *L,
   if (pgf) {
     fprintf(out,
       "%% Remember to \\usepackage{tikz} in the preamble\n");
-    fprintf(out,"%%\n%% We have to define our own arrow head since pgf's"
+    fprintf(out,"%%\n%% We have to define our own arrow head since pgf's "
       "arrows all \n%%   shorten their lines somewhat, which causes them to "
       "point\n%%   in the wrong direction for short edge lengths.\n");
     fprintf(out,"\\ifdefined\\knotDiagramArrowDimen\\else\\newdimen{\\knotDiagramArrowDimen}\n");
@@ -670,7 +670,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.27 $";
+  char revision[20] = "$Revision: 1.28 $";
   char *dollar;
 
   plc_vector direction;
