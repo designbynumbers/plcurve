@@ -670,8 +670,9 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.28 $";
+  char revision[20] = "$Revision: 1.29 $";
   char *dollar;
+  char plcv[80];
 
   plc_vector direction;
   plc_vector F_dir;
@@ -724,8 +725,8 @@ int main(int argc, char *argv[]) {
   if (dollar != NULL) {
     dollar[-1] = '\0';
   }
-  plc_version(NULL,0);
-  fprintf(stderr,"knot_diagram v%s\n",&revision[11]);
+  plc_version(plcv,80);
+  fprintf(stderr,"knot_diagram v%s (plCurve %s)\n",&revision[11],plcv);
   fprintf(stderr,"  Produce a knot diagram from a VECT file.\n");
 
 #ifdef HAVE_ARGTABLE2_H
