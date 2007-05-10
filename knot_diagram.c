@@ -202,6 +202,7 @@ static plCurve *flatten(const plCurve * const L,
   for (cmp = 0; cmp < F->nc; cmp++) {
     for (vert = 0; vert < F->cp[cmp].nv; vert++) {
       if (show_work >= 10) {
+        /* Draw red circle */
         fprintf(geomview,"(geometry Where VECT 1 16 1 -16 1 ");
         for (wherecnt = 0; wherecnt < 16; wherecnt++) {
           fprintf(geomview,"%g %g 0.0 ",
@@ -233,6 +234,7 @@ static plCurve *flatten(const plCurve * const L,
              vert2 < ((cmp2 == cmp) ? last_to_check+1 : F->cp[cmp2].nv); 
              vert2++) {
           if (show_work >= 20) {
+            /* Draw blue x */
             fprintf(geomview,"(geometry Versus VECT 2 4 2 2 2 1 1 "
                 "%g %g 0 %g %g 0 %g %g 0 %g %g 0 0 0 1 1 0 0 1 1)\n",
                 F->cp[cmp2].vt[vert2].c[0]-gap/2.0,
@@ -670,7 +672,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.29 $";
+  char revision[20] = "$Revision: 1.30 $";
   char *dollar;
   char plcv[80];
 
