@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.25 2007-03-25 16:26:24 ashted Exp $
+ * $Id: run_tests.c,v 1.26 2007-05-23 18:38:24 ashted Exp $
  *
  * Test all of the library code.
  *
@@ -62,6 +62,8 @@ static bool curves_match(const plCurve A, const plCurve B)
         printf("Vertex difference %d:%d: %.20g,%.20g,%.20g\n",cmp,vert,
             plc_M_clist(plc_vect_diff(A.cp[cmp].vt[vert],
                                         B.cp[cmp].vt[vert])));
+        printf("  %g,%g,%g  vs.  %g,%g,%g\n",plc_M_clist(A.cp[cmp].vt[vert]),
+          plc_M_clist(B.cp[cmp].vt[vert]));
       }
       require(plc_M_vecteq(A.cp[cmp].vt[vert],B.cp[cmp].vt[vert]));
     }
@@ -131,7 +133,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.25 $";
+  char revision[] = "$Revision: 1.26 $";
   plc_vert_quant *quant;
   int cmp, vert, ctr;
   double dist, temp_dbl;
@@ -596,7 +598,7 @@ int main(void) {
   check(filehandle != NULL);
   L = plc_read(filehandle,&err_num,err_str,sizeof(err_str));
   if (err_num != 0) {
-    printf("Trouble reading file: %s\n",err_str);
+    printf("Trouble reading %s: %s\n",filename,err_str);
   }
   check(err_num == 0);
   check(L != NULL);

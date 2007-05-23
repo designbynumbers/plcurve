@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.86 2007-02-02 17:51:12 ashted Exp $
+ *  $Id: plCurve.c,v 1.87 2007-05-23 18:38:24 ashted Exp $
  *
  */
 
@@ -708,7 +708,8 @@ void plc_write(FILE *outfile, plCurve * const L) {
   int i,j;                  /* Counters for the for loops */
   int nverts = 0;           /* Total number of vertices of all components */
   int colors = 0;           /* Total number of colors of all components */
-  char outstr[80];          /* So we can wrap the vertex lines */
+  char outstr[80] = "";     /* So we can wrap the vertex lines */
+  char outstr2[80] = "";    /* Again for wrapping */
   int cst_num;              /* This constraint */
   int **cst_nums = NULL;    /* All constraint numbers */
   plc_constraint *cst;  /* Current constraint */
@@ -798,8 +799,9 @@ void plc_write(FILE *outfile, plCurve * const L) {
       (void)snprintf(outstr,sizeof(outstr),"%.16g %.16g %.16g",
           plc_M_clist(L->cp[i].vt[j]));
       if (cst_nums[i][j] != 0) {
+        strcpy(outstr2,outstr);
         (void)snprintf(outstr,sizeof(outstr),
-                       "%s # Cst: %d",outstr,cst_nums[i][j]);
+                       "%s # Cst: %d",outstr2,cst_nums[i][j]);
       }
       /* Here is where we will eventually write out the quantifiers, wrapping
        * as necessary */

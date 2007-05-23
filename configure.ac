@@ -43,6 +43,8 @@ AC_SUBST(LIB_VERSION, 1:0:1)
 AC_CONFIG_SRCDIR([configure])
 AM_CONFIG_HEADER([config.h])
 
+AC_GNU_SOURCE
+
 # Checks for programs.
 AC_PROG_AWK
 AC_PROG_YACC
