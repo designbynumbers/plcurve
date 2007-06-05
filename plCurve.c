@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.87 2007-05-23 18:38:24 ashted Exp $
+ *  $Id: plCurve.c,v 1.88 2007-06-05 20:32:17 cantarel Exp $
  *
  */
 
@@ -1734,3 +1734,39 @@ double plc_pointset_diameter(const plCurve * const L) {
   }
   return diameter;
 }
+
+void plc_scale( plCurve *link, const double alpha)
+
+     /* Scale link by alpha, including constraints, if any! */
+
+{
+  int cp, vt;
+  plc_constraint *tc; 
+
+  /* First, scale the vertices. */
+
+  for(cp=0;cp<link->nc;cp++) {
+    for(vt=0;vt<link->cp[cp].nv;vt++) {
+      plc_M_scale_vect(alpha,link->cp[cp].vt[vt]);
+    }
+  }
+
+  plc_fix_wrap(link);
+  
+  /* Now deal with the constraints. */
+
+  for(tc=link->cst;tc!=NULL;tc=tc->next) {  /* Follow the linked list of csts. */
+
+    if (tc->kind == unconstrained) { 
+    } else if (tc->kind == fixed) {
+      plc_M_scale_vect(alpha,tc->vect[0]);
+    } else if (tc->kind == line) {
+      plc_M_scale_vect(alpha,tc->vect[1]);
+    } else if (tc->kind == plane) {
+      plc_M_scale_vect(alpha,tc->vect[1]);
+    }
+
+  }
+   
+}   
+

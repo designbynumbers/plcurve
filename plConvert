@@ -1,11 +1,11 @@
 #!perl
 #
-# $Id: plConvert,v 1.7 2007-06-05 18:04:16 ashted Exp $
+# $Id: plConvert,v 1.8 2007-06-05 20:32:17 cantarel Exp $
 #
 # Convert from Octrope 1.2 to Octrope 1.3 with plCurve 1.0
 #
 
-undef $/; # Read the entire file at a time
+#undef $/; # Read the entire file at a time
 foreach my $file (@ARGV) {
   if (-e "$file.plC.orig") {
     print "$file.plC.orig already exists, not converting $file.";
@@ -15,40 +15,46 @@ foreach my $file (@ARGV) {
     or die "Could not rename $file to $file.plC.orig";
   open(IN,"$file.plC.orig") or die "Could not open $file.plC.orig for reading";
   open(OUT,">$file") or die "Could not open $file for writing";
-  my $data = <IN>;
-  # First change linklib_ to octrope_
-  s/linklib_/octrope_/g;
-  # Then do call and macro changes
-  s/octrope_link_new/plCurve_new/g;
-  s/octrope_link_free/plCurve_free/g;
-  s/octrope_link_read/plCurve_read/g;
-  s/octrope_link_write/plCurve_write/g;
-  s/octrope_link_fix_wrap/plCurve_fix_wrap/g;
-  s/octrope_link_edges/plCurve_num_edges/g;
-  s/octrope_link_copy/plCurve_copy/g;
-  s/octrope_curvelength/plCurve_arclength/g;
-  s/octrope_dot/plcl_M_dot/g;
-  s/octrope_norm/plcl_M_norm/g;
-  s/octrope_vplus/plcl_vect_sum/g;
-  s/octrope_vadd/plcl_M_add_vect/g;
-  s/octrope_vminus/plcl_vect_diff/g;
-  s/octrope_vsub/plcl_M_sub_vect/g;
-  s/octrope_cross/plcl_cross_prod/g;
-  s/octrope_scalarmult/plcl_scale_vect/g;
-  s/octrope_vsmult/plcl_M_scale_vect/g;
-  s/octrope_vdiv/plcl_M_component_div/g;
-  s/octrope_vdivide/plcl_component_div/g;
-  s/octrope_vmul/plcl_M_component_mult/g;
-  s/octrope_vweighted/plcl_M_vweighted/g;
-  s/octrope_vdist/plcl_M_distance/g; # CHANGES FUNCTION TO MACRO
-  s/octrope_vmadd/plcl_M_vmadd/g;
-  # Then type changes
-  s/octrope_vector/plcl_vector/g;
-  s/octrope_color/plCurve_color/g;
-  s/octrope_pline/plCurve_pline/g;
-  s/octrope_link/plCurve/g;
-  s/octrope_spline_link/plCurve_spline/g;
-  print OUT $data;
+ 
+  while (<IN>) {
+
+      # First change linklib_ to octrope_
+      s/linklib_/octrope_/g;
+      # Then do call and macro changes
+      s/octrope_link_new/plc_new/g;
+      s/octrope_link_free/plc_free/g;
+      s/octrope_link_read/plc_read/g;
+      s/octrope_link_write/plc_write/g;
+      s/octrope_link_fix_wrap/plc_fix_wrap/g;
+      s/octrope_link_edges/plc_num_edges/g;
+      s/octrope_link_copy/plc_copy/g;
+      s/octrope_curvelength/plc_arclength/g;
+      s/octrope_dot/plc_M_dot/g;
+      s/octrope_norm/plc_M_norm/g;
+      s/octrope_vplus/plc_vect_sum/g;
+      s/octrope_vadd/plc_M_add_vect/g;
+      s/octrope_vminus/plc_vect_diff/g;
+      s/octrope_vsub/plc_M_sub_vect/g;
+      s/octrope_cross/plc_cross_prod/g;
+      s/octrope_scalarmult/plc_scale_vect/g;
+      s/octrope_vsmult/plc_M_scale_vect/g;
+      s/octrope_vdiv/plc_M_component_div/g;
+      s/octrope_vdivide/plc_component_div/g;
+      s/octrope_vmul/plc_M_component_mult/g;
+      s/octrope_vweighted/plc_M_vweighted/g;
+      s/octrope_vdist/plc_M_distance/g; # CHANGES FUNCTION TO MACRO
+      s/octrope_vmadd/plc_M_vmadd/g;
+      # Then type changes
+      s/octrope_vector/plc_vector/g;
+      s/octrope_color/plc_color/g;
+      s/octrope_pline/plc_strand/g;
+      s/octrope_link/plCurve/g;
+      s/octrope_spline_link/plCurve_spline/g;
+      
+      print OUT "$_";
+      print "$_";
+  }
+
   close OUT;
   close IN;
 }

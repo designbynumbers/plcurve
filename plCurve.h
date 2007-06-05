@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.53 2007-02-02 17:51:12 ashted Exp $
+ *  $Id: plCurve.h,v 1.54 2007-06-05 20:32:17 cantarel Exp $
  *
  */
 
@@ -83,6 +83,14 @@ typedef struct plc_constraint_type {
   int           num_verts; /* Length of run */
   /*@only@*/ /*@null@*/ struct plc_constraint_type *next;
 } plc_constraint;
+
+  /* The vectors in vect change meaning depending on the type of constraint:
+
+  fixed : vect[0] is the fixed point, vect[1] is ignored 
+  line:   vect[0] is the tangent vector, vect[1] is a point on the line
+  plane:  vect[0] is the normal vector, vect[1].x is the distance from origin.
+
+  */
 
 typedef struct plc_vert_quant_type { /* Vertex quantifiers */
   int              cmp;    /* Component */
@@ -352,7 +360,10 @@ plc_vector plc_sample_spline(const plc_spline * const spL,
 
 /* Calculate the diameter of the plCurve, thinking of the vertices as 
    a set of points in R^3 */
-double plc_pointset_diameter(const plCurve * const L);
+  double plc_pointset_diameter(const plCurve * const L);
+
+/* Scale a plCurve (and its' constraints!) by a factor. */
+  void plc_scale( plCurve *link, const double alpha);  
 
 /* Define the error codes */
 #define PLC_E_NO_VECT       1
