@@ -1,6 +1,6 @@
 #!perl
 #
-# $Id: plConvert,v 1.6 2006-11-17 19:47:57 ashted Exp $
+# $Id: plConvert,v 1.7 2007-06-05 18:04:16 ashted Exp $
 #
 # Convert from Octrope 1.2 to Octrope 1.3 with plCurve 1.0
 #
@@ -48,6 +48,7 @@ foreach my $file (@ARGV) {
   s/octrope_pline/plCurve_pline/g;
   s/octrope_link/plCurve/g;
   s/octrope_spline_link/plCurve_spline/g;
+  print OUT $data;
   close OUT;
   close IN;
 }
