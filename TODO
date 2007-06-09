@@ -1,5 +1,5 @@
 1) Create constraint-aware resample call for increasing or decreasing (or just
-   equilateralizing the number of vertices a plCurve has.
+   equilateralizing) the number of vertices a plCurve has.
 
 2) Add a per-vertex quantifier to the file format.  Should be expressed as
    TAG: 0.123456  (three-character, case-insensitive tag, colon, space,
@@ -15,3 +15,8 @@
 
 4) Do something nicer, if there is something nicer to be done, regarding 
    inlining in the library itself.
+
+5) The curvature, torsion, and tangent vector stuff should be brought
+   up to modern theory standards, using (e.g., the three, four, and
+   five-point estimators of Langer et. al. -- see the DRL for the
+   paper).

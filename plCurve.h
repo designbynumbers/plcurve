@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.54 2007-06-05 20:32:17 cantarel Exp $
+ *  $Id: plCurve.h,v 1.55 2007-06-09 18:28:38 cantarel Exp $
  *
  */
 
@@ -300,7 +300,13 @@ void plc_write(FILE *outfile, plCurve * const L);
 void plc_fix_wrap(plCurve * const L);
 
 /* Count the edges in a plCurve (correctly handling open/closed) */
+/* Deprecated in versions > 1.3 in favor of plc_edges call below. */
 int plc_num_edges(const plCurve * const L);
+
+/* Count edges in plCurve, returning total and storing #edges for */
+/* each component in component_edges if this is non-NULL. */
+int plc_edges(const plCurve * const L,
+/*@null@*/ /*@out@*/ int *component_edges);
 
 /* Count the vertices in a plCurve */
 int plc_num_verts(const plCurve * const L);
@@ -315,7 +321,8 @@ plCurve *plc_copy(const plCurve * const L);
 plc_vector plc_mean_tangent(const plCurve * const L, const int cmp,
                             const int vert, bool *ok);
 
-/* Find the arclength of a plCurve. */
+/* Find the arclength of a plCurve. Total arclength is returned, arclength */
+/* of individual strands stored in component_lengths if this pointer is non-NULL. */
 double plc_arclength(const plCurve * const L,
 /*@null@*/ /*@out@*/ double *component_lengths);
 
@@ -360,10 +367,10 @@ plc_vector plc_sample_spline(const plc_spline * const spL,
 
 /* Calculate the diameter of the plCurve, thinking of the vertices as 
    a set of points in R^3 */
-  double plc_pointset_diameter(const plCurve * const L);
+double plc_pointset_diameter(const plCurve * const L);
 
 /* Scale a plCurve (and its' constraints!) by a factor. */
-  void plc_scale( plCurve *link, const double alpha);  
+void plc_scale( plCurve *link, const double alpha);  
 
 /* Define the error codes */
 #define PLC_E_NO_VECT       1

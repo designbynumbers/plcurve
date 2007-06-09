@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.88 2007-06-05 20:32:17 cantarel Exp $
+ *  $Id: plCurve.c,v 1.89 2007-06-09 18:28:38 cantarel Exp $
  *
  */
 
@@ -1385,6 +1385,25 @@ int plc_num_edges(const plCurve * const L) /*@modifies nothing@*/
   return edges;
 }
 
+/* Return total number of edges in plCurve, store #edges for each 
+   strand in component_edges. */
+
+int plc_edges(const plCurve * const L,
+	      /*@null@*/ /*@out@*/ int *component_edges)
+
+{
+ int i, edges = 0;
+
+ for (i=0; i<L->nc; i++) {
+
+   edges += strand_edges(L->cp[i]);
+   
+   if (component_edges != NULL) { component_edges[i] = strand_edges(L->cp[i]); }
+
+ }
+ return edges;
+} 
+     
 /* 
  * Return the total number of vertices in plCurve.
  */
