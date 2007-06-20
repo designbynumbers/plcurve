@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.55 2007-06-09 18:28:38 cantarel Exp $
+ *  $Id: plCurve.h,v 1.56 2007-06-20 03:54:33 cantarel Exp $
  *
  */
 
@@ -155,6 +155,7 @@ double plc_dot_prod(plc_vector A,plc_vector B);
 double plc_norm(plc_vector A);
 double plc_distance(plc_vector A, plc_vector B);
 double plc_sq_dist(plc_vector A, plc_vector B);
+double plc_angle(plc_vector A, plc_vector B, bool *ok);
 
 /* Do two vectors match ? */
 bool plc_vecteq(plc_vector A, plc_vector B);

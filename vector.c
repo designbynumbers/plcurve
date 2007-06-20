@@ -3,7 +3,7 @@
  *
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.35 2007-04-23 22:33:47 ashted Exp $
+ * $Id: vector.c,v 1.36 2007-06-20 03:54:33 cantarel Exp $
  *
  */
 
@@ -121,6 +121,53 @@ inline double plc_distance(plc_vector A, plc_vector B) {
 inline double plc_sq_dist(plc_vector A, plc_vector B) {
   return plc_M_sq_dist(A,B);
 }
+
+#define plc_M_sqr(A) \
+   ((A)*(A))
+
+/* Computes the angle between two vectors. Can fail if one or the other 
+   has norm zero. */
+double plc_angle(plc_vector A, plc_vector B, bool *ok) 
+ 
+  /* We use the algorithm suggested by Schatte. 
+     
+  @article{312261,
+           author = {Peter Schatte},
+	   title = {Computing the angle between vectors},
+           journal = {Computing},
+           volume = {63},
+           number = {1},
+           year = {1999},
+           issn = {0010-485X},
+           pages = {93--96},
+           doi = {http://dx.doi.org/10.1007/s006070050052},
+           publisher = {Springer-Verlag New York, Inc.},
+	   address = {New York, NY, USA}
+	   }
+
+      which has better numerical stability than the standard algorithm,
+      especially when dealing with angles that are very small or large. */
+
+  {
+    double L = 0.0; /* L = |A|^2|B|^2 - (A.B)^2 = \sum_{i<j} (A_i B_j - A_j B_i)^2 */
+    double D = 0.0; /* D = A.B */
+    double angle;
+
+    L += plc_M_sqr(A.c[0]*B.c[1] - A.c[1]*B.c[0]);
+    L += plc_M_sqr(A.c[0]*B.c[2] - A.c[2]*B.c[0]);
+    L += plc_M_sqr(A.c[1]*B.c[2] - A.c[2]*B.c[1]);
+    L = sqrt(L);
+
+    D = plc_M_dot(A,B);
+    angle = atan2(L,D);
+
+    /* This can go wrong only if the numerator and denominator are _both_
+       very small (assuming that the system atan2 is fairly robust). */
+
+    *ok = (fabs(L) > 1e-12 || fabs(D) > 1e-12);
+
+    return angle;
+  }
 
 inline bool plc_vecteq(plc_vector A, plc_vector B) /*@modifies nothing@*/ {
   return plc_M_vecteq(A,B);
