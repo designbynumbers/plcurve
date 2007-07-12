@@ -3,7 +3,7 @@
  *
  * Data structures and prototypes for the plCurve library
  *
- *  $Id: plCurve.h,v 1.56 2007-06-20 03:54:33 cantarel Exp $
+ *  $Id: plCurve.h,v 1.57 2007-07-12 15:27:52 cantarel Exp $
  *
  */
 
@@ -134,6 +134,7 @@ plc_vector plc_cross_prod(plc_vector A,plc_vector B); /* A x B */
 plc_vector plc_scale_vect(double s,plc_vector A);      /* sA */
 plc_vector plc_normalize_vect(const plc_vector V,
                                 /*@null@*/ bool *ok);     /* V/|V| */
+
 plc_vector plc_random_vect(void);
 
 /* Translate three doubles into a vector */

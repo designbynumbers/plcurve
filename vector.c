@@ -3,7 +3,7 @@
  *
  * Routines for working with vectors.
  *
- * $Id: vector.c,v 1.36 2007-06-20 03:54:33 cantarel Exp $
+ * $Id: vector.c,v 1.37 2007-07-12 15:27:52 cantarel Exp $
  *
  */
 
@@ -188,7 +188,10 @@ inline plc_vector plc_normalize_vect(const plc_vector V,
         "plc_normalize_vect: Attempted to normalize zero vector.\n");
       exit(EXIT_FAILURE);
     }
+  } else {
+    if (ok != NULL) { *ok = true; }
   }
+    
   return plc_scale_vect(1.0/vnrm,V);
 }
 
