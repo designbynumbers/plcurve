@@ -1,5 +1,5 @@
 /*
- * $Id: run_tests.c,v 1.26 2007-05-23 18:38:24 ashted Exp $
+ * $Id: run_tests.c,v 1.27 2007-09-21 21:08:43 cantarel Exp $
  *
  * Test all of the library code.
  *
@@ -133,7 +133,7 @@ int main(void) {
   bool open[components] = { false, true };
   int cc[components] = { 1, 4 };
   char version[80];
-  char revision[] = "$Revision: 1.26 $";
+  char revision[] = "$Revision: 1.27 $";
   plc_vert_quant *quant;
   int cmp, vert, ctr;
   double dist, temp_dbl;
@@ -576,6 +576,11 @@ int main(void) {
   S.cp[1].vt[-1] = S.cp[1].vt[1];
   S.cp[1].vt[4] = S.cp[1].vt[2];
   check(curves_match(S,*L));
+
+  /* Debugging code! */
+
+  printf("Waiting for user input... about to test r/w");
+  getchar();
 
   /* Now check _write and _read */ 
 #ifdef HAVE_MKSTEMP

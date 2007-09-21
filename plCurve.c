@@ -1,7 +1,7 @@
 /*
  *  Routines to create, destroy, read and write plCurves (and strands)
  *
- *  $Id: plCurve.c,v 1.89 2007-06-09 18:28:38 cantarel Exp $
+ *  $Id: plCurve.c,v 1.90 2007-09-21 21:08:43 cantarel Exp $
  *
  */
 
@@ -1168,9 +1168,8 @@ void plc_fix_wrap(plCurve * const L) {
 /* If we don't know about strcasestr, use strstr instead, losing case
  * insensitivity.  Because some systems don't have strcasestr, we need to 
  * write our checks with the case we wrote out to the file. */
-#if (defined(S_SPLINT_S)) || (!defined(HAVE_STRCASESTR))
   #define strcasestr strstr
-#endif
+
   while ((place = strcasestr(comment,"Constraint ")) != NULL) {
     /* Move the word "Constraint to the beginning of the string */
     memmove(comment,place,strlen(place)+1);
