@@ -1,7 +1,7 @@
 /*
  * Routines to create, destroy, and convert spline equivalents of plCurves
  *
- * $Id: splines.c,v 1.30 2006-03-24 19:43:31 ashted Exp $
+ * $Id: splines.c,v 1.31 2007-09-21 21:06:50 cantarel Exp $
  *
  * This code generates refinements of plCurves, component by component, using
  * the Numerical Recipes spline code for interpolation.
@@ -128,6 +128,13 @@ static inline void spline_strand_free(/*@null@*/ plc_spline_strand *Pl) {
   }
 
   Pl->ns = 0;
+
+  if (Pl->svals != NULL) {
+    Pl->svals--; /* undo the original svals++ */
+    free(Pl->svals);
+    Pl->svals = NULL;
+  }
+
   if (Pl->vt != NULL) {
     Pl->vt--; /* undo our original vt++ (for wraparound) */
     free(Pl->vt);
