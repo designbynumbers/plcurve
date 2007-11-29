@@ -16,6 +16,8 @@ noinst_PROGRAMS = spline_view gcov_tests
 
 TESTS = run_tests
 
+dist_data_DATA = plCurve.typemap
+
 EXTRA_DIST = bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
 	     bad_vects/bad_4.vect bad_vects/bad_5.vect bad_vects/bad_6.vect \
 	     bad_vects/bad_7.vect bad_vects/bad_8.vect bad_vects/bad_9.vect \
