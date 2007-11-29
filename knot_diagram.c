@@ -403,7 +403,11 @@ static void add_convex_hull(plCurve *L) {
 /* Rotate (in 2-dimensions) the first n-1 components based on the convex hull
  * in the nth component, so that the shortest "diameter" lies in the y
  * direction.  */
+#ifdef HAVE_ARGTABLE2_H
 static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
+#else
+static void rotate_2pic(plCurve *L,plc_vector *dir) {
+#endif
   plc_strand *cp;
   int this,that;
   double dist = DBL_MAX;
@@ -414,7 +418,9 @@ static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
   int cmp,vert;
   bool ok;
 
+#ifdef HAVE_ARGTABLE2_H
   if (!dir_given) { 
+#endif
     this = 0;
     that = 2;
     cp = &(L->cp[L->nc-1]);
@@ -449,7 +455,9 @@ static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
       }
       this++;
     }
+#ifdef HAVE_ARGTABLE2_H
   }
+#endif
   cos_theta = dir->c[1];
   sin_theta = dir->c[0];
 
@@ -468,6 +476,7 @@ static void rotate_2pic(plCurve *L,plc_vector *dir,bool dir_given) {
   }
 }
 
+#ifdef HAVE_ARGTABLE2_H
 static void writeout(FILE *out, plCurve *L, 
                      struct arg_str *format,
                      struct arg_str *osize,
@@ -651,6 +660,7 @@ static void writeout(FILE *out, plCurve *L,
       plc_M_clist(F_dir),plc_M_clist(rot_dir));
   }
 }
+#endif
 /*
 Error: 3 = cmp >= L->nc = 3  Angle: 0.963819,-0.175632,0.200513
 Error: 7 = cmp >= L->nc = 7  Angle: -0.352259,-0.609383,0.710328
@@ -672,7 +682,7 @@ int main(int argc, char *argv[]) {
   int tries = 20;
   int delay = 16000;
   FILE *geomview = NULL;
-  char revision[20] = "$Revision: 1.30 $";
+  char revision[20] = "$Revision: 1.31 $";
   char *dollar;
   char plcv[80];
 
@@ -794,13 +804,13 @@ int main(int argc, char *argv[]) {
   }
 
   vectfile = fopen(filename->filename[0],"r");
-#endif
 
   if (vectfile == NULL) {
     fprintf(stderr,"Unable to open file '%s' for reading.\n",
       filename->filename[0]);
     exit(EXIT_FAILURE);
   }
+#endif
   L = plc_read(vectfile,&err_num,err_str,80);
   (void)fclose(vectfile);
   if (err_num != 0) {
@@ -841,9 +851,13 @@ int main(int argc, char *argv[]) {
 
   /* Main loop.  Try different directions */
   for (cnt = 0; cnt < tries; cnt++) {
+#ifdef HAVE_ARGTABLE2_H
     if (proj_x->count == 0) {
+#endif
       direction = plc_random_vect();
+#ifdef HAVE_ARGTABLE2_H
     }
+#endif
     G = flatten(L,direction,max_edge/1.2,2.0*max_edge,geomview,delay,show_work);
     assert(G != NULL);
     showCurve(G);
@@ -890,8 +904,13 @@ int main(int argc, char *argv[]) {
   assert(F != NULL);
   add_convex_hull(F);
   showCurve(F);
+#ifdef HAVE_ARGTABLE2_H
   if (show_work >= 5 && rot_x->count == 0) { usleep(delay*250); }
   rotate_2pic(F,&rot_dir,rot_x->count > 0);
+#else
+  if (show_work >= 5) { usleep(delay*250); }
+  rotate_2pic(F,&rot_dir);
+#endif
   showCurve(F);
 #ifdef HAVE_ARGTABLE2_H
   if (outname->count > 0) {
