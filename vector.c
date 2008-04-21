@@ -247,6 +247,128 @@ inline plc_vector plc_vweighted(double s, plc_vector A, plc_vector B) {
   return R;
 }
 
+plc_vector plc_circumcenter(plc_vector A, plc_vector B, plc_vector C,double *circumradius,bool *ok)
+
+     /* Finds the center of the circle through three points in the x-y plane. */
+
+{
+  plc_vector cc;
+  plc_vector Nvec = {{0,0,0}};
+
+  /* We first check that the vectors are in the x-y plane. */
+
+  if (fabs(A.c[2]) > 1e-14 || fabs(B.c[2]) > 1e-14 || fabs(C.c[2]) > 1e-14) {
+
+    *ok = false;
+    return Nvec;
+
+  }
+
+  /* We now interpose some code from J. Shewchuk. */
+
+  /*****************************************************************************/
+  /*                                                                           */
+  /*  tricircumcenter()   Find the circumcenter of a triangle.                 */
+  /*                                                                           */
+  /*  The result is returned both in terms of x-y coordinates and xi-eta       */
+  /*  coordinates, relative to the triangle's point `a' (that is, `a' is       */
+  /*  the origin of both coordinate systems).  Hence, the x-y coordinates      */
+  /*  returned are NOT absolute; one must add the coordinates of `a' to        */
+  /*  find the absolute coordinates of the circumcircle.  However, this means  */
+  /*  that the result is frequently more accurate than would be possible if    */
+  /*  absolute coordinates were returned, due to limited floating-point        */
+  /*  precision.  In general, the circumradius can be computed much more       */
+  /*  accurately.                                                              */
+  /*                                                                           */
+  /*  The xi-eta coordinate system is defined in terms of the triangle.        */
+  /*  Point `a' is the origin of the coordinate system.  The edge `ab' extends */
+  /*  one unit along the xi axis.  The edge `ac' extends one unit along the    */
+  /*  eta axis.  These coordinate values are useful for linear interpolation.  */
+  /*                                                                           */
+  /*  If `xi' is NULL on input, the xi-eta coordinates will not be computed.   */
+  /*                                                                           */
+  /*****************************************************************************/
+
+  double a[2];
+  double b[2];
+  double c[2];
+  double circumcenter[2];
+  double *xi = NULL;
+  double *eta;
+
+  double xba, yba, xca, yca;
+  double balength, calength;
+  double denominator;
+  double xcirca, ycirca;
+
+  /* Fill in a, b, and c. */
+
+  a[0] = A.c[0]; a[1] = A.c[1];
+  b[0] = B.c[0]; b[1] = B.c[1];
+  c[0] = C.c[0]; c[1] = C.c[1];
+
+  /* Use coordinates relative to point `a' of the triangle. */
+
+  xba = b[0] - a[0];
+  yba = b[1] - a[1];
+  xca = c[0] - a[0];
+  yca = c[1] - a[1];
+
+  /* Squares of lengths of the edges incident to `a'. */
+
+  balength = xba * xba + yba * yba;
+  calength = xca * xca + yca * yca;
+
+  /* Calculate the denominator of the formulae. */
+  /* Take your chances with floating-point roundoff. */
+
+  if (fabs(xba * yca - yba * xca) < 1e-14) { /* The points are colinear. */
+
+    *ok = false;
+    return Nvec;
+
+  }
+
+  denominator = 0.5 / (xba * yca - yba * xca);
+
+  /* Calculate offset (from `a') of circumcenter. */
+  xcirca = (yca * balength - yba * calength) * denominator;  
+  ycirca = (xba * calength - xca * balength) * denominator;  
+  circumcenter[0] = xcirca;
+  circumcenter[1] = ycirca;
+
+  if (xi != (double *) NULL) {
+    /* To interpolate a linear function at the circumcenter, define a     */
+    /*   coordinate system with a xi-axis directed from `a' to `b' and    */
+    /*   an eta-axis directed from `a' to `c'.  The values for xi and eta */
+    /*   are computed by Cramer's Rule for solving systems of linear      */
+    /*   equations.                                                       */
+
+    *xi = (xcirca * yca - ycirca * xca) * (2.0 * denominator);
+    *eta = (ycirca * xba - xcirca * yba) * (2.0 * denominator);
+
+  }
+
+  if (circumradius != NULL) {
+
+    *circumradius = sqrt(pow(circumcenter[0],2.0) + pow(circumcenter[1],2.0));
+    
+  } 
+
+  circumcenter[0] += a[0];
+  circumcenter[1] += a[1];
+
+  /* Now return the result as a plc_vector */
+
+  *ok = true;
+  cc.c[0] = circumcenter[0];
+  cc.c[1] = circumcenter[1];
+  cc.c[2] = 0;
+
+  return cc;
+
+}
+
 /* Put together a vector from 3 doubles */
 inline plc_vector plc_build_vect(const double x,
                                    const double y,
