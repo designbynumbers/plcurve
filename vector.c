@@ -388,7 +388,7 @@ plc_vector plc_normal(plc_vector A,plc_vector B,plc_vector C,bool *ok)
   diffs[1] = plc_vect_diff(C,B);
   
   plc_M_cross(nor,diffs[0],diffs[1]);
-  plc_normalize_vect(nor,ok);
+  nor = plc_normalize_vect(nor,ok);
 
   return nor;
 }
