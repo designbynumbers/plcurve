@@ -376,3 +376,19 @@ inline plc_vector plc_build_vect(const double x,
   plc_vector V = { { x, y, z } };
   return V;
 }
+
+plc_vector plc_normal(plc_vector A,plc_vector B,plc_vector C,bool *ok)
+     
+/* Returns unit normal to plane through A, B, and C. */
+{
+  plc_vector diffs[2];
+  plc_vector nor;
+  
+  diffs[0] = plc_vect_diff(A,B);
+  diffs[1] = plc_vect_diff(C,B);
+  
+  plc_M_cross(nor,diffs[0],diffs[1]);
+  plc_normalize_vect(nor,ok);
+
+  return nor;
+}

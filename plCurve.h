@@ -149,10 +149,15 @@ plc_vector plc_component_div(plc_vector A, plc_vector B,
 plc_vector plc_vlincomb(double a,plc_vector A, double b,plc_vector B);
 plc_vector plc_vmadd(plc_vector A, double s, plc_vector B); /* A + sB */
 plc_vector plc_vweighted(double s, plc_vector A, plc_vector B); /* (1-s)A + sB */
-plc_vector plc_circumcenter(plc_vector A, plc_vector B, plc_vector C,double *circumradius,bool *ok);
-  /* Returns the center and radius of the circle through three points. If circumradius is NULL, then
-     it won't be written to. */
 
+/* More sophisticated geometric operations */
+plc_vector plc_circumcenter(plc_vector A, plc_vector B, plc_vector C,
+			    double *circumradius,bool *ok);
+  /* Returns the center and radius of the circle through three points. 
+     If circumradius is NULL, then it won't be written to. */
+plc_vector plc_normal(plc_vector A, plc_vector B, plc_vector C, bool *ok);
+  /* Returns the normal vector to plane defined by A,B,C. */
+  
 /* Different vector measurements */
 double plc_dot_prod(plc_vector A,plc_vector B);
 double plc_norm(plc_vector A);
