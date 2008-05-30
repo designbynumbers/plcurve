@@ -1,7 +1,7 @@
 AM_CFLAGS = -g -finline-functions -Wall
 
-include_HEADERS = plCurve.h
-lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la
+include_HEADERS = plCurve.h nplCurve.h
+lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la libnplCurve.la libnplCurve_safe.la
 noinst_LTLIBRARIES = libplCurve_cov.la
 
 check_PROGRAMS = run_tests exit_failure_tests
@@ -32,6 +32,13 @@ libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
+
+libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c nsplines.c
+libnplCurve_la_CFLAGS = -DNDEBUG -O2 $(AM_CFLAGS)
+libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
+
+libnplCurve_safe_la_SOURCES = nplCurve.c nplCurve.h nvector.c nsplines.c
+libnplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
 libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
