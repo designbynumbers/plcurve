@@ -27,13 +27,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
   
-/* 
-     
-This header file includes prototypes for n-dimensional plCurves. 
-Not all of the functionality of the standard plCurve library has
-been ported, and we retain the original code for performance reasons. 
-
-*/
+  /*  This header file includes prototypes for n-dimensional plCurves. 
+      Not all of the functionality of the standard plCurve library has
+      been ported, and we retain the original code for performance reasons. 
+      
+  */
   
   
   /*@-exportlocal@*/
@@ -44,50 +42,59 @@ been ported, and we retain the original code for performance reasons.
   extern "C" {
 #endif
     
-/*
- * Take our chances that stdio.h and stdbool.h exist.  We need stdio to define
- * the FILE type and stdbool to define bool.  If stdbool doesn't exist, one
- * option is to just
- *   typedef int bool;
- * and
- *   #define true 1
- *   #define false 0
- */
+    /*
+     * Take our chances that stdio.h and stdbool.h exist.  We need stdio to define
+     * the FILE type and stdbool to define bool.  If stdbool doesn't exist, one
+     * option is to just
+     *   typedef int bool;
+     * and
+     *   #define true 1
+     *   #define false 0
+     */
 #include <stdio.h>
 #include <stdbool.h>
     
     /* Define 3-space vectors */
-
-typedef struct nplc_vector_type {
+    
+    typedef struct nplc_vector_type {
   double *c;
   int n;
 } nplc_vector;
     
-    typedef struct plc_color_type {
+    /* There's nothing n-dimensional here, but we want to make
+       nplCurve independent from plCurve, so we duplicate the
+       functionality. Unfortunately, to have the option of using both
+       together, this means either installing a separate plColor
+       library and header, or changing the name and duplicating the
+       functionality. We go with the latter. */
+
+    typedef struct nplc_color_type {  
+      
       double r;
       double g;
       double b;
       double alpha;
-    } plc_color;
+    
+    } nplc_color;
     
     typedef struct nplc_strand_type {
       int            nv;     /* Number of vertices */
       bool           open;   /* This is an "open" strand (with distinct ends) */
       int            cc;     /* Color count (number of colors) */
       nplc_vector   *vt;     /* Actual vertices */
-      plc_color    *clr;    /* Colors */
+      nplc_color    *clr;    /* Colors */
     } nplc_strand;
     
     /* Curve constraint kind */
-    typedef enum plc_cst_kind_type {
-      unconstrained = 0,
-      fixed,
-      line,
-      plane,
-    } plc_cst_kind;
+    typedef enum nplc_cst_kind_type {
+      nunconstrained = 0,
+      nfixed,
+      nline,
+      nplane,
+    } nplc_cst_kind;
 
-    typedef struct plc_constraint_type {
-      plc_cst_kind kind;    /* What kind of constraint */
+    typedef struct nplc_constraint_type {
+      nplc_cst_kind kind;    /* What kind of constraint */
       nplc_vector   vect[2]; /* Vectors to define plane, line or fixed point */
       int           cmp;     /* Component */
       int           vert;    /* Starting vertex */
@@ -126,7 +133,7 @@ typedef struct nplc_spline_strand_type {
   nplc_vector *vt;       /* positions at these s values */
   nplc_vector *vt2;      /* _second_ derivatives at these s values */
   int          cc;       /* Number of colors */
-  plc_color  *clr;      /* color values at samples */
+  nplc_color  *clr;      /* color values at samples */
 } nplc_spline_strand;
 
 typedef struct nplc_spline_type {
@@ -134,13 +141,16 @@ typedef struct nplc_spline_type {
   nplc_spline_strand *cp;     /* Components */
 } nplc_spline;
   
-  /*
-   * Prototypes for vector routines.
-   *
-   */
+/*
+ * Prototypes for vector routines.
+ *
+ */
   
-  nplc_vector nplc_vect_new(int n);
-  void nplc_vect_free(nplc_vector *nv);
+nplc_vector nplc_vect_new(int n);
+void nplc_vect_free(nplc_vector *nv);
+
+nplc_vector *nplc_vect_buf_new(int dim,int num_vects);
+void nplc_vect_buf_free(int bufsize,nplc_vector *buf);
 
 nplc_vector nplc_vect_sum(nplc_vector A,nplc_vector B);   /* A + B */
 nplc_vector nplc_vect_diff(nplc_vector A,nplc_vector B);  /* A - B */
@@ -183,18 +193,25 @@ char *nplc_vect_print(nplc_vector A);
     /* Returns a pointer to a static string printing the vector. */
 
 /*
- * Prototypes for routines to deal with nplCurves.
+ * Prototypes for routines to deal with nplCurves. INCOMPLETE!
  *
  */
 
+int nplc_dim(nplCurve L);
+    /* Returns the dimension of the curve. */
+
 /* Build a new nplCurve (with associated strands) */
-/*@only@*/ nplCurve *nplc_new(const int components,
-                            const int * const nv,
-                            const bool * const open,
-                            const int * const cc);
+/*@only@*/ nplCurve *nplc_new(const int dim,
+			      const int components,
+			      const int * const nv,
+			      const bool * const open,
+			      const int * const cc);
 
 /* Free the nplCurve (and strands) */
 void nplc_free(/*@only@*/ /*@null@*/ nplCurve *L);
+
+
+#ifdef CONVERTED
 
 /* Add a component to the curve which will become component number add_as. */
 void nplc_add_component(nplCurve *L, const int add_as, const int nv, 
@@ -229,13 +246,15 @@ void nplc_unconstrain(nplCurve * const L, const int cmp,
                      const int vert, const int num_verts);
 
 /* Remove a constraint from the list of constraints returning the number of
- * vertices thus set unconstrained.  */
+ * vertices thus set nunconstrained.  */
 int nplc_remove_constraint(nplCurve * const L,
                           const nplc_cst_kind kind,
                           const nplc_vector vect[]);
 
 /* Remove all constraints */
 void nplc_remove_all_constraints(nplCurve * const L);
+
+#endif
 
 /* Read nplCurve data from a file */
 /*@only@*/ /*@null@*/ nplCurve *nplc_read(FILE *file,
@@ -260,6 +279,8 @@ int nplc_edges(const nplCurve * const L,
 
 /* Count the vertices in a nplCurve */
 int nplc_num_verts(const nplCurve * const L);
+
+#ifdef CONVERTED
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double nplc_MR_curvature(nplCurve * const L, const int cmp, const int vert);
@@ -291,8 +312,8 @@ void nplc_fix_cst(nplCurve * const L);
 void nplc_version(/*@null@*/ char *version, size_t strlen);
 
 /* Put 4 doubles together into a color */
-plc_color plc_build_color(const double r, const double g,
-                          const double b, const double alpha);
+nplc_color plc_build_color(const double r, const double g,
+			   const double b, const double alpha);
 
 /* Allocate new spline. */
 nplc_spline *nplc_spline_new(const int          components,
@@ -321,6 +342,8 @@ double nplc_pointset_diameter(const nplCurve * const L);
 
 /* Scale a nplCurve (and its' constraints!) by a factor. */
 void nplc_scale( nplCurve *link, const double alpha);  
+
+#endif
 
 /* Define the error codes */
 #define NPLC_E_NO_VECT       1

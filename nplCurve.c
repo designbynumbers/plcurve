@@ -61,6 +61,26 @@ static inline int intmax(const int a, const int b) {
   return (a >= b) ? a : b;
 }
 
+int nplc_dim(nplCurve L)
+
+     /* Returns dimension of nplCurve. */
+
+{
+  if (L.cp[0].nv > 0) {
+
+    return L.cp[0].vt[0].n;
+
+  } else {
+
+    fprintf(stderr,
+	    "nplc_dim: nplCurve L does not have a dimension since\n"
+	    "          no vertices appear to have been allocated.\n");
+    exit(EXIT_FAILURE);
+
+  }
+
+}
+
 /*
  * Procedure allocates memory for a new nplCurve. The number of components is
  * given by components. The number of vertices in each component shows up in
@@ -72,10 +92,11 @@ static inline int intmax(const int a, const int b) {
  * "wrap-around" much simpler.
  *
  */
-/*@only@*/ nplCurve *nplc_new(const int          components,
-                             const int  * const nv,
-                             const bool * const open,
-                             const int  * const cc) {
+/*@only@*/ nplCurve *nplc_new(const int          dim,
+			      const int          components,
+			      const int  * const nv,
+			      const bool * const open,
+			      const int  * const cc) {
   nplCurve *L;
   int i;
 
@@ -99,8 +120,8 @@ static inline int intmax(const int a, const int b) {
 
     L->cp[i].open = open[i];
     L->cp[i].nv = nv[i];
-    L->cp[i].vt =
-      (nplc_vector *)calloc((size_t)(nv[i]+2),sizeof(nplc_vector));
+    L->cp[i].vt = nplc_vect_buf_new(dim,nv[i]+2);
+
     assert(L->cp[i].vt != NULL);
     /*@-usedef@*/ /* Splint gets this one wrong */
     L->cp[i].vt++; /* so that L->cp[i].vt[-1] is a valid space */
@@ -124,6 +145,9 @@ static inline int intmax(const int a, const int b) {
   return L;
   /*@=compdef@*/
 } /* plc_new */
+
+
+#ifdef CONVERTED 
 
 /*
  * Find the closest point on the given line to the given point.
@@ -249,20 +273,20 @@ double nplc_check_cst(const nplCurve * const L) {
 
   cst = L->cst;
   while (cst != NULL) {
-    assert(cst->kind == fixed || cst->kind == line || cst->kind == plane);
-    if (cst->kind == fixed) {
+    assert(cst->kind == nfixed || cst->kind == nline || cst->kind == nplane);
+    if (cst->kind == nfixed) {
       closest = cst->vect[0];
       /* NPLC_FIXED constraints only ever apply to one vertex */
       sq_dist = nplc_M_sq_dist(L->cp[cst->cmp].vt[cst->vert],closest);
       max_err = fmax(max_err,sq_dist);
-    } else if (cst->kind == line) {
+    } else if (cst->kind == nline) {
       for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
         closest = Closest_line_point(L->cp[cst->cmp].vt[vert],
                                      cst->vect[0], cst->vect[1]);
         sq_dist = nplc_M_sq_dist(L->cp[cst->cmp].vt[vert],closest);
         max_err = fmax(max_err,sq_dist);
       }
-    } else if (cst->kind == plane) {
+    } else if (cst->kind == nplane) {
       for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
         closest = Closest_plane_point(L->cp[cst->cmp].vt[vert],
                                       cst->vect[0], cst->vect[1].c[0]);
@@ -290,18 +314,18 @@ void nplc_fix_cst(nplCurve * const L) {
 
   cst = L->cst;
   while (cst != NULL) {
-    assert(cst->kind == fixed || cst->kind == line || cst->kind == plane);
-    if (cst->kind == fixed) {
+    assert(cst->kind == nfixed || cst->kind == nline || cst->kind == nplane);
+    if (cst->kind == nfixed) {
       closest = cst->vect[0];
       /* PLC_FIXED constraint is only ever allowed to be length 1 */
       L->cp[cst->cmp].vt[cst->vert] = closest;
-    } else if (cst->kind == line) {
+    } else if (cst->kind == nline) {
       for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
         closest = Closest_line_point(L->cp[cst->cmp].vt[vert],
                                      cst->vect[0], cst->vect[1]);
         L->cp[cst->cmp].vt[vert] = closest;
       }
-    } else if (cst->kind == plane) {
+    } else if (cst->kind == nplane) {
       for (vert = cst->vert; vert < cst->vert + cst->num_verts; vert++) {
         closest = Closest_plane_point(L->cp[cst->cmp].vt[vert],
                                       cst->vect[0], cst->vect[1].c[0]);
@@ -315,6 +339,8 @@ void nplc_fix_cst(nplCurve * const L) {
 
   return;
 } /* plc_fix_cst */
+
+#endif
 
 /*
  * Free the memory associated with a given nplCurve.  We then set all the values
@@ -337,13 +363,15 @@ void nplc_free(/*@only@*/ /*@null@*/ nplCurve *L) {
   if (L->cp != NULL) {
     /*@+loopexec@*/
     for (i=0; i<L->nc; i++) {
-      L->cp[i].nv = 0;
+
       if (L->cp[i].vt != NULL) {
         L->cp[i].vt--; /* undo our original vt++ (for wraparound) */
+	nplc_vect_buf_free(L->cp[i].nv+2,L->cp[i].vt); /* Remember that the buffer is bigger */	
         free(L->cp[i].vt);
         L->cp[i].vt = NULL;
       }
 
+      L->cp[i].nv = 0;
       L->cp[i].cc = 0;
       if (L->cp[i].clr != NULL) {
         free(L->cp[i].clr);
@@ -422,7 +450,7 @@ static inline void overrun_check(nplc_constraint *cst) {
       /* It just overlaps, either move the bottom up or join the two */
       assert(cst->next != NULL);
       if (cst->next->kind == cst->kind &&
-          cst->kind != fixed && /* Never extend a fixed constraint */
+          cst->kind != nfixed && /* Never extend a fixed constraint */
           memcmp(cst->next->vect,cst->vect,sizeof(cst->vect)) == 0) {
         /* Same constraint so join the two */
         cst->num_verts = cst->next->vert+cst->next->num_verts - cst->vert;
@@ -442,7 +470,7 @@ static inline void overrun_check(nplc_constraint *cst) {
   while (cst->next != NULL &&
          cst->next->vert == cst->vert+cst->num_verts &&
          cst->next->kind == cst->kind &&
-         cst->kind != fixed &&
+         cst->kind != nfixed &&
          memcmp(cst->next->vect,cst->vect,sizeof(cst->vect)) == 0) {
     /* Same constraint so join the two */
     cst->num_verts = cst->next->vert+cst->next->num_verts - cst->vert;
@@ -472,7 +500,7 @@ static inline void nplc_set_constraint(nplCurve * const L,
   assert(vert < L->cp[cmp].nv);
   assert(num_verts >= 1);
   assert(vert+num_verts <= L->cp[cmp].nv);
-  assert(kind != fixed || num_verts == 1);
+  assert(kind != nfixed || num_verts == 1);
 
   /* Seek down the list
    * Stop seeking when we either
@@ -502,7 +530,7 @@ static inline void nplc_set_constraint(nplCurve * const L,
 #define disp_cond(C) \
   if (C) { printf(#C "\n"); }
   if (pcst != NULL &&
-      kind != fixed && /* Never extend a fixed constraint */
+      kind != nfixed && /* Never extend a fixed constraint */
       pcst->kind == kind &&
       pcst->cmp == cmp &&
       pcst->vert+pcst->num_verts >= vert &&
@@ -514,7 +542,7 @@ static inline void nplc_set_constraint(nplCurve * const L,
     pcst->num_verts -= pcst->vert;
     overrun_check(pcst);
   } else if (cst != NULL &&
-             kind != fixed && /* Never extend a fixed constraint */
+             kind != nfixed && /* Never extend a fixed constraint */
              cst->kind == kind &&
              cst->cmp == cmp &&
              cst->vert <= vert+num_verts &&
@@ -527,7 +555,7 @@ static inline void nplc_set_constraint(nplCurve * const L,
   } else if (cst == NULL || cst->cmp > cmp || cst->vert >= vert+num_verts) {
     /* Got to the end of the list without finding it or found one which deals
      * with vertices strictly beyond our range. */
-    if (kind != unconstrained) {
+    if (kind != nunconstrained) {
       (*pfn) = new_constraint(kind, vect, cmp, vert, num_verts, cst);
     }
   } else {
@@ -547,7 +575,7 @@ static inline void nplc_set_constraint(nplCurve * const L,
         assert(cst != NULL);
         cst->num_verts -= vert + num_verts - cst->vert;
         cst->vert = vert + num_verts;
-        if (kind != unconstrained) {
+        if (kind != nunconstrained) {
           (*pfn)->next = new_constraint(kind, vect, cmp, vert, num_verts, cst);
         }
       } else {
@@ -558,7 +586,7 @@ static inline void nplc_set_constraint(nplCurve * const L,
         cst->next = new_constraint(kind, vect, cmp, vert, num_verts, temp_cst);
         /* And check to see if we overran the next one */
         overrun_check(cst->next);
-        if (kind == unconstrained) {
+        if (kind == nunconstrained) {
           /* Now remove the "unconstraint" */
           temp_cst = cst->next;
           cst->next = cst->next->next;
@@ -571,7 +599,7 @@ static inline void nplc_set_constraint(nplCurve * const L,
       temp_cst = new_constraint(kind, vect, cmp, vert, num_verts, cst);
       (*pfn) = temp_cst;
       overrun_check(temp_cst);
-      if (kind == unconstrained) {
+      if (kind == nunconstrained) {
         /* Now remove the "unconstraint" */
         temp_cst = (*pfn);  /* This line here for splint's benefit */
         (*pfn) = temp_cst->next;
@@ -593,10 +621,12 @@ void nplc_set_fixed(nplCurve * const L,
                        const int          cmp,
                        const int          vert,
                        const nplc_vector point) {
-  nplc_vector zv = {{ 0.0, 0.0, 0.0 }};
+  nplc_vector zv;
+
+  zv = nplc_vect_new(nplc_dim(*L));  
   nplc_vector vect[2] = { point, zv };
 
-  nplc_set_constraint(L,cmp,vert,1,fixed,vect);
+  nplc_set_constraint(L,cmp,vert,1,nfixed,vect);
 }
 
 void nplc_constrain_to_line(nplCurve * const L,
@@ -607,7 +637,7 @@ void nplc_constrain_to_line(nplCurve * const L,
                                const nplc_vector point_on_line) {
   nplc_vector vect[2] = { tangent, point_on_line };
 
-  nplc_set_constraint(L,cmp,vert,num_verts,line,vect);
+  nplc_set_constraint(L,cmp,vert,num_verts,nline,vect);
 }
 
 void nplc_constrain_to_plane(nplCurve * const L,
@@ -616,24 +646,27 @@ void nplc_constrain_to_plane(nplCurve * const L,
                                 const int          num_verts,
                                 const nplc_vector normal,
                                 const double dist_from_origin) {
-  nplc_vector dz = {{ dist_from_origin, 0.0, 0.0 }};
+  nplc_vector dz;
+  dz = nplc_vect_new(nplc_dim(*L));
+  dz.c[0] = dist_from_origin;
+
   nplc_vector vect[2] = { normal, dz };
 
-  nplc_set_constraint(L,cmp,vert,num_verts,plane,vect);
+  nplc_set_constraint(L,cmp,vert,num_verts,nplane,vect);
 }
 
 void nplc_unconstrain(nplCurve * const L, const int cmp,
                          const int vert, const int num_verts) {
 
-  nplc_vector zv = {{ 0.0, 0.0, 0.0 }};
-  nplc_vector zero_vect[2] = {zv, zv};
+  nplc_vector *zero_vect;  
+  zero_vect = nplc_vect_buf_new(nplc_dim(*L),2);
 
-  nplc_set_constraint(L,cmp,vert,num_verts,unconstrained,zero_vect);
+  nplc_set_constraint(L,cmp,vert,num_verts,nunconstrained,zero_vect);
 }
 
 /*
  * Remove any constraint from the list which matches the data given.  Return
- * the number of vertices thus set unconstrained.
+ * the number of vertices thus set nunconstrained.
  *
  */
 int nplc_remove_constraint(nplCurve * const L,
@@ -643,7 +676,7 @@ int nplc_remove_constraint(nplCurve * const L,
   int uncst = 0;
 
   assert(L != NULL);
-  assert(kind == fixed || kind == line || kind == plane);
+  assert(kind == nfixed || kind == nline || kind == nplane);
 
   /* This code gives splint fits (perhaps I just don't understand yet how to
    * explain to splint what is going on).  That's not unreasonable.  It's
@@ -651,8 +684,8 @@ int nplc_remove_constraint(nplCurve * const L,
   cst_pptr = &L->cst;
   while ((*cst_pptr) != NULL) {
     if ((*cst_pptr)->kind == kind &&
-        nplc_M_vecteq((*cst_pptr)->vect[0],vect[0]) &&
-        nplc_M_vecteq((*cst_pptr)->vect[1],vect[1])) {
+        nplc_vecteq((*cst_pptr)->vect[0],vect[0]) &&
+        nplc_vecteq((*cst_pptr)->vect[1],vect[1])) {
       cst_ptr = *cst_pptr; /* So we can free the space */
       *cst_pptr = (*cst_pptr)->next; /* Take it out of the list */
       uncst += cst_ptr->num_verts;
@@ -685,9 +718,9 @@ void nplc_remove_all_constraints(nplCurve * const L) {
 } /* plc_remove_all_constraints */
 
 /*
- * Writes the nplCurve to a file in Geomview VECT format.  The file format is:
+ * Writes the nplCurve to a file in Geomview (N)VECT format.  The file format is:
  *
- * VECT                           # mandatory keyword
+ * 4VECT (or 5VECT or 876VECT or whatever) # mandatory keyword
  * Ncomponents Nvertices Ncolors  # total number of components and vertices
  * Nv[0] ... Nv[NPolylines-1]     # number of vertices in each polyline
  *                                # closed polylines use negative numbers
@@ -737,7 +770,17 @@ void nplc_write(FILE *outfile, nplCurve * const L) {
   }
 
   /* We are ready to write the nplCurve. */
-  fprintf(outfile,"VECT \n");
+  
+  if (nplc_dim(*L) != 3) {
+
+    fprintf(outfile,"%dVECT \n",nplc_dim(*L));
+    
+  } else {
+
+    fprintf(outfile," VECT \n"); /* Output a standard VECT file if possible. */
+
+  }
+
   fprintf(outfile,
     "%d %d %d # Components Vertices Colors\n",L->nc,nverts,colors);
 
@@ -757,14 +800,14 @@ void nplc_write(FILE *outfile, nplCurve * const L) {
 
   /* Slide the constraints, if any, in here */
   for (cst = L->cst; cst != NULL; cst = cst->next) {
-    assert(cst->kind == fixed || cst->kind == line || cst->kind == plane);
+    assert(cst->kind == nfixed || cst->kind == nline || cst->kind == nplane);
     found = false;
     cst_num = 0;
     for (cst2 = cst_list; cst2 != NULL && !found; cst2 = cst2->next) {
       cst_num++;
       if (cst->kind == cst2->kind &&
-          nplc_M_vecteq(cst->vect[0],cst2->vect[0]) &&
-          nplc_M_vecteq(cst->vect[1],cst2->vect[1])) {
+          nplc_vecteq(cst->vect[0],cst2->vect[0]) &&
+          nplc_vecteq(cst->vect[1],cst2->vect[1])) {
         found = true;
       }
     }
@@ -773,15 +816,16 @@ void nplc_write(FILE *outfile, nplCurve * const L) {
       cst_list = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
                                 cst->num_verts, cst_list);
       cst_num++;
-      if (cst->kind == fixed) {
-        fprintf(outfile, "# Constraint %d Fixed %g %g %g\n", cst_num,
-          nplc_M_clist(cst->vect[0]));
-      } else if (cst->kind == line) {
-        fprintf(outfile, "# Constraint %d Line %g %g %g %g %g %g\n", cst_num,
-          nplc_M_clist(cst->vect[0]), nplc_M_clist(cst->vect[1]));
-      } else if (cst->kind == plane) {
-      fprintf(outfile, "# Constraint %d Plane %g %g %g %g\n", cst_num,
-          nplc_M_clist(cst->vect[0]), cst->vect[1].c[0]);
+      if (cst->kind == nfixed) {
+        fprintf(outfile, "# Constraint %d Fixed %s\n", cst_num,
+          nplc_vect_print(cst->vect[0]));
+      } else if (cst->kind == nline) {
+        fprintf(outfile, "# Constraint %d Line %s ", cst_num,
+          nplc_vect_print(cst->vect[0]));
+	fprintf(outfile," %s\n", nplc_vect_print(cst->vect[1]));
+      } else if (cst->kind == nplane) {
+      fprintf(outfile, "# Constraint %d Plane %s %g\n", cst_num,
+          nplc_vect_print(cst->vect[0]), cst->vect[1].c[0]);
       }
     }
     /* Now mark it down in the list */
@@ -796,8 +840,8 @@ void nplc_write(FILE *outfile, nplCurve * const L) {
   for (i=0; i<L->nc; i++) {
     fprintf(outfile,"# Component %d\n",i);
     for (j=0; j<L->cp[i].nv; j++) {
-      (void)snprintf(outstr,sizeof(outstr),"%.16g %.16g %.16g",
-          nplc_M_clist(L->cp[i].vt[j]));
+      (void)snprintf(outstr,sizeof(outstr),"%s",
+          nplc_vect_print(L->cp[i].vt[j]));
       if (cst_nums[i][j] != 0) {
         strcpy(outstr2,outstr);
         (void)snprintf(outstr,sizeof(outstr),
@@ -987,6 +1031,24 @@ static inline int scandoubles(FILE *infile,int ndoubles, ...)
   return nconverted;
 }
 
+bool scan_nplc_vector(FILE *infile,nplc_vector *A)
+/* Procedure uses scandoubles to scan for the components of A */
+/* Returns true/false on success/failure. */
+{
+  int i;
+  int nconverted = 0;
+
+  for(i=0;i<A->n;i++) {
+
+    nconverted += scandoubles(infile,1,&(A->c[i]));
+
+  }
+
+  return (nconverted == A->n);
+
+}
+  
+
 /* Procedure scans for nints integers, ignoring whitespace and     *
  * comments between them. We expect the variable length arguments  *
  * to contain a collection of pointers to ints. If not,            *
@@ -1060,6 +1122,7 @@ void nplc_fix_wrap(nplCurve * const L) {
                                   /*@out@*/ int *error_num,
                                   /*@out@*/ char error_str[],
                                             size_t error_str_len) {
+  int dim;
   nplCurve *L;
   int nverts = 0, ncomp = 0, ncolors = 0;
   int *nvarray, *ccarray;
@@ -1080,12 +1143,20 @@ void nplc_fix_wrap(nplCurve * const L) {
   error_str[0] = '\0';
   *error_num = 0;
 
-  /* First, we check for the 'VECT' keyword. */
-  if (fscanf(file," VECT ") == EOF) {
-    *error_num = NPLC_E_NO_VECT;
-    (void)snprintf(error_str,error_str_len,
-        "nplc_read: Couldn't find VECT keyword.\n");
-    return NULL;
+  /* First, we check for the '(N)VECT' keyword. */
+  if (fscanf(file,"%dVECT ",&dim) != 1) {
+
+    fseek(file,0,SEEK_SET); /* Rewind and try again- this might be an ordinary VECT file.*/
+
+    if (fscanf(file," VECT ") == EOF) {
+      *error_num = NPLC_E_NO_VECT;
+      (void)snprintf(error_str,error_str_len,
+		     "nplc_read: Couldn't find (N)VECT keyword.\n");
+      return NULL;
+    }
+
+    dim = 3;
+
   }
 
   /* Now we read the three integers giving vertices, components, and colors. */
@@ -1151,7 +1222,7 @@ void nplc_fix_wrap(nplCurve * const L) {
 
   /* We now allocate the nplCurve data structure. */
 
-  L = nplc_new(ncomp,nvarray,open,ccarray);
+  L = nplc_new(dim,ncomp,nvarray,open,ccarray);
 
   /* done with temorary arrays */
   free(nvarray); free(open); free(ccarray);
@@ -1212,7 +1283,7 @@ void nplc_fix_wrap(nplCurve * const L) {
     place_not_null;
     parsed += strlen(place)+1;
     if (strcasestr(place,"Fixed") != NULL) {
-      cst_list[cst_num].kind = fixed;
+      cst_list[cst_num].kind = nfixed;
       if (sscanf(&comment[parsed],"%lf %lf %lf",
             &cst_list[cst_num].vect[0].c[0],
             &cst_list[cst_num].vect[0].c[1],
@@ -1234,7 +1305,7 @@ void nplc_fix_wrap(nplCurve * const L) {
       }
       memmove(comment,&comment[parsed],strlen(&comment[parsed])+1);
     } else if (strcasestr(place,"Line") != NULL) {
-      cst_list[cst_num].kind = line;
+      cst_list[cst_num].kind = nline;
       if (sscanf(&comment[parsed],"%lf %lf %lf %lf %lf %lf",
             &cst_list[cst_num].vect[0].c[0],
             &cst_list[cst_num].vect[0].c[1],
@@ -1258,7 +1329,7 @@ void nplc_fix_wrap(nplCurve * const L) {
       }
       memmove(comment,&comment[parsed],strlen(&comment[parsed])+1);
     } else if (strcasestr(place,"Plane") != NULL) {
-      cst_list[cst_num].kind = plane;
+      cst_list[cst_num].kind = nplane;
       if (sscanf(&comment[parsed],"%lf %lf %lf %lf",
             &cst_list[cst_num].vect[0].c[0],
             &cst_list[cst_num].vect[0].c[1],
@@ -1300,15 +1371,17 @@ void nplc_fix_wrap(nplCurve * const L) {
     prev_cst_num = prev_cst_vert = cst_num = 0;
     nv = L->cp[i].nv;
     for (j = 0; j < nv; j++) {
-      if (scandoubles(file,3,nplc_M_clist(&L->cp[i].vt[j])) != 3) {
+      if (!scan_nplc_vector(file,&(L->cp[i].vt[j]))) {
+
         nplc_free(L);
         assert(cst_list->next == NULL);
         free(cst_list);
         *error_num = NPLC_E_BAD_VERT_LINE;
         (void)snprintf(error_str,error_str_len,
-          "nplc_read: Couldn't parse <x> <y> <z> data for vertex %d of "
+          "nplc_read: Couldn't parse coordinate data for vertex %d of "
           "component %d.\n",j,i);
         return NULL;
+
       }
       comment = get_comment(file);
       cst_num = 0;
@@ -1415,6 +1488,8 @@ int nplc_num_verts(const nplCurve * const L) /*@modifies nothing@*/
   }
   return verts;
 }
+
+#ifdef CONVERTED
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double nplc_MR_curvature(nplCurve * const L, const int cmp, const int vert) {
@@ -1775,12 +1850,12 @@ void nplc_scale( nplCurve *link, const double alpha)
 
   for(tc=link->cst;tc!=NULL;tc=tc->next) {  /* Follow the linked list of csts. */
 
-    if (tc->kind == unconstrained) { 
-    } else if (tc->kind == fixed) {
+    if (tc->kind == nunconstrained) { 
+    } else if (tc->kind == nfixed) {
       nplc_M_scale_vect(alpha,tc->vect[0]);
-    } else if (tc->kind == line) {
+    } else if (tc->kind == nline) {
       nplc_M_scale_vect(alpha,tc->vect[1]);
-    } else if (tc->kind == plane) {
+    } else if (tc->kind == nplane) {
       nplc_M_scale_vect(alpha,tc->vect[1]);
     }
 
@@ -1788,3 +1863,4 @@ void nplc_scale( nplCurve *link, const double alpha)
    
 }   
 
+#endif

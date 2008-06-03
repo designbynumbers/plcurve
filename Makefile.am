@@ -33,11 +33,11 @@ libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
-libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c nsplines.c
+libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c 
 libnplCurve_la_CFLAGS = -DNDEBUG -O2 $(AM_CFLAGS)
 libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
-libnplCurve_safe_la_SOURCES = nplCurve.c nplCurve.h nvector.c nsplines.c
+libnplCurve_safe_la_SOURCES = nplCurve.c nplCurve.h nvector.c 
 libnplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
