@@ -173,6 +173,9 @@ bool plc_vecteq(plc_vector A, plc_vector B);
  *
  */
 
+#define plc_vect_copy(A,B) \
+  (A) = (B)
+
 #define plc_M_dot(A,B)      \
   ((A).c[0]*(B).c[0] + (A).c[1]*(B).c[1] + (A).c[2]*(B).c[2])
 

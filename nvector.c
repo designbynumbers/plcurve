@@ -74,6 +74,16 @@ void nplc_vect_free(nplc_vector *nv)
   nv->c = NULL;
 }
 
+void nplc_vect_copy(nplc_vector to,nplc_vector from)
+{
+  assert(from.n == to.n);
+  assert(from.c != NULL);
+
+  int i;
+
+  for(i=0;i<from.n;i++) { to.c[i] = from.c[i]; }
+}
+
 nplc_vector *nplc_vect_buf_new(int dim,int num_vects)
      /* Allocate a buffer of nplc vectors */
 {

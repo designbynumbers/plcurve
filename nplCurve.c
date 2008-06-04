@@ -61,14 +61,14 @@ static inline int intmax(const int a, const int b) {
   return (a >= b) ? a : b;
 }
 
-int nplc_dim(nplCurve L)
+int nplc_dim(nplCurve *L)
 
      /* Returns dimension of nplCurve. */
 
 {
-  if (L.cp[0].nv > 0) {
+  if (L->cp[0].nv > 0) {
 
-    return L.cp[0].vt[0].n;
+    return L->cp[0].vt[0].n;
 
   } else {
 
@@ -623,7 +623,7 @@ void nplc_set_fixed(nplCurve * const L,
                        const nplc_vector point) {
   nplc_vector zv;
 
-  zv = nplc_vect_new(nplc_dim(*L));  
+  zv = nplc_vect_new(nplc_dim(L));  
   nplc_vector vect[2] = { point, zv };
 
   nplc_set_constraint(L,cmp,vert,1,nfixed,vect);
@@ -647,7 +647,7 @@ void nplc_constrain_to_plane(nplCurve * const L,
                                 const nplc_vector normal,
                                 const double dist_from_origin) {
   nplc_vector dz;
-  dz = nplc_vect_new(nplc_dim(*L));
+  dz = nplc_vect_new(nplc_dim(L));
   dz.c[0] = dist_from_origin;
 
   nplc_vector vect[2] = { normal, dz };
@@ -659,7 +659,7 @@ void nplc_unconstrain(nplCurve * const L, const int cmp,
                          const int vert, const int num_verts) {
 
   nplc_vector *zero_vect;  
-  zero_vect = nplc_vect_buf_new(nplc_dim(*L),2);
+  zero_vect = nplc_vect_buf_new(nplc_dim(L),2);
 
   nplc_set_constraint(L,cmp,vert,num_verts,nunconstrained,zero_vect);
 }
@@ -771,9 +771,9 @@ void nplc_write(FILE *outfile, nplCurve * const L) {
 
   /* We are ready to write the nplCurve. */
   
-  if (nplc_dim(*L) != 3) {
+  if (nplc_dim(L) != 3) {
 
-    fprintf(outfile,"%dVECT \n",nplc_dim(*L));
+    fprintf(outfile,"%dVECT \n",nplc_dim(L));
     
   } else {
 

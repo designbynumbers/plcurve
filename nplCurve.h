@@ -148,6 +148,7 @@ typedef struct nplc_spline_type {
   
 nplc_vector nplc_vect_new(int n);
 void nplc_vect_free(nplc_vector *nv);
+void nplc_vect_copy(nplc_vector to,nplc_vector from);
 
 nplc_vector *nplc_vect_buf_new(int dim,int num_vects);
 void nplc_vect_buf_free(int bufsize,nplc_vector *buf);
@@ -197,7 +198,7 @@ char *nplc_vect_print(nplc_vector A);
  *
  */
 
-int nplc_dim(nplCurve L);
+int nplc_dim(nplCurve *L);
     /* Returns the dimension of the curve. */
 
 /* Build a new nplCurve (with associated strands) */
