@@ -419,4 +419,18 @@ char *nplc_vect_print(nplc_vector A)
   return pbuf;
 }
 
+char *nplc_vect_clist(nplc_vector A)
+{
+  static char pbuf[16000];
+  int i,used=0;
+  
+  for(i=0;i<A.n;i++) {
+    
+    used += snprintf(&(pbuf[used]),sizeof(pbuf)-used,"%.16g ",A.c[i]);
+    
+  }
+  
+  return pbuf;
+}
+
   

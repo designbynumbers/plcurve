@@ -841,7 +841,7 @@ void nplc_write(FILE *outfile, nplCurve * const L) {
     fprintf(outfile,"# Component %d\n",i);
     for (j=0; j<L->cp[i].nv; j++) {
       (void)snprintf(outstr,sizeof(outstr),"%s",
-          nplc_vect_print(L->cp[i].vt[j]));
+          nplc_vect_clist(L->cp[i].vt[j]));
       if (cst_nums[i][j] != 0) {
         strcpy(outstr2,outstr);
         (void)snprintf(outstr,sizeof(outstr),

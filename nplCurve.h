@@ -190,8 +190,10 @@ bool nplc_vecteq(nplc_vector A, nplc_vector B);
      we don't know the dimension of the vectors. */
 
 char *nplc_vect_print(nplc_vector A);
+/* Returns a pointer to a static string printing the vector in the format (4,5,6) */
 
-    /* Returns a pointer to a static string printing the vector. */
+char *nplc_vect_clist(nplc_vector A);
+/* Returns a pointer to a static string printing the vect in the format 4 5 6 */
 
 /*
  * Prototypes for routines to deal with nplCurves. INCOMPLETE!
