@@ -61,7 +61,7 @@ static inline int intmax(const int a, const int b) {
   return (a >= b) ? a : b;
 }
 
-int nplc_dim(nplCurve *L)
+int nplc_dim(const nplCurve * const L)
 
      /* Returns dimension of nplCurve. */
 
@@ -367,9 +367,8 @@ void nplc_free(/*@only@*/ /*@null@*/ nplCurve *L) {
       if (L->cp[i].vt != NULL) {
         L->cp[i].vt--; /* undo our original vt++ (for wraparound) */
 	nplc_vect_buf_free(L->cp[i].nv+2,L->cp[i].vt); /* Remember that the buffer is bigger */	
-        free(L->cp[i].vt);
         L->cp[i].vt = NULL;
-      }
+      } 
 
       L->cp[i].nv = 0;
       L->cp[i].cc = 0;
@@ -403,6 +402,39 @@ void nplc_free(/*@only@*/ /*@null@*/ nplCurve *L) {
 
   free(L);
 } /* plc_free */
+
+/* Split off a copy of a component of L as a new nplCurve - constraints not included */
+nplCurve *nplc_component(int cp,nplCurve *L)
+
+{
+  nplCurve *Lcp;
+  int       nv[1];
+  int       cc[1];
+  bool      open[1];
+  
+  nv[0] = L->cp[cp].nv;
+  cc[0] = L->cp[cp].cc;
+  open[0] = L->cp[cp].open;
+
+  Lcp = nplc_new(nplc_dim(L),1,nv,open,cc);
+
+  int i;
+
+  for(i=0;i<L->cp[cp].nv;i++) { 
+
+    nplc_vect_copy(Lcp->cp[0].vt[i],L->cp[cp].vt[i]);
+
+  }
+
+  for(i=0;i<L->cp[cp].cc;i++) {
+
+    Lcp->cp[0].clr[i] = L->cp[cp].clr[i];
+
+  }
+  
+  return Lcp;
+
+}
 
 /*@only@*/ static inline
 nplc_constraint *new_constraint(const nplc_cst_kind kind,
@@ -1101,12 +1133,12 @@ void nplc_fix_wrap(nplCurve * const L) {
     }
     if (L->cp[i].open) {
       /* fold it back on itself: v_{-1} = v_1 and v_{nv} = v_{nv-2} */
-      L->cp[i].vt[-1] = L->cp[i].vt[1];
-      L->cp[i].vt[nv] = L->cp[i].vt[nv-2];
+      nplc_vect_copy(L->cp[i].vt[-1],L->cp[i].vt[1]);
+      nplc_vect_copy(L->cp[i].vt[nv],L->cp[i].vt[nv-2]);
     } else {
       /* wrap it around: v_{-1} = v_{nv-1} and v_{nv} = v_0 */
-      L->cp[i].vt[-1] = L->cp[i].vt[nv-1];
-      L->cp[i].vt[nv] = L->cp[i].vt[0];
+      nplc_vect_copy(L->cp[i].vt[-1],L->cp[i].vt[nv-1]);
+      nplc_vect_copy(L->cp[i].vt[nv],L->cp[i].vt[0]);
     }
   }
 }
@@ -1510,6 +1542,74 @@ void nplc_reverse(nplCurve * L)
 
 }      
 
+/*
+ * Duplicate a nplCurve and return the duplicate.
+ *
+ */
+nplCurve *nplc_copy(const nplCurve * const L) {
+  nplCurve *nL;
+  int *nv, *ccarray;
+  bool *open;
+  int cnt,cnt2;
+  nplc_constraint *cst,*cst2;
+
+  assert(L->nc >= 1);
+
+  nv = (int *)malloc((L->nc)*sizeof(int));
+  assert(nv != NULL);
+  open = (bool *)malloc((L->nc)*sizeof(bool));
+  assert(open != NULL);
+  ccarray = (int *)malloc((L->nc)*sizeof(int));
+  assert(ccarray != NULL);
+
+  /*@+loopexec@*/
+  for (cnt = 0; cnt < L->nc; cnt++) {
+    nv[cnt] = L->cp[cnt].nv;
+    open[cnt] = L->cp[cnt].open;
+    ccarray[cnt] = L->cp[cnt].cc;
+  }
+  /*@=loopexec@*/
+  nL = nplc_new(nplc_dim(L),L->nc,nv,open,ccarray);
+  assert(nL->cst == NULL);
+
+  free(ccarray);
+  free(open);
+  free(nv);
+
+  /* Constraints */
+  cst = L->cst;
+  if (cst != NULL) {
+    nL->cst = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
+                             cst->num_verts, NULL);
+    cst2 = nL->cst;
+    while (cst->next != NULL) {
+      cst = cst->next;
+      assert(cst2->next == NULL);
+      cst2->next = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
+                                  cst->num_verts, NULL);
+      cst2 = cst2->next;
+    }
+  } else {
+    nL->cst = NULL;
+  }
+
+  for (cnt = 0; cnt < L->nc; cnt++) {
+    /*
+     * Copy the vertices (including the "hidden" ones, so we don't have to call
+     * nplc_fix_wrap).
+     */
+    for (cnt2 = -1; cnt2 <= L->cp[cnt].nv; cnt2++) {
+      nplc_vect_copy(nL->cp[cnt].vt[cnt2],L->cp[cnt].vt[cnt2]);
+    }
+    for (cnt2 = 0; cnt2 < L->cp[cnt].cc; cnt2++) {
+      nL->cp[cnt].clr[cnt2] = L->cp[cnt].clr[cnt2];
+    }
+  }
+
+  return nL;
+}
+
+
 #ifdef CONVERTED
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
@@ -1543,72 +1643,6 @@ double nplc_MR_curvature(nplCurve * const L, const int cmp, const int vert) {
   return kappa;
 }
 
-/*
- * Duplicate a nplCurve and return the duplicate.
- *
- */
-nplCurve *nplc_copy(const nplCurve * const L) {
-  nplCurve *nL;
-  int *nv, *ccarray;
-  bool *open;
-  int cnt,cnt2;
-  nplc_constraint *cst,*cst2;
-
-  assert(L->nc >= 1);
-
-  nv = (int *)malloc((L->nc)*sizeof(int));
-  assert(nv != NULL);
-  open = (bool *)malloc((L->nc)*sizeof(bool));
-  assert(open != NULL);
-  ccarray = (int *)malloc((L->nc)*sizeof(int));
-  assert(ccarray != NULL);
-
-  /*@+loopexec@*/
-  for (cnt = 0; cnt < L->nc; cnt++) {
-    nv[cnt] = L->cp[cnt].nv;
-    open[cnt] = L->cp[cnt].open;
-    ccarray[cnt] = L->cp[cnt].cc;
-  }
-  /*@=loopexec@*/
-  nL = nplc_new(L->nc,nv,open,ccarray);
-  assert(nL->cst == NULL);
-
-  free(ccarray);
-  free(open);
-  free(nv);
-
-  /* Constraints */
-  cst = L->cst;
-  if (cst != NULL) {
-    nL->cst = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
-                             cst->num_verts, NULL);
-    cst2 = nL->cst;
-    while (cst->next != NULL) {
-      cst = cst->next;
-      assert(cst2->next == NULL);
-      cst2->next = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
-                                  cst->num_verts, NULL);
-      cst2 = cst2->next;
-    }
-  } else {
-    nL->cst = NULL;
-  }
-
-  for (cnt = 0; cnt < L->nc; cnt++) {
-    /*
-     * Copy the vertices (including the "hidden" ones, so we don't have to call
-     * nplc_fix_wrap).
-     */
-    for (cnt2 = -1; cnt2 <= L->cp[cnt].nv; cnt2++) {
-      nL->cp[cnt].vt[cnt2] = L->cp[cnt].vt[cnt2];
-    }
-    for (cnt2 = 0; cnt2 < L->cp[cnt].cc; cnt2++) {
-      nL->cp[cnt].clr[cnt2] = L->cp[cnt].clr[cnt2];
-    }
-  }
-
-  return nL;
-}
 
 /*
  * Compute a (unit) tangent vector to L at vertex vert of component cmp by

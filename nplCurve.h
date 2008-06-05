@@ -200,7 +200,7 @@ char *nplc_vect_clist(nplc_vector A);
  *
  */
 
-int nplc_dim(nplCurve *L);
+int nplc_dim(const nplCurve * const L);
     /* Returns the dimension of the curve. */
 
 /* Build a new nplCurve (with associated strands) */
@@ -212,6 +212,10 @@ int nplc_dim(nplCurve *L);
 
 /* Free the nplCurve (and strands) */
 void nplc_free(/*@only@*/ /*@null@*/ nplCurve *L);
+
+
+/* Split off a copy of a component of L as a new nplCurve - constraints not included */
+nplCurve *nplc_component(int cp,nplCurve *L);
 
 
 #ifdef CONVERTED
@@ -286,13 +290,13 @@ int nplc_num_verts(const nplCurve * const L);
 /* Reverse the orientation of an nplCurve. */
 void nplc_reverse(nplCurve * L);
 
+/* Copy a nplCurve */
+nplCurve *nplc_copy(const nplCurve * const L);
+
 #ifdef CONVERTED
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double nplc_MR_curvature(nplCurve * const L, const int cmp, const int vert);
-
-/* Copy a nplCurve */
-nplCurve *nplc_copy(const nplCurve * const L);
 
 /* Compute average of inward and outward tangents (and normalize) */
 nplc_vector nplc_mean_tangent(const nplCurve * const L, const int cmp,
