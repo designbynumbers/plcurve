@@ -1489,6 +1489,27 @@ int nplc_num_verts(const nplCurve * const L) /*@modifies nothing@*/
   return verts;
 }
 
+/* Reverses the orientation of an nplCurve. */
+void nplc_reverse(nplCurve * L)
+
+{
+  int cp,vt;
+  nplc_vector swap;
+
+  for(cp=0;cp<L->nc;cp++) {
+
+    for(vt=0;vt<L->cp[cp].nv/2.0;vt++) {
+
+      swap = L->cp[cp].vt[vt];
+      L->cp[cp].vt[vt] = L->cp[cp].vt[L->cp[cp].nv-vt];
+      L->cp[cp].vt[L->cp[cp].nv-vt] = swap;
+
+    }
+
+  }
+
+}      
+
 #ifdef CONVERTED
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */

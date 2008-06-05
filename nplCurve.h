@@ -283,6 +283,9 @@ int nplc_edges(const nplCurve * const L,
 /* Count the vertices in a nplCurve */
 int nplc_num_verts(const nplCurve * const L);
 
+/* Reverse the orientation of an nplCurve. */
+void nplc_reverse(nplCurve * L);
+
 #ifdef CONVERTED
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
