@@ -1533,12 +1533,14 @@ void nplc_reverse(nplCurve * L)
     for(vt=0;vt<L->cp[cp].nv/2.0;vt++) {
 
       swap = L->cp[cp].vt[vt];
-      L->cp[cp].vt[vt] = L->cp[cp].vt[L->cp[cp].nv-vt];
-      L->cp[cp].vt[L->cp[cp].nv-vt] = swap;
+      L->cp[cp].vt[vt] = L->cp[cp].vt[(L->cp[cp].nv-1)-vt];
+      L->cp[cp].vt[(L->cp[cp].nv-1)-vt] = swap;
 
     }
 
   }
+
+  nplc_fix_wrap(L);
 
 }      
 
@@ -1675,6 +1677,8 @@ nplc_vector nplc_mean_tangent(const nplCurve * const L, const int cmp,
       ok);
 } /* nplc_tangent_vector */
 
+#endif
+
 /*
  * Procedure computes the length of each component of the nplCurve, and fills in
  * the array of doubles "component_lengths" (if it exists), which must be as
@@ -1682,6 +1686,7 @@ nplc_vector nplc_mean_tangent(const nplCurve * const L, const int cmp,
  * called. 
  *
  */
+
 double nplc_arclength(const nplCurve * const L,
     /*@null@*/ /*@out@*/ double *component_lengths)
 {
@@ -1702,7 +1707,7 @@ double nplc_arclength(const nplCurve * const L,
     nv = (cp->open) ? cp->nv-1 : cp->nv;
 
     for (vert = 0; vert < nv; vert++) {
-      c_length += nplc_M_distance(cp->vt[vert+1],cp->vt[vert]);
+      c_length += nplc_distance(cp->vt[vert+1],cp->vt[vert]);
     }
 
     tot_length += c_length;
@@ -1756,9 +1761,9 @@ double nplc_subarc_length(const nplCurve * const L, const int cmp,
   length1 = length2 = 0.0;
   for (v = start; v < end; v++) {
     if (v >= v1 && v < v2) {
-      length1 += nplc_M_norm(nplc_vect_diff(cp->vt[v+1],cp->vt[v]));
+      length1 += nplc_norm(nplc_vect_diff(cp->vt[v+1],cp->vt[v]));
     } else {
-      length2 += nplc_M_norm(nplc_vect_diff(cp->vt[v+1],cp->vt[v]));
+      length2 += nplc_norm(nplc_vect_diff(cp->vt[v+1],cp->vt[v]));
     }
   }
 
@@ -1785,6 +1790,8 @@ nplc_color nplc_build_color(const double r,
   nplc_color C = { r, g, b, alpha };
   return C;
 }
+
+#ifdef CONVERTED
 
 /* Add a component with nv vertices read from the array vt and cc colors read
  * from the array clr.  The parameter add_as tells what the new component

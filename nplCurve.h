@@ -148,7 +148,7 @@ typedef struct nplc_spline_type {
   
 nplc_vector nplc_vect_new(int n);
 void nplc_vect_free(nplc_vector *nv);
-void nplc_vect_copy(nplc_vector to,nplc_vector from);
+    void nplc_vect_copy(nplc_vector to,nplc_vector from); /* Assumes that "to" is allocated! */
 
 nplc_vector *nplc_vect_buf_new(int dim,int num_vects);
 void nplc_vect_buf_free(int bufsize,nplc_vector *buf);
@@ -302,6 +302,8 @@ double nplc_MR_curvature(nplCurve * const L, const int cmp, const int vert);
 nplc_vector nplc_mean_tangent(const nplCurve * const L, const int cmp,
                             const int vert, bool *ok);
 
+#endif
+
 /* Find the arclength of a nplCurve. Total arclength is returned, arclength */
 /* of individual strands stored in component_lengths if this pointer is non-NULL. */
 double nplc_arclength(const nplCurve * const L,
@@ -311,6 +313,8 @@ double nplc_arclength(const nplCurve * const L,
  * strands, give the shortest of the two options.  */
 double nplc_subarc_length(const nplCurve * const L, const int cmp,
                          const int vert1, const int vert2);
+
+#ifdef CONVERTED
 
 /* Return how far a constraint is from being satisfied (sup norm). */
 double nplc_check_cst(const nplCurve * const L);
@@ -322,7 +326,7 @@ void nplc_fix_cst(nplCurve * const L);
 void nplc_version(/*@null@*/ char *version, size_t strlen);
 
 /* Put 4 doubles together into a color */
-nplc_color plc_build_color(const double r, const double g,
+nplc_color nplc_build_color(const double r, const double g,
 			   const double b, const double alpha);
 
 /* Allocate new spline. */
