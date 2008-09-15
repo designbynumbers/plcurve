@@ -396,6 +396,8 @@ void plc_scale( plCurve *link, const double alpha);
 #define PLC_E_BAD_CST_LINE  9
 #define PLC_E_BAD_CST_KIND  10
 #define PLC_E_BAD_CST_NUMS  11
+#define PLC_E_BAD_CC        12
+
 #if (__cplusplus || c_plusplus)
 };
 #endif

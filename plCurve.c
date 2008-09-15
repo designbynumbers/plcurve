@@ -85,6 +85,8 @@ static inline int intmax(const int a, const int b) {
   assert(nv != NULL);
   assert(open != NULL);
   assert(cc != NULL);
+  
+  for(i=0;i<components;i++) { assert(cc[i] >= 0); assert(cc[i] <= nv[i]); }
 
   /* Now we attempt to allocate space for these components. */
 
