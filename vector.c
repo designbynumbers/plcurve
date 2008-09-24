@@ -294,7 +294,7 @@ plc_vector plc_circumcenter(plc_vector A, plc_vector B, plc_vector C,double *cir
   double c[2];
   double circumcenter[2];
   double *xi = NULL;
-  double *eta;
+  double *eta = NULL;
 
   double xba, yba, xca, yca;
   double balength, calength;
@@ -392,3 +392,39 @@ plc_vector plc_normal(plc_vector A,plc_vector B,plc_vector C,bool *ok)
 
   return nor;
 }
+
+plc_vector plc_3plane_intersection(plc_vector N1, plc_vector P1,
+				   plc_vector N2, plc_vector P2,
+				   plc_vector N3, plc_vector P3,
+				   bool *ok)
+
+/* Computes the intersection of three planes. This is a graphics gem:
+
+   P = (1/det(V1,V2,V3))*( (P1.V1)(V2xV3) + (P2.V2)(V3xV1) + (P3.V3)(V1xV2) )
+
+   where the Vi are unit normals to the planes. Ref. p. 305 of Graphics Gems.
+*/
+
+{
+  double det;
+  plc_vector V1,V2,V3,P = {{0,0,0}};
+  bool subok;
+
+  V1 = plc_normalize_vect(N1,&subok); if (!subok) { *ok = false; return P; }
+  V2 = plc_normalize_vect(N2,&subok); if (!subok) { *ok = false; return P; }
+  V3 = plc_normalize_vect(N3,&subok); if (!subok) { *ok = false; return P; }
+  
+  det = plc_dot_prod(V1,plc_cross_prod(V2,V3));
+
+  if (fabs(det) < 1e-8) { *ok = false; return P; }
+
+  P = plc_vlincomb(plc_dot_prod(P1,V1),plc_cross_prod(V2,V3),
+		   plc_dot_prod(P2,V2),plc_cross_prod(V3,V1));
+  P = plc_vlincomb(1.0,P,
+		   plc_dot_prod(P3,V3),plc_cross_prod(V1,V2));
+  P = plc_scale_vect(1.0/det,P);
+
+  return P;
+}
+   
+

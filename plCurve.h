@@ -157,7 +157,13 @@ plc_vector plc_circumcenter(plc_vector A, plc_vector B, plc_vector C,
      If circumradius is NULL, then it won't be written to. */
 plc_vector plc_normal(plc_vector A, plc_vector B, plc_vector C, bool *ok);
   /* Returns the normal vector to plane defined by A,B,C. */
-  
+
+plc_vector plc_3plane_intersection(plc_vector N0, plc_vector p0,
+				   plc_vector N1, plc_vector p1,
+				   plc_vector N2, plc_vector p2,
+				   bool *ok);
+  /* Returns the intersection point of 3 planes. */ 						
+					  
 /* Different vector measurements */
 double plc_dot_prod(plc_vector A,plc_vector B);
 double plc_norm(plc_vector A);
