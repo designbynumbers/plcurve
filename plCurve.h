@@ -162,7 +162,10 @@ plc_vector plc_3plane_intersection(plc_vector N0, plc_vector p0,
 				   plc_vector N1, plc_vector p1,
 				   plc_vector N2, plc_vector p2,
 				   bool *ok);
-  /* Returns the intersection point of 3 planes. */ 						
+/* Returns the intersection point of 3 planes. */ 					
+
+double plc_tetrahedron_inradius(plc_vector A,plc_vector B,plc_vector C,plc_vector D);
+/* Returns the inradius of a tetrahedron. */	
 					  
 /* Different vector measurements */
 double plc_dot_prod(plc_vector A,plc_vector B);

@@ -427,4 +427,35 @@ plc_vector plc_3plane_intersection(plc_vector N1, plc_vector P1,
   return P;
 }
    
+double plc_tetrahedron_inradius(plc_vector A,plc_vector B,plc_vector C,plc_vector D)
 
+/* An amazing formula from Wikipedia states that:
+   
+   inradius = V / (|b x c| + |c x a| + |a x b| + |(b x c) + (c x a) + (a x b)|}
+   
+   where one vertex of the tetrahedron is at 0 and the others are a,b,c. Here 
+   V = 6 x the volume of the tetrahedron, which is the triple product of the 
+   vectors a, b, c. */
+{
+  double inradius;
+  plc_vector a,b,c,o;
+
+  a = plc_vect_diff(A,D);
+  b = plc_vect_diff(B,D);
+  c = plc_vect_diff(C,D);
+  o = plc_vect_diff(D,D);
+  
+  double V;
+  
+  V = fabs(plc_dot_prod(a,plc_cross_prod(b,c)));
+  
+  inradius = V/
+    (plc_norm(plc_cross_prod(b,c)) +
+     plc_norm(plc_cross_prod(c,a)) + 
+     plc_norm(plc_cross_prod(a,b)) + 
+     plc_norm(plc_vect_sum(plc_cross_prod(b,c),
+			   plc_vect_sum(plc_cross_prod(c,a),
+					plc_cross_prod(a,b)))));
+  
+  return inradius;
+}
