@@ -7,7 +7,7 @@ noinst_LTLIBRARIES = libplCurve_cov.la
 check_PROGRAMS = run_tests exit_failure_tests
 
 if HAVE_ARGTABLE2
-bin_PROGRAMS = knot_diagram resample plcurvature
+bin_PROGRAMS = knot_diagram resample plcurvature 
 else 
 bin_PROGRAMS = knot_diagram
 endif
@@ -72,3 +72,6 @@ resample_LDFLAGS = -static -largtable2
 plcurvature_SOURCES = plcurvature.c libplCurve_safe.la
 plcurvature_LDADD = libplCurve_safe.la
 plcurvature_LDFLAGS = -static -largtable2
+
+
+
