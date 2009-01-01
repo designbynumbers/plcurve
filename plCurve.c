@@ -1731,6 +1731,102 @@ void plc_drop_component(plCurve *L, const int cmp) {
 }
 /*@=compdef =usereleased@*/
 
+void plc_double_verts(plCurve *L)
+{
+
+  plCurve *newL;
+  int cmp,vt;
+  int *newVerts,*newCc;
+  bool *newOpen;
+  
+  newVerts = calloc(L->nc,sizeof(int)); assert(newVerts != NULL); 
+  newCc = calloc(L->nc,sizeof(int)); assert(newCc != NULL);
+  newOpen = calloc(L->nc,sizeof(bool)); assert(newOpen != NULL);
+
+  for(cmp=0;cmp<L->nc;cmp++) {
+
+    newVerts[cmp] = 2*(L->cp[cmp].nv);
+    if (L->cp[cmp].open) { newVerts[cmp]--; }
+
+    /* Colors are a bit tricky, since there are either 
+       0 (no color info)
+       1 (all verts the same color)
+       
+       or
+
+       L->cp[cmp].nv (colors change along the curve)
+    */
+
+    if (L->cp[cmp].cc == 0 || L->cp[cmp].cc == 1) { 
+
+      newCc[cmp] = L->cp[cmp].cc; /* Just preserve info */
+
+    } else {
+
+      assert(L->cp[cmp].cc == L->cp[cmp].nv); /* We will spline colors, too. */
+      newCc[cmp] = newVerts[cmp];
+
+    }
+
+    newOpen[cmp] = L->cp[cmp].open;
+
+  }
+
+  newL = plc_new(L->nc,newVerts,newOpen,newCc);
+  assert(newL != NULL);
+
+  /* Now we are ready to interpolate vertices */
+
+  plc_fix_wrap(L); /* Just paranoia. This should do nothing. */
+
+  for(cmp=0;cmp<L->nc;cmp++) {
+
+    for(vt=0;vt<L->cp[cmp].nv;vt++) {
+
+      newL->cp[cmp].vt[2*vt] = L->cp[cmp].vt[vt]; 
+      newL->cp[cmp].vt[2*vt+1] = plc_vweighted(0.5,L->cp[cmp].vt[vt],L->cp[cmp].vt[vt+1]);
+      /* This looks like it will be out of range by one if the curves
+	 are open, but it's ok due to the extra space at the end of
+	 the buffers. */
+    } 
+
+    if (newL->cp[cmp].cc == 1) {
+
+      newL->cp[cmp].clr[0] = L->cp[cmp].clr[0];
+
+    } else {
+
+      for(vt=0;vt<L->cp[cmp].nv-1;vt++) {
+
+	newL->cp[cmp].clr[2*vt+1] = newL->cp[cmp].clr[2*vt] = L->cp[cmp].clr[vt];
+	
+      }
+
+      if (!L->cp[cmp].open) {
+
+	newL->cp[cmp].clr[2*vt+1] = L->cp[cmp].clr[vt];
+
+      }
+
+    }
+
+  }
+
+  plc_fix_wrap(newL);
+
+  /* Now we swap the curves. */
+
+  plc_free(L);
+  L = newL;
+
+  free(newL);  /* Just the structure, not the underlying stuff. DON'T use plc_free. */
+  free(newVerts); 
+  free(newCc);
+  free(newOpen);
+
+}
+    
+
 double plc_pointset_diameter(const plCurve * const L) {
   int cmp, vert, cmp2, vert2;
   double diameter, dist;
