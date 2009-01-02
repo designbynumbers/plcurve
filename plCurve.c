@@ -1731,7 +1731,7 @@ void plc_drop_component(plCurve *L, const int cmp) {
 }
 /*@=compdef =usereleased@*/
 
-void plc_double_verts(plCurve *L)
+plCurve *plc_double_verts(plCurve *L)
 {
 
   plCurve *newL;
@@ -1814,15 +1814,11 @@ void plc_double_verts(plCurve *L)
 
   plc_fix_wrap(newL);
 
-  /* Now we swap the curves. */
-
-  plc_free(L);
-  L = newL;
-
-  free(newL);  /* Just the structure, not the underlying stuff. DON'T use plc_free. */
   free(newVerts); 
   free(newCc);
   free(newOpen);
+
+  return newL;
 
 }
     
