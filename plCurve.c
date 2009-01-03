@@ -1731,6 +1731,81 @@ void plc_drop_component(plCurve *L, const int cmp) {
 }
 /*@=compdef =usereleased@*/
 
+void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
+
+     /* Computes the pair of minrad preserving spline verts which 
+	should replace the vertex vt on component cmp of L. We assume
+	that the vertex before and after vt are legal. */
+
+{
+  /* Take care of the trivial cases first. */
+
+  if (L->cp[cmp].open) {
+
+    if (vt == 0) {
+
+      mpsverts[0] = L->cp[cmp].vt[vt];
+      mpsverts[1] = plc_vweighted(0.66,L->cp[cmp].vt[vt],L->cp[cmp].vt[vt+1]);
+
+    } else if (vt == L->cp[cmp].nv-1) {
+
+      mpsverts[0] = plc_vweighted(0.66,L->cp[cmp].vt[vt],L->cp[cmp].vt[vt-1]);
+      mpsverts[1] = L->cp[cmp].vt[vt];
+
+    }
+
+  }
+
+  /* Now we work on the real stuff. */
+
+  plc_vector v0,v1,v2,in,out;
+  double mr,s0,s1,normin,normout,rad,dot_prod,cross_prod_norm;
+  double sin2a,cos2a,tana,dist;
+
+  v0 = L->cp[cmp].vt[vt-1]; v1 = L->cp[cmp].vt[vt]; v2 = L->cp[cmp].vt[vt+1];
+  in = plc_vect_diff(v1,v0); out = plc_vect_diff(v2,v1);
+  normin = plc_norm(in); normout = plc_norm(out);
+
+  /* We now use the minrad formula. */
+
+  dot_prod = plc_M_dot(in,out);
+  cross_prod_norm = plc_norm(plc_cross_prod(in,out));
+      
+  rad = (normin*normout + dot_prod)/(2*cross_prod_norm);
+
+  /* Minrad is the least of normin * rad and normout * rad. */
+
+  mr = (normin < normout) ? normin * rad : normout * rad;
+
+  /* a is the angle between the contact point of the circle and the mpsvects */
+
+  if (normin < normout) {
+
+    sin2a = (normin/2.0) * sqrt( pow(normin/2.0,2.0) + pow(mr,2.0) );
+    cos2a = (mr) * sqrt( pow(normin/2.0,2.0) + pow(mr,2.0) );
+    tana =  sin2a/(1 + cos2a);
+
+    dist = (normin/2.0 - mr*tana); /* Actual distance from v1 to mpsverts. */
+
+  } else {
+
+    sin2a = (normout/2.0) * sqrt( pow(normout/2.0,2.0) + pow(mr,2.0) );
+    cos2a = (mr) * sqrt( pow(normout/2.0,2.0) + pow(mr,2.0) );
+    tana =  sin2a/(1 + cos2a);
+
+    dist = (normout/2.0 - mr*tana); /* Actual distance from v1 to mpsverts. */
+
+  }
+
+  s0 = dist/normin; s1 = dist/normout;
+    
+  /* Now we generate the verts. */
+
+  mpsverts[0] = plc_vweighted(s0,v1,v0);
+  mpsverts[1] = plc_vweighted(s1,v1,v2);
+
+}
+
 plCurve *plc_double_verts(plCurve *L)
 {
 
@@ -1746,7 +1821,6 @@ plCurve *plc_double_verts(plCurve *L)
   for(cmp=0;cmp<L->nc;cmp++) {
 
     newVerts[cmp] = 2*(L->cp[cmp].nv);
-    if (L->cp[cmp].open) { newVerts[cmp]--; }
 
     /* Colors are a bit tricky, since there are either 
        0 (no color info)
@@ -1783,11 +1857,12 @@ plCurve *plc_double_verts(plCurve *L)
 
     for(vt=0;vt<L->cp[cmp].nv;vt++) {
 
-      newL->cp[cmp].vt[2*vt] = L->cp[cmp].vt[vt]; 
-      newL->cp[cmp].vt[2*vt+1] = plc_vweighted(0.5,L->cp[cmp].vt[vt],L->cp[cmp].vt[vt+1]);
-      /* This looks like it will be out of range by one if the curves
-	 are open, but it's ok due to the extra space at the end of
-	 the buffers. */
+      plc_vector mps[2];
+      mpsverts(newL,cmp,vt,mps);
+
+      newL->cp[cmp].vt[2*vt]   = mps[0]; 
+      newL->cp[cmp].vt[2*vt+1] = mps[1];
+     
     } 
 
     if (newL->cp[cmp].cc == 1) {
@@ -1800,12 +1875,6 @@ plCurve *plc_double_verts(plCurve *L)
 
 	newL->cp[cmp].clr[2*vt+1] = newL->cp[cmp].clr[2*vt] = L->cp[cmp].clr[vt];
 	
-      }
-
-      if (!L->cp[cmp].open) {
-
-	newL->cp[cmp].clr[2*vt+1] = L->cp[cmp].clr[vt];
-
       }
 
     }

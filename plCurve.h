@@ -387,7 +387,7 @@ plc_vector plc_sample_spline(const plc_spline * const spL,
                              double s);
 
 /* Doubles the number of vertices of L by inserting new vertices at midpoints
-   of edges. Destructive to L. */
+   of edges. */
 plCurve *plc_double_verts(plCurve * L);
 
 
