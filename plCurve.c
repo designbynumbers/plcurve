@@ -1781,16 +1781,16 @@ void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
 
   if (normin < normout) {
 
-    sin2a = (normin/2.0) * sqrt( pow(normin/2.0,2.0) + pow(mr,2.0) );
-    cos2a = (mr) * sqrt( pow(normin/2.0,2.0) + pow(mr,2.0) );
+    sin2a = (normin/2.0) / sqrt( pow(normin/2.0,2.0) + pow(mr,2.0) );
+    cos2a = (mr) / sqrt( pow(normin/2.0,2.0) + pow(mr,2.0) );
     tana =  sin2a/(1 + cos2a);
 
     dist = (normin/2.0 - mr*tana); /* Actual distance from v1 to mpsverts. */
 
   } else {
 
-    sin2a = (normout/2.0) * sqrt( pow(normout/2.0,2.0) + pow(mr,2.0) );
-    cos2a = (mr) * sqrt( pow(normout/2.0,2.0) + pow(mr,2.0) );
+    sin2a = (normout/2.0) / sqrt( pow(normout/2.0,2.0) + pow(mr,2.0) );
+    cos2a = (mr) / sqrt( pow(normout/2.0,2.0) + pow(mr,2.0) );
     tana =  sin2a/(1 + cos2a);
 
     dist = (normout/2.0 - mr*tana); /* Actual distance from v1 to mpsverts. */
@@ -1858,7 +1858,7 @@ plCurve *plc_double_verts(plCurve *L)
     for(vt=0;vt<L->cp[cmp].nv;vt++) {
 
       plc_vector mps[2];
-      mpsverts(newL,cmp,vt,mps);
+      mpsverts(L,cmp,vt,mps);
 
       newL->cp[cmp].vt[2*vt]   = mps[0]; 
       newL->cp[cmp].vt[2*vt+1] = mps[1];
