@@ -1,5 +1,5 @@
 #!/bin/sh
-if [-e libtoolize]; then
+if [ -e libtoolize ]; then
  libtoolize
 else 
  glibtoolize
