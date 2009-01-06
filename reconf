@@ -1,4 +1,9 @@
 #!/bin/sh
+if [-e libtoolize]; then
+ libtoolize
+else 
+ glibtoolize
+fi
 rm -f config.cache
 aclocal
 autoconf
