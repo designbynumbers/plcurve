@@ -1745,12 +1745,16 @@ void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
     if (vt == 0) {
 
       mpsverts[0] = L->cp[cmp].vt[vt];
-      mpsverts[1] = plc_vweighted(0.66,L->cp[cmp].vt[vt],L->cp[cmp].vt[vt+1]);
+      mpsverts[1] = plc_vweighted(0.25,L->cp[cmp].vt[vt],L->cp[cmp].vt[vt+1]);
+
+      return;
 
     } else if (vt == L->cp[cmp].nv-1) {
 
-      mpsverts[0] = plc_vweighted(0.66,L->cp[cmp].vt[vt],L->cp[cmp].vt[vt-1]);
+      mpsverts[0] = plc_vweighted(0.75,L->cp[cmp].vt[vt-1],L->cp[cmp].vt[vt]);
       mpsverts[1] = L->cp[cmp].vt[vt];
+
+      return;
 
     }
 
