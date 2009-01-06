@@ -1,8 +1,8 @@
 #!/bin/sh
 if [ -e libtoolize ]; then
- libtoolize
+ libtoolize --force
 else 
- glibtoolize
+ glibtoolize --force
 fi
 rm -f config.cache
 aclocal
