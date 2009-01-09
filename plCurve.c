@@ -831,6 +831,16 @@ void plc_write(FILE *outfile, plCurve * const L) {
   free(cst_nums);
   cst_nums = NULL;
 
+
+  /* Don't forget to free the list of constraints */
+
+  cst = cst_list;
+  while (cst != NULL) {
+    cst_list = cst->next;
+    free(cst);
+    cst = cst_list;
+  }
+
   /* And we're done. */
   return;
 }
