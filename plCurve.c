@@ -1817,6 +1817,8 @@ plCurve *plc_double_verts(plCurve *L)
   int cmp,vt;
   int *newVerts,*newCc;
   bool *newOpen;
+
+  //  plc_fix_cst(L);
   
   newVerts = calloc(L->nc,sizeof(int)); assert(newVerts != NULL); 
   newCc = calloc(L->nc,sizeof(int)); assert(newCc != NULL);
@@ -1853,6 +1855,38 @@ plCurve *plc_double_verts(plCurve *L)
   newL = plc_new(L->nc,newVerts,newOpen,newCc);
   assert(newL != NULL);
 
+  /* We now attempt to translate the constraints from L to newL */
+
+  plc_constraint *thisCst;
+
+  for(thisCst = L->cst;thisCst != NULL;thisCst = thisCst->next) {
+
+    if (thisCst->kind == fixed) {
+
+      plc_set_fixed(newL,thisCst->cmp,thisCst->vert*2,thisCst->vect[0]);
+
+    } else if (thisCst->kind == line) {
+
+      plc_constrain_to_line(newL,thisCst->cmp,thisCst->vert*2,
+			    2*thisCst->num_verts-1,thisCst->vect[0],thisCst->vect[1]);
+    } else if (thisCst->kind == plane) {
+
+      if (thisCst->vert == L->cp[thisCst->cmp].nv-1) { // Last has a special meaning 
+
+	plc_constrain_to_plane(newL,thisCst->cmp,thisCst->vert*2+1,2*thisCst->num_verts-1,
+			       thisCst->vect[0],thisCst->vect[1].c[0]);
+
+      } else {
+
+	plc_constrain_to_plane(newL,thisCst->cmp,thisCst->vert*2,2*thisCst->num_verts-1,
+			       thisCst->vect[0],thisCst->vect[1].c[0]);
+	
+      }
+
+    } 
+
+  }
+
   /* Now we are ready to interpolate vertices */
 
   plc_fix_wrap(L); /* Just paranoia. This should do nothing. */
@@ -1886,6 +1920,7 @@ plCurve *plc_double_verts(plCurve *L)
   }
 
   plc_fix_wrap(newL);
+  //  plc_fix_cst(newL);
 
   free(newVerts); 
   free(newCc);
