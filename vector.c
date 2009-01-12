@@ -424,6 +424,7 @@ plc_vector plc_3plane_intersection(plc_vector N1, plc_vector P1,
 		   plc_dot_prod(P3,V3),plc_cross_prod(V1,V2));
   P = plc_scale_vect(1.0/det,P);
 
+  *ok = true;
   return P;
 }
    
