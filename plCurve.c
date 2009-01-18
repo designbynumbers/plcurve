@@ -1773,23 +1773,47 @@ void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
   /* Now we work on the real stuff. */
 
   plc_vector v0,v1,v2,in,out;
-  double mr,s0,s1,normin,normout,rad,dot_prod,cross_prod_norm;
+  double mr,s0,s1,normin,normout,rad,curv,mc,dot_prod,cross_prod_norm;
   double sin2a,cos2a,tana,dist;
 
   v0 = L->cp[cmp].vt[vt-1]; v1 = L->cp[cmp].vt[vt]; v2 = L->cp[cmp].vt[vt+1];
   in = plc_vect_diff(v1,v0); out = plc_vect_diff(v2,v1);
   normin = plc_norm(in); normout = plc_norm(out);
 
+  if (fabs(normin) < 1e-12 || fabs(normout) < 1e-12) {
+
+    /* If there are doubled vertices, we probably won't make the situation worse by adding more. */
+
+    mpsverts[0] = v1;
+    mpsverts[1] = v1;
+
+    return;
+    
+  }
+
   /* We now use the minrad formula. */
 
   dot_prod = plc_M_dot(in,out);
   cross_prod_norm = plc_norm(plc_cross_prod(in,out));
-      
+
+  curv = 2*cross_prod_norm/(normin*normout + dot_prod);      
   rad = (normin*normout + dot_prod)/(2*cross_prod_norm);
 
   /* Minrad is the least of normin * rad and normout * rad. */
+  /* We keep track of the reciprocal of minrad as well so that */
+  /* we can deal effectively with straight segments. */
 
+  mc = (normin < normout) ? (1/normin)*curv : (1/normout)*curv;
   mr = (normin < normout) ? normin * rad : normout * rad;
+
+  if (mc < 1e-3) {
+
+    mr = 1e3;  /* If minrad is too high, we simply compute as if it was 1000 */
+
+    /* We could have tested mr directly, instead of computing mc, but if the segments */
+    /* v0v1 and v1v2 are in a straight line, you get mr = nan and it doesn't work. */
+
+  }
 
   /* a is the angle between the contact point of the circle and the mpsvects */
 
