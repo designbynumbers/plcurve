@@ -1741,6 +1741,71 @@ void plc_drop_component(plCurve *L, const int cmp) {
 }
 /*@=compdef =usereleased@*/
 
+void plc_resize_colorbuf(plCurve *L,const int cp, const int cc)
+/* Change the size of the color buffer for a plCurve, preserving existing data if it exists */
+{
+  int i;
+  
+  if (cc == 0) { /* We are supposed to eliminate the color buffer, if it exists. */
+
+    if (L->cp[cp].cc == 0 && L->cp[cp].clr == NULL) { /* Nothing to do */
+
+      return;
+
+    } else {
+    
+      L->cp[cp].cc = 0;
+      free(L->cp[cp].clr); 
+      L->cp[cp].clr = NULL;
+
+      return;
+
+    }
+
+  } else {
+
+    if (L->cp[cp].cc == 0) { /* There is no existing data, and we are adding some. */
+
+      L->cp[cp].cc = cc;
+      L->cp[cp].clr = calloc(sizeof(plc_color),cc);
+      assert(L->cp[cp].clr != NULL);
+
+      return;
+
+    } else if (L->cp[cp].cc == 1) { /* There is a single color for the component already, copy it to all locations. */
+
+      L->cp[cp].cc = cc;
+      L->cp[cp].clr = realloc(L->cp[cp].clr,sizeof(plc_color)*cc);
+      assert(L->cp[cp].clr != NULL);
+
+      for(i=1;i<cc;i++) {
+
+	L->cp[cp].clr[i] = L->cp[cp].clr[0];
+
+      }
+
+      return;
+
+    } else { /* There is more than one vertex worth of information
+		present. We keep what we get under realloc, as we have
+		no meaningful way to downsample color information. */
+
+      L->cp[cp].cc = cc;
+      L->cp[cp].clr = realloc(L->cp[cp].clr,sizeof(plc_color)*cc);
+      assert(L->cp[cp].clr != NULL);
+
+      return;
+
+    }
+
+  }
+
+  printf("plc_resize_colorbuf: Library bug. Please report to cantarel@math.uga.edu.\n");
+
+}
+
+    
+
 void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
 
      /* Computes the pair of minrad preserving spline verts which 

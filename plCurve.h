@@ -276,6 +276,9 @@ void plc_add_component(plCurve *L, const int add_as, const int nv,
 /* And remove one */
 void plc_drop_component(plCurve *L, const int cmp);
 
+/* Change the size of the color buffer for a plCurve, preserving existing data if it exists */
+void plc_resize_colorbuf(plCurve *L, const int cp, const int cc);
+
 /* Set a constraint on a vertex or run of vertices */
 void plc_set_fixed(plCurve * const L,
                    const int cmp,
