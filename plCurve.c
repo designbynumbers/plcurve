@@ -1452,6 +1452,43 @@ int plc_vertex_num(const plCurve * const L, int cp, int vt)
   return wrapVt;
 }
 
+int plc_cp_num (const plCurve * const L, int wrapVt)
+
+{
+  int i;
+  assert(wrapVt < plc_num_verts(L));
+
+  for(i=0;i<L->nc;i++) {
+
+    wrapVt -= L->cp[i].nv;
+
+    if (wrapVt < 0) { return i; }
+
+  }
+
+  fprintf(stderr,"plCurve: Library error in plc_cp_num.\n");
+  exit(1); // We should never reach this point.
+
+}
+
+int plc_vt_num (const plCurve * const L, int wrapVt)
+
+{
+  int i;
+  assert(wrapVt < plc_num_verts(L));
+
+  for(i=0;i<L->nc;i++) {
+
+    if (wrapVt < L->cp[i].nv) { return wrapVt; }
+    wrapVt -= L->cp[i].nv;
+
+  }
+
+  fprintf(stderr,"plCurve: Library error in plc_vt_num.\n");
+  exit(1);
+
+}
+  
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert) {
 
