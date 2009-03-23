@@ -1428,6 +1428,30 @@ int plc_num_verts(const plCurve * const L) /*@modifies nothing@*/
   return verts;
 }
 
+/* Compute an index between 0 and plc_num_verts(L) - 1 for a (cp,vt) pair in a plCurve, 
+   using full wraparound addressing for closed components and repeating the last or first vertex 
+   for open ones. */
+int plc_vertex_num(const plCurve * const L, int cp, int vt)
+{
+  int wrapVt=0,i;
+
+  if (L->cp[cp].open) {
+
+    if (vt < 0) { wrapVt = 0; }
+    if (vt > L->cp[cp].nv-1) { wrapVt = L->cp[cp].nv-1; }
+
+  } else {
+
+    for(wrapVt = vt;wrapVt < 0;wrapVt += L->cp[cp].nv);  // Make sure we start with a non-negative index (for modular arithmetic)
+    wrapVt = wrapVt % L->cp[cp].nv;
+  
+  }
+
+  for(i=0;i<cp;i++) { wrapVt += L->cp[i].nv; }
+
+  return wrapVt;
+}
+
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert) {
 

@@ -335,6 +335,11 @@ int plc_edges(const plCurve * const L,
 /* Count the vertices in a plCurve */
 int plc_num_verts(const plCurve * const L);
 
+/* Compute an index between 0 and plc_num_verts(L) - 1 for a (cp,vt) pair in a plCurve, 
+   using full wraparound addressing for closed components and repeating the last or first vertex 
+   for open ones. */
+int plc_vertex_num(const plCurve * const L, int cp, int vt);
+
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert);
 
