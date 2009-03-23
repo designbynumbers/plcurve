@@ -1438,7 +1438,8 @@ int plc_vertex_num(const plCurve * const L, int cp, int vt)
   if (L->cp[cp].open) {
 
     if (vt < 0) { wrapVt = 0; }
-    if (vt > L->cp[cp].nv-1) { wrapVt = L->cp[cp].nv-1; }
+    else if (vt > L->cp[cp].nv-1) { wrapVt = L->cp[cp].nv-1; }
+    else { wrapVt = vt; }
 
   } else {
 

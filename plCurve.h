@@ -337,7 +337,8 @@ int plc_num_verts(const plCurve * const L);
 
 /* Compute an index between 0 and plc_num_verts(L) - 1 for a (cp,vt) pair in a plCurve, 
    using full wraparound addressing for closed components and repeating the last or first vertex 
-   for open ones. */
+   for open ones. We guarantee that these numbers occur consecutively in dictionary order 
+   on the pairs (cp,vt). */
 int plc_vertex_num(const plCurve * const L, const int cp, const int vt);
 
 /* Convert back from a vertex number given by plc_vertex_num to a (cp,vt) pair. */
