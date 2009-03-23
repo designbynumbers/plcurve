@@ -233,6 +233,34 @@ static inline plc_vector Closest_plane_point(const plc_vector point,
   return ret_vect;
 }
 
+double plc_s(const plCurve * const L, const int cmp, const int vert)
+/* Compute the arclength position of a vertex on a plCurve. */
+{
+  double s = 0,d;
+  int c,v;
+
+  for(c = 0;c < cmp;c++) {
+
+    for(v = 1;v <= L->cp[c].nv; v++) {
+
+      d = plc_M_sq_dist(L->cp[c].vt[v-1],L->cp[c].vt[v])  /* ok not to ; */
+      s += sqrt(d);	
+    
+    }
+
+  }
+
+  for(v=1;v <= vert; v++) {
+
+    d = plc_M_sq_dist(L->cp[c].vt[v-1],L->cp[c].vt[v]) /* ok not to ; */
+    s += sqrt(d);
+  
+  }
+
+  return s;
+
+} 
+
 /*
  * Check to see if the given constraint is satisfied and return value for
  * how far off it is.

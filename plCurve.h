@@ -365,6 +365,13 @@ double plc_arclength(const plCurve * const L,
 double plc_subarc_length(const plCurve * const L, const int cmp,
                          const int vert1, const int vert2);
 
+/* Find the arclength position of a vertex on the a plCurve. */
+/* On a multicomponent curve, s values add from 0 (0th vert, component 0) */
+/* to the total arclength of the curve (last vert, last component) */
+
+double plc_s(const plCurve * const L, const int cmp, const int vert);
+
+
 /* Return how far a constraint is from being satisfied (sup norm). */
 double plc_check_cst(const plCurve * const L);
 
