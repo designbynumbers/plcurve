@@ -792,9 +792,13 @@ void plc_write(FILE *outfile, plCurve * const L) {
     cst_num = 0;
     for (cst2 = cst_list; cst2 != NULL && !found; cst2 = cst2->next) {
       cst_num++;
+      // If we have duplicate constraints, we only record one. 
       if (cst->kind == cst2->kind &&
+	  cst->cmp == cst2->cmp &&             
           plc_M_vecteq(cst->vect[0],cst2->vect[0]) &&
-          plc_M_vecteq(cst->vect[1],cst2->vect[1])) {
+          plc_M_vecteq(cst->vect[1],cst2->vect[1]) &&
+	  cst->vert == cst2->vert &&
+	  cst->num_verts == cst2->num_verts) {
         found = true;
       }
     }
