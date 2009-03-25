@@ -279,6 +279,9 @@ void plc_drop_component(plCurve *L, const int cmp);
 /* Change the size of the color buffer for a plCurve, preserving existing data if it exists */
 void plc_resize_colorbuf(plCurve *L, const int cp, const int cc);
 
+/* Set the color of a plCurve to a single color */
+void plc_set_color(plCurve *L, const plc_color inColor);
+
 /* Set a constraint on a vertex or run of vertices */
 void plc_set_fixed(plCurve * const L,
                    const int cmp,
@@ -347,6 +350,11 @@ int plc_vt_num(const plCurve * const L, int wrapVt);
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert);
+
+/* Find total curvature for plCurve, including value for each component */
+/* if component_tc is non-null. */
+double plc_totalcurvature(const plCurve * const L,
+/*@null@*/ /*@out@*/ double *component_tc);
 
 /* Copy a plCurve */
 plCurve *plc_copy(const plCurve * const L);

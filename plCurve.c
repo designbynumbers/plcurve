@@ -1553,6 +1553,42 @@ double plc_MR_curvature(plCurve * const L, const int cmp, const int vert) {
   return kappa;
 }
 
+/* Find total curvature for plCurve, including value for each component */
+/* if component_tc is non-null. */
+double plc_totalcurvature(const plCurve * const L,
+/*@null@*/ /*@out@*/ double *component_tc)
+
+{
+  int cp,vt;
+  double tk = 0,angle;
+  bool ok;
+
+  for(cp=0;cp<L->nc;cp++) {
+
+    for (vt=0;vt<L->cp[cp].nv;vt++) {
+
+      angle = plc_angle(plc_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt]),
+			plc_vect_diff(L->cp[cp].vt[vt]  ,L->cp[cp].vt[vt-1]),
+			&ok);
+
+      if (!ok) { angle = 0; }  // This is expected at the start and end of open components. 
+
+      if (component_tc != NULL) {
+  
+	component_tc[cp] += angle;
+
+      }
+
+      tk += angle;
+
+    }
+
+  }
+
+  return tk;
+
+}
+	
 /*
  * Duplicate a plCurve and return the duplicate.
  *
@@ -1898,6 +1934,26 @@ void plc_resize_colorbuf(plCurve *L,const int cp, const int cc)
 
 }
 
+
+void plc_set_color( plCurve *inLink, const plc_color inColor )
+
+     /* Colors the curve one solid color. */
+
+{
+
+  int cItr,colItr;
+
+  for(cItr=0;cItr<inLink->nc;cItr++) {
+
+    for(colItr=0;colItr<inLink->cp[cItr].cc;colItr++) {
+
+      inLink->cp[cItr].clr[colItr] = inColor;
+
+    }
+
+  }
+
+}
     
 
 void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])

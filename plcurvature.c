@@ -161,6 +161,26 @@ int main(int argc, char *argv[]) {
 
   }
 
+  /* Now display total curvature information. */
+
+  double tk,*tkc;
+
+  tkc = calloc(sizeof(double),L->nc);
+  tk = plc_totalcurvature(L,tkc);
+
+  printf("total curvature (all components): %g (%g pi)\n",tk,tk/3.1415926);
+  
+  printf("total curvature (by component):");
+
+  for(cp=0;cp<L->nc;cp++) {
+
+    printf(" %g (%g pi) ",tkc[cp],tkc[cp]/3.1415926);
+
+  }
+  
+  printf("\n");
+  free(tkc);
+  
   /* Done writing, now we close the files and exit. */
 
   plc_free(L);
