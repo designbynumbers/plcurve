@@ -2239,3 +2239,64 @@ void plc_scale( plCurve *link, const double alpha)
    
 }   
 
+void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
+
+/* Fold a portion of a plcurve by a given angle. */
+
+{
+  assert(cp >= 0 && cp < link->nc);
+  assert(vt0 >= -1 && vt0 <= link->cp[cp].nv);
+  assert(vt1 >= -1 && vt1 <= link->cp[cp].nv);
+  assert(!plc_M_vecteq(link->cp[cp].vt[vt0],link->cp[cp].vt[vt1]));
+
+  int swap;
+  
+  if (vt0 == vt1) { return; }
+  if (vt1 < vt0) { swap = vt0; vt0 = vt1; vt1 = swap; }
+
+  /* We have now arranged for a legal run of verts from vt0 to vt1 to operate on. */
+
+  plc_vector axis;
+
+  axis = plc_normalize_vect(plc_vect_diff(link->cp[cp].vt[vt1],
+					  link->cp[cp].vt[vt0]),NULL);
+
+  int vt;
+
+  for(vt=vt0+1;vt<vt1;vt++) {
+
+    plc_vector temp,par,nor,binor;
+
+    /* First, recenter with respect to one end of the axis of rotation. */
+
+    temp = plc_vect_diff(link->cp[cp].vt[vt],link->cp[cp].vt[vt0]);
+
+    /* Now, split into parallel and normal components. */
+
+    par = plc_scale_vect(plc_dot_prod(temp,axis),axis);
+    nor = plc_vect_diff(temp,par);
+
+    /* Now find third vector for axis, nor, binor frame */
+
+    bool ok;
+
+    binor = plc_normalize_vect(plc_cross_prod(axis,nor),&ok);
+    if (!ok) {continue;} 
+    /* This means the point is on the axis, so nor = 0. 
+       This point shouldn't move, so skip it. No problem. */
+
+    plc_vector newnor;
+
+    newnor = plc_vlincomb(cos(angle),nor,sin(angle),binor);
+
+    /* Now we can reassemble the original vector. */
+
+    link->cp[cp].vt[vt] = plc_vect_sum(plc_vect_sum(newnor,par),link->cp[cp].vt[vt0]);
+
+  }
+
+  /* Finally, we changed vertices, so we need to */
+
+  plc_fix_wrap(link);
+
+}

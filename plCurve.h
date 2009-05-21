@@ -426,6 +426,10 @@ double plc_pointset_diameter(const plCurve * const L);
 /* Scale a plCurve (and its' constraints!) by a factor. */
 void plc_scale( plCurve *link, const double alpha);  
 
+/* Perform a ``fold'' move on a plCurve */
+void plc_pfm( plCurve *link, int cp, int vt0, int vt1, double angle);
+ 
+
 /* Define the error codes */
 #define PLC_E_NO_VECT       1
 #define PLC_E_BAD_CVC_LINE  2
