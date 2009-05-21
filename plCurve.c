@@ -2244,7 +2244,7 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
 /* Fold a portion of a plcurve by a given angle. */
 
 {
-  assert(cp >= 0 && cp < link->nc);
+  assert(cp >= 0  && cp < link->nc);
   assert(vt0 >= -1 && vt0 <= link->cp[cp].nv);
   assert(vt1 >= -1 && vt1 <= link->cp[cp].nv);
   assert(!plc_M_vecteq(link->cp[cp].vt[vt0],link->cp[cp].vt[vt1]));
