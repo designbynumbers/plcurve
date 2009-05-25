@@ -2277,6 +2277,7 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
     nor = plc_vect_diff(temp,par);
 
     /* Now find third vector for axis, nor, binor frame */
+    /* Remember that this is NOT a unit frame, since nor is not unit. */
 
     bool ok;
 
@@ -2285,9 +2286,13 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
     /* This means the point is on the axis, so nor = 0. 
        This point shouldn't move, so skip it. No problem. */
 
+    binor = plc_scale_vect(plc_norm(nor),binor);
+    /* We make the binormal the same size as the normal. */
+
     plc_vector newnor;
 
     newnor = plc_vlincomb(cos(angle),nor,sin(angle),binor);
+    /* Newnor should have the same norm as nor and binor */
 
     /* Now we can reassemble the original vector. */
 
