@@ -1,0 +1,101 @@
+#!/usr/bin/perl -w
+
+(-e "ninator.prl") || die("Need ninator.prl, can't find it here.\n");
+(-e "lmpoly") || die("Need lmpoly, can't find it here.\n");
+(-e "compEric") || die("Need compEric, can't find it here.\n");
+
+$numargs = scalar(@ARGV);
+
+($numargs == 1) || die("Useage: getHomflyFromMingFile.prl knotfile\n");
+
+$infile = $ARGV[0];
+
+(-e "$infile") || die("The file $infile does not exist\n");
+open(IN,"$infile") || die("Can't open $infile\n");
+
+chomp($line = <IN>);
+
+$line =~ s/\{//g;
+$line =~ s/\}//g;
+$edges = $line;
+
+# print("$edges Edges\n");
+
+open(RES,">res.pts") || die("Can't open res.pts\n");
+
+##########################
+# Convert ming to ken
+##########################
+for($k=0; $k<$edges; $k++){
+    chomp($line[$k] = <IN>);
+    
+    @fields = split(/\s+/,$line[$k]);
+    
+    $resline = sprintf("  %21.17f  %21.17f  %21.17f", $fields[0], $fields[1], $fields[2]);
+    
+    print RES ("$resline\n");
+}
+close(RES);
+<IN>;
+
+##########################
+# make sure res.pts exists
+##########################
+
+(-e "res.pts") || die("getHomfly.prl: res.pts does not exist, dead.\n");
+
+###############
+# Housecleaning
+###############
+
+(!(-e "zkdata")) || unlink("zkdata");
+(!(-e "zmatrix")) || unlink("zmatrix");
+(!(-e "zpoints")) || unlink("zpoints");
+(!(-e "lmknot.out")) || unlink("lmknot.out");
+
+$numedges = $edges;
+
+###########################
+# create comp516 pipe line
+###########################
+
+# recall comp516 input format:
+# 	# of edges
+# 	# of reps  (needs to be at least 1)
+# 	use restart? 1 yes, 0 no (we use 1 because we want to use res.pts)
+# 	save points in zpoints? 1/0 (no, so 0)
+# 	random seed, integer (useless, we set to 12345)
+# 	ropelength (useless here, we set to 30, but don't know why)
+# 	radius of perturbation (set to 0 to use this config)
+#
+# Note: comp516 makes the zmatrix file (also zkdata and zpoints, don't need)
+
+$line = "$numedges\n1\n1\n1\n12345\n30\n0.01\n";
+# $line = "$numedges\n1\n1\n0\n12345\n30\n0.01\n";
+
+# print("$line");
+
+open(PIPE,"| ./compEric > /dev/null");
+print PIPE ("$line");
+close(PIPE);
+
+# $output = `wc -l zmatrix`;
+
+# This will put the homfly polynomial in lmknot.out.
+# We cleared that out before.  The file will have a header line that
+# we don't care about (ACN and RGN).
+
+system("./lmpoly zmatrix");
+
+
+########################################
+# Now use Piatek notation for the HOMFLY
+########################################
+
+$nline = `./ninator.prl < lmknot.out`;
+
+
+print("$nline");
+
+
+close(IN);
