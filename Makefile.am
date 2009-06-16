@@ -7,9 +7,9 @@ noinst_LTLIBRARIES = libplCurve_cov.la
 check_PROGRAMS = run_tests exit_failure_tests
 
 if HAVE_ARGTABLE2
-bin_PROGRAMS = knot_diagram resample plcurvature 
+bin_PROGRAMS = knot_diagram resample plcurvature plcompEric
 else 
-bin_PROGRAMS = knot_diagram
+bin_PROGRAMS = knot_diagram plcompEric
 endif
 
 noinst_PROGRAMS = spline_view gcov_tests
@@ -26,11 +26,11 @@ EXTRA_DIST = bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
 
 LDADD = libplCurve.la
 
-libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
+libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c plcTopology.c 
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
-libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c
+libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c plcTopology.c
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c 
@@ -40,7 +40,7 @@ libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 libnplCurve_safe_la_SOURCES = nplCurve.c nplCurve.h nvector.c 
 libnplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
-libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c 
+libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c plcTopology.c 
 libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 libplCurve_cov_la_LDFLAGS = -static -fprofile-arcs
 
@@ -73,5 +73,6 @@ plcurvature_SOURCES = plcurvature.c libplCurve_safe.la
 plcurvature_LDADD = libplCurve_safe.la
 plcurvature_LDFLAGS = -static -largtable2
 
+plcompEric_SOURCES = compEric.f
 
 
