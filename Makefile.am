@@ -73,6 +73,7 @@ plcurvature_SOURCES = plcurvature.c libplCurve_safe.la
 plcurvature_LDADD = libplCurve_safe.la
 plcurvature_LDFLAGS = -static -largtable2
 
+FFLAGS = -g 
 plcompEric_SOURCES = compEric.f
 
 
