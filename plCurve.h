@@ -428,8 +428,46 @@ void plc_scale( plCurve *link, const double alpha);
 
 /* Perform a ``fold'' move on a plCurve */
 void plc_pfm( plCurve *link, int cp, int vt0, int vt1, double angle);
- 
 
+/* plCurve Topology Library */
+
+/* This contains some functionality designed to work with plCurves as knots,
+   including converting them to an abstract ``crossing'' representation, 
+   computing their HOMFLY polynomials (using lmpoly) and identifying their
+   knot types (by HOMFLY). */
+
+/* The Millett/Ewing representation of a knot diagram numbers the
+   crossings from 0 to ncrossings-1 and then stores for each crossing
+   the crossing connected to each arc coming from the crossing in the
+   order
+
+        0
+	|
+	|
+   1----|--->3
+        |
+	|
+	V
+        2
+
+   So a crossing code representation of a plCurve is a buffer of
+   arrays of 4 integers where codes[i][j] stores the crossing
+   connected to arc j of crossing i.
+*/
+
+typedef struct ccode_struct {
+
+  int ncr;            /* Number of crossings */
+  int *(codes[4]);    /* The actual crossing codes. */
+
+} ccode;
+
+/* Convert a plCurve to Millett/Ewing crossing code. */
+void plc_ccode( plCurve *L, ccode **code);
+
+/* Compute the HOMFLY polynomial of a plCurve (returned as string) */
+void plc_homfly( plCurve *L, char **homfly);
+ 
 /* Define the error codes */
 #define PLC_E_NO_VECT       1
 #define PLC_E_BAD_CVC_LINE  2

@@ -1,42 +1,44 @@
 #!/usr/bin/perl -w
 
-(-e "ninator.prl") || die("Need ninator.prl, can't find it here.\n");
+# (-e "ninator.prl") || die("Need ninator.prl, can't find it here.\n");
 (-e "lmpoly") || die("Need lmpoly, can't find it here.\n");
 (-e "compEric") || die("Need compEric, can't find it here.\n");
 
-$numargs = scalar(@ARGV);
+#$numargs = scalar(@ARGV);
 
-($numargs == 1) || die("Useage: getHomflyFromMingFile.prl knotfile\n");
+#($numargs == 1) || die("Useage: getHomflyFromMingFile.prl knotfile\n");
 
-$infile = $ARGV[0];
+#$infile = $ARGV[0];
 
-(-e "$infile") || die("The file $infile does not exist\n");
-open(IN,"$infile") || die("Can't open $infile\n");
+#(-e "$infile") || die("The file $infile does not exist\n");
+#open(IN,"$infile") || die("Can't open $infile\n");
 
-chomp($line = <IN>);
+#chomp($line = <IN>);
 
-$line =~ s/\{//g;
-$line =~ s/\}//g;
-$edges = $line;
+#$line =~ s/\{//g;
+#$line =~ s/\}//g;
+#$edges = $line;
 
-# print("$edges Edges\n");
+$edges = 400;
 
-open(RES,">res.pts") || die("Can't open res.pts\n");
+print("$edges Edges\n");
+
+#open(RES,">res.pts") || die("Can't open res.pts\n");
 
 ##########################
 # Convert ming to ken
 ##########################
-for($k=0; $k<$edges; $k++){
-    chomp($line[$k] = <IN>);
+#for($k=0; $k<$edges; $k++){
+#    chomp($line[$k] = <IN>);
     
-    @fields = split(/\s+/,$line[$k]);
+#    @fields = split(/\s+/,$line[$k]);
     
-    $resline = sprintf("  %21.17f  %21.17f  %21.17f", $fields[0], $fields[1], $fields[2]);
+#    $resline = sprintf("  %21.17f  %21.17f  %21.17f", $fields[0], $fields[1], $fields[2]);
     
-    print RES ("$resline\n");
-}
-close(RES);
-<IN>;
+#    print RES ("$resline\n");
+#}
+#close(RES);
+#<IN>;
 
 ##########################
 # make sure res.pts exists
@@ -92,10 +94,10 @@ system("./lmpoly zmatrix");
 # Now use Piatek notation for the HOMFLY
 ########################################
 
-$nline = `./ninator.prl < lmknot.out`;
+# $nline = `./ninator.prl < lmknot.out`;
 
 
-print("$nline");
+#print("$nline");
 
 
-close(IN);
+#close(IN);
