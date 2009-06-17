@@ -65,7 +65,7 @@ AC_CHECK_LIB(argtable2,arg_parse,[have_argtable2=true],[have_argtable2=false])
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
-                  time.h argtable2.h])
+                  time.h argtable2.h sys/times.h sys/types.h fcntl.h])
 
 # Signal to AUTOMAKE if we have argtable2
 

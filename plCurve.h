@@ -437,36 +437,42 @@ void plc_pfm( plCurve *link, int cp, int vt0, int vt1, double angle);
    knot types (by HOMFLY). */
 
 /* The Millett/Ewing representation of a knot diagram numbers the
-   crossings from 0 to ncrossings-1 and then stores for each crossing
+   crossings from 1 to ncrossings and then stores for each crossing
    the crossing connected to each arc coming from the crossing in the
    order
 
-        0
+        a
 	|
 	|
-   1----|--->3
+    b---|-->d
         |
-	|
 	V
-        2
+        c
 
-   So a crossing code representation of a plCurve is a buffer of
-   arrays of 4 integers where codes[i][j] stores the crossing
-   connected to arc j of crossing i.
+   So a crossing code representation of a plCurve is a char buffer 
+   containing lines of the form
+
+   17+2b10c11c31a
+
+   meaning that crossing 17 is a positive crossing 
+
+   connected in the a position to the b position of crossing 2,
+   connected in the b position to the c position of crossing 10,
+   connected in the c position to the c position of crossing 11 and
+   connected in the d position to the a position of crossing 31.
+
+   In order to simplify communication with the lmpoly code of Ewing
+   and Millett, we store the crossing code as a standard (0
+   terminated) string, including newlines. We will read from 
+   that string using a replacement version of the "read" primitive.
+
 */
 
-typedef struct ccode_struct {
-
-  int ncr;            /* Number of crossings */
-  int *(codes[4]);    /* The actual crossing codes. */
-
-} ccode;
-
 /* Convert a plCurve to Millett/Ewing crossing code. */
-void plc_ccode( plCurve *L, ccode **code);
+char *plc_ccode( plCurve *L);
 
 /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
-void plc_homfly( plCurve *L, char **homfly);
+char *plc_homfly( plCurve *L);
  
 /* Define the error codes */
 #define PLC_E_NO_VECT       1
