@@ -169,7 +169,19 @@ char *plc_ccode( plCurve *L )
 
 }
 
-  
+char *plc_homfly( plCurve *L) 
+/* Compute homfly polynomial by calling the hidden plc_lmpoly function */
+
+{
+  char *ccode;
+  char *homfly;
+
+  ccode = plc_ccode(L);
+  homfly = plc_lmpoly(ccode);
+  free(ccode);
+
+  return homfly;
+}
 
   
   

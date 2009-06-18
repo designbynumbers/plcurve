@@ -116,7 +116,7 @@ int strwrite(char *str,char *buffer,size_t size)
 }
 
 
-char *lmpoly(char *code)
+char *plc_lmpoly(char *code)
 {
  register short i, j, k, h, m, n, *sp;
  register unsigned char *p, *c;
@@ -371,9 +371,12 @@ NEWNOT:
 
     /* write out polynomial for knot just completed */
     
-    strwrite(outpoly,(char *)(nbuf),strlen((char *)(nbuf)));
-    strwrite(outpoly," ",1);
-   
+    /* These lines would copy the first line of the crossing code into 
+       the output. We don't need this, so we forget it */
+ 
+    /*strwrite(outpoly,(char *)(nbuf),strlen((char *)(nbuf)));
+      strwrite(outpoly," ",1); */
+ 
     /*
     if (count[2]<0) write (out,"program error: knot became inconsistent\n",40);
     if (count[1]!=0) write (out,"coefficient overflow error: output BAD\n",39);
@@ -443,12 +446,13 @@ NEWNOT:
   close (out);
  }
  i= XCNT;
- while (i!=0) count[--i]=0;
+ while (i!=0) count[--i]=0; /* Erase the count buffer */
  c=s;
- *nbuf=0;
+ *nbuf=0;                   /* Erase the nbuf string? */
  if (*c!='1' || (*(c+1)!='+' && *(c+1)!='-')){
+  /* Copy first line of 's' into nbuf */ 
   p= nbuf;
-  while (*c!='\n' && *c!= EOFCHR) *(p++)= *(c++);
+  while (*c!='\n' && *c!= EOFCHR) *(p++)= *(c++); 
   *p= 0;
   /* if (*c != EOFCHR && stats>0){ */
 /*    lseek (stats,(long) 0,0); */
