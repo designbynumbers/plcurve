@@ -95,7 +95,7 @@ char *plc_ccode( plCurve *L )
 
   for(vt=0;vt<L->cp[0].nv;vt++) {
 
-    fprintf(resfile,"%21.17f  %21.17f  %21.17f \n",
+    fprintf(resfile,"  %21.17f  %21.17f  %21.17f\n",
 	    plc_M_clist(L->cp[0].vt[vt]));
 
   }

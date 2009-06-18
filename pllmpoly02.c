@@ -52,6 +52,11 @@
 
 #define MAXPOLY  12000     /* Maximum # of characters for output poly */
 
+/* globals */
+
+int readpos = 0;
+int writepos = 0;
+
 long plybuf[XCNTSQ], *poly[XCNT], notbeg, count[XCNT], b[XCNT+1];
 unsigned char sign[XCNT], donlnk[XCNT+1], t[XCNT+2], crsbuf[XCNT+1][8];
 unsigned char buf[XCSQTR], cbuf[10242], clist[XCNT+2], stc[XCNT*2];
@@ -71,14 +76,13 @@ int strread(char *str,void *buffer,size_t size)
 /* We don't copy the terminating NULL from str. */
 
 {
-  static int strpos = 0;
   int ctried,cread;
 
   for(ctried=0,cread=0;ctried < size;ctried++) {
 
-    if (str[strpos] != 0) {
+    if (str[readpos] != 0) {
 
-      ((char *) buffer)[cread++] = str[strpos++];
+      ((char *) buffer)[cread++] = str[readpos++];
       
     }
 
@@ -94,14 +98,13 @@ int strwrite(char *str,char *buffer,size_t size)
 /*   the string. */
 
 {
-  static int strpos = 0;
   int ctried,cwrote;
 
   for(ctried=0,cwrote=0;ctried < size;ctried++) {
 
-    str[strpos++] = buffer[cwrote++];
+    str[writepos++] = buffer[cwrote++];
 
-    if (strpos > MAXPOLY-1) {
+    if (writepos > MAXPOLY-1) {
 
       printf("lmpoly: Output polynomial larger than %d characters.\n",
 	     MAXPOLY);
@@ -126,8 +129,10 @@ char *plc_lmpoly(char *code)
  unsigned char nbuf[82], *q, *s;
  struct tms hi;
  char *outpoly;
-
+ 
  outpoly = calloc(MAXPOLY,sizeof(char)); // Space for a large polynomial
+ readpos = 0;  // Reset the globals
+ writepos = 0;
 
  maxcrs=XCNT;    /* maximum crossings in a knot, including all limits */
  chksiz= 50;     /* knot size trigger where bilion is checked, stats printed */
@@ -227,7 +232,7 @@ NEWFIL:
   close (stats);
   unlink(t);
  }
- if (--argc==0) exit(0); */
+ if (--argc==0) exit(0); /* This was the exit point for the program */
 
  /* We also comment out some "restart" code since we aren't restarting */
 
@@ -443,7 +448,8 @@ NEWNOT:
     }
   }
   strwrite (outpoly," ",1);
-  close (out);
+  /* close(out); */ /* We are done writing the polynomial, so return */
+  return outpoly;  
  }
  i= XCNT;
  while (i!=0) count[--i]=0; /* Erase the count buffer */
