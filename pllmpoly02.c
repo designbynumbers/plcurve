@@ -50,11 +50,18 @@
 #define EOFCHR       0     /* integer value of my "end of file" character */
 #define MAXBIL   32767     /* positive value where overflow warning triggers */
 
+#define MAXPOLY  12000     /* Maximum # of characters for output poly */
+
 long plybuf[XCNTSQ], *poly[XCNT], notbeg, count[XCNT], b[XCNT+1];
 unsigned char sign[XCNT], donlnk[XCNT+1], t[XCNT+2], crsbuf[XCNT+1][8];
 unsigned char buf[XCSQTR], cbuf[10242], clist[XCNT+2], stc[XCNT*2];
 short numcrs, numlps, poslnk, neglnk, lowx, restrt, gapsto[65];
 short tt[XCNT+2], bstlst[XCNT], bilbuf[XCNTSQ], *bilion[XCNT], suplng;
+
+/* Prototypes for later functions */
+
+void mypause(int sig);
+int  ntc(long i,char *buf);
 
 int strread(char *str,void *buffer,size_t size)
 
@@ -80,6 +87,35 @@ int strread(char *str,void *buffer,size_t size)
   return cread;
 }
 
+int strwrite(char *str,char *buffer,size_t size)
+
+/*   Writes size characters from buffer to str. Returns the number of  */
+/*   characters written. We keep a static counter of where we are in   */
+/*   the string. */
+
+{
+  static int strpos = 0;
+  int ctried,cwrote;
+
+  for(ctried=0,cwrote=0;ctried < size;ctried++) {
+
+    str[strpos++] = buffer[cwrote++];
+
+    if (strpos > MAXPOLY-1) {
+
+      printf("lmpoly: Output polynomial larger than %d characters.\n",
+	     MAXPOLY);
+
+      exit(1);
+
+    }
+
+  }
+
+  return cwrote;
+}
+
+
 char *lmpoly(char *code)
 {
  register short i, j, k, h, m, n, *sp;
@@ -89,6 +125,10 @@ char *lmpoly(char *code)
  short g, xpow, ypow, dspair[4], maxcrs, chksiz, nopro, skflag;
  unsigned char nbuf[82], *q, *s;
  struct tms hi;
+ char *outpoly;
+
+ outpoly = calloc(MAXPOLY,sizeof(char)); // Space for a large polynomial
+
  maxcrs=XCNT;    /* maximum crossings in a knot, including all limits */
  chksiz= 50;     /* knot size trigger where bilion is checked, stats printed */
  *sign= 255;      /* do 3 tests on the machine to verify trick operation */
@@ -132,14 +172,15 @@ char *lmpoly(char *code)
  // exit (1);
  //}
 
- if ((out=open("lmknot.out",1))== -1){
-  if ((out=creat("lmknot.out",0644))== -1){
-   write (1,"fatal: cannot create output file 'lmknot.out'\n",46);
-   exit (1);
-  }
- }
- else lseek (out,(long) 0,2);
- close (out);
+ /* if ((out=open("lmknot.out",1))== -1){ */
+/*   if ((out=creat("lmknot.out",0644))== -1){ */
+/*    write (1,"fatal: cannot create output file 'lmknot.out'\n",46); */
+/*    exit (1); */
+/*   } */
+/*  } */
+/*  else lseek (out,(long) 0,2); */
+/*  close (out); */
+
  *count= restrt= i= j= kstrt= nopro= 0;
  stats= -1;
 
@@ -159,7 +200,7 @@ char *lmpoly(char *code)
   } */
 
 
- signal(SIGTERM,pause); // Not sure what this does.
+ signal(SIGTERM,mypause); // Not sure what this does.
 
  lp1= plybuf;
  sp= bilbuf;
@@ -190,7 +231,7 @@ NEWFIL:
 
  /* We also comment out some "restart" code since we aren't restarting */
 
- /*if (restrt!=0){           /* if I am restarting an old calculation 
+ /*if (restrt!=0){           // if I am restarting an old calculation 
   if ((in=open("lmpoly.restrt",0))== -1){
    write (1,"couldn't find restart file\n",27);
    exit (0);
@@ -252,7 +293,7 @@ NEWFIL:
    write (stats,"\n",1);
   }
   restrt=0;
-  goto STEP1; /* restart file has set up all NEWNOT data already 
+  goto STEP1; // restart file has set up all NEWNOT data already 
  }
  */
 
@@ -319,59 +360,86 @@ NEWNOT:
    while (--i!=0 && *lp1==0 && *(sp++)==0) ++lp1;
   }
   if (i!=0){
-   if ((out= open("lmknot.out",1))<0) out=open("temp.out",1);
-   lseek (out,(long) 0,2);
-   write (out,nbuf,strlen(nbuf));
-   write (out,"\n",1);     /* write out polynomial for knot just completed */
-   if (count[2]<0) write (out,"program error: knot became inconsistent\n",40);
-   if (count[1]!=0) write (out,"coefficient overflow error: output BAD\n",39);
-   len=m= -1;
-   while (m++!=k){
-    if (lowx== (i=0)) write (out,"[",1);
+    
+    /* Original code: 
+       
+       if ((out= open("lmknot.out",1))<0) out=open("temp.out",1);
+       
+       lseek (out,(long) 0,2);
+       write (out,nbuf,strlen(nbuf));
+       write (out,"\n",1); */
+
+    /* write out polynomial for knot just completed */
+    
+    strwrite(outpoly,(char *)(nbuf),strlen((char *)(nbuf)));
+    strwrite(outpoly," ",1);
+   
+    /*
+    if (count[2]<0) write (out,"program error: knot became inconsistent\n",40);
+    if (count[1]!=0) write (out,"coefficient overflow error: output BAD\n",39);
+    */
+
+    if (count[2]<0) { 
+
+      printf("lmpoly: knot became inconsistent.\n");
+      exit(1);
+
+    }
+
+    if (count[1]!=0) {
+
+      printf("lmpoly: coefficient overflow error.\n");
+      exit(1);
+
+    }
+      
+    len=m= -1;
+    while (m++!=k){
+    if (lowx== (i=0)) strwrite (outpoly,"[",1);
     n= XCNT-m-1;
     j= n*2;
     while (j!=n && poly[m][j]==0 && bilion[m][j]==0) --j;
     while (i!=n && poly[m][i]==0 && bilion[m][i]==0) ++i;
     if (len==0 || lowx>=0 || i!=j || poly[m][i]!=0 || bilion[m][i]!=0){
-     while (i<=j){
-      if (i==n) write (out,"[",1);
-      h=0;
-      lngi= poly[m][i];
-      if (lngi>=cmpval || lngi<= -cmpval){
-       h= lngi/cmpval;
-       lngi-= h* cmpval;
+      while (i<=j){
+	if (i==n) strwrite (outpoly,"[",1);
+	h=0;
+	lngi= poly[m][i];
+	if (lngi>=cmpval || lngi<= -cmpval){
+	  h= lngi/cmpval;
+	  lngi-= h* cmpval;
+	}
+	h+= bilion[m][i];
+	if (h*lngi <0){   /* bilion and poly are different signs */
+	  if (h<0){
+	    lngi-= cmpval;
+	    ++h;
+	  }
+	  else {
+	    lngi+= cmpval;
+	    --h;
+	  }
+	}
+	if (h!=0){
+	  if (lngi<0) lngi= -lngi;
+	  strwrite (outpoly,t,ntc((long) h,t));
+	  len= ntc(lngi,t);
+	  if (cmpval==10000) len2= 4-len;
+	  else len2= 9-len;
+	  strwrite (outpoly,"00000000",len2);
+	  strwrite (outpoly,t,len);
+	}
+	else strwrite (outpoly,t,ntc(lngi,t));
+	if (i++ ==n) strwrite (outpoly,"]",1);
+	if (i<=j) strwrite (outpoly," ",1);
       }
-      h+= bilion[m][i];
-      if (h*lngi <0){   /* bilion and poly are different signs */
-       if (h<0){
-        lngi-= cmpval;
-        ++h;
-       }
-       else {
-        lngi+= cmpval;
-        --h;
-       }
-      }
-      if (h!=0){
-       if (lngi<0) lngi= -lngi;
-       write (out,t,ntc((long) h,t));
-       len= ntc(lngi,t);
-       if (cmpval==10000) len2= 4-len;
-       else len2= 9-len;
-       write (out,"00000000",len2);
-       write (out,t,len);
-      }
-      else write (out,t,ntc(lngi,t));
-      if (i++ ==n) write (out,"]",1);
-      if (i<=j) write (out," ",1);
-     }
-     if (lowx== (len=0)) write (out,"]",1);
-     write (out,"\n",1);
+      if (lowx== (len=0)) strwrite (outpoly,"]",1);
+      strwrite (outpoly," ",1);
     }
     ++lowx;
-   }
+    }
   }
-  write (out,"\n",1);
+  strwrite (outpoly," ",1);
   close (out);
  }
  i= XCNT;
@@ -382,27 +450,32 @@ NEWNOT:
   p= nbuf;
   while (*c!='\n' && *c!= EOFCHR) *(p++)= *(c++);
   *p= 0;
-  if (*c != EOFCHR && stats>0){
-   lseek (stats,(long) 0,0);
-   write (stats,nbuf,strlen(nbuf));
-   write (stats,"\n",1);
-  }
+  /* if (*c != EOFCHR && stats>0){ */
+/*    lseek (stats,(long) 0,0); */
+/*    write (stats,nbuf,strlen(nbuf)); */
+/*    write (stats,"\n",1); */
+/*   } */
  }
  if (*c=='\n') ++c;
  p= *crsbuf;
  while (*c!='\n' && *c!=EOFCHR){
   if (numcrs==maxcrs){
-   write (1,"too many crossings in knot\n",27);
-   goto NEWFIL;
+    //write (1,"too many crossings in knot\n",27);
+    printf("lmpoly: too many crossings in knot\n");
+    free(outpoly);
+    return NULL;
   }
   while (*c>='0' && *c<='9') ++c;
   if (*c=='+') sign[numcrs]=6;      /* sign[] says what crossings are + or - */
   else if (*c=='-') sign[numcrs]=2;
   else if (*c==EOFCHR) --c;
   else {
-   write (1,"the format of this knot is unreadable, skipping file\n",53);
-   close (in);
-   goto NEWFIL;
+    //write (1,"the format of this knot is unreadable, skipping file\n",53);
+    //close (in);
+    //goto NEWFIL;
+    printf("lmpoly: Could not parse input string.\n");
+    free(outpoly);
+    return NULL;
   }
   ++c;
   j=4;
@@ -412,16 +485,22 @@ NEWNOT:
     i+= *(c++)-0x30;
    }
    if (i==0){
-    write (1,"the format of this knot is unreadable, skipping file\n",53);
-    close (in);
-    goto NEWFIL;
+     //write (1,"the format of this knot is unreadable, skipping file\n",53);
+     //close (in);
+     //goto NEWFIL;
+     printf("lmpoly: Could not parse input string.\n");
+     free(outpoly);
+     return NULL;
    }
    *(p++)= i-1;
    if (*c!=EOFCHR){
     if (*c<'a' || *c>'d'){
-     write (1,"the format of this knot is unreadable, skipping file\n",53);
-     close (in);
-     goto NEWFIL;
+      //write (1,"the format of this knot is unreadable, skipping file\n",53);
+      //close (in);
+      //goto NEWFIL;
+      printf("lmpoly: Could not parse input string.\n");
+      free(outpoly);
+      return NULL;
     }
     *(p++)= (*(c++)-'a')*2;
    }
@@ -464,45 +543,52 @@ STEP1:
  skflag=0;
 RESTRT:
  if (restrt!=0){
-  if ((out=creat("lmpoly.restrt",0644))!= -1){
-   write (out,nbuf,82);
-   i= strlen(*argv)-11;
-   if (i<0) i=0;
-   write (out,*argv+i,12);
-   *cbuf= numcrs;
-   if (ypow<0){
-    ypow= -ypow;
-    cbuf[6]=1;
-   }
-   else cbuf[6]=0;
-   if ((xpow&512) !=0) cbuf[6]|= 2;
-   cbuf[1]= ypow;
-   cbuf[2]= xpow;
-   cbuf[3]= numlps;
-   cbuf[4]= poslnk;
-   cbuf[5]= neglnk;
-   write (out,cbuf,7);
-   i= -1;
-   while (++i!=numcrs) crsbuf[i][1]|= sign[i]<<4;
-   write (out,*crsbuf,numcrs*8);
-   p= (unsigned char *) &lowx;
-   write (out,p,2);
-   times(&hi);
-   kstrt-= hi.tms_utime;
-   p= (unsigned char *) &kstrt;
-   write (out,p,4);
-   p= (unsigned char *) &notbeg;
-   write (out,p,4);
-   write (out,buf, (int) notbeg);
-   write (out,(char *) count,XCNT*4);
-   write (out,(char *) plybuf,4*XCNT*XCNT);
-   write (out,(char *) bilbuf,2*XCNT*XCNT);
-   close (out);
-   close (stats);
+   /* We don't include the restart functionality for now. */
+
+  /* if ((out=creat("lmpoly.restrt",0644))!= -1){ */
+/*    write (out,nbuf,82); */
+/*    i= strlen(*argv)-11; */
+/*    if (i<0) i=0; */
+/*    write (out,*argv+i,12); */
+/*    *cbuf= numcrs; */
+/*    if (ypow<0){ */
+/*     ypow= -ypow; */
+/*     cbuf[6]=1; */
+/*    } */
+/*    else cbuf[6]=0; */
+/*    if ((xpow&512) !=0) cbuf[6]|= 2; */
+/*    cbuf[1]= ypow; */
+/*    cbuf[2]= xpow; */
+/*    cbuf[3]= numlps; */
+/*    cbuf[4]= poslnk; */
+/*    cbuf[5]= neglnk; */
+/*    write (out,cbuf,7); */
+/*    i= -1; */
+/*    while (++i!=numcrs) crsbuf[i][1]|= sign[i]<<4; */
+/*    write (out,*crsbuf,numcrs*8); */
+/*    p= (unsigned char *) &lowx; */
+/*    write (out,p,2); */
+/*    times(&hi); */
+/*    kstrt-= hi.tms_utime; */
+/*    p= (unsigned char *) &kstrt; */
+/*    write (out,p,4); */
+/*    p= (unsigned char *) &notbeg; */
+/*    write (out,p,4); */
+/*    write (out,buf, (int) notbeg); */
+/*    write (out,(char *) count,XCNT*4); */
+/*    write (out,(char *) plybuf,4*XCNT*XCNT); */
+/*    write (out,(char *) bilbuf,2*XCNT*XCNT); */
+/*    close (out); */
+/*    close (stats); */
+/*    exit(0); */
+/*   } */
+   /*write (1,"couldn't create restart file 'lmpoly.restrt'\n",45);*/
+
+   printf("lmpoly: Warning! This version does not save"
+	  " restart info on quit.\n"
+	  "        Terminating run now.\n\n");
    exit(0);
-  }
-  write (1,"couldn't create restart file 'lmpoly.restrt'\n",45);
-  restrt=0;
+   /*restrt=0; */
  }
 /* FIRST -- remove figure 8 loops, 2 cases  "#-#d#c#b#a"  "#+#b#a#d#c" */
 /* SECOND -- remove monogons (must recheck previous crossings) */
@@ -981,41 +1067,41 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
      ++lp1;
      ++sp;
     }
-    if (stats>0){
-     lseek (stats,(long)(strlen(nbuf)+1),0);
-     lngi=0;
-     i= XCNT-1;
-     while (count[i]==0) --i;
-     while (i!=0){
-      write (stats,t,ntc((long)(i+1),t));
-      write (stats,"     ",5);
-      write (stats,t,ntc(count[i],t)+1);
-      lngi+= count[i--];
-     }
-     write (stats,"\ntotal: ",8);
-     write (stats,t,ntc(lngi,t)+1);
-     write (stats,"\nbiggest stacked knots:\n",24);
-     i=12;
-     sp= bstlst;
-     while (i--!=0) sp[i]=0;
-     lngi=notbeg-1;
-     while (lngi>0){
-      k= buf[lngi];
-      sp[++i]= k;
-      lngi-= k*8 + 8;
-      if (i==10) i= -1;
-     }
-     k= 0;
-     while (*sp!=0){
-      j= ntc((long) *(sp++),t);
-      k+=j+1;
-      write (stats,t,j);
-      write (stats," ",1);
-     }
-     write (stats,"                                            ",44-k);
-     write (stats,"\n",1);
-    }
-   }
+    /* if (stats>0){ */
+/*      lseek (stats,(long)(strlen(nbuf)+1),0); */
+/*      lngi=0; */
+/*      i= XCNT-1; */
+/*      while (count[i]==0) --i; */
+/*      while (i!=0){ */
+/*       write (stats,t,ntc((long)(i+1),t)); */
+/*       write (stats,"     ",5); */
+/*       write (stats,t,ntc(count[i],t)+1); */
+/*       lngi+= count[i--]; */
+/*      } */
+/*      write (stats,"\ntotal: ",8); */
+/*      write (stats,t,ntc(lngi,t)+1); */
+/*      write (stats,"\nbiggest stacked knots:\n",24); */
+/*      i=12; */
+/*      sp= bstlst; */
+/*      while (i--!=0) sp[i]=0; */
+/*      lngi=notbeg-1; */
+/*      while (lngi>0){ */
+/*       k= buf[lngi]; */
+/*       sp[++i]= k; */
+/*       lngi-= k*8 + 8; */
+/*       if (i==10) i= -1; */
+/*      } */
+/*      k= 0; */
+/*      while (*sp!=0){ */
+/*       j= ntc((long) *(sp++),t); */
+/*       k+=j+1; */
+/*       write (stats,t,j); */
+/*       write (stats," ",1); */
+/*      } */
+/*      write (stats,"                                            ",44-k); */
+/*      write (stats,"\n",1); */
+/*     } */
+   } 
   }
   else numcrs=0;
  }
@@ -1223,9 +1309,7 @@ int flag;
  return(0);
 }
 
-ntc(i,buf)
-long i;
-char *buf;
+int ntc(long i,char *buf)
 {
  long j;
  int r;
@@ -1516,10 +1600,11 @@ conchk()
  return(0);
 }
 
-pause()
+void mypause(int sig)
 {
  restrt=1;
- signal(SIGTERM,pause);
+ //signal(SIGTERM,pause);  /* pause is now a system function */
+ signal(sig,mypause);
 }
 
 bust(tobust,xpow,ypow)
