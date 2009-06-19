@@ -67,6 +67,18 @@ short tt[XCNT+2], bstlst[XCNT], bilbuf[XCNTSQ], *bilion[XCNT], suplng;
 
 void mypause(int sig);
 int  ntc(long i,char *buf);
+int  conchk();
+void mrecon(unsigned char *c,unsigned char *p);
+void squish(short sqush);
+void sqush2(short n,short g);
+void triple(short m,short i,unsigned char *p);
+void untwst(short l,short n,short i,short ex);
+void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag);
+int  tstcir(short h,short *bstlst,short *dspair,short *skflag);
+void delpow();
+void addin(long kcoeff,short ypow,short xpow,int mult,int reach);
+int  bust(short tobust,short xpow,short ypow);
+int  skinny(int twist,short lencir,short lngpos);
 
 int strread(char *str,void *buffer,size_t size)
 
@@ -127,7 +139,7 @@ char *plc_lmpoly(char *code)
  long lngi, *lp1, *lp2, kstrt, cmpval;
  short g, xpow, ypow, dspair[4], maxcrs, chksiz, nopro, skflag;
  unsigned char nbuf[82], *q, *s;
- struct tms hi;
+ //struct tms hi;
  char *outpoly;
  
  outpoly = calloc(MAXPOLY,sizeof(char)); // Space for a large polynomial
@@ -231,8 +243,8 @@ NEWFIL:
   *p=0;
   close (stats);
   unlink(t);
- }
- if (--argc==0) exit(0); /* This was the exit point for the program */
+  } */
+ /* if (--argc==0) exit(0); */ /* This was the exit point for the program */
 
  /* We also comment out some "restart" code since we aren't restarting */
 
@@ -430,14 +442,14 @@ NEWNOT:
 	}
 	if (h!=0){
 	  if (lngi<0) lngi= -lngi;
-	  strwrite (outpoly,t,ntc((long) h,t));
-	  len= ntc(lngi,t);
+	  strwrite (outpoly,(char *)(t),ntc((long) h,(char *)(t)));
+	  len= ntc(lngi,(char *)(t));
 	  if (cmpval==10000) len2= 4-len;
 	  else len2= 9-len;
 	  strwrite (outpoly,"00000000",len2);
-	  strwrite (outpoly,t,len);
+	  strwrite (outpoly,(char *)(t),len);
 	}
-	else strwrite (outpoly,t,ntc(lngi,t));
+	else strwrite (outpoly,(char *)(t),ntc(lngi,(char *)(t)));
 	if (i++ ==n) strwrite (outpoly,"]",1);
 	if (i<=j) strwrite (outpoly," ",1);
       }
@@ -1228,10 +1240,10 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
  goto NEWNOT;
 }
 
-rmcir(top,vnum,vbrnch,ovundr,flag)
-short top, vnum, vbrnch;
-unsigned char *ovundr;
-int flag;
+void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag)
+/* short top, vnum, vbrnch;
+   unsigned char *ovundr;
+   int flag; */
 {
  register short i, j, k, h, m, n;
  register unsigned char *s, *c, *p;
@@ -1280,7 +1292,7 @@ int flag;
   crsbuf[h][n]= k;
   crsbuf[h][n|1]= j;
  }
- if (flag!=0) return(0);
+ if (flag!=0) return;
       /* squish crossings out of the list */
  i= *s;
  lp1= (long *) crsbuf[i];
@@ -1316,7 +1328,7 @@ int flag;
    }
   }
  }
- return(0);
+ return;
 }
 
 int ntc(long i,char *buf)
@@ -1350,7 +1362,7 @@ int ntc(long i,char *buf)
  return (r);
 }
 
-delpow()
+void delpow()
 {
  register long *lp1, *lp2, *lsp, *osp;
  register short i, j, k, m, s, mpos;
@@ -1444,10 +1456,10 @@ delpow()
  }
 }
 
-addin(kcoeff,ypow,xpow,mult,reach)
-short ypow, xpow;
+void addin(long kcoeff,short ypow,short xpow,int mult,int reach)
+/*short ypow, xpow;
 long kcoeff;
-int mult, reach;
+int mult, reach;*/
 {
  register long *lp1, *lp2, addon, *p;
  register short i, j, k, numlnk, loops;
@@ -1478,8 +1490,8 @@ int mult, reach;
  }
 }
 
-untwst(l,n,i,ex)
-short l, n, i, ex;
+void untwst(short l,short n,short i,short ex)
+/* short l, n, i, ex; */
 {
  register unsigned char *pl, *pn;
  register short g, h, m, k, d, e;
@@ -1545,7 +1557,7 @@ short l, n, i, ex;
  crsbuf[g][h|1]= j;
 }
 
-conchk()
+int conchk()
 {
  register short i, j;
  int vnum, vbrnch, top;
@@ -1617,15 +1629,15 @@ void mypause(int sig)
  signal(sig,mypause);
 }
 
-bust(tobust,xpow,ypow)
-short tobust, xpow, ypow;
+int bust(short tobust,short xpow,short ypow)
+/* short tobust, xpow, ypow; */
 {
  register unsigned char *fastp, *c;
  register long *lp1, *lp2;
  register short i, j, m, k, l, n, *sp;
  unsigned char *inbuf[XCNT], tsign[XCNT], *bstcrs;
  int dir;
- long lngi;
+ //long lngi;
  bstcrs= crsbuf[tobust];
  fastp=sign;
  c=tsign;
@@ -1706,8 +1718,8 @@ short tobust, xpow, ypow;
  return (dir*2);
 }
 
-mrecon(c,p)
-unsigned char *c, *p;
+void mrecon(unsigned char *c,unsigned char *p)
+/*unsigned char *c, *p;*/
 {
  register short j, k, m, n;
  register unsigned char *ccb;
@@ -1721,8 +1733,8 @@ unsigned char *c, *p;
  ccb[1]= j;
 }
 
-squish(sqush)
-short sqush;
+void squish(short sqush)
+/* short sqush; */
 {
  register short i, j, tosqsh;
  register unsigned char *p, *c;
@@ -1751,8 +1763,8 @@ short sqush;
  }
 }
 
-sqush2(n,g)
-short n, g;
+void sqush2(short n,short g)
+/* short n, g; */
 {
  long *lp1, *lp2;
  register unsigned char *p, *c;
@@ -1797,9 +1809,9 @@ short n, g;
  }
 }
 
-triple(m,i,p)
-short m, i;
-unsigned char *p;
+void triple(short m,short i,unsigned char *p)
+/*short m, i;
+  unsigned char *p; */
 {
  register unsigned char *crsi, *crsk;
  register short j, d, e, n, h, k;
@@ -1852,8 +1864,8 @@ unsigned char *p;
  sqush2(n,m);
 }
 
-tstcir(h,bstlst,dspair,skflag)
-short h, *bstlst, *dspair, *skflag;
+int tstcir(short h,short *bstlst,short *dspair,short *skflag)
+/* short h, *bstlst, *dspair, *skflag; */
 {
  register short d, g, i, j, m, length, *q, *sp;
  register unsigned char *p, *tp, *vp;
@@ -2063,13 +2075,15 @@ short h, *bstlst, *dspair, *skflag;
       i3= p[i1|1];
       i1^=4;
       if (crsbuf[i2][(i3+i1)&6]== p[4]){
-       if ((p[5]^i3&2) !=0) lngsum= -1 -lngsum;
+	//if ((p[5]^i3&2) !=0) lngsum= -1 -lngsum;
+	/* According to wikipedia, the & should come first, so this is */
+	if ((p[5]^(i3&2)) !=0) lngsum= -1 -lngsum; 
        else lngsum= -10 -lngsum;
       }
       i2= p[i1];
       i3= p[i1|1];
       if (crsbuf[i2][(i3+i1)&6]== *p){
-       if ((p[1]^i3&2) !=0){
+	if ((p[1]^(i3&2)) !=0){  // The same is true here
         if (lngsum<0) lngsum-=5;
         else lngsum= -1 -lngsum;
        }
@@ -2110,13 +2124,13 @@ short h, *bstlst, *dspair, *skflag;
  return(0);
 }
 
-skinny(twist,lencir,lngpos)
-short lencir, lngpos;
-int twist;
+int skinny(int twist,short lencir,short lngpos)
+/* short lencir, lngpos;
+   int twist; */
 {
  register short a, b, g, n, vnum, dir, *c;
  register unsigned char *p, *q, *cp;
- short i, j, k, m, last, f, v2, *sp;
+ short i, j, k, m, last, f, v2; //*sp;
  vnum= -1;     /* assume circuit is a link */
  dir= 6;       /* and I will be placing loose strand LEFT of fixed strand */
  if ((lencir&1)!= (b=0)){

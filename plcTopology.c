@@ -53,6 +53,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_FLOAT_H
 #include <float.h>
 #endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+char *plc_lmpoly(char *ccode); // This is in pllmpoly02.c.
 
 /* Convert plCurve to Millett/Ewing crossing code (documented in plCurve.h) 
 
@@ -76,13 +81,20 @@ char *plc_ccode( plCurve *L )
 
   }
 
-  /* Step 0. Delete the filenames that we will need to create. */
-  /*         We use the ISO C "remove" instead of "unlink" for portability. */
+  /* Step 0. Change to a new temporary working directory to avoid stomping 
+     any user files */
 
-  remove("res.pts");
-  remove("zkdata");
-  remove("zmatrix");
-  remove("zpoints");
+  char *template,*newdir;
+
+  template = calloc(32,sizeof(char));
+  sprintf(template,"codedirXXXXXX");
+
+  newdir = mkdtemp(template);
+  assert(newdir != NULL);
+
+  int result;
+  result = chdir(newdir);
+  assert(result != -1);
 
   /* Step 1. Write a res.pts file in compEric (21.17f) floating point format. */
 
@@ -162,8 +174,21 @@ char *plc_ccode( plCurve *L )
 
   /* Step 4. Check and return. */
 
-  printf("Processed %d edge knot successfully. Crossing code is \n %s\n",
-	 edges,code);
+  //printf("Processed %d edge knot successfully. Crossing code is \n %s\n",
+  //	 edges,code);
+
+
+  /* Step 5. Cleanup the working directory. */
+
+  remove("res.pts");
+  remove("zkdata");
+  remove("zmatrix");
+  remove("zpoints");
+
+  result = chdir("..");
+  assert(result != -1);
+  
+  remove(newdir);
 
   return code;
 
