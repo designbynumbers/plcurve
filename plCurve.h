@@ -101,8 +101,8 @@ typedef struct plc_vert_quant_type { /* Vertex quantifiers */
 } plc_vert_quant;
 
 typedef struct plc_type {
-  int             nc;                           /* Number of components */
-  plc_strand *cp;                           /* Components */
+  int         nc;                              /* Number of components */
+  plc_strand *cp;                              /* Components */
   /*@only@*/ /*@null@*/ plc_constraint *cst;   /* Constraints */
   /*@only@*/ /*@null@*/ plc_vert_quant *quant; /* per-vertex quantifiers */
 } plCurve;
@@ -338,10 +338,12 @@ int plc_edges(const plCurve * const L,
 /* Count the vertices in a plCurve */
 int plc_num_verts(const plCurve * const L);
 
-/* Compute an index between 0 and plc_num_verts(L) - 1 for a (cp,vt) pair in a plCurve, 
-   using full wraparound addressing for closed components and repeating the last or first vertex 
-   for open ones. We guarantee that these numbers occur consecutively in dictionary order 
-   on the pairs (cp,vt). */
+/* Compute an index between 0 and plc_num_verts(L) - 1 for a (cp,vt)
+   pair in a plCurve, using full wraparound addressing for closed
+   components and repeating the last or first vertex for open ones. We
+   guarantee that these numbers occur consecutively in dictionary
+   order on the pairs (cp,vt). */
+
 int plc_vertex_num(const plCurve * const L, const int cp, const int vt);
 
 /* Convert back from a vertex number given by plc_vertex_num to a (cp,vt) pair. */
@@ -418,16 +420,32 @@ plc_vector plc_sample_spline(const plc_spline * const spL,
    of edges. Attempts to preserve constraints. */
 plCurve *plc_double_verts(plCurve * L);
 
-
 /* Calculate the diameter of the plCurve, thinking of the vertices as 
    a set of points in R^3 */
 double plc_pointset_diameter(const plCurve * const L);
 
 /* Scale a plCurve (and its' constraints!) by a factor. */
-void plc_scale( plCurve *link, const double alpha);  
+void plc_scale( plCurve *L, const double alpha);  
+
+/* Perform a "whitten group" operation on L, mirroring, reversing and 
+   permuting components of L. The syntax is 
+   
+   mirror = +1 or -1, with -1 to mirror entire link over xy plane.
+   eps    = array of L->nc integers, each +1 or -1, with -1 to reverse 
+   perm   = array of 2*L->nc integers so that if i is the first instance
+            of index j in the array, then perm[i+1] = p(j).
+
+   In the output link, the components are in the order
+
+   eps[0] K_p(0), ... , eps[L->nc-1] K_p(L->nc-1)
+
+   The function operates in place on L and respects constraints and colors,
+   but not quantifiers. */
+              
+void plc_whitten(plCurve *L, int mirror, int *eps, int *perm);      
 
 /* Perform a ``fold'' move on a plCurve */
-void plc_pfm( plCurve *link, int cp, int vt0, int vt1, double angle);
+void plc_pfm( plCurve *L, int cp, int vt0, int vt1, double angle);
 
 /* plCurve Topology Library */
 
