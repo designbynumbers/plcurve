@@ -1,8 +1,3 @@
-# none: no symmetry
-# reversible: K =-K
-# amphichiral: K = -K*
-# mirror: K = K*
-# full: K = -K = K* = -K*
 3_1                  reversible
 3_1m                 reversible
 4_1                  full
