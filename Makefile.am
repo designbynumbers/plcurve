@@ -1,4 +1,5 @@
 AM_CFLAGS = -g -finline-functions -Wall
+ACLOCAL_AMFLAGS = -I m4
 
 include_HEADERS = plCurve.h nplCurve.h
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la libnplCurve.la libnplCurve_safe.la
