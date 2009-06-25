@@ -135,7 +135,7 @@ char *plc_lmpoly(char *code)
 {
  register short i, j, k, h, m, n, *sp;
  register unsigned char *p, *c;
- int in, out, stats, len, len2, pause();
+ int in = 0, out, stats, len, len2, pause();
  long lngi, *lp1, *lp2, kstrt, cmpval;
  short g, xpow, ypow, dspair[4], maxcrs, chksiz, nopro, skflag;
  unsigned char nbuf[82], *q, *s;
@@ -1461,33 +1461,33 @@ void addin(long kcoeff,short ypow,short xpow,int mult,int reach)
 long kcoeff;
 int mult, reach;*/
 {
- register long *lp1, *lp2, addon, *p;
- register short i, j, k, numlnk, loops;
- i= poslnk;
- k= neglnk;
- numlnk= i+k;
- loops= numlps+ numlnk;
- ypow+= XCNT-xpow-1+lowx+ 2*(k-i);
- xpow-=lowx+loops;
- p=b;
- while (numlnk-->=0){
-  if (reach!=0) lp2= poly[xpow+reach]+ypow-reach;
-  lp1= poly[xpow]+ ypow;
-  j= loops;
-  while (j-->=0){
-   addon= kcoeff* *(p++);
-   *lp1+= addon;
-   lp1+=2;
-   if (reach!=0){
-    *lp2+= mult*addon;
-    lp2+=2;
-   }
+  register long *lp1, *lp2 = NULL, addon, *p; // Added init for lp2, JC.
+  register short i, j, k, numlnk, loops;
+  i= poslnk;
+  k= neglnk;
+  numlnk= i+k;
+  loops= numlps+ numlnk;
+  ypow+= XCNT-xpow-1+lowx+ 2*(k-i);
+  xpow-=lowx+loops;
+  p=b;
+  while (numlnk-->=0){
+    if (reach!=0) lp2= poly[xpow+reach]+ypow-reach;
+    lp1= poly[xpow]+ ypow;
+    j= loops;
+    while (j-->=0){
+      addon= kcoeff* *(p++);
+      *lp1+= addon;
+      lp1+=2;
+      if (reach!=0){
+	*lp2+= mult*addon;
+	lp2+=2;
+      }
+    }
+    if (--i<0) --loops;
+    if (--k<0) --loops;
+    else ypow-=2;
+    xpow+=2;
   }
-  if (--i<0) --loops;
-  if (--k<0) --loops;
-  else ypow-=2;
-  xpow+=2;
- }
 }
 
 void untwst(short l,short n,short i,short ex)
@@ -1868,8 +1868,8 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
 /* short h, *bstlst, *dspair, *skflag; */
 {
  register short d, g, i, j, m, length, *q, *sp;
- register unsigned char *p, *tp, *vp;
- short k, n, lngsum, badcrs, vertex, lngpos, i1, i2, i3, j1, j2, j3;
+ register unsigned char *p, *tp = NULL, *vp; // Added init for tp. JC
+ short k = 0, n, lngsum, badcrs = 0, vertex, lngpos = 0, i1, i2, i3, j1, j2, j3;
  sp=q= tt;  /* # of overs and unders were passed in through *tt and [2] */
  lngsum= n= 0;
  if (*tt > tt[2]) n=2;
