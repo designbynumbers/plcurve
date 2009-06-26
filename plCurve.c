@@ -1522,6 +1522,29 @@ int plc_vt_num (const plCurve * const L, int wrapVt)
 
 }
   
+/* Compute the turning angle at a vertex. */
+double plc_turning_angle(plCurve * const L, const int cmp, const int vert, bool *ok)
+
+{
+  plc_vector left,right;
+  double ang;
+
+  left = plc_vect_diff(L->cp[cp].vt[vt],L->cp[cp].vt[vt-1]);
+  right = plc_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt]);
+  ang = plc_angle(left,right,ok);
+
+  if (*ok) {
+    
+    return ang;
+  
+  } else {
+  
+    return 0;
+ 
+  }
+}
+  
+
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert) {
 

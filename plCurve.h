@@ -350,6 +350,9 @@ int plc_vertex_num(const plCurve * const L, const int cp, const int vt);
 int plc_cp_num(const plCurve * const L, int wrapVt);
 int plc_vt_num(const plCurve * const L, int wrapVt);
 
+/* Compute the turning angle at a vertex. */
+double plc_turning_angle(plCurve * const L, const int cmp, const int vert);
+
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert);
 
