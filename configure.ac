@@ -19,7 +19,7 @@ AC_COPYRIGHT(
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT(libplCurve, 2.0.2, cantarel@math.uga.edu)
+AC_INIT(libplCurve, 3.0.3, cantarel@math.uga.edu)
 AM_INIT_AUTOMAKE
 
 #
@@ -39,7 +39,7 @@ AM_INIT_AUTOMAKE
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
 #
-AC_SUBST(LIB_VERSION, 2:0:2)
+AC_SUBST(LIB_VERSION, 3:0:3)
 AC_CONFIG_SRCDIR([configure])
 AM_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])

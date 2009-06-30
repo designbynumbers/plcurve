@@ -490,11 +490,29 @@ void plc_pfm( plCurve *L, int cp, int vt0, int vt1, double angle);
 
 */
 
+#define MAXPRIMEFACTORS 10
+#define MAXHOMFLY       1024
+
+typedef struct knottypestruct {
+
+    int  nf;                            /* Number of prime factors */
+    int  cr[MAXPRIMEFACTORS];           /* Crossing number of each prime factor */
+    int  ind[MAXPRIMEFACTORS];           /* Index (in Rolfsen or Cerf) of each prime factor */
+    char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
+    char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
+
+} plc_knottype;
+
 /* Convert a plCurve to Millett/Ewing crossing code. */
 char *plc_ccode( plCurve *L);
 
 /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
 char *plc_homfly( plCurve *L);
+
+/* Find the knot type of a plCurve */
+/* Sets nposs to the number of possible knottypes found for the curve. If we cannot
+   classify the knot, return 0 for nposs and NULL for the buffer of knot types. */
+plc_knottype *plc_classify( plCurve *L, int *nposs);
  
 /* Define the error codes */
 #define PLC_E_NO_VECT       1

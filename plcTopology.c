@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <config.h>
 #include <plCurve.h>
+#include <homfly.h>
 
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
@@ -208,5 +209,68 @@ char *plc_homfly( plCurve *L)
   return homfly;
 }
 
+int homcmp(const void *A, const void *B) 
+{
+  plc_knottype *a,*b;
+
+  a = (plc_knottype *)(A);
+  b = (plc_knottype *)(B);
+
+  return strcmp(a->homfly,b->homfly);
+}
+
+/* Find the knot type of a plCurve */
+/* Sets nposs to the number of possible knottypes found for the curve. If we cannot
+   classify the knot, return 0 for nposs and NULL for the buffer of knot types. */
+plc_knottype *plc_classify( plCurve *L, int *nposs)
+
+{
+  plc_knottype kt = { 1, { 0 }, { 1 }, { "(1,1,e)" }, { "[0]" } },*ktmatch,*ret;
+  char *homfly;
+
+  /* First, compute the homfly */
+
+  homfly = plc_homfly(L);
+  if (homfly == NULL) { *nposs = 0; return NULL; }
+  strncpy(kt.homfly,homfly,MAXHOMFLY);
+  free(homfly);
+
+  /* Now search for matching knottypes in ktdb */
+
+  ktmatch = bsearch(&kt,ktdb,KTDBSIZE,sizeof(plc_knottype),homcmp);
+
+  if (ktmatch == NULL) { /* No matching homfly was found */
+
+    *nposs = 0;
+    return NULL;
+
+  }
+
+  /* If there is more than one match, we might have landed anywhere in the collection of matching types */
+
+  plc_knottype *mlo,*mhi;
   
+  for(mlo = ktmatch;!strcmp(kt.homfly,mlo->homfly) && mlo > ktdb;mlo--);  // search down until we don't match anymore or start of buffer
+  if (strcmp(kt.homfly,mlo->homfly)) { mlo++; }                           // if we don't match (we might if we went to the start of buffer) 
+  assert(!strcmp(kt.homfly,mlo->homfly));
+
+  for(mhi = ktmatch;!strcmp(kt.homfly,mhi->homfly) && mhi < &(ktdb[KTDBSIZE]);mhi++);
+  if (strcmp(kt.homfly,mhi->homfly)) { mhi--; }
+  assert(!strcmp(kt.homfly,mhi->homfly));
+
+  /* Now we know the interval between mlo and mhi (inclusive) is the set of knot types which match this homfly */
+
+  *nposs = (mhi - mlo) + 1;
+  ret = calloc(*nposs,sizeof(plc_knottype));
+  assert(ret != NULL);
+
+  int i;
+  for(ktmatch=mlo,i=0;ktmatch <= mhi;i++,ktmatch++) {ret[i] = *ktmatch;} // Copy the matches to the output buffer
+  return ret;
+
+}
+
   
+
+     
+

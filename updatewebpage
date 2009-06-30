@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#
+# This script regenerates the latest version of the library as a distribution, then updates the webpage.
+#
+
+rm libplcurve-*.tar.gz
+make dist
+
+version=$(ls libplcurve-*.tar.gz); \
+version=${version%.tar.gz}; \
+version=${version#libplcurve-}; \
+echo Updating release for libplcurve ${version}; 
+scp libplcurve-*.tar.gz cantarel@kroner.dreamhost.com:"~/jasoncantarella.com/downloads/"

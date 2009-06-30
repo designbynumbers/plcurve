@@ -14,6 +14,7 @@ bin_PROGRAMS = knot_diagram plcompEric
 endif
 
 noinst_PROGRAMS = spline_view gcov_tests
+noinst_HEADERS = homfly.h
 
 TESTS = run_tests
 
