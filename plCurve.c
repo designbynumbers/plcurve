@@ -1523,7 +1523,7 @@ int plc_vt_num (const plCurve * const L, int wrapVt)
 }
   
 /* Compute the turning angle at a vertex. */
-double plc_turning_angle(plCurve * const L, const int cmp, const int vert, bool *ok)
+double plc_turning_angle(plCurve * const L, const int cp, const int vt, bool *ok)
 
 {
   plc_vector left,right;
