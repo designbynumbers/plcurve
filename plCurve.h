@@ -350,7 +350,7 @@ int plc_vertex_num(const plCurve * const L, const int cp, const int vt);
 int plc_cp_num(const plCurve * const L, int wrapVt);
 int plc_vt_num(const plCurve * const L, int wrapVt);
 
-/* Compute the turning angle at a vertex. */
+/* Compute the turning angle at a vertex. Uses wraparound addressing if needed. */
   double plc_turning_angle(plCurve * const L, const int cmp, const int vert, 
 			   bool *ok);
 

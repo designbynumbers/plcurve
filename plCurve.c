@@ -1523,17 +1523,38 @@ int plc_vt_num (const plCurve * const L, int wrapVt)
 }
   
 /* Compute the turning angle at a vertex. */
-double plc_turning_angle(plCurve * const L, const int cp, const int vt, bool *ok)
+double plc_turning_angle(plCurve * const L, const int cp, const int invt, bool *ok)
 
 {
   plc_vector left,right;
   double ang;
+  bool isok;
+  int  vt = invt;
+  
+  if (L->cp[cp].open && (vt <= 0 || vt >= L->cp[cp].nv-1)) { // Addressing past ends of open curve yields zero
 
+    return 0;
+
+  } 
+
+  if (!L->cp[cp].open) {  // Wraparound addressing for closed curves ensures that the original vertex is legal.
+
+    for(;vt < 0;vt += L->cp[cp].nv); 
+    vt = vt % L->cp[cp].nv;
+
+  }
+  
   left = plc_vect_diff(L->cp[cp].vt[vt],L->cp[cp].vt[vt-1]);
   right = plc_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt]);
-  ang = plc_angle(left,right,ok);
+  ang = plc_angle(left,right,&isok);
 
-  if (*ok) {
+  if (ok != NULL) {
+
+    *ok = isok;
+
+  }
+
+  if (isok) {
     
     return ang;
   
