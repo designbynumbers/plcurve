@@ -2406,4 +2406,7 @@ void plc_perturb( plCurve *L, double radius)
     }
 
   }
+
+  plc_fix_wrap(L);
+
 }
