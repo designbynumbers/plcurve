@@ -76,7 +76,7 @@ AM_CONDITIONAL([HAVE_ARGTABLE2],[test "$have_argtable2" = true])
 AC_C_CONST
 
 # Checks for library functions.
-AC_CHECK_FUNCS([strcasestr mkstemp strcasecmp])
+AC_CHECK_FUNCS([strcasestr mkstemp strcasecmp time])
 
 # Can we inline and/or const?
 AC_C_INLINE

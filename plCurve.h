@@ -135,6 +135,7 @@ plc_vector plc_scale_vect(double s,plc_vector A);      /* sA */
 plc_vector plc_normalize_vect(const plc_vector V,
                                 /*@null@*/ bool *ok);     /* V/|V| */
 
+/* Returns a vector randomly distributed on the surface of the unit sphere */
 plc_vector plc_random_vect(void);
 
 /* Translate three doubles into a vector */
@@ -314,6 +315,9 @@ int plc_remove_constraint(plCurve * const L,
 /* Remove all constraints */
 void plc_remove_all_constraints(plCurve * const L);
 
+/* Test whether a vertex is constrained. If constraint is non-null, set it to the active constraint. */
+bool plc_is_constrained(plCurve * const L,int cp, int vt,plc_constraint **constraint);
+
 /* Read plCurve data from a file */
 /*@only@*/ /*@null@*/ plCurve *plc_read(FILE *file,
                               /*@out@*/ int *error_num,
@@ -450,6 +454,10 @@ void plc_whitten(plCurve *L, int mirror, int *eps, int *perm);
 
 /* Perform a ``fold'' move on a plCurve */
 void plc_pfm( plCurve *L, int cp, int vt0, int vt1, double angle);
+
+/* Perform a random perturbation on a plCurve. Does not perturb
+   constrained vertices. */
+void plc_perturb( plCurve *L, double radius); 
 
 /* plCurve Topology Library */
 

@@ -52,6 +52,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_FLOAT_H
   #include <float.h>
 #endif
+#ifdef HAVE_TIME_H
+  #include <time.h>
+#endif
 
 /* Utility routines */
 static inline int intmin(const int a, const int b) {
@@ -713,6 +716,31 @@ void plc_remove_all_constraints(plCurve * const L) {
     cst = L->cst;
   }
 } /* plc_remove_all_constraints */
+
+/* Test whether a vertex is constrained. If constraint is non-null, set it to the active constraint. */
+bool plc_is_constrained(plCurve * const L,int cp, int vt,plc_constraint **constraint) {
+
+  plc_constraint *cst;
+
+  for(cst = L->cst;cst != NULL;cst = cst->next) {
+    
+    if (cst->cmp == cp) {
+
+      if (cst->vert <= vt && cst->vert+cst->num_verts > vt) {
+
+	if (constraint != NULL) { *constraint = cst; }
+
+	return true;
+
+      }
+
+    }
+
+  }
+
+  return false;
+
+}
 
 /*
  * Writes the plCurve to a file in Geomview VECT format.  The file format is:
@@ -2348,4 +2376,34 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
 
   plc_fix_wrap(link);
 
+}
+
+/* Perform a random perturbation on a plCurve, perturbing at most radius. 
+   The distribution of points is not by volume, but with equal probability
+   of choosing any radius and any direction. */
+void plc_perturb( plCurve *L, double radius) 
+
+{
+  int cp;
+  int vt;
+  plc_vector V;
+
+  #ifdef HAVE_TIME
+     srand (time(0));
+  #endif
+  
+  for (cp=0;cp<L->nc;cp++) {
+
+    for(vt=0;vt<L->cp[cp].nv;vt++) {
+
+      if (!plc_is_constrained(L,cp,vt,NULL)) {
+
+	V = plc_scale_vect(((double)(rand())/(RAND_MAX))*radius,plc_random_vect());
+	plc_M_add_vect(L->cp[cp].vt[vt],V);
+
+      }
+
+    }
+
+  }
 }
