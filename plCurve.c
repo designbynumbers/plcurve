@@ -2386,7 +2386,6 @@ void plc_perturb( plCurve *L, double radius)
 {
   int cp;
   int vt;
-  plc_vector V;
 
   #ifdef HAVE_TIME
      srand (time(0));
@@ -2398,8 +2397,23 @@ void plc_perturb( plCurve *L, double radius)
 
       if (!plc_is_constrained(L,cp,vt,NULL)) {
 
-	V = plc_scale_vect(((double)(rand())/(RAND_MAX))*radius,plc_random_vect());
-	plc_M_add_vect(L->cp[cp].vt[vt],V);
+	plc_vector rVec,tan;
+	bool ok;
+
+	rVec = plc_scale_vect(((double)(rand())/(RAND_MAX))*radius,
+			      plc_random_vect());
+	tan = plc_mean_tangent(L,cp,vt,&ok);
+
+	if (ok) { 
+
+	  /* Now we project this random change to the disk normal to the 
+	     curve at this point. */
+
+	  rVec = plc_vect_diff(rVec,plc_scale_vect(plc_dot_prod(rVec,tan),tan));
+
+	}
+
+	plc_M_add_vect(L->cp[cp].vt[vt],rVec);
 
       }
 

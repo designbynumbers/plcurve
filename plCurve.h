@@ -369,7 +369,13 @@ double plc_totalcurvature(const plCurve * const L,
 /* Copy a plCurve */
 plCurve *plc_copy(const plCurve * const L);
 
-/* Compute average of inward and outward tangents (and normalize) */
+/*
+ * Compute a (unit) tangent vector to L at vertex vert of component cmp by
+ * taking the incoming tangent and outgoing tangent and averaging them *with
+ * their lengths taken into account*.  That is, the average of (0.0,0.0,6.0)
+ * and (8.0,0.0,0.0) is (4.0,0.0,3.0) which normalizes to (0.8,0.0,0.6)
+ *
+ */
 plc_vector plc_mean_tangent(const plCurve * const L, const int cmp,
                             const int vert, bool *ok);
 
