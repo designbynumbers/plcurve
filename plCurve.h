@@ -203,6 +203,9 @@ bool plc_vecteq(plc_vector A, plc_vector B);
 #define plc_M_sub_vect(A,B)    \
   (A).c[0] -= (B).c[0]; (A).c[1] -= (B).c[1]; (A).c[2] -= (B).c[2];
 
+#define plc_M_vect_diff(A,B,C)						\
+  (A).c[0] = (B).c[0] - (C).c[0];  (A).c[1] = (B).c[1] - (C).c[1];  (A).c[2] = (B).c[2] - (C).c[2];
+
 #define plc_M_scale_vect(s,V)  \
   (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
 
