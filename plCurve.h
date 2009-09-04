@@ -120,7 +120,8 @@ typedef struct plc_spline_strand_type {
 
 typedef struct plc_spline_type {
   int                 nc;     /* Number of components */
-  plc_spline_strand *cp;     /* Components */
+  plc_spline_strand  *cp;     /* Components */
+  plc_constraint     *cst;    /* Constraints */
 } plc_spline;
 
 /*

@@ -109,6 +109,8 @@ plc_spline *plc_spline_new(const int          components,
     spline_strand_new(&L->cp[i],ns[i],open[i],cc[i]);
   }
 
+  L->cst = NULL;
+
   /*@-compdef@*/ /* Splint isn't sure that everything gets defined */
   return L;
   /*@=compdef@*/
@@ -186,6 +188,18 @@ void plc_spline_free(/*@only@*/ /*@null@*/ plc_spline *L) {
   L->cp = NULL;
   L->nc = 0;
 
+  /* Now we destroy the linked list of constraints. */
+
+  plc_constraint *cst;
+
+  for(;L->cst != NULL;) {
+
+    cst = L->cst;
+    L->cst = L->cst->next;
+    free(cst);
+
+  }
+
   free(L);
   L = NULL;
 } /* plcurve_spline_free */
@@ -244,6 +258,24 @@ plc_spline *plc_convert_to_spline(plCurve * const L,bool *ok)
   ns = NULL; open = NULL; cc = NULL;
 
   assert(spline_L != NULL);
+
+  /* We now copy the constraint records into the new spline */
+
+  plc_constraint *cst,*newcst;
+
+  for(cst = L->cst;cst != NULL;cst = cst->next) {
+
+    /* Make a copy of the constraint */
+
+    newcst = (plc_constraint *)(calloc(1,sizeof(plc_constraint)));
+    *newcst = *cst;
+
+    /* Now insert it at the head of the list of constraints for the spline. */
+
+    newcst->next = spline_L->cst;
+    spline_L->cst = newcst;
+
+  }
 
   /* We now go component-by-component. */
 
@@ -475,6 +507,24 @@ plCurve *plc_convert_from_spline(const plc_spline * const spL,
   free(open); free(cc);
   open = NULL; cc = NULL;
 
+  /* We now copy the constraint records into the new polyline */
+
+  plc_constraint *cst,*newcst;
+  
+  for(cst = spL->cst;cst != NULL;cst = cst->next) {
+
+    /* Make a copy of the constraint */
+
+    newcst = (plc_constraint *)(calloc(1,sizeof(plc_constraint)));
+    *newcst = *cst;
+
+    /* Now insert it at the head of the list of constraints for the spline. */
+
+    newcst->next = L->cst;
+    L->cst = newcst;
+
+  }
+
   /* Now we can start filling in vertex positions, component by component. */
 
   for (comp=0; comp < L->nc; comp++) {
@@ -519,6 +569,54 @@ plCurve *plc_convert_from_spline(const plc_spline * const spL,
             a*spL->cp[comp].clr[slo].alpha + b*spL->cp[comp].clr[shi].alpha);
       }
     }
+
+    /* We now search the constraints to figure out which ones apply to this component */
+
+    for(cst=L->cst;cst != NULL;cst=cst->next) {
+
+      if (cst->cmp == comp) { /* We need to translate this component */
+
+	double cst_slo,cst_shi;
+	  
+	cst_slo = spL->cp[comp].svals[cst->vert];
+	cst_shi = spL->cp[comp].svals[cst->vert+cst->num_verts];
+	
+	/* We first set the start vert  */
+	
+	if (cst->vert == spL->cp[comp].ns-1) { /* Last vert */
+
+	  cst->vert = L->cp[comp].nv-1;
+	  
+	} else if (cst->vert == 0) { /* First vert */
+
+	  cst->vert = 0;
+
+	} else { /* Somewhere in between-- work it out from the s values */
+
+	   cst->vert = floor((cst_slo/s_max)*L->cp[comp].nv);
+
+	}
+
+	/* Now we set the number of verts */
+
+	if (cst->kind == fixed || cst->num_verts == 1) { /* One vert */
+
+	  cst->num_verts = 1;
+
+	} else if (cst->num_verts == spL->cp[comp].ns) { /* All verts */
+
+	  cst->num_verts = L->cp[comp].nv;
+
+	} else { /* Scale the length from the old resolution */
+
+	  cst->num_verts = ceil(((cst_shi-cst_slo)/s_max)*L->cp[comp].nv);
+	  
+	}	
+	
+      }
+
+    }
+
   }
 
   plc_fix_wrap(L);
