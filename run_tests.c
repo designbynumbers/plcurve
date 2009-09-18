@@ -671,8 +671,9 @@ int main(void) {
   L = plc_copy(&S);
   check(curves_match(S,*L));
 
-  /* Now can we convert to a spline and back?  We remember that conversion
-   * to splines removes constraints (and probably quantifiers) anyway. */
+  /* Now can we convert to a spline and back? We modify this test to remember that 
+     splining now preserves constraints. */
+
   ok = true;
   spL = plc_convert_to_spline(L,&ok);
   /* Overall data */
@@ -768,7 +769,7 @@ int main(void) {
   S.cp[0].vt[2] = plc_build_vect(0.11297231598867283, 1.0250988714690255, 0.0);
   S.cp[0].vt[-1] = S.cp[0].vt[2];
   temp_cst = S.cst;
-  S.cst = NULL;
+  //S.cst = NULL;
 
   plc_free(L);
   L = NULL;
