@@ -138,7 +138,7 @@ char *plc_ccode( plCurve *L )
 
 	Note: comp516 makes the zmatrix file (also zkdata and zpoints, don't need) */
 
-  fprintf(CEpipe,"%d\n1\n1\n1\n12345\n30\n0.01\n",edges); 
+  fprintf(CEpipe,"%d\n1\n1\n1\n12345\n30\n0.0\n",edges); 
   pclose(CEpipe);
 
   /* Step 4. Allocate space for the crossing code. */
