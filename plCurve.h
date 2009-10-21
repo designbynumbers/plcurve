@@ -268,6 +268,11 @@ bool plc_vecteq(plc_vector A, plc_vector B);
                             const int * const nv,
                             const bool * const open,
                             const int * const cc);
+/* The arrays nv, open, and cc are expected to be of length components. */
+
+/* nv[i] is the number of vertices of the ith component */
+/* open[i] is true if the ith component is open */
+/* cc[i] is the number of colors for that component (0,1, or nv[i]) */
 
 /* Free the plCurve (and strands) */
 void plc_free(/*@only@*/ /*@null@*/ plCurve *L);
