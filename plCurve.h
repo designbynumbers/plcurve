@@ -470,6 +470,9 @@ void plc_whitten(plCurve *L, int mirror, int *eps, int *perm);
 /* Perform a ``fold'' move on a plCurve */
 void plc_pfm( plCurve *L, int cp, int vt0, int vt1, double angle);
 
+/* Rotate a plCurve around an axis. */
+void plc_rotate( plCurve *L, plc_vector axis, double angle);
+
 /* Perform a random perturbation on a plCurve. Does not perturb
    constrained vertices. */
 void plc_perturb( plCurve *L, double radius); 

@@ -2378,6 +2378,59 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
 
 }
 
+void plc_rotate(plCurve *link, plc_vector axis, double angle)
+
+/* Rotate the link around a given axis. */
+
+{
+  int vt,cp;
+
+  for(cp=0;cp < link->nc;cp++) {
+
+    for(vt=0;vt<link->cp[cp].nv;vt++) {
+
+      plc_vector temp,par,nor,binor;
+
+      /* First, recenter with respect to one end of the axis of rotation. */
+
+      temp = link->cp[cp].vt[vt];
+
+      /* Now, split into parallel and normal components. */
+
+      par = plc_scale_vect(plc_dot_prod(temp,axis),axis);
+      nor = plc_vect_diff(temp,par);
+
+      /* Now find third vector for axis, nor, binor frame */
+      /* Remember that this is NOT a unit frame, since nor is not unit. */
+
+      bool ok;
+
+      binor = plc_normalize_vect(plc_cross_prod(axis,nor),&ok);
+      if (!ok) {continue;} 
+      /* This means the point is on the axis, so nor = 0. 
+	 This point shouldn't move, so skip it. No problem. */
+      
+      binor = plc_scale_vect(plc_norm(nor),binor);
+      /* We make the binormal the same size as the normal. */
+
+      plc_vector newnor;
+
+      newnor = plc_vlincomb(cos(angle),nor,sin(angle),binor);
+      /* Newnor should have the same norm as nor and binor */
+
+      /* Now we can reassemble the original vector. */    
+      link->cp[cp].vt[vt] = plc_vect_sum(newnor,par);
+
+    }
+
+  }
+
+  /* Finally, we changed vertices, so we need to */
+
+  plc_fix_wrap(link);
+
+}
+
 /* Perform a random perturbation on a plCurve, perturbing at most radius. 
    The distribution of points is not by volume, but with equal probability
    of choosing any radius and any direction. */
