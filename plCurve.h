@@ -473,6 +473,9 @@ void plc_pfm( plCurve *L, int cp, int vt0, int vt1, double angle);
 /* Rotate a plCurve around an axis. */
 void plc_rotate( plCurve *L, plc_vector axis, double angle);
 
+/* Rotate a plCurve so the given axis points in the direction (0,0,1). */
+void plc_random_rotate(plCurve *link, plc_vector axis);
+
 /* Perform a random perturbation on a plCurve. Does not perturb
    constrained vertices. */
 void plc_perturb( plCurve *L, double radius); 
