@@ -2477,3 +2477,41 @@ void plc_perturb( plCurve *L, double radius)
   plc_fix_wrap(L);
 
 }
+
+
+void plc_random_rotate(plCurve *link, plc_vector axis)
+
+/* Rotate the link so the given axis is pointed in the (0,0,1) direction. */
+
+{
+  int cp, vt;
+  double xrand = axis.c[0];
+  double yrand = axis.c[1];
+  double zrand = axis.c[2];
+  double tmp = sqrt(1-zrand*zrand);
+
+  if(tmp > DBL_EPSILON){
+
+    double x, y, z;
+    double tmp2 = 1.0/tmp;
+
+    for(cp=0;cp < link->nc;cp++) {
+      for(vt=0;vt<link->cp[cp].nv;vt++) {
+
+	x = link->cp[cp].vt[vt].c[0];
+	y = link->cp[cp].vt[vt].c[1];
+	z = link->cp[cp].vt[vt].c[2];
+
+	link->cp[cp].vt[vt].c[0] = -x*(yrand*tmp2) + y*(xrand*tmp2);
+	link->cp[cp].vt[vt].c[1] = -x*(xrand*zrand*tmp2) - y*(yrand*zrand*tmp2) + z*tmp;
+	link->cp[cp].vt[vt].c[2] = x*xrand + y*yrand + z*zrand;
+      }
+    }
+
+    /* Finally, we changed vertices, so we need to */
+    
+    plc_fix_wrap(link);
+  }
+
+  // else z is essentially 0 so we'll just leave things as is
+}
