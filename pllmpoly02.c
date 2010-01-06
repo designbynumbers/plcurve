@@ -141,6 +141,8 @@ char *plc_lmpoly(char *code)
  unsigned char nbuf[82], *q, *s;
  //struct tms hi;
  char *outpoly;
+
+ if (code == NULL) { return NULL; }
  
  outpoly = calloc(MAXPOLY,sizeof(char)); // Space for a large polynomial
  readpos = 0;  // Reset the globals

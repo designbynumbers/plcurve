@@ -206,6 +206,11 @@ char *plc_homfly( plCurve *L)
   homfly = plc_lmpoly(ccode);
   free(ccode);
 
+  if (homfly == NULL) {
+    homfly = calloc(128,sizeof(char));
+    sprintf(homfly,"ccode unable to create crossing code for L");
+  }
+
   return homfly;
 }
 
