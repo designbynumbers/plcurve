@@ -138,8 +138,8 @@ int main(int argc, char *argv[]) {
   fprintf(curvfile,
 	  "# Curvature data file for %s \n"	\
 	  "# VECT file has %d components, %d verts \n" \
-	  "# cp = component #, vt = vertex # " \
-	  "# s = arclength to vt 0, k = curvature, 1/k radius of curvature"
+	  "# cp = component #, vt = vertex # \n" \
+	  "# s = arclength to vt 0, k = curvature, 1/k radius of curvature \n"
 	  "# cp    vt     s     k       1/k     \n",
 	  filename->filename[0],
 	  L->nc,plc_num_verts(L));
@@ -183,8 +183,148 @@ int main(int argc, char *argv[]) {
   
   /* Done writing, now we close the files and exit. */
 
-  plc_free(L);
   (void) fclose(curvfile);
+
+  /* Now, if we are supposed to call Gnuplot, please do */
+
+  if (gnuplot->count > 0) {
+
+    FILE *gpinstructions;
+    gpinstructions = fopen("cplot.gnuplot","w");
   
+    if (gpinstructions == NULL) {
+
+      printf("Couldn't open cplot.gnuplot.\n"); 
+      exit(1);
+
+    }
+
+    char plotfilename[4096];
+    char pdffilename[4096];
+    char texfilename[4096];
+
+    strcpy(plotfilename,curvfilename);
+
+    if ((vectloc = strstr(plotfilename,".dat")) == NULL) { 
+      
+      sprintf(plotfilename,"curvatureplot.eps");
+
+    } else {
+
+      sprintf(vectloc,".eps");
+
+    }
+
+    strcpy(pdffilename,plotfilename);
+
+    if ((vectloc = strstr(pdffilename,".eps")) == NULL) { 
+      
+      sprintf(pdffilename,"curvatureplot.pdf");
+
+    } else {
+
+      sprintf(vectloc,".pdf");
+
+    }
+
+    strcpy(texfilename,pdffilename);
+
+    if ((vectloc = strstr(texfilename,".pdf")) == NULL) { 
+      
+      sprintf(texfilename,"curvatureplot.tex");
+
+    } else {
+
+      sprintf(vectloc,".tex");
+
+    }
+
+    fprintf(gpinstructions,
+	    "set output \"%s\" \n"
+	    "set term postscript eps \n"
+
+	    "set border 31 lw 2 \n"
+	    "set grid back lw 1 \n"
+
+	    "set title \"\" \n"
+	    "unset label \n"
+	    "unset key \n"
+
+	    "set style line 1 lt -1 lw 1.5 pt 5 ps 1.5 \n"
+            "set style data points  \n"
+	    "set bars  4 \n",
+	    plotfilename);
+
+    fprintf(gpinstructions,"set xtics (");
+
+    double arclengths[4096],totalal;
+    totalal = plc_arclength(L,arclengths);
+
+    int cp;
+    double cumlength = 0;
+
+    for(cp=0;cp<L->nc;cp++) {
+
+      fprintf(gpinstructions," \"\" %g, \"\" %g, \"\" %g, \"\" %g, \"\" %g ",
+	      cumlength, cumlength + 0.2*arclengths[cp], cumlength + 0.4*arclengths[cp], 
+	      cumlength + 0.6*arclengths[cp], cumlength + 0.8*arclengths[cp] );
+
+      cumlength += arclengths[cp];
+
+    }
+
+    fprintf(gpinstructions,
+
+	    " )\n"
+	    "set ytics ( \"\" 0, \"\" 0.5, \"\" 1, \"\" 1.5, \"\" 2); \n"
+	    "set size ratio 0.4 \n"
+	    "set xrange [0:%g] \n"
+	    "set yrange [0:2] \n"
+	    "plot \"%s\" using ($3):($4) with lines lt -1 lw 1 \n"
+	    "set term x11 \n"
+	    "replot",
+
+	    totalal,curvfilename);
+
+    fclose(gpinstructions);
+
+    printf("Calling GNUPLOT and ps2pdf...\n");
+    
+    char sys[4096];
+    sprintf(sys,"gnuplot cplot.gnuplot; ps2pdf -dEPSCrop %s %s",plotfilename,pdffilename);
+    system(sys);
+
+
+    printf("Writing basic TeX input file with overpic (will probably need to be adjusted by hand)...\n");
+
+    FILE *texfile;
+    texfile = fopen(texfilename,"w");
+
+    fprintf(texfile,
+	    "\\begin{overpic}{%s}\n"
+	    "\\put(0,0){$0$}\n"
+	    "\\put(0,25){$0.5$}\n"
+	    "\\put(0,50){$1.0$}\n"
+	    "\\put(0,75){$1.5$}\n"
+	    "\\put(0,100){$2.0$}\n",
+	    pdffilename);
+
+    int tag;
+    for(tag=0;tag <= 5*L->nc;tag++) {
+
+      fprintf(texfile,
+	      "\\put(%g,0){$%4.2f$}\n",
+	      tag*(1.0/(5.0*L->nc)),
+	      totalal*(tag*(1.0/(5.0*L->nc))));
+
+    }
+
+    fprintf(texfile,
+	    "\\end{overpic}\n");
+
+    fclose(texfile);
+
+  }
+  plc_free(L);
   return(EXIT_SUCCESS);
 }
