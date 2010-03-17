@@ -456,7 +456,7 @@ NEWNOT:
 	if (i<=j) strwrite (outpoly," ",1);
       }
       if (lowx== (len=0)) strwrite (outpoly,"]",1);
-      strwrite (outpoly," ",1);
+      strwrite (outpoly,"n",1);
     }
     ++lowx;
     }
