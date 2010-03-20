@@ -160,7 +160,7 @@ foreach $knotline (@rawtable) {
 	} elsif ($mod =~ m/r/) {
 
 	  $operation = "[1,-1,e]";
-	  $storedop = '"(-1,1,e)"';
+	  $storedop = '"(1,-1,e)"';
 
 	}
 
@@ -172,7 +172,7 @@ foreach $knotline (@rawtable) {
 
       }
    
-     push(@files,"/Users/cantarel/plCurve/data/knotvects/$tag.$operation.vect");
+     push(@files,'"'."/Users/cantarel/plCurve/data/knotvects/$tag.$operation.vect".'"');
      
      $tag =~ m/(\d+)_(\d+)/;
 
@@ -186,6 +186,8 @@ foreach $knotline (@rawtable) {
 
    # We now compute the HOMFLY for the composite
 
+   $homfly = "Error";
+
    open(KNOTTYPE,"knottype -q#h @files |");
    while (<KNOTTYPE>) {
      
@@ -193,12 +195,20 @@ foreach $knotline (@rawtable) {
 	$homfly = $1;
       } 
 
-      if (/Couldn't open/) {
+      if (/open/) {
 	print;
 	die;
       }
       
     }
+
+   close (KNOTTYPE);
+
+   if ($homfly eq "Error" && $cr[0] eq "3" && $cr[1] eq "4" && $ind[0] eq "1" && $ind[1] eq "1") {
+
+     $homfly = "[[2] 0 3 0 3 0 1]N[0]N[-1] 0 -3 0 -2N[0]N[0] 0 1N ";
+
+   }
 
     print(" $homfly\n");
 
@@ -268,8 +278,6 @@ print HOMFLY "#define KTDBSIZE ".($ntypes-1)."\n";
 print HOMFLY "plc_knottype ktdb[$ntypes]  = { \\\n";
 
 my %tag;
-
-
 
 foreach $tag ( @knotlist ) {
 
