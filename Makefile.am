@@ -20,11 +20,13 @@ TESTS = run_tests
 
 dist_data_DATA = plCurve.typemap
 
-EXTRA_DIST = bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
-	     bad_vects/bad_4.vect bad_vects/bad_5.vect bad_vects/bad_6.vect \
-	     bad_vects/bad_7.vect bad_vects/bad_8.vect bad_vects/bad_9.vect \
-	     bad_vects/bad_10.vect bad_vects/bad_11.vect bad_vects/bad_12.vect \
-	     bad_vects/bad_13.vect bad_vects/bad_14.vect
+EXTRA_DIST = bad_vects
+
+#bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
+#	     bad_vects/bad_4.vect bad_vects/bad_5.vect bad_vects/bad_6.vect \
+#	     bad_vects/bad_7.vect bad_vects/bad_8.vect bad_vects/bad_9.vect \
+#	     bad_vects/bad_10.vect bad_vects/bad_11.vect bad_vects/bad_12.vect \
+#	     bad_vects/bad_13.vect bad_vects/bad_14.vect
 
 LDADD = libplCurve.la
 
