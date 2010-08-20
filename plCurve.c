@@ -2515,3 +2515,31 @@ void plc_random_rotate(plCurve *link, plc_vector axis)
 
   // else z is essentially 0 so we'll just leave things as is
 }
+
+
+plc_vector plc_center_of_mass (const plCurve * const L)
+
+/* Compute the center of mass of L. */
+
+{
+
+  plc_vector com = {{0,0,0}};
+  double scale = 1.0/((double) plc_num_verts(L));
+  int cp,vt;
+
+  for(cp=0;cp<L->nc;cp++) {
+    
+    for(vt=0;vt<L->cp[cp].nv;vt++) {
+
+      com = plc_vmadd(com,scale,L->cp[cp].vt[vt]);
+
+    }
+  }
+
+  return com;
+}
+  
+  
+
+  
+  

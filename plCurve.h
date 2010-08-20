@@ -364,8 +364,8 @@ int plc_cp_num(const plCurve * const L, int wrapVt);
 int plc_vt_num(const plCurve * const L, int wrapVt);
 
 /* Compute the turning angle at a vertex. Uses wraparound addressing if needed. */
-  double plc_turning_angle(plCurve * const L, const int cmp, const int vert, 
-			   bool *ok);
+double plc_turning_angle(plCurve * const L, const int cmp, const int vert, 
+			 bool *ok);
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert);
@@ -446,6 +446,11 @@ plCurve *plc_double_verts(plCurve * L);
 /* Calculate the diameter of the plCurve, thinking of the vertices as 
    a set of points in R^3 */
 double plc_pointset_diameter(const plCurve * const L);
+
+/* Calculate the center of mass of the plCurve, thinking of the vertices as
+     equal mass points. */
+plc_vector plc_center_of_mass(const plCurve * const L);
+
 
 /* Scale a plCurve (and its' constraints!) by a factor. */
 void plc_scale( plCurve *L, const double alpha);  
