@@ -2,7 +2,7 @@ AM_CFLAGS = -g -finline-functions -Wall
 ACLOCAL_AMFLAGS = -I m4
 
 include_HEADERS = plCurve.h nplCurve.h
-lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la libnplCurve.la libnplCurve_safe.la
+lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la libnplCurve.la libnplCurve_safe.la libplCurveStatic.la
 noinst_LTLIBRARIES = libplCurve_cov.la
 
 check_PROGRAMS = run_tests exit_failure_tests
@@ -29,6 +29,10 @@ EXTRA_DIST = bad_vects
 #	     bad_vects/bad_13.vect bad_vects/bad_14.vect
 
 LDADD = libplCurve.la
+
+libplCurveStatic_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c plwhitten.c 
+libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
+libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c plwhitten.c 
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
