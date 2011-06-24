@@ -449,7 +449,37 @@ double plc_pointset_diameter(const plCurve * const L);
 
 /* Calculate the center of mass of the plCurve, thinking of the vertices as
      equal mass points. */
-plc_vector plc_center_of_mass(const plCurve * const L);
+  plc_vector plc_center_of_mass(const plCurve * const L);
+  
+/* Find the nearest vertex on a plCurve to a query point. Precomputes some
+   data which can be saved to speed up future queries on the same plCurve if pc_data is non-NULL. 
+   
+   If we are passed a non-null pointer in pc_data, we check *pc_data. If it is NULL, we assume this 
+   is the first call on this curve, precompute data, and return a pointer to that data in *pc_data.
+   If *pc_data is non-NULL, we assume that this is precomputed data from a previous call for the 
+   same plCurve and use it. (If this is NOT true, hilarity is likely to ensue.)
+   
+   If precomputed data is saved, it is the callers responsibility to free the pointer later using 
+   plc_nearest_vertex_pc_data_free. The data structure is not exposed to the user because it may 
+   change without warning in future versions of plCurve. The precomputed data stores the pointer
+   *plCurve, so it will not work on a copy of the curve. 
+
+   Returns both the space location of the vertex and its cp, vt index. */
+  
+  plc_vector plc_nearest_vertex(const plc_vector pt,const plCurve * const L,int *cp, int *vt, void **pc_data);
+  void plc_nearest_vertex_pc_data_free(void **pc_data);
+  
+  /* Finds the nearest point in a buffer of plc_vectors to a query point. Precomputes
+     some data which can be saved to speed up future queries on the same buffer if pc_data is non-NULL. 
+     
+     If we are passed a non-null pointer in pc_data, we check *pc_data. If it is NULL, we assume this 
+     is the first call on this curve, precompute data, and return a pointer to that data in *pc_data.
+     If *pc_data is non-NULL, we assume that this is precomputed data from a previous call for the 
+     SAME buffer and use it. (If this is NOT true, hilarity is likely to ensue.)
+     
+     Returns the index of the closest point in the query buffer. */
+
+ int plc_nearest_neighbor(const plc_vector pt,const int n, const plc_vector *buffer,void **pc_data);
 
 
 /* Scale a plCurve (and its' constraints!) by a factor. */
@@ -561,6 +591,7 @@ plc_knottype *plc_classify( plCurve *L, int *nposs);
 #define PLC_E_BAD_CST_KIND  10
 #define PLC_E_BAD_CST_NUMS  11
 #define PLC_E_BAD_CC        12
+#define PLC_E_STALE_PCDATA  13
 
 #if (__cplusplus || c_plusplus)
 };
