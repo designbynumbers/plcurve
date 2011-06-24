@@ -465,9 +465,26 @@ double plc_pointset_diameter(const plCurve * const L);
    *plCurve, so it will not work on a copy of the curve. 
 
    Returns both the space location of the vertex and its cp, vt index. */
+
+  struct plc_nearest_neighbor_pc_data {
+    
+    plc_vector *check_buffer;
+    int search_dimension;
+    int *sorted_buffer;
+
+  };
+
+  struct plc_nearest_vertex_pc_data {
+
+    plCurve *check_curve;
+    struct plc_nearest_neighbor_pc_data **component_data;
+
+  };
   
-  plc_vector plc_nearest_vertex(const plc_vector pt,const plCurve * const L,int *cp, int *vt, void **pc_data);
-  void plc_nearest_vertex_pc_data_free(void **pc_data);
+  plc_vector plc_nearest_vertex(const plc_vector pt,plCurve *L,int *cp, int *vt, 
+				struct plc_nearest_vertex_pc_data **pc_data, int *plc_error);
+
+  void plc_nearest_vertex_pc_data_free(struct plc_nearest_vertex_pc_data **pc_data);
   
   /* Finds the nearest point in a buffer of plc_vectors to a query point. Precomputes
      some data which can be saved to speed up future queries on the same buffer if pc_data is non-NULL. 
@@ -479,7 +496,9 @@ double plc_pointset_diameter(const plCurve * const L);
      
      Returns the index of the closest point in the query buffer. */
 
- int plc_nearest_neighbor(const plc_vector pt,const int n, const plc_vector *buffer,void **pc_data);
+  int plc_nearest_neighbor(const plc_vector pt,const int n, plc_vector *buffer,
+			   struct plc_nearest_neighbor_pc_data **pc_data, int *plc_error);
+  void plc_nearest_neighbor_pc_data_free(struct plc_nearest_neighbor_pc_data **pc_data);
 
 
 /* Scale a plCurve (and its' constraints!) by a factor. */
