@@ -466,7 +466,7 @@ double plc_pointset_diameter(const plCurve * const L);
 
    Returns both the space location of the vertex and its cp, vt index. */
 
-  struct plc_nearest_neighbor_pc_data {
+  struct plc_nearest_neighbor_pc_data { /* THIS MAY CHANGE WITHOUT WARNING IN FUTURE VERSIONS! */
     
     plc_vector *check_buffer;
     int search_dimension;
@@ -474,7 +474,7 @@ double plc_pointset_diameter(const plCurve * const L);
 
   };
 
-  struct plc_nearest_vertex_pc_data {
+  struct plc_nearest_vertex_pc_data { /* THIS MAY CHANGE WITHOUT WARNING IN FUTURE VERSIONS! */
 
     plCurve *check_curve;
     struct plc_nearest_neighbor_pc_data **component_data;
