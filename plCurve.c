@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <config.h>
 #include <plCurve.h>
+#include <matrix.h>
 
 #ifdef HAVE_STDLIB_H
   #include <stdlib.h>
@@ -1732,7 +1733,7 @@ plCurve *plc_copy(const plCurve * const L) {
 
   /* If the symmetry group is nonempty, copy that too. */
 
-  nL->G = plc_symmetry_group_copy(G->L);
+  nL->G = plc_symmetry_group_copy(L->G);
 
   return nL;
 }
@@ -2397,17 +2398,17 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
 
   if (link->G != NULL) {
 
-    plc_matrix *A,*Ainv,*TAinv;
+    plc_matrix A,Ainv,*TAinv;
     int i;
 
-    A = plc_rotation_matrix(axis,angle);
-    Ainv = plc_rotation_matrix(axis,-angle);
+    plc_rotation_matrix(axis,angle,&A);
+    plc_rotation_matrix(axis,-angle,&Ainv);
   
     for(i=0;i<link->G->n;i++) {
 
-      TAinv = plc_matrix_matrix_multiply(link->G->sym->transform,Ainv);
-      free(link->G->sym->transform);
-      link->G->sym->transform = plc_matrix_matrix_multiply(A,TAinv);
+      TAinv = plc_matrix_matrix_multiply(link->G->sym[i]->transform,&Ainv);
+      free(link->G->sym[i]->transform);
+      link->G->sym[i]->transform = plc_matrix_matrix_multiply(&A,TAinv);
       free(TAinv);
 
     }

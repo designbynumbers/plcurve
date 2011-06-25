@@ -31,17 +31,17 @@ EXTRA_DIST = bad_vects
 LDADD = libplCurve.la
 
 libplCurveStatic_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-				plwhitten.c nearest_neighbor.c symmetries.c
+				plwhitten.c nearest_neighbor.c symmetries.c matrix.c
 libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-			plwhitten.c nearest_neighbor.c symmetries.c
+			plwhitten.c nearest_neighbor.c symmetries.c matrix.c
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-				plwhitten.c nearest_neighbor.c symmetries.c
+				plwhitten.c nearest_neighbor.c symmetries.c matrix.c
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c 
@@ -52,7 +52,7 @@ libnplCurve_safe_la_SOURCES = nplCurve.c nplCurve.h nvector.c
 libnplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-			plwhitten.c nearest_neighbor.c symmetries.c
+			plwhitten.c nearest_neighbor.c symmetries.c matrix.c
 libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 libplCurve_cov_la_LDFLAGS = -static -fprofile-arcs
 

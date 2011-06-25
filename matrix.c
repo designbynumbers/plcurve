@@ -278,7 +278,7 @@ plc_vector   plc_matrix_vector_multiply(plc_matrix *A,plc_vector x)
 
   for(i=0;i<3;i++) {
     for(j=0;j<3;j++) {
-      Ax[i] += A[i][j]*x.c[j];
+      Ax[i] += (*A)[i][j]*x.c[j];
     }
   }
 
@@ -316,7 +316,7 @@ plc_matrix *plc_matrix_copy(plc_matrix *A)
   int i,j;
   for(i=0;i<3;i++) {
     for(j=0;j<3;j++) {
-      build[i][j] = A[i][j];
+      (*build)[i][j] = (*A)[i][j];
     }
   }
 

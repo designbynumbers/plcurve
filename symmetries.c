@@ -7,9 +7,34 @@
 
 */
 
+#include<plCurve.h>
 #include<matrix.h>
 
-void plc_rotation_matrix(plc_vector axis, plc_vector theta,plc_matrix *A)
+#include<config.h>
+
+#ifdef HAVE_MATH_H
+  #include<math.h>
+#endif
+
+#ifdef HAVE_ASSERT_H
+  #include<assert.h>
+#endif
+
+#ifdef HAVE_STDLIB_H
+  #include<stdlib.h>
+#endif
+
+void plc_identity_matrix(plc_matrix *A)
+{
+  int i,j;
+  for(i=0;i<3;i++) {
+    for(j=0;j<3;j++) {
+      (*A)[i][j] = (i == j) ? 1 : 0;
+    }
+  }
+}
+
+void plc_rotation_matrix(plc_vector axis, double theta, plc_matrix *A)
 
 /* Generates the matrix in SO(3) corresponding to rotation around axis with angle theta. */
 
@@ -68,7 +93,8 @@ plc_symmetry *plc_symmetry_new(plCurve *model)
   plc_symmetry *sym;
   int cp;
 
-  sym = calloc_or_die(1,sizeof(plc_symmetry));
+  sym = calloc(1,sizeof(plc_symmetry));
+  assert(sym != NULL);
   sym->curve = model;
 
   sym->target = calloc(model->nc,sizeof(struct plc_vertex_loc **));
@@ -76,15 +102,12 @@ plc_symmetry *plc_symmetry_new(plCurve *model)
 
   for(cp=0;cp<model->nc;cp++) {
 
-    sym->target[cp] = calloc(model->cp[cp].nv,sizeof(struct plc_vertex_loc *));
-
-    for(vt=0;vt<model->cp[cp].nv;vt++) {
-      
-      sym->target[cp][vt] = calloc_or_die(1,sizeof(struct plc_vertex_loc));
-
-    }
+    sym->target[cp] = calloc(model->cp[cp].nv,sizeof(struct plc_vertex_loc));
+    assert(sym->target[cp] != NULL);
 
   }
+
+  return sym;
 
 }
   
@@ -94,7 +117,7 @@ void plc_symmetry_free(plc_symmetry **Sym)
    the same pointer, which is set to NULL after the call. */
 
 {
-  int cp, vt;
+  int cp;
   plc_symmetry *sym;
   sym = *Sym;
 
@@ -113,15 +136,8 @@ void plc_symmetry_free(plc_symmetry **Sym)
 	
 	if (sym->target[cp] != NULL) { 
 
-	  for(vt=0;vt<sym->curve->cp[cp].nv;vt++) {
-
-	    if (sym->target[cp][vt] != NULL) {
-
-	      free(sym->target[cp][vt]); 
-
-	    }
-
-	  }
+	  free(sym->target[cp]);
+	  sym->target[cp] = NULL;
 
 	}
 	
@@ -139,7 +155,7 @@ void plc_symmetry_free(plc_symmetry **Sym)
 
 }   
 
-plc_symmetry *plc_build_symmetry(plc_matrix A,plCurve *L)
+plc_symmetry *plc_build_symmetry(plc_matrix *A, plCurve *L)
 
 /* Uses plc_nearest_vertex to try to figure out the "intended" target of each vertex under the symmetry.
    This can fail if the curve is not symmetric to begin with to within < (1/2) an edgelength. In this case, 
@@ -149,6 +165,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix A,plCurve *L)
   int cp,afterAcp;
   int vt,afterAvt;
   plc_vector afterA;
+  bool *used;
 
   struct plc_nearest_vertex_pc_data *pc_data = NULL;
 
@@ -161,7 +178,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix A,plCurve *L)
 
   plc_symmetry *build;
   build = plc_symmetry_new(L);
-  build->transform = A;  
+  build->transform = plc_matrix_copy(A);  
   
   for(cp=0;cp<L->nc;cp++) {
 
@@ -196,7 +213,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix A,plCurve *L)
 
 }
 
-plc_symmetry *plc_copy_symmetry(plc_symmetry *A)
+plc_symmetry *plc_symmetry_copy(plc_symmetry *A)
 /* Make a new-memory copy of A */
 {
 
@@ -329,12 +346,12 @@ plc_symmetry_group *plc_rotation_group(plCurve *L,plc_vector axis, int n)
 
   plc_matrix A;
   plc_identity_matrix(&A);
-  build->sym[0] = plc_build_symmetry(A,L);
+  build->sym[0] = plc_build_symmetry(&A,L);
 
   int i;
   for(i=1;i<n;i++) {
     plc_rotation_matrix(axis,i*(TWO_PI/(double)(n)),&A);
-    build->sym[i] = plc_build_symmetry(A,L);
+    build->sym[i] = plc_build_symmetry(&A,L);
   }
 
   build->inverse[0] = 0;
@@ -355,6 +372,8 @@ plc_symmetry_group *plc_rotation_group(plCurve *L,plc_vector axis, int n)
 
   }
 
+  return build;
+
 }
 
 plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis)
@@ -369,15 +388,16 @@ plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis)
 
   plc_matrix A;
   plc_identity_matrix(&A);
-  build->sym[0] = plc_build_symmetry(A,L);
+  build->sym[0] = plc_build_symmetry(&A,L);
 
   plc_reflection_matrix(axis,&A);
-  build->sym[1] = plc_build_symmetry(A,L);
+  build->sym[1] = plc_build_symmetry(&A,L);
 
   build->inverse[0] = 0; build->inverse[1] = 1; /* Both elements are their own inverses */
 
   /* We need to scan and make sure the builds succeeded. */
 
+  int i;
   for(i=0;i<2;i++) {
 
     if (build->sym[i] == NULL) {
@@ -388,6 +408,8 @@ plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis)
     }
 
   }
+
+  return build;
 
 }
 
@@ -404,7 +426,7 @@ void plc_symmetrize(plCurve *L)
   bool *point_covered;
   plc_vector symmetrized_pos, orbit_vec;
   int cp,vt;
-  plc_vertex_loc target;
+  struct plc_vertex_loc target;
   int i;
 
   if (L->G == NULL) {  /* If the plCurve has no associated symmetry group, we do nothing */
@@ -427,7 +449,7 @@ void plc_symmetrize(plCurve *L)
 	  orbit_vec = plc_matrix_vector_multiply(L->G->sym[L->G->inverse[i]]->transform,
 						 L->cp[target.cp].vt[target.vt]);
 
-	  plc_M_vmadd(symmetrized_pos,1/(double)(n),orbit_vec);
+	  plc_M_vmadd(symmetrized_pos,1/(double)(L->G->n),orbit_vec);
 
 	}
 
@@ -457,7 +479,7 @@ void plc_symmetrize_variation(plCurve *L,plc_vector *buffer)
   bool *point_covered;
   plc_vector symmetrized_pos, orbit_vec;
   int cp,vt;
-  plc_vertex_loc target;
+  struct plc_vertex_loc target;
   int i;
 
   if (L->G == NULL) { return; } /* If L has no associated symmetry group, there is nothing to do. */
@@ -476,7 +498,7 @@ void plc_symmetrize_variation(plCurve *L,plc_vector *buffer)
 	  orbit_vec = plc_matrix_vector_multiply(L->G->sym[L->G->inverse[i]]->transform,
 						 buffer[plc_vertex_num(L,target.cp,target.vt)]);
 
-	  plc_M_vmadd(symmetrized_pos,1/(double)(n),orbit_vec);
+	  plc_M_vmadd(symmetrized_pos,1/(double)(L->G->n),orbit_vec);
 
 	}
 
