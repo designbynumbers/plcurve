@@ -48,7 +48,7 @@ void plc_rotation_matrix(plc_vector axis, double theta, plc_matrix *A)
 
   (*A)[1][0] = u.c[1]*u.c[0]*(1 - cos(theta)) + u.c[2]*sin(theta);
   (*A)[1][1] = cos(theta) + u.c[1]*u.c[1]*(1 - cos(theta));
-  (*A)[1][2] = u.c[1]*u.c[2]*(1 - cos(theta)) - u.c[2]*sin(theta);
+  (*A)[1][2] = u.c[1]*u.c[2]*(1 - cos(theta)) - u.c[0]*sin(theta);
 
   (*A)[2][0] = u.c[2]*u.c[0]*(1 - cos(theta)) - u.c[1]*sin(theta);
   (*A)[2][1] = u.c[2]*u.c[1]*(1 - cos(theta)) + u.c[0]*sin(theta);
@@ -164,7 +164,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix *A, plCurve *L)
 {
   int cp,afterAcp;
   int vt,afterAvt;
-  plc_vector afterA;
+  plc_vector afterA,nearest;
   bool *used;
 
   struct plc_nearest_vertex_pc_data *pc_data = NULL;
@@ -185,7 +185,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix *A, plCurve *L)
     for(vt=0;vt<L->cp[cp].nv;vt++) {
 
       afterA = plc_matrix_vector_multiply(A,L->cp[cp].vt[vt]);
-      plc_nearest_vertex(afterA,L,&afterAcp,&afterAvt,&pc_data,NULL);
+      nearest = plc_nearest_vertex(afterA,L,&afterAcp,&afterAvt,&pc_data,NULL);
       
       build->target[cp][vt].cp = afterAcp;
       build->target[cp][vt].vt = afterAvt;

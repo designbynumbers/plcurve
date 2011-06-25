@@ -5,7 +5,7 @@ include_HEADERS = plCurve.h nplCurve.h
 lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la libnplCurve.la libnplCurve_safe.la libplCurveStatic.la
 noinst_LTLIBRARIES = libplCurve_cov.la
 
-check_PROGRAMS = run_tests exit_failure_tests nn_test
+check_PROGRAMS = run_tests exit_failure_tests nn_test symmetry_test
 
 if HAVE_ARGTABLE2
 bin_PROGRAMS = knot_diagram resample plcurvature plcompEric
@@ -16,7 +16,7 @@ endif
 noinst_PROGRAMS = spline_view gcov_tests
 noinst_HEADERS = homfly.h
 
-TESTS = run_tests nn_test
+TESTS = run_tests nn_test symmetry_test
 
 dist_data_DATA = plCurve.typemap
 
@@ -61,6 +61,9 @@ run_tests_LDADD = libplCurve_safe.la
 
 nn_test_SOURCES = nn_test.c libplCurve_safe.la
 nn_test_LDADD = libplCurve_safe.la
+
+symmetry_test_SOURCES = symmetry_test.c libplCurve_safe.la
+symmetry_test_LDADD = libplCurve_safe.la
 
 gcov_tests_SOURCES = run_tests.c libplCurve_cov.la
 gcov_tests_LDADD = libplCurve_cov.la

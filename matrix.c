@@ -282,7 +282,7 @@ plc_vector   plc_matrix_vector_multiply(plc_matrix *A,plc_vector x)
     }
   }
 
-  build = plc_build_vect(Ax[0],Ax[1],Ax[3]);
+  build = plc_build_vect(Ax[0],Ax[1],Ax[2]);
   return build;
 }
 
