@@ -47,6 +47,36 @@ extern "C" {
 #include <stdio.h>
 #include <stdbool.h>
 
+/* We now introduce a data type encoding a symmetry of a link. Such a symmetry has to include
+   both a geometric transformation of space AND a corresponding map from each vertex of the 
+   plcurve to a target vertex. */
+
+typedef double (plc_matrix)[3][3];
+
+typedef struct plc_vertex_loc {
+
+  int cp;
+  int vt;
+
+}
+
+typedef struct plc_symmetry_type {
+
+  plc_matrix *transform;
+  plCurve   *curve;
+  struct plc_vertex_loc **target; /* Array of curve->nc arrays of curve->cp[cp].nv arrays of plc_vertex_loc */ 
+
+} plc_symmetry;
+
+typedef struct plc_symmetry_group_type { /* This requires a little bit of the group structure to be specified. */
+
+  int n;
+  plc_symmetry **sym; /* This is just a list of the group elements. */
+  int *inverse; /* the (index of) the inverse of symmetry i is given by G->inverse[i] */
+
+} plc_symmetry_group;
+
+
 /* Define 3-space vectors */
 typedef struct plc_vector_type {
   double c[3];
@@ -105,6 +135,7 @@ typedef struct plc_type {
   plc_strand *cp;                              /* Components */
   /*@only@*/ /*@null@*/ plc_constraint *cst;   /* Constraints */
   /*@only@*/ /*@null@*/ plc_vert_quant *quant; /* per-vertex quantifiers */
+  plc_symmetry_group *G;                       /* Symmetry group (may be null) */
 } plCurve;
 
 /* PlCurve_spline types */
@@ -534,7 +565,48 @@ void plc_random_rotate(plCurve *link, plc_vector axis);
    constrained vertices. */
 void plc_perturb( plCurve *L, double radius); 
 
-/* plCurve Topology Library */
+/****************************** plCurve Symmetry Functions ********************/
+
+void plc_identity_matrix(plc_matrix *A);
+void plc_rotation_matrix(plc_vector axis, plc_vector angle,plc_matrix *A);
+void plc_reflection_matrix(plc_vector axis,plc_matrix *A);
+
+/* We now define a high level interface for dealing with symmetries. */
+
+plc_symmetry *plc_symmetry_new(plCurve *model);
+void plc_symmetry_free(plc_symmetry **A);
+
+/* This creates a plc_symmetry from a transform by searching to try to figure
+   out the "intended" target of each vertex under the transform A. */
+plc_symmetry *plc_build_symmetry(plc_matrix A,plCurve *L);
+
+/* Make a new-memory copy of A */
+plc_symmetry *plc_copy_symmetry(plc_symmetry *A);
+
+/* This is a combination of matrix multiplication and applying the permutation
+   of vertices in the symmetries to build a new symmetry (matrix product BA). 
+   Returns NULL on fail. */
+plc_symmetry *plc_compose_symmetries(plc_symmetry *A,plc_symmetry *B);
+
+/* We now need constructors and destructors for the symmetry group */
+plc_symmetry_group *plc_symmetry_group_new(int n);
+void plc_symmetry_group_free(plc_symmetry_group **G);
+plc_symmetry_group *plc_symmetry_group_copy(plc_symmetry_group *G);
+
+/* We define a couple of standard groups as well. Return NULL if the build fails. */
+/* Remember that the curves have to basically have the desired symmetry to start. */
+plc_symmetry_group *plc_rotation_group(plCurve *L,plc_vector axis, int n);
+plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis);
+
+/* This symmetrizes a plCurve over a group (which applies to the curve). */
+void plc_symmetrize(plCurve *L,plc_symmetry_group *G);
+
+  /* This symmetrizes a variation (a buffer of vectors of length plc_num_verts), assumed to 
+     represent vectors located at the vertices of L over a symmetry group which applies to L. */
+
+void plc_symmetrize_variation(plCurve *L,plc_vector *buffer,plc_symmetry_group *G);
+
+  /************************ plCurve Topology Library ********************/
 
 /* This contains some functionality designed to work with plCurves as knots,
    including converting them to an abstract ``crossing'' representation, 

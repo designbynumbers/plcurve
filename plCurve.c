@@ -124,6 +124,9 @@ static inline int intmax(const int a, const int b) {
   /* Space for vertex quantifiers to be stored (someday) */
   L->quant = NULL;
 
+  /* Symmetry group pointer */
+  L->G = NULL;
+
   /*@-compdef@*/ /* Frustratingly, splint thinks that L->cp[i].nv, .open, .cc,
                     .vt and .clr don't get defined. */
   return L;
@@ -405,6 +408,8 @@ void plc_free(/*@only@*/ /*@null@*/ plCurve *L) {
     free(qnt);
     qnt = NULL;
   }
+
+  plc_symmetry_group_free(&(L->G)); /* This is harmless if L->G is NULL */
 
   free(L);
 } /* plc_free */
@@ -1725,6 +1730,10 @@ plCurve *plc_copy(const plCurve * const L) {
     }
   }
 
+  /* If the symmetry group is nonempty, copy that too. */
+
+  nL->G = plc_symmetry_group_copy(G->L);
+
   return nL;
 }
 
@@ -2380,10 +2389,32 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
 
 void plc_rotate(plCurve *link, plc_vector axis, double angle)
 
-/* Rotate the link around a given axis. */
+/* Rotate the link around a given axis. The tricky part is that we must transform the 
+   symmetry group accordingly. */
 
 {
   int vt,cp;
+
+  if (link->G != NULL) {
+
+    plc_matrix *A,*Ainv,*TAinv;
+    int i;
+
+    A = plc_rotation_matrix(axis,angle);
+    Ainv = plc_rotation_matrix(axis,-angle);
+  
+    for(i=0;i<link->G->n;i++) {
+
+      TAinv = plc_matrix_matrix_multiply(link->G->sym->transform,Ainv);
+      free(link->G->sym->transform);
+      link->G->sym->transform = plc_matrix_matrix_multiply(A,TAinv);
+      free(TAinv);
+
+    }
+    
+    free(A); free(Ainv);
+
+  }
 
   for(cp=0;cp < link->nc;cp++) {
 

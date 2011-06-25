@@ -269,3 +269,57 @@ plc_vector solve_linear(plc_matrix *LU,int index[3],plc_vector b)
   return result;
 
 }
+
+plc_vector   plc_matrix_vector_multiply(plc_matrix *A,plc_vector x) 
+{
+  plc_vector build;
+  double Ax[3] = {0,0,0};
+  int i,j;
+
+  for(i=0;i<3;i++) {
+    for(j=0;j<3;j++) {
+      Ax[i] += A[i][j]*x.c[j];
+    }
+  }
+
+  build = plc_build_vect(Ax[0],Ax[1],Ax[3]);
+  return build;
+}
+
+plc_matrix   *plc_matrix_matrix_multiply(plc_matrix *A,plc_matrix *B)
+{
+  plc_matrix *AB;
+  int i,j,k;
+
+  AB = calloc(1,sizeof(plc_matrix));
+
+  for(i=0;i<3;i++) {
+    for(j=0;j<3;j++) {
+      for(k=0;k<3;k++) {
+
+	(*AB)[i][j] += (*A)[i][k] * (*B)[k][j];
+
+      }
+    }
+  }
+
+  return AB;
+}
+
+plc_matrix *plc_matrix_copy(plc_matrix *A)
+{
+  if (A == NULL) { return NULL; }
+  
+  plc_matrix *build;
+  build = calloc(1,sizeof(plc_matrix));
+  
+  int i,j;
+  for(i=0;i<3;i++) {
+    for(j=0;j<3;j++) {
+      build[i][j] = A[i][j];
+    }
+  }
+
+  return build;
+}
+  
