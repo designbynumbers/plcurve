@@ -156,12 +156,36 @@ int plc_nearest_neighbor(const plc_vector pt, const int n, plc_vector *buffer,
 
   }
 
+  /* Our method only saves time for relatively large buffers. We check first whether just checking all
+     pairs would be faster. */
+  
+  if (n < 5000) {
+
+    if (pc_data != NULL) {  /* If we're using the interface, insert some dummy pc_data in place. */
+                            /* This is still tagged to the current buffer, since we might want  */
+                            /* to recompute for another (larger) buffer. */
+
+      if (*pc_data == NULL) {
+
+	*pc_data = calloc(1,sizeof(struct plc_nearest_neighbor_pc_data));
+	(*pc_data)->check_buffer = buffer;
+
+      }
+
+    }
+    
+    return exhaustive_nearest_neighbor(pt,n,buffer,1);
+    
+  }
+
+
   /* If we had valid pc_data, and are using the interface, we loaded it. Let's check. */
 
   if (local_pcdata == NULL) {  /* If we don't have precomputed data, we'll have to compute it now. */
 
     local_pcdata = calloc(1,sizeof(struct plc_nearest_neighbor_pc_data));
 
+    local_pcdata->check_buffer = buffer;
     local_pcdata->search_dimension = max_dimension(n,buffer);
     GLOB_SEARCH_DIMENSION = local_pcdata->search_dimension;
     GLOB_NN_BUFFER = buffer;
@@ -188,22 +212,22 @@ int plc_nearest_neighbor(const plc_vector pt, const int n, plc_vector *buffer,
   search_dimension = local_pcdata->search_dimension;
   sorted_buffer = local_pcdata->sorted_buffer;
 
-  if (pt.c[search_dimension] < buffer[sorted_buffer[1]].c[search_dimension]) {
+  if (pt.c[search_dimension] < buffer[sorted_buffer[0]].c[search_dimension]) {
 
     start = 0;
 
-  } else if (pt.c[search_dimension] > buffer[sorted_buffer[n]].c[search_dimension]) {
+  } else if (pt.c[search_dimension] > buffer[sorted_buffer[n-1]].c[search_dimension]) {
 
     start = n-1;
 
   } else {
 
     int low = 0, high = n-1;
-    int mid = (high-low)/2;  /* This will be an integer division */
+    int mid = (high+low)/2;  /* This will be an integer division */
     
-    for(;high - low > 1;mid = (high-low)/2) {
+    for(;high - low > 1;mid = (high+low)/2) {
 
-      if (pt.c[search_dimension] > buffer[mid].c[search_dimension]) {
+      if (pt.c[search_dimension] > buffer[sorted_buffer[mid]].c[search_dimension]) {
 
 	low = mid;
 
@@ -228,7 +252,7 @@ int plc_nearest_neighbor(const plc_vector pt, const int n, plc_vector *buffer,
   int    best_index = sorted_buffer[start];
   int    up=start,down=start;
 
-  for(;buffer[sorted_buffer[up]].c[search_dimension] - pt.c[search_dimension] < best_dist && up < n;up++) {
+  for(;up < n && buffer[sorted_buffer[up]].c[search_dimension] - pt.c[search_dimension] < best_dist;up++) {
     
     double this_dist = plc_distance(pt,buffer[sorted_buffer[up]]);
 
@@ -241,7 +265,7 @@ int plc_nearest_neighbor(const plc_vector pt, const int n, plc_vector *buffer,
 
   }
 
-  for(;pt.c[search_dimension] - buffer[sorted_buffer[down]].c[search_dimension] < best_dist && down > 0;down--) {
+  for(;down >= 0 && pt.c[search_dimension] - buffer[sorted_buffer[down]].c[search_dimension] < best_dist;down--) {
     
     double this_dist = plc_distance(pt,buffer[sorted_buffer[down]]);
 
