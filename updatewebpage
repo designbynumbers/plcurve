@@ -11,4 +11,4 @@ version=$(ls libplcurve-*.tar.gz); \
 version=${version%.tar.gz}; \
 version=${version#libplcurve-}; \
 echo Updating release for libplcurve ${version}; 
-scp libplcurve-*.tar.gz cantarel@kroner.dreamhost.com:"~/jasoncantarella.com/downloads/"
+scp libplcurve-*.tar.gz cantarel@jasoncantarella.com:"~/jasoncantarella.com/downloads/"

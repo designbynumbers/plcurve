@@ -609,14 +609,22 @@ int main(void) {
   check(sysret == 0);
   check(curves_match(S,*L));
 
+  /* We display working directory. */
+
+  char cwdbuffer[256];
+  getcwd(cwdbuffer,256);
+  printf("Attempting to load files from cwd %s/bad_vects/\n",cwdbuffer);
+
   /* Read invalid testfiles to exercise get_comment and PlCurve_read */
   filename = (char *)malloc((size_t)40);
   check(filename != NULL);
   for (ctr = 1; ctr <= num_bad_vect_files; ctr++) {
-    (void)snprintf(filename,(size_t)40,"bad_vects/bad_%d.vect",ctr);
+    (void)snprintf(filename,(size_t)40,"./bad_vects/bad_%d.vect",ctr);
     filehandle = fopen(filename,"r");
     if (filehandle == NULL) {
-      fprintf(stderr,"Unable to open bad_vects/bad_%d.vect\n",ctr);
+      fprintf(stderr,"Unable to open ./bad_vects/bad_%d.vect. Trying ../bad_vects/bad_%d.vect\n",ctr,ctr);
+      (void)snprintf(filename,(size_t)40,"../bad_vects/bad_%d.vect",ctr);
+      filehandle = fopen(filename,"r");
     }
     check(filehandle != NULL);
     (void)plc_read(filehandle,&err_num,err_str,sizeof(err_str));

@@ -20,28 +20,26 @@ TESTS = run_tests nn_test symmetry_test
 
 dist_data_DATA = plCurve.typemap
 
-EXTRA_DIST = bad_vects
-
-#bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
-#	     bad_vects/bad_4.vect bad_vects/bad_5.vect bad_vects/bad_6.vect \
-#	     bad_vects/bad_7.vect bad_vects/bad_8.vect bad_vects/bad_9.vect \
-#	     bad_vects/bad_10.vect bad_vects/bad_11.vect bad_vects/bad_12.vect \
-#	     bad_vects/bad_13.vect bad_vects/bad_14.vect
+EXTRA_DIST = bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
+	     bad_vects/bad_4.vect bad_vects/bad_5.vect bad_vects/bad_6.vect \
+	     bad_vects/bad_7.vect bad_vects/bad_8.vect bad_vects/bad_9.vect \
+	     bad_vects/bad_10.vect bad_vects/bad_11.vect bad_vects/bad_12.vect \
+	     bad_vects/bad_13.vect bad_vects/bad_14.vect
 
 LDADD = libplCurve.la
 
 libplCurveStatic_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-				plwhitten.c nearest_neighbor.c symmetries.c matrix.c
+				plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h
 libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-			plwhitten.c nearest_neighbor.c symmetries.c matrix.c
+			plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-				plwhitten.c nearest_neighbor.c symmetries.c matrix.c
+				plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c 
@@ -52,7 +50,7 @@ libnplCurve_safe_la_SOURCES = nplCurve.c nplCurve.h nvector.c
 libnplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-			plwhitten.c nearest_neighbor.c symmetries.c matrix.c
+			plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h
 libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 libplCurve_cov_la_LDFLAGS = -static -fprofile-arcs
 
@@ -94,4 +92,5 @@ plcurvature_LDFLAGS = -static -largtable2
 FFLAGS = -g 
 plcompEric_SOURCES = compEric.f
 
-
+clean-local:
+	rm *.gcno *.gcda

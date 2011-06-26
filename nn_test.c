@@ -433,7 +433,6 @@ void random_torusknot_test(int npoints,int seed, int p, int q, int ntests)
 
   plCurve *L;
   plc_vector pt;
-  int i;
 
   srand(seed); /* We WANT this to be repeatable for debugging purposes. */
 
@@ -462,7 +461,7 @@ void random_torusknot_test(int npoints,int seed, int p, int q, int ntests)
   struct plc_nearest_vertex_pc_data *pc_data = NULL;
   int plc_error;
 
-  int exhaustive,nn;
+  int exhaustive = 0;
 
   printf("Exhaustive (sec) | plCurve (sec) | Correct Results \n");
   printf("---------------------------------------------------\n");
