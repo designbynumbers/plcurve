@@ -509,7 +509,7 @@ double plc_pointset_diameter(const plCurve * const L);
 
   struct plc_nearest_vertex_pc_data { /* THIS MAY CHANGE WITHOUT WARNING IN FUTURE VERSIONS! */
 
-    plCurve *check_curve;
+    plCurve *check_curve; /* Note that we will LOSE memory if this pointer goes bad before free. */
     struct plc_nearest_neighbor_pc_data **component_data;
 
   };

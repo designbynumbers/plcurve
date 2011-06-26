@@ -370,6 +370,9 @@ void plc_free(/*@only@*/ /*@null@*/ plCurve *L) {
     return; /* Move along, nothing to see here */
   }
 
+  plc_symmetry_group_free(&(L->G)); /* This is harmless if L->G is NULL */
+                                    /* Must be done BEFORE we lose the cp, vt data in L */
+
   /* Now we can get to work. */
   if (L->cp != NULL) {
     /*@+loopexec@*/
@@ -409,8 +412,6 @@ void plc_free(/*@only@*/ /*@null@*/ plCurve *L) {
     free(qnt);
     qnt = NULL;
   }
-
-  plc_symmetry_group_free(&(L->G)); /* This is harmless if L->G is NULL */
 
   free(L);
 } /* plc_free */

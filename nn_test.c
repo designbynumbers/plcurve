@@ -97,6 +97,10 @@ plCurve *torusknot(int verts,int p,int q,double major_radius,double minor_radius
 
   plc_fix_wrap(tk);
 
+  free(nv);
+  free(open);
+  free(cc);
+
   return tk;
 
 }
@@ -232,7 +236,7 @@ void square_buffer_tests(plc_vector pt,int target) {
 void square_plCurve_tests(plc_vector pt,int target) {
 
   struct plc_nearest_vertex_pc_data *pc_data = NULL;
-  plCurve *L = NULL;
+  plCurve *L = NULL, *nL = NULL;
   int plc_error = 0;
   int cp, vt;
 
@@ -289,9 +293,10 @@ void square_plCurve_tests(plc_vector pt,int target) {
 
    /* Test 3: Fancy nearest neighbor on square and 0.1, 0.1, 0.1 using stale precomputed data. */
 
-   pc_data->check_curve = NULL; /* Force data to look stale */
+  nL = plc_copy(L);
+  pc_data->check_curve = nL; /* Force data to look stale (as if it applies to nL) */
 
-   plc_nearest_vertex(pt,L,&cp,&vt,&pc_data,&plc_error);
+  plc_nearest_vertex(pt,L,&cp,&vt,&pc_data,&plc_error);
 
   if (cp != 0 || vt != target) {
 
@@ -327,6 +332,7 @@ void square_plCurve_tests(plc_vector pt,int target) {
 
    plc_nearest_vertex_pc_data_free(&pc_data);
    plc_free(L);
+   plc_free(nL);
 
 } 
 

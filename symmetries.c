@@ -97,8 +97,8 @@ plc_symmetry *plc_symmetry_new(plCurve *model)
   assert(sym != NULL);
   sym->curve = model;
 
-  sym->target = calloc(model->nc,sizeof(struct plc_vertex_loc **));
-  sym->transform = calloc(1,sizeof(plc_matrix));
+  sym->target = calloc(model->nc,sizeof(struct plc_vertex_loc *));
+  sym->transform = NULL; /* We leave this unallocated, since we expect to get the memory elsewhere. */
 
   for(cp=0;cp<model->nc;cp++) {
 
@@ -144,14 +144,13 @@ void plc_symmetry_free(plc_symmetry **Sym)
       }
     
       free(sym->target);
+      sym->target = NULL;
     
     }
 
     free(sym);
-    
+    *Sym = NULL;
   }
-
-  (*Sym) = NULL;
 
 }   
 
@@ -192,8 +191,9 @@ plc_symmetry *plc_build_symmetry(plc_matrix *A, plCurve *L)
 
       if (used[plc_vertex_num(L,afterAcp,afterAvt)]) { /* We fail. Cleanup and quit. */
 	
+	plc_nearest_vertex_pc_data_free(&pc_data);
+	plc_symmetry_free(&build);
 	free(used);
-	free(build);
 	return NULL;
 
       } else { /* Mark this off for the future */
@@ -208,6 +208,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix *A, plCurve *L)
 
   /* We survived this far, so the build must have worked. */
 
+  plc_nearest_vertex_pc_data_free(&pc_data);
   free(used);
   return build;
 
@@ -295,8 +296,11 @@ void plc_symmetry_group_free(plc_symmetry_group **G)
 	
       }
 
-      free((*G)->sym);         (*G)->sym = NULL;      /* Free the buffers of group information */
-      free((*G)->inverse);     (*G)->inverse = NULL;
+      free((*G)->sym);         
+      (*G)->sym = NULL;      /* Free the buffers of group information */
+      
+      free((*G)->inverse);     
+      (*G)->inverse = NULL;
 
       free(*G);
       *G = NULL;

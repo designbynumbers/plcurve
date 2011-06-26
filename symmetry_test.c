@@ -69,8 +69,8 @@ plCurve *torusknot(int verts,int p,int q,double major_radius,double minor_radius
 
   for (i=0;i<cp;i++) {
 
-    for(vt=0,theta=0,pofs=i*(2*pi/q),tstep = 2*pi/(double)(nv[i]);
-	vt<verts;
+    for(vt=0,theta=0,pofs=i*(2*pi/q),tstep = 2*pi/(cp*(double)(nv[i]));
+	vt<nv[i];
 	vt++,theta+=tstep) {
 
       plc_vector loc;
@@ -92,6 +92,10 @@ plCurve *torusknot(int verts,int p,int q,double major_radius,double minor_radius
 
   plc_fix_wrap(tk);
 
+  free(nv);
+  free(open);
+  free(cc);
+
   return tk;
 
 }
@@ -101,10 +105,9 @@ void torus_tests(int verts, int p, int q)
 /* Tests for the existence of the Z/pZ rotational symmetry in a torus knot or link. */
 
 {
+  plc_vector Zaxis = {{0,0,1}}; 
   plCurve *L;
-  L = torusknot(verts,p,q,2.0,1.0);
-
-  plc_vector Zaxis = {{0,0,1}};
+  L = torusknot(verts,p,q,2.0,1.0); 
 
   printf("\nGenerated (%d,%d) torus knot with %d verts. Testing for Z/%dZ rotational symmetry.\n",p,q,plc_num_verts(L),p);
   L->G = plc_rotation_group(L,Zaxis,p);
@@ -120,7 +123,7 @@ void torus_tests(int verts, int p, int q)
 
   }
 
-  printf("Now checking for Z/%dZ rotational symmetry (should NOT be able to construct it).\n",p+1);
+ /*  printf("Now checking for Z/%dZ rotational symmetry (should NOT be able to construct it).\n",p+1); */
 
   plc_symmetry_group *check;
   check = plc_rotation_group(L,Zaxis,p+1);
@@ -135,6 +138,8 @@ void torus_tests(int verts, int p, int q)
     printf("Passed. Could not construct symmetry.\n");
     
   }
+
+  plc_symmetry_group_free(&check);
 
   double rad = 0.01;
   printf("Now perturbing with radius %g.\n",rad);
@@ -162,23 +167,18 @@ void torus_tests(int verts, int p, int q)
 
   printf("%d vertex (%d,%d) torus knot/link test PASSED.\n\n",plc_num_verts(L),p,q);
 
+  plc_free(L);
+
 }
   
   
 int main() {
 
-  FILE *checkfile;
-  plCurve *L;
-  checkfile = fopen("24tk.vect","w");
-  L = torusknot(711,2,4,2,1);
-  plc_write(checkfile,L);
-  plc_free(L);
-  fclose(checkfile);
-
-  torus_tests(250,3,2);
-  torus_tests(187,2,3);
-  torus_tests(568,5,14);
-  torus_tests(711,2,4);
+  torus_tests(841,3,2);
+  torus_tests(41,3,5);
+  torus_tests(247,2,4);
+  torus_tests(341,4,2);
+  torus_tests(243,6,9);
 
   return 0;
 
