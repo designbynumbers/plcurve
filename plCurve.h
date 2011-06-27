@@ -607,6 +607,18 @@ void plc_symmetrize(plCurve *L);
 
 void plc_symmetrize_variation(plCurve *L,plc_vector *buffer);
 
+/* Checks the distance between the position of each vertex and it's target after the 
+   symmetry transform and returns the maximum. This serves as a check on the quality 
+   of a symmetry possessed by a curve. */
+
+double plc_symmetry_check(plCurve *L,plc_symmetry *A);
+
+  /* To check an entire group, use plc_symmetry_group_check, which checks the entire 
+     group L->G and returns the maximum error. */
+
+double plc_symmetry_group_check(plCurve *L);
+
+
   /************************ plCurve Topology Library ********************/
 
 /* This contains some functionality designed to work with plCurves as knots,

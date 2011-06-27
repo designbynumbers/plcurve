@@ -145,10 +145,13 @@ void torus_tests(int verts, int p, int q)
   printf("Now perturbing with radius %g.\n",rad);
   plc_perturb(L,rad);
 
+  printf("Perturbed version has error %g.\n",plc_symmetry_group_check(L));
   printf("Symmetrizing perturbed link.\n");
   plc_symmetrize(L);
 
-  printf("Checking symmetrized version for symmetry.\n");
+  printf("Symmetrized version has error %g.\n",plc_symmetry_group_check(L));
+
+  printf("Trying to rebuild symmetry group for symmetrized version.\n");
   check = plc_rotation_group(L,Zaxis,p);
   
   if (check != NULL) {
