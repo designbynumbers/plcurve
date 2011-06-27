@@ -108,8 +108,11 @@ void torus_tests(int verts, int p, int q)
   plc_vector Zaxis = {{0,0,1}}; 
   plCurve *L;
   L = torusknot(verts,p,q,2.0,1.0); 
+  
+  int nv;
+  nv = plc_num_verts(L);
 
-  printf("\nGenerated (%d,%d) torus knot with %d verts. Testing for Z/%dZ rotational symmetry.\n",p,q,plc_num_verts(L),p);
+  printf("\nGenerated (%d,%d) torus knot with %d verts. Testing for Z/ %d Z rotational symmetry.\n",p,q,nv,p);
   L->G = plc_rotation_group(L,Zaxis,p);
   
   if (L->G != NULL) {
@@ -185,11 +188,22 @@ void torus_tests(int verts, int p, int q)
   
   plc_symmetrize_variation(L,testvariation);
   printf("After symmetrizing symmetry error is %g.\n",plc_symmetry_group_variation_check(L,testvariation));
-  
   free(testvariation);
+
+  printf("Now checking plc_copy.\n");
+
+  plCurve *Lcopy;
+  Lcopy = plc_copy(L);
+
   printf("%d vertex (%d,%d) torus knot/link test PASSED.\n\n",plc_num_verts(L),p,q);
 
   plc_free(L);
+
+  plCurve *Lcopycopy;
+  Lcopycopy = plc_copy(Lcopy);
+
+  plc_free(Lcopy);
+  plc_free(Lcopycopy);
 
 }
   

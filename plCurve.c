@@ -1736,6 +1736,18 @@ plCurve *plc_copy(const plCurve * const L) {
 
   nL->G = plc_symmetry_group_copy(L->G);
 
+  /* Now the nL symmetries are tied to L (they are EXACT copies of L->G). */
+  /* So we need to transfer them to nL. Assuming that they exist. */
+
+  if (nL->G != NULL) {
+
+    int i;
+    for(i=0;i<nL->G->n;i++) {
+      nL->G->sym[i]->curve = nL;
+    }
+    
+  }
+
   return nL;
 }
 
