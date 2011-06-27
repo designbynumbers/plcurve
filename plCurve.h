@@ -609,14 +609,19 @@ void plc_symmetrize_variation(plCurve *L,plc_vector *buffer);
 
 /* Checks the distance between the position of each vertex and it's target after the 
    symmetry transform and returns the maximum. This serves as a check on the quality 
-   of a symmetry possessed by a curve. */
+   of a symmetry possessed by a curve. The corresponding _variation function does the
+   same for a variation field for L. */
 
 double plc_symmetry_check(plCurve *L,plc_symmetry *A);
+double plc_symmetry_variation_check(plCurve *L,plc_vector *buffer,plc_symmetry *A);
 
   /* To check an entire group, use plc_symmetry_group_check, which checks the entire 
-     group L->G and returns the maximum error. */
+     group L->G and returns the maximum error. Again, the corresponding _variation
+     function does the same check for a variation field. */
 
 double plc_symmetry_group_check(plCurve *L);
+double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
+
 
 
   /************************ plCurve Topology Library ********************/

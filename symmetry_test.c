@@ -168,6 +168,25 @@ void torus_tests(int verts, int p, int q)
   printf("Checking plc_symmetry_group_free.\n");
   plc_symmetry_group_free(&check);
 
+  /* Now we need to test the variation symmetrization. */
+
+  printf("Now building random variation of this curve.\n");
+
+  plc_vector *testvariation;
+  testvariation = calloc(plc_num_verts(L),sizeof(plc_vector));
+
+  int numverts,i;
+  for(i=0,numverts=plc_num_verts(L);i<numverts;i++) {
+    testvariation[i] = plc_build_vect((6.0)*rand()/RAND_MAX - 3,(6.0)*rand()/RAND_MAX - 3,(6.0)*rand()/RAND_MAX - 3);
+  }
+
+  printf("Generated random variation with symmetry error %g.\n",plc_symmetry_group_variation_check(L,testvariation));
+  printf("Now symmetrizing variation.\n");
+  
+  plc_symmetrize_variation(L,testvariation);
+  printf("After symmetrizing symmetry error is %g.\n",plc_symmetry_group_variation_check(L,testvariation));
+  
+  free(testvariation);
   printf("%d vertex (%d,%d) torus knot/link test PASSED.\n\n",plc_num_verts(L),p,q);
 
   plc_free(L);

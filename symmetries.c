@@ -551,6 +551,30 @@ double plc_symmetry_check(plCurve *L,plc_symmetry *A)
   return maxdist;
 }
 
+double plc_symmetry_variation_check(plCurve *L,plc_vector *buffer,plc_symmetry *A)
+
+{
+  int cp,vt;
+  double maxdist = 0.0,thisdist;
+  plc_vector afterA;
+  
+  if (L == NULL || A == NULL) { return 0; }  /* No curve or no symmetry => no error */
+
+  for(cp=0;cp<L->nc;cp++) {
+
+    for(vt=0;vt<L->cp[cp].nv;vt++) {
+
+      afterA = plc_matrix_vector_multiply(A->transform,buffer[plc_vertex_num(L,cp,vt)]);
+      thisdist =  plc_distance(afterA,buffer[plc_vertex_num(L,A->target[cp][vt].cp,A->target[cp][vt].vt)]);
+      maxdist = (maxdist > thisdist) ? maxdist : thisdist;
+
+    }
+
+  }
+
+  return maxdist;
+}
+
   /* To check an entire group, use plc_symmetry_group_check, which checks the entire 
      group L->G and returns the maximum error. */
 
@@ -565,6 +589,24 @@ double plc_symmetry_group_check(plCurve *L)
   for(i=0;i<L->G->n;i++) {
 
     thisdist = plc_symmetry_check(L,L->G->sym[i]);
+    maxdist = (maxdist > thisdist) ? maxdist : thisdist;
+
+  } 
+
+  return maxdist;
+
+}
+
+double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer)
+{
+  int i;
+  double maxdist = 0,thisdist;
+
+  if (L->G == NULL) { return 0; } /* If there is no symmetry group, there is no error. */
+
+  for(i=0;i<L->G->n;i++) {
+
+    thisdist = plc_symmetry_variation_check(L,buffer,L->G->sym[i]);
     maxdist = (maxdist > thisdist) ? maxdist : thisdist;
 
   } 
