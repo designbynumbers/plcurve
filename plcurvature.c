@@ -31,9 +31,8 @@
 #ifdef HAVE_MALLOC_H
   #include <malloc.h>
 #endif
-#ifdef HAVE_ARGTABLE2_H
-  #include <argtable2.h>
-#endif
+#include <argtable2.h>
+
 
 int main(int argc, char *argv[]) {
 

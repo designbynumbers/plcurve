@@ -625,6 +625,11 @@ int main(void) {
       fprintf(stderr,"Unable to open ./bad_vects/bad_%d.vect. Trying ../bad_vects/bad_%d.vect\n",ctr,ctr);
       (void)snprintf(filename,(size_t)40,"../bad_vects/bad_%d.vect",ctr);
       filehandle = fopen(filename,"r");
+      if (filehandle == NULL) {
+	fprintf(stderr,"Unable to open ./bad_vects/bad_%d.vect. Trying ../../plCurve/bad_vects/bad_%d.vect\n",ctr,ctr);
+	(void)snprintf(filename,(size_t)40,"../../plCurve/bad_vects/bad_%d.vect",ctr);
+	filehandle = fopen(filename,"r");
+      }
     }
     check(filehandle != NULL);
     (void)plc_read(filehandle,&err_num,err_str,sizeof(err_str));

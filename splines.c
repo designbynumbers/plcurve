@@ -462,6 +462,52 @@ inline static plc_vector evaluate_poly(const plc_spline * const spL,
   return plc_vect_sum(scrV,scrW);
 }
 
+inline static plc_vector evaluate_poly_derivative(const plc_spline * const spL,
+						  const int comp, 
+						  const int shi, 
+						  const int slo, 
+						  const double s,
+						  /*@out@*/ double *a,
+						  /*@out@*/ double *b) {
+  double h;
+  plc_vector dscrV, dscrW;
+
+  h = spL->cp[comp].svals[shi] - spL->cp[comp].svals[slo];
+  assert(h > DBL_EPSILON); /* They'd best not be the same point */
+
+  /* Find the appropriate weights */
+  *a = (spL->cp[comp].svals[shi] - s)/h;
+  *b = (s - spL->cp[comp].svals[slo])/h;
+
+  /* Now get ready to differentiate */
+
+  double da, db;
+
+  da = -1.0/h;
+  db = 1.0/h;
+
+  /* We give the old (vector) function as a comment, followed by the s derivative */
+
+  /* scrV function: plc_M_vlincomb(scrV,*a,spL->cp[comp].vt[slo],*b,spL->cp[comp].vt[shi]); */
+
+  plc_M_vlincomb(dscrV,da,spL->cp[comp].vt[slo],db,spL->cp[comp].vt[shi]);
+
+  /* scrW function: 
+     
+     plc_M_vlincomb(scrW, 
+     ((*a)*(*a)*(*a) - (*a))*(h*h)/6.0, spL->cp[comp].vt2[slo],
+     ((*b)*(*b)*(*b) - (*b))*(h*h)/6.0, spL->cp[comp].vt2[shi]);
+
+  */
+     
+  plc_M_vlincomb(dscrW, 
+      (3*(*a)*(*a)*(da) - (da))*(h*h)/6.0, spL->cp[comp].vt2[slo],
+      (3*(*b)*(*b)*(db) - (db))*(h*h)/6.0, spL->cp[comp].vt2[shi]);
+
+  return plc_vect_sum(dscrV,dscrW);
+
+}
+
 /*
  * Converts spline back to regular plCurve, but changes the number of verts
  * to those in nv. We require that the number of components in nv match those
@@ -663,3 +709,44 @@ plc_vector plc_sample_spline(const plc_spline * const spL,
 
   return evaluate_poly(spL,cmp,khi,klo,s,&a,&b);
 }
+
+/* Procedure samples the spline at a particular s value, returning a
+ * spatial position. */
+plc_vector plc_spline_tangent(const plc_spline * const spL,
+                                  const int cmp,
+                                  double s)
+{
+  int klo,khi,k;
+  double cmpLen;
+  double b, a;
+
+  /* We begin with a bit of checking to make sure that cmp and s seem
+     compatible with the given spL. */
+
+  assert(cmp >= 0);
+  assert(cmp < spL->nc);
+
+  /* Now fix any wraparound, so that the s value given is in [0,cmpLen). */
+
+  cmpLen = spL->cp[cmp].svals[spL->cp[cmp].ns];
+  while (s < DBL_EPSILON) {    s += cmpLen; }
+  while (s >= cmpLen) { s -= cmpLen; }
+
+  /* We now search for the correct s value. */
+
+  klo = 0;
+  khi = spL->cp[cmp].ns;
+
+  while (khi-klo > 1) {
+
+    /*@-shiftimplementation@*/
+    k = (khi+klo) >> 1;
+    /*@=shiftimplementation@*/
+    if (spL->cp[cmp].svals[k] >= s) khi=k;
+    else klo = k;
+
+  }
+
+  return evaluate_poly_derivative(spL,cmp,khi,klo,s,&a,&b);
+}
+

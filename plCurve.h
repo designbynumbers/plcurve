@@ -437,7 +437,6 @@ double plc_subarc_length(const plCurve * const L, const int cmp,
 
 double plc_s(const plCurve * const L, const int cmp, const int vert);
 
-
 /* Return how far a constraint is from being satisfied (sup norm). */
 double plc_check_cst(const plCurve * const L);
 
@@ -471,6 +470,11 @@ plCurve *plc_convert_from_spline(const plc_spline * const spL,
 plc_vector plc_sample_spline(const plc_spline * const spL,
                              const int cmp,
                              double s);
+
+/* Computes the tangent vector to a spline at a particular s value */
+plc_vector plc_spline_tangent(const plc_spline * const spL,
+			      const int cmp,
+			      double s);
 
 /* Doubles the number of vertices of L by inserting new vertices at midpoints
    of edges. Attempts to preserve constraints. */

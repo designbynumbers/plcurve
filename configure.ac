@@ -20,6 +20,7 @@ AC_COPYRIGHT(
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
 AC_INIT(libplCurve, 4.0.4, cantarel@math.uga.edu)
+#AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE
 
 #
