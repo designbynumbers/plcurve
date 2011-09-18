@@ -1,5 +1,5 @@
 AM_CFLAGS = -g -finline-functions -ftree-vectorize -Wall -I$(top_srcdir)/argtable2-13/src -I$(top_srcdir)/../ridgerunner/argtable2-13/src  -I$(top_srcdir)/../argtable2-13/src
-AM_LDFLAGS = -L$(top_srcdir)/argtable2-13/src -largtable2
+AM_LDFLAGS = -L$(top_srcdir)/argtable2-13/src -L$(top_srcdir)/../argtable2-13/src -largtable2
 ACLOCAL_AMFLAGS = -I m4
 
 include_HEADERS = plCurve.h nplCurve.h

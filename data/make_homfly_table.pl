@@ -229,10 +229,22 @@ foreach $knotline (@rawtable) {
    
    }
 
+print "Completed processing knotchart-prime and knotchart-composite-only...\n";
+print "Adding unknot...\n";
+
+$knotrec->{homfly} = "[[0]]N";
+@{$knotrec->{sym}} = ('"(1,1,e)"');
+@{$knotrec->{cr}}  = ("0");
+@{$knotrec->{ind}} = ("1");
+@{$knotrec->{filename}} = ("None");
+$knotrec->{nsummands} = 1;
+
+push(@ktab,$knotrec);
+
 # We have now generated a complete list of homflies for everything in the prime and composite tables. 
 # Our next mission (should we choose to accept it!) is to output this stuff to a header file. 
 
-print "Completed processing knotchart-prime and knotchart-composite-only...\n";
+print "Completed adding unknot...\n";
 
 # Now we sort the table by homfly
 

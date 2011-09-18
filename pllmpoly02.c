@@ -142,7 +142,33 @@ char *plc_lmpoly(char *code)
  //struct tms hi;
  char *outpoly;
 
- if (code == NULL) { return NULL; }
+if (code == NULL) { return NULL; }
+
+ /* It's possible that we'll be fed a code with only one crossing */
+ /* This will crash the rest of the code, so we insert some stuff here */
+ /* to catch this case and return [[0]]N for the unknot. --JHC */
+
+ int newlinecount = 0;
+ char *codeptr;
+ for(codeptr = code;codeptr != NULL;) {
+
+   codeptr = strchr(codeptr,'\n');
+   if (codeptr != NULL) {
+     newlinecount++;
+     codeptr++;
+   }
+
+} /* Count newlines */
+
+ if (newlinecount == 3) { /* Exactly one crossing */
+
+   outpoly = calloc(128,sizeof(char));
+   sprintf(outpoly,"[[0]]N");
+   return outpoly;
+
+ }
+
+/* Now back to your regularly scheduled programming. */
  
  outpoly = calloc(MAXPOLY,sizeof(char)); // Space for a large polynomial
  readpos = 0;  // Reset the globals
