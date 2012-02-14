@@ -571,6 +571,11 @@ void plc_random_rotate(plCurve *link, plc_vector axis);
    constrained vertices. */
 void plc_perturb( plCurve *L, double radius); 
 
+/****************************** plCurve Random Polygon Library **************/
+
+/* Generate a random closed length 2 polygon of nEdges edges using the Stiefel measure of Cantarella, Deguchi, Shonkwiler */ 
+plCurve *plc_random_closed_polygon(int nEdges);
+  
 /****************************** plCurve Symmetry Functions ********************/
 
 void plc_identity_matrix(plc_matrix *A);
