@@ -575,6 +575,9 @@ void plc_perturb( plCurve *L, double radius);
 
 /* Generate a random closed length 2 polygon of nEdges edges using the Stiefel measure of Cantarella, Deguchi, Shonkwiler */ 
 plCurve *plc_random_closed_polygon(int nEdges);
+
+/* An internal version which turns on some debugging code. */
+plCurve *plc_random_closed_polygon_selfcheck(int nEdges,bool selfcheck);
   
 /****************************** plCurve Symmetry Functions ********************/
 

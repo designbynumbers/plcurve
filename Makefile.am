@@ -1,5 +1,6 @@
-AM_CFLAGS = -g -finline-functions -ftree-vectorize -Wall -I$(top_srcdir)/argtable2-13/src -I$(top_srcdir)/../ridgerunner/argtable2-13/src  -I$(top_srcdir)/../argtable2-13/src
-AM_LDFLAGS = -L$(top_srcdir)/argtable2-13/src -L$(top_srcdir)/../argtable2-13/src -largtable2
+AM_CFLAGS = -g -finline-functions -ftree-vectorize -Wall
+# -I$(top_srcdir)/argtable2-13/src -I$(top_srcdir)/../ridgerunner/argtable2-13/src  -I$(top_srcdir)/../argtable2-13/src
+# AM_LDFLAGS = -L$(top_srcdir)/argtable2-13/src -L$(top_srcdir)/../argtable2-13/src -largtable2
 ACLOCAL_AMFLAGS = -I m4
 
 include_HEADERS = plCurve.h nplCurve.h
@@ -16,7 +17,7 @@ libplCurveStatic_a_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c
 		       plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
 libplCurveStatic_a_CFLAGS = $(AM_CFLAGS)
 
-check_PROGRAMS = run_tests exit_failure_tests nn_test symmetry_test
+check_PROGRAMS = run_tests exit_failure_tests nn_test symmetry_test randompolygon_test
 
 if HAVE_ARGTABLE2
 bin_PROGRAMS = knot_diagram resample plcurvature plcompEric
@@ -27,7 +28,7 @@ endif
 noinst_PROGRAMS = spline_view # gcov_tests
 noinst_HEADERS = homfly.h
 
-TESTS = run_tests nn_test symmetry_test
+TESTS = run_tests nn_test symmetry_test randompolygon_test
 
 dist_data_DATA = plCurve.typemap
 
@@ -45,7 +46,7 @@ libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-			plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h
+			plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
@@ -89,7 +90,7 @@ knot_diagram_LDADD = -lplCurve
 if HAVE_ARGTABLE2
 knot_diagram_LDFLAGS = -static -largtable2
 else
-knot_diagram_LDFLAGS = -static
+knot_diagram_LDFLAGS = -static 
 endif
 
 resample_SOURCES = resample.c libplCurve.a
