@@ -123,7 +123,7 @@ plCurve *plc_random_closed_polygon_selfcheck(int nEdges, bool selfcheck)
   int i;
   for(i=0;i<nEdges;i++) {
     A[i] = Araw[2*i] + I*Araw[2*i + 1];
-    B[i] = Braw[2*i] + I*Araw[2*i + 1];
+    B[i] = Braw[2*i] + I*Braw[2*i + 1];
   }
 
   /* 3. Normalize A. */

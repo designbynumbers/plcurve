@@ -169,6 +169,8 @@ int main() {
   test_gaussianarray();
   test_hdot();
 
+  printf("Generating random closed polygons to test timing and length\n\n");
+
   printf("Verts        Length    Time to generate  Result\n");
   printf("-------------------------------------------------\n");
 
@@ -199,9 +201,9 @@ int main() {
 
   /* Distribution of last edgelength experiment */
 
-  int N = 1000000;
-  int NEDGE = 5;
-  int J = 1;
+  int N = 1000;
+  int NEDGE = 500;
+  int J = 10;
 
   printf("Generating last edge data for %d %d-edge polygons to test closure...",N,NEDGE);
 
@@ -233,10 +235,11 @@ int main() {
 
   /* Generate chordlength data for N samples of NEDGE polygons at skips J, 2J, 3J, .... */
 
-  N = 50000;
+  N = 100000;
 
   printf("Generating chordlength data for %d %d-edge polygons at %d skips (%d, %d, %d ...) ... ",
 	 N,NEDGE,(int)(NEDGE/J),J,2*J,3*J);
+  fflush(stdout);
  
   start = clock();
   double *chords;
@@ -251,13 +254,16 @@ int main() {
 	 "------------- \n"
 	 "(n-1) n (n+1) \n\n");
 
-  printf("Skip      Computed Average    Predicted Average   Difference \n"
-	 "-----------------------------------------------------------\n");
+  printf("Skip      Computed Average    Predicted Average   Difference  Result\n"
+	 "---------------------------------------------------------------------------\n");
 
   for(i=J;i<NEDGE;i+=J) {
     
     double predicted = (double)(6*i*(NEDGE-i))/(double)(((NEDGE-1)*(NEDGE)*(NEDGE+1)));
-    printf("%-5d     %-13.4g       %-13.4g       %3.2g%%\n",i,chords[i],predicted,100*(fabs(chords[i] - predicted)/predicted));
+    printf("%-5d     %-13.4g       %-13.4g       %3.2f%%",i,chords[i],predicted,100*(fabs(chords[i] - predicted)/predicted));
+    
+    if (100*(fabs(chords[i] - predicted)/predicted) > 1.0) { printf("       FAIL (> 1%%).\n"); PASS = false; }
+    else { printf("       pass (< 1%%).\n"); }
     
   }
 
