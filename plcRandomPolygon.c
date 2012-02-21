@@ -222,7 +222,86 @@ plCurve *plc_random_closed_polygon(int nEdges)
 }
 
   
+/******************** Random Arm in Space *************************/
+
+plCurve *plc_random_open_polygon_selfcheck(int nEdges, bool selfcheck)
+{
+
+  /* 1. Generate vectors of 2n independent Gaussians. */
+
+  double *Araw,*Braw;
+  Araw = gaussian_array(nEdges);
+  Braw = gaussian_array(nEdges);
+
+  /* 2. Convert to complex. */
+
+  complex double *A,*B;
+
+  A = malloc(nEdges*sizeof(complex double));
+  B = malloc(nEdges*sizeof(complex double));
+
+  int i;
+  for(i=0;i<nEdges;i++) {
+    A[i] = Araw[2*i] + I*Araw[2*i + 1];
+    B[i] = Braw[2*i] + I*Braw[2*i + 1];
+  }
+
+  /* 3. Normalize A and B so that |A|^2 + |B|^2 = 2. */
+
+  complex double norm = 0;
+  norm = sqrt(creal(HermitianDot(A,A,nEdges)) + creal(HermitianDot(B,B,nEdges)));
+ 
+  ComplexScalarMultiply(sqrt(2.0)/norm,A,nEdges);
+  ComplexScalarMultiply(sqrt(2.0)/norm,B,nEdges);
+
+  /* 3a. Selfcheck, if needed. */
+
+  if (selfcheck) { 
+
+    complex double aa, bb;
+
+    aa = HermitianDot(A,A,nEdges);
+    bb = HermitianDot(B,B,nEdges);
+
+    if (fabs(creal(aa) + creal(bb) - 2.0) > 1e-10 || fabs(cimag(aa)) > 1e-10 || fabs(cimag(bb)) > 1e-10) {
+
+      fprintf(stderr,"plc_open_polygon_selfcheck: <A,A> + <B,B> = %g + %g i != 2.0\n",creal(aa) + creal(bb),cimag(aa) + cimag(bb));
+      exit(1);
+
+    }
+
+  } 
+
+  /* 6. Assemble Polygon. */
+
+  bool open={true};
+  int cc=0,nv = nEdges+1;
+  plCurve *L;
+
+  L = plc_new(1,&nv,&open,&cc);
+  L->cp[0].vt[0] = plc_build_vect(0,0,0);
   
+  for(i=1;i<nEdges+1;i++) {
+    L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],hopfImap(creal(A[i-1]),cimag(A[i-1]),creal(B[i-1]),cimag(B[i-1])));
+  }
+
+  plc_fix_wrap(L);
+
+  /* 7. Cleanup memory. */
+
+  free(Araw); free(Braw);
+  free(A); free(B);
+
+  return L;
+
+}
+    
+plCurve *plc_random_open_polygon(int nEdges) 
+{
+  return plc_random_open_polygon_selfcheck(nEdges,false);
+}
+
+    
 
 
   
