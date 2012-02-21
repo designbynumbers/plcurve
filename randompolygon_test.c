@@ -182,6 +182,343 @@ double *open_mean_squared_chordlengths(int N,int NEDGE,int J)
 
  }
 
+bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),char *typestring) {
+
+  clock_t start,end;
+  double cpu_time_used;
+  int i,j;
+  plCurve *test;
+  bool PASS = true;
+  double length = 0;
+  bool localPASS;
+
+  printf("Timing and length test for %s polygons\n",typestring);
+
+  printf("Verts        Samples       Length    Mean Time to generate  Result\n");
+  printf("------------------------------------------------------------------\n");
+
+  for(i=0;i<nSizes;i++) {
+
+    localPASS = true;
+
+    start = clock();
+
+    for(j=0;j<nPolygons;j++) {
+
+      test = polygen(Sizes[i]); 
+      length = plc_arclength(test,NULL);
+      
+      if (fabs(length - 2.0)  > 1e-10) { localPASS = false; }
+      plc_free(test);
+
+    }
+
+    end = clock();
+    cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
+    cpu_time_used /= (double)(nPolygons);
+    
+    printf("%-10d   %-5d         %-5g     %-13.4g          ",Sizes[i],nPolygons,length,cpu_time_used);
+    
+    if (localPASS) {
+      printf(" pass \n");
+    } else {
+      printf(" FAIL \n"); PASS = false;
+    }
+    
+  }
+
+  printf("------------------------------------------------------------------\n\n");
+  
+  return PASS;
+
+}
+
+bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *polygen(int nEdges),double prediction(int n, int k),char *prediction_string,char *polygon_type)
+
+/* Given a generation function and a prediction for average chordlength in terms of number of edges and skip, do test. */
+
+{
+  int i;
+  bool PASS = true;
+  clock_t start,end;
+  double cpu_time_used;
+
+  printf("Mean Squared Chordlength test for %d %d-edge %s at %d skips.\n\t Skip list: ",
+	 nPolygons,nEdges,polygon_type,nSkips);
+  for(i=0;i<nSkips;i++) {
+    printf("%5d ",Skips[i]);
+    if (i % 10 == 0 && i > 0) { printf("\n"); }
+  }
+  
+  printf("\nComputing data...");
+  fflush(stdout);
+ 
+  start = clock();
+
+  double *allchords,*thispolychords;
+  allchords = calloc(sizeof(double),nSkips);
+  
+  for(i=0;i<nPolygons;i++) {
+    
+    /* Generate polygon and compute chord data */
+    plCurve *L;
+    L = polygen(nEdges);
+    thispolychords = plc_mean_squared_chordlengths(L,0,Skips,nSkips);
+    
+    /* Add to running total */
+    int j;
+    for(j=0;j<nSkips;j++) {
+      allchords[j] += thispolychords[j];
+    }
+    
+    /* Free memory */
+    free(thispolychords);
+    plc_free(L);
+
+  }
+
+  for(i=0;i<nSkips;i++) { allchords[i] /= (double)(nPolygons); }
+  end = clock();
+  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
+
+  printf("done (%g sec).\n\n",cpu_time_used); 
+
+  /* Now display results. */
+
+  printf("According to CDS, the predicted value of squared chord length \nfor %s at skip k is %s\n\n",polygon_type,prediction_string);
+  printf("Skip      Computed Average    Predicted Average   Difference  Result\n"
+	 "---------------------------------------------------------------------------\n");
+
+  for(i=0;i<nSkips;i++) {
+    
+    double predicted  = prediction(nEdges,Skips[i]);
+    double percenterr = 100*(fabs(allchords[i] - predicted)/predicted);
+
+    printf("%-5d     %-13.7g       %-13.7g       %3.3f %%",Skips[i],allchords[i],predicted,percenterr);
+
+    if (percenterr > 1.0) { printf("      FAIL (> 1%%).\n"); PASS = false; }
+    else { printf("      pass (< 1%%).\n"); }
+    
+  }
+
+  printf("---------------------------------------------------------------------------\n");
+  printf("\n\n");
+  free(allchords);
+  return PASS;
+
+}
+
+/* These prediction functions are for chordlength_test */
+
+double space_pol_prediction(int n,int k) {
+  return (double)((n-k)*6*k)/(double)((n-1)*n*(n+1));
+}
+char space_pol_predstring[256] = "((n-k)/n) (6k/(n-1)(n+1))";
+
+double space_arm_prediction(int n,int k) {
+  return (double)(6*k)/(double)(n*(n+0.5));
+}
+char space_arm_predstring[256] = "6k/(n(n+1/2))";
+
+double plane_pol_prediction(int n,int k) {
+  return (double)((n-k)*8*k)/(double)((n-1)*n*(n+2));
+}
+char plane_pol_predstring[256] = "((n-k)/n) (8k/(n(n+2)))";
+
+double plane_arm_prediction(int n,int k) {
+  return (double)(8*k)/(double)(n*(n+1));
+}
+char plane_arm_predstring[256] = "8k/(n(n+1))";
+
+bool gyradius_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),double prediction(int n),char *prediction_string,char *polygon_type)
+
+  /* Given a generation function and a prediction for gyradius in terms of n, do test. */
+
+{
+  int i,j;
+  bool PASS = true;
+  clock_t start,end;
+  double cpu_time_used;
+
+  printf("(Squared) Radius of Gyration test for %d %s polygons at %d numbers of verts.\n\tSizelist: ",
+	 nPolygons,polygon_type,nSizes);
+  for(i=0;i<nSizes;i++) {
+    printf("%5d ",Sizes[i]);
+    if (i % 10 == 0 && i > 0) { printf("\n"); }
+  }
+  
+  printf("\nComputing data...");
+  fflush(stdout);
+ 
+  start = clock();
+
+  double *allgyradius;
+  allgyradius = calloc(sizeof(double),nSizes);
+
+  for(j=0;j<nSizes;j++) {
+  
+    for(i=0;i<nPolygons;i++) {
+    
+      /* Generate polygon and compute gyradius */
+      plCurve *L;
+      L = polygen(Sizes[j]);
+      allgyradius[j] += plc_gyradius(L);
+  
+      /* Free memory */
+      plc_free(L);
+      
+    }
+
+    allgyradius[j] /= (double)(nPolygons);
+
+  }
+  end = clock();
+  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
+
+  printf("done (%g sec).\n\n",cpu_time_used); 
+
+  /* Now display results. */
+
+  printf("According to CDS, the expected value of gyradius for n edges is is %s\n\n",prediction_string);
+  printf("n (num verts)    Mean Gyradius    Predicted Mean Gyradius   Difference  Result\n"
+	 "------------------------------------------------------------------------------\n");
+
+  for(i=0;i<nSizes;i++) {
+    
+    double predicted  = prediction(Sizes[i]);
+    double percenterr = 100*(fabs(allgyradius[i] - predicted)/predicted);
+
+    printf("%-5d            %-13.7g    %-13.7g             %7.3f %%",Sizes[i],allgyradius[i],predicted,percenterr);
+
+    if (percenterr > 1.0) { printf("   FAIL (> 1%%).\n"); PASS = false; }
+    else { printf("   pass (< 1%%).\n"); }
+    
+  }
+
+  printf("\n\n");
+  free(allgyradius);
+
+  return PASS;
+
+}
+
+/* These prediction functions are for gyradius_test */
+
+double space_pol_gyradius_prediction(int n) {
+  return (double)(1.0)/(double)(2.0*n);
+}
+char space_pol_gyradius_predstring[256] = "(1/2) (1/n)";
+
+double space_arm_gyradius_prediction(int n) {
+  return (double)(n+2)/(double)((n+1)*(n+0.5));
+}
+char space_arm_gyradius_predstring[256] = "(n+2)/(n+1)(n+1/2)";
+
+double plane_pol_gyradius_prediction(int n) {
+  return (double)(2.0*(n+1))/(double)(3*n*(n+2));
+}
+char plane_pol_gyradius_predstring[256] = "(2/3) (n+1)/(n(n+2))";
+
+double plane_arm_gyradius_prediction(int n) {
+  return (double)(4.0*(n+2))/(double)(3*(n+1)*(n+1));
+}
+char plane_arm_gyradius_predstring[256] = "(4/3) (n+2)/(n+1)^2";
+
+
+bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),double prediction(int n),char *prediction_string,char *polygon_type)
+  
+/* Tests to see if the given size of polygon has correct failure to close. */
+
+{
+  int i,j;
+  bool PASS = true;
+  clock_t start,end;
+  double cpu_time_used;
+
+  printf("Failure-to-close test for %d %s polygons at %d numbers of verts.\n\tSizelist: ",
+	 nPolygons,polygon_type,nSizes);
+  for(i=0;i<nSizes;i++) {
+    printf("%5d ",Sizes[i]);
+    if (i % 10 == 0 && i > 0) { printf("\n"); }
+  }
+  
+  printf("\nComputing data...");
+  fflush(stdout);
+ 
+  start = clock();
+
+  double *all_lastedgelength;
+  all_lastedgelength = calloc(sizeof(double),nSizes);
+
+  for(j=0;j<nSizes;j++) {
+  
+    for(i=0;i<nPolygons;i++) {
+    
+      /* Generate polygon and compute gyradius */
+      plCurve *L;
+      L = polygen(Sizes[j]);
+      all_lastedgelength[j] += plc_M_sq_dist(L->cp[0].vt[0],L->cp[0].vt[L->cp[0].nv-1]);
+  
+      /* Free memory */
+      plc_free(L);
+      
+    }
+
+    all_lastedgelength[j] /= (double)(nPolygons);
+
+  }
+  end = clock();
+  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
+
+  printf("done (%g sec).\n\n",cpu_time_used); 
+
+  /* Now display results. */
+
+  printf("According to CDS, the expected value of squared last edgelength for n edge %s polygons is %s\n\n",polygon_type,prediction_string);
+  printf("n (num verts)    Mean Sq FTC    Predicted Mean Sq FTC   Difference  Result\n"
+	 "--------------------------------------------------------------------------\n");
+
+  for(i=0;i<nSizes;i++) {
+    
+    double predicted  = prediction(Sizes[i]);
+    double percenterr = 100*(fabs(all_lastedgelength[i] - predicted)/predicted);
+
+    printf("%-5d            %-13.7g  %-13.7g           %3.3f %%",Sizes[i],all_lastedgelength[i],predicted,percenterr);
+
+    if (percenterr > 1.0) { printf("     FAIL (> 1%%).\n"); PASS = false; }
+    else { printf("     pass (< 1%%).\n"); }
+    
+  }
+
+  printf("\n\n");
+
+  free(all_lastedgelength);
+  return PASS;
+
+}
+  
+/* These prediction functions are for FTC_test */
+
+double space_pol_ftc_prediction(int n) {
+  return (double)(6.0)/(double)(n*(n+1));
+}
+char space_pol_ftc_predstring[256] = "6/n(n+1)";
+
+double space_arm_ftc_prediction(int n) {
+  return (double)(6.0*n)/(double)(n*(n+1));
+}
+char space_arm_ftc_predstring[256] = "6/(n+1)";
+
+double plane_pol_ftc_prediction(int n) {
+  return (double)(8.0)/(double)(n*(n+2));
+}
+char plane_pol_ftc_predstring[256] = "8/(n(n+2))";
+
+double plane_arm_ftc_prediction(int n) {
+   return (double)(8.0*n)/(double)(n*(n+2));
+}
+char plane_arm_ftc_predstring[256] = "8/(n+2)";
+  
 int main(int argc, char *argv[]) {
 
   bool PASS = {true};
@@ -192,302 +529,95 @@ int main(int argc, char *argv[]) {
 
   printf("Random Polygon Generation Tests \n"
 	 "------------------------------- \n"
-	 "plCurve generates random closed polygons using the direct sampling from the symmetric measure algorithm\n"
-	 "of Cantarella, Deguchi, and Shonkwiler. The call plc_random_closed_polygon(n) generates a polygon directly \n"
-	 "sampled from this distribution. The polygon is guaranteed to be closed and have length 2.\n\n");
-
-  plCurve *test;
-  int i,j;
-  int verts = 200;
-
-  clock_t start,end;
-  double cpu_time_used;
-
-  double length;
+	 "plCurve generates random polygons in four classes by direct sampling from the symmetric measure of Cantarella, Deguchi, Shonkwiler:\n"
+	 "\n"
+	 "\t Type                    Call                   \n"
+	 "\t -------------------------------------------------------------------\n"
+	 "\t closed space polygons   plc_random_closed_polygon(int nEdges) \n"
+	 "\t open space polygons     plc_random_open_polygon(int nEdges) \n"
+	 "\t closed plane polygons   plc_random_closed_plane_polygon(int nEdges) \n"
+	 "\t open plane polygons     plc_random_open_plane_polygon(int nEdges) \n"
+	 "\n"
+	 "This program tests the polygons generated against theoretical calculations about the symmetric measure. All polygons generated\n"
+	 "are guaranteed to have length 2. (Rescaling, if desired, requires you to pick a probability distribution function on polygon length and so is\n"
+	 "left to the user).\n\n");
 
   test_gaussianarray();
   test_hdot();
 
-  printf("Generating random closed polygons to test timing and length\n\n");
+  /* Timing and Length = 2.0 tests. */
 
-  printf("Verts        Length    Time to generate  Result\n");
-  printf("-------------------------------------------------\n");
+  int Sizes[100] = {20,200,2000,20000};
+  int nSizes = 4;
+  int nPolygons = 40;
 
-  for(i=0;i<4;i++,verts*=10) {
-
-    for(j=0;j<5;j++) {
-
-      start = clock();
-      test = plc_random_closed_polygon_selfcheck(verts,true);  /* This is a private interface which turns out on some internal debugging code. */
-      end = clock();
-      cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
-
-      length = plc_arclength(test,NULL);
-      printf("%-10d   %-5g     %-13.4g    ",verts,length,cpu_time_used);
-      if (fabs(length - 2.0) <1e-10) { 
-	printf(" pass \n");
-      } else {
-	printf(" FAIL \n"); PASS = false;
-      }
-
-      plc_free(test);
-
-    }
-
-    printf("\n");
-
+  if (!timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_polygon_selfcheck,"closed space polygon")
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_polygon_selfcheck,"open space polygon")
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_plane_polygon_selfcheck,"closed plane polygon")
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_plane_polygon_selfcheck,"open plane polygon")) {
+    PASS = false;
   }
 
-  verts = 200; /* Put things back for subsequent testing rounds. */
+  /* Mean squared chordlength tests. */
 
-  /* Distribution of last edgelength experiment */
+  int Skips[100] = {50,100,150,250,300,350,450};
+  int nSkips = 7;
+  nPolygons = 200;
+  int nEdges = 500;
 
-  int N = 1000;
-  int NEDGE = 500;
-  int J = 50;
-
-  printf("Generating last edge data for %d %d-edge space closed polygons to test closure...",N,NEDGE);
-
-  double lastedge = 0;
-
-  start = clock();
-
-  for(i=0;i<N;i++) {
-
-    test = plc_random_closed_polygon(NEDGE);
-    lastedge += plc_distance(test->cp[0].vt[0],test->cp[0].vt[NEDGE-1]);
-
+  if (!chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_closed_polygon,space_pol_prediction,space_pol_predstring,"closed space polygon")
+      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_polygon,space_arm_prediction,space_arm_predstring,"open space polygon")
+      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_closed_plane_polygon,plane_pol_prediction,plane_pol_predstring,"closed plane polygon")
+      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_plane_polygon,plane_arm_prediction,plane_arm_predstring,"open plane polygon")) {
+    PASS = false;
   }
 
-  lastedge /= N;
+  /* Gyradius tests. */
 
-  end = clock();
-  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
+  int gySizes[100] = {100,200,300,400,500};
+  int ngySizes = 5;
+  nPolygons = 200;
 
-  if (fabs(lastedge - 2.0/NEDGE) > 1e-2) { 
-    printf("FAIL (average length %g, should be 2/%d = %g).\n",lastedge,NEDGE,2.0/NEDGE);
-    exit(1);
-  } else {
-    printf("done (%g sec)\n",cpu_time_used);
-    printf("pass: Average length %g, close to predicted value of 2/%d = %g.\n\n",lastedge,NEDGE,2.0/NEDGE);
-  }
-
-  /* Random Polygon Chordlength Experiment */
-
-  /* Generate chordlength data for N samples of NEDGE polygons at skips J, 2J, 3J, .... */
-
-  if (PAPERMODE) { N = 1000000; } else {N = 50000;}
-
-  FILE *outfile;
-
-  if (PAPERMODE) {
-
-    outfile = fopen("space_chord_table.tex","w");
-    if (outfile == NULL) { printf("randompolygon_test: Couldn't open space_chord_table.tex"); exit(1); }
-    fprintf(outfile,"%% Data for %d samples of %d edge CLOSED SPACE polygons.\n",N,NEDGE);
-    fprintf(outfile,"%% Run generated:");
-
-    time_t curtime;
-    struct tm *loctime;
-    
-    /* Get the current time. */
-    curtime = time (NULL);
-    
-    /* Convert it to local time representation. */
-    loctime = localtime (&curtime);
-    
-    /* Print out the date and time in the standard format. */
-    fputs (asctime (loctime), outfile); 
-
-    fprintf(outfile,"%% Skip & Measured & Predicted & Percent Error\n\n");
-
-  }
-
-  printf("Generating chordlength data for %d %d-edge closed space polygons at %d skips (%d, %d, %d ...) ... ",
-	 N,NEDGE,(int)(NEDGE/J),J,2*J,3*J);
-  fflush(stdout);
- 
-  start = clock();
-  double *chords;
-  chords = mean_squared_chordlengths(N,NEDGE,J);
-  end = clock();
-  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
-
-  printf("done (%g sec).\n\n",cpu_time_used); 
-
-  printf("According to CDS, the expected value of squared chord length at skip k for a closed space n-gon is\n\n"
-	 "  6 k (n-k) \n"
-	 "------------- \n"
-	 "(n-1) n (n+1) \n\n");
-
-  printf("Skip      Computed Average    Predicted Average   Difference  Result\n"
-	 "---------------------------------------------------------------------------\n");
-
-  for(i=J;i<NEDGE;i+=J) {
-    
-    double predicted = (double)(6*i*(NEDGE-i))/(double)(((NEDGE-1)*(NEDGE)*(NEDGE+1)));
-    double percenterr = 100*(fabs(chords[i] - predicted)/predicted);
-
-    printf("%-5d     %-13.7g       %-13.7g       %3.3f%%",i,chords[i],predicted,percenterr);
-
-    if (PAPERMODE) {
-
-      fprintf(outfile,"$ %-5d  $ & $ %2.5f \\times 10^{-3} $ & $ %2.5f \\times 10^{-3}$ & $ %3.3f %% $ \\\\ \n",
-	      i, 1000*chords[i], 1000*predicted, percenterr);
-
-    }
-    
-    if (100*(fabs(chords[i] - predicted)/predicted) > 1.0) { printf("       FAIL (> 1%%).\n"); PASS = false; }
-    else { printf("       pass (< 1%%).\n"); }
-    
-  }
-
-  if (PAPERMODE) { fclose(outfile); }
-
-  printf("\n\n"); 
-
-  /* Space ARM tests. */
-
-  printf("Generating open space polygons by direct sampling from the symmetric measure....\n\n");
-
-  printf("Verts        Length    Time to generate  Result\n");
-  printf("-------------------------------------------------\n");
-
-  for(i=0;i<4;i++,verts*=10) {
-
-    for(j=0;j<5;j++) {
-
-      start = clock();
-      test = plc_random_open_polygon_selfcheck(verts,true);  /* This is a private interface which turns out on some internal debugging code. */
-      end = clock();
-      cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
-
-      length = plc_arclength(test,NULL);
-      printf("%-10d   %-5g     %-13.4g    ",verts,length,cpu_time_used);
-      if (fabs(length - 2.0) <1e-10) { 
-	printf(" pass \n");
-      } else {
-	printf(" FAIL \n"); PASS = false;
-      }
-
-      plc_free(test);
-
-    }
-
-    printf("\n");
-
-  }
-
-  /* Distribution of last edgelength experiment */
-
-  N = 1000;
-/*   int NEDGE = 500; */
-/*   int J = 50; */
-
-  printf("Generating last edge data for %d %d-edge OPEN space polygons to test predicted squared length...",N,NEDGE);
-
-/*   double lastedge = 0; */
-
-  start = clock();
-
-  for(i=0;i<N;i++) {
-
-    test = plc_random_open_polygon(NEDGE);
-    lastedge += pow(plc_distance(test->cp[0].vt[0],test->cp[0].vt[NEDGE]),2.0);
-
-  }
-
-  lastedge /= N;
-
-  end = clock();
-  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
-
-  double expected;
-
-  expected = 12.0/(2.0*NEDGE + 1.0);
-
-  if (fabs(lastedge - expected) > 1e-2) { 
-    printf("FAIL (average length %g, should be 12/(2n+1) = %g).\n",lastedge,expected);
-    exit(1);
-  } else {
-    printf("done (%g sec)\n",cpu_time_used);
-    printf("pass: Average length %g, close to predicted value of 12/(2n+1) = %g.\n\n",lastedge,expected);
-  }
-
-  /* Random Polygon Chordlength Experiment */
-
-  /* Generate chordlength data for N samples of NEDGE polygons at skips J, 2J, 3J, .... */
-
-  if (PAPERMODE) { N = 1000000; } else {N = 50000;}
-
-  if (PAPERMODE) {
-
-    outfile = fopen("space_arm_chord_table.tex","w");
-    if (outfile == NULL) { printf("randompolygon_test: Couldn't open space_arm_chord_table.tex"); exit(1); }
-    fprintf(outfile,"%% Data for %d samples of %d edge OPEN SPACE polygons.\n",N,NEDGE);
-    fprintf(outfile,"%% Run generated:");
-
-    time_t curtime;
-    struct tm *loctime;
-    
-    /* Get the current time. */
-    curtime = time (NULL);
-    
-    /* Convert it to local time representation. */
-    loctime = localtime (&curtime);
-    
-    /* Print out the date and time in the standard format. */
-    fputs (asctime (loctime), outfile); 
-
-    fprintf(outfile,"%% Skip & Measured & Predicted & Percent Error\n");
+  if (!gyradius_test(nPolygons,ngySizes,gySizes,plc_random_closed_polygon,space_pol_gyradius_prediction,space_pol_gyradius_predstring,"closed space polygon")
+      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_polygon,space_arm_gyradius_prediction,space_arm_gyradius_predstring,"open space polygon")
+      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_closed_plane_polygon,plane_pol_gyradius_prediction,plane_pol_gyradius_predstring,"closed plane polygon")
+      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_plane_polygon,plane_arm_gyradius_prediction,plane_arm_gyradius_predstring,"open plane polygon")) {
+    PASS = false;
+  };
   
-  }
+   /* Failure to close tests. */
 
-  printf("Generating chordlength data for %d %d-edge OPEN space polygons at %d skips (%d, %d, %d ...) ... ",
-	 N,NEDGE,(int)(NEDGE/J),J,2*J,3*J);
-  fflush(stdout);
+  int ftcSizes[100] = {100,200,300,400,500};
+  int nftcSizes = 5;
+  nPolygons = 40000;
+
+  if (!ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_closed_polygon,space_pol_ftc_prediction,space_pol_ftc_predstring,"closed space polygon")
+      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_polygon,space_arm_ftc_prediction,space_arm_ftc_predstring,"open space polygon")
+      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_closed_plane_polygon,plane_pol_ftc_prediction,plane_pol_ftc_predstring,"closed plane polygon")
+      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_plane_polygon,plane_arm_ftc_prediction,plane_arm_ftc_predstring,"open plane polygon")) {
+    PASS = false;
+  };
  
-  start = clock();
- /*  double *chords; */
-  chords = open_mean_squared_chordlengths(N,NEDGE,J);
-  end = clock();
-  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
+   /*  outfile = fopen("space_arm_chord_table.tex","w"); */
+/*     if (outfile == NULL) { printf("randompolygon_test: Couldn't open space_arm_chord_table.tex"); exit(1); } */
+/*     fprintf(outfile,"%% Data for %d samples of %d edge OPEN SPACE polygons.\n",N,NEDGE); */
+/*     fprintf(outfile,"%% Run generated:"); */
 
-  printf("done (%g sec).\n\n",cpu_time_used); 
-
-  printf("According to CDS, the expected value of squared chord length at skip k for a closed space n-gon is\n\n"
-	 "  6 k     \n"
-	 "--------- \n"
-	 "n (n+1/2) \n\n");
-
-  printf("Skip      Computed Average    Predicted Average   Difference  Result\n"
-	 "---------------------------------------------------------------------------\n");
-
-  for(i=J;i<NEDGE;i+=J) {
+/*     time_t curtime; */
+/*     struct tm *loctime; */
     
-    double predicted = (double)(6*i)/(double)(((NEDGE)*(NEDGE+1.0/2.0)));
-    double percenterr = 100*(fabs(chords[i] - predicted)/predicted);
-    printf("%-5d     %-13.7g       %-13.7g       %3.3f%%",i,chords[i],predicted,percenterr);
-
-    if (PAPERMODE) {
-
-      fprintf(outfile,"$ %-5d  $ & $ %2.5f \\times 10^{-3} $ & $ %2.5f \\times 10^{-3}$ & $ %3.3f \\%% $ \\\\ \n",
-	      i, 1000*chords[i], 1000*predicted, percenterr);
-
-    }
+/*     /\* Get the current time. *\/ */
+/*     curtime = time (NULL); */
     
-    if (100*(fabs(chords[i] - predicted)/predicted) > 1.0) { printf("       FAIL (> 1%%).\n"); PASS = false; }
-    else { printf("       pass (< 1%%).\n"); }
+/*     /\* Convert it to local time representation. *\/ */
+/*     loctime = localtime (&curtime); */
     
-  }
+/*     /\* Print out the date and time in the standard format. *\/ */
+/*     fputs (asctime (loctime), outfile);  */
 
-  printf("\n\n"); 
-
-  if (PAPERMODE) {
-
-    fclose(outfile);
-
-  }
+/*     fprintf(outfile,"%% Skip & Measured & Predicted & Percent Error\n"); */
+  
+/*   } */
  
   if (PASS) { exit(0); } else { exit(1); }
 

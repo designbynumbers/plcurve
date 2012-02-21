@@ -2585,6 +2585,129 @@ plc_vector plc_center_of_mass (const plCurve * const L)
 }
   
   
+/* Return the radius of gyration of L, which is half the average squared distance between vertices in L. */
+  double plc_gyradius( plCurve *L)
 
+  {
+    plc_vector *bufferA, *bufferB;
+    int numverts,vt,cp;
+    int i;
+    double gyradius = 0;
+    plc_vector *a,*b;
+
+    numverts = plc_num_verts(L);
+
+    /* This is an experimental approach to encourage caching. */
+    /* Instead of indexing the same buffer twice, we use separate */
+    /* copies of the same data to allow pipelining. So here's a  */
+    /* "flat" copy of the plCurve. */
+
+    bufferA = malloc(sizeof(plc_vector)*numverts);
+    bufferB = malloc(sizeof(plc_vector)*numverts);
+    assert(bufferA != NULL);
+    assert(bufferB != NULL);
   
+    for(cp=0,i=0;cp<L->nc;cp++) {
+
+      for(vt=0;vt<L->cp[cp].nv;vt++,i++) {
+
+	bufferA[i] = bufferB[i] = L->cp[cp].vt[vt];
+
+      }
+
+    }
+
+    /* We now compute the pairwise distances. We're using ptr */
+    /* arithmetic to make the loop run a little faster. */
+
+    for(b=bufferB;b<bufferB+numverts;b++) { 
+
+      for(a=bufferA;a<bufferA+numverts;a++) {
+
+	gyradius += plc_M_sq_dist(*a,*b);
+
+      }
+
+    }
+
+    gyradius /= 2.0*(double)(numverts)*(double)(numverts);
+
+    /* Now free the used memory. */
+
+    free(bufferA); free(bufferB);
+
+    return gyradius;
+
+  }
+
+      
+/* Return the average (squared) chordlengths of component cp of L at the array of skips given by nskips. */
+/* Wraps if L is closed and doesn't wrap if not. */
+
+double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips)
+
+  {
+    plc_vector *bufferA, *bufferB;
+    int numverts,vt;
+    int i;
+    double *means;
+    plc_vector *a,*b;
+
+    numverts = L->cp[cp].nv;
+
+    /* This is an experimental approach to encourage caching. */
+    /* Instead of indexing the same buffer twice, we use separate */
+    /* copies of the same data to allow pipelining. So here's a  */
+    /* "flat" copy of the plCurve. */
+
+    bufferA = malloc(sizeof(plc_vector)*numverts);  assert(bufferA != NULL);
+    bufferB = malloc(sizeof(plc_vector)*2*numverts); assert(bufferB != NULL);
+    means = calloc(nskips,sizeof(double)); assert(means != NULL);
+
+    for(vt=0,i=0;vt<L->cp[cp].nv;vt++,i++) {
+
+	bufferA[i] = bufferB[i] = bufferB[i+numverts]  = L->cp[cp].vt[vt];
+
+    }
+
+    if (L->cp[cp].open) {
+
+      for(i=0;i<nskips;i++) {
+
+	for(a=bufferA,b=bufferB+skips[i];b<bufferB+numverts;a++,b++) {
+
+	  means[i] += plc_M_sq_dist(*a,*b);
+	  
+	}
+
+	means[i] /= numverts - skips[i];
+
+      }
+
+    } else {
+
+      for(i=0;i<nskips;i++) {
+
+	for(a=bufferA,b=bufferB+skips[i];a<bufferA+numverts;a++,b++) {
+	  
+	  means[i] += plc_M_sq_dist(*a,*b);
+
+	}
+
+	means[i] /= numverts;
+
+      }
+
+    }
+
+    /* Now free the used memory. */
+
+    free(bufferA); free(bufferB);
+
+    return means;
+
+  }
+
+    
+
   
