@@ -27,6 +27,9 @@
 #include<stdio.h>
 #endif
 
+bool PAPERMODE;
+FILE *outfile;
+
 plCurve *plc_random_polygon_selfcheck(int nEdges,bool selfcheck); /* A private version which turns on debugging code. */
 
 double *gaussian_array(int n);
@@ -118,6 +121,24 @@ void test_hdot()
 
 } 
 
+void timestamp(FILE *outfile) {
+
+  fprintf(outfile,"# Run generated:");
+
+  time_t curtime;
+  struct tm *loctime;
+  
+  /* Get the current time. */
+  curtime = time (NULL);
+    
+  /* Convert it to local time representation. */
+  loctime = localtime (&curtime);
+  
+  /* Print out the date and time in the standard format. */
+  fputs (asctime (loctime), outfile);
+  
+}
+
  /* Generate chordlength data for N samples of NEDGE polygons at skips J, 2J, 3J, .... */
 
 double *mean_squared_chordlengths(int N,int NEDGE,int J)
@@ -182,7 +203,7 @@ double *open_mean_squared_chordlengths(int N,int NEDGE,int J)
 
  }
 
-bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),char *typestring) {
+bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),char *typestring,char *shortstring) {
 
   clock_t start,end;
   double cpu_time_used;
@@ -196,6 +217,10 @@ bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polyge
 
   printf("Verts        Samples       Length    Mean Time to generate  Result\n");
   printf("------------------------------------------------------------------\n");
+
+  if (PAPERMODE) {
+    fprintf(outfile,"TimingData%s ",shortstring);
+  }
 
   for(i=0;i<nSizes;i++) {
 
@@ -218,6 +243,10 @@ bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polyge
     cpu_time_used /= (double)(nPolygons);
     
     printf("%-10d   %-5d         %-5g     %-13.4g          ",Sizes[i],nPolygons,length,cpu_time_used);
+
+    if (PAPERMODE) {
+      fprintf(outfile,", %d , %g ",Sizes[i],cpu_time_used);
+    }
     
     if (localPASS) {
       printf(" pass \n");
@@ -228,12 +257,17 @@ bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polyge
   }
 
   printf("------------------------------------------------------------------\n\n");
+
+  if (PAPERMODE) {
+    fprintf(outfile,"\n");
+  }
   
   return PASS;
 
 }
 
-bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *polygen(int nEdges),double prediction(int n, int k),char *prediction_string,char *polygon_type)
+bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *polygen(int nEdges),double prediction(int n, int k),
+		      char *prediction_string,char *polygon_type,char *shortstring)
 
 /* Given a generation function and a prediction for average chordlength in terms of number of edges and skip, do test. */
 
@@ -250,6 +284,10 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
     if (i % 10 == 0 && i > 0) { printf("\n"); }
   }
   
+  if (PAPERMODE) {
+    fprintf(outfile,"MeanSquareChordlengthData%s, \" %d samples\", \" %d gons\" ",shortstring,nPolygons,nEdges);
+  }
+
   printf("\nComputing data...");
   fflush(stdout);
  
@@ -296,6 +334,10 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
 
     printf("%-5d     %-13.7g       %-13.7g       %3.3f %%",Skips[i],allchords[i],predicted,percenterr);
 
+    if (PAPERMODE) {
+      fprintf(outfile,", %d , %g ",Skips[i],allchords[i]);
+    }
+
     if (percenterr > 1.0) { printf("      FAIL (> 1%%).\n"); PASS = false; }
     else { printf("      pass (< 1%%).\n"); }
     
@@ -303,6 +345,11 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
 
   printf("---------------------------------------------------------------------------\n");
   printf("\n\n");
+
+  if (PAPERMODE) {
+    fprintf(outfile,"\n");
+  }
+    
   free(allchords);
   return PASS;
 
@@ -330,7 +377,7 @@ double plane_arm_prediction(int n,int k) {
 }
 char plane_arm_predstring[256] = "8k/(n(n+1))";
 
-bool gyradius_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),double prediction(int n),char *prediction_string,char *polygon_type)
+bool gyradius_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),double prediction(int n),char *prediction_string,char *polygon_type,char *shortstring)
 
   /* Given a generation function and a prediction for gyradius in terms of n, do test. */
 
@@ -347,6 +394,10 @@ bool gyradius_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdg
     if (i % 10 == 0 && i > 0) { printf("\n"); }
   }
   
+  if (PAPERMODE) {
+    fprintf(outfile,"Gyradius%s, \" %d samples \"",shortstring,nPolygons);
+  }   
+
   printf("\nComputing data...");
   fflush(stdout);
  
@@ -390,6 +441,10 @@ bool gyradius_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdg
 
     printf("%-5d            %-13.7g    %-13.7g             %7.3f %%",Sizes[i],allgyradius[i],predicted,percenterr);
 
+    if (PAPERMODE) {
+      fprintf(outfile,", %d , %g",Sizes[i],allgyradius[i]);
+    }
+
     if (percenterr > 1.0) { printf("   FAIL (> 1%%).\n"); PASS = false; }
     else { printf("   pass (< 1%%).\n"); }
     
@@ -397,6 +452,8 @@ bool gyradius_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdg
 
   printf("\n\n");
   free(allgyradius);
+
+  if (PAPERMODE) { fprintf(outfile,"\n"); }
 
   return PASS;
 
@@ -425,7 +482,7 @@ double plane_arm_gyradius_prediction(int n) {
 char plane_arm_gyradius_predstring[256] = "(4/3) (n+2)/(n+1)^2";
 
 
-bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),double prediction(int n),char *prediction_string,char *polygon_type)
+bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),double prediction(int n),char *prediction_string,char *polygon_type,char *shortstring)
   
 /* Tests to see if the given size of polygon has correct failure to close. */
 
@@ -441,6 +498,10 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),d
     printf("%5d ",Sizes[i]);
     if (i % 10 == 0 && i > 0) { printf("\n"); }
   }
+
+  if (PAPERMODE) {
+    fprintf(outfile,"FailureToClose%s, \"%d samples\"",shortstring, nPolygons);
+  } 
   
   printf("\nComputing data...");
   fflush(stdout);
@@ -485,14 +546,20 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),d
 
     printf("%-5d            %-13.7g  %-13.7g           %3.3f %%",Sizes[i],all_lastedgelength[i],predicted,percenterr);
 
+    if (PAPERMODE) {
+      fprintf(outfile,", %d, %g ",Sizes[i],all_lastedgelength[i]);
+    }
+
     if (percenterr > 1.0) { printf("     FAIL (> 1%%).\n"); PASS = false; }
     else { printf("     pass (< 1%%).\n"); }
     
   }
 
   printf("\n\n");
-
   free(all_lastedgelength);
+
+  if (PAPERMODE) { fprintf(outfile,"\n"); }
+
   return PASS;
 
 }
@@ -523,7 +590,6 @@ int main(int argc, char *argv[]) {
 
   bool PASS = {true};
   srand48(time(0));
-  bool PAPERMODE = {false};
 
   if (argc > 1) { PAPERMODE = true; }
 
@@ -551,73 +617,80 @@ int main(int argc, char *argv[]) {
   int nSizes = 4;
   int nPolygons = 40;
 
-  if (!timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_polygon_selfcheck,"closed space polygon")
-      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_polygon_selfcheck,"open space polygon")
-      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_plane_polygon_selfcheck,"closed plane polygon")
-      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_plane_polygon_selfcheck,"open plane polygon")) {
+  if (PAPERMODE) { 
+    outfile = fopen("timing_and_length2.csv","w");
+    timestamp(outfile);
+  }
+
+  if (!timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_polygon_selfcheck,"closed space polygon","CS")
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_polygon_selfcheck,"open space polygon","OS")
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_plane_polygon_selfcheck,"closed plane polygon","CP")
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_plane_polygon_selfcheck,"open plane polygon","OP")) {
     PASS = false;
   }
+
+  if (PAPERMODE) { fclose(outfile); }
 
   /* Mean squared chordlength tests. */
 
-  int Skips[100] = {50,100,150,250,300,350,450};
-  int nSkips = 7;
-  nPolygons = 200;
+  int Skips[100] = {50,75,100,125,150,175,200,225,250,275,300,325,350,375,450};
+  int nSkips = 15;
+  nPolygons = 200000;
   int nEdges = 500;
+  
+  if (PAPERMODE) { 
+    outfile = fopen("mean_squared_chordlength.csv","w");
+    timestamp(outfile);
+  }
 
-  if (!chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_closed_polygon,space_pol_prediction,space_pol_predstring,"closed space polygon")
-      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_polygon,space_arm_prediction,space_arm_predstring,"open space polygon")
-      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_closed_plane_polygon,plane_pol_prediction,plane_pol_predstring,"closed plane polygon")
-      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_plane_polygon,plane_arm_prediction,plane_arm_predstring,"open plane polygon")) {
+  if (!chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_closed_polygon,space_pol_prediction,space_pol_predstring,"closed space polygon","CS")
+      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_polygon,space_arm_prediction,space_arm_predstring,"open space polygon","OS")
+      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_closed_plane_polygon,plane_pol_prediction,plane_pol_predstring,"closed plane polygon","CP")
+      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_plane_polygon,plane_arm_prediction,plane_arm_predstring,"open plane polygon","OP")) {
     PASS = false;
   }
 
+  if (PAPERMODE) { fclose(outfile); }
+
   /* Gyradius tests. */
 
-  int gySizes[100] = {100,200,300,400,500};
-  int ngySizes = 5;
-  nPolygons = 200;
+  int gySizes[100] = {100,150,200,250,300,350,400,450,500};
+  int ngySizes = 9;
+  nPolygons = 40000;
 
-  if (!gyradius_test(nPolygons,ngySizes,gySizes,plc_random_closed_polygon,space_pol_gyradius_prediction,space_pol_gyradius_predstring,"closed space polygon")
-      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_polygon,space_arm_gyradius_prediction,space_arm_gyradius_predstring,"open space polygon")
-      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_closed_plane_polygon,plane_pol_gyradius_prediction,plane_pol_gyradius_predstring,"closed plane polygon")
-      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_plane_polygon,plane_arm_gyradius_prediction,plane_arm_gyradius_predstring,"open plane polygon")) {
+  if (PAPERMODE) { 
+    outfile = fopen("gyradius.csv","w");
+    timestamp(outfile);
+  }
+
+  if (!gyradius_test(nPolygons,ngySizes,gySizes,plc_random_closed_polygon,space_pol_gyradius_prediction,space_pol_gyradius_predstring,"closed space polygon","CS")
+      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_polygon,space_arm_gyradius_prediction,space_arm_gyradius_predstring,"open space polygon","OS")
+      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_closed_plane_polygon,plane_pol_gyradius_prediction,plane_pol_gyradius_predstring,"closed plane polygon","CP")
+      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_plane_polygon,plane_arm_gyradius_prediction,plane_arm_gyradius_predstring,"open plane polygon","OP")) {
     PASS = false;
   };
   
+  if (PAPERMODE) { fclose(outfile); }
+
    /* Failure to close tests. */
 
-  int ftcSizes[100] = {100,200,300,400,500};
-  int nftcSizes = 5;
-  nPolygons = 40000;
+  int ftcSizes[100] = {100,150,200,250,300,350,400,450,500};
+  int nftcSizes = 9;
+  nPolygons = 500000;
 
-  if (!ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_closed_polygon,space_pol_ftc_prediction,space_pol_ftc_predstring,"closed space polygon")
-      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_polygon,space_arm_ftc_prediction,space_arm_ftc_predstring,"open space polygon")
-      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_closed_plane_polygon,plane_pol_ftc_prediction,plane_pol_ftc_predstring,"closed plane polygon")
-      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_plane_polygon,plane_arm_ftc_prediction,plane_arm_ftc_predstring,"open plane polygon")) {
+  if (PAPERMODE) { 
+    outfile = fopen("failure_to_close.csv","w");
+    timestamp(outfile);
+  }  
+
+  if (!ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_closed_polygon,space_pol_ftc_prediction,space_pol_ftc_predstring,"closed space polygon","CS")
+      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_polygon,space_arm_ftc_prediction,space_arm_ftc_predstring,"open space polygon","OS")
+      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_closed_plane_polygon,plane_pol_ftc_prediction,plane_pol_ftc_predstring,"closed plane polygon","CP")
+      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_plane_polygon,plane_arm_ftc_prediction,plane_arm_ftc_predstring,"open plane polygon","OP")) {
     PASS = false;
   };
  
-   /*  outfile = fopen("space_arm_chord_table.tex","w"); */
-/*     if (outfile == NULL) { printf("randompolygon_test: Couldn't open space_arm_chord_table.tex"); exit(1); } */
-/*     fprintf(outfile,"%% Data for %d samples of %d edge OPEN SPACE polygons.\n",N,NEDGE); */
-/*     fprintf(outfile,"%% Run generated:"); */
-
-/*     time_t curtime; */
-/*     struct tm *loctime; */
-    
-/*     /\* Get the current time. *\/ */
-/*     curtime = time (NULL); */
-    
-/*     /\* Convert it to local time representation. *\/ */
-/*     loctime = localtime (&curtime); */
-    
-/*     /\* Print out the date and time in the standard format. *\/ */
-/*     fputs (asctime (loctime), outfile);  */
-
-/*     fprintf(outfile,"%% Skip & Measured & Predicted & Percent Error\n"); */
-  
-/*   } */
+  if (PAPERMODE) { fclose(outfile); }
  
   if (PASS) { exit(0); } else { exit(1); }
 
