@@ -1,6 +1,6 @@
 /* 
 
-   randompolygon_test.c : Test code for the symmetry functions in plCurve. 
+   randompolygon_test.c : Test code for the random polygon generation functions in plCurve. 
 
 */
 
@@ -370,7 +370,7 @@ char space_arm_predstring[256] = "6k/(n(n+1/2))";
 double plane_pol_prediction(int n,int k) {
   return (double)((n-k)*8*k)/(double)((n-1)*n*(n+2));
 }
-char plane_pol_predstring[256] = "((n-k)/n) (8k/(n(n+2)))";
+char plane_pol_predstring[256] = "((n-k)/n) (8k/((n-1)(n+2)))";
 
 double plane_arm_prediction(int n,int k) {
   return (double)(8*k)/(double)(n*(n+1));
@@ -515,7 +515,7 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),d
   
     for(i=0;i<nPolygons;i++) {
     
-      /* Generate polygon and compute gyradius */
+      /* Generate polygon and compute ftc */
       plCurve *L;
       L = polygen(Sizes[j]);
       all_lastedgelength[j] += plc_M_sq_dist(L->cp[0].vt[0],L->cp[0].vt[L->cp[0].nv-1]);
@@ -535,7 +535,7 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),d
 
   /* Now display results. */
 
-  printf("According to CDS, the expected value of squared last edgelength for n edge %s polygons is %s\n\n",polygon_type,prediction_string);
+  printf("According to CDS, the expected value of failure-to-close for n edge %s polygons is %s\n\n",polygon_type,prediction_string);
   printf("n (num verts)    Mean Sq FTC    Predicted Mean Sq FTC   Difference  Result\n"
 	 "--------------------------------------------------------------------------\n");
 
@@ -566,25 +566,15 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(int nEdges),d
   
 /* These prediction functions are for FTC_test */
 
-double space_pol_ftc_prediction(int n) {
-  return (double)(6.0)/(double)(n*(n+1));
-}
-char space_pol_ftc_predstring[256] = "6/n(n+1)";
-
 double space_arm_ftc_prediction(int n) {
   return (double)(6.0*n)/(double)(n*(n+1));
 }
-char space_arm_ftc_predstring[256] = "6/(n+1)";
-
-double plane_pol_ftc_prediction(int n) {
-  return (double)(8.0)/(double)(n*(n+2));
-}
-char plane_pol_ftc_predstring[256] = "8/(n(n+2))";
+char space_arm_ftc_predstring[256] = "6/(n+1/2)";
 
 double plane_arm_ftc_prediction(int n) {
-   return (double)(8.0*n)/(double)(n*(n+2));
+   return (double)(8.0*n)/(double)(n*(n+1));
 }
-char plane_arm_ftc_predstring[256] = "8/(n+2)";
+char plane_arm_ftc_predstring[256] = "8/(n+1)";
   
 int main(int argc, char *argv[]) {
 
@@ -614,8 +604,8 @@ int main(int argc, char *argv[]) {
   /* Timing and Length = 2.0 tests. */
 
   int Sizes[100] = {20,200,2000,20000};
-  int nSizes = 4;
-  int nPolygons = 40;
+  int nSizes = 3;
+  int nPolygons = 4000;
 
   if (PAPERMODE) { 
     outfile = fopen("timing_and_length2.csv","w");
@@ -633,9 +623,9 @@ int main(int argc, char *argv[]) {
 
   /* Mean squared chordlength tests. */
 
-  int Skips[100] = {50,75,100,125,150,175,200,225,250,275,300,325,350,375,450};
-  int nSkips = 15;
-  nPolygons = 200000;
+  int Skips[100] = {50,100,150,200,250,300,350,400,450};
+  int nSkips = 9;
+  nPolygons = 60000;
   int nEdges = 500;
   
   if (PAPERMODE) { 
@@ -655,8 +645,8 @@ int main(int argc, char *argv[]) {
   /* Gyradius tests. */
 
   int gySizes[100] = {100,150,200,250,300,350,400,450,500};
-  int ngySizes = 9;
-  nPolygons = 40000;
+  int ngySizes = 3;
+  nPolygons = 30000;
 
   if (PAPERMODE) { 
     outfile = fopen("gyradius.csv","w");
@@ -675,17 +665,15 @@ int main(int argc, char *argv[]) {
    /* Failure to close tests. */
 
   int ftcSizes[100] = {100,150,200,250,300,350,400,450,500};
-  int nftcSizes = 9;
-  nPolygons = 500000;
+  int nftcSizes = 3;
+  nPolygons = 100000;
 
   if (PAPERMODE) { 
     outfile = fopen("failure_to_close.csv","w");
     timestamp(outfile);
   }  
 
-  if (!ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_closed_polygon,space_pol_ftc_prediction,space_pol_ftc_predstring,"closed space polygon","CS")
-      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_polygon,space_arm_ftc_prediction,space_arm_ftc_predstring,"open space polygon","OS")
-      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_closed_plane_polygon,plane_pol_ftc_prediction,plane_pol_ftc_predstring,"closed plane polygon","CP")
+  if (!ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_polygon,space_arm_ftc_prediction,space_arm_ftc_predstring,"open space polygon","OS")
       || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_plane_polygon,plane_arm_ftc_prediction,plane_arm_ftc_predstring,"open plane polygon","OP")) {
     PASS = false;
   };

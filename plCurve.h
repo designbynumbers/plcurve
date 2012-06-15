@@ -11,19 +11,19 @@
 
 /* This file is part of plCurve.
 
-plCurve is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   plCurve is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
 
-plCurve is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   plCurve is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with plCurve; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+   You should have received a copy of the GNU General Public License
+   along with plCurve; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
@@ -35,344 +35,391 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 extern "C" {
 #endif
 
-/*
- * Take our chances that stdio.h and stdbool.h exist.  We need stdio to define
- * the FILE type and stdbool to define bool.  If stdbool doesn't exist, one
- * option is to just
- *   typedef int bool;
- * and
- *   #define true 1
- *   #define false 0
- */
+  /*
+   * Take our chances that stdio.h and stdbool.h exist.  We need stdio to define
+   * the FILE type and stdbool to define bool.  If stdbool doesn't exist, one
+   * option is to just
+   *   typedef int bool;
+   * and
+   *   #define true 1
+   *   #define false 0
+   */
 #include <stdio.h>
 #include <stdbool.h>
 
-/* We now introduce a data type encoding a symmetry of a link. Such a symmetry has to include
-   both a geometric transformation of space AND a corresponding map from each vertex of the 
-   plcurve to a target vertex. */
+  /* We now introduce a data type encoding a symmetry of a link. Such a symmetry has to include
+     both a geometric transformation of space AND a corresponding map from each vertex of the 
+     plcurve to a target vertex. */
 
-typedef double (plc_matrix)[3][3];
+  typedef double (plc_matrix)[3][3];
 
-struct plc_vertex_loc {
+  struct plc_vertex_loc {
 
-  int cp;
-  int vt;
+    int cp;
+    int vt;
 
-};
+  };
 
-typedef struct plc_type plCurve; /* We need to forward declare the plCurve type. */
+  typedef struct plc_type plCurve; /* We need to forward declare the plCurve type. */
 
-typedef struct plc_symmetry_type {
+  typedef struct plc_symmetry_type {
 
-  plc_matrix              *transform;
-  plCurve                 *curve;
-  struct plc_vertex_loc  **target; /* Array of curve->nc arrays of curve->cp[cp].nv arrays of plc_vertex_loc */ 
+    plc_matrix              *transform;
+    plCurve                 *curve;
+    struct plc_vertex_loc  **target; /* Array of curve->nc arrays of curve->cp[cp].nv arrays of plc_vertex_loc */ 
 
-} plc_symmetry;
+  } plc_symmetry;
 
-typedef struct plc_symmetry_group_type { /* This requires a little bit of the group structure to be specified. */
+  typedef struct plc_symmetry_group_type { /* This requires a little bit of the group structure to be specified. */
 
-  int n;
-  plc_symmetry **sym; /* This is just a list of the group elements. */
-  int *inverse; /* the (index of) the inverse of symmetry i is given by G->inverse[i] */
+    int n;
+    plc_symmetry **sym; /* This is just a list of the group elements. */
+    int *inverse; /* the (index of) the inverse of symmetry i is given by G->inverse[i] */
 
-} plc_symmetry_group;
+  } plc_symmetry_group;
 
 
-/* Define 3-space vectors */
-typedef struct plc_vector_type {
-  double c[3];
-} plc_vector;
+  /* Define 3-space vectors */
+  typedef struct plc_vector_type {
+    double c[3];
+  } plc_vector;
 
-typedef struct plc_color_type {
-  double r;
-  double g;
-  double b;
-  double alpha;
-} plc_color;
+  typedef struct plc_color_type {
+    double r;
+    double g;
+    double b;
+    double alpha;
+  } plc_color;
 
-typedef struct plc_strand_type {
-  int            nv;     /* Number of vertices */
-  bool           open;   /* This is an "open" strand (with distinct ends) */
-  int            cc;     /* Color count (number of colors) */
-  plc_vector   *vt;     /* Actual vertices */
-  plc_color    *clr;    /* Colors */
-} plc_strand;
+  typedef struct plc_strand_type {
+    int            nv;     /* Number of vertices */
+    bool           open;   /* This is an "open" strand (with distinct ends) */
+    int            cc;     /* Color count (number of colors) */
+    plc_vector   *vt;     /* Actual vertices */
+    plc_color    *clr;    /* Colors */
+  } plc_strand;
 
-/* Curve constraint kind */
-typedef enum plc_cst_kind_type {
-  unconstrained = 0,
-  fixed,
-  line,
-  plane,
-} plc_cst_kind;
+  /* Curve constraint kind */
+  typedef enum plc_cst_kind_type {
+    unconstrained = 0,
+    fixed,
+    line,
+    plane,
+  } plc_cst_kind;
 
-typedef struct plc_constraint_type {
-  plc_cst_kind kind;    /* What kind of constraint */
-  plc_vector   vect[2]; /* Vectors to define plane, line or fixed point */
-  int           cmp;     /* Component */
-  int           vert;    /* Starting vertex */
-  int           num_verts; /* Length of run */
-  /*@only@*/ /*@null@*/ struct plc_constraint_type *next;
-} plc_constraint;
+  typedef struct plc_constraint_type {
+    plc_cst_kind kind;    /* What kind of constraint */
+    plc_vector   vect[2]; /* Vectors to define plane, line or fixed point */
+    int           cmp;     /* Component */
+    int           vert;    /* Starting vertex */
+    int           num_verts; /* Length of run */
+    /*@only@*/ /*@null@*/ struct plc_constraint_type *next;
+  } plc_constraint;
 
   /* The vectors in vect change meaning depending on the type of constraint:
 
-  fixed : vect[0] is the fixed point, vect[1] is ignored 
-  line:   vect[0] is the tangent vector, vect[1] is a point on the line
-  plane:  vect[0] is the normal vector, vect[1].x is the distance from origin.
+     fixed : vect[0] is the fixed point, vect[1] is ignored 
+     line:   vect[0] is the tangent vector, vect[1] is a point on the line
+     plane:  vect[0] is the normal vector, vect[1].x is the distance from origin.
 
   */
 
-typedef struct plc_vert_quant_type { /* Vertex quantifiers */
-  int              cmp;    /* Component */
-  int              vert;   /* Vertex */
-  char             tag[4]; /* 3-character tag */
-  double           quant;  /* Quantifier */
-  /*@only@*/ /*@null@*/ struct plc_vert_quant_type *next;
-} plc_vert_quant;
+  typedef struct plc_vert_quant_type { /* Vertex quantifiers */
+    int              cmp;    /* Component */
+    int              vert;   /* Vertex */
+    char             tag[4]; /* 3-character tag */
+    double           quant;  /* Quantifier */
+    /*@only@*/ /*@null@*/ struct plc_vert_quant_type *next;
+  } plc_vert_quant;
 
-struct plc_type {
-  int         nc;                              /* Number of components */
-  plc_strand *cp;                              /* Components */
-  /*@only@*/ /*@null@*/ plc_constraint *cst;   /* Constraints */
-  /*@only@*/ /*@null@*/ plc_vert_quant *quant; /* per-vertex quantifiers */
-  plc_symmetry_group *G;                       /* Symmetry group (may be null) */
-};
+  struct plc_type {
+    int         nc;                              /* Number of components */
+    plc_strand *cp;                              /* Components */
+    /*@only@*/ /*@null@*/ plc_constraint *cst;   /* Constraints */
+    /*@only@*/ /*@null@*/ plc_vert_quant *quant; /* per-vertex quantifiers */
+    plc_symmetry_group *G;                       /* Symmetry group (may be null) */
+  };
 
-/* PlCurve_spline types */
-typedef struct plc_spline_strand_type {
-  bool         open;     /* This is an "open" strand (with distinct ends) */
-  int          ns;       /* Number of samples used to build spline. */
-  double      *svals;    /* s values at samples */
-  plc_vector *vt;       /* positions at these s values */
-  plc_vector *vt2;      /* _second_ derivatives at these s values */
-  int          cc;       /* Number of colors */
-  plc_color  *clr;      /* color values at samples */
-} plc_spline_strand;
+  /* PlCurve_spline types */
+  typedef struct plc_spline_strand_type {
+    bool         open;     /* This is an "open" strand (with distinct ends) */
+    int          ns;       /* Number of samples used to build spline. */
+    double      *svals;    /* s values at samples */
+    plc_vector *vt;       /* positions at these s values */
+    plc_vector *vt2;      /* _second_ derivatives at these s values */
+    int          cc;       /* Number of colors */
+    plc_color  *clr;      /* color values at samples */
+  } plc_spline_strand;
 
-typedef struct plc_spline_type {
-  int                 nc;     /* Number of components */
-  plc_spline_strand  *cp;     /* Components */
-  plc_constraint     *cst;    /* Constraints */
-} plc_spline;
+  typedef struct plc_spline_type {
+    int                 nc;     /* Number of components */
+    plc_spline_strand  *cp;     /* Components */
+    plc_constraint     *cst;    /* Constraints */
+  } plc_spline;
 
-/*
- * Prototypes for vector routines.
- *
- */
+  /*
+   * Prototypes for vector routines.
+   *
+   */
 
-plc_vector plc_vect_sum(plc_vector A,plc_vector B);   /* A + B */
-plc_vector plc_vect_diff(plc_vector A,plc_vector B);  /* A - B */
-plc_vector plc_cross_prod(plc_vector A,plc_vector B); /* A x B */
-plc_vector plc_scale_vect(double s,plc_vector A);      /* sA */
-plc_vector plc_normalize_vect(const plc_vector V,
+  plc_vector plc_vect_sum(plc_vector A,plc_vector B);   /* A + B */
+  plc_vector plc_vect_diff(plc_vector A,plc_vector B);  /* A - B */
+  plc_vector plc_cross_prod(plc_vector A,plc_vector B); /* A x B */
+  plc_vector plc_scale_vect(double s,plc_vector A);      /* sA */
+  plc_vector plc_normalize_vect(const plc_vector V,
                                 /*@null@*/ bool *ok);     /* V/|V| */
 
-/* Returns a vector randomly distributed on the surface of the unit sphere */
-plc_vector plc_random_vect(void);
+  /* Returns a vector randomly distributed on the surface of the unit sphere */
+  plc_vector plc_random_vect(void);
 
-/* Translate three doubles into a vector */
-plc_vector plc_build_vect(const double x, const double y, const double z);
+  /* Translate three doubles into a vector */
+  plc_vector plc_build_vect(const double x, const double y, const double z);
 
-/* Multiply or divide two ordered triples componetwise */
-plc_vector plc_component_mult(plc_vector A, plc_vector B);
-plc_vector plc_component_div(plc_vector A, plc_vector B,
+  /* Multiply or divide two ordered triples componetwise */
+  plc_vector plc_component_mult(plc_vector A, plc_vector B);
+  plc_vector plc_component_div(plc_vector A, plc_vector B,
                                /*@null@*/ bool *ok);
 
-/* Return a linear combination: a*A + b*B */
-plc_vector plc_vlincomb(double a,plc_vector A, double b,plc_vector B);
-plc_vector plc_vmadd(plc_vector A, double s, plc_vector B); /* A + sB */
-plc_vector plc_vweighted(double s, plc_vector A, plc_vector B); /* (1-s)A + sB */
+  /* Return a linear combination: a*A + b*B */
+  plc_vector plc_vlincomb(double a,plc_vector A, double b,plc_vector B);
+  plc_vector plc_vmadd(plc_vector A, double s, plc_vector B); /* A + sB */
+  plc_vector plc_vweighted(double s, plc_vector A, plc_vector B); /* (1-s)A + sB */
 
-/* More sophisticated geometric operations */
-plc_vector plc_circumcenter(plc_vector A, plc_vector B, plc_vector C,
-			    double *circumradius,bool *ok);
+  /* More sophisticated geometric operations */
+  plc_vector plc_circumcenter(plc_vector A, plc_vector B, plc_vector C,
+			      double *circumradius,bool *ok);
   /* Returns the center and radius of the circle through three points. 
      If circumradius is NULL, then it won't be written to. */
-plc_vector plc_normal(plc_vector A, plc_vector B, plc_vector C, bool *ok);
+  plc_vector plc_normal(plc_vector A, plc_vector B, plc_vector C, bool *ok);
   /* Returns the normal vector to plane defined by A,B,C. */
 
-plc_vector plc_3plane_intersection(plc_vector N0, plc_vector p0,
-				   plc_vector N1, plc_vector p1,
-				   plc_vector N2, plc_vector p2,
-				   bool *ok);
-/* Returns the intersection point of 3 planes. */ 					
+  plc_vector plc_3plane_intersection(plc_vector N0, plc_vector p0,
+				     plc_vector N1, plc_vector p1,
+				     plc_vector N2, plc_vector p2,
+				     bool *ok);
+  /* Returns the intersection point of 3 planes. */ 					
 
-double plc_tetrahedron_inradius(plc_vector A,plc_vector B,plc_vector C,plc_vector D);
-/* Returns the inradius of a tetrahedron. */	
+  double plc_tetrahedron_inradius(plc_vector A,plc_vector B,plc_vector C,plc_vector D);
+  /* Returns the inradius of a tetrahedron. */	
 					  
-/* Different vector measurements */
-double plc_dot_prod(plc_vector A,plc_vector B);
-double plc_norm(plc_vector A);
-double plc_distance(plc_vector A, plc_vector B);
-double plc_sq_dist(plc_vector A, plc_vector B);
-double plc_angle(plc_vector A, plc_vector B, bool *ok);
+  /* Different vector measurements */
+  double plc_dot_prod(plc_vector A,plc_vector B);
+  double plc_norm(plc_vector A);
+  double plc_distance(plc_vector A, plc_vector B);
+  double plc_sq_dist(plc_vector A, plc_vector B);
+  double plc_angle(plc_vector A, plc_vector B, bool *ok);
 
-/* Do two vectors match ? */
-bool plc_vecteq(plc_vector A, plc_vector B);
+  /* Do two vectors match ? */
+  bool plc_vecteq(plc_vector A, plc_vector B);
 
-/*
- * Macros for vector work (require careful programming)
- *
- */
+  /*
+   * Macros for vector work (require careful programming)
+   *
+   */
 
-#define plc_vect_copy(A,B) \
+#define plc_vect_copy(A,B)			\
   (A) = (B)
 
-#define plc_M_dot(A,B)      \
+#define plc_M_dot(A,B)						\
   ((A).c[0]*(B).c[0] + (A).c[1]*(B).c[1] + (A).c[2]*(B).c[2])
 
-#define plc_M_cross(A,B,C) \
+#define plc_M_cross(A,B,C)				\
   (A).c[0] = (B).c[1] * (C).c[2] - (B).c[2] * (C).c[1]; \
   (A).c[1] = (B).c[2] * (C).c[0] - (B).c[0] * (C).c[2]; \
   (A).c[2] = (B).c[0] * (C).c[1] - (B).c[1] * (C).c[0];
 
-#define plc_M_norm(A)       \
+#define plc_M_norm(A)				\
   sqrt(plc_M_dot((A),(A)))
 
-#define plc_M_add_vect(A,B)    \
+#define plc_M_add_vect(A,B)						\
   (A).c[0] += (B).c[0]; (A).c[1] += (B).c[1]; (A).c[2] += (B).c[2];
 
-#define plc_M_sub_vect(A,B)    \
+#define plc_M_sub_vect(A,B)						\
   (A).c[0] -= (B).c[0]; (A).c[1] -= (B).c[1]; (A).c[2] -= (B).c[2];
 
 #define plc_M_vect_diff(A,B,C)						\
   (A).c[0] = (B).c[0] - (C).c[0];  (A).c[1] = (B).c[1] - (C).c[1];  (A).c[2] = (B).c[2] - (C).c[2];
 
-#define plc_M_scale_vect(s,V)  \
+#define plc_M_scale_vect(s,V)			\
   (V).c[0] *= s; (V).c[1] *= s; (V).c[2] *= s;
 
-/* Add a multiple of B to A */
-#define plc_M_vmadd(A,s,B) \
+  /* Add a multiple of B to A */
+#define plc_M_vmadd(A,s,B)						\
   (A).c[0] += (s)*(B).c[0]; (A).c[1] += (s)*(B).c[1]; (A).c[2] += (s)*(B).c[2];
 
-/* A becomes a linear combination of B and C */
-#define plc_M_vlincomb(A,s,B,t,C) \
-  (A).c[0] = s*(B).c[0] + t*(C).c[0]; \
-  (A).c[1] = s*(B).c[1] + t*(C).c[1]; \
+  /* A becomes a linear combination of B and C */
+#define plc_M_vlincomb(A,s,B,t,C)		\
+  (A).c[0] = s*(B).c[0] + t*(C).c[0];		\
+  (A).c[1] = s*(B).c[1] + t*(C).c[1];		\
   (A).c[2] = s*(B).c[2] + t*(C).c[2];
 
-/* A = B + s(C-B)                               *
- * equivalent to                                *
- *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
-#define plc_M_vweighted(A,s,B,C)  \
+  /* A = B + s(C-B)                               *
+   * equivalent to                                *
+   *   A = C; vsub(A,B); vsmult(s,A); vsadd(A,B); */
+#define plc_M_vweighted(A,s,B,C)		\
   plc_M_vlincomb(A,(1.0-s),B,s,C)
 
-#define plc_M_component_mult(A,B) \
-  (A).c[0] *= (B).c[0]; \
-  (A).c[1] *= (B).c[1]; \
+#define plc_M_component_mult(A,B)		\
+  (A).c[0] *= (B).c[0];				\
+  (A).c[1] *= (B).c[1];				\
   (A).c[2] *= (B).c[2];
 
-#define plc_M_component_div(A,B) \
-  (A).c[0] /= (B).c[0]; \
-  (A).c[1] /= (B).c[1]; \
+#define plc_M_component_div(A,B)		\
+  (A).c[0] /= (B).c[0];				\
+  (A).c[1] /= (B).c[1];				\
   (A).c[2] /= (B).c[2];
 
-#define plc_M_distance(A,B) \
+#define plc_M_distance(A,B)			\
   plc_norm(plc_vect_diff((A),(B)));
 
-/* The squared distance from A to B */
-#define plc_M_sq_dist(A,B) \
-  ((A).c[0]-(B).c[0])*((A).c[0]-(B).c[0])+ \
-  ((A).c[1]-(B).c[1])*((A).c[1]-(B).c[1])+ \
+  /* The squared distance from A to B */
+#define plc_M_sq_dist(A,B)			\
+  ((A).c[0]-(B).c[0])*((A).c[0]-(B).c[0])+	\
+  ((A).c[1]-(B).c[1])*((A).c[1]-(B).c[1])+	\
   ((A).c[2]-(B).c[2])*((A).c[2]-(B).c[2]);
 
-/* The coordinates of a vector, as a list */
-#define plc_M_clist(A) \
+  /* The coordinates of a vector, as a list */
+#define plc_M_clist(A)				\
   A.c[0], A.c[1], A.c[2]
 
-/* Are two vectors equal? */
-#define plc_M_vecteq(A,B) \
-  (  (A).c[0] - (B).c[0]  <= 2*DBL_EPSILON && \
-   -((A).c[0] - (B).c[0]) <= 2*DBL_EPSILON && \
-     (A).c[1] - (B).c[1]  <= 2*DBL_EPSILON && \
-   -((A).c[1] - (B).c[1]) <= 2*DBL_EPSILON && \
-     (A).c[2] - (B).c[2]  <= 2*DBL_EPSILON && \
-   -((A).c[2] - (B).c[2]) <= 2*DBL_EPSILON)
+  /* Are two vectors equal? */
+#define plc_M_vecteq(A,B)			\
+  (  (A).c[0] - (B).c[0]  <= 2*DBL_EPSILON &&	\
+     -((A).c[0] - (B).c[0]) <= 2*DBL_EPSILON && \
+     (A).c[1] - (B).c[1]  <= 2*DBL_EPSILON &&	\
+     -((A).c[1] - (B).c[1]) <= 2*DBL_EPSILON && \
+     (A).c[2] - (B).c[2]  <= 2*DBL_EPSILON &&	\
+     -((A).c[2] - (B).c[2]) <= 2*DBL_EPSILON)
 
-/*
- * Prototypes for routines to deal with plCurves.
- *
- */
+  /* Put 4 doubles together into a color */
+  plc_color plc_build_color(const double r, const double g,
+			    const double b, const double alpha);
+  
 
-/****************** plCurve Data Operations *********************/
+  /*
+   * Prototypes for routines to deal with plCurves.
+   *
+   */
 
-/* Build a new plCurve (with associated strands) */
-/*@only@*/ plCurve *plc_new(const int components,
-                            const int * const nv,
-                            const bool * const open,
-                            const int * const cc);
-/* The arrays nv, open, and cc are expected to be of length components. */
+  /****************** plCurve Data Operations *********************/
 
-/* nv[i] is the number of vertices of the ith component */
-/* open[i] is true if the ith component is open */
-/* cc[i] is the number of colors for that component (0,1, or nv[i]) */
+  /* Build a new plCurve (with associated strands) */
+  /*@only@*/ plCurve *plc_new(const int components,
+			      const int * const nv,
+			      const bool * const open,
+			      const int * const cc);
+  /* The arrays nv, open, and cc are expected to be of length components. */
 
-/* Free the plCurve (and strands) */
-void plc_free(/*@only@*/ /*@null@*/ plCurve *L);
+  /* nv[i] is the number of vertices of the ith component */
+  /* open[i] is true if the ith component is open */
+  /* cc[i] is the number of colors for that component (0,1, or nv[i]) */
 
-/* Add a component to the curve which will become component number add_as. */
-void plc_add_component(plCurve *L, const int add_as, const int nv, 
-                       const bool open, const int cc,
-                       const plc_vector * const vt,
-            /*@null@*/ const plc_color  * const clr);
+  /* Free the plCurve (and strands) */
+  void plc_free(/*@only@*/ /*@null@*/ plCurve *L);
 
-/* And remove one */
-void plc_drop_component(plCurve *L, const int cmp);
+  /* Add a component to the curve which will become component number add_as. */
+  void plc_add_component(plCurve *L, const int add_as, const int nv, 
+			 const bool open, const int cc,
+			 const plc_vector * const vt,
+			 /*@null@*/ const plc_color  * const clr);
 
-/* Change the size of the color buffer for a plCurve, preserving existing data if it exists */
-void plc_resize_colorbuf(plCurve *L, const int cp, const int cc);
+  /* And remove one */
+  void plc_drop_component(plCurve *L, const int cmp);
 
-/* Set the color of a plCurve to a single color */
-void plc_set_color(plCurve *L, const plc_color inColor);
+  /* Change the size of the color buffer for a plCurve, preserving existing data if it exists */
+  void plc_resize_colorbuf(plCurve *L, const int cp, const int cc);
 
-/* Set a constraint on a vertex or run of vertices */
-void plc_set_fixed(plCurve * const L,
-                   const int cmp,
-                   const int vert,
-                   const plc_vector point);
+  /* Set the color of a plCurve to a single color */
+  void plc_set_color(plCurve *L, const plc_color inColor);
 
-void plc_constrain_to_line(plCurve * const L,
-                           const int cmp,
-                           const int vert,
-                           const int num_verts,
-                           const plc_vector tangent,
-                           const plc_vector point_on_line);
+  /* Set a constraint on a vertex or run of vertices */
+  void plc_set_fixed(plCurve * const L,
+		     const int cmp,
+		     const int vert,
+		     const plc_vector point);
 
-void plc_constrain_to_plane(plCurve * const L,
-                            const int cmp,
-                            const int vert,
-                            const int num_verts,
-                            const plc_vector normal,
-                            const double dist_from_origin);
+  void plc_constrain_to_line(plCurve * const L,
+			     const int cmp,
+			     const int vert,
+			     const int num_verts,
+			     const plc_vector tangent,
+			     const plc_vector point_on_line);
 
-void plc_unconstrain(plCurve * const L, const int cmp,
-                     const int vert, const int num_verts);
+  void plc_constrain_to_plane(plCurve * const L,
+			      const int cmp,
+			      const int vert,
+			      const int num_verts,
+			      const plc_vector normal,
+			      const double dist_from_origin);
 
-/* Remove a constraint from the list of constraints returning the number of
- * vertices thus set unconstrained.  */
-int plc_remove_constraint(plCurve * const L,
-                          const plc_cst_kind kind,
-                          const plc_vector vect[]);
+  void plc_unconstrain(plCurve * const L, const int cmp,
+		       const int vert, const int num_verts);
 
-/* Remove all constraints */
-void plc_remove_all_constraints(plCurve * const L);
+  /* Remove a constraint from the list of constraints returning the number of
+   * vertices thus set unconstrained.  */
+  int plc_remove_constraint(plCurve * const L,
+			    const plc_cst_kind kind,
+			    const plc_vector vect[]);
 
-/* Test whether a vertex is constrained. If constraint is non-null, set it to the active constraint. */
-bool plc_is_constrained(plCurve * const L,int cp, int vt,plc_constraint **constraint);
+  /* Remove all constraints */
+  void plc_remove_all_constraints(plCurve * const L);
 
-/* Read plCurve data from a file */
-/*@only@*/ /*@null@*/ plCurve *plc_read(FILE *file,
-                              /*@out@*/ int *error_num,
-                              /*@out@*/ char error_str[],
-                                        size_t error_str_len);
+  /* Test whether a vertex is constrained. If constraint is non-null, set it to the active constraint. */
+  bool plc_is_constrained(plCurve * const L,int cp, int vt,plc_constraint **constraint);
 
-/* Write plCurve data to a file */
-void plc_write(FILE *outfile, plCurve * const L);
+  /* Read plCurve data from a file */
+  /*@only@*/ /*@null@*/ plCurve *plc_read(FILE *file,
+					  /*@out@*/ int *error_num,
+					  /*@out@*/ char error_str[],
+					  size_t error_str_len);
 
-/* Fix the "hidden vertices" for easy handling of closed components */
-void plc_fix_wrap(plCurve * const L);
+  /* Write plCurve data to a file */
+  void plc_write(FILE *outfile, plCurve * const L);
+
+  /* Fix the "hidden vertices" for easy handling of closed components */
+  void plc_fix_wrap(plCurve * const L);
+
+ /* Fix all the vertices which are out of compliance with their constraints. */
+  void plc_fix_cst(plCurve * const L);
+
+  /* Copy a plCurve */
+  plCurve *plc_copy(const plCurve * const L);
+
+  /* Doubles the number of vertices of L by inserting new vertices at midpoints
+     of edges. Attempts to preserve constraints. */
+  plCurve *plc_double_verts(plCurve * L);
+  
+  /* Either return (if given a char *) or print out the library version number */
+  void plc_version(/*@null@*/ char *version, size_t strlen);
+
+
+  /***************** plCurve spline package ***************************/
+
+  /* Allocate new spline. */
+  plc_spline *plc_spline_new(const int          components,
+			     const int  * const ns,
+			     const bool * const open,
+			     const int  * const cc);
+  
+  /* Free memory for spline. */
+  void plc_spline_free(/*@only@*/ /*@null@*/ plc_spline *L);
+  
+  /* Convert plCurve to spline representation. */
+  plc_spline *plc_convert_to_spline(plCurve * const L, bool *ok);
+  
+  /* Convert splined curve to plCurve (with resampling). */
+  plCurve *plc_convert_from_spline(const plc_spline * const spL,
+				   const int * const nv);
+  
+  /* Samples a spline at a particular s value. */
+  plc_vector plc_sample_spline(const plc_spline * const spL,
+			       const int cmp,
+			       double s);
+  
+  /* Computes the tangent vector to a spline at a particular s value */
+  plc_vector plc_spline_tangent(const plc_spline * const spL,
+				const int cmp,
+				double s);
 
   /***************** plCurve Geometric Information ********************/
   
@@ -412,9 +459,7 @@ void plc_fix_wrap(plCurve * const L);
   double plc_totalcurvature(const plCurve * const L,
 			    /*@null@*/ /*@out@*/ double *component_tc);
   
-  /* Copy a plCurve */
-  plCurve *plc_copy(const plCurve * const L);
-  
+ 
   /*
    * Compute a (unit) tangent vector to L at vertex vert of component cmp by
    * taking the incoming tangent and outgoing tangent and averaging them *with
@@ -440,49 +485,12 @@ void plc_fix_wrap(plCurve * const L);
   /* to the total arclength of the curve (last vert, last component) */
   
   double plc_s(const plCurve * const L, const int cmp, const int vert);
+
+  /* Return the longest, shortest, mean, and second moment of edgelengths. */
+  void plc_edgelength_stats(const plCurve * const L, double *longest, double *shortest, double *mean, double *moment2);
   
   /* Return how far a constraint is from being satisfied (sup norm). */
   double plc_check_cst(const plCurve * const L);
-  
-  /* Fix all the vertices which are out of compliance with their constraints. */
-  void plc_fix_cst(plCurve * const L);
-  
-  /* Either return (if given a char *) or print out the library version number */
-  void plc_version(/*@null@*/ char *version, size_t strlen);
-  
-  /* Put 4 doubles together into a color */
-  plc_color plc_build_color(const double r, const double g,
-			    const double b, const double alpha);
-  
-  /* Allocate new spline. */
-  plc_spline *plc_spline_new(const int          components,
-			     const int  * const ns,
-			     const bool * const open,
-			     const int  * const cc);
-  
-  /* Free memory for spline. */
-  void plc_spline_free(/*@only@*/ /*@null@*/ plc_spline *L);
-  
-  /* Convert plCurve to spline representation. */
-  plc_spline *plc_convert_to_spline(plCurve * const L, bool *ok);
-  
-  /* Convert splined curve to plCurve (with resampling). */
-  plCurve *plc_convert_from_spline(const plc_spline * const spL,
-				   const int * const nv);
-  
-  /* Samples a spline at a particular s value. */
-  plc_vector plc_sample_spline(const plc_spline * const spL,
-			       const int cmp,
-			       double s);
-  
-  /* Computes the tangent vector to a spline at a particular s value */
-  plc_vector plc_spline_tangent(const plc_spline * const spL,
-				const int cmp,
-				double s);
-  
-  /* Doubles the number of vertices of L by inserting new vertices at midpoints
-     of edges. Attempts to preserve constraints. */
-  plCurve *plc_double_verts(plCurve * L);
   
   /* Calculate the diameter of the plCurve, thinking of the vertices as 
      a set of points in R^3 */
@@ -583,6 +591,9 @@ void plc_fix_wrap(plCurve * const L);
   /* Perform a random perturbation on a plCurve. Does not perturb
      constrained vertices. */
   void plc_perturb( plCurve *L, double radius); 
+
+  /* Project L to the plane (through the origin) normal to N. */
+  void plc_project(plCurve *L, plc_vector N);
   
   
   /****************************** plCurve Random Polygon Library **************/
@@ -590,84 +601,92 @@ void plc_fix_wrap(plCurve * const L);
   /* Generate a random closed length 2 polygon of nEdges edges using the symmetric measure of Cantarella, Deguchi, Shonkwiler */ 
   plCurve *plc_random_closed_polygon(int nEdges);
   
-  /* An internal version which turns on some debugging code. */
-  plCurve *plc_random_closed_polygon_selfcheck(int nEdges);
-  
   /* Generate a random open length 2 polygon of nEdges edges using the symmetric measure of Cantarella, Deguchi, Shonkwiler */ 
   plCurve *plc_random_open_polygon(int nEdges);
   
-  /* An internal version which turns on some debugging code. */
-  plCurve *plc_random_open_polygon_selfcheck(int nEdges);
-
   /* Generate a random closed length 2 planar polygon of nEdges edges using the symmetric measure of Cantarella, Deguchi, Shonkwiler */
   plCurve *plc_random_closed_plane_polygon(int nEdges);
 
-  /* An internal version which turns on some debugging code. */
-  plCurve *plc_random_closed_plane_polygon_selfcheck(int nEdges);
-  
   /* Generate a random open length 2 planar polygon of nEdges edges using the symmetric measure of Cantarella, Deguchi, Shonkwiler */
   plCurve *plc_random_open_plane_polygon(int nEdges);
 
-  /* An internal version which turns on some debugging code. */
-  plCurve *plc_random_open_plane_polygon_selfcheck(int nEdges);
+  /* Generate pseudoequilateral (PE) polygons with shortest edge bounded below by LOWER and longest edge bounded above by UPPER. */
+  /* The algorithm applies rejection sampling to the generators above. Note that the total length of the polygons is still 2.0, */
+  /* so the lower and upper edgelength bounds should include 2/nEdges. */
 
-  /****************************** plCurve Symmetry Functions ********************/
+  plCurve *plc_random_closed_polygon_PE(int nEdges,double LOWER,double UPPER);
+  plCurve *plc_random_open_polygon_PE(int nEdges,double LOWER, double UPPER);
+  plCurve *plc_random_closed_plane_polygon_PE(int nEdges,double LOWER, double UPPER);
+  plCurve *plc_random_open_plane_polygon_PE(int nEdges, double LOWER, double UPPER);
+
+  /* Internal versions which turn on some debugging code. */
+  plCurve *plc_random_closed_polygon_selfcheck(int nEdges);
+  plCurve *plc_random_open_plane_polygon_selfcheck(int nEdges);
+  plCurve *plc_random_open_polygon_selfcheck(int nEdges);
+  plCurve *plc_random_closed_plane_polygon_selfcheck(int nEdges);
+
+  plCurve *plc_random_closed_polygon_PE_selfcheck(int nEdges,double LOWER,double UPPER,int *n_attempts);
+  plCurve *plc_random_open_polygon_PE_selfcheck(int nEdges,double LOWER, double UPPER, int *n_attempts);
+  plCurve *plc_random_closed_plane_polygon_PE_selfcheck(int nEdges,double LOWER, double UPPER, int *n_attempts);
+  plCurve *plc_random_open_plane_polygon_PE_selfcheck(int nEdges, double LOWER, double UPPER, int *n_attempts);
+
+/****************************** plCurve Symmetry Functions ********************/
   
-  void plc_identity_matrix(plc_matrix *A);
-  void plc_rotation_matrix(plc_vector axis, double angle,plc_matrix *A);
-  void plc_reflection_matrix(plc_vector axis,plc_matrix *A);
+void plc_identity_matrix(plc_matrix *A);
+void plc_rotation_matrix(plc_vector axis, double angle,plc_matrix *A);
+void plc_reflection_matrix(plc_vector axis,plc_matrix *A);
   
-  /* We now define a high level interface for dealing with symmetries. */
+/* We now define a high level interface for dealing with symmetries. */
   
-  plc_symmetry *plc_symmetry_new(plCurve *model);
-  void plc_symmetry_free(plc_symmetry **A);
-  /* Make a new-memory copy of A */
-  plc_symmetry *plc_symmetry_copy(plc_symmetry *A);
+plc_symmetry *plc_symmetry_new(plCurve *model);
+void plc_symmetry_free(plc_symmetry **A);
+/* Make a new-memory copy of A */
+plc_symmetry *plc_symmetry_copy(plc_symmetry *A);
   
-  /* This creates a plc_symmetry from a transform by searching to try to figure
-     out the "intended" target of each vertex under the transform A. */
-  plc_symmetry *plc_build_symmetry(plc_matrix *A,plCurve *L);
+/* This creates a plc_symmetry from a transform by searching to try to figure
+   out the "intended" target of each vertex under the transform A. */
+plc_symmetry *plc_build_symmetry(plc_matrix *A,plCurve *L);
   
-  /* This is a combination of matrix multiplication and applying the permutation
-     of vertices in the symmetries to build a new symmetry (matrix product BA). 
-     Returns NULL on fail. */
-  plc_symmetry *plc_compose_symmetries(plc_symmetry *A,plc_symmetry *B);
+/* This is a combination of matrix multiplication and applying the permutation
+   of vertices in the symmetries to build a new symmetry (matrix product BA). 
+   Returns NULL on fail. */
+plc_symmetry *plc_compose_symmetries(plc_symmetry *A,plc_symmetry *B);
   
-  /* We now need constructors and destructors for the symmetry group */
-  plc_symmetry_group *plc_symmetry_group_new(int n);
-  void plc_symmetry_group_free(plc_symmetry_group **G);
-  plc_symmetry_group *plc_symmetry_group_copy(plc_symmetry_group *G);
+/* We now need constructors and destructors for the symmetry group */
+plc_symmetry_group *plc_symmetry_group_new(int n);
+void plc_symmetry_group_free(plc_symmetry_group **G);
+plc_symmetry_group *plc_symmetry_group_copy(plc_symmetry_group *G);
   
-  /* We define a couple of standard groups as well. Return NULL if the build fails. */
-  /* Remember that the curves have to basically have the desired symmetry to start. */
-  plc_symmetry_group *plc_rotation_group(plCurve *L,plc_vector axis, int n);
-  plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis);
+/* We define a couple of standard groups as well. Return NULL if the build fails. */
+/* Remember that the curves have to basically have the desired symmetry to start. */
+plc_symmetry_group *plc_rotation_group(plCurve *L,plc_vector axis, int n);
+plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis);
   
-  /* This symmetrizes a plCurve over the group L->G. */
-  void plc_symmetrize(plCurve *L);
+/* This symmetrizes a plCurve over the group L->G. */
+void plc_symmetrize(plCurve *L);
   
-  /* This symmetrizes a variation (a buffer of vectors of length plc_num_verts), assumed to 
-     represent vectors located at the vertices of L over the symmetry group L->G. */
+/* This symmetrizes a variation (a buffer of vectors of length plc_num_verts), assumed to 
+   represent vectors located at the vertices of L over the symmetry group L->G. */
   
-  void plc_symmetrize_variation(plCurve *L,plc_vector *buffer);
+void plc_symmetrize_variation(plCurve *L,plc_vector *buffer);
   
-  /* Checks the distance between the position of each vertex and it's target after the 
-     symmetry transform and returns the maximum. This serves as a check on the quality 
-     of a symmetry possessed by a curve. The corresponding _variation function does the
-     same for a variation field for L. */
+/* Checks the distance between the position of each vertex and it's target after the 
+   symmetry transform and returns the maximum. This serves as a check on the quality 
+   of a symmetry possessed by a curve. The corresponding _variation function does the
+   same for a variation field for L. */
   
-  double plc_symmetry_check(plCurve *L,plc_symmetry *A);
-  double plc_symmetry_variation_check(plCurve *L,plc_vector *buffer,plc_symmetry *A);
+double plc_symmetry_check(plCurve *L,plc_symmetry *A);
+double plc_symmetry_variation_check(plCurve *L,plc_vector *buffer,plc_symmetry *A);
   
-  /* To check an entire group, use plc_symmetry_group_check, which checks the entire 
-     group L->G and returns the maximum error. Again, the corresponding _variation
-     function does the same check for a variation field. */
+/* To check an entire group, use plc_symmetry_group_check, which checks the entire 
+   group L->G and returns the maximum error. Again, the corresponding _variation
+   function does the same check for a variation field. */
   
-  double plc_symmetry_group_check(plCurve *L);
-  double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
+double plc_symmetry_group_check(plCurve *L);
+double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
   
   
-  /************************ plCurve Topology Library ********************/
+/************************ plCurve Topology Library ********************/
 
 /* This contains some functionality designed to work with plCurves as knots,
    including converting them to an abstract ``crossing'' representation, 
@@ -679,13 +698,13 @@ void plc_fix_wrap(plCurve * const L);
    the crossing connected to each arc coming from the crossing in the
    order
 
-        a
-	|
-	|
-    b---|-->d
-        |
-	V
-        c
+   a
+   |
+   |
+   b---|-->d
+   |
+   V
+   c
 
    So a crossing code representation of a plCurve is a char buffer 
    containing lines of the form
@@ -711,11 +730,11 @@ void plc_fix_wrap(plCurve * const L);
 
 typedef struct knottypestruct {
 
-    int  nf;                            /* Number of prime factors */
-    int  cr[MAXPRIMEFACTORS];           /* Crossing number of each prime factor */
-    int  ind[MAXPRIMEFACTORS];           /* Index (in Rolfsen or Cerf) of each prime factor */
-    char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
-    char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
+  int  nf;                            /* Number of prime factors */
+  int  cr[MAXPRIMEFACTORS];           /* Crossing number of each prime factor */
+  int  ind[MAXPRIMEFACTORS];           /* Index (in Rolfsen or Cerf) of each prime factor */
+  char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
+  char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
 
 } plc_knottype;
 

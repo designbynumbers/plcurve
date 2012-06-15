@@ -268,6 +268,45 @@ double plc_s(const plCurve * const L, const int cmp, const int vert)
 
 } 
 
+/* Return the longest, shortest, mean, and second moment of edgelengths. */
+void plc_edgelength_stats(const plCurve * const L, double *longestP, double *shortestP, double *meanP,double *moment2P)
+
+  {
+    int cp; 
+    int vt;
+    int maxV;
+    double dist;
+    double longest, shortest, mean, moment2;
+
+    longest = mean = moment2 = 0.0; 
+    shortest = 1e20; /* A very large number */
+    
+    for(cp=0;cp<L->nc;cp++) {
+      
+      if (L->cp[cp].open) { maxV = L->cp[cp].nv; } else { maxV = L->cp[cp].nv+1; } /* Use wraparound addressing for closed polygons. */
+
+      for(vt=1;vt<maxV;vt++) {
+
+	dist = plc_distance(L->cp[cp].vt[vt],L->cp[cp].vt[vt-1]);
+	longest = fmax(dist,longest);                             /* These max and min functions are part of C99 standard */
+	shortest = fmin(dist,shortest);
+	mean += dist;
+	moment2 += dist*dist;
+
+      }
+      
+    }
+
+    mean /= plc_edges(L,NULL);
+    moment2 /= plc_edges(L,NULL);
+
+    if (longestP != NULL) { *longestP = longest; }
+    if (shortestP != NULL) { *shortestP = shortest; }
+    if (meanP != NULL) { *meanP = mean; }
+    if (moment2P != NULL) { *moment2P = moment2; }
+      
+  }
+
 /*
  * Check to see if the given constraint is satisfied and return value for
  * how far off it is.
@@ -2523,6 +2562,33 @@ void plc_perturb( plCurve *L, double radius)
 
 }
 
+void plc_project(plCurve *L, plc_vector N)
+
+/* Project to plane normal to N. */
+
+{
+  int vt, cp;
+  plc_vector nHat,nScale;
+  bool ok;
+ 
+  nHat = plc_normalize_vect(N,&ok);
+  if (!ok) {
+    fprintf(stderr,"plc_project: Can't project to plane with normal vector (%g,%g,%g) \n",plc_M_clist(N));
+    exit(1);
+  }
+    
+  for(cp=0;cp < L->nc;cp++) {
+    for(vt=0;vt < L->cp[cp].nv;vt++) {
+    
+      nScale = plc_scale_vect(plc_dot_prod(L->cp[cp].vt[vt],nHat),nHat);
+      plc_M_sub_vect(L->cp[cp].vt[vt],nScale);
+
+    }
+  }
+
+  plc_fix_wrap(L);
+
+}
 
 void plc_random_rotate(plCurve *link, plc_vector axis)
 

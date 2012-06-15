@@ -518,14 +518,186 @@ plCurve *plc_random_open_plane_polygon_selfcheck(int nEdges)
   return plc_random_open_plane_polygon_internal(nEdges,true);
 }
 
+/*************************** PseudoEquilateral Polygons ********************/
 
+
+plCurve *plc_random_closed_polygon_PE_internal(int nEdges,double LOWER, double UPPER, int *n_attempts,bool selfcheck)
+
+{
+  int attempt = 0;
+  plCurve *L;
+  double longedge,shortedge,meanedge,moment2edge;
+  int MAX_ATTEMPTS = 10*nEdges;
+
+  for(attempt=0;attempt < MAX_ATTEMPTS;attempt++ ) {
+
+    L = plc_random_closed_polygon_internal(nEdges,selfcheck);
+    plc_edgelength_stats(L,&longedge,&shortedge,&meanedge,&moment2edge);
+
+    if (longedge < UPPER && shortedge > LOWER) {
+
+      if (n_attempts != NULL) { *n_attempts = attempt+1; }
+      return L;
+
+    }
+
+    plc_free(L);
+
+  }
+
+  /* We should only get here if the number of attempts is equal to MAX_ATTEMPTS. */
+  *n_attempts = attempt;
+  fprintf(stderr,"plc_random_closed_polygon_PE: After %d attempts, failed to generate a %d-gon with edges in [%g,%g].\n",attempt,nEdges,LOWER,UPPER);
+  return NULL;
+
+}
   
-  
+plCurve *plc_random_closed_plane_polygon_PE_internal(int nEdges,double LOWER, double UPPER, int *n_attempts,bool selfcheck)
+
+{
+  int attempt = 0;
+  plCurve *L;
+  double longedge,shortedge,meanedge,moment2edge;
+  int MAX_ATTEMPTS = 10*nEdges;
+
+  for(attempt=0;attempt < MAX_ATTEMPTS;attempt++ ) {
+
+    L = plc_random_closed_plane_polygon_internal(nEdges,selfcheck);
+    plc_edgelength_stats(L,&longedge,&shortedge,&meanedge,&moment2edge);
+
+    if (longedge < UPPER && shortedge > LOWER) {
+
+      if (n_attempts != NULL) { *n_attempts = attempt+1; }
+      return L;
+
+    }
+
+    plc_free(L);
+
+  }
+
+  /* We should only get here if the number of attempts is equal to MAX_ATTEMPTS. */
+
+  *n_attempts = attempt;  
+  fprintf(stderr,"plc_random_closed_plane_polygon_PE: After %d attempts, failed to generate a %d-gon with edges in [%g,%g].\n",attempt,nEdges,LOWER,UPPER);
+  return NULL;
+
+}
 
 
+plCurve *plc_random_open_polygon_PE_internal(int nEdges,double LOWER, double UPPER, int *n_attempts,bool selfcheck)
 
-  
+{
+  int attempt = 0;
+  plCurve *L;
+  double longedge,shortedge,meanedge,moment2edge;
+  int MAX_ATTEMPTS = 10*nEdges;
 
+  for(attempt=0;attempt < MAX_ATTEMPTS;attempt++ ) {
+
+    L = plc_random_open_polygon_internal(nEdges,selfcheck);
+    plc_edgelength_stats(L,&longedge,&shortedge,&meanedge,&moment2edge);
+
+    if (longedge < UPPER && shortedge > LOWER) {
+
+      if (n_attempts != NULL) { *n_attempts = attempt+1; }
+      return L;
+
+    }
+
+    plc_free(L);
+
+  }
+
+  /* We should only get here if the number of attempts is equal to MAXATTEMPTS. */
+
+  *n_attempts = attempt;
+  fprintf(stderr,"plc_random_open_polygon_PE: After %d attempts, failed to generate a %d-gon with edges in [%g,%g].\n",attempt,nEdges,LOWER,UPPER);
+  return NULL;
+
+}
+
+
+plCurve *plc_random_open_plane_polygon_PE_internal(int nEdges,double LOWER, double UPPER, int *n_attempts,bool selfcheck)
+
+{
+  int attempt = 0;
+  plCurve *L;
+  double longedge,shortedge,meanedge,moment2edge;
+  int MAX_ATTEMPTS = 10*nEdges;
+
+  for(attempt=0;attempt < MAX_ATTEMPTS;attempt++ ) {
+
+    L = plc_random_open_plane_polygon_internal(nEdges,selfcheck);
+    plc_edgelength_stats(L,&longedge,&shortedge,&meanedge,&moment2edge);
+
+    if (longedge < UPPER && shortedge > LOWER) {
+
+      if (n_attempts != NULL) { *n_attempts = attempt+1; }
+      return L;
+
+    }
+
+    plc_free(L);
+
+  }
+
+  /* We should only get here if the number of attempts is equal to MAXATTEMPTS. */
+
+  *n_attempts = attempt;
+  fprintf(stderr,"plc_random_open_plane_polygon_PE: After %d attempts, failed to generate a %d-gon with edges in [%g,%g].\n",attempt,nEdges,LOWER,UPPER);
+  return NULL;
+
+}  
+
+
+plCurve *plc_random_closed_polygon_PE(int nEdges,double LOWER,double UPPER) {
+
+  return plc_random_closed_polygon_PE_internal(nEdges,LOWER,UPPER,NULL,false);
+
+}
+
+plCurve *plc_random_open_polygon_PE(int nEdges,double LOWER, double UPPER) {
+
+ return plc_random_open_polygon_PE_internal(nEdges,LOWER,UPPER,NULL,false);
+
+}
+
+plCurve *plc_random_closed_plane_polygon_PE(int nEdges,double LOWER, double UPPER) {
+ 
+  return plc_random_closed_plane_polygon_PE_internal(nEdges,LOWER,UPPER,NULL,false);
+
+}
+
+plCurve *plc_random_open_plane_polygon_PE(int nEdges, double LOWER, double UPPER) {
+
+  return plc_random_open_plane_polygon_PE_internal(nEdges,LOWER,UPPER,NULL,false);
+
+}
+
+plCurve *plc_random_closed_polygon_PE_selfcheck(int nEdges,double LOWER,double UPPER,int *n_attempts) {
+
+  return plc_random_closed_polygon_PE_internal(nEdges,LOWER,UPPER,n_attempts,true);
+
+}
+
+plCurve *plc_random_open_polygon_PE_selfcheck(int nEdges,double LOWER, double UPPER, int *n_attempts)  {
+
+  return plc_random_open_polygon_PE_internal(nEdges,LOWER,UPPER,n_attempts,true);
+
+}
+
+plCurve *plc_random_closed_plane_polygon_PE_selfcheck(int nEdges,double LOWER, double UPPER, int *n_attempts)  {
+
+  return plc_random_closed_plane_polygon_PE_internal(nEdges,LOWER,UPPER,n_attempts,true);
+
+}
+
+plCurve *plc_random_open_plane_polygon_PE_selfcheck(int nEdges, double LOWER, double UPPER, int *n_attempts)  {
+
+  return plc_random_open_plane_polygon_PE_internal(nEdges,LOWER,UPPER,n_attempts,true);
+
+}
 
     
 
