@@ -86,22 +86,22 @@ exit_failure_tests_LDFLAGS = -static
 exit_failure_tests_CFLAGS = -g -Wall 
 
 knot_diagram_SOURCES = knot_diagram.c libplCurve.a
-knot_diagram_LDADD = -lplCurve
+knot_diagram_LDADD = -lplCurve 
 if HAVE_ARGTABLE2
-knot_diagram_LDFLAGS = -static -largtable2
+knot_diagram_LDFLAGS = -static 
 else
 knot_diagram_LDFLAGS = -static 
 endif
 
 resample_SOURCES = resample.c libplCurve.a
 resample_LDADD = -lplCurve
-resample_LDFLAGS = -static -largtable2
+resample_LDFLAGS = -static 
 
 plcurvature_SOURCES = plcurvature.c libplCurve.a
 plcurvature_LDADD = -lplCurve
-plcurvature_LDFLAGS = -static -largtable2
+plcurvature_LDFLAGS = -static 
 
-FFLAGS = -g 
+AM_FFLAGS = -g 
 plcompEric_SOURCES = compEric.f
 
 #clean-local:

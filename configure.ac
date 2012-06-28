@@ -61,14 +61,26 @@ AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
-AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(argtable2,arg_parse,[have_argtable2=true],[have_argtable2=false])
+AC_SEARCH_LIBS([sqrt],[m])
+AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
+
+if test "x${have_argtable2}" = xtrue; then 
+   AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
+fi
+
+if test "x${have_argtable2}" = xfalse; then 
+   AC_MSG_WARN([
+  -----------------------------------------------------------
+  Unable to find argtable2 on this system. Some demo programs
+  will not be installed in this build of plCurve.
+  -----------------------------------------------------------])
+fi
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
-                  time.h argtable2.h sys/times.h sys/types.h fcntl.h signal.h] complex.h)
+                  time.h sys/times.h sys/types.h fcntl.h signal.h complex.h])
 
 # Signal to AUTOMAKE if we have argtable2
 
@@ -87,3 +99,26 @@ AC_C_CONST
 # Output
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
+
+echo \
+" ----------------------------------------------------------------------
+
+  ${PACKAGE_NAME} Version ${PACKAGE_VERSION}
+
+  Installing to prefix: ${prefix}
+
+  Compiler: '${CC} ${CFLAGS} ${CPPFLAGS}'
+  
+  Package Features:
+      Found argtable2 to install demo programs: ${have_argtable2}
+
+  Now type 'make @<:@<target>@:>@'
+
+    where the optional <target> is:
+
+    all					- build all binaries
+    install				- install everything
+    check 				- run self-tests
+
+
+  -----------------------------------------------------------------------"
