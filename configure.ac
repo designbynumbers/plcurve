@@ -84,7 +84,7 @@ AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h \
 
 # Signal to AUTOMAKE if we have argtable2
 
-AM_CONDITIONAL([HAVE_ARGTABLE2],[test "$have_argtable2" = true])
+AM_CONDITIONAL([HAVE_ARGTABLE2],[test "x${have_argtable2}" = xtrue])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
