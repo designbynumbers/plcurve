@@ -1,0 +1,11 @@
+3_1                  reversible
+3_1m                 reversible
+4_1                  full
+5_1                  reversible
+5_1m                 reversible
+5_2                  reversible
+5_2m                 reversible
+6_1                  reversible
+6_1m                 reversible
+6_2                  reversible
+6_2m                 reversible
