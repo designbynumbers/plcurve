@@ -2443,7 +2443,7 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
 void plc_rotate(plCurve *link, plc_vector axis, double angle)
 
 /* Rotate the link around a given axis. The tricky part is that we must transform the 
-   symmetry group accordingly. */
+   symmetry group accordingly. FIXME: We need to transform constraints, too! */
 
 {
   int vt,cp;
@@ -2514,6 +2514,60 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
   plc_fix_wrap(link);
 
 }
+
+ /* Translate a plCurve by a vector */
+ void plc_translate(plCurve *link,plc_vector translate)
+
+ {
+   int cp,vt;
+
+   if (plc_norm(translate) < 1e-10) {
+
+     return;
+
+   };
+   
+   /* A nontrivial translate destroys symmetry */
+
+   if (link->G != NULL) {
+
+     plc_symmetry_group_free(&(link->G)); 
+
+   } 
+
+   /* Now we go ahead and alter the vertex data. */
+
+   for(cp=0;cp<link->nc;cp++) {
+     for(vt=0;vt<link->cp[cp].nv;vt++) {
+       plc_M_add_vect(link->cp[cp].vt[vt],translate);   
+     }
+   }
+   
+   plc_fix_wrap(link);
+
+   /* Finally, we fix the constraints. */
+
+   plc_constraint *cst;
+
+   for(cst=link->cst;cst != NULL;cst=cst->next) {
+
+     if (cst->kind == fixed) {
+
+       plc_M_add_vect(cst->vect[0],translate);
+
+     } else if (cst->kind == line) {
+
+       plc_M_add_vect(cst->vect[1],translate);
+
+     } else if (cst->kind == plane) {
+
+       cst->vect[1].c[0] += plc_dot_prod(cst->vect[0],translate);
+
+     }
+
+   }
+
+ }
 
 /* Perform a random perturbation on a plCurve, perturbing at most radius. 
    The distribution of points is not by volume, but with equal probability

@@ -120,7 +120,7 @@ extern "C" {
 
      fixed : vect[0] is the fixed point, vect[1] is ignored 
      line:   vect[0] is the tangent vector, vect[1] is a point on the line
-     plane:  vect[0] is the normal vector, vect[1].x is the distance from origin.
+     plane:  vect[0] is the normal vector, vect[1].c[0] is the distance from origin.
 
   */
 
@@ -587,6 +587,9 @@ extern "C" {
   
   /* Rotate a plCurve so the given axis points in the direction (0,0,1). */
   void plc_random_rotate(plCurve *link, plc_vector axis);
+
+  /* Translate a plCurve by a vector */
+  void plc_translate(plCurve *link,plc_vector translation);
   
   /* Perform a random perturbation on a plCurve. Does not perturb
      constrained vertices. */
