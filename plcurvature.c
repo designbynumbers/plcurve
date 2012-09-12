@@ -135,10 +135,10 @@ int main(int argc, char *argv[]) {
   assert(curvfile != NULL);
 
   fprintf(curvfile,
-	  "# Curvature data file for %s \n"	\
+	  "# Curvature data file for %s output from plcurvature\n"	\
 	  "# VECT file has %d components, %d verts \n" \
 	  "# cp = component #, vt = vertex # \n" \
-	  "# s = arclength to vt 0, k = curvature, 1/k radius of curvature \n"
+	  "# s = arclength from vertex 0 to vertex (vt+1), k = curvature, 1/k radius of curvature \n"
 	  "# cp    vt     s     k       1/k     \n",
 	  filename->filename[0],
 	  L->nc,plc_num_verts(L));
@@ -149,10 +149,10 @@ int main(int argc, char *argv[]) {
     
     for(vt=0;vt<L->cp[cp].nv;vt++) {
 
+      s += plc_M_distance(L->cp[cp].vt[vt],L->cp[cp].vt[vt+1]);
+
       fprintf(curvfile,"  %5d %6d %5g %8g %8g \n",
 	      cp,vt,s,plc_MR_curvature(L,cp,vt),1/plc_MR_curvature(L,cp,vt));
-
-      s += plc_M_distance(L->cp[cp].vt[vt],L->cp[cp].vt[vt+1]);
 
     }
 
