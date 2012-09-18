@@ -17,7 +17,7 @@ libplCurveStatic_a_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c
 		       plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
 libplCurveStatic_a_CFLAGS = $(AM_CFLAGS)
 
-check_PROGRAMS = run_tests exit_failure_tests nn_test symmetry_test randompolygon_test 
+check_PROGRAMS =  nn_test symmetry_test randompolygon_test 
 
 if HAVE_ARGTABLE2
 bin_PROGRAMS = knot_diagram resample plcurvature plcompEric
