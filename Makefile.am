@@ -28,7 +28,7 @@ endif
 noinst_PROGRAMS = spline_view # gcov_tests
 noinst_HEADERS = homfly.h
 
-TESTS = run_tests nn_test symmetry_test randompolygon_test 
+TESTS = nn_test symmetry_test randompolygon_test 
 
 dist_data_DATA = plCurve.typemap
 
@@ -66,8 +66,8 @@ libnplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 #libplCurve_cov_la_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 #libplCurve_cov_la_LDFLAGS = -static -fprofile-arcs
 
-run_tests_SOURCES = run_tests.c libplCurve.a
-run_tests_LDADD = -lplCurve
+#run_tests_SOURCES = run_tests.c libplCurve.a
+#run_tests_LDADD = -lplCurve
 
 nn_test_SOURCES = nn_test.c libplCurve.a
 nn_test_LDADD = -lplCurve
@@ -80,10 +80,10 @@ symmetry_test_LDADD = -lplCurve
 #gcov_tests_LDFLAGS = -static -fprofile-arcs
 #gcov_tests_CFLAGS = -g -Wall -fprofile-arcs -ftest-coverage
 
-exit_failure_tests_SOURCES = exit_failure_tests.c libplCurve.a
-exit_failure_tests_LDADD = -lplCurve
-exit_failure_tests_LDFLAGS = -static 
-exit_failure_tests_CFLAGS = -g -Wall 
+#exit_failure_tests_SOURCES = exit_failure_tests.c libplCurve.a
+#exit_failure_tests_LDADD = -lplCurve
+#exit_failure_tests_LDFLAGS = -static 
+#exit_failure_tests_CFLAGS = -g -Wall 
 
 knot_diagram_SOURCES = knot_diagram.c libplCurve.a
 knot_diagram_LDADD = -lplCurve 
