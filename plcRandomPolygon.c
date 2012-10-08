@@ -699,9 +699,123 @@ plCurve *plc_random_open_plane_polygon_PE_selfcheck(int nEdges, double LOWER, do
 
 }
 
-    
+/************ Random Space Arm with specified failure to close *************/
 
+#ifdef FTC_IN
+
+plCurve *plc_random_closed_polygon_internal(int nEdges, bool selfcheck)
+{
+
+  /* 1. Generate vectors of 2n independent Gaussians. */
+
+  double *Araw,*Braw;
+  Araw = gaussian_array(nEdges);
+  Braw = gaussian_array(nEdges);
+
+  /* 2. Convert to complex. */
+
+  complex double *A,*B;
+
+  A = malloc(nEdges*sizeof(complex double));
+  B = malloc(nEdges*sizeof(complex double));
+
+  int i;
+  for(i=0;i<nEdges;i++) {
+    A[i] = Araw[2*i] + I*Araw[2*i + 1];
+    B[i] = Braw[2*i] + I*Braw[2*i + 1];
+  }
+
+  /* 3. Normalize A. */
+
+  complex double norm = 0;
+  norm = creal(sqrt(HermitianDot(A,A,nEdges)));
+  ComplexScalarMultiply(1/norm,A,nEdges);
+
+  /* 4. Set B to B - conj(<A,B>) A */
+
+  complex double s;
+  s = conj(HermitianDot(A,B,nEdges));
+  for(i=0;i<nEdges;i++) { B[i] -= s*A[i]; }
+
+  /* 5. Normalize B. */
+
+  norm = creal(sqrt(HermitianDot(B,B,nEdges)));
+  ComplexScalarMultiply(1/norm,B,nEdges);
+
+  /* 5a. Selfcheck, if needed. */
+
+  if (selfcheck) { 
+
+    complex double aa, ab, bb;
+
+    aa = HermitianDot(A,A,nEdges);
+    bb = HermitianDot(B,B,nEdges);
+    ab = HermitianDot(A,B,nEdges);
+
+    if (fabs(creal(aa) - 1.0) > 1e-10 || fabs(cimag(aa)) > 1e-10) {
+
+      fprintf(stderr,"plc_closed_polygon_selfcheck: <A,A> = %g + %g i != 1.0\n",creal(aa),cimag(aa));
+      exit(1);
+
+    }
+
+    if (fabs(creal(bb) - 1.0) > 1e-10 || fabs(cimag(bb)) > 1e-10) {
+
+      fprintf(stderr,"plc_closed_polygon_selfcheck: <A,A> = %g + %g i != 1.0\n",creal(bb),cimag(bb));
+      exit(1);
+
+    }
+
+    if (fabs(creal(ab)) > 1e-10 || fabs(cimag(ab)) > 1e-10) {
+
+      fprintf(stderr,"plc_closed_polygon_selfcheck: <A,B> = %g + %g i != 0.0\n",creal(ab),cimag(ab));
+      exit(1);
+
+    }
+
+    plc_vector edgesum = {{0,0,0}};
+
+    for(i=0;i<nEdges;i++) {
+
+      plc_M_add_vect(edgesum,hopfImap(creal(A[i]),cimag(A[i]),creal(B[i]),cimag(B[i])));
+
+    }
+
+    if (plc_M_norm(edgesum) > 1e-10) { 
+
+      fprintf(stderr,"plc_closed_polygon_selfcheck: Sum of edges is (%g,%g,%g) with norm %g != 0.0\n",
+	      plc_M_clist(edgesum),plc_M_norm(edgesum));
+      exit(1);
+
+    }
+
+  } 
+
+  /* 6. Assemble Polygon. */
+
+  bool open={false};
+  int cc=0,nv = nEdges;
+  plCurve *L;
+
+  L = plc_new(1,&nv,&open,&cc);
+  L->cp[0].vt[0] = hopfImap(creal(A[0]),cimag(A[0]),creal(B[0]),cimag(B[0]));
   
+  for(i=1;i<nEdges;i++) {
+    L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],hopfImap(creal(A[i]),cimag(A[i]),creal(B[i]),cimag(B[i])));
+  }
+
+  plc_fix_wrap(L);
+
+  /* 7. Cleanup memory. */
+
+  free(Araw); free(Braw);
+  free(A); free(B);
+
+  return L;
+
+}    
+
+#endif  
 
      
 

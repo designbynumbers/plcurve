@@ -454,12 +454,16 @@ extern "C" {
   /* Compute the MinRad-based curvature of L at vertex vt of component cp */
   double plc_MR_curvature(plCurve * const L, const int cmp, const int vert);
   
-  /* Find total curvature for plCurve, including value for each component */
-  /* if component_tc is non-null. */
+  /* Find total curvature (defined as total turning angle) for plCurve, 
+     including value for each component if component_tc is non-null. */
   double plc_totalcurvature(const plCurve * const L,
 			    /*@null@*/ /*@out@*/ double *component_tc);
+
+  /* Find total (unsigned) torsion of plCurve, including value for each 
+     component if component_tc is non-null. */
+  double plc_totaltorsion(const plCurve * const L,
+			  /*@null@*/ /*@out@*/ double *component_tc);
   
- 
   /*
    * Compute a (unit) tangent vector to L at vertex vert of component cmp by
    * taking the incoming tangent and outgoing tangent and averaging them *with
@@ -600,6 +604,9 @@ extern "C" {
   
   
   /****************************** plCurve Random Polygon Library **************/
+
+  /* These functions use the drand48 random number generator, and must be seeded with */
+  /* srand48 or (better) seed48 before generating the polygons. */
   
   /* Generate a random closed length 2 polygon of nEdges edges using the symmetric measure of Cantarella, Deguchi, Shonkwiler */ 
   plCurve *plc_random_closed_polygon(int nEdges);
@@ -701,13 +708,13 @@ double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
    the crossing connected to each arc coming from the crossing in the
    order
 
-   a
-   |
-   |
+       a
+       |
+       |
    b---|-->d
-   |
-   V
-   c
+       |
+       V
+       c
 
    So a crossing code representation of a plCurve is a char buffer 
    containing lines of the form
@@ -747,7 +754,7 @@ char *plc_ccode( plCurve *L);
 /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
 char *plc_homfly( plCurve *L);
 
-/* Find the knot type of a plCurve */
+/* Find the knot type of a single component plCurve */
 /* Sets nposs to the number of possible knottypes found for the curve. If we cannot
    classify the knot, return 0 for nposs and NULL for the buffer of knot types. */
 plc_knottype *plc_classify( plCurve *L, int *nposs);

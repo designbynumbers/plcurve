@@ -1683,6 +1683,8 @@ double plc_totalcurvature(const plCurve * const L,
 
   for(cp=0;cp<L->nc;cp++) {
 
+    if (component_tc != NULL) { component_tc[cp] = 0; }
+
     for (vt=0;vt<L->cp[cp].nv;vt++) {
 
       angle = plc_angle(plc_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt]),
@@ -1706,6 +1708,85 @@ double plc_totalcurvature(const plCurve * const L,
   return tk;
 
 }
+
+double torsionangle(plc_vector a,plc_vector b,plc_vector c,plc_vector d) 
+{
+  bool ok;
+  double angle;
+  plc_vector edges[3];
+  
+  edges[0] = plc_vect_diff(b,a);
+  edges[1] = plc_vect_diff(c,b);
+  edges[2] = plc_vect_diff(d,c);
+  
+  plc_vector normals[2];
+  
+  normals[0] = plc_cross_prod(edges[0],edges[1]);
+  normals[1] = plc_cross_prod(edges[1],edges[2]);
+  
+  angle = plc_angle(normals[0],normals[1],&ok);
+  
+  if (!ok) { angle = 0; }  // This is expected at the start and end of open components. 
+  
+  return angle;
+}
+
+
+/* Find total torsion for plCurve, including value for each component */
+/* if component_tt is non-null. */
+double plc_totaltorsion(const plCurve * const L,
+/*@null@*/ /*@out@*/ double *component_tt)
+
+{
+  int cp,vt;
+  double tt = 0,angle;
+
+  for(cp=0;cp<L->nc;cp++) {
+
+    if (component_tt != NULL) { component_tt[cp] = 0; }
+
+    /* These torsion angles are computed for open and closed polygons. */
+
+    for(vt=0;vt<L->cp[cp].nv-3;vt++) {
+
+      angle = torsionangle(L->cp[cp].vt[vt],L->cp[cp].vt[vt+1],L->cp[cp].vt[vt+2],L->cp[cp].vt[vt+3]);
+      
+      if (component_tt != NULL) {
+	
+	component_tt[cp] += angle;
+	
+      }
+      
+      tt += angle;
+      
+    }
+
+    if (!L->cp[cp].open) {
+
+      /* We must add three more angles for closed polygons */
+
+      int nv = L->cp[cp].nv;
+
+      angle = torsionangle(L->cp[cp].vt[nv-1],L->cp[cp].vt[0],L->cp[cp].vt[1],L->cp[cp].vt[2]) /* First edge */ +
+	torsionangle(L->cp[cp].vt[nv-2],L->cp[cp].vt[nv-1],L->cp[cp].vt[0],L->cp[cp].vt[1]) /* Extra edge */ +
+	torsionangle(L->cp[cp].vt[nv-3],L->cp[cp].vt[nv-2],L->cp[cp].vt[nv-1],L->cp[cp].vt[0]); /* Last edge */ 
+      
+      if (component_tt != NULL) {
+	
+	component_tt[cp] += angle;
+	
+      }
+      
+      tt += angle;
+
+    }
+    
+  }
+
+  return tt;
+
+}
+
 	
 /*
  * Duplicate a plCurve and return the duplicate.

@@ -188,29 +188,29 @@ foreach $knotline (@rawtable) {
 
    $homfly = "Error";
 
-   open(KNOTTYPE,"knottype -q#h @files |");
+   #print "bash -c \"knottype -#h @files >> tempfile\"";
+   `bash -c "knottype -q#h @files > tempfile"`;
+
+   open(KNOTTYPE,"tempfile") or die("Myerror: couldn't open tempfile");
    while (<KNOTTYPE>) {
      
-      if (/Composite Homfly polynomial:\((.+)\)/) {
-	$homfly = $1;
-      } 
+     #print $_;
 
-      if (/open/) {
-	print;
-	die;
-      }
-      
-    }
-
-   close (KNOTTYPE);
-
-   if ($homfly eq "Error" && $cr[0] eq "3" && $cr[1] eq "4" && $ind[0] eq "1" && $ind[1] eq "1") {
-
-     $homfly = "[[2] 0 3 0 3 0 1]N[0]N[-1] 0 -3 0 -2N[0]N[0] 0 1N ";
-
+     if (/Composite Homfly polynomial:\((.+)\)/) {
+       $homfly = $1;
+     } 
+     
+     if (/open/) {
+       print;
+       die;
+     }
+     
    }
 
-    print(" $homfly\n");
+   close (KNOTTYPE);
+   unlink("tempfile");
+
+   print(" $homfly\n");
 
    # Now we push everything into the hash and into the knot table.
 
@@ -232,7 +232,7 @@ foreach $knotline (@rawtable) {
 print "Completed processing knotchart-prime and knotchart-composite-only...\n";
 print "Adding unknot...\n";
 
-$knotrec->{homfly} = "[[0]]N";
+$knotrec->{homfly} = "[[1]]N ";
 @{$knotrec->{sym}} = ('"(1,1,e)"');
 @{$knotrec->{cr}}  = ("0");
 @{$knotrec->{ind}} = ("1");
@@ -301,7 +301,7 @@ foreach $tag ( @knotlist ) {
 
 }
 
-print HOMFLY " { 1, { 0 }, { 1 }, { \"(1,1,e)\"}, {\"[[0]]N\"} } \\\n";  # add a guy to take care of trailing comma
+print HOMFLY " { 1, { 0 }, { 1 }, { \"(1,1,e)\"}, {\"[[1]]N\"} } \\\n";  # add a guy to take care of trailing comma
 print HOMFLY "};\n";
 
 close(HOMFLY);

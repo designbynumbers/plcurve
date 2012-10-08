@@ -230,10 +230,33 @@ int homcmp(const void *A, const void *B)
 plc_knottype *plc_classify( plCurve *L, int *nposs)
 
 {
-  plc_knottype kt = { 1, { 0 }, { 1 }, { "(1,1,e)" }, { "[0]" } },*ktmatch,*ret;
+  plc_knottype kt = { 1, { 0 }, { 1 }, { "(1,1,e)" }, { "[[1]]N " } },*ktmatch,*ret;
   char *homfly;
 
-  /* First, compute the homfly */
+  plc_knottype unknot = {1, { 0 }, { 1 }, { "(1,1,e)" }, { "[[1]]N " } }; 
+
+  /* We have to work around a bug in lmpoly here, where it horks on one or two 
+     crossing diagrams. */
+
+  char *ccode,*cptr;
+  ccode = plc_ccode(L);  /* The number of crossings is 2 + the number of \n's in ccode. */
+
+  int Ncount = 0;
+  for(cptr = strchr(ccode,'\n');cptr != NULL;cptr = strchr(cptr+1,'\n'),Ncount++);
+
+  if (Ncount == 3 || Ncount == 4) { /* 1 or 2 crossings, we know this must be the unknot */
+
+    ret = calloc(1,sizeof(plc_knottype));
+    assert(ret != NULL);
+    ret[0] = unknot;
+    *nposs = 1;
+
+    free(ccode);
+    return ret;
+
+  }
+  
+  /* Now we know that the ccode has at least 3 crossings, compute the homfly (lmpoly should work) */
 
   homfly = plc_homfly(L);
   if (homfly == NULL) { *nposs = 0; return NULL; }
