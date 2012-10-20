@@ -19,7 +19,7 @@ AC_COPYRIGHT(
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT(libplCurve, 5.0.5, cantarel@math.uga.edu)
+AC_INIT(libplCurve, 6.0.0, cantarel@math.uga.edu)
 #AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE
 
@@ -40,7 +40,7 @@ AM_INIT_AUTOMAKE
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
 #
-AC_SUBST(LIB_VERSION, 5:0:5)
+AC_SUBST(LIB_VERSION, 6:0:0)
 AC_CONFIG_SRCDIR([configure])
 AM_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -63,6 +63,7 @@ AC_PROG_LIBTOOL
 # Checks for libraries.
 AC_SEARCH_LIBS([sqrt],[m])
 AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
+AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x requires gsl (for random number generation)]))
 
 if test "x${have_argtable2}" = xtrue; then 
    AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
@@ -80,7 +81,7 @@ fi
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
-                  time.h sys/times.h sys/types.h fcntl.h signal.h complex.h])
+                  time.h sys/times.h sys/types.h fcntl.h signal.h complex.h gsl/gsl_rng.h gsl/gsl_randist.h])
 
 # Signal to AUTOMAKE if we have argtable2
 

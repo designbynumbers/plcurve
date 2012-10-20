@@ -56,26 +56,30 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
 #ifdef HAVE_COMPLEX_H
 #include <complex.h>
 #endif
 
-double *gaussian_array(int n)
-/* Returns 2n independent standard Gaussians, generated using the Box-Muller method and drand48 */
+#ifdef HAVE_GSL_GSL_RNG_H
+#include <gsl/gsl_rng.h>
+#endif
+
+#ifdef HAVE_GSL_GSL_RANDIST_H
+#include <gsl/gsl_randist.h>
+#endif
+
+double *gaussian_array(gsl_rng *r, int n)
+/* Returns 2n independent standard Gaussians, generated using gsl_ran_ugaussian_ratio_method() */
 {
   double *out,*step;
-  double pi = 3.14159265358979323846264338327;
-  double r,theta;
+ 
   out = calloc(2*n,sizeof(double));
   if (out == NULL) { return NULL; }
   
-  for(step=out;step<out+2*n;) {
+  for(step=out;step<out+2*n;step++) {
 
-    r = sqrt(-2*log(drand48())); 
-    theta = 2*pi*drand48();
-    
-    *step = r*cos(theta); step++;
-    *step = r*sin(theta); step++;
+    *step = gsl_ran_ugaussian_ratio_method(r);
 
   }
 
@@ -104,14 +108,14 @@ void ComplexScalarMultiply(complex double s,complex double *A,int n)
   for(i=0;i<n;i++,A++) { (*A) *= s; }
 }
 
-plCurve *plc_random_closed_polygon_internal(int nEdges, bool selfcheck)
+plCurve *plc_random_closed_polygon_internal(gsl_rng *r, int nEdges, bool selfcheck)
 {
 
   /* 1. Generate vectors of 2n independent Gaussians. */
 
   double *Araw,*Braw;
-  Araw = gaussian_array(nEdges);
-  Braw = gaussian_array(nEdges);
+  Araw = gaussian_array(r,nEdges);
+  Braw = gaussian_array(r,nEdges);
 
   /* 2. Convert to complex. */
 
@@ -216,25 +220,25 @@ plCurve *plc_random_closed_polygon_internal(int nEdges, bool selfcheck)
 
 }
     
-plCurve *plc_random_closed_polygon(int nEdges) 
+plCurve *plc_random_closed_polygon(gsl_rng *r, int nEdges) 
 {
-  return plc_random_closed_polygon_internal(nEdges,false);
+  return plc_random_closed_polygon_internal(r,nEdges,false);
 }
 
-plCurve *plc_random_closed_polygon_selfcheck(int nEdges) 
+plCurve *plc_random_closed_polygon_selfcheck(gsl_rng *r, int nEdges) 
 {
-  return plc_random_closed_polygon_internal(nEdges,true);
+  return plc_random_closed_polygon_internal(r,nEdges,true);
 }
 
 /******************** Random Polygon in Plane *********************/
 
-plCurve *plc_random_closed_plane_polygon_internal(int nEdges, bool selfcheck)
+plCurve *plc_random_closed_plane_polygon_internal(gsl_rng *r, int nEdges, bool selfcheck)
 {
 
   /* 1. Generate vector of 2n independent Gaussians. */
 
   double *Raw;
-  Raw = gaussian_array(nEdges);
+  Raw = gaussian_array(r,nEdges);
 
   /* 2. Convert to real frame vectors (keep complex type for consistency with space version ) */
 
@@ -339,28 +343,28 @@ plCurve *plc_random_closed_plane_polygon_internal(int nEdges, bool selfcheck)
 
 }
     
-plCurve *plc_random_closed_plane_polygon(int nEdges) 
+plCurve *plc_random_closed_plane_polygon(gsl_rng *r,int nEdges) 
 {
-  return plc_random_closed_plane_polygon_internal(nEdges,false);
+  return plc_random_closed_plane_polygon_internal(r,nEdges,false);
 }
  
-plCurve *plc_random_closed_plane_polygon_selfcheck(int nEdges) 
+plCurve *plc_random_closed_plane_polygon_selfcheck(gsl_rng *r,int nEdges) 
 {
-  return plc_random_closed_plane_polygon_internal(nEdges,true);
+  return plc_random_closed_plane_polygon_internal(r,nEdges,true);
 }
 
 
  
 /******************** Random Arm in Space *************************/
 
-plCurve *plc_random_open_polygon_internal(int nEdges, bool selfcheck)
+plCurve *plc_random_open_polygon_internal(gsl_rng *r, int nEdges, bool selfcheck)
 {
 
   /* 1. Generate vectors of 2n independent Gaussians. */
 
   double *Araw,*Braw;
-  Araw = gaussian_array(nEdges);
-  Braw = gaussian_array(nEdges);
+  Araw = gaussian_array(r,nEdges);
+  Braw = gaussian_array(r,nEdges);
 
   /* 2. Convert to complex. */
 
@@ -425,25 +429,25 @@ plCurve *plc_random_open_polygon_internal(int nEdges, bool selfcheck)
 
 }
     
-plCurve *plc_random_open_polygon(int nEdges) 
+plCurve *plc_random_open_polygon(gsl_rng *r,int nEdges) 
 {
-  return plc_random_open_polygon_internal(nEdges,false);
+  return plc_random_open_polygon_internal(r,nEdges,false);
 }
 
-plCurve *plc_random_open_polygon_selfcheck(int nEdges)
+plCurve *plc_random_open_polygon_selfcheck(gsl_rng *r,int nEdges)
 {
-  return plc_random_open_polygon_internal(nEdges,true);
+  return plc_random_open_polygon_internal(r,nEdges,true);
 }
 
 /***************** Random Arm in Plane *****************************/
 
-plCurve *plc_random_open_plane_polygon_internal(int nEdges, bool selfcheck)
+plCurve *plc_random_open_plane_polygon_internal(gsl_rng *r,int nEdges, bool selfcheck)
 {
 
   /* 1. Generate vector of 2n independent Gaussians. */
 
   double *Raw;
-  Raw = gaussian_array(nEdges);
+  Raw = gaussian_array(r,nEdges);
 
   /* 2. Convert to reals (keep complex type for consistency with space polygon version of code). */
 
@@ -508,194 +512,151 @@ plCurve *plc_random_open_plane_polygon_internal(int nEdges, bool selfcheck)
 
 }
     
-plCurve *plc_random_open_plane_polygon(int nEdges) 
+plCurve *plc_random_open_plane_polygon(gsl_rng *r,int nEdges) 
 {
-  return plc_random_open_plane_polygon_internal(nEdges,false);
+  return plc_random_open_plane_polygon_internal(r,nEdges,false);
 }
     
-plCurve *plc_random_open_plane_polygon_selfcheck(int nEdges)
+plCurve *plc_random_open_plane_polygon_selfcheck(gsl_rng *r,int nEdges)
 {
-  return plc_random_open_plane_polygon_internal(nEdges,true);
+  return plc_random_open_plane_polygon_internal(r,nEdges,true);
 }
 
-/*************************** PseudoEquilateral Polygons ********************/
 
+/************ Random Equilateral Polygons (and Arms) ***********************/
 
-plCurve *plc_random_closed_polygon_PE_internal(int nEdges,double LOWER, double UPPER, int *n_attempts,bool selfcheck)
+plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
 
 {
-  int attempt = 0;
-  plCurve *L;
-  double longedge,shortedge,meanedge,moment2edge;
-  int MAX_ATTEMPTS = 10*nEdges;
 
-  for(attempt=0;attempt < MAX_ATTEMPTS;attempt++ ) {
+  if (nEdges < 2 || nEdges > 100000000) {
 
-    L = plc_random_closed_polygon_internal(nEdges,selfcheck);
-    plc_edgelength_stats(L,&longedge,&shortedge,&meanedge,&moment2edge);
-
-    if (longedge < UPPER && shortedge > LOWER) {
-
-      if (n_attempts != NULL) { *n_attempts = attempt+1; }
-      return L;
-
-    }
-
-    plc_free(L);
-
+    fprintf(stderr,"plc_random_equilateral_closed_polygon: Can't generate polygon with %d edges.\n",nEdges);
+    exit(1);
+    
   }
 
-  /* We should only get here if the number of attempts is equal to MAX_ATTEMPTS. */
-  *n_attempts = attempt;
-  fprintf(stderr,"plc_random_closed_polygon_PE: After %d attempts, failed to generate a %d-gon with edges in [%g,%g].\n",attempt,nEdges,LOWER,UPPER);
-  return NULL;
+  /* Step 0. Generate nEdges unit vectors which sum to zero */
 
-}
+  double pi = 3.14159265358979;
+  plc_vector *edgeset;
+  int i;
+
+  edgeset = calloc(nEdges,sizeof(plc_vector));
+  if (edgeset == NULL) { 
+
+    fprintf(stderr,"plc_random_equilateral_closed_polygon: Can't allocate %d edge vectors.\n",nEdges);
+    exit(1);
+    
+  } 
   
-plCurve *plc_random_closed_plane_polygon_PE_internal(int nEdges,double LOWER, double UPPER, int *n_attempts,bool selfcheck)
+  if (nEdges % 2 == 1) { /* The number of edges is odd; add a triple */
 
-{
-  int attempt = 0;
-  plCurve *L;
-  double longedge,shortedge,meanedge,moment2edge;
-  int MAX_ATTEMPTS = 10*nEdges;
+    edgeset[0] = plc_build_vect(1,0,0);
+    edgeset[1] = plc_build_vect(cos(2.0*pi/3.0),sin(2.0*pi/3.0),0);
+    edgeset[2] = plc_build_vect(cos(4.0*pi/3.0),sin(4.0*pi/3.0),0);
+    
+    i = 3;
+  
+  } else {
 
-  for(attempt=0;attempt < MAX_ATTEMPTS;attempt++ ) {
-
-    L = plc_random_closed_plane_polygon_internal(nEdges,selfcheck);
-    plc_edgelength_stats(L,&longedge,&shortedge,&meanedge,&moment2edge);
-
-    if (longedge < UPPER && shortedge > LOWER) {
-
-      if (n_attempts != NULL) { *n_attempts = attempt+1; }
-      return L;
-
-    }
-
-    plc_free(L);
+    i = 0;
 
   }
 
-  /* We should only get here if the number of attempts is equal to MAX_ATTEMPTS. */
+  for(;i<nEdges;i+=2) {
 
-  *n_attempts = attempt;  
-  fprintf(stderr,"plc_random_closed_plane_polygon_PE: After %d attempts, failed to generate a %d-gon with edges in [%g,%g].\n",attempt,nEdges,LOWER,UPPER);
-  return NULL;
+    gsl_ran_dir_3d (r, &(edgeset[i].c[0]), &(edgeset[i].c[1]), &(edgeset[i].c[2]));
+    edgeset[i+1] = plc_scale_vect(-1.0,edgeset[i]);
+    
+  }
 
-}
+  /* Step 1. Randomly permute them. */
 
+  gsl_ran_shuffle(r,edgeset,nEdges,sizeof(plc_vector));
 
-plCurve *plc_random_open_polygon_PE_internal(int nEdges,double LOWER, double UPPER, int *n_attempts,bool selfcheck)
+  /* Step 2. Apply ``hedgehog moves'' */
 
-{
-  int attempt = 0;
-  plCurve *L;
-  double longedge,shortedge,meanedge,moment2edge;
-  int MAX_ATTEMPTS = 10*nEdges;
+  int *indexlist;
+  indexlist = calloc(nEdges,sizeof(int));
+  if (indexlist == NULL) { 
 
-  for(attempt=0;attempt < MAX_ATTEMPTS;attempt++ ) {
+    fprintf(stderr,"plc_random_equilateral_closed_polygon: Can't allocate %d integers.\n",nEdges);
+    exit(1);
+    
+  } 
 
-    L = plc_random_open_polygon_internal(nEdges,selfcheck);
-    plc_edgelength_stats(L,&longedge,&shortedge,&meanedge,&moment2edge);
+  for(i=0;i<nEdges;i++) { indexlist[i] = i; }
 
-    if (longedge < UPPER && shortedge > LOWER) {
+  for(i=0;i<nEdges*nEdges;i++) {
+    
+    int edges[2];
+    gsl_ran_choose(r,edges,2,indexlist,nEdges,sizeof(int));  /* Choose a pair of edges to twist */
 
-      if (n_attempts != NULL) { *n_attempts = attempt+1; }
-      return L;
+    plc_vector axis;
+    bool ok;
 
+    axis = plc_normalize_vect(plc_vect_sum(edgeset[edges[0]],edgeset[edges[1]]),&ok);
+
+    if (ok) {
+
+      double theta;
+      theta = gsl_ran_flat(r,0,2*pi);
+      edgeset[edges[0]] = plc_rotate_vect(edgeset[edges[0]],axis,theta);
+      edgeset[edges[1]] = plc_rotate_vect(edgeset[edges[1]],axis,theta);
+	    
     }
+  
+  }
+      
+  /* Step 3. Assemble the edgeset into vertices for a new polygon, scaling as we go. */
 
-    plc_free(L);
+  plCurve *L;
+  bool open = { false };
+  int  cc = { 0 };
+  int  nv = nEdges;
+
+  L = plc_new(1,&nv,&open,&cc);
+  L->cp[0].vt[0] = plc_build_vect(0,0,0);
+
+  for(i=1;i<nEdges;i++) {
+    
+    L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],plc_scale_vect(2.0/nEdges,edgeset[i-1]));
 
   }
 
-  /* We should only get here if the number of attempts is equal to MAXATTEMPTS. */
+  /* Step 4. Housekeeping and return. */
 
-  *n_attempts = attempt;
-  fprintf(stderr,"plc_random_open_polygon_PE: After %d attempts, failed to generate a %d-gon with edges in [%g,%g].\n",attempt,nEdges,LOWER,UPPER);
-  return NULL;
+  free(edgeset);
+  free(indexlist);
 
-}
+  return L;
 
+}   
+    
 
-plCurve *plc_random_open_plane_polygon_PE_internal(int nEdges,double LOWER, double UPPER, int *n_attempts,bool selfcheck)
-
+plCurve *plc_random_equilateral_open_polygon(gsl_rng *r,int nEdges) 
 {
-  int attempt = 0;
+
   plCurve *L;
-  double longedge,shortedge,meanedge,moment2edge;
-  int MAX_ATTEMPTS = 10*nEdges;
+  bool open = { true };
+  int  cc = { 0 };
+  int  nv = nEdges+1;
+  int i;
 
-  for(attempt=0;attempt < MAX_ATTEMPTS;attempt++ ) {
+  L = plc_new(1,&nv,&open,&cc);
+  L->cp[0].vt[0] = plc_build_vect(0,0,0);
 
-    L = plc_random_open_plane_polygon_internal(nEdges,selfcheck);
-    plc_edgelength_stats(L,&longedge,&shortedge,&meanedge,&moment2edge);
+  for(i=1;i<nv;i++) {
 
-    if (longedge < UPPER && shortedge > LOWER) {
-
-      if (n_attempts != NULL) { *n_attempts = attempt+1; }
-      return L;
-
-    }
-
-    plc_free(L);
+    plc_vector dir; 
+    gsl_ran_dir_3d(r, &(dir.c[0]), &(dir.c[1]), &(dir.c[2]));
+    
+    L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],plc_scale_vect(2.0/nEdges,dir));
 
   }
 
-  /* We should only get here if the number of attempts is equal to MAXATTEMPTS. */
-
-  *n_attempts = attempt;
-  fprintf(stderr,"plc_random_open_plane_polygon_PE: After %d attempts, failed to generate a %d-gon with edges in [%g,%g].\n",attempt,nEdges,LOWER,UPPER);
-  return NULL;
-
-}  
-
-
-plCurve *plc_random_closed_polygon_PE(int nEdges,double LOWER,double UPPER) {
-
-  return plc_random_closed_polygon_PE_internal(nEdges,LOWER,UPPER,NULL,false);
-
-}
-
-plCurve *plc_random_open_polygon_PE(int nEdges,double LOWER, double UPPER) {
-
- return plc_random_open_polygon_PE_internal(nEdges,LOWER,UPPER,NULL,false);
-
-}
-
-plCurve *plc_random_closed_plane_polygon_PE(int nEdges,double LOWER, double UPPER) {
- 
-  return plc_random_closed_plane_polygon_PE_internal(nEdges,LOWER,UPPER,NULL,false);
-
-}
-
-plCurve *plc_random_open_plane_polygon_PE(int nEdges, double LOWER, double UPPER) {
-
-  return plc_random_open_plane_polygon_PE_internal(nEdges,LOWER,UPPER,NULL,false);
-
-}
-
-plCurve *plc_random_closed_polygon_PE_selfcheck(int nEdges,double LOWER,double UPPER,int *n_attempts) {
-
-  return plc_random_closed_polygon_PE_internal(nEdges,LOWER,UPPER,n_attempts,true);
-
-}
-
-plCurve *plc_random_open_polygon_PE_selfcheck(int nEdges,double LOWER, double UPPER, int *n_attempts)  {
-
-  return plc_random_open_polygon_PE_internal(nEdges,LOWER,UPPER,n_attempts,true);
-
-}
-
-plCurve *plc_random_closed_plane_polygon_PE_selfcheck(int nEdges,double LOWER, double UPPER, int *n_attempts)  {
-
-  return plc_random_closed_plane_polygon_PE_internal(nEdges,LOWER,UPPER,n_attempts,true);
-
-}
-
-plCurve *plc_random_open_plane_polygon_PE_selfcheck(int nEdges, double LOWER, double UPPER, int *n_attempts)  {
-
-  return plc_random_open_plane_polygon_PE_internal(nEdges,LOWER,UPPER,n_attempts,true);
+  return L;
 
 }
 
@@ -703,14 +664,14 @@ plCurve *plc_random_open_plane_polygon_PE_selfcheck(int nEdges, double LOWER, do
 
 #ifdef FTC_IN
 
-plCurve *plc_random_closed_polygon_internal(int nEdges, bool selfcheck)
+plCurve *plc_random_closed_polygon_internal(gsl_rng *r, int nEdges, bool selfcheck)
 {
 
   /* 1. Generate vectors of 2n independent Gaussians. */
 
   double *Araw,*Braw;
-  Araw = gaussian_array(nEdges);
-  Braw = gaussian_array(nEdges);
+  Araw = gaussian_array(r,nEdges);
+  Braw = gaussian_array(r,nEdges);
 
   /* 2. Convert to complex. */
 

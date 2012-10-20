@@ -195,6 +195,8 @@ inline plc_vector plc_normalize_vect(const plc_vector V,
   return plc_scale_vect(1.0/vnrm,V);
 }
 
+
+
 /*
  * George Masaglia's "new method" for finding a random point on a 3-sphere,
  * from his short article "Choosing a Point from the Surface of a Sphere"
@@ -459,4 +461,48 @@ double plc_tetrahedron_inradius(plc_vector A,plc_vector B,plc_vector C,plc_vecto
 					plc_cross_prod(a,b)))));
   
   return inradius;
+}
+
+/* Rotate a vector around an axis */ 
+
+plc_vector plc_rotate_vect(plc_vector v,plc_vector axis,double angle) {
+
+  bool ok;
+
+  axis = plc_normalize_vect(axis,&ok); 
+
+  if (!ok) {  /* Can't rotate around a zero-length axis! */
+
+    return v;
+
+  }
+
+  plc_vector temp,par,nor,binor;
+  
+  temp = v;
+
+  /* Now, split into parallel and normal components. */
+  
+  par = plc_scale_vect(plc_dot_prod(temp,axis),axis);
+  nor = plc_vect_diff(temp,par);
+  
+  /* Now find third vector for axis, nor, binor frame */
+  /* Remember that this is NOT a unit frame, since nor is not unit. */
+  
+  binor = plc_normalize_vect(plc_cross_prod(axis,nor),&ok);
+  if (!ok) {return v;} 
+  /* This means the point is on the axis, so nor = 0. 
+     This point shouldn't move, so just return it, no problem. */
+  
+  binor = plc_scale_vect(plc_norm(nor),binor);
+  /* We make the binormal the same size as the normal. */
+  
+  plc_vector newnor;
+  
+  newnor = plc_vlincomb(cos(angle),nor,sin(angle),binor);
+  /* Newnor should have the same norm as nor and binor */
+  
+  /* Now we can reassemble the original vector. */    
+  return plc_vect_sum(newnor,par);
+  
 }
