@@ -620,9 +620,16 @@ int main(int argc, char *argv[]) {
 
   printf("Random Polygon Generation Tests \n"
 	 "------------------------------- \n"
-	 "plCurve generates random polygons in four classes by direct sampling \n"
-	 "from the symmetric measure of Cantarella, Deguchi, Shonkwiler. This  \n"
-	 "code is using the random number generator %s with seed %d.\n"
+	 "plCurve generates fixed total length 2.0 random polygons in four\n"
+	 "classes by direct sampling from the symmetric measure of Cantarella,\n"
+	 "Deguchi, Shonkwiler [CPAM, 2012].\n"
+	 "\n"
+	 "We also generate equilateral length 2.0 random polygons in space\n"
+	 "(closed and open) using the \"fast ergodic algorithm\" of Varela,\n"
+	 "Hinson, Arsuaga, and Diao [J. Phys. A, 2009].\n"
+	 "\n"
+	 "This test suite code is using the random number generator %s \n"
+	 "with seed %d.\n"
 	 "\n"
 	 "\t Type                     Call                   \n"
 	 "\t -------------------------------------------------------------------\n"
@@ -647,8 +654,9 @@ int main(int argc, char *argv[]) {
 
   int Sizes[100] = {20,200,2000,20000};
   int nSizes = 3;
-  int nPolygons = 4000;
-  int eqSizes[100] = {5,10,20};
+  int nPolygons = 400;
+  int nEQSizes = 3;
+  int eqSizes[100] = {20,200,2000,20000};
 
   if (PAPERMODE) { 
     outfile = fopen("timing_and_length2.csv","w");
@@ -659,8 +667,8 @@ int main(int argc, char *argv[]) {
       || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_polygon_selfcheck,"open space ","OS")
       || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_plane_polygon_selfcheck,"closed plane ","CP")
       || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_plane_polygon_selfcheck,"open plane ","OP") 
-      || !timing_and_length2_test(nPolygons,nSizes,eqSizes,plc_random_equilateral_closed_polygon,"closed equilateral space ","CES")
-      || !timing_and_length2_test(nPolygons,nSizes,eqSizes,plc_random_equilateral_open_polygon,"open equilateral space ","OES")) {
+      || !timing_and_length2_test(nPolygons,nEQSizes,eqSizes,plc_random_equilateral_closed_polygon,"closed equilateral space ","CES")
+      || !timing_and_length2_test(nPolygons,nEQSizes,eqSizes,plc_random_equilateral_open_polygon,"open equilateral space ","OES")) {
     PASS = false;
   }
 
@@ -673,10 +681,10 @@ int main(int argc, char *argv[]) {
   nPolygons = 60000;
   int nEdges = 500;
 
-  int nEQEdges = 10;
-  int EQSkips[100] = {1,2,3,4,5};
-  int nEQSkips = 5;
-  int nEQPolygons = 5000;
+  int nEQEdges = 200;
+  int EQSkips[100] = {10,15,20,25,30,35,40,45,50};
+  int nEQSkips = 9;
+  int nEQPolygons = 50000;
   
   if (PAPERMODE) { 
     outfile = fopen("mean_squared_chordlength.csv","w");
@@ -686,24 +694,28 @@ int main(int argc, char *argv[]) {
   if (!chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_closed_polygon,space_pol_prediction,space_pol_predstring,"closed space polygon","CS")
       || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_polygon,space_arm_prediction,space_arm_predstring,"open space polygon","OS")
       || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_closed_plane_polygon,plane_pol_prediction,plane_pol_predstring,"closed plane polygon","CP")
-      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_plane_polygon,plane_arm_prediction,plane_arm_predstring,"open plane polygon","OP")
-       || !chordlength_test(nEQPolygons,nEQEdges,nEQSkips,EQSkips,plc_random_equilateral_closed_polygon,eq_pol_prediction,eq_pol_predstring,"closed equilateral space polygon","CES")
-      || !chordlength_test(nEQPolygons,nEQEdges,nEQSkips,EQSkips,plc_random_equilateral_open_polygon,eq_arm_prediction,eq_arm_predstring,"open equilateral space polygon","OES")
+      || !chordlength_test(nPolygons,nEdges,nSkips,Skips,plc_random_open_plane_polygon,plane_arm_prediction,plane_arm_predstring,"open plane polygon","OP"))
+    {
+      PASS = false;
       
-) {
-    PASS = false;
-  }
+    }
+
+  if (!chordlength_test(nEQPolygons,nEQEdges,nEQSkips,EQSkips,plc_random_equilateral_closed_polygon,eq_pol_prediction,eq_pol_predstring,"closed equilateral space polygon","CES")
+      || !chordlength_test(nEQPolygons,nEQEdges,nEQSkips,EQSkips,plc_random_equilateral_open_polygon,eq_arm_prediction,eq_arm_predstring,"open equilateral space polygon","OES")) 
+    {
+      PASS = false;
+    }
 
   if (PAPERMODE) { fclose(outfile); }
 
   /* Gyradius tests. */
 
-  int gySizes[100] = {100,150,200,250,300,350,400,450,500};
-  int ngySizes = 3;
-  nPolygons = 30000;
+  int gySizes[100] = {150,150,200,250,300,350,400,450,500};
+  int ngySizes = 1;
+  nPolygons = 40000;
   int nEQgySizes = 3;
-  int EQgySizes[100] = {5,10,15};
-  nEQPolygons = 5000;
+  int EQgySizes[100] = {50,100,150};
+  nEQPolygons = 20000;
 
   if (PAPERMODE) { 
     outfile = fopen("gyradius.csv","w");
@@ -713,36 +725,54 @@ int main(int argc, char *argv[]) {
   if (!gyradius_test(nPolygons,ngySizes,gySizes,plc_random_closed_polygon,space_pol_gyradius_prediction,space_pol_gyradius_predstring,"closed space","CS")
       || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_polygon,space_arm_gyradius_prediction,space_arm_gyradius_predstring,"open space","OS")
       || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_closed_plane_polygon,plane_pol_gyradius_prediction,plane_pol_gyradius_predstring,"closed plane","CP")
-      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_plane_polygon,plane_arm_gyradius_prediction,plane_arm_gyradius_predstring,"open plane","OP") 
-       || !gyradius_test(nEQPolygons,nEQgySizes,EQgySizes,plc_random_equilateral_closed_polygon,eq_pol_gyradius_prediction,eq_pol_gyradius_predstring,"closed equilateral space","CES")
-      || !gyradius_test(nEQPolygons,nEQgySizes,EQgySizes,plc_random_equilateral_open_polygon,eq_arm_gyradius_prediction,eq_arm_gyradius_predstring,"open equilateral space","OES")
-
-) {
+      || !gyradius_test(nPolygons,ngySizes,gySizes,plc_random_open_plane_polygon,plane_arm_gyradius_prediction,plane_arm_gyradius_predstring,"open plane","OP")) {
+    
     PASS = false;
-  };
+
+  }
+  
+  if (!gyradius_test(nEQPolygons,nEQgySizes,EQgySizes,plc_random_equilateral_closed_polygon,eq_pol_gyradius_prediction,eq_pol_gyradius_predstring,"closed equilateral space","CES")
+      || !gyradius_test(nEQPolygons,nEQgySizes,EQgySizes,plc_random_equilateral_open_polygon,eq_arm_gyradius_prediction,eq_arm_gyradius_predstring,"open equilateral space","OES")) 
+    {
+      PASS = false;
+    }
   
   if (PAPERMODE) { fclose(outfile); }
-
-   /* Failure to close tests. */
-
+  
+  /* Failure to close tests. */
+  
   int ftcSizes[100] = {100,150,200,250,300,350,400,450,500};
-  int nftcSizes = 3;
-  nPolygons = 100000;
-
+  int nftcSizes = 2;
+  nPolygons = 40000;
+  
   if (PAPERMODE) { 
     outfile = fopen("failure_to_close.csv","w");
     timestamp(outfile);
   }  
 
-  if (!ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_polygon,space_arm_ftc_prediction,space_arm_ftc_predstring,"open space polygon","OS")
-      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_plane_polygon,plane_arm_ftc_prediction,plane_arm_ftc_predstring,"open plane polygon","OP")) {
+  if (!ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_polygon,
+		space_arm_ftc_prediction,space_arm_ftc_predstring,"open space","OS")
+      || !ftc_test(nPolygons,nftcSizes,ftcSizes,plc_random_open_plane_polygon,
+		   plane_arm_ftc_prediction,plane_arm_ftc_predstring,"open plane","OP")) {
     PASS = false;
   };
  
   if (PAPERMODE) { fclose(outfile); }
 
   gsl_rng_free(r);
+
+  printf("==========================================\n");
  
-  if (PASS) { exit(0); } else { exit(1); }
+  if (PASS) { 
+
+    printf("Random Polygon Test Suite: PASS\n");
+    exit(0); 
+
+  } else { 
+
+    printf("Random Polygon Test Suite: FAIL\n");
+    exit(1); 
+
+  }
 
 }

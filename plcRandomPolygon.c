@@ -525,91 +525,259 @@ plCurve *plc_random_open_plane_polygon_selfcheck(gsl_rng *r,int nEdges)
 
 /************ Random Equilateral Polygons (and Arms) ***********************/
 
-plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
+/* We are going to implement the "triple rotation" algorithm of Varela, Hinson,
+   Arsuaga, and Diao. */
+
+plc_vector plc_subsphere_sample(gsl_rng *r,plc_vector axis,double height) 
+
+/* Sample uniformly from the portion of a sphere with "axis" coordinate < height. */
 
 {
+  plc_vector z_sample;
+  plc_vector n_axis;
+  plc_vector z_axis = { {0,0,1} };
+  double samp_z;
+  double samp_theta;
+  double pi = 3.14159265358979;
+  bool ok;
 
+
+  n_axis = plc_normalize_vect(axis,&ok);
+  if (!ok) { 
+    fprintf(stderr,"plc_subsphere_sample: Axis too short.\n");
+    exit(1);
+  }
+
+  samp_z = gsl_ran_flat(r,-1,height);
+  samp_theta = gsl_ran_flat(r,0,2*pi);
+
+  z_sample = plc_build_vect(cos(samp_theta)*sqrt(1 - samp_z*samp_z),
+			    sin(samp_theta)*sqrt(1 - samp_z*samp_z),
+			    samp_z);
+
+  /* Now we rotate to make an "axis sample" instead of a z sample. */
+
+  plc_vector raxis;
+  raxis = plc_normalize_vect(plc_vect_sum(n_axis,z_axis),&ok);
+
+  if (!ok) { /* The n_axis is - the z-axis. No problem; just invert the sample in z and we're done. */
+
+    z_sample.c[2] *= -1.0;
+    return z_sample;
+
+  } else {
+
+    return plc_rotate_vect(z_sample,raxis,pi);
+
+  }
+
+}
+
+plc_vector plc_sphere_intersection_sample(gsl_rng *r,plc_vector A, plc_vector B) 
+
+/* Sample uniformly from the sphere of intersection of the unit radius
+   spheres centered at A and B. */
+
+{
+  double pi = 3.14159265358979;
+
+  plc_vector diff_axis,z_axis = {{0,0,1.0}},minusz = {{0,0,-1.0}};
+  plc_vector frameA, frameB, frameC;
+
+  double     theta_sample;
+  double     ABdist;
+
+  plc_vector sample;
+  bool       ok;
+
+  /* Make sure that there _is_ an intersection */ 
+  
+  diff_axis = plc_vect_diff(A,B); 
+  ABdist = plc_norm(diff_axis);
+  
+  if (ABdist > 2.0) {
+    return plc_vweighted(0.5,A,B);  /* Return the midpoint: spheres just touch */
+  }
+
+  if (ABdist < 1e-8) { /* Return a random point on the sphere: spheres coincide */
+    gsl_ran_dir_3d(r,&sample.c[0],&sample.c[1],&sample.c[2]);
+    return plc_vect_sum(A,sample);
+  }
+
+  diff_axis = plc_normalize_vect(diff_axis,&ok);
+
+  /* Now sample on an appropriate circle */
+
+  theta_sample = gsl_ran_flat(r,0,4*pi);
+
+  if (plc_distance(diff_axis,z_axis) < 1e-5) {
+
+    frameA = plc_build_vect(1,0,0);
+    frameB = plc_build_vect(0,1,0);
+    frameC = plc_build_vect(0,0,1);
+
+  } else if (plc_distance(diff_axis,minusz) < 1e-5) {
+
+    frameA = plc_build_vect(1,0,0);
+    frameB = plc_build_vect(0,1,0);
+    frameC = plc_build_vect(0,0,-1);
+
+  } else {
+    
+    bool ok;
+    frameA = plc_normalize_vect(plc_cross_prod(diff_axis,z_axis),&ok);
+    frameB = plc_normalize_vect(plc_cross_prod(diff_axis,frameA),&ok);
+    frameC = diff_axis;
+
+  }
+
+  double radius = sqrt(1 - (ABdist*ABdist)/4.0);
+
+  sample = plc_vect_sum(
+			plc_vlincomb(cos(theta_sample)*radius,frameA,
+				     sin(theta_sample)*radius,frameB),
+			plc_scale_vect(ABdist/2.0,frameC)
+			);
+
+  sample = plc_vect_sum(sample,B);
+
+  return sample;
+  
+}
+
+void plc_double_rotation(gsl_rng *r, 
+			 plc_vector r1,plc_vector r2,plc_vector r3,
+			 plc_vector *r1p, plc_vector *r2p, plc_vector *r3p)
+
+/* Implementation of the randomized "double rotation" operation of
+   Hinson, Varela, Diao, Arsuaga */
+
+{
+  double nR,height;
+  plc_vector R,Xp,Yp,O = {{0,0,0}};
+  
+  R = plc_vect_sum(r1,plc_vect_sum(r2,r3)); /* r1 + r2 + r3 */
+  nR = plc_norm(R);
+  height = (nR < 1.0) ? 1.0 : (3 - nR*nR)/(2*nR);
+  
+  Yp = plc_vect_sum(plc_subsphere_sample(r,R,height),R);
+  Xp = plc_sphere_intersection_sample(r,O,Yp);
+  
+  *r1p = Xp;
+  *r2p = plc_vect_diff(Yp,Xp);
+  *r3p = plc_vect_diff(R,Yp);
+ 
+}
+
+void plc_single_rotation(gsl_rng *r,
+			 plc_vector r1,plc_vector r2,
+			 plc_vector *r1p, plc_vector *r2p) {
+
+  /* An implementation of the "hedgehog move" of spinning r1, r2 around r1 + r2 */
+
+  double theta_samp;
+  plc_vector r_axis;
+  bool ok;
+  double pi = 3.14159265358979;
+
+  r_axis = plc_normalize_vect(plc_vect_sum(r1,r2),&ok);
+
+  if (!ok) { /* r2 = -r1, no need to rotate */
+
+    *r1p = r1; *r2p = r2;
+
+  } else {
+
+    theta_samp = gsl_ran_flat(r,0,2*pi);
+    
+    *r1p = plc_rotate_vect(r1,r_axis,theta_samp);
+    *r2p = plc_rotate_vect(r2,r_axis,theta_samp);
+    
+  }
+  
+}
+
+plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
+
+/* An implementation of the "fast ergodic double rotation" algorithm of 
+   Varela, Hinson, Diao, Arsuaga, J. Phys. A. 42 (2009) */
+
+{
   if (nEdges < 2 || nEdges > 100000000) {
 
-    fprintf(stderr,"plc_random_equilateral_closed_polygon: Can't generate polygon with %d edges.\n",nEdges);
+    fprintf(stderr,
+	    "plc_random_equilateral_closed_polygon: Can't "
+	    "generate polygon with %d edges.\n",nEdges);
     exit(1);
     
   }
-
-  /* Step 0. Generate nEdges unit vectors which sum to zero */
-
-  double pi = 3.14159265358979;
+  
   plc_vector *edgeset;
   int i;
+  int *indexset;
 
   edgeset = calloc(nEdges,sizeof(plc_vector));
-  if (edgeset == NULL) { 
+  indexset = calloc(nEdges,sizeof(int));
 
-    fprintf(stderr,"plc_random_equilateral_closed_polygon: Can't allocate %d edge vectors.\n",nEdges);
+  if (edgeset == NULL || indexset == NULL) { 
+
+    fprintf(stderr,"plc_random_equilateral_closed_polygon: "
+	    "Can't allocate %d edge vectors or integers.\n",nEdges);
     exit(1);
     
   } 
   
-  if (nEdges % 2 == 1) { /* The number of edges is odd; add a triple */
-
-    edgeset[0] = plc_build_vect(1,0,0);
-    edgeset[1] = plc_build_vect(cos(2.0*pi/3.0),sin(2.0*pi/3.0),0);
-    edgeset[2] = plc_build_vect(cos(4.0*pi/3.0),sin(4.0*pi/3.0),0);
-    
-    i = 3;
+  for(i=0;i<nEdges;i++) { indexset[i] = i; }
   
-  } else {
+  /* Now we start work. */
 
-    i = 0;
+  if (nEdges % 2 == 1) { /* Odd case; start by generating triangle. */
 
-  }
+    plc_vector Y;
 
-  for(;i<nEdges;i+=2) {
+    gsl_ran_dir_3d(r,&(edgeset[0].c[0]),&(edgeset[0].c[1]),&(edgeset[0].c[2]));
+    Y = plc_sphere_intersection_sample(r,plc_build_vect(0,0,0),edgeset[0]);
+    edgeset[1] = plc_vect_diff(Y,edgeset[0]);
+    edgeset[2] = plc_scale_vect(-1.0,Y);
+    i = 3;
 
-    gsl_ran_dir_3d (r, &(edgeset[i].c[0]), &(edgeset[i].c[1]), &(edgeset[i].c[2]));
-    edgeset[i+1] = plc_scale_vect(-1.0,edgeset[i]);
+  } else { /* Even case; start by generating 4-gon */
     
+    plc_vector r1,r2;
+
+    gsl_ran_dir_3d(r,&(r1.c[0]),&(r1.c[1]),&(r1.c[2]));
+    gsl_ran_dir_3d(r,&(r2.c[0]),&(r2.c[1]),&(r2.c[2]));
+
+    plc_single_rotation(r,r1,r2,&edgeset[0],&edgeset[1]);
+    edgeset[2] = plc_scale_vect(-1.0,r1);
+    edgeset[3] = plc_scale_vect(-1.0,r2);
+    i = 4;
+
   }
 
-  /* Step 1. Randomly permute them. */
+  for(;i<nEdges;i+=2) {  /* Now generate pairs of edges */
+
+    int rc[2];
+    plc_vector rV;
+
+    gsl_ran_dir_3d(r,&(rV.c[0]),&(rV.c[1]),&(rV.c[2]));
+    gsl_ran_choose(r,rc,2,indexset,i,sizeof(int)); /* Choose 2 previous */
+
+    /* Now double-rotate those two and the new rV, replacing the old 2 and 
+       adding the new guy to the edgelist. This preserves sum of these 3. */
+
+    plc_double_rotation(r,rV,edgeset[rc[0]],edgeset[rc[1]],
+			&edgeset[i],&edgeset[rc[0]],&edgeset[rc[1]]);
+
+    /* To keep the sum of the whole thing equal to zero, add -rV to the list */
+
+    edgeset[i+1] = plc_scale_vect(-1.0,rV);
+
+  }
 
   gsl_ran_shuffle(r,edgeset,nEdges,sizeof(plc_vector));
 
-  /* Step 2. Apply ``hedgehog moves'' */
-
-  int *indexlist;
-  indexlist = calloc(nEdges,sizeof(int));
-  if (indexlist == NULL) { 
-
-    fprintf(stderr,"plc_random_equilateral_closed_polygon: Can't allocate %d integers.\n",nEdges);
-    exit(1);
-    
-  } 
-
-  for(i=0;i<nEdges;i++) { indexlist[i] = i; }
-
-  for(i=0;i<nEdges*nEdges;i++) {
-    
-    int edges[2];
-    gsl_ran_choose(r,edges,2,indexlist,nEdges,sizeof(int));  /* Choose a pair of edges to twist */
-
-    plc_vector axis;
-    bool ok;
-
-    axis = plc_normalize_vect(plc_vect_sum(edgeset[edges[0]],edgeset[edges[1]]),&ok);
-
-    if (ok) {
-
-      double theta;
-      theta = gsl_ran_flat(r,0,2*pi);
-      edgeset[edges[0]] = plc_rotate_vect(edgeset[edges[0]],axis,theta);
-      edgeset[edges[1]] = plc_rotate_vect(edgeset[edges[1]],axis,theta);
-	    
-    }
-  
-  }
-      
-  /* Step 3. Assemble the edgeset into vertices for a new polygon, scaling as we go. */
+  /* Now turn these edges into a polygon. */
 
   plCurve *L;
   bool open = { false };
@@ -621,14 +789,17 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
 
   for(i=1;i<nEdges;i++) {
     
-    L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],plc_scale_vect(2.0/nEdges,edgeset[i-1]));
+    L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],
+				  plc_scale_vect(2.0/nEdges,edgeset[i-1]));
 
   }
+
+  plc_fix_wrap(L);  /* As we've modified vertex buffer! */
 
   /* Step 4. Housekeeping and return. */
 
   free(edgeset);
-  free(indexlist);
+  free(indexset);
 
   return L;
 
@@ -655,6 +826,8 @@ plCurve *plc_random_equilateral_open_polygon(gsl_rng *r,int nEdges)
     L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],plc_scale_vect(2.0/nEdges,dir));
 
   }
+
+  plc_fix_wrap(L); /* Because we modified the vertex buffer! */
 
   return L;
 

@@ -17,7 +17,7 @@ libplCurveStatic_a_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c
 		       plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
 libplCurveStatic_a_CFLAGS = $(AM_CFLAGS)
 
-check_PROGRAMS =  nn_test symmetry_test randompolygon_test 
+check_PROGRAMS =  nn_test symmetry_test randompolygon_test eq_primitives_test
 
 if HAVE_ARGTABLE2
 bin_PROGRAMS = knot_diagram resample plcurvature plcompEric
@@ -28,7 +28,7 @@ endif
 noinst_PROGRAMS = spline_view # gcov_tests
 noinst_HEADERS = homfly.h
 
-TESTS = nn_test symmetry_test randompolygon_test 
+TESTS = nn_test symmetry_test randompolygon_test eq_primitives_test
 
 dist_data_DATA = plCurve.typemap
 
@@ -74,6 +74,9 @@ nn_test_LDADD = -lplCurve
 
 symmetry_test_SOURCES = symmetry_test.c libplCurve.a
 symmetry_test_LDADD = -lplCurve
+
+eq_primitives_test_SOURCES = eq_primitives_test.c libplCurve.a
+eq_primitives_test_LDADD = -lplCurve
 
 #gcov_tests_SOURCES = run_tests.c libplCurve_cov.la
 #gcov_tests_LDADD = libplCurve_cov.la

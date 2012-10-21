@@ -209,7 +209,7 @@ extern "C" {
   double plc_norm(plc_vector A);
   double plc_distance(plc_vector A, plc_vector B);
   double plc_sq_dist(plc_vector A, plc_vector B);
-  double plc_angle(plc_vector A, plc_vector B, bool *ok);
+  double plc_angle(plc_vector A, plc_vector B, bool *ok); /* Returns an angle in [0,pi] */
 
   /* Do two vectors match ? */
   bool plc_vecteq(plc_vector A, plc_vector B);
