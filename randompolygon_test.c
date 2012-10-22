@@ -36,6 +36,12 @@ gsl_rng *r;  /* The global random number generator */
 bool PAPERMODE;
 FILE *outfile;
 
+plCurve *plc_random_closed_polygon_selfcheck(gsl_rng *r,int nEdges);
+plCurve *plc_random_open_plane_polygon_selfcheck(gsl_rng *r,int nEdges);
+
+plCurve *plc_random_open_polygon_selfcheck(gsl_rng *r,int nEdges);
+plCurve *plc_random_closed_plane_polygon_selfcheck(gsl_rng *r,int nEdges);
+
 plCurve *plc_random_polygon_selfcheck(int nEdges,bool selfcheck); /* A private version which turns on debugging code. */
 
 double *gaussian_array(gsl_rng *r,int n);
@@ -742,8 +748,8 @@ int main(int argc, char *argv[]) {
   /* Failure to close tests. */
   
   int ftcSizes[100] = {100,150,200,250,300,350,400,450,500};
-  int nftcSizes = 2;
-  nPolygons = 40000;
+  int nftcSizes = 1;
+  nPolygons = 60000;
   
   if (PAPERMODE) { 
     outfile = fopen("failure_to_close.csv","w");

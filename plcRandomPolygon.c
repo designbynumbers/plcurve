@@ -747,8 +747,8 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
 
     gsl_ran_dir_3d(r,&(r1.c[0]),&(r1.c[1]),&(r1.c[2]));
     gsl_ran_dir_3d(r,&(r2.c[0]),&(r2.c[1]),&(r2.c[2]));
-
     plc_single_rotation(r,r1,r2,&edgeset[0],&edgeset[1]);
+
     edgeset[2] = plc_scale_vect(-1.0,r1);
     edgeset[3] = plc_scale_vect(-1.0,r2);
     i = 4;
@@ -833,13 +833,46 @@ plCurve *plc_random_equilateral_open_polygon(gsl_rng *r,int nEdges)
 
 }
 
-/************ Random Space Arm with specified failure to close *************/
+/************ Loop closure algorithm *************/
 
-#ifdef FTC_IN
 
-plCurve *plc_random_closed_polygon_internal(gsl_rng *r, int nEdges, bool selfcheck)
+plCurve *plc_random_ftc_internal(gsl_rng *r, int nEdges, double length, double ftc, bool selfcheck)
+
+/* Generate open arcs with a specified failure to close (along the x-axis) and length. */
+
 {
+  if (length < ftc) {
 
+    return NULL;  /* Can't generate any arc whose ftc > length! */
+
+  } 
+
+  if (length < ftc + 1e-8) { length = ftc; } /* The almost straight case; make straight. */
+
+  if (nEdges == 1 && fabs(length-ftc) < 1e-10) {  
+    
+    /* There is a straight arm with this ftc, but the method below won't generate it. */
+    /* In this case, we do it manually. */
+
+    plCurve *closedL;
+    int nv = 2, cc = 0;
+    bool open = true;
+
+    closedL = plc_new(1,&nv,&open,&cc);
+    closedL->cp[0].vt[0] = plc_build_vect(0,0,0);
+    closedL->cp[0].vt[1] = plc_build_vect(length,0,0);
+
+    plc_fix_wrap(closedL);
+    return closedL;
+
+  }
+
+  if (nEdges == 1 && fabs(length - ftc) > 1e-10) {
+
+    return NULL;
+
+  }
+    
   /* 1. Generate vectors of 2n independent Gaussians. */
 
   double *Araw,*Braw;
@@ -888,24 +921,41 @@ plCurve *plc_random_closed_polygon_internal(gsl_rng *r, int nEdges, bool selfche
 
     if (fabs(creal(aa) - 1.0) > 1e-10 || fabs(cimag(aa)) > 1e-10) {
 
-      fprintf(stderr,"plc_closed_polygon_selfcheck: <A,A> = %g + %g i != 1.0\n",creal(aa),cimag(aa));
+      fprintf(stderr,"plc_random_ftc_internal_selfcheck: <A,A> = %g + %g i != 1.0\n",creal(aa),cimag(aa));
       exit(1);
 
     }
 
     if (fabs(creal(bb) - 1.0) > 1e-10 || fabs(cimag(bb)) > 1e-10) {
 
-      fprintf(stderr,"plc_closed_polygon_selfcheck: <A,A> = %g + %g i != 1.0\n",creal(bb),cimag(bb));
+      fprintf(stderr,"plc_random_ftc_internal_selfcheck: <A,A> = %g + %g i != 1.0\n",creal(bb),cimag(bb));
       exit(1);
 
     }
 
     if (fabs(creal(ab)) > 1e-10 || fabs(cimag(ab)) > 1e-10) {
 
-      fprintf(stderr,"plc_closed_polygon_selfcheck: <A,B> = %g + %g i != 0.0\n",creal(ab),cimag(ab));
+      fprintf(stderr,"plc_random_ftc_internal_selfcheck: <A,B> = %g + %g i != 0.0\n",creal(ab),cimag(ab));
       exit(1);
 
     }
+
+  }
+
+  /* Now apply the failure-to-close scaling. */
+  
+  double ell;
+  double aScale,bScale;
+  
+  ell = 2.0*(ftc/length);  /* This is the failure to close for a polygon of length 2.0 */
+  aScale = sqrt(1 + ell/2.0);
+  bScale = sqrt(1 - ell/2.0);
+  
+  for(i=0;i<nEdges;i++) {  A[i] *= aScale; B[i] *= bScale; }
+  
+  /* Now we can check ftc, edge sum */
+
+  if (selfcheck) {
 
     plc_vector edgesum = {{0,0,0}};
 
@@ -915,27 +965,37 @@ plCurve *plc_random_closed_polygon_internal(gsl_rng *r, int nEdges, bool selfche
 
     }
 
-    if (plc_M_norm(edgesum) > 1e-10) { 
+    if (fabs(plc_M_norm(edgesum) - ell) > 1e-8) { 
 
-      fprintf(stderr,"plc_closed_polygon_selfcheck: Sum of edges is (%g,%g,%g) with norm %g != 0.0\n",
-	      plc_M_clist(edgesum),plc_M_norm(edgesum));
+      fprintf(stderr,"plc_random_ftc_internal_selfcheck: Sum of edges is (%g,%g,%g) with norm %g != %g\n",
+	      plc_M_clist(edgesum),plc_M_norm(edgesum),ell);
       exit(1);
 
     }
 
-  } 
+    if (fabs(edgesum.c[0] - ell) > 1e-8 || fabs(edgesum.c[1]) > 1e-8 || fabs(edgesum.c[2]) > 1e-8) {
+
+       fprintf(stderr,"plc_random_ftc_internal_selfcheck: Sum of edges is (%g,%g,%g) not in positive x direction.\n",
+	      plc_M_clist(edgesum));
+      exit(1);
+
+    } 
+
+  }
 
   /* 6. Assemble Polygon. */
 
-  bool open={false};
-  int cc=0,nv = nEdges;
+  bool open={true};
+  int cc=0,nv = nEdges+1;
   plCurve *L;
+  double scale = length/2.0;
 
   L = plc_new(1,&nv,&open,&cc);
-  L->cp[0].vt[0] = hopfImap(creal(A[0]),cimag(A[0]),creal(B[0]),cimag(B[0]));
+  L->cp[0].vt[0] = plc_build_vect(0,0,0);
   
-  for(i=1;i<nEdges;i++) {
-    L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],hopfImap(creal(A[i]),cimag(A[i]),creal(B[i]),cimag(B[i])));
+  for(i=1;i<nv;i++) {
+    L->cp[0].vt[i] = plc_vect_sum(L->cp[0].vt[i-1],
+				  plc_scale_vect(scale,hopfImap(creal(A[i-1]),cimag(A[i-1]),creal(B[i-1]),cimag(B[i-1]))));
   }
 
   plc_fix_wrap(L);
@@ -947,9 +1007,147 @@ plCurve *plc_random_closed_polygon_internal(gsl_rng *r, int nEdges, bool selfche
 
   return L;
 
-}    
+} 
 
-#endif  
+plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges)
+
+/* Generate a random closure for the component cp of the open curve openL with nEdges (total). */
+
+{
+  plCurve *closureArc;
+  plCurve *closedL;
+  double   closureLength,ftc;
+  double   pi = 3.141592653589793;
+
+  if (!openL->cp[cp].open) { 
+
+    fprintf(stderr,"plc_loop_closure: Can't close a closed curve.\n");
+    return NULL;
+
+  }
+  
+  closureLength = 2.0 - plc_arclength(openL,NULL);
+  ftc = plc_distance(openL->cp[cp].vt[0],openL->cp[cp].vt[openL->cp[cp].nv-1]);
+  
+  if (closureLength < 0) {
+
+    fprintf(stderr,"plc_loop_closure: Length of open curve is >= 2.0. Can't generate length 2 closure.\n");
+    return NULL;
+
+  }
+
+  if (closureLength > ftc) {
+
+    fprintf(stderr,"plc_loop_closure: Closure length %g too small to close gap of %g.\n",
+	    closureLength,ftc);
+    return NULL;
+
+  }
+
+  if (nEdges < openL->cp[cp].nv + 1) { 
+
+    fprintf(stderr,"plc_loop_closure: Total number of edges in closed loop %d smaller than edges in open section (%d) + 1.\n",
+	    nEdges,openL->cp[cp].nv);
+    return NULL;
+
+  }
+
+  closureArc = plc_random_ftc_internal(r,nEdges,closureLength,ftc,false);
+
+  /* There are two cases. If the original curve is already (numerically) closed, there is no operation here. */
+  /* Otherwise, we'll need to rotate and translate the closureArc into place. */
+
+  bool ok;
+  plc_vector desiredFTCdir = plc_normalize_vect(plc_vect_diff(openL->cp[cp].vt[0],openL->cp[cp].vt[openL->cp[cp].nv-1]),&ok);
+
+  if (ok) {
+
+    plc_vector r_axis,x_axis = {{1,0,0}};
+    r_axis = plc_normalize_vect(plc_vect_sum(desiredFTCdir,x_axis),&ok);
+    if (!ok) { r_axis = plc_build_vect(0,1,0); }
+    plc_rotate(closureArc,r_axis,pi);
+
+  }
+
+  plc_translate(closureArc,openL->cp[cp].vt[openL->cp[cp].nv-1]);
+
+  /* Now we need to splice the two curves together. */
+
+  int  *nv;
+  int  *cc;
+  bool *open;
+  int   i,nc;
+
+  nc = openL->nc;
+
+  nv   = calloc(nc,sizeof(int));
+  cc   = calloc(nc,sizeof(int));
+  open = calloc(nc,sizeof(bool));
+
+  for(i=0;i<nc;i++) {
+
+    nv[i] = openL->cp[i].nv;
+    cc[i] = openL->cp[i].cc;
+    open[i] = openL->cp[i].open;
+
+  }
+
+  nv[cp] = nEdges;
+  open[cp] = false;
+
+  if (cc[cp] > 1) { /* Has per-vertex colors */
+
+    cc[cp] = nv[cp]; 
+
+  }
+
+  closedL = plc_new(nc,nv,open,cc);
+  
+  /* The first thing we do is copy everything we can from openL into closedL */
+  /* We lose all constraints in the closure process since they won't make sense */
+  /* for the random closure, but we keep colors where we can. */
+  
+  int vt;
+
+  for(i=0;i<nc;i++) {
+    
+    for(vt=0;vt<openL->cp[i].nv;vt++) {
+
+      closedL->cp[i].vt[vt] = openL->cp[i].vt[vt];
+
+    }
+
+    for(vt=0;vt<openL->cp[i].cc;vt++) { /* Copy the colors we have */
+
+      closedL->cp[i].clr[vt] = openL->cp[i].clr[vt];
+
+    }
+
+  }
+      
+  for(i=openL->cp[cp].nv,vt=1;vt<closureArc->cp[0].nv-1;vt++,i++) {
+
+    closedL->cp[cp].vt[i] = closureArc->cp[0].vt[vt];
+  
+  }
+
+  plc_fix_wrap(closedL);
+
+  /* Now we do some housekeeping */
+
+  free(nv); free(cc); free(open);
+  plc_free(closureArc);
+
+  return closedL;
+   
+}
+
+    
+    
+  
+
+   
+
 
      
 

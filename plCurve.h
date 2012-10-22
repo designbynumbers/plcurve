@@ -647,15 +647,17 @@ extern "C" {
   plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges);
   plCurve *plc_random_equilateral_open_polygon(gsl_rng *r,int nEdges);
 
-  /* Internal versions which turn on some debugging code. */
+  /* Generate a random closure for an open component cp of polygon openL */
+  /* with a specified number of (total) edges. The total length of the
+     closed polygon will be 2.0, so this fails if the polygon is too
+     long, or if there is not enough ``slack'' in the length to make 
+     the closure. 
 
-  plCurve *plc_random_closed_polygon_selfcheck(gsl_rng *r,int nEdges);
-  plCurve *plc_random_open_plane_polygon_selfcheck(gsl_rng *r,int nEdges);
+     In particular, generating an open ``arm'' and then closing it with 
+     this will sometimes fail: the correct method is to generate a closed
+     polygon, delete an arc, and then reclose it with this code. */
 
-  plCurve *plc_random_open_polygon_selfcheck(gsl_rng *r,int nEdges);
-  plCurve *plc_random_closed_plane_polygon_selfcheck(gsl_rng *r,int nEdges);
-
-  
+  plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges);  
 
 /****************************** plCurve Symmetry Functions ********************/
   
