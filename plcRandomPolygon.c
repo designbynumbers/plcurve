@@ -1036,7 +1036,7 @@ plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges)
 
   }
 
-  if (closureLength > ftc) {
+  if (closureLength < ftc) {
 
     fprintf(stderr,"plc_loop_closure: Closure length %g too small to close gap of %g.\n",
 	    closureLength,ftc);
@@ -1044,7 +1044,7 @@ plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges)
 
   }
 
-  if (nEdges < openL->cp[cp].nv + 1) { 
+  if (nEdges - (openL->cp[cp].nv - 1) < 1) { 
 
     fprintf(stderr,"plc_loop_closure: Total number of edges in closed loop %d smaller than edges in open section (%d) + 1.\n",
 	    nEdges,openL->cp[cp].nv);
@@ -1052,7 +1052,7 @@ plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges)
 
   }
 
-  closureArc = plc_random_ftc_internal(r,nEdges,closureLength,ftc,false);
+  closureArc = plc_random_ftc_internal(r,nEdges - (openL->cp[cp].nv-1),closureLength,ftc,false);
 
   /* There are two cases. If the original curve is already (numerically) closed, there is no operation here. */
   /* Otherwise, we'll need to rotate and translate the closureArc into place. */
@@ -1073,69 +1073,42 @@ plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges)
 
   /* Now we need to splice the two curves together. */
 
-  int  *nv;
-  int  *cc;
-  bool *open;
-  int   i,nc;
+  closedL = plc_copy(openL);
+  plc_drop_component(closedL,cp);
 
-  nc = openL->nc;
+  plc_vector *newVerts;
+  int vt,ca_vt,clr;
 
-  nv   = calloc(nc,sizeof(int));
-  cc   = calloc(nc,sizeof(int));
-  open = calloc(nc,sizeof(bool));
+  newVerts = calloc(nEdges,sizeof(plc_vector));
+  assert(newVerts != NULL);
 
-  for(i=0;i<nc;i++) {
+  for(vt=0;vt<openL->cp[cp].nv;vt++) { newVerts[vt] = openL->cp[cp].vt[vt]; }
+  for(ca_vt=1;ca_vt<closureArc->cp[0].nv-1 && vt < nEdges;ca_vt++,vt++) { newVerts[vt] = closureArc->cp[cp].vt[ca_vt]; }
 
-    nv[i] = openL->cp[i].nv;
-    cc[i] = openL->cp[i].cc;
-    open[i] = openL->cp[i].open;
+  assert(ca_vt == closureArc->cp[0].nv-1 && vt == nEdges); /* These should finish at the same time */
 
-  }
+  plc_color *cbuf = NULL;
 
-  nv[cp] = nEdges;
-  open[cp] = false;
-
-  if (cc[cp] > 1) { /* Has per-vertex colors */
-
-    cc[cp] = nv[cp]; 
-
-  }
-
-  closedL = plc_new(nc,nv,open,cc);
+  if (openL->cp[cp].cc != 0) {
   
-  /* The first thing we do is copy everything we can from openL into closedL */
-  /* We lose all constraints in the closure process since they won't make sense */
-  /* for the random closure, but we keep colors where we can. */
-  
-  int vt;
-
-  for(i=0;i<nc;i++) {
-    
-    for(vt=0;vt<openL->cp[i].nv;vt++) {
-
-      closedL->cp[i].vt[vt] = openL->cp[i].vt[vt];
-
-    }
-
-    for(vt=0;vt<openL->cp[i].cc;vt++) { /* Copy the colors we have */
-
-      closedL->cp[i].clr[vt] = openL->cp[i].clr[vt];
-
+    cbuf = calloc(nEdges,sizeof(plc_color));
+    for(clr=0;clr<openL->cp[cp].cc;clr++) { 
+      cbuf[clr] = openL->cp[cp].clr[clr];
     }
 
   }
-      
-  for(i=openL->cp[cp].nv,vt=1;vt<closureArc->cp[0].nv-1;vt++,i++) {
 
-    closedL->cp[cp].vt[i] = closureArc->cp[0].vt[vt];
-  
+  int cc = 0;
+  if (openL->cp[cp].cc > 0) {
+    cc = (openL->cp[cp].cc == 1) ? 1 : nEdges;
   }
 
+  plc_add_component(closedL,cp,nEdges,false,cc,newVerts,cbuf);
   plc_fix_wrap(closedL);
 
   /* Now we do some housekeeping */
 
-  free(nv); free(cc); free(open);
+  free(newVerts); if (cbuf != NULL) { free(cbuf); } 
   plc_free(closureArc);
 
   return closedL;

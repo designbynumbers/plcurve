@@ -541,16 +541,18 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng *r,in
   start = clock();
 
   double *all_lastedgelength;
-  all_lastedgelength = calloc(sizeof(double),nSizes);
+  all_lastedgelength = calloc(nSizes,sizeof(double));
 
   for(j=0;j<nSizes;j++) {
+
+    all_lastedgelength[j] = 0;
   
     for(i=0;i<nPolygons;i++) {
     
       /* Generate polygon and compute ftc */
       plCurve *L;
       L = polygen(r,Sizes[j]);
-      all_lastedgelength[j] += plc_M_sq_dist(L->cp[0].vt[0],L->cp[0].vt[L->cp[0].nv-1]);
+      all_lastedgelength[j] += pow(plc_distance(L->cp[0].vt[0],L->cp[0].vt[L->cp[0].nv-1]),2.0);
   
       /* Free memory */
       plc_free(L);
@@ -568,8 +570,8 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng *r,in
   /* Now display results. */
 
   printf("According to CDS, the expected value of failure-to-close for n edge %s polygons is %s\n\n",polygon_type,prediction_string);
-  printf("n (num verts)    Mean Sq FTC    Predicted Mean Sq FTC   Difference  Result\n"
-	 "--------------------------------------------------------------------------\n");
+  printf("n (num verts)    Mean Sq FTC    Predicted Mean Sq FTC   Difference   Result\n"
+	 "---------------------------------------------------------------------------\n");
 
   for(i=0;i<nSizes;i++) {
     
@@ -587,10 +589,12 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng *r,in
     
   }
 
+  printf("Used %g seconds of cpu time (%g per polygon).\n",cpu_time_used,cpu_time_used/(double)(nSizes*nPolygons));
   printf("\n\n");
-  free(all_lastedgelength);
 
   if (PAPERMODE) { fprintf(outfile,"\n"); }
+
+  free(all_lastedgelength);
 
   return PASS;
 
@@ -599,12 +603,12 @@ bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng *r,in
 /* These prediction functions are for FTC_test */
 
 double space_arm_ftc_prediction(int n) {
-  return (double)(6.0*n)/(double)(n*(n+1));
+  return (double)(6.0)/(double)(n+0.5);
 }
 char space_arm_ftc_predstring[256] = "6/(n+1/2)";
 
 double plane_arm_ftc_prediction(int n) {
-   return (double)(8.0*n)/(double)(n*(n+1));
+   return (double)(8.0)/(double)(n+1);
 }
 char plane_arm_ftc_predstring[256] = "8/(n+1)";
   
@@ -747,9 +751,9 @@ int main(int argc, char *argv[]) {
   
   /* Failure to close tests. */
   
-  int ftcSizes[100] = {100,150,200,250,300,350,400,450,500};
+  int ftcSizes[100] = {7,150,200,250,300,350,400,450,500};
   int nftcSizes = 1;
-  nPolygons = 60000;
+  nPolygons = 80000;
   
   if (PAPERMODE) { 
     outfile = fopen("failure_to_close.csv","w");

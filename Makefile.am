@@ -36,7 +36,27 @@ EXTRA_DIST = bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
 	     bad_vects/bad_4.vect bad_vects/bad_5.vect bad_vects/bad_6.vect \
 	     bad_vects/bad_7.vect bad_vects/bad_8.vect bad_vects/bad_9.vect \
 	     bad_vects/bad_10.vect bad_vects/bad_11.vect bad_vects/bad_12.vect \
-	     bad_vects/bad_13.vect bad_vects/bad_14.vect
+	     bad_vects/bad_13.vect bad_vects/bad_14.vect \
+	     data/circle_closure_0.vect \
+             data/circle_closure_1.vect \
+             data/circle_closure_2.vect \
+             data/circle_closure_3.vect \
+             data/circle_closure_4.vect \
+             data/circle_closure_5.vect \
+             data/circle_closure_6.vect \
+             data/circle_closure_7.vect \
+             data/circle_closure_8.vect \
+             data/circle_closure_9.vect \
+             data/random_closure_0.vect \
+             data/random_closure_1.vect \
+             data/random_closure_2.vect \
+             data/random_closure_3.vect \
+             data/random_closure_4.vect \
+             data/random_closure_5.vect \
+             data/random_closure_6.vect \
+             data/random_closure_7.vect \
+             data/random_closure_8.vect \
+             data/random_closure_9.vect 
 
 LDADD = libplCurve.la
 

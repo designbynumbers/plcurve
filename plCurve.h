@@ -603,7 +603,14 @@ extern "C" {
 
   /* Project L to the plane (through the origin) normal to N. */
   void plc_project(plCurve *L, plc_vector N);
-  
+
+  /* Delete a subarc from a component of a plCurve between vt1 and vt2    */
+  /* (inclusive). If vt1 > vt2 (and the curve is closed), deletes forward */
+  /* from vt1 and wraps around to vt2. Vertices are renumbered            */
+  /* so the successor of vt2 will become the new first vertex in a closed */
+  /* curve). If cp is open, it is split in two. */
+
+  plCurve *plc_delete_arc(plCurve *L,int cp,int vt1, int vt2);
   
   /****************************** plCurve Random Polygon Library **************/
 
@@ -648,10 +655,10 @@ extern "C" {
   plCurve *plc_random_equilateral_open_polygon(gsl_rng *r,int nEdges);
 
   /* Generate a random closure for an open component cp of polygon openL */
-  /* with a specified number of (total) edges. The total length of the
-     closed polygon will be 2.0, so this fails if the polygon is too
-     long, or if there is not enough ``slack'' in the length to make 
-     the closure. 
+  /* with a specified number of (total) edges in the resulting closed
+     polygon.  The total length of the closed polygon will be 2.0, so
+     this fails if the polygon is too long, or if there is not enough
+     ``slack'' in the length to make the closure.
 
      In particular, generating an open ``arm'' and then closing it with 
      this will sometimes fail: the correct method is to generate a closed

@@ -2035,7 +2035,7 @@ void plc_add_component(plCurve *L, const int add_as, const int nv,
   L->cp = realloc(L->cp,L->nc*sizeof(plc_strand));
   /*@=compdestroy@*/
   assert(L->cp != NULL);
-  if (L->nc - add_as > 1) {
+  if (L->nc - add_as > 1) {   /* If we're adding in the middle, move other strands */
     memmove(&(L->cp[add_as+1]),&(L->cp[add_as]),
         (L->nc-add_as-1)*sizeof(plc_strand));
   }
@@ -2910,5 +2910,115 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
   }
 
     
+  plCurve *plc_delete_arc(plCurve *L,int cp,int vt1, int vt2)
 
+  /* Delete a subarc from a component of a plCurve between vt1 and vt2    */
+  /* (inclusive). If vt1 > vt2 (and the curve is closed), deletes forward */
+  /* from vt1 and wraps around to vt2. Vertices are renumbered            */
+  /* so the successor of vt2 will become the new first vertex in a closed */
+  /* curve). If cp is open, it is split in two. */
+
+  /* This process is destructive to constraints. */
+
+
+  {
+    plCurve *newL;
+
+    newL = plc_copy(L);
+    plc_remove_all_constraints(newL);  
+
+    if (L->cp[cp].open) { /* We're going to split or truncate open component */
+
+      if (vt1 > vt2) { /* This is a null case, so do nothing */
+
+	return newL;
+
+      } else if (vt1 <= 0) { /* We're cutting stuff off of the front of cp */
+
+	if (vt1 < 0) { vt1 = 0; }
+
+	if (vt2 >= L->cp[cp].nv-1) { /* Drop the whole component */
+
+	  plc_drop_component(newL,cp);
+	  plc_fix_wrap(newL);
+	  return newL;
+
+	} else { /* We're cutting vertices off of the front, but vt2+1 --> nv-1 remains */
+
+	  int vt;
+	  for(vt = 0;vt < L->cp[cp].nv - vt2;vt++) {
+
+	    newL->cp[cp].vt[vt] = L->cp[cp].vt[vt+vt2+1];
+
+	  }
+	  
+	  newL->cp[cp].nv = L->cp[cp].nv - (vt2+1);
+	  plc_fix_wrap(newL);
+
+	  return newL;
+
+	} 
+
+      } else if (vt2 >= L->cp[cp].nv-1) { /* Cut off the end of the component. */
+
+	newL->cp[cp].nv = vt1;
+	plc_fix_wrap(newL);
+
+	return newL;
+
+      } else { /* vt1 > 0, vt2 < L->cp[cp].nv-1, and L->cp[cp].open == true */
+
+	plc_add_component(newL,cp+1,L->cp[cp].nv-(vt2+1),true,0,&(L->cp[cp].vt[vt2+1]),NULL);
+	newL->cp[cp].nv = vt1;
+	plc_fix_wrap(newL);
+
+	return newL;
+
+      }
+      
+    } else { /* The curve is closed */
+
+      if (vt1 == vt2+1 || (vt1 <= 0 && vt2 >= L->cp[cp].nv-1)) { /* Delete entire component */
+
+	plc_drop_component(newL,cp);
+	plc_fix_wrap(newL);
+
+	return newL;
+
+      } else if (vt1 <= vt2) { /* Delete a standard arc. */
+
+	int vt;
+
+	newL->cp[cp].nv -= (vt2 - vt1) + 1;  
+	for(vt = 0;vt < newL->cp[cp].nv;vt++) {
+
+	  newL->cp[cp].vt[vt] = L->cp[cp].vt[(vt + vt2 + 1) % L->cp[cp].nv];
+
+	}
+	newL->cp[cp].open = true;
+	plc_fix_wrap(newL);
+
+	return newL;
+
+      } else { /* L->cp[cp].open == false, vt1 > vt2 + 1, delete a complementary arc. */
+
+	int vt;
+
+	newL->cp[cp].nv = vt1 - vt2 - 1;
+
+	for(vt = 0;vt < newL->cp[cp].nv;vt++) {
+
+	  newL->cp[cp].vt[vt] = L->cp[cp].vt[(vt + vt2 + 1) % L->cp[cp].nv];
+
+	}
+	newL->cp[cp].open = true;
+	plc_fix_wrap(newL);
+
+	return newL;
+	
+      }
+
+    }
+
+  }
   
