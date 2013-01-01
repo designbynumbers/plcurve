@@ -687,7 +687,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix *A,plCurve *L);
    of vertices in the symmetries to build a new symmetry (matrix product BA). 
    Returns NULL on fail. */
 plc_symmetry *plc_compose_symmetries(plc_symmetry *A,plc_symmetry *B);
-  
+
 /* We now need constructors and destructors for the symmetry group */
 plc_symmetry_group *plc_symmetry_group_new(int n);
 void plc_symmetry_group_free(plc_symmetry_group **G);
@@ -697,7 +697,9 @@ plc_symmetry_group *plc_symmetry_group_copy(plc_symmetry_group *G);
 /* Remember that the curves have to basically have the desired symmetry to start. */
 plc_symmetry_group *plc_rotation_group(plCurve *L,plc_vector axis, int n);
 plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis);
-  
+plc_symmetry_group *plc_coordplanes_reflection_group(plCurve *L);
+/* Symmetric over reflection in each coordinate plane */
+    
 /* This symmetrizes a plCurve over the group L->G. */
 void plc_symmetrize(plCurve *L);
   

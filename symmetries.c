@@ -417,6 +417,52 @@ plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis)
 
 }
 
+plc_symmetry_group *plc_coordplanes_reflection_group(plCurve *L)
+
+/* Creates reflections over the x-y, y-z, and z-x planes. */
+
+{
+  plc_symmetry_group *build;
+  build = plc_symmetry_group_new(4);
+
+  /* We now try to set up the group. */
+
+  plc_matrix A;
+  plc_identity_matrix(&A);
+  build->sym[0] = plc_build_symmetry(&A,L);
+
+  plc_reflection_matrix(plc_build_vect(1,0,0),&A);
+  build->sym[1] = plc_build_symmetry(&A,L);
+
+  plc_reflection_matrix(plc_build_vect(0,1,0),&A);
+  build->sym[2] = plc_build_symmetry(&A,L);
+  
+  plc_reflection_matrix(plc_build_vect(0,0,1),&A);
+  build->sym[3] = plc_build_symmetry(&A,L);
+
+  /* All elements are their own inverses */
+
+  build->inverse[0] = 0; build->inverse[1] = 1; 
+  build->inverse[2] = 2; build->inverse[3] = 3;
+
+  /* We need to scan and make sure the builds succeeded. */
+
+  int i;
+  for(i=0;i<2;i++) {
+
+    if (build->sym[i] == NULL) {
+
+      plc_symmetry_group_free(&build);
+      return NULL;
+
+    }
+
+  }
+
+  return build;
+
+}
+
 /* We are at last ready to symmetrize a curve over a group! The algorithm */
 /* is simple: for each point, we collect its G-orbit, average those points, */
 /* and update the point accordingly. Then we push the average around the orbit. */
