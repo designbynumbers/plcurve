@@ -10,11 +10,11 @@ lib_LTLIBRARIES = libplCurve.la libplCurve_safe.la libnplCurve.la libnplCurve_sa
 lib_LIBRARIES = libplCurve.a libplCurveStatic.a
 
 libplCurve_a_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-		       plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
+		       plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c plc_dihedrals.c
 libplCurve_a_CFLAGS = $(AM_CFLAGS)
 
 libplCurveStatic_a_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-		       plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
+		       plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c plc_dihedrals.c
 libplCurveStatic_a_CFLAGS = $(AM_CFLAGS)
 
 check_PROGRAMS =  nn_test symmetry_test randompolygon_test eq_primitives_test loopclosure_test
@@ -61,17 +61,17 @@ EXTRA_DIST = bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
 LDADD = libplCurve.la
 
 libplCurveStatic_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-				plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
+				plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c plc_dihedrals.c
 libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
 
 libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-			plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
+			plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c plc_dihedrals.c
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-				plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c
+				plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c plc_dihedrals.c
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c 

@@ -63,7 +63,7 @@ AC_PROG_LIBTOOL
 # Checks for libraries.
 AC_SEARCH_LIBS([sqrt],[m])
 AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
-AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x requires gsl (for random number generation)]))
+AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x requires gsl (for random number generation)]),[-lgslcblas])
 
 if test "x${have_argtable2}" = xtrue; then 
    AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
@@ -81,7 +81,7 @@ fi
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
-                  time.h sys/times.h sys/types.h fcntl.h signal.h complex.h gsl/gsl_rng.h gsl/gsl_randist.h])
+                  time.h sys/times.h sys/types.h fcntl.h signal.h complex.h gsl/gsl_rng.h gsl/gsl_randist.h gsl/gsl_combination.h])
 
 # Signal to AUTOMAKE if we have argtable2
 
