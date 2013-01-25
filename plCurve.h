@@ -193,7 +193,7 @@ extern "C" {
   /* Returns the center and radius of the circle through three points. 
      If circumradius is NULL, then it won't be written to. */
   plc_vector plc_normal(plc_vector A, plc_vector B, plc_vector C, bool *ok);
-  /* Returns the normal vector to plane defined by A,B,C. */
+  /* Returns the oriented unit normal vector to plane defined by A,B,C. */
 
   plc_vector plc_3plane_intersection(plc_vector N0, plc_vector p0,
 				     plc_vector N1, plc_vector p1,
