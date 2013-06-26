@@ -211,6 +211,13 @@ extern "C" {
   double plc_distance(plc_vector A, plc_vector B);
   double plc_sq_dist(plc_vector A, plc_vector B);
   double plc_angle(plc_vector A, plc_vector B, bool *ok); /* Returns an angle in [0,pi] */
+  double plc_dihedral_angle(plc_vector A, plc_vector B, plc_vector C, plc_vector D,bool *ok); 
+  /* Returns the dihedral angle (in [0,2pi)) of the AC diagonal in the (oriented) 
+     tetrahedron A->B->C->D */
+
+  double plc_angle_dist(double theta,double phi); 
+  /* Returns the distance (on S^1) between the points 
+     theta and phi (regardless of wrapping, etc). */
 
   /* Do two vectors match ? */
   bool plc_vecteq(plc_vector A, plc_vector B);

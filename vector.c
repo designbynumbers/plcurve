@@ -395,6 +395,84 @@ plc_vector plc_normal(plc_vector A,plc_vector B,plc_vector C,bool *ok)
   return nor;
 }
 
+double plc_dihedral_angle(plc_vector A, plc_vector B, plc_vector C, plc_vector D,bool *ok)
+  /* Returns the dihedral angle (in [0,2pi)) of the AC diagonal in the (oriented) 
+     tetrahedron A->B->C->D */
+{
+  double PI = 3.141592653589793;
+
+  /* First, we try to get normals for the A->B->C and A->C->D triangles. */
+
+  plc_vector normABC, normACD;
+  bool local_ok;
+
+  normABC = plc_normal(A,B,C,&local_ok);
+  if (!local_ok) { if (ok != NULL) { *ok = false; } return 0; }
+  
+  normACD = plc_normal(A,C,D,&local_ok);
+  if (!local_ok) { if (ok != NULL) { *ok = false; } return 0; }
+  
+  /* Now that we have the normals, we need to check the length of AC. */
+
+  plc_vector AC;
+  AC = plc_vect_diff(C,A);
+  if (plc_norm(AC) < 1e-8) { if (ok != NULL) { *ok = false; } return 0; }
+  
+  /* With these three vectors, we should be able to compute the dihedral. */
+
+  plc_vector crossA;
+  crossA = plc_cross_prod(normABC,AC); 
+
+  /* This cross product should never have small norm, since AC and
+     normABC are orthogonal. */
+
+  if (plc_dot_prod(crossA,normACD) < -0.1) { 
+
+    /* The sign is (dependably) negative, which means the dihedral is between 0 and PI. */
+
+    return plc_angle(normABC,normACD,&local_ok);
+
+  } else if (plc_dot_prod(crossA,normACD) > 0.1) { 
+      
+    /* The sign is (dependably) positive, which means the dihedral is between 2PI and PI */
+
+    return 2.0*PI - plc_angle(normABC,normACD,&local_ok);
+
+  } else { /* The sign is wishy-washy, which means we'll try another method. */
+
+    if (plc_dot_prod(normABC,normACD) > 0.1) { /* The dihedral is close to PI. */
+
+      return 3.0*PI/2.0 - plc_angle(normABC,crossA,&local_ok); 
+
+    } else { /* The dihedral is close to 0 or 2*PI */
+             /* In this case, it's always the angle */
+             /* between normABC and crossA - PI/2, */
+             /* but if that's negative, we normalize it */
+
+      if (plc_angle(normABC,crossA,&local_ok) - PI/2.0 < 0) { 
+
+	return 3.0*PI/2.0 + plc_angle(normABC,crossA,&local_ok);
+
+      } else {
+
+	return plc_angle(normABC,crossA,&local_ok) - PI/2.0;
+
+      }
+
+    }
+
+  }
+
+}
+
+double plc_angle_dist(double theta,double phi) {
+
+  plc_vector A = plc_build_vect(cos(theta),sin(theta),0);
+  plc_vector B = plc_build_vect(cos(phi),sin(phi),0);
+  return plc_angle(A,B,NULL);
+
+}
+
 plc_vector plc_3plane_intersection(plc_vector N1, plc_vector P1,
 				   plc_vector N2, plc_vector P2,
 				   plc_vector N3, plc_vector P3,
