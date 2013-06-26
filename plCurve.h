@@ -194,6 +194,7 @@ extern "C" {
      If circumradius is NULL, then it won't be written to. */
   plc_vector plc_normal(plc_vector A, plc_vector B, plc_vector C, bool *ok);
   /* Returns the oriented unit normal vector to plane defined by A,B,C. */
+  /* Assumes that the triangle A->B->C is positively oriented on the plane. */
 
   plc_vector plc_3plane_intersection(plc_vector N0, plc_vector p0,
 				     plc_vector N1, plc_vector p1,
