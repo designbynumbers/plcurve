@@ -60,20 +60,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 char *plc_lmpoly(char *ccode); // This is in pllmpoly02.c.
 
-/* Convert plCurve to Millett/Ewing crossing code (documented in plCurve.h) 
+/* Convert plCurve to Millett/Ewing crossing code (documented in plCurve.h)
 
-   This version is a cheat, writing the first component of the plCurve to 
+   This version is a cheat, writing the first component of the plCurve to
    disk and calling the utility program compEric.f in order to compute the
    crossing code representation. We then read the representation from disk
-   and parse it into the crossing code array. 
+   and parse it into the crossing code array.
 
    This is scheduled to be replaced with a better version which handles links
    correctly, so this version should only be used for testing. */
-			    
+
 char *plc_ccode( plCurve *L )
 {
   char *code;
-  
+
   if (L->nc != 1) {
 
     printf("plc_ccode: L has %d components, but this version only works for 1 comp.\n",
@@ -82,7 +82,7 @@ char *plc_ccode( plCurve *L )
 
   }
 
-  /* Step 0. Change to a new temporary working directory to avoid stomping 
+  /* Step 0. Change to a new temporary working directory to avoid stomping
      any user files */
 
   char *template,*newdir;
@@ -115,7 +115,7 @@ char *plc_ccode( plCurve *L )
 
   fclose(resfile);
 
-  /* Step 2. Open a pipe to plcompEric and pass in answers 
+  /* Step 2. Open a pipe to plcompEric and pass in answers
      to the various questions to make it go. */
 
   int edges;
@@ -126,7 +126,7 @@ char *plc_ccode( plCurve *L )
   CEpipe = popen("plcompEric > /dev/null","w");
   assert(CEpipe != NULL);
 
-  /* plcompEric expects 
+  /* plcompEric expects
 
  	# of edges
  	# of reps  (needs to be at least 1)
@@ -138,7 +138,7 @@ char *plc_ccode( plCurve *L )
 
 	Note: comp516 makes the zmatrix file (also zkdata and zpoints, don't need) */
 
-  fprintf(CEpipe,"%d\n1\n1\n1\n12345\n30\n0.0\n",edges); 
+  fprintf(CEpipe,"%d\n1\n1\n1\n12345\n30\n0.0\n",edges);
   pclose(CEpipe);
 
   /* Step 4. Allocate space for the crossing code. */
@@ -159,9 +159,9 @@ char *plc_ccode( plCurve *L )
 
     code[spos++] = (char)(zmchar);
 
-    if (spos > csize-10) { 
+    if (spos > csize-10) {
 
-      csize *= 2; 
+      csize *= 2;
       code = realloc(code,csize*sizeof(char));
       assert(code != NULL);
 
@@ -188,14 +188,15 @@ char *plc_ccode( plCurve *L )
 
   result = chdir("..");
   assert(result != -1);
-  
+
   remove(newdir);
+  free(template);
 
   return code;
 
 }
 
-char *plc_homfly( plCurve *L) 
+char *plc_homfly( plCurve *L)
 /* Compute homfly polynomial by calling the hidden plc_lmpoly function */
 
 {
@@ -214,7 +215,7 @@ char *plc_homfly( plCurve *L)
   return homfly;
 }
 
-int homcmp(const void *A, const void *B) 
+int homcmp(const void *A, const void *B)
 {
   plc_knottype *a,*b;
 
@@ -233,9 +234,9 @@ plc_knottype *plc_classify( plCurve *L, int *nposs)
   plc_knottype kt = { 1, { 0 }, { 1 }, { "(1,1,e)" }, { "[[1]]N " } },*ktmatch,*ret;
   char *homfly;
 
-  plc_knottype unknot = {1, { 0 }, { 1 }, { "(1,1,e)" }, { "[[1]]N " } }; 
+  plc_knottype unknot = {1, { 0 }, { 1 }, { "(1,1,e)" }, { "[[1]]N " } };
 
-  /* We have to work around a bug in lmpoly here, where it horks on one or two 
+  /* We have to work around a bug in lmpoly here, where it horks on one or two
      crossing diagrams. */
 
   char *ccode,*cptr;
@@ -255,10 +256,12 @@ plc_knottype *plc_classify( plCurve *L, int *nposs)
     return ret;
 
   }
-  
+
+
   /* Now we know that the ccode has at least 3 crossings, compute the homfly (lmpoly should work) */
 
-  homfly = plc_homfly(L);
+  homfly = plc_lmpoly(ccode);
+  free(ccode);
   if (homfly == NULL) { *nposs = 0; return NULL; }
   strncpy(kt.homfly,homfly,MAXHOMFLY);
   free(homfly);
@@ -277,9 +280,9 @@ plc_knottype *plc_classify( plCurve *L, int *nposs)
   /* If there is more than one match, we might have landed anywhere in the collection of matching types */
 
   plc_knottype *mlo,*mhi;
-  
+
   for(mlo = ktmatch;!strcmp(kt.homfly,mlo->homfly) && mlo > ktdb;mlo--);  // search down until we don't match anymore or start of buffer
-  if (strcmp(kt.homfly,mlo->homfly)) { mlo++; }                           // if we don't match (we might if we went to the start of buffer) 
+  if (strcmp(kt.homfly,mlo->homfly)) { mlo++; }                           // if we don't match (we might if we went to the start of buffer)
   assert(!strcmp(kt.homfly,mlo->homfly));
 
   for(mhi = ktmatch;!strcmp(kt.homfly,mhi->homfly) && mhi < &(ktdb[KTDBSIZE]);mhi++);
@@ -297,8 +300,3 @@ plc_knottype *plc_classify( plCurve *L, int *nposs)
   return ret;
 
 }
-
-  
-
-     
-
