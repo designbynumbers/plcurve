@@ -262,6 +262,12 @@ plc_knottype *plc_classify( plCurve *L, int *nposs)
 
   homfly = plc_lmpoly(ccode);
   free(ccode);
+
+  if (homfly == NULL) {
+      homfly = calloc(128,sizeof(char));
+      sprintf(homfly,"ccode unable to create crossing code for L");
+  }
+
   if (homfly == NULL) { *nposs = 0; return NULL; }
   strncpy(kt.homfly,homfly,MAXHOMFLY);
   free(homfly);
