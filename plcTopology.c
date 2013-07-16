@@ -58,7 +58,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <unistd.h>
 #endif
 
-char *plc_lmpoly(char *ccode); // This is in pllmpoly02.c.
+char *plc_lmpoly(char *ccode,int timeout); // This is in pllmpoly02.c.
 
 /* Convert plCurve to Millett/Ewing crossing code (documented in plCurve.h)
 
@@ -196,15 +196,16 @@ char *plc_ccode( plCurve *L )
 
 }
 
-char *plc_homfly( plCurve *L)
+char *plc_homfly( plCurve *L )
 /* Compute homfly polynomial by calling the hidden plc_lmpoly function */
+/* By default, this version times out after 60 seconds. */
 
 {
   char *ccode;
   char *homfly;
 
   ccode = plc_ccode(L);
-  homfly = plc_lmpoly(ccode);
+  homfly = plc_lmpoly(ccode,60);
   free(ccode);
 
   if (homfly == NULL) {
@@ -260,7 +261,7 @@ plc_knottype *plc_classify( plCurve *L, int *nposs)
 
   /* Now we know that the ccode has at least 3 crossings, compute the homfly (lmpoly should work) */
 
-  homfly = plc_lmpoly(ccode);
+  homfly = plc_lmpoly(ccode,60);
   free(ccode);
 
   if (homfly == NULL) {

@@ -40,6 +40,10 @@
 #include <string.h>
 #endif
 
+#ifdef HAVE_TIME_H
+#include <time.h>
+#endif
+
   /* values the USER needs to define!! */
 #define XCNT       250     /* maximum crossings in knot (at most 255) */
 #define XCNTSQ   62500     /* YOU MUST CALCULATE XCNT SQUARED! */
@@ -131,7 +135,8 @@ int strwrite(char *str,char *buffer,size_t size)
 }
 
 
-char *plc_lmpoly(char *code)
+char *plc_lmpoly(char *code, int timeout)
+/* This version takes a timeout in seconds. Returns NULL pointer if the computation takes too long. */
 {
  register short i, j, k, h, m, n, *sp;
  register unsigned char *p, *c;
@@ -142,6 +147,11 @@ char *plc_lmpoly(char *code)
  //struct tms hi;
  char *outpoly;
 
+ clock_t start,end;
+ double  cpu_time_used;
+
+ start = clock();
+ 
 if (code == NULL) { return NULL; }
 
  /* It's possible that we'll be fed a code with only one crossing */
@@ -1263,6 +1273,13 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
   ypow += bust(j,xpow,ypow);
   xpow^=512;
   ++count[numcrs-1];
+ }
+ // This point must be reached fairly often, so we're going to put in the timeout code here. 
+ end = clock();
+ cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
+ if (timeout > 0 && cpu_time_used > timeout) { 
+   free(outpoly);
+   return NULL;
  }
  if (numcrs!=0) goto STEP1;
  goto NEWNOT;

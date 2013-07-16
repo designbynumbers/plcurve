@@ -523,7 +523,7 @@ extern "C" {
   plc_vector plc_center_of_mass(const plCurve * const L);
   
   /* Return the radius of gyration of L, which is half the average squared distance between vertices of L. */
-  double plc_gyradius( plCurve *L);
+  double plc_gyradius(const plCurve * const L);
 
   /* Return the average (squared) chordlengths of component cp of L at the array of skips given by nskips. */
   /* Wraps if L is closed and doesn't wrap if not. */
