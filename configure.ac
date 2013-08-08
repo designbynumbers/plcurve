@@ -63,6 +63,7 @@ AC_PROG_LIBTOOL
 # Checks for libraries.
 AC_SEARCH_LIBS([sqrt],[m])
 AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
+AC_SEARCH_LIBS([cblas_dasum],[gslcblas],,,)
 AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x requires gsl (for random number generation)]),[-lgslcblas])
 
 if test "x${have_argtable2}" = xtrue; then
@@ -80,6 +81,7 @@ fi
 # Check for SWiG and Python (for interface)
 AX_PKG_SWIG
 AX_SWIG_PYTHON
+AM_PATH_PYTHON(2.3)
 
 # Checks for header files.
 AC_HEADER_STDC

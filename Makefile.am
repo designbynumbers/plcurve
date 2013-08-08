@@ -21,7 +21,7 @@ check_PROGRAMS =  nn_test symmetry_test randompolygon_test eq_primitives_test lo
 
 if HAVE_ARGTABLE2
 bin_PROGRAMS = knot_diagram resample plcurvature plcompEric
-else 
+else
 bin_PROGRAMS = knot_diagram plcompEric
 endif
 
@@ -56,7 +56,7 @@ EXTRA_DIST = bad_vects/bad_1.vect bad_vects/bad_2.vect bad_vects/bad_3.vect \
              data/random_closure_6.vect \
              data/random_closure_7.vect \
              data/random_closure_8.vect \
-             data/random_closure_9.vect 
+             data/random_closure_9.vect
 
 LDADD = libplCurve.la
 
@@ -74,11 +74,11 @@ libplCurve_safe_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c
 				plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c plc_dihedrals.c
 libplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
-libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c 
+libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c
 libnplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
-libnplCurve_safe_la_SOURCES = nplCurve.c nplCurve.h nvector.c 
+libnplCurve_safe_la_SOURCES = nplCurve.c nplCurve.h nvector.c
 libnplCurve_safe_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 #libplCurve_cov_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
@@ -108,27 +108,40 @@ loopclosure_test_LDADD = -lplCurve
 
 #exit_failure_tests_SOURCES = exit_failure_tests.c libplCurve.a
 #exit_failure_tests_LDADD = -lplCurve
-#exit_failure_tests_LDFLAGS = -static 
-#exit_failure_tests_CFLAGS = -g -Wall 
+#exit_failure_tests_LDFLAGS = -static
+#exit_failure_tests_CFLAGS = -g -Wall
 
 knot_diagram_SOURCES = knot_diagram.c libplCurve.a
-knot_diagram_LDADD = -lplCurve 
+knot_diagram_LDADD = -lplCurve
 if HAVE_ARGTABLE2
-knot_diagram_LDFLAGS = -static 
+knot_diagram_LDFLAGS = -static
 else
-knot_diagram_LDFLAGS = -static 
+knot_diagram_LDFLAGS = -static
 endif
 
 resample_SOURCES = resample.c libplCurve.a
 resample_LDADD = -lplCurve
-resample_LDFLAGS = -static 
+resample_LDFLAGS = -static
 
 plcurvature_SOURCES = plcurvature.c libplCurve.a
 plcurvature_LDADD = -lplCurve
-plcurvature_LDFLAGS = -static 
+plcurvature_LDFLAGS = -static
 
-AM_FFLAGS = -g 
+AM_FFLAGS = -g
 plcompEric_SOURCES = compEric.f
+
+BUILT_SOURCES = $(srcdir)/plCurve_wrap.cpp
+SWIG_SOURCES = plCurve.i
+
+pkgpython_PYTHON = plCurve.py
+pkgpyexec_LTLIBRARIES = _plCurve.la
+_plCurve_la_SOURCES = $(srcdir)/plCurve_wrap.cpp $(SWIG_SOURCES)
+_plCurve_la_CFLAGS = $(SWIG_PYTHON_CFLAGS) -I$(top_srcdir)
+_plCurve_la_LDFLAGS = -module
+_plCurve_la_LIBADD = plCurve.la
+
+$(srcdir)/plCurve_wrap.cpp : $(SWIG_SOURCES)
+	$(SWIG) $(SWIG_PYTHON_OPT) -I$(top_srcdir) -o $@ $<
 
 #clean-local:
 #	rm *.gcno *.gcda
