@@ -343,28 +343,37 @@ struct plc_type {
 		 const bool * const open,
 		 const int * const cc) { return plc_new(components, nv, open, cc); }
 	plc_type(const plCurve * const L) { return plc_copy(L); }
-	~plc_type() { plc_free($self); }
+	~plc_type() {
+	    plc_free($self);
+	}
 
 	// Random PlCurve creators
 	//
+	%newobject random_closed_polygon;
 	static plCurve *random_closed_polygon(gsl_rng *r, int nEdges)
 	{ return plc_random_closed_polygon(r, nEdges); }
 
+	%newobject random_open_polygon;
 	static plCurve *random_open_polygon(gsl_rng *r,int nEdges)
 	{ return plc_random_open_polygon(r, nEdges); }
 
+	%newobject random_closed_plane_polygon;
 	static plCurve *random_closed_plane_polygon(gsl_rng *r,int nEdges)
 	{ return plc_random_closed_plane_polygon(r, nEdges); }
 
+	%newobject random_open_plane_polygon;
 	static plCurve *random_open_plane_polygon(gsl_rng *r,int nEdges)
 	{ return plc_random_open_plane_polygon(r, nEdges); }
 
+	%newobject random_equilateral_closed_polygon;
 	static plCurve *random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
 	{ return plc_random_equilateral_closed_polygon(r, nEdges); }
 
+	%newobject random_equilateral_open_polygon;
 	static plCurve *random_equilateral_open_polygon(gsl_rng *r,int nEdges)
 	{ return plc_random_equilateral_open_polygon(r, nEdges); }
 
+	%newobject loop_closure;
 	static plCurve *loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges)
 	{ return plc_loop_closure(r, cp, openL, nEdges); }
 
@@ -377,6 +386,7 @@ struct plc_type {
 
 	// Topology methods
 	//
+	%newobject classify;
 	plc_knottype *classify(int *nposs) { return plc_classify($self, nposs); }
 
 	// Python special methods
@@ -467,63 +477,86 @@ typedef struct knottypestruct {
     }
 %}
 
-/* %inline %{ */
-/*     double darray_get(double *a, int idx) { */
-/* 	return a[idx]; */
-/*     } */
-/*     int iarray_get(int *a, int idx) { */
-/* 	return a[idx]; */
-/*     } */
-
 %rename(RandomGenerator) gsl_rng;
-typedef struct {} gsl_rng;
-%extend gsl_rng {
-    gsl_rng() {
-	gsl_rng *r;
-	const gsl_rng_type *T;
-
-	gsl_rng_env_setup();
-	T = gsl_rng_default;
-	r = gsl_rng_alloc(T);
-
-	return r;
+typedef struct {
+    %typemap(out) gsl_rng *get_state {
+	$result = PyString_FromStringAndSize(gsl_rng_state($1),
+					     gsl_rng_size($1));
     }
-    ~gsl_rng() {
-	gsl_rng_free($self);
+    %apply gsl_rng *get_state { gsl_rng *__getstate__ }
+    %typemap(in) (char *stream, size_t items) {
+	// TODO: Error checking
+	if (!PyString_Check($input)) {
+	    PyErr_SetString(PyExc_TypeError,"Expecting a string");
+	    return NULL;
+	}
+
+	$1 = PyString_AsString($input);
+	$2 = PyString_Size($input);
+    }
+    %exception from_state {
+	$action
+	    if (!result) {
+		PyErr_SetString(PyExc_Exception,"Malformed rng state.");
+		return NULL;
+	    }
+    }
+    %exception __setstate__ {
+	$action
+	    if (!result) {
+		PyErr_SetString(PyExc_Exception,"Malformed rng state.");
+		return NULL;
+	    }
     }
 
-    void set(unsigned long int s);
-}
+    %extend {
+	gsl_rng() {
+	    gsl_rng *r;
+	    const gsl_rng_type *T;
 
-/*     void free_knottype_struct(plc_knottype *kt) { */
-/* 	free(kt); */
-/*     } */
-/*     %} */
+	    gsl_rng_env_setup();
+	    T = gsl_rng_default;
+	    r = gsl_rng_alloc(T);
 
+	    return r;
+	}
+	~gsl_rng() {
+	    gsl_rng_free($self);
+	}
 
-/* %typemap(in, numinputs=0) int *nposs (int temp) { */
-/*     $1 = &temp; */
-/* } */
+	void set(unsigned long int s);
 
-/* %typemap(argout) int *nposs { */
-/*     PyObject *knottype, *np, *o3; */
+	gsl_rng *__getstate__() {
+	    return $self;
+	}
+	gsl_rng *get_state() {
+	    return $self;
+	}
+	int __setstate__(char *stream, size_t items) {
+	    size_t n = $self->type->size;
+	    char *state = (char *)$self->state;
 
-/*     np = PyInt_FromLong(*$1); */
-/*     if(!PyTuple_Check($result)) { */
-/* 	knottype = $result; */
-/* 	$result = PyTuple_New(1); */
-/* 	PyTuple_SetItem($result,0,knottype); */
-/*     } */
-/*     o3 = PyTuple_New(1); */
-/*     PyTuple_SetItem(o3,0,np); */
-/*     knottype = $result; */
-/*     $result = PySequence_Concat(knottype,o3); */
-/*     Py_DECREF(knottype); */
-/*     Py_DECREF(o3); */
-/*  } */
+	    if (items != n) {
+		// Error parsing state. Cleanup. (Throws an exception)
+		return 0;
+	    }
 
+	    memcpy(state, stream, items);
+	    return 1;
+	}
+	static gsl_rng *from_state(char *stream, size_t items) {
+	    gsl_rng *r = new_gsl_rng();
+	    if (!gsl_rng___setstate__(r, stream, items)) {
+		// Error parsing state. Cleanup.
+		gsl_rng_free(r);
+		return NULL;
+	    }
+	    return r;
+	}
+    }
 
-
-/* %extend plc_strand_type { */
-/*     plc_vector *get_edge(int n) { assert(n < $self->nv); return &($self->vt[n]); } */
-/* }; */
+%pythoncode %{
+_safe_for_unpickling__ = True
+def penis(self):
+%}
+} gsl_rng;

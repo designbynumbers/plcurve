@@ -1,31 +1,35 @@
 #!/usr/bin/python
 
-from libplcurve import plCurve
+from libplcurve.plcurve import PlCurve, RandomGenerator
 import random
 
-# Set up some functions we use a lot
-random_closed_polygon = plCurve.plc_random_closed_polygon
-classify = plCurve.plc_classify
-iget = plCurve.iarray_get
-free_knottype = plCurve.free_knottype_struct
-free_plcurve = plCurve.plc_free
+def generate_and_classify(rng_or_state, n, _=None):
+    if isinstance(rng_or_state, RandomGenerator):
+        rng = rng_or_state
+    elif isinstance(rng_or_state, str):
+        try:
+            rng = RandomGenerator.from_state(rng_or_state)
+        except Exception:
+            raise Exception("Not a valid RNG state string")
+    else:
+        raise Exception("Must pass a RNG instance or state string")
 
-def generate_and_classify(rng, n, _=None):
-    poly = random_closed_polygon(rng, n)
+    # Create a random closed polygon
+    poly = PlCurve.random_closed_polygon(rng, n)
 
-    knottype, nposs = classify(poly)
+    knottype, nposs = poly.classify()
 
-    cross, idx = None, None
-    if knottype is not None and nposs != 0:
-        cross = iget(knottype.cr, 0)
-        idx = iget(knottype.ind, 0)
-        if cross == 3:
-            print(cross, idx)
+    factorization = []
+    if knottype is not None and nposs > 0:
+        #for factor in knottype.factors:
+        factor = knottype.factors # hack!
+        cross = factor.cr
+        idx = factor.ind
+        factorization.append((cross, idx))
+        print("Factor of type {}_{}".format(cross, idx))
 
-    free_knottype(knottype)
-    free_plcurve(poly)
-
-    return cross,idx
+    return factorization
+    # Note that poly, knottype (and if necessary) rng are free'd
 
 def run_sequential(num_tests=1000, seed=None):
     num_trefoil = 0
@@ -34,16 +38,29 @@ def run_sequential(num_tests=1000, seed=None):
         seed = random.getrandbits(32)
     print ("Running {} trials, with seed: {}".format(num_tests, seed))
 
-    rng = plCurve.make_gsl_rng()
-    plCurve.gsl_rng_set(rng, seed)
+    rng = RandomGenerator()
+    rng.set(seed)
 
+    results = []
     for _ in xrange(num_tests):
-        generate_and_classify(rng, 6)
+        results.append(generate_and_classify(rng, 6))
 
-    plCurve.gsl_rng_free(rng)
-    print "{} trefoils in {} trials".format(num_trefoil, num_tests)
-    print "Fraction is {}".format(num_trefoil/num_tests)
+    knots = [knotsum for knotsum in results if knotsum[0][0] != 0]
+    print knots
 
+    # We no longer need the RNG, so...
+    del rng
+
+    num_trefoil = len(knots)
+    print " === RESULTS FOR SEED {} ===".format(seed)
+    print "{} knots in {} trials".format(num_trefoil, num_tests)
+    print "Fraction is {}".format(1.0*num_trefoil/num_tests)
+
+    return num_trefoil
+
+## The following command execution should guarantee that the very
+## 377th knot is a trefoil:
+#    $  python pywrap_demo.py --seed 3630318575 377
 
 if __name__ == "__main__":
     import argparse
@@ -53,32 +70,4 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, help="Seed to use, if predetermined")
 
     args = parser.parse_args()
-    run_sequential(args.num_trials, seed=args.seed)
-
-
-# v1 = plCurve.plc_random_vect()
-# print v1
-# for i in range(3):
-#     print "{}: {}".format(i, plCurve.darray_get(v1.c, i))
-
-# for test in range(num_tests):
-#     random_poly = plCurve.plc_random_closed_polygon(r, 6)
-
-#     #print plCurve.plc_pointset_diameter(random_poly)
-#     #print plCurve.plc_arclength(random_poly, None)
-
-#     knottype, nposs = plCurve.plc_classify(random_poly)
-#     #print knottype, nposs
-#     if knottype is not None and nposs != 0:
-#         cross = plCurve.iarray_get(knottype.cr, 0)
-#         idx = plCurve.iarray_get(knottype.ind, 0)
-#         if cross == 3:
-#             num_trefoil += 1
-#             print cross, idx
-
-#     plCurve.plc_free(random_poly)
-#     #if (knottype is not None and knottype.nf > 1) or nposs > 1:
-#     #    print knottype.nf, nposs
-
-# print num_trefoil
-# print num_trefoil*1.0 / num_tests
+    print run_sequential(args.num_trials, seed=args.seed)
