@@ -384,6 +384,22 @@ struct plc_type {
 	    plc_add_component($self, add_as, nv, open, cc, vt, clr);
 	}
 
+	// Geometric information methods
+	// Presently omitting vertex/edge number[ing] data...
+	double turning_angle(const int component, const int vertex, bool *ok) {
+	    // unsure on meaning of ok... %argout typemap?
+	    return plc_turning_angle($self, component, vertex, ok);
+	}
+	double MR_curvature(const int component, const int vertex) {
+	    return plc_MR_curvature($self, component, vertex);
+	}
+	//double total_curvature(...)
+	//double total_torsion(...)
+	//float *plc_dihedral_angles() needs out array typemap...
+	plc_vector mean_tangent(const int component, const int vertex, bool *ok) {
+	    return plc_mean_tangent($self, component, vertex, ok);
+	}
+
 	// Topology methods
 	//
 	%newobject classify;
@@ -555,8 +571,4 @@ typedef struct {
 	}
     }
 
-%pythoncode %{
-_safe_for_unpickling__ = True
-def penis(self):
-%}
 } gsl_rng;
