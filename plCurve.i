@@ -475,8 +475,10 @@ typedef struct knottypestruct {
 /* 	return a[idx]; */
 /*     } */
 
-%inline %{
-    gsl_rng *make_gsl_rng() {
+%rename(RandomGenerator) gsl_rng;
+typedef struct {} gsl_rng;
+%extend gsl_rng {
+    gsl_rng() {
 	gsl_rng *r;
 	const gsl_rng_type *T;
 
@@ -486,15 +488,18 @@ typedef struct knottypestruct {
 
 	return r;
     }
-    %}
+    ~gsl_rng() {
+	gsl_rng_free($self);
+    }
+
+    void set(unsigned long int s);
+}
 
 /*     void free_knottype_struct(plc_knottype *kt) { */
 /* 	free(kt); */
 /*     } */
 /*     %} */
 
-void gsl_rng_set(const gsl_rng *r, unsigned long int s);
-void gsl_rng_free(gsl_rng *r);
 
 /* %typemap(in, numinputs=0) int *nposs (int temp) { */
 /*     $1 = &temp; */

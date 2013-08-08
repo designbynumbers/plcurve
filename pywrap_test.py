@@ -3,8 +3,8 @@
 # Importing should work
 import libplcurve.plcurve as pl
 
-# Rudimentary way to create a RNG
-r = pl.make_gsl_rng()
+# Create a gsl random number generator
+r = pl.RandomGenerator()
 
 # Set up a randomly generated PlCurve
 plc = pl.PlCurve.random_open_polygon(r, 6)
@@ -39,3 +39,8 @@ print kt, nposs
 print kt.num_factors
 
 print kt.factors.cr, kt.factors.ind, kt.factors.sym
+
+## Cleanup
+del plc
+del kt
+del r
