@@ -3,6 +3,12 @@
 #include "plCurve.h"
 #include "matrix.h"
 #include <gsl/gsl_rng.h>
+
+    // varray is a hack-in to support passing variable length arrays to Python
+    typedef struct variable_array_type {
+	int len;
+	void *array;
+    } varray;
 %}
 %include "carrays.i"
 %include "typemaps.i"
@@ -36,6 +42,7 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
 
 } plc_symmetry_group;
 
+// It is sufficient to pretend that plc_vectors are just python sequences of length 3
 %typemap(out) plc_vector {
     int i;
     $result = PyTuple_New(3);
@@ -65,38 +72,10 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
     }
     $1 = v;
 }
+
+// Example functions to test plc_vector typemaps (TODO: remove later)
 plc_vector plc_build_vect(const double x, const double y, const double z);
 plc_vector plc_vect_sum(plc_vector A, plc_vector B);
-/* /\* Define 3-space vectors *\/ */
-/* %rename(Vector) plc_vector_type; */
-/* // Typemap for the vector's coordinate data (make it into a tuple) */
-/* %typemap(out) double c[3] %{ */
-/*     int i; */
-/*     $result = PyTuple_New(3); */
-/*     for (i = 0; i < 3; ++i) { */
-/* 	PyTuple_SetItem($result, i, PyFloat_FromDouble($1[i])); */
-/*     } */
-/* %} */
-/* typedef struct plc_vector_type { */
-/*     double c[3]; */
-
-/*     %extend { */
-/* 	plc_vector_type(const double x, const double y, const double z) { */
-/* 	    plc_vector v; */
-/* 	    v = plc_build_vect(x,y,z); */
-/* 	    return v; */
-/* 	} */
-/* 	const double x, y, z; */
-/*     }; */
-/* } plc_vector; */
-
-/* // Additional code for Vector wrapper */
-/* %{ */
-/*     // Getters for the vector's individual coordinates */
-/*     const double plc_vector_type_x_get(plc_vector *v) { return v->c[0]; } */
-/*     const double plc_vector_type_y_get(plc_vector *v) { return v->c[1]; } */
-/*     const double plc_vector_type_z_get(plc_vector *v) { return v->c[2]; } */
-/* %} */
 
 %rename(Color) plc_color_type;
 typedef struct plc_color_type {
@@ -107,13 +86,70 @@ typedef struct plc_color_type {
 } plc_color;
 
 %rename(Strand) plc_strand_type;
+
 typedef struct plc_strand_type {
+    %rename(num_vertices) nv;
+    %rename(is_open) open;
+    %rename(num_colors) cc;
     int            nv;     /* Number of vertices */
-    bool           open;   /* This is an "open" strand (with distinct ends) */
+    const bool     open;   /* This is an "open" strand (with distinct ends) */
     int            cc;     /* Color count (number of colors) */
-    plc_vector   *vt;     /* Actual vertices */
-    plc_color    *clr;    /* Colors */
+
+    // Obscure direct pointer access to these variable-length arrays
+    //plc_vector   *vt;     /* Actual vertices */
+    //plc_color    *clr;    /* Colors */
+
+    %typemap(out) varray vertices {
+	PyObject *temp_entry;
+	int i, j;
+	$result = PyList_New(0);
+	for (i = 0; i < $1.len; i++) {
+	    temp_entry = PyTuple_New(3);
+	    for (j = 0; j < 3; j++) {
+		PyTuple_SetItem(temp_entry, j,
+				PyFloat_FromDouble(((plc_vector*)$1.array)[i].c[j]));
+	    }
+	    PyList_Append($result, temp_entry);
+	}
+    }
+    %typemap(out) varray colors {
+	PyObject *temp_entry;
+	int i, j;
+	$result = PyList_New(0);
+	for (i = 0; i < $1.len; i++) {
+	    temp_entry = PyTuple_New(4);
+	    PyTuple_SetItem(temp_entry, 0,
+			    PyFloat_FromDouble(((plc_color*)$1.array)[i].r));
+	    PyTuple_SetItem(temp_entry, 1,
+			    PyFloat_FromDouble(((plc_color*)$1.array)[i].g));
+	    PyTuple_SetItem(temp_entry, 2,
+			    PyFloat_FromDouble(((plc_color*)$1.array)[i].b));
+	    PyTuple_SetItem(temp_entry, 3,
+			    PyFloat_FromDouble(((plc_color*)$1.array)[i].alpha));
+	    PyList_Append($result, temp_entry);
+	}
+    }
+
+    %extend {
+	const varray vertices;
+	const varray colors;
+    }
 } plc_strand;
+
+%{
+    const varray plc_strand_type_vertices_get(plc_strand *st) {
+	varray arr;
+	arr.len = st->nv;
+	arr.array = st->vt;
+	return arr;
+    }
+    const varray plc_strand_type_colors_get(plc_strand *st) {
+	varray arr;
+	arr.len = st->cc;
+	arr.array = st->clr;
+	return arr;
+    }
+%}
 
 /* Curve constraint kind */
 %rename(ConstantKind) plc_cst_kind_type;
@@ -153,12 +189,83 @@ typedef struct plc_vert_quant_type { /* Vertex quantifiers */
 
 %rename(PlCurve) plc_type;
 struct plc_type {
+    %rename(num_components) nc;
     int         nc;                              /* Number of components */
-    plc_strand *cp;                              /* Components */
+
+    // Hide raw components pointer
+    // plc_strand *cp;                              /* Components */
     /*@only@*/ /*@null@*/ plc_constraint *cst;   /* Constraints */
     /*@only@*/ /*@null@*/ plc_vert_quant *quant; /* per-vertex quantifiers */
+
     plc_symmetry_group *G;                       /* Symmetry group (may be null) */
+
+    %typemap(out) varray components {
+	int i, j;
+	$result = PyList_New(0);
+	for (i = 0; i < $1.len; i++) {
+
+	    PyList_Append($result,
+			  SWIG_NewPointerObj(((plc_strand*)$1.array)+i,
+					     SWIGTYPE_p_plc_strand_type, 0));
+	}
+    }
+
+    // SWIG extensions
+    %extend {
+	// Virtual class members
+	const varray components;
+
+	// Constructors and destructor
+	//
+	plc_type(const int components,
+		 const int * const nv,
+		 const bool * const open,
+		 const int * const cc) { return plc_new(components, nv, open, cc); }
+	plc_type(const plCurve * const L) { return plc_copy(L); }
+	~plc_type() { plc_free($self); }
+
+	// Random PlCurve creators
+	//
+	static plCurve *random_closed_polygon(gsl_rng *r, int nEdges)
+	{ return plc_random_closed_polygon(r, nEdges); }
+
+	static plCurve *random_open_polygon(gsl_rng *r,int nEdges)
+	{ return plc_random_open_polygon(r, nEdges); }
+
+	static plCurve *random_closed_plane_polygon(gsl_rng *r,int nEdges)
+	{ return plc_random_closed_plane_polygon(r, nEdges); }
+
+	static plCurve *random_open_plane_polygon(gsl_rng *r,int nEdges)
+	{ return plc_random_open_plane_polygon(r, nEdges); }
+
+	static plCurve *random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
+	{ return plc_random_equilateral_closed_polygon(r, nEdges); }
+
+	static plCurve *random_equilateral_open_polygon(gsl_rng *r,int nEdges)
+	{ return plc_random_equilateral_open_polygon(r, nEdges); }
+
+	static plCurve *loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges)
+	{ return plc_loop_closure(r, cp, openL, nEdges); }
+
+	// Python special methods
+	//
+	const char *__str__() {
+	    char buf[255];
+
+	    sprintf(buf, "PlCurve with %d components", $self->nc);
+	    return buf;
+	}
+    }
 };
+
+%{
+    const varray plc_type_components_get(plCurve *curve) {
+	varray arr;
+	arr.len = curve->nc;
+	arr.array = curve->cp;
+	return arr;
+    }
+%}
 
 /* PlCurve_spline types */
 %rename(SplineStrand) plc_spline_strand_type;
@@ -187,24 +294,26 @@ typedef struct plc_spline_type {
 /* 	return a[idx]; */
 /*     } */
 
-/*     gsl_rng *make_gsl_rng() { */
-/* 	gsl_rng *r; */
-/* 	const gsl_rng_type *T; */
+%inline %{
+    gsl_rng *make_gsl_rng() {
+	gsl_rng *r;
+	const gsl_rng_type *T;
 
-/* 	gsl_rng_env_setup(); */
-/* 	T = gsl_rng_default; */
-/* 	r = gsl_rng_alloc(T); */
+	gsl_rng_env_setup();
+	T = gsl_rng_default;
+	r = gsl_rng_alloc(T);
 
-/* 	return r; */
-/*     } */
+	return r;
+    }
+    %}
 
 /*     void free_knottype_struct(plc_knottype *kt) { */
 /* 	free(kt); */
 /*     } */
 /*     %} */
 
-/* void gsl_rng_set(const gsl_rng *r, unsigned long int s); */
-/* void gsl_rng_free(gsl_rng *r); */
+void gsl_rng_set(const gsl_rng *r, unsigned long int s);
+void gsl_rng_free(gsl_rng *r);
 
 /* %typemap(in, numinputs=0) int *nposs (int temp) { */
 /*     $1 = &temp; */
