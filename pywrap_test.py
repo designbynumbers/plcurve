@@ -31,7 +31,11 @@ plc.add_component(2, [(0,0,0), (3,3,3), (3,0,0)], True, [(0,0,1,1)])
 print(plc.__str__())
 
 del plc
-plc = pl.PlCurve.random_closed_polygon(r, 6)
+plc = pl.PlCurve.random_closed_polygon(r, 425)
 
-kt = plc.classify()
-print kt
+kt, nposs = plc.classify()
+print kt, nposs
+
+print kt.num_factors
+
+print kt.factors.cr, kt.factors.ind, kt.factors.sym

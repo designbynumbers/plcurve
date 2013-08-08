@@ -73,17 +73,51 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
     $1 = v;
 }
 
+%{
+    static int fail_if_non_py_numeric(PyObject *o, char *fail_msg) {
+	if (!PyFloat_Check(o) || !PyInt_Check(o)) {
+	    PyErr_SetString(PyExc_TypeError, fail_msg);
+	    return 0;
+	}
+	return 1;
+    }
+    static int convert_tuple_to_color(PyObject *py_color, plc_color *clr) {
+	PyObject *n;
+	if (!PySequence_Check(py_color) || PyObject_Length(py_color) < 4) {
+	    PyErr_SetString(PyExc_TypeError,
+			    "Vertex list must contain ordered quadruple");
+	    return 0;
+	}
+
+	// Red
+	n = PySequence_GetItem(py_color, 0);
+	if (!fail_if_non_py_numeric(n, "Color components must be numerical")) {
+	    clr->r = PyFloat_AsDouble(n);
+	} else { return 0; }
+	// Green
+	n = PySequence_GetItem(py_color, 1);
+	if (!fail_if_non_py_numeric(n, "Color components must be numerical")) {
+	    clr->g = PyFloat_AsDouble(n);
+	} else { return 0; }
+	// Blue
+	n = PySequence_GetItem(py_color, 2);
+	if (!fail_if_non_py_numeric(n, "Color components must be numerical")) {
+	    clr->b = PyFloat_AsDouble(n);
+	} else { return 0; }
+	// Alpha
+	n = PySequence_GetItem(py_color, 3);
+	if (!fail_if_non_py_numeric(n, "Color components must be numerical")) {
+	    clr->alpha = PyFloat_AsDouble(n);
+	} else { return 0; }
+
+	return 1; // Success!
+    }
+
+%}
+
 // Example functions to test plc_vector typemaps (TODO: remove later)
 plc_vector plc_build_vect(const double x, const double y, const double z);
 plc_vector plc_vect_sum(plc_vector A, plc_vector B);
-
-%rename(Color) plc_color_type;
-typedef struct plc_color_type {
-    double r;
-    double g;
-    double b;
-    double alpha;
-} plc_color;
 
 %rename(Strand) plc_strand_type;
 
@@ -254,61 +288,19 @@ struct plc_type {
 	}
     }
     %typemap(in) (const int cc, const plc_color *const clr) {
-	PyObject *py_vtx, *n;
+	PyObject *py_color;
 	// Assert that input is a sequence
 	if (PySequence_Check($input)) {
 	    int i, j;
 	    $1 = PyObject_Length($input); // Set length argument
 	    $2 = malloc(($1)*sizeof(plc_color)); // Malloc array
 	    for (i = 0; i < $1; i++) {
-		py_vtx = PySequence_GetItem($input,i);
-		// Assert that input sequence contains a triple
-		if (!PySequence_Check(py_vtx) || PyObject_Length(py_vtx) < 4) {
-		    PyErr_SetString(PyExc_TypeError,
-				    "Vertex list must contain ordered quadruple");
+		py_color = PySequence_GetItem($input,i);
+		if(!convert_tuple_to_color(py_color, &($2[i]))) {
 		    free($2);
 		    return NULL;
 		}
 
-		// Red
-		n = PySequence_GetItem(py_vtx, 0);
-		if (PyFloat_Check(n) || PyInt_Check(n)) {
-		    $2[i].r = PyFloat_AsDouble(n);
-		} else {
-		    PyErr_SetString(PyExc_TypeError, "Color components must be numerical");
-		    free($2);
-		    return NULL;
-		}
-
-		// Green
-		n = PySequence_GetItem(py_vtx, 1);
-		if (PyFloat_Check(n) || PyInt_Check(n)) {
-		    $2[i].g = PyFloat_AsDouble(n);
-		} else {
-		    PyErr_SetString(PyExc_TypeError, "Color components must be numerical");
-		    free($2);
-		    return NULL;
-		}
-
-		// Blue
-		n = PySequence_GetItem(py_vtx, 2);
-		if (PyFloat_Check(n) || PyInt_Check(n)) {
-		    $2[i].b = PyFloat_AsDouble(n);
-		} else {
-		    PyErr_SetString(PyExc_TypeError, "Color components must be numerical");
-		    free($2);
-		    return NULL;
-		}
-
-		// Alpha
-		n = PySequence_GetItem(py_vtx, 3);
-		if (PyFloat_Check(n) || PyInt_Check(n)) {
-		    $2[i].alpha = PyFloat_AsDouble(n);
-		} else {
-		    PyErr_SetString(PyExc_TypeError, "Color components must be numerical");
-		    free($2);
-		    return NULL;
-		}
 	    }
 	} else if(!$input || $input == Py_None) {
 	    $1 = 0; $2 = NULL;
@@ -429,6 +421,19 @@ typedef struct plc_spline_type {
 #define MAXPRIMEFACTORS 10
 #define MAXHOMFLY       1024
 
+%{
+    typedef struct {
+	int cr;
+	int ind;
+	char sym[128];
+    } prime_factor;
+%}
+typedef struct {
+    int cr;
+    int ind;
+    char sym[128];
+} prime_factor;
+
 %rename(KnotType) knottypestruct;
 typedef struct knottypestruct {
     %rename(num_factors) nf;
@@ -443,9 +448,24 @@ typedef struct knottypestruct {
 	~knottypestruct() {
 	    free($self);
 	}
+
+	const prime_factor *const factors;
     }
 
 } plc_knottype;
+
+%{
+    const prime_factor *knottypestruct_factors_get(plc_knottype *kt) {
+	int i;
+	prime_factor *pfs = malloc(sizeof(prime_factor)*kt->nf);
+	for (i = 0; i < kt->nf; i++) {
+	    pfs[i].cr = kt->cr[i];
+	    pfs[i].ind = kt->ind[i];
+	    memcpy(pfs[i].sym, kt->sym[i], sizeof(char)*128);
+	}
+	return pfs;
+    }
+%}
 
 /* %inline %{ */
 /*     double darray_get(double *a, int idx) { */
