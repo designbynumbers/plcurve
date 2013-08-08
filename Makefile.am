@@ -130,18 +130,18 @@ plcurvature_LDFLAGS = -static
 AM_FFLAGS = -g
 plcompEric_SOURCES = compEric.f
 
-BUILT_SOURCES = $(srcdir)/plCurve_wrap.cpp
+BUILT_SOURCES = $(srcdir)/plCurve_wrap.c
 SWIG_SOURCES = plCurve.i
 
 pkgpython_PYTHON = plCurve.py
 pkgpyexec_LTLIBRARIES = _plCurve.la
-_plCurve_la_SOURCES = $(srcdir)/plCurve_wrap.cpp $(SWIG_SOURCES)
-_plCurve_la_CFLAGS = $(SWIG_PYTHON_CFLAGS) -I$(top_srcdir)
+_plCurve_la_SOURCES = $(srcdir)/plCurve_wrap.c $(SWIG_SOURCES)
+_plCurve_la_CFLAGS = $(SWIG_PYTHON_CFLAGS) -I$(top_srcdir) -I/usr/include/python2.7
 _plCurve_la_LDFLAGS = -module
-_plCurve_la_LIBADD = plCurve.la
+_plCurve_la_LIBADD = libplCurve.la
 
-$(srcdir)/plCurve_wrap.cpp : $(SWIG_SOURCES)
-	$(SWIG) $(SWIG_PYTHON_OPT) -I$(top_srcdir) -o $@ $<
+$(srcdir)/plCurve_wrap.c : $(SWIG_SOURCES)
+	$(SWIG) $(SWIG_PYTHON_OPT) -python -I$(top_srcdir) -o $@ $<
 
 #clean-local:
 #	rm *.gcno *.gcda
