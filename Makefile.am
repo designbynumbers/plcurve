@@ -133,12 +133,12 @@ plcompEric_SOURCES = compEric.f
 BUILT_SOURCES = $(srcdir)/plCurve_wrap.c
 SWIG_SOURCES = plCurve.i
 
-pkgpython_PYTHON = plCurve.py
-pkgpyexec_LTLIBRARIES = _plCurve.la
-_plCurve_la_SOURCES = $(srcdir)/plCurve_wrap.c $(SWIG_SOURCES)
-_plCurve_la_CFLAGS = $(SWIG_PYTHON_CFLAGS) -I$(top_srcdir) -I/usr/include/python2.7
-_plCurve_la_LDFLAGS = -module
-_plCurve_la_LIBADD = libplCurve.la
+pkgpython_PYTHON = plcurve.py
+pkgpyexec_LTLIBRARIES = _plcurve.la
+_plcurve_la_SOURCES = $(srcdir)/plCurve_wrap.c $(SWIG_SOURCES)
+_plcurve_la_CFLAGS = $(SWIG_PYTHON_CFLAGS) -I$(top_srcdir) -I/usr/include/python2.7
+_plcurve_la_LDFLAGS = -module
+_plcurve_la_LIBADD = libplCurve.la
 
 $(srcdir)/plCurve_wrap.c : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_PYTHON_OPT) -builtin -python -py3 -I$(top_srcdir) -o $@ $<
