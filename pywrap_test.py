@@ -72,3 +72,23 @@ r2 = pl.RandomGenerator.from_state(r.get_state())
 poly1 = pl.PlCurve.random_closed_polygon(r, 10)
 poly2 = pl.PlCurve.random_closed_polygon(r2, 10)
 assert(poly1.components[0].vertices == poly2.components[0].vertices)
+
+### Demonstrate file i/o for plCurves
+# Load a plcurve from data
+f = open("data/knotvects/9_40.vect", "r")
+plc = pl.PlCurve.from_file(f)
+f.close()
+
+print plc.components[0].vertices
+# Classify the knot to check that it is as it purports
+kt, nposs = plc.classify()
+print kt.factors.cr, kt.factors.ind
+# should work, but doesn't: TODO: Fix!!
+#print "{}_{}".format(str(kt.factors.cr), str(kt.factors.ind))
+
+# Write a random plcurve to a file
+plc = pl.PlCurve.random_closed_polygon(r, 40)
+f = open("____definitely_fake_plcurve.vect", "w")
+plc.write(f)
+f.close()
+# file should now be written
