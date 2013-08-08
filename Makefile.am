@@ -130,6 +130,7 @@ plcurvature_LDFLAGS = -static
 AM_FFLAGS = -g
 plcompEric_SOURCES = compEric.f
 
+if HAVE_SWIG
 BUILT_SOURCES = $(srcdir)/plCurve_wrap.c
 SWIG_SOURCES = plCurve.i
 
@@ -142,6 +143,7 @@ _plcurve_la_LIBADD = libplCurve.la
 
 $(srcdir)/plCurve_wrap.c : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_PYTHON_OPT) -builtin -python -I$(top_srcdir) -o $@ $<
+endif
 
 #clean-local:
 #	rm *.gcno *.gcda

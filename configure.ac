@@ -79,9 +79,11 @@ if test "x${have_argtable2}" = xfalse; then
 fi
 
 # Check for SWiG and Python (for interface)
-AX_PKG_SWIG
+AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_WARN([plCurve requires the SWIG interface library to build its' Python interface]); have_swig=false])
 AX_SWIG_PYTHON
 AM_PATH_PYTHON(2.3)
+
+AM_CONDITIONAL([HAVE_SWIG],[test "x${have_swig}" = xtrue])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -118,6 +120,7 @@ echo \
 
   Package Features:
       Found argtable2 to install demo programs: ${have_argtable2}
+      Found SWiG to build python interface: ${have_swig}
 
   Now type 'make @<:@<target>@:>@'
 
