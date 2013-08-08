@@ -52,7 +52,7 @@ extern "C" {
      both a geometric transformation of space AND a corresponding map from each vertex of the 
      plcurve to a target vertex. */
 
-  typedef double (plc_matrix)[3][3];
+  typedef double plc_matrix[3][3];
 
   struct plc_vertex_loc {
 
