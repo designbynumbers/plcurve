@@ -46,7 +46,7 @@ AM_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_GNU_SOURCE
-LT_INIT 
+LT_INIT
 
 # Checks for programs.
 AC_PROG_AWK
@@ -65,17 +65,21 @@ AC_SEARCH_LIBS([sqrt],[m])
 AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
 AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x requires gsl (for random number generation)]),[-lgslcblas])
 
-if test "x${have_argtable2}" = xtrue; then 
+if test "x${have_argtable2}" = xtrue; then
    AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
 fi
 
-if test "x${have_argtable2}" = xfalse; then 
+if test "x${have_argtable2}" = xfalse; then
    AC_MSG_WARN([
   -----------------------------------------------------------
   Unable to find argtable2 on this system. Some demo programs
   will not be installed in this build of plCurve.
   -----------------------------------------------------------])
 fi
+
+# Check for SWiG and Python (for interface)
+AX_PKG_SWIG
+AX_SWIG_PYTHON
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -109,7 +113,7 @@ echo \
   Installing to prefix: ${prefix}
 
   Compiler: '${CC} ${CFLAGS} ${CPPFLAGS}'
-  
+
   Package Features:
       Found argtable2 to install demo programs: ${have_argtable2}
 
