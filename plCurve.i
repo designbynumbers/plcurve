@@ -133,6 +133,17 @@ typedef struct plc_strand_type {
     %extend {
 	const varray vertices;
 	const varray colors;
+
+	// Python special methods
+	//
+	const char *__str__() {
+	    char buf[255];
+
+	    sprintf(buf, "Strand (%s) with %d vertices",
+		    $self->open ? "open" : "closed",
+		    $self->nv);
+	    return buf;
+	}
     }
 } plc_strand;
 
@@ -203,16 +214,134 @@ struct plc_type {
 	int i, j;
 	$result = PyList_New(0);
 	for (i = 0; i < $1.len; i++) {
-
 	    PyList_Append($result,
 			  SWIG_NewPointerObj(((plc_strand*)$1.array)+i,
 					     SWIGTYPE_p_plc_strand_type, 0));
 	}
     }
+    %typemap(in) (const int nv, const plc_vector *const vt) {
+	PyObject *py_vtx, *n;
+	// Assert that input is a sequence
+	if (PySequence_Check($input)) {
+	    int i, j;
+	    $1 = PyObject_Length($input); // Set length argument
+	    $2 = malloc(($1)*sizeof(plc_vector)); // Malloc array
+	    for (i = 0; i < $1; i++) {
+		py_vtx = PySequence_GetItem($input,i);
+		// Assert that input sequence contains a triple
+		if (!PySequence_Check(py_vtx) || PyObject_Length(py_vtx) < 3) {
+		    PyErr_SetString(PyExc_TypeError,
+				    "Vertex list must contain ordered triples");
+		    free($2);
+		    return NULL;
+		}
+
+		for (j = 0; j < 3; j++) {
+		    n = PySequence_GetItem(py_vtx, j);
+		    if (PyFloat_Check(n) || PyInt_Check(n)) {
+			$2[i].c[j] = PyFloat_AsDouble(n);
+		    } else {
+			PyErr_SetString(PyExc_TypeError,
+					"Vector coordinates must be numerical");
+			free($2);
+			return NULL;
+		    }
+		}
+	    }
+	} else {
+	    PyErr_SetString(PyExc_TypeError,"nv must be a sequence");
+	    return NULL;
+	}
+    }
+    %typemap(in) (const int cc, const plc_color *const clr) {
+	PyObject *py_vtx, *n;
+	// Assert that input is a sequence
+	if (PySequence_Check($input)) {
+	    int i, j;
+	    $1 = PyObject_Length($input); // Set length argument
+	    $2 = malloc(($1)*sizeof(plc_color)); // Malloc array
+	    for (i = 0; i < $1; i++) {
+		py_vtx = PySequence_GetItem($input,i);
+		// Assert that input sequence contains a triple
+		if (!PySequence_Check(py_vtx) || PyObject_Length(py_vtx) < 4) {
+		    PyErr_SetString(PyExc_TypeError,
+				    "Vertex list must contain ordered quadruple");
+		    free($2);
+		    return NULL;
+		}
+
+		// Red
+		n = PySequence_GetItem(py_vtx, 0);
+		if (PyFloat_Check(n) || PyInt_Check(n)) {
+		    $2[i].r = PyFloat_AsDouble(n);
+		} else {
+		    PyErr_SetString(PyExc_TypeError, "Color components must be numerical");
+		    free($2);
+		    return NULL;
+		}
+
+		// Green
+		n = PySequence_GetItem(py_vtx, 1);
+		if (PyFloat_Check(n) || PyInt_Check(n)) {
+		    $2[i].g = PyFloat_AsDouble(n);
+		} else {
+		    PyErr_SetString(PyExc_TypeError, "Color components must be numerical");
+		    free($2);
+		    return NULL;
+		}
+
+		// Blue
+		n = PySequence_GetItem(py_vtx, 2);
+		if (PyFloat_Check(n) || PyInt_Check(n)) {
+		    $2[i].b = PyFloat_AsDouble(n);
+		} else {
+		    PyErr_SetString(PyExc_TypeError, "Color components must be numerical");
+		    free($2);
+		    return NULL;
+		}
+
+		// Alpha
+		n = PySequence_GetItem(py_vtx, 3);
+		if (PyFloat_Check(n) || PyInt_Check(n)) {
+		    $2[i].alpha = PyFloat_AsDouble(n);
+		} else {
+		    PyErr_SetString(PyExc_TypeError, "Color components must be numerical");
+		    free($2);
+		    return NULL;
+		}
+	    }
+	} else if(!$input || $input == Py_None) {
+	    $1 = 0; $2 = NULL;
+	} else {
+	    PyErr_SetString(PyExc_TypeError,"clr must be a sequence, or none");
+	    return NULL;
+	}
+    }
+
+    %typemap(in, numinputs=0) int *nposs (int temp) {
+        $1 = &temp;
+    }
+    %typemap(argout) int *nposs {
+        PyObject *knottype, *np, *o3;
+
+        np = PyInt_FromLong(*$1);
+        if(!PyTuple_Check($result)) {
+    	knottype = $result;
+    	$result = PyTuple_New(1);
+    	PyTuple_SetItem($result,0,knottype);
+        }
+        o3 = PyTuple_New(1);
+        PyTuple_SetItem(o3,0,np);
+        knottype = $result;
+        $result = PySequence_Concat(knottype,o3);
+        Py_DECREF(knottype);
+        Py_DECREF(o3);
+     }
 
     // SWIG extensions
     %extend {
 	// Virtual class members
+	//
 	const varray components;
 
 	// Constructors and destructor
@@ -246,6 +375,17 @@ struct plc_type {
 
 	static plCurve *loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges)
 	{ return plc_loop_closure(r, cp, openL, nEdges); }
+
+	// Data operation methods
+	//
+	void add_component(const int add_as, const int nv, const plc_vector *const vt,
+			   const bool open, const int cc, const plc_color *const clr) {
+	    plc_add_component($self, add_as, nv, open, cc, vt, clr);
+	}
+
+	// Topology methods
+	//
+	plc_knottype *classify(int *nposs) { return plc_classify($self, nposs); }
 
 	// Python special methods
 	//
@@ -285,6 +425,27 @@ typedef struct plc_spline_type {
     plc_spline_strand  *cp;     /* Components */
     plc_constraint     *cst;    /* Constraints */
 } plc_spline;
+
+#define MAXPRIMEFACTORS 10
+#define MAXHOMFLY       1024
+
+%rename(KnotType) knottypestruct;
+typedef struct knottypestruct {
+    %rename(num_factors) nf;
+
+    int  nf;                            /* Number of prime factors */
+    int  cr[MAXPRIMEFACTORS];           /* Crossing number of each prime factor */
+    int  ind[MAXPRIMEFACTORS];           /* Index (in Rolfsen or Cerf) of each prime factor */
+    char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
+    char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
+
+    %extend {
+	~knottypestruct() {
+	    free($self);
+	}
+    }
+
+} plc_knottype;
 
 /* %inline %{ */
 /*     double darray_get(double *a, int idx) { */
