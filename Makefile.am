@@ -141,7 +141,7 @@ _plCurve_la_LDFLAGS = -module
 _plCurve_la_LIBADD = libplCurve.la
 
 $(srcdir)/plCurve_wrap.c : $(SWIG_SOURCES)
-	$(SWIG) $(SWIG_PYTHON_OPT) -python -I$(top_srcdir) -o $@ $<
+	$(SWIG) $(SWIG_PYTHON_OPT) -builtin -python -py3 -I$(top_srcdir) -o $@ $<
 
 #clean-local:
 #	rm *.gcno *.gcda
