@@ -330,6 +330,38 @@ struct plc_type {
         Py_DECREF(o3);
      }
 
+    %typemap(in, numinputs=0) bool *ok (bool success) {
+	$1 = &success;
+    }
+    %typemap(argout) bool *ok {
+	if (!(*$1)) {
+	    PyErr_SetString(PyExc_Exception,"Error in input to function");
+	    return NULL;
+	}
+
+    }
+
+    %typemap(in, numinputs=0) (int *error_num, char error_str[], size_t error_str_len)
+	(int i, char c[256]) {
+	$1 = &i; $2 = c; $3 = 256;
+    }
+    %typemap(out) (int *error_num, char error_str[], size_t error_str_len) {
+	if ((*$1)) { // If there is an error
+	    // TODO: return better exceptions depending on error number
+	    // TODO: Only return string up until end of error
+	    PyErr_SetString(PyExc_Exception,PyString_FromStringAndSize($2, 256));
+	    return NULL;
+	}
+    }
+
+    %typemap(in) FILE * {
+	if (!PyFile_Check($input)) {
+	    PyErr_SetString(PyExc_Exception, "Expecting a file object");
+	    return NULL;
+	}
+	$1 = PyFile_AsFile($input);
+    }
+
     // SWIG extensions
     %extend {
 	// Virtual class members
@@ -345,6 +377,16 @@ struct plc_type {
 	plc_type(const plCurve * const L) { return plc_copy(L); }
 	~plc_type() {
 	    plc_free($self);
+	}
+
+	// File i/o
+	%newobject from_file;
+	static plCurve *from_file(FILE *file, int *error_num,
+				  char error_str[], size_t error_str_len) {
+	    return plc_read(file, error_num, error_str, error_str_len);
+	}
+	void write(FILE *outfile) {
+	    plc_write(outfile, $self);
 	}
 
 	// Random PlCurve creators
@@ -386,8 +428,7 @@ struct plc_type {
 
 	// Geometric information methods
 	// Presently omitting vertex/edge number[ing] data...
-	double turning_angle(const int component, const int vertex, bool *ok) {
-	    // unsure on meaning of ok... %argout typemap?
+	inline double turning_angle(const int component, const int vertex, bool *ok) {
 	    return plc_turning_angle($self, component, vertex, ok);
 	}
 	double MR_curvature(const int component, const int vertex) {

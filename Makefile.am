@@ -137,12 +137,12 @@ SWIG_SOURCES = plCurve.i
 pkgpython_PYTHON = plcurve.py
 pkgpyexec_LTLIBRARIES = _plcurve.la
 _plcurve_la_SOURCES = $(srcdir)/plCurve_wrap.c $(SWIG_SOURCES)
-_plcurve_la_CFLAGS = $(SWIG_PYTHON_CFLAGS) -I$(top_srcdir) -I/usr/include/python2.7
+_plcurve_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_srcdir)
 _plcurve_la_LDFLAGS = -module
 _plcurve_la_LIBADD = libplCurve.la
 
 $(srcdir)/plCurve_wrap.c : $(SWIG_SOURCES)
-	$(SWIG) $(SWIG_PYTHON_OPT) -builtin -python -I$(top_srcdir) -o $@ $<
+	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_srcdir) -o $@ $<
 endif
 
 #clean-local:
