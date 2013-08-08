@@ -4,7 +4,7 @@
 #include "matrix.h"
 #include <gsl/gsl_rng.h>
 %}
-
+%include "carrays.i"
 
 %inline %{
     double darray_get(double *a, int idx) {
@@ -55,3 +55,12 @@ void gsl_rng_free(gsl_rng *r);
  }
 
 %include "plCurve.h"
+%extend plc_vector_type {
+    double x() { return $self->c[0]; }
+    double y() { return $self->c[1]; }
+    double z() { return $self->c[2]; }
+ };
+
+%extend plc_strand_type {
+    plc_vector *get_edge(int n) { assert(n < $self->nv); return &($self->vt[n]); }
+};

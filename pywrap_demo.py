@@ -1,102 +1,44 @@
+#!/usr/bin/python
+
 from libplcurve import plCurve
 import random
-import multiprocessing
 
-def random_polygons(n_trials, rng):
-    for _ in range(n_trials):
-        yield plCurve.plc_random_closed_polygon(rng, 6)
+# Set up some functions we use a lot
+random_closed_polygon = plCurve.plc_random_closed_polygon
+classify = plCurve.plc_classify
+iget = plCurve.iarray_get
+free_knottype = plCurve.free_knottype_struct
+free_plcurve = plCurve.plc_free
 
-def classify_polygons():
-    poly = None
-    while True:
-        poly = (yield poly)
+def generate_and_classify(rng, n, _=None):
+    poly = random_closed_polygon(rng, n)
 
-        knottype, nposs = plCurve.plc_classify(poly)
-        #print knottype, nposs
-        if knottype is not None and nposs != 0:
-            cross = plCurve.iarray_get(knottype.cr, 0)
-            idx = plCurve.iarray_get(knottype.ind, 0)
-            if cross == 3:
-                print(cross, idx)
-        plCurve.free_knottype_struct(knottype)
-
-def free_polygons():
-    while True:
-        poly = (yield)
-        plCurve.plc_free(poly)
-
-def run_pipeline():
-    r = plCurve.make_gsl_rng()
-    plCurve.gsl_rng_set(r, random.getrandbits(32))
-
-    num_tests = 1000
-    num_trefoil = 0
-
-    stages = [random_polygons(num_tests, r),
-              classify_polygons(),
-              free_polygons()]
-
-    pl = pipeline.Pipeline(stages)
-    pl.run_parallel(128)
-
-    plCurve.gsl_rng_free(r)
-
-from functools import partial
-
-def knot_process(_, n=6):
-    rng = plCurve.make_gsl_rng()
-    plCurve.gsl_rng_set(rng, random.getrandbits(32))
-
-    poly = plCurve.plc_random_closed_polygon(rng, n)
-
-    knottype, nposs = plCurve.plc_classify(poly)
+    knottype, nposs = classify(poly)
 
     cross, idx = None, None
     if knottype is not None and nposs != 0:
-        cross = plCurve.iarray_get(knottype.cr, 0)
-        idx = plCurve.iarray_get(knottype.ind, 0)
+        cross = iget(knottype.cr, 0)
+        idx = iget(knottype.ind, 0)
         if cross == 3:
             print(cross, idx)
 
-    plCurve.free_knottype_struct(knottype)
-    plCurve.plc_free(poly)
-    plCurve.gsl_rng_free(rng)
+    free_knottype(knottype)
+    free_plcurve(poly)
 
-    return cross, idx
-
-def run_parallel():
-    num_tests = 1000
-    num_trefoil = 0
-
-    pool = multiprocessing.Pool(processes=128)
-    for cross, idx in pool.imap_unordered(knot_process, range(num_tests)):
-        if cross:
-            print("{}_{}".format(cross, idx))
+    return cross,idx
 
 def run_sequential(num_tests=1000, seed=None):
     num_trefoil = 0
 
     if seed is None:
         seed = random.getrandbits(32)
+    print ("Running {} trials, with seed: {}".format(num_tests, seed))
 
     rng = plCurve.make_gsl_rng()
     plCurve.gsl_rng_set(rng, seed)
 
-    for _ in range(num_tests):
-        poly = plCurve.plc_random_closed_polygon(rng, 6)
-
-        knottype, nposs = plCurve.plc_classify(poly)
-
-        cross, idx = None, None
-        if knottype is not None and nposs != 0:
-            cross = plCurve.iarray_get(knottype.cr, 0)
-            idx = plCurve.iarray_get(knottype.ind, 0)
-            if cross == 3:
-                print(cross, idx)
-                num_trefoil += 1
-
-        plCurve.free_knottype_struct(knottype)
-        plCurve.plc_free(poly)
+    for _ in xrange(num_tests):
+        generate_and_classify(rng, 6)
 
     plCurve.gsl_rng_free(rng)
     print "{} trefoils in {} trials".format(num_trefoil, num_tests)
@@ -108,9 +50,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run experiments on random n-gons")
     parser.add_argument(
         "num_trials", metavar="N", type=int, help="Number of trials to run")
+    parser.add_argument("--seed", type=int, help="Seed to use, if predetermined")
 
     args = parser.parse_args()
-    run_sequential(args.num_trials)
+    run_sequential(args.num_trials, seed=args.seed)
 
 
 # v1 = plCurve.plc_random_vect()

@@ -49,7 +49,7 @@ extern "C" {
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
 
   /* We now introduce a data type encoding a symmetry of a link. Such a symmetry has to include
-     both a geometric transformation of space AND a corresponding map from each vertex of the 
+     both a geometric transformation of space AND a corresponding map from each vertex of the
      plcurve to a target vertex. */
 
   typedef double plc_matrix[3][3];
@@ -67,7 +67,7 @@ extern "C" {
 
     plc_matrix              *transform;
     plCurve                 *curve;
-    struct plc_vertex_loc  **target; /* Array of curve->nc arrays of curve->cp[cp].nv arrays of plc_vertex_loc */ 
+    struct plc_vertex_loc  **target; /* Array of curve->nc arrays of curve->cp[cp].nv arrays of plc_vertex_loc */
 
   } plc_symmetry;
 
@@ -119,7 +119,7 @@ extern "C" {
 
   /* The vectors in vect change meaning depending on the type of constraint:
 
-     fixed : vect[0] is the fixed point, vect[1] is ignored 
+     fixed : vect[0] is the fixed point, vect[1] is ignored
      line:   vect[0] is the tangent vector, vect[1] is a point on the line
      plane:  vect[0] is the normal vector, vect[1].c[0] is the distance from origin.
 
@@ -190,7 +190,7 @@ extern "C" {
   /* More sophisticated geometric operations */
   plc_vector plc_circumcenter(plc_vector A, plc_vector B, plc_vector C,
 			      double *circumradius,bool *ok);
-  /* Returns the center and radius of the circle through three points. 
+  /* Returns the center and radius of the circle through three points.
      If circumradius is NULL, then it won't be written to. */
   plc_vector plc_normal(plc_vector A, plc_vector B, plc_vector C, bool *ok);
   /* Returns the oriented unit normal vector to plane defined by A,B,C. */
@@ -200,23 +200,23 @@ extern "C" {
 				     plc_vector N1, plc_vector p1,
 				     plc_vector N2, plc_vector p2,
 				     bool *ok);
-  /* Returns the intersection point of 3 planes. */ 					
+  /* Returns the intersection point of 3 planes. */
 
   double plc_tetrahedron_inradius(plc_vector A,plc_vector B,plc_vector C,plc_vector D);
-  /* Returns the inradius of a tetrahedron. */	
-					  
+  /* Returns the inradius of a tetrahedron. */
+
   /* Different vector measurements */
   double plc_dot_prod(plc_vector A,plc_vector B);
   double plc_norm(plc_vector A);
   double plc_distance(plc_vector A, plc_vector B);
   double plc_sq_dist(plc_vector A, plc_vector B);
   double plc_angle(plc_vector A, plc_vector B, bool *ok); /* Returns an angle in [0,pi] */
-  double plc_dihedral_angle(plc_vector A, plc_vector B, plc_vector C, plc_vector D,bool *ok); 
-  /* Returns the dihedral angle (in [0,2pi)) of the AC diagonal in the (oriented) 
+  double plc_dihedral_angle(plc_vector A, plc_vector B, plc_vector C, plc_vector D,bool *ok);
+  /* Returns the dihedral angle (in [0,2pi)) of the AC diagonal in the (oriented)
      tetrahedron A->B->C->D */
 
-  double plc_angle_dist(double theta,double phi); 
-  /* Returns the distance (on S^1) between the points 
+  double plc_angle_dist(double theta,double phi);
+  /* Returns the distance (on S^1) between the points
      theta and phi (regardless of wrapping, etc). */
 
   /* Do two vectors match ? */
@@ -304,7 +304,7 @@ extern "C" {
   /* Put 4 doubles together into a color */
   plc_color plc_build_color(const double r, const double g,
 			    const double b, const double alpha);
-  
+
 
   /*
    * Prototypes for routines to deal with plCurves.
@@ -328,7 +328,7 @@ extern "C" {
   void plc_free(/*@only@*/ /*@null@*/ plCurve *L);
 
   /* Add a component to the curve which will become component number add_as. */
-  void plc_add_component(plCurve *L, const int add_as, const int nv, 
+  void plc_add_component(plCurve *L, const int add_as, const int nv,
 			 const bool open, const int cc,
 			 const plc_vector * const vt,
 			 /*@null@*/ const plc_color  * const clr);
@@ -398,7 +398,7 @@ extern "C" {
   /* Doubles the number of vertices of L by inserting new vertices at midpoints
      of edges. Attempts to preserve constraints. */
   plCurve *plc_double_verts(plCurve * L);
-  
+
   /* Either return (if given a char *) or print out the library version number */
   void plc_version(/*@null@*/ char *version, size_t strlen);
 
@@ -410,76 +410,76 @@ extern "C" {
 			     const int  * const ns,
 			     const bool * const open,
 			     const int  * const cc);
-  
+
   /* Free memory for spline. */
   void plc_spline_free(/*@only@*/ /*@null@*/ plc_spline *L);
-  
+
   /* Convert plCurve to spline representation. */
   plc_spline *plc_convert_to_spline(plCurve * const L, bool *ok);
-  
+
   /* Convert splined curve to plCurve (with resampling). */
   plCurve *plc_convert_from_spline(const plc_spline * const spL,
 				   const int * const nv);
-  
+
   /* Samples a spline at a particular s value. */
   plc_vector plc_sample_spline(const plc_spline * const spL,
 			       const int cmp,
 			       double s);
-  
+
   /* Computes the tangent vector to a spline at a particular s value */
   plc_vector plc_spline_tangent(const plc_spline * const spL,
 				const int cmp,
 				double s);
 
   /***************** plCurve Geometric Information ********************/
-  
+
   /* Count the edges in a plCurve (correctly handling open/closed) */
   /* Deprecated in versions > 1.3 in favor of plc_edges call below. */
   int plc_num_edges(const plCurve * const L);
-  
+
   /* Count edges in plCurve, returning total and storing #edges for */
   /* each component in component_edges if this is non-NULL. */
   int plc_edges(const plCurve * const L,
 		/*@null@*/ /*@out@*/ int *component_edges);
-  
+
   /* Count the vertices in a plCurve */
   int plc_num_verts(const plCurve * const L);
-  
+
   /* Compute an index between 0 and plc_num_verts(L) - 1 for a (cp,vt)
      pair in a plCurve, using full wraparound addressing for closed
      components and repeating the last or first vertex for open ones. We
      guarantee that these numbers occur consecutively in dictionary
      order on the pairs (cp,vt). */
-  
+
   int plc_vertex_num(const plCurve * const L, const int cp, const int vt);
-  
+
   /* Convert back from a vertex number given by plc_vertex_num to a (cp,vt) pair. */
   int plc_cp_num(const plCurve * const L, int wrapVt);
   int plc_vt_num(const plCurve * const L, int wrapVt);
-  
+
   /* Compute the turning angle at a vertex. Uses wraparound addressing if needed. */
-  double plc_turning_angle(plCurve * const L, const int cmp, const int vert, 
+  double plc_turning_angle(plCurve * const L, const int cmp, const int vert,
 			   bool *ok);
-  
+
   /* Compute the MinRad-based curvature of L at vertex vt of component cp */
   double plc_MR_curvature(plCurve * const L, const int cmp, const int vert);
-  
-  /* Find total curvature (defined as total turning angle) for plCurve, 
+
+  /* Find total curvature (defined as total turning angle) for plCurve,
      including value for each component if component_tc is non-null. */
   double plc_totalcurvature(const plCurve * const L,
 			    /*@null@*/ /*@out@*/ double *component_tc);
 
-  /* Find total (unsigned) torsion of plCurve, including value for each 
+  /* Find total (unsigned) torsion of plCurve, including value for each
      component if component_tc is non-null. */
   double plc_totaltorsion(const plCurve * const L,
 			  /*@null@*/ /*@out@*/ double *component_tc);
-  
+
   float *plc_dihedral_angles(const plCurve * const L,unsigned int *ndihedrals);
-  /* Return a buffer of 2 (n 4) dihedral angles given by choosing quadruples 
-     of vertices and computing the dihedral angle of each diagonal. The dihedrals 
-     appear in lex order as generated by gsl. If ndihedrals > 0, use this as a 
-     cap on the number of dihedrals to generate; otherwise, return the full 
-     collection of dihedrals. Since a LOT of data may be generated here, we 
+  /* Return a buffer of 2 (n 4) dihedral angles given by choosing quadruples
+     of vertices and computing the dihedral angle of each diagonal. The dihedrals
+     appear in lex order as generated by gsl. If ndihedrals > 0, use this as a
+     cap on the number of dihedrals to generate; otherwise, return the full
+     collection of dihedrals. Since a LOT of data may be generated here, we
      use floats instead of doubles. Note that angles are returned in [0,pi].*/
 
   /*
@@ -491,37 +491,37 @@ extern "C" {
    */
   plc_vector plc_mean_tangent(const plCurve * const L, const int cmp,
 			      const int vert, bool *ok);
-  
+
   /* Find the arclength of a plCurve. Total arclength is returned, arclength */
   /* of individual strands stored in component_lengths if this pointer is non-NULL. */
   double plc_arclength(const plCurve * const L,
 		       /*@null@*/ /*@out@*/ double *component_lengths);
-  
+
   /* Find the arclength distance from one vertex to another.  On closed
    * strands, give the shortest of the two options.  */
   double plc_subarc_length(const plCurve * const L, const int cmp,
 			   const int vert1, const int vert2);
-  
+
   /* Find the arclength position of a vertex on the a plCurve. */
   /* On a multicomponent curve, s values add from 0 (0th vert, component 0) */
   /* to the total arclength of the curve (last vert, last component) */
-  
+
   double plc_s(const plCurve * const L, const int cmp, const int vert);
 
   /* Return the longest, shortest, mean, and second moment of edgelengths. */
   void plc_edgelength_stats(const plCurve * const L, double *longest, double *shortest, double *mean, double *moment2);
-  
+
   /* Return how far a constraint is from being satisfied (sup norm). */
   double plc_check_cst(const plCurve * const L);
-  
-  /* Calculate the diameter of the plCurve, thinking of the vertices as 
+
+  /* Calculate the diameter of the plCurve, thinking of the vertices as
      a set of points in R^3 */
   double plc_pointset_diameter(const plCurve * const L);
-  
+
   /* Calculate the center of mass of the plCurve, thinking of the vertices as
      equal mass points. */
   plc_vector plc_center_of_mass(const plCurve * const L);
-  
+
   /* Return the radius of gyration of L, which is half the average squared distance between vertices of L. */
   double plc_gyradius(const plCurve * const L);
 
@@ -530,22 +530,22 @@ extern "C" {
   double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips);
 
   /* Find the nearest vertex on a plCurve to a query point. Precomputes some
-     data which can be saved to speed up future queries on the same plCurve if pc_data is non-NULL. 
-     
-     If we are passed a non-null pointer in pc_data, we check *pc_data. If it is NULL, we assume this 
+     data which can be saved to speed up future queries on the same plCurve if pc_data is non-NULL.
+
+     If we are passed a non-null pointer in pc_data, we check *pc_data. If it is NULL, we assume this
      is the first call on this curve, precompute data, and return a pointer to that data in *pc_data.
-     If *pc_data is non-NULL, we assume that this is precomputed data from a previous call for the 
+     If *pc_data is non-NULL, we assume that this is precomputed data from a previous call for the
      same plCurve and use it. (If this is NOT true, hilarity is likely to ensue.)
-     
-     If precomputed data is saved, it is the callers responsibility to free the pointer later using 
-     plc_nearest_vertex_pc_data_free. The data structure is not exposed to the user because it may 
+
+     If precomputed data is saved, it is the callers responsibility to free the pointer later using
+     plc_nearest_vertex_pc_data_free. The data structure is not exposed to the user because it may
      change without warning in future versions of plCurve. The precomputed data stores the pointer
-     *plCurve, so it will not work on a copy of the curve. 
-     
+     *plCurve, so it will not work on a copy of the curve.
+
      Returns both the space location of the vertex and its cp, vt index. */
-  
+
   struct plc_nearest_neighbor_pc_data { /* THIS MAY CHANGE WITHOUT WARNING IN FUTURE VERSIONS! */
-    
+
     plc_vector *check_buffer;
     int search_dimension;
     int *sorted_buffer;
@@ -558,20 +558,20 @@ extern "C" {
     struct plc_nearest_neighbor_pc_data **component_data;
 
   };
-  
-  plc_vector plc_nearest_vertex(const plc_vector pt,plCurve *L,int *cp, int *vt, 
+
+  plc_vector plc_nearest_vertex(const plc_vector pt,plCurve *L,int *cp, int *vt,
 				struct plc_nearest_vertex_pc_data **pc_data, int *plc_error);
 
   void plc_nearest_vertex_pc_data_free(struct plc_nearest_vertex_pc_data **pc_data);
-  
+
   /* Finds the nearest point in a buffer of plc_vectors to a query point. Precomputes
-     some data which can be saved to speed up future queries on the same buffer if pc_data is non-NULL. 
-     
-     If we are passed a non-null pointer in pc_data, we check *pc_data. If it is NULL, we assume this 
+     some data which can be saved to speed up future queries on the same buffer if pc_data is non-NULL.
+
+     If we are passed a non-null pointer in pc_data, we check *pc_data. If it is NULL, we assume this
      is the first call on this curve, precompute data, and return a pointer to that data in *pc_data.
-     If *pc_data is non-NULL, we assume that this is precomputed data from a previous call for the 
+     If *pc_data is non-NULL, we assume that this is precomputed data from a previous call for the
      SAME buffer and use it. (If this is NOT true, hilarity is likely to ensue.)
-     
+
      Returns the index of the closest point in the query buffer. */
 
   int plc_nearest_neighbor(const plc_vector pt,const int n, plc_vector *buffer,
@@ -581,41 +581,41 @@ extern "C" {
 
   /************************* plCurve Geometric Operations ******************************************/
 
-  /* Scale a plCurve (and its' constraints!) by a factor. */
-  void plc_scale( plCurve *L, const double alpha);  
-  
-  /* Perform a "whitten group" operation on L, mirroring, reversing and 
-     permuting components of L. The syntax is 
-     
+  /* Scale a plCurve (and its constraints!) by a factor. */
+  void plc_scale( plCurve *L, const double alpha);
+
+  /* Perform a "whitten group" operation on L, mirroring, reversing and
+     permuting components of L. The syntax is
+
      mirror = +1 or -1, with -1 to mirror entire link over xy plane.
-     eps    = array of L->nc integers, each +1 or -1, with -1 to reverse 
+     eps    = array of L->nc integers, each +1 or -1, with -1 to reverse
      perm   = array of 2*L->nc integers so that if i is the first instance
      of index j in the array, then perm[i+1] = p(j).
-     
+
      In the output link, the components are in the order
-     
+
      eps[0] K_p(0), ... , eps[L->nc-1] K_p(L->nc-1)
-     
+
      The function operates in place on L and respects constraints and colors,
      but not quantifiers. */
-  
-  void plc_whitten(plCurve *L, int mirror, int *eps, int *perm);      
-  
+
+  void plc_whitten(plCurve *L, int mirror, int *eps, int *perm);
+
   /* Perform a ``fold'' move on a plCurve */
   void plc_pfm( plCurve *L, int cp, int vt0, int vt1, double angle);
-  
+
   /* Rotate a plCurve around an axis. */
   void plc_rotate( plCurve *L, plc_vector axis, double angle);
-  
+
   /* Rotate a plCurve so the given axis points in the direction (0,0,1). */
   void plc_random_rotate(plCurve *link, plc_vector axis);
 
   /* Translate a plCurve by a vector */
   void plc_translate(plCurve *link,plc_vector translation);
-  
+
   /* Perform a random perturbation on a plCurve. Does not perturb
      constrained vertices. */
-  void plc_perturb( plCurve *L, double radius); 
+  void plc_perturb( plCurve *L, double radius);
 
   /* Project L to the plane (through the origin) normal to N. */
   void plc_project(plCurve *L, plc_vector N);
@@ -627,39 +627,39 @@ extern "C" {
   /* curve). If cp is open, it is split in two. */
 
   plCurve *plc_delete_arc(plCurve *L,int cp,int vt1, int vt2);
-  
+
   /****************************** plCurve Random Polygon Library **************/
 
-  /* These functions use the gsl random number generator facilities. 
+  /* These functions use the gsl random number generator facilities.
      This adds some (minor) responsibilities for user programs; namely,
      you must create a random number generator explicitly before calling
-     these functions. You can change the generator (or seed) from the 
+     these functions. You can change the generator (or seed) from the
      command line using environment variables (see the GSL manual).
 
      Some standard code for this would be:
 
        gsl_rng *r;
        const gsl_rng_type * T;
-     
+
        gsl_rng_env_setup();
        T = gsl_rng_default;
-       r = gsl_rng_alloc (T); 
+       r = gsl_rng_alloc (T);
 
-     You then change the seed from the command line with 
+     You then change the seed from the command line with
 
        GSL_RNG_SEED=123 ./your_program
 
   */
 
   /* Generate random length 2 space polygons of nEdges edges using
-     the symmetric measure of Cantarella, Deguchi, Shonkwiler */ 
- 
+     the symmetric measure of Cantarella, Deguchi, Shonkwiler */
+
   plCurve *plc_random_closed_polygon(gsl_rng *r, int nEdges);
   plCurve *plc_random_open_polygon(gsl_rng *r,int nEdges);
-  
+
   /* Generate a random length 2 planar polygon of nEdges edges
      using the symmetric measure of Cantarella, Deguchi, Shonkwiler */
- 
+
   plCurve *plc_random_closed_plane_polygon(gsl_rng *r,int nEdges);
   plCurve *plc_random_open_plane_polygon(gsl_rng *r,int nEdges);
 
@@ -676,31 +676,31 @@ extern "C" {
      this fails if the polygon is too long, or if there is not enough
      ``slack'' in the length to make the closure.
 
-     In particular, generating an open ``arm'' and then closing it with 
+     In particular, generating an open ``arm'' and then closing it with
      this will sometimes fail: the correct method is to generate a closed
      polygon, delete an arc, and then reclose it with this code. */
 
-  plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges);  
+  plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges);
 
 /****************************** plCurve Symmetry Functions ********************/
-  
+
 void plc_identity_matrix(plc_matrix *A);
 void plc_rotation_matrix(plc_vector axis, double angle,plc_matrix *A);
 void plc_reflection_matrix(plc_vector axis,plc_matrix *A);
-  
+
 /* We now define a high level interface for dealing with symmetries. */
-  
+
 plc_symmetry *plc_symmetry_new(plCurve *model);
 void plc_symmetry_free(plc_symmetry **A);
 /* Make a new-memory copy of A */
 plc_symmetry *plc_symmetry_copy(plc_symmetry *A);
-  
+
 /* This creates a plc_symmetry from a transform by searching to try to figure
    out the "intended" target of each vertex under the transform A. */
 plc_symmetry *plc_build_symmetry(plc_matrix *A,plCurve *L);
-  
+
 /* This is a combination of matrix multiplication and applying the permutation
-   of vertices in the symmetries to build a new symmetry (matrix product BA). 
+   of vertices in the symmetries to build a new symmetry (matrix product BA).
    Returns NULL on fail. */
 plc_symmetry *plc_compose_symmetries(plc_symmetry *A,plc_symmetry *B);
 
@@ -708,42 +708,42 @@ plc_symmetry *plc_compose_symmetries(plc_symmetry *A,plc_symmetry *B);
 plc_symmetry_group *plc_symmetry_group_new(int n);
 void plc_symmetry_group_free(plc_symmetry_group **G);
 plc_symmetry_group *plc_symmetry_group_copy(plc_symmetry_group *G);
-  
+
 /* We define a couple of standard groups as well. Return NULL if the build fails. */
 /* Remember that the curves have to basically have the desired symmetry to start. */
 plc_symmetry_group *plc_rotation_group(plCurve *L,plc_vector axis, int n);
 plc_symmetry_group *plc_reflection_group(plCurve *L,plc_vector axis);
 plc_symmetry_group *plc_coordplanes_reflection_group(plCurve *L);
 /* Symmetric over reflection in each coordinate plane */
-    
+
 /* This symmetrizes a plCurve over the group L->G. */
 void plc_symmetrize(plCurve *L);
-  
-/* This symmetrizes a variation (a buffer of vectors of length plc_num_verts), assumed to 
+
+/* This symmetrizes a variation (a buffer of vectors of length plc_num_verts), assumed to
    represent vectors located at the vertices of L over the symmetry group L->G. */
-  
+
 void plc_symmetrize_variation(plCurve *L,plc_vector *buffer);
-  
-/* Checks the distance between the position of each vertex and it's target after the 
-   symmetry transform and returns the maximum. This serves as a check on the quality 
+
+/* Checks the distance between the position of each vertex and it's target after the
+   symmetry transform and returns the maximum. This serves as a check on the quality
    of a symmetry possessed by a curve. The corresponding _variation function does the
    same for a variation field for L. */
-  
+
 double plc_symmetry_check(plCurve *L,plc_symmetry *A);
 double plc_symmetry_variation_check(plCurve *L,plc_vector *buffer,plc_symmetry *A);
-  
-/* To check an entire group, use plc_symmetry_group_check, which checks the entire 
+
+/* To check an entire group, use plc_symmetry_group_check, which checks the entire
    group L->G and returns the maximum error. Again, the corresponding _variation
    function does the same check for a variation field. */
-  
+
 double plc_symmetry_group_check(plCurve *L);
 double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
-  
-  
+
+
 /************************ plCurve Topology Library ********************/
 
 /* This contains some functionality designed to work with plCurves as knots,
-   including converting them to an abstract ``crossing'' representation, 
+   including converting them to an abstract ``crossing'' representation,
    computing their HOMFLY polynomials (using lmpoly) and identifying their
    knot types (by HOMFLY). */
 
@@ -760,12 +760,12 @@ double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
        V
        c
 
-   So a crossing code representation of a plCurve is a char buffer 
+   So a crossing code representation of a plCurve is a char buffer
    containing lines of the form
 
    17+2b10c11c31a
 
-   meaning that crossing 17 is a positive crossing 
+   meaning that crossing 17 is a positive crossing
 
    connected in the a position to the b position of crossing 2,
    connected in the b position to the c position of crossing 10,
@@ -774,7 +774,7 @@ double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
 
    In order to simplify communication with the lmpoly code of Ewing
    and Millett, we store the crossing code as a standard (0
-   terminated) string, including newlines. We will read from 
+   terminated) string, including newlines. We will read from
    that string using a replacement version of the "read" primitive.
 
 */
@@ -802,7 +802,7 @@ char *plc_homfly( plCurve *L);
 /* Sets nposs to the number of possible knottypes found for the curve. If we cannot
    classify the knot, return 0 for nposs and NULL for the buffer of knot types. */
 plc_knottype *plc_classify( plCurve *L, int *nposs);
- 
+
 /* Define the error codes */
 #define PLC_E_NO_VECT       1
 #define PLC_E_BAD_CVC_LINE  2
