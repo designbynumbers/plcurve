@@ -640,6 +640,11 @@ typedef struct {
   int cr;
   int ind;
   char sym[128];
+	%extend {
+		~prime_factor() {
+			free($self);
+		}
+	}
 } prime_factor;
 
 %rename(KnotType) knottypestruct;
@@ -652,26 +657,34 @@ typedef struct knottypestruct {
   char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
   char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
 
+	%typemap(out) plc_knottype *factors {
+		int i;
+		prime_factor *f;
+		$result = PyTuple_New($1->nf);
+		for (i = 0; i < $1->nf; i++) {
+			f = calloc(1, sizeof(prime_factor));
+			f->cr = $1->cr[i];
+			f->ind = $1->ind[i];
+			memcpy(f->sym, $1->sym[i], 128*sizeof(char));
+			PyTuple_SetItem($result, i,
+							SWIG_NewPointerObj((prime_factor*)f,
+											   SWIGTYPE_p_prime_factor, 1));
+		}
+	}
+
   %extend {
     ~knottypestruct() {
       free($self);
     }
 
-    const prime_factor *const factors;
+    const plc_knottype *const factors;
   }
 
 } plc_knottype;
 
 %{
-  const prime_factor *knottypestruct_factors_get(plc_knottype *kt) {
-    int i;
-    prime_factor *pfs = malloc(sizeof(prime_factor)*kt->nf);
-    for (i = 0; i < kt->nf; i++) {
-      pfs[i].cr = kt->cr[i];
-      pfs[i].ind = kt->ind[i];
-      memcpy(pfs[i].sym, kt->sym[i], sizeof(char)*128);
-    }
-    return pfs;
+  const plc_knottype *knottypestruct_factors_get(plc_knottype *kt) {
+	  return kt;
   }
   %}
 

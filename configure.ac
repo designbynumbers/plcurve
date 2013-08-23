@@ -67,7 +67,7 @@ AC_MSG_WARN([
 Unable to find a fortran compiler on this system. Classification
 of plCurves will not be possible.
 -----------------------------------------------------------])
-fi   
+fi
 
 # Checks for libraries.
 AC_SEARCH_LIBS([sqrt],[m])
