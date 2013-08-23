@@ -127,14 +127,16 @@ plcurvature_SOURCES = plcurvature.c libplCurve.a
 plcurvature_LDADD = -lplCurve
 plcurvature_LDFLAGS = -static
 
+if HAVE_F77
 AM_FFLAGS = -g
 plcompEric_SOURCES = compEric.f
+endif
 
 if HAVE_SWIG
 BUILT_SOURCES = $(srcdir)/plCurve_wrap.c
 SWIG_SOURCES = plCurve.i
 
-pkgpython_PYTHON = plcurve.py
+pkgpython_PYTHON = plcurve.py __init__.py
 pkgpyexec_LTLIBRARIES = _plcurve.la
 _plcurve_la_SOURCES = $(srcdir)/plCurve_wrap.c $(SWIG_SOURCES)
 _plcurve_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_srcdir)

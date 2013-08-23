@@ -79,7 +79,7 @@ f = open("data/knotvects/9_40.vect", "r")
 plc = pl.PlCurve.from_file(f)
 f.close()
 
-print plc.components[0].vertices
+#print plc.components[0].vertices
 # Classify the knot to check that it is as it purports
 kt, nposs = plc.classify()
 print kt.factors.cr, kt.factors.ind

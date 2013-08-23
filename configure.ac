@@ -60,6 +60,15 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
+AM_CONDITIONAL([HAVE_F77],[test ! -z "${F77}" && test "X$F77" != "Xno"])
+if test -z "${F77}" || test "X$F77" = "Xno"; then
+AC_MSG_WARN([
+-----------------------------------------------------------
+Unable to find a fortran compiler on this system. Classification
+of plCurves will not be possible.
+-----------------------------------------------------------])
+fi   
+
 # Checks for libraries.
 AC_SEARCH_LIBS([sqrt],[m])
 AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
