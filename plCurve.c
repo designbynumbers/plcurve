@@ -89,7 +89,7 @@ static inline int intmax(const int a, const int b) {
   assert(nv != NULL);
   assert(open != NULL);
   assert(cc != NULL);
-
+  
   for(i=0;i<components;i++) { assert(cc[i] >= 0); assert(cc[i] <= nv[i]); }
 
   /* Now we attempt to allocate space for these components. */
@@ -251,8 +251,8 @@ double plc_s(const plCurve * const L, const int cmp, const int vert)
     for(v = 1;v <= L->cp[c].nv; v++) {
 
       d = plc_M_sq_dist(L->cp[c].vt[v-1],L->cp[c].vt[v])  /* ok not to ; */
-      s += sqrt(d);
-
+      s += sqrt(d);	
+    
     }
 
   }
@@ -261,28 +261,28 @@ double plc_s(const plCurve * const L, const int cmp, const int vert)
 
     d = plc_M_sq_dist(L->cp[c].vt[v-1],L->cp[c].vt[v]) /* ok not to ; */
     s += sqrt(d);
-
+  
   }
 
   return s;
 
-}
+} 
 
 /* Return the longest, shortest, mean, and second moment of edgelengths. */
 void plc_edgelength_stats(const plCurve * const L, double *longestP, double *shortestP, double *meanP,double *moment2P)
 
   {
-    int cp;
+    int cp; 
     int vt;
     int maxV;
     double dist;
     double longest, shortest, mean, moment2;
 
-    longest = mean = moment2 = 0.0;
+    longest = mean = moment2 = 0.0; 
     shortest = 1e20; /* A very large number */
-
+    
     for(cp=0;cp<L->nc;cp++) {
-
+      
       if (L->cp[cp].open) { maxV = L->cp[cp].nv; } else { maxV = L->cp[cp].nv+1; } /* Use wraparound addressing for closed polygons. */
 
       for(vt=1;vt<maxV;vt++) {
@@ -294,7 +294,7 @@ void plc_edgelength_stats(const plCurve * const L, double *longestP, double *sho
 	moment2 += dist*dist;
 
       }
-
+      
     }
 
     mean /= plc_edges(L,NULL);
@@ -304,7 +304,7 @@ void plc_edgelength_stats(const plCurve * const L, double *longestP, double *sho
     if (shortestP != NULL) { *shortestP = shortest; }
     if (meanP != NULL) { *meanP = mean; }
     if (moment2P != NULL) { *moment2P = moment2; }
-
+      
   }
 
 /*
@@ -769,7 +769,7 @@ bool plc_is_constrained(plCurve * const L,int cp, int vt,plc_constraint **constr
   plc_constraint *cst;
 
   for(cst = L->cst;cst != NULL;cst = cst->next) {
-
+    
     if (cst->cmp == cp) {
 
       if (cst->vert <= vt && cst->vert+cst->num_verts > vt) {
@@ -866,9 +866,9 @@ void plc_write(FILE *outfile, plCurve * const L) {
     cst_num = 0;
     for (cst2 = cst_list; cst2 != NULL && !found; cst2 = cst2->next) {
       cst_num++;
-      // If we have duplicate constraints, we only record one.
+      // If we have duplicate constraints, we only record one. 
       if (cst->kind == cst2->kind &&
-	  cst->cmp == cst2->cmp &&
+	  cst->cmp == cst2->cmp &&             
           plc_M_vecteq(cst->vect[0],cst2->vect[0]) &&
           plc_M_vecteq(cst->vect[1],cst2->vect[1]) &&
 	  cst->vert == cst2->vert &&
@@ -951,214 +951,6 @@ void plc_write(FILE *outfile, plCurve * const L) {
   return;
 }
 
-/* Return a serialization of a plCurve */
-
-void write_cst_kind(char *str, int *off, plc_cst_kind in) {
-  memcpy(str+(*off), &in, sizeof(plc_cst_kind));
-  *off += sizeof(plc_cst_kind);
-}
-void write_plc_vector(char *str, int *off, plc_vector in) {
-  memcpy(str+(*off), &in, sizeof(plc_vector));
-  *off += sizeof(plc_vector);
-}
-void write_plc_color(char *str, int *off, plc_color in) {
-  memcpy(str+(*off), &in, sizeof(plc_color));
-  *off += sizeof(plc_color);
-}
-void write_double(char *str, int *off, double in) {
-    memcpy(str+(*off), &in, sizeof(double));
-    *off += sizeof(double);
-}
-void write_int(char *str, int *off, int in) {
-    printf("%d \n", *off);
-    memcpy(str+(*off), &in, sizeof(int));
-    *off += sizeof(int);
-}
-
-// Serialize a plCurve as a string of bytes.
-// WARNING: At present, this is VERY volatile, and VERY system-specific.
-// DO NOT EXPECT to be able to unserialize this data if it is read on
-// another machine, or even more than a minute after it has been serialized!
-char *plc_serialize(plCurve * const L, int *ret_len) {
-  int i,j;                  /* Counters for the for loops */
-  int offset = 0;               /* Present string offset */
-  int nverts = 0;           /* Total number of vertices of all components */
-  int colors = 0;           /* Total number of colors of all components */
-  char outstr[80] = "";     /* So we can wrap the vertex lines */
-  char outstr2[80] = "";    /* Again for wrapping */
-  int cst_num;              /* This constraint */
-  int **cst_nums = NULL;    /* All constraint numbers */
-  plc_constraint *cst;  /* Current constraint */
-  plc_constraint *cst2;
-  /* All the constraints (without duplicates) */
-  plc_constraint *cst_list = NULL;
-  bool found;
-  char *bytes; /* bitstring to return */
-
-  /* First, do a little sanity checking. */
-  assert(L != NULL);
-  assert(L->nc >= 1);
-  assert(L->cp != NULL);
-
-  cst_nums = (int **)calloc((size_t)L->nc,sizeof(int *));
-  assert(cst_nums != NULL);
-
-  // TODO alloc string of appropriate length bytes
-  // set ret_len to length of string
-
-  /* Now we begin work. */
-  for (i=0; i<L->nc; i++) {
-    nverts += L->cp[i].nv;
-    colors += L->cp[i].cc;
-    /* Make space for the constraint numbers and set them all to zero */
-    cst_nums[i] = (int *)calloc((size_t)L->cp[i].nv,sizeof(int));
-    assert(cst_nums[i] != NULL);
-  }
-
-  /* We are ready to write the plCurve. */
-  // Write the size of double in reliable format for the reader
-  // TODO: make reliable
-
-  // Calculate the size of the bitstring representing this plCurve
-  (*ret_len) = 0; // Initialize buffer size to 0;
-  (*ret_len) += 3*sizeof(int); // Header information (nc, nv, cc)
-  (*ret_len) += (L->nc)*sizeof(int)*2; // nv, cc per component
-  // TODO: actually count constraints...
-  (*ret_len) += (50)*(sizeof(plc_cst_kind)+2*sizeof(plc_vector)); // constraint data
-  (*ret_len) += nverts*sizeof(plc_vector); // Vector data
-  (*ret_len) += nverts*sizeof(plc_color); // Color data
-
-  // Allocate byte memory
-  bytes = (char *)calloc((*ret_len), sizeof(char));
-
-
-  // plCurve header information
-  write_int(bytes, &offset, (L->nc));
-  write_int(bytes, &offset, nverts);
-  write_int(bytes, &offset, colors);
-
-  for(i=0;i<L->nc;i++) {
-    if (L->cp[i].open) {
-	write_int(bytes, &offset, L->cp[i].nv);
-	//fprintf(outfile,"%d ",L->cp[i].nv);
-    } else {
-	write_int(bytes, &offset, -L->cp[i].nv);
-	//fprintf(outfile,"%d ",-L->cp[i].nv);
-    }
-  }
-
-  for(i=0;i<L->nc;i++) {
-      write_int(bytes, &offset, L->cp[i].cc);
-      //fprintf(outfile,"%d ",L->cp[i].cc);
-  }
-
-  /* Slide the constraints, if any, in here */
-  for (cst = L->cst; cst != NULL; cst = cst->next) {
-    assert(cst->kind == fixed || cst->kind == line || cst->kind == plane);
-    found = false;
-    cst_num = 0;
-    for (cst2 = cst_list; cst2 != NULL && !found; cst2 = cst2->next) {
-      cst_num++;
-      // If we have duplicate constraints, we only record one.
-      if (cst->kind == cst2->kind &&
-  	  cst->cmp == cst2->cmp &&
-          plc_M_vecteq(cst->vect[0],cst2->vect[0]) &&
-          plc_M_vecteq(cst->vect[1],cst2->vect[1]) &&
-  	  cst->vert == cst2->vert &&
-  	  cst->num_verts == cst2->num_verts) {
-        found = true;
-      }
-    }
-    if (!found) {
-      /* It's a new one, add it to the list */
-      cst_list = new_constraint(cst->kind, cst->vect, cst->cmp, cst->vert,
-                                cst->num_verts, cst_list);
-      cst_num++;
-      if (cst->kind == fixed) {
-        write_cst_kind(bytes, &offset, fixed);
-        write_plc_vector(bytes, &offset, cst->vect[0]);
-        //fprintf(outfile, "# Constraint %d Fixed %g %g %g\n", cst_num,
-        //  plc_M_clist(cst->vect[0]));
-      } else if (cst->kind == line) {
-        write_cst_kind(bytes, &offset, line);
-        write_plc_vector(bytes, &offset, cst->vect[0]);
-        write_plc_vector(bytes, &offset, cst->vect[1]);
-        //fprintf(outfile, "# Constraint %d Line %g %g %g %g %g %g\n", cst_num,
-        //  plc_M_clist(cst->vect[0]), plc_M_clist(cst->vect[1]));
-      } else if (cst->kind == plane) {
-        write_cst_kind(bytes, &offset, plane);
-        write_plc_vector(bytes, &offset, cst->vect[0]);
-        write_double(bytes, &offset, cst->vect[1].c[0]);
-        //fprintf(outfile, "# Constraint %d Plane %g %g %g %g\n", cst_num,
-        //  plc_M_clist(cst->vect[0]), cst->vect[1].c[0]);
-      }
-    }
-    /* Now mark it down in the list */
-    for (i = cst->vert; i < cst->vert + cst->num_verts; i++) {
-      cst_nums[cst->cmp][i] = cst_num;
-    }
-  }
-
-  /* fprintf(outfile,"# Vertex coordinates\n"); */
-
-  /* Now we write the vertex data . . . */
-  for (i=0; i<L->nc; i++) {
-    //fprintf(outfile,"# Component %d\n",i);
-    for (j=0; j<L->cp[i].nv; j++) {
-      write_plc_vector(bytes, &offset, L->cp[i].vt[j]);
-      //(void)snprintf(outstr,sizeof(outstr),"%.16g %.16g %.16g",
-      //    plc_M_clist(L->cp[i].vt[j]));
-      write_int(bytes, &offset, cst_nums[i][j]);
-      //if (cst_nums[i][j] != 0) {        
-        //  strcpy(outstr2,outstr);
-        // (void)snprintf(outstr,sizeof(outstr),
-        //             "%s # Cst: %d",outstr2,cst_nums[i][j]);
-      //}
-      /* Here is where we will eventually write out the quantifiers, wrapping
-       * as necessary */
-      /* Now complete the string. */
-      //fprintf(outfile,"%s\n",outstr);
-    }
-  }
-
-  /* fprintf(outfile,"# Colors (red green blue alpha)\n"); */
-
-  /* . . . and the color data. */
-  for (i=0; i < L->nc; i++) {
-    //fprintf(outfile,"# Component %d\n",i);
-    for (j=0; j < L->cp[i].cc; j++) {
-      write_plc_color(bytes, &offset, L->cp[i].clr[j]);
-      //fprintf(outfile,"%.16g %.16g %.16g %.16g\n", L->cp[i].clr[j].r,
-      //  L->cp[i].clr[j].g, L->cp[i].clr[j].b, L->cp[i].clr[j].alpha);
-    }
-  }
-
-  /* Clean up temporary storage */
-  for (i=0; i < L->nc; i++) {
-    free(cst_nums[i]);
-    cst_nums[i] = NULL;
-  }
-  free(cst_nums);
-  cst_nums = NULL;
-
-
-  /* Don't forget to free the list of constraints */
-
-  cst = cst_list;
-  while (cst != NULL) {
-    cst_list = cst->next;
-    free(cst);
-    cst = cst_list;
-  }
-
-  /* /\* And we're done. *\/ */
-  // TODO set length of bitstring....
-  assert(offset <= *ret_len);
-  (*ret_len) = offset;
-  return bytes;
-}
-
-
 
 /*
  * The next section of the library file includes some (private) procedures for
@@ -1168,7 +960,7 @@ char *plc_serialize(plCurve * const L, int *ret_len) {
 
 /*
  * get_comment acts like skip_whitespace_and_comments but returns any (possibly
- * multi-line) comment in a buffer.
+ * multi-line) comment in a buffer. 
  *
  */
 #define end_str_and_return \
@@ -1392,7 +1184,7 @@ void plc_fix_wrap(plCurve * const L) {
   bool *open;
   int i, j;
   int nv;
-  char *comment;
+  char *comment; 
   int ds; /* Doubles scanned */
   /*@temp@*/ char *place;
   char *space = " ";
@@ -1492,7 +1284,7 @@ void plc_fix_wrap(plCurve * const L) {
   assert(cst_list != NULL);
   comment = get_comment(file);
 /* If we don't know about strcasestr, use strstr instead, losing case
- * insensitivity.  Because some systems don't have strcasestr, we need to
+ * insensitivity.  Because some systems don't have strcasestr, we need to 
  * write our checks with the case we wrote out to the file. */
   #define strcasestr strstr
 
@@ -1710,7 +1502,7 @@ int plc_num_edges(const plCurve * const L) /*@modifies nothing@*/
   return edges;
 }
 
-/* Return total number of edges in plCurve, store #edges for each
+/* Return total number of edges in plCurve, store #edges for each 
    strand in component_edges. */
 
 int plc_edges(const plCurve * const L,
@@ -1722,28 +1514,28 @@ int plc_edges(const plCurve * const L,
  for (i=0; i<L->nc; i++) {
 
    edges += strand_edges(L->cp[i]);
-
+   
    if (component_edges != NULL) { component_edges[i] = strand_edges(L->cp[i]); }
 
  }
  return edges;
-}
-
-/*
+} 
+     
+/* 
  * Return the total number of vertices in plCurve.
  */
 int plc_num_verts(const plCurve * const L) /*@modifies nothing@*/
 {
   int cmp, verts = 0;
-
+  
   for (cmp = 0; cmp < L->nc; cmp++) {
     verts += L->cp[cmp].nv;
   }
   return verts;
 }
 
-/* Compute an index between 0 and plc_num_verts(L) - 1 for a (cp,vt) pair in a plCurve,
-   using full wraparound addressing for closed components and repeating the last or first vertex
+/* Compute an index between 0 and plc_num_verts(L) - 1 for a (cp,vt) pair in a plCurve, 
+   using full wraparound addressing for closed components and repeating the last or first vertex 
    for open ones. */
 int plc_vertex_num(const plCurve * const L, int cp, int vt)
 {
@@ -1759,7 +1551,7 @@ int plc_vertex_num(const plCurve * const L, int cp, int vt)
 
     for(wrapVt = vt;wrapVt < 0;wrapVt += L->cp[cp].nv);  // Make sure we start with a non-negative index (for modular arithmetic)
     wrapVt = wrapVt % L->cp[cp].nv;
-
+  
   }
 
   for(i=0;i<cp;i++) { wrapVt += L->cp[i].nv; }
@@ -1803,7 +1595,7 @@ int plc_vt_num (const plCurve * const L, int wrapVt)
   exit(1);
 
 }
-
+  
 /* Compute the turning angle at a vertex. */
 double plc_turning_angle(plCurve * const L, const int cp, const int invt, bool *ok)
 
@@ -1812,20 +1604,20 @@ double plc_turning_angle(plCurve * const L, const int cp, const int invt, bool *
   double ang;
   bool isok;
   int  vt = invt;
-
+  
   if (L->cp[cp].open && (vt <= 0 || vt >= L->cp[cp].nv-1)) { // Addressing past ends of open curve yields zero
 
     return 0;
 
-  }
+  } 
 
   if (!L->cp[cp].open) {  // Wraparound addressing for closed curves ensures that the original vertex is legal.
 
-    for(;vt < 0;vt += L->cp[cp].nv);
+    for(;vt < 0;vt += L->cp[cp].nv); 
     vt = vt % L->cp[cp].nv;
 
   }
-
+  
   left = plc_vect_diff(L->cp[cp].vt[vt],L->cp[cp].vt[vt-1]);
   right = plc_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt]);
   ang = plc_angle(left,right,&isok);
@@ -1837,16 +1629,16 @@ double plc_turning_angle(plCurve * const L, const int cp, const int invt, bool *
   }
 
   if (isok) {
-
+    
     return ang;
-
+  
   } else {
-
+  
     return 0;
-
+ 
   }
 }
-
+  
 
 /* Compute the MinRad-based curvature of L at vertex vt of component cp */
 double plc_MR_curvature(plCurve * const L, const int cmp, const int vert) {
@@ -1856,7 +1648,7 @@ double plc_MR_curvature(plCurve * const L, const int cmp, const int vert) {
   double      normin, normout;
   double      dot_prod,cross_prod_norm;
 
-  if (L->cp[cmp].open &&
+  if (L->cp[cmp].open && 
     /* There is no curvature at the endpoints of an open strand */
       (vert == 0 || vert == L->cp[cmp].nv-1)) {
     return 0.0;
@@ -1871,7 +1663,7 @@ double plc_MR_curvature(plCurve * const L, const int cmp, const int vert) {
   cross_prod_norm = plc_M_norm(plc_cross_prod(in,out));
 
   /* Check for infinite curvature condition */
-  assert(normin*normout + dot_prod > DBL_EPSILON);
+  assert(normin*normout + dot_prod > DBL_EPSILON); 
 
   kappa = (2*cross_prod_norm)/(normin*normout + dot_prod);
   kappa /= (normin - normout < DBL_EPSILON) ? normin : normout;
@@ -1899,10 +1691,10 @@ double plc_totalcurvature(const plCurve * const L,
 			plc_vect_diff(L->cp[cp].vt[vt]  ,L->cp[cp].vt[vt-1]),
 			&ok);
 
-      if (!ok) { angle = 0; }  // This is expected at the start and end of open components.
+      if (!ok) { angle = 0; }  // This is expected at the start and end of open components. 
 
       if (component_tc != NULL) {
-
+  
 	component_tc[cp] += angle;
 
       }
@@ -1917,25 +1709,25 @@ double plc_totalcurvature(const plCurve * const L,
 
 }
 
-double torsionangle(plc_vector a,plc_vector b,plc_vector c,plc_vector d)
+double torsionangle(plc_vector a,plc_vector b,plc_vector c,plc_vector d) 
 {
   bool ok;
   double angle;
   plc_vector edges[3];
-
+  
   edges[0] = plc_vect_diff(b,a);
   edges[1] = plc_vect_diff(c,b);
   edges[2] = plc_vect_diff(d,c);
-
+  
   plc_vector normals[2];
-
+  
   normals[0] = plc_cross_prod(edges[0],edges[1]);
   normals[1] = plc_cross_prod(edges[1],edges[2]);
-
+  
   angle = plc_angle(normals[0],normals[1],&ok);
-
-  if (!ok) { angle = 0; }  // This is expected at the start and end of open components.
-
+  
+  if (!ok) { angle = 0; }  // This is expected at the start and end of open components. 
+  
   return angle;
 }
 
@@ -1958,15 +1750,15 @@ double plc_totaltorsion(const plCurve * const L,
     for(vt=0;vt<L->cp[cp].nv-3;vt++) {
 
       angle = torsionangle(L->cp[cp].vt[vt],L->cp[cp].vt[vt+1],L->cp[cp].vt[vt+2],L->cp[cp].vt[vt+3]);
-
+      
       if (component_tt != NULL) {
-
+	
 	component_tt[cp] += angle;
-
+	
       }
-
+      
       tt += angle;
-
+      
     }
 
     if (!L->cp[cp].open) {
@@ -1977,25 +1769,25 @@ double plc_totaltorsion(const plCurve * const L,
 
       angle = torsionangle(L->cp[cp].vt[nv-1],L->cp[cp].vt[0],L->cp[cp].vt[1],L->cp[cp].vt[2]) /* First edge */ +
 	torsionangle(L->cp[cp].vt[nv-2],L->cp[cp].vt[nv-1],L->cp[cp].vt[0],L->cp[cp].vt[1]) /* Extra edge */ +
-	torsionangle(L->cp[cp].vt[nv-3],L->cp[cp].vt[nv-2],L->cp[cp].vt[nv-1],L->cp[cp].vt[0]); /* Last edge */
-
+	torsionangle(L->cp[cp].vt[nv-3],L->cp[cp].vt[nv-2],L->cp[cp].vt[nv-1],L->cp[cp].vt[0]); /* Last edge */ 
+      
       if (component_tt != NULL) {
-
+	
 	component_tt[cp] += angle;
-
+	
       }
-
+      
       tt += angle;
 
     }
-
+    
   }
 
   return tt;
 
 }
 
-
+	
 /*
  * Duplicate a plCurve and return the duplicate.
  *
@@ -2073,7 +1865,7 @@ plCurve *plc_copy(const plCurve * const L) {
     for(i=0;i<nL->G->n;i++) {
       nL->G->sym[i]->curve = nL;
     }
-
+    
   }
 
   return nL;
@@ -2114,7 +1906,7 @@ plc_vector plc_mean_tangent(const plCurve * const L, const int cmp,
  * Procedure computes the length of each component of the plCurve, and fills in
  * the array of doubles "component_lengths" (if it exists), which must be as
  * long as L->nc. It returns the total length. We assume that fix_wrap has been
- * called.
+ * called. 
  *
  */
 double plc_arclength(const plCurve * const L,
@@ -2152,10 +1944,10 @@ double plc_arclength(const plCurve * const L,
 
 /*
  * Report the arclength distance from one vertex to another.  On closed
- * strands, give the shortest of the two options.
+ * strands, give the shortest of the two options. 
  *
  */
-double plc_subarc_length(const plCurve * const L, const int cmp,
+double plc_subarc_length(const plCurve * const L, const int cmp, 
                              const int vert1, const int vert2)
 {
   double length1, length2;
@@ -2224,7 +2016,7 @@ plc_color plc_build_color(const double r,
 /* Add a component with nv vertices read from the array vt and cc colors read
  * from the array clr.  The parameter add_as tells what the new component
  * number will be (any components above it will be moved up by 1. */
-void plc_add_component(plCurve *L, const int add_as, const int nv,
+void plc_add_component(plCurve *L, const int add_as, const int nv, 
                       const bool open, const int cc,
                       const plc_vector * const vt,
            /*@null@*/ const plc_color * const clr) {
@@ -2287,7 +2079,7 @@ void plc_drop_component(plCurve *L, const int cmp) {
   for (cnt = cmp; cnt < L->nc; cnt++) {
     L->cp[cnt] = L->cp[cnt+1];
   }
-  /* Leave the memory sitting as the cost of the extra few bytes is small
+  /* Leave the memory sitting as the cost of the extra few bytes is small 
      compared to the cost of a realloc.  It will get cleaned up at the end and
      may get reused before then. */
   /*@-compdef -usereleased@*/
@@ -2298,7 +2090,7 @@ void plc_resize_colorbuf(plCurve *L,const int cp, const int cc)
 /* Change the size of the color buffer for a plCurve, preserving existing data if it exists */
 {
   int i;
-
+  
   if (cc == 0) { /* We are supposed to eliminate the color buffer, if it exists. */
 
     if (L->cp[cp].cc == 0 && L->cp[cp].clr == NULL) { /* Nothing to do */
@@ -2306,9 +2098,9 @@ void plc_resize_colorbuf(plCurve *L,const int cp, const int cc)
       return;
 
     } else {
-
+    
       L->cp[cp].cc = 0;
-      free(L->cp[cp].clr);
+      free(L->cp[cp].clr); 
       L->cp[cp].clr = NULL;
 
       return;
@@ -2377,11 +2169,11 @@ void plc_set_color( plCurve *inLink, const plc_color inColor )
   }
 
 }
-
+    
 
 void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
 
-     /* Computes the pair of minrad preserving spline verts which
+     /* Computes the pair of minrad preserving spline verts which 
 	should replace the vertex vt on component cmp of L. We assume
 	that the vertex before and after vt are legal. */
 
@@ -2426,7 +2218,7 @@ void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
     mpsverts[1] = v1;
 
     return;
-
+    
   }
 
   /* We now use the minrad formula. */
@@ -2434,7 +2226,7 @@ void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
   dot_prod = plc_M_dot(in,out);
   cross_prod_norm = plc_norm(plc_cross_prod(in,out));
 
-  curv = 2*cross_prod_norm/(normin*normout + dot_prod);
+  curv = 2*cross_prod_norm/(normin*normout + dot_prod);      
   rad = (normin*normout + dot_prod)/(2*cross_prod_norm);
 
   /* Minrad is the least of normin * rad and normout * rad. */
@@ -2474,7 +2266,7 @@ void mpsverts(plCurve *L,int cmp,int vt,plc_vector mpsverts[2])
   }
 
   s0 = dist/normin; s1 = dist/normout;
-
+    
   /* Now we generate the verts. */
 
   mpsverts[0] = plc_vweighted(s0,v1,v0);
@@ -2491,8 +2283,8 @@ plCurve *plc_double_verts(plCurve *L)
   bool *newOpen;
 
   //  plc_fix_cst(L);
-
-  newVerts = calloc(L->nc,sizeof(int)); assert(newVerts != NULL);
+  
+  newVerts = calloc(L->nc,sizeof(int)); assert(newVerts != NULL); 
   newCc = calloc(L->nc,sizeof(int)); assert(newCc != NULL);
   newOpen = calloc(L->nc,sizeof(bool)); assert(newOpen != NULL);
 
@@ -2500,16 +2292,16 @@ plCurve *plc_double_verts(plCurve *L)
 
     newVerts[cmp] = 2*(L->cp[cmp].nv);
 
-    /* Colors are a bit tricky, since there are either
+    /* Colors are a bit tricky, since there are either 
        0 (no color info)
        1 (all verts the same color)
-
+       
        or
 
        L->cp[cmp].nv (colors change along the curve)
     */
 
-    if (L->cp[cmp].cc == 0 || L->cp[cmp].cc == 1) {
+    if (L->cp[cmp].cc == 0 || L->cp[cmp].cc == 1) { 
 
       newCc[cmp] = L->cp[cmp].cc; /* Just preserve info */
 
@@ -2543,7 +2335,7 @@ plCurve *plc_double_verts(plCurve *L)
 			    2*thisCst->num_verts-1,thisCst->vect[0],thisCst->vect[1]);
     } else if (thisCst->kind == plane) {
 
-      if (thisCst->vert == L->cp[thisCst->cmp].nv-1) { // Last has a special meaning
+      if (thisCst->vert == L->cp[thisCst->cmp].nv-1) { // Last has a special meaning 
 
 	plc_constrain_to_plane(newL,thisCst->cmp,thisCst->vert*2+1,2*thisCst->num_verts-1,
 			       thisCst->vect[0],thisCst->vect[1].c[0]);
@@ -2552,10 +2344,10 @@ plCurve *plc_double_verts(plCurve *L)
 
 	plc_constrain_to_plane(newL,thisCst->cmp,thisCst->vert*2,2*thisCst->num_verts-1,
 			       thisCst->vect[0],thisCst->vect[1].c[0]);
-
+	
       }
 
-    }
+    } 
 
   }
 
@@ -2570,10 +2362,10 @@ plCurve *plc_double_verts(plCurve *L)
       plc_vector mps[2];
       mpsverts(L,cmp,vt,mps);
 
-      newL->cp[cmp].vt[2*vt]   = mps[0];
+      newL->cp[cmp].vt[2*vt]   = mps[0]; 
       newL->cp[cmp].vt[2*vt+1] = mps[1];
-
-    }
+     
+    } 
 
     if (newL->cp[cmp].cc == 1) {
 
@@ -2584,7 +2376,7 @@ plCurve *plc_double_verts(plCurve *L)
       for(vt=0;vt<L->cp[cmp].nv-1;vt++) {
 
 	newL->cp[cmp].clr[2*vt+1] = newL->cp[cmp].clr[2*vt] = L->cp[cmp].clr[vt];
-
+	
       }
 
     }
@@ -2594,14 +2386,14 @@ plCurve *plc_double_verts(plCurve *L)
   plc_fix_wrap(newL);
   //  plc_fix_cst(newL);
 
-  free(newVerts);
+  free(newVerts); 
   free(newCc);
   free(newOpen);
 
   return newL;
 
 }
-
+    
 
 double plc_pointset_diameter(const plCurve * const L) {
   int cmp, vert, cmp2, vert2;
@@ -2613,7 +2405,7 @@ double plc_pointset_diameter(const plCurve * const L) {
   for (cmp = 0; cmp < L->nc; cmp++) {
     for (vert = 0; vert < L->cp[cmp].nv; vert++) {
       for (cmp2 = cmp; cmp2 < L->nc; cmp2++) {
-        for (vert2 = (cmp == cmp2) ? vert : 0;
+        for (vert2 = (cmp == cmp2) ? vert : 0; 
              vert2 < L->cp[cmp2].nv; vert2++) {
           dist = plc_M_distance(L->cp[cmp].vt[vert],
                                 L->cp[cmp2].vt[vert2]);
@@ -2633,7 +2425,7 @@ void plc_scale( plCurve *link, const double alpha)
 
 {
   int cp, vt;
-  plc_constraint *tc;
+  plc_constraint *tc; 
 
   /* First, scale the vertices. */
 
@@ -2644,12 +2436,12 @@ void plc_scale( plCurve *link, const double alpha)
   }
 
   plc_fix_wrap(link);
-
+  
   /* Now deal with the constraints. */
 
   for(tc=link->cst;tc!=NULL;tc=tc->next) {  /* Follow the linked list of csts. */
 
-    if (tc->kind == unconstrained) {
+    if (tc->kind == unconstrained) { 
     } else if (tc->kind == fixed) {
       plc_M_scale_vect(alpha,tc->vect[0]);
     } else if (tc->kind == line) {
@@ -2659,8 +2451,8 @@ void plc_scale( plCurve *link, const double alpha)
     }
 
   }
-
-}
+   
+}   
 
 void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
 
@@ -2673,7 +2465,7 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
   assert(!plc_M_vecteq(link->cp[cp].vt[vt0],link->cp[cp].vt[vt1]));
 
   int swap;
-
+  
   if (vt0 == vt1) { return; }
   if (vt1 < vt0) { swap = vt0; vt0 = vt1; vt1 = swap; }
 
@@ -2705,8 +2497,8 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
     bool ok;
 
     binor = plc_normalize_vect(plc_cross_prod(axis,nor),&ok);
-    if (!ok) {continue;}
-    /* This means the point is on the axis, so nor = 0.
+    if (!ok) {continue;} 
+    /* This means the point is on the axis, so nor = 0. 
        This point shouldn't move, so skip it. No problem. */
 
     binor = plc_scale_vect(plc_norm(nor),binor);
@@ -2731,7 +2523,7 @@ void plc_pfm(plCurve *link, int cp, int vt0, int vt1, double angle)
 
 void plc_rotate(plCurve *link, plc_vector axis, double angle)
 
-/* Rotate the link around a given axis. The tricky part is that we must transform the
+/* Rotate the link around a given axis. The tricky part is that we must transform the 
    symmetry group accordingly. FIXME: We need to transform constraints, too! */
 
 {
@@ -2744,7 +2536,7 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
 
     plc_rotation_matrix(axis,angle,&A);
     plc_rotation_matrix(axis,-angle,&Ainv);
-
+  
     for(i=0;i<link->G->n;i++) {
 
       TAinv = plc_matrix_matrix_multiply(link->G->sym[i]->transform,&Ainv);
@@ -2753,7 +2545,7 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
       free(TAinv);
 
     }
-
+    
     free(A); free(Ainv);
 
   }
@@ -2779,10 +2571,10 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
       bool ok;
 
       binor = plc_normalize_vect(plc_cross_prod(axis,nor),&ok);
-      if (!ok) {continue;}
-      /* This means the point is on the axis, so nor = 0.
+      if (!ok) {continue;} 
+      /* This means the point is on the axis, so nor = 0. 
 	 This point shouldn't move, so skip it. No problem. */
-
+      
       binor = plc_scale_vect(plc_norm(nor),binor);
       /* We make the binormal the same size as the normal. */
 
@@ -2791,7 +2583,7 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
       newnor = plc_vlincomb(cos(angle),nor,sin(angle),binor);
       /* Newnor should have the same norm as nor and binor */
 
-      /* Now we can reassemble the original vector. */
+      /* Now we can reassemble the original vector. */    
       link->cp[cp].vt[vt] = plc_vect_sum(newnor,par);
 
     }
@@ -2815,23 +2607,23 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
      return;
 
    };
-
+   
    /* A nontrivial translate destroys symmetry */
 
    if (link->G != NULL) {
 
-     plc_symmetry_group_free(&(link->G));
+     plc_symmetry_group_free(&(link->G)); 
 
-   }
+   } 
 
    /* Now we go ahead and alter the vertex data. */
 
    for(cp=0;cp<link->nc;cp++) {
      for(vt=0;vt<link->cp[cp].nv;vt++) {
-       plc_M_add_vect(link->cp[cp].vt[vt],translate);
+       plc_M_add_vect(link->cp[cp].vt[vt],translate);   
      }
    }
-
+   
    plc_fix_wrap(link);
 
    /* Finally, we fix the constraints. */
@@ -2858,10 +2650,10 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
 
  }
 
-/* Perform a random perturbation on a plCurve, perturbing at most radius.
+/* Perform a random perturbation on a plCurve, perturbing at most radius. 
    The distribution of points is not by volume, but with equal probability
    of choosing any radius and any direction. */
-void plc_perturb( plCurve *L, double radius)
+void plc_perturb( plCurve *L, double radius) 
 
 {
   int cp;
@@ -2870,7 +2662,7 @@ void plc_perturb( plCurve *L, double radius)
   #ifdef HAVE_TIME
      srand (time(0));
   #endif
-
+  
   for (cp=0;cp<L->nc;cp++) {
 
     for(vt=0;vt<L->cp[cp].nv;vt++) {
@@ -2884,9 +2676,9 @@ void plc_perturb( plCurve *L, double radius)
 			      plc_random_vect());
 	tan = plc_mean_tangent(L,cp,vt,&ok);
 
-	if (ok) {
+	if (ok) { 
 
-	  /* Now we project this random change to the disk normal to the
+	  /* Now we project this random change to the disk normal to the 
 	     curve at this point. */
 
 	  rVec = plc_vect_diff(rVec,plc_scale_vect(plc_dot_prod(rVec,tan),tan));
@@ -2913,16 +2705,16 @@ void plc_project(plCurve *L, plc_vector N)
   int vt, cp;
   plc_vector nHat,nScale;
   bool ok;
-
+ 
   nHat = plc_normalize_vect(N,&ok);
   if (!ok) {
     fprintf(stderr,"plc_project: Can't project to plane with normal vector (%g,%g,%g) \n",plc_M_clist(N));
     exit(1);
   }
-
+    
   for(cp=0;cp < L->nc;cp++) {
     for(vt=0;vt < L->cp[cp].nv;vt++) {
-
+    
       nScale = plc_scale_vect(plc_dot_prod(L->cp[cp].vt[vt],nHat),nHat);
       plc_M_sub_vect(L->cp[cp].vt[vt],nScale);
 
@@ -2963,7 +2755,7 @@ void plc_random_rotate(plCurve *link, plc_vector axis)
     }
 
     /* Finally, we changed vertices, so we need to */
-
+    
     plc_fix_wrap(link);
   }
 
@@ -2982,7 +2774,7 @@ plc_vector plc_center_of_mass (const plCurve * const L)
   int cp,vt;
 
   for(cp=0;cp<L->nc;cp++) {
-
+    
     for(vt=0;vt<L->cp[cp].nv;vt++) {
 
       com = plc_vmadd(com,scale,L->cp[cp].vt[vt]);
@@ -2992,8 +2784,8 @@ plc_vector plc_center_of_mass (const plCurve * const L)
 
   return com;
 }
-
-
+  
+  
 /* Return the radius of gyration of L, which is half the average squared distance between vertices in L. */
 /* We can compute this (much) faster by computing the average squared distance to the center of mass. */
 /* This is one of those things that could benefit from pipelining if we're sure that we're on a Mac. */
@@ -3006,24 +2798,24 @@ plc_vector plc_center_of_mass (const plCurve * const L)
     int total_verts = 0;
     double gyradius = 0;
 
-    for(cp=0;cp<L->nc;cp++) {
+    for(cp=0;cp<L->nc;cp++) { 
 
       total_verts += L->cp[cp].nv;
 
-      for(vt=0;vt<L->cp[cp].nv;vt++) {
+      for(vt=0;vt<L->cp[cp].nv;vt++) { 
 
 	gyradius += plc_M_sq_dist(com,L->cp[cp].vt[vt]);
 
       }
 
     }
-
+	
     gyradius /= (double)(total_verts);
     return gyradius;
 
   }
 
-
+      
 /* Return the average (squared) chordlengths of component cp of L at the array of skips given by nskips. */
 /* Wraps if L is closed and doesn't wrap if not. */
 
@@ -3060,7 +2852,7 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
 	for(a=bufferA,b=bufferB+skips[i];b<bufferB+numverts;a++,b++) {
 
 	  means[i] += plc_M_sq_dist(*a,*b);
-
+	  
 	}
 
 	means[i] /= numverts - skips[i];
@@ -3072,7 +2864,7 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
       for(i=0;i<nskips;i++) {
 
 	for(a=bufferA,b=bufferB+skips[i];a<bufferA+numverts;a++,b++) {
-
+	  
 	  means[i] += plc_M_sq_dist(*a,*b);
 
 	}
@@ -3091,7 +2883,7 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
 
   }
 
-
+    
   plCurve *plc_delete_arc(plCurve *L,int cp,int vt1, int vt2)
 
   /* Delete a subarc from a component of a plCurve between vt1 and vt2    */
@@ -3107,7 +2899,7 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
     plCurve *newL;
 
     newL = plc_copy(L);
-    plc_remove_all_constraints(newL);
+    plc_remove_all_constraints(newL);  
 
     if (L->cp[cp].open) { /* We're going to split or truncate open component */
 
@@ -3133,13 +2925,13 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
 	    newL->cp[cp].vt[vt] = L->cp[cp].vt[vt+vt2+1];
 
 	  }
-
+	  
 	  newL->cp[cp].nv = L->cp[cp].nv - (vt2+1);
 	  plc_fix_wrap(newL);
 
 	  return newL;
 
-	}
+	} 
 
       } else if (vt2 >= L->cp[cp].nv-1) { /* Cut off the end of the component. */
 
@@ -3157,7 +2949,7 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
 	return newL;
 
       }
-
+      
     } else { /* The curve is closed */
 
       if (vt1 == vt2+1 || (vt1 <= 0 && vt2 >= L->cp[cp].nv-1)) { /* Delete entire component */
@@ -3171,7 +2963,7 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
 
 	int vt;
 
-	newL->cp[cp].nv -= (vt2 - vt1) + 1;
+	newL->cp[cp].nv -= (vt2 - vt1) + 1;  
 	for(vt = 0;vt < newL->cp[cp].nv;vt++) {
 
 	  newL->cp[cp].vt[vt] = L->cp[cp].vt[(vt + vt2 + 1) % L->cp[cp].nv];
@@ -3197,9 +2989,10 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
 	plc_fix_wrap(newL);
 
 	return newL;
-
+	
       }
 
     }
 
   }
+  

@@ -233,7 +233,7 @@ typedef struct plc_vert_quant_type { /* Vertex quantifiers */
 } plc_vert_quant;
 
 %{
-  char *plc_serialize(plCurve *const L, int *ret_len);
+  //char *plc_serialize(plCurve *const L, int *ret_len);
   %}
 
 /*
@@ -577,9 +577,9 @@ struct plc_type {
       return buf;
     }
 
-    inline void serialize(char **var_buf, int *len) {
-      *var_buf = (char *)(plc_serialize($self, len));
-    }
+    //inline void serialize(char **var_buf, int *len) {
+    //  *var_buf = (char *)(plc_serialize($self, len));
+    //}
   }
 };
 
