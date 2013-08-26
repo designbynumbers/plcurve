@@ -122,6 +122,8 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
 plc_vector plc_build_vect(const double x, const double y, const double z);
 plc_vector plc_vect_sum(plc_vector A, plc_vector B);
 
+%feature("python:slot", "tp_str", functype="reprfunc") plc_strand_type::__str__;
+%feature("python:slot", "tp_repr", functype="reprfunc") plc_strand_type::__repr__;
 %rename(Strand) plc_strand_type;
 
 typedef struct plc_strand_type {
@@ -180,6 +182,14 @@ typedef struct plc_strand_type {
               $self->open ? "open" : "closed",
               $self->nv);
       return buf;
+    }
+    const char *__repr__() {
+		char buf[255];
+
+		sprintf(buf, "Strand (%s) with %d vertices",
+				$self->open ? "open" : "closed",
+				$self->nv);
+		return buf;
     }
   }
 } plc_strand;
@@ -245,6 +255,7 @@ typedef struct plc_vert_quant_type { /* Vertex quantifiers */
   Wraps most functions which take (at least one) plCurve* argument
 */
 %feature("python:slot", "tp_str", functype="reprfunc") plc_type::__str__;
+%feature("python:slot", "tp_repr", functype="reprfunc") plc_type::__repr__;
 %rename(PlCurve) plc_type;
 struct plc_type {
   %rename(num_components) nc;
@@ -580,6 +591,12 @@ struct plc_type {
 
       sprintf(buf, "PlCurve with %d components", $self->nc);
       return buf;
+    }
+    const char *__repr__() {
+		char buf[255];
+
+		sprintf(buf, "PlCurve with %d components", $self->nc);
+		return buf;
     }
 
     //inline void serialize(char **var_buf, int *len) {
