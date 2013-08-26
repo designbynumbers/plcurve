@@ -74,13 +74,10 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
  }
 
 %{
-    static int fail_if_non_py_numeric(PyObject *o, char *fail_msg) {
-	if (!PyFloat_Check(o) || !PyInt_Check(o)) {
-	    printf(PyString_AsString(o));
-	    PyErr_SetString(PyExc_TypeError, fail_msg);
-	    return 0;
-	}
-	return 1;
+  static int fail_if_non_py_numeric(PyObject *o, char *fail_msg) {
+    if (!PyFloat_Check(o) && !PyInt_Check(o) && !PyLong_Check(o)) {
+      PyErr_SetString(PyExc_TypeError, fail_msg);
+      return 0;
     }
     return 1;
   }
@@ -369,8 +366,6 @@ struct plc_type {
       PyErr_SetString(PyExc_Exception,"Error in input to function");
       return NULL;
     }
-    $1 = PyFile_AsFile($input);
-  }
 
   }
 

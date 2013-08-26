@@ -22,11 +22,9 @@ def generate_and_classify(rng_or_state, n, _=None):
     factorization = []
     if knottype is not None and nposs > 0:
         #for factor in knottype.factors:
-        factor = knottype.factors # hack!
-        cross = factor.cr
-        idx = factor.ind
-        factorization.append((cross, idx))
-        print("Factor of type {}_{}".format(cross, idx))
+        print knottype.factors
+        kt_str = "#".join("{}_{}".format(f.cr, f.ind) for f in knottype.factors)
+        print "Knot is probably {}".format(kt_str)
 
     return factorization
     # Note that poly, knottype (and if necessary) rng are free'd

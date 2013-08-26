@@ -43,7 +43,8 @@ print kt, nposs
 
 print kt.num_factors
 
-print kt.factors.cr, kt.factors.ind, kt.factors.sym
+kt_str = "#".join("{}_{}".format(f.cr, f.ind) for f in kt.factors)
+print kt_str
 
 ## Cleanup. Memory usage should be back to 0.
 del plc
@@ -82,7 +83,9 @@ f.close()
 #print plc.components[0].vertices
 # Classify the knot to check that it is as it purports
 kt, nposs = plc.classify()
-print kt.factors.cr, kt.factors.ind
+kt_str = "#".join("{}_{}".format(f.cr, f.ind) for f in kt.factors)
+print kt_str
+
 # should work, but doesn't: TODO: Fix!!
 #print "{}_{}".format(str(kt.factors.cr), str(kt.factors.ind))
 
