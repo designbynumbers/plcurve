@@ -92,26 +92,26 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
       return 0;
     }
 
-	// Red
-	n = PySequence_GetItem(py_color, 0);
-	if (!fail_if_non_py_numeric(n, "R Color components must be numerical")) {
-	    clr->r = PyFloat_AsDouble(n);
-	} else { return 0; }
-	// Green
-	n = PySequence_GetItem(py_color, 1);
-	if (!fail_if_non_py_numeric(n, "G Color components must be numerical")) {
-	    clr->g = PyFloat_AsDouble(n);
-	} else { return 0; }
-	// Blue
-	n = PySequence_GetItem(py_color, 2);
-	if (!fail_if_non_py_numeric(n, "B Color components must be numerical")) {
-	    clr->b = PyFloat_AsDouble(n);
-	} else { return 0; }
-	// Alpha
-	n = PySequence_GetItem(py_color, 3);
-	if (!fail_if_non_py_numeric(n, "A Color components must be numerical")) {
-	    clr->alpha = PyFloat_AsDouble(n);
-	} else { return 0; }
+    // Red
+    n = PySequence_GetItem(py_color, 0);
+    if (fail_if_non_py_numeric(n, "R Color components must be numerical")) {
+      clr->r = PyFloat_AsDouble(n);
+    } else { return 0; }
+    // Green
+    n = PySequence_GetItem(py_color, 1);
+    if (fail_if_non_py_numeric(n, "G Color components must be numerical")) {
+      clr->g = PyFloat_AsDouble(n);
+    } else { return 0; }
+    // Blue
+    n = PySequence_GetItem(py_color, 2);
+    if (fail_if_non_py_numeric(n, "B Color components must be numerical")) {
+      clr->b = PyFloat_AsDouble(n);
+    } else { return 0; }
+    // Alpha
+    n = PySequence_GetItem(py_color, 3);
+    if (fail_if_non_py_numeric(n, "A Color components must be numerical")) {
+      clr->alpha = PyFloat_AsDouble(n);
+    } else { return 0; }
 
     return 1; // Success!
   }
@@ -237,13 +237,13 @@ typedef struct plc_vert_quant_type { /* Vertex quantifiers */
 
 %{
   char *plc_serialize(plCurve *const L, int *ret_len);
-%}
+  %}
 
 /*
   plCurve wrapper SWIG declaration
   ================================================
   Wraps most functions which take (at least one) plCurve* argument
- */
+*/
 %feature("python:slot", "tp_str", functype="reprfunc") plc_type::__str__;
 %rename(PlCurve) plc_type;
 struct plc_type {
@@ -263,14 +263,13 @@ struct plc_type {
   %typemap(argout) (char **var_buf, int *len) {
     $result = PyString_FromStringAndSize(*$1, *$2);
   }
-    %typemap(out) varray components {
-	int i, j;
-	$result = PyList_New(0);
-	for (i = 0; i < $1.len; i++) {
-	    PyList_Append($result,
-			  SWIG_NewPointerObj(((plc_strand*)$1.array)+i,
-					     SWIGTYPE_p_plc_strand_type, 0));
-	}
+  %typemap(out) varray components {
+    int i, j;
+    $result = PyList_New(0);
+    for (i = 0; i < $1.len; i++) {
+      PyList_Append($result,
+                    SWIG_NewPointerObj(((plc_strand*)$1.array)+i,
+                                       SWIGTYPE_p_plc_strand_type, 0));
     }
   }
   %typemap(in) (const int nv, const plc_vector *const vt) {
@@ -359,6 +358,8 @@ struct plc_type {
       PyErr_SetString(PyExc_Exception,"Error in input to function");
       return NULL;
     }
+    $1 = PyFile_AsFile($input);
+  }
 
   }
 
@@ -533,181 +534,83 @@ struct plc_type {
     // nearest_neighbor
     // nearest_vertex
 
-	// Data operation methods
-	//
-	void add_component(const int add_as, const int nv, const plc_vector *const vt,
-			   const bool open, const int cc, const plc_color *const clr) {
-	    plc_add_component($self, add_as, nv, open, cc, vt, clr);
-	}
-	inline void drop_component(const int cmp) {
-	    plc_drop_component($self, cmp);
-	}
-	inline void resize_colorbuf(const int cp, const int cc) {
-	    plc_resize_colorbuf($self, cp, cc);
-	}
-	inline void set_fixed(const int cmp, const int vert, const plc_vector point) {
-	    plc_set_fixed($self, cmp, vert, point);
-	}
-	inline void constrain_to_line(const int cmp,
-				      const int vert,
-				      const int num_verts,
-				      const plc_vector tangent,
-				      const plc_vector point_on_line) {
-	    plc_constrain_to_line($self, cmp, vert,
-				  num_verts, tangent, point_on_line);
-	}
-	inline void constrain_to_plane(const int cmp,
-				       const int vert,
-				       const int num_verts,
-				       const plc_vector normal,
-				       const double dist_from_origin) {
-	    plc_constrain_to_plane($self, cmp, vert,
-				   num_verts, normal, dist_from_origin);
-	}
-	inline void unconstrain(const int cmp, const int vert,
-				const int num_verts) {
-	    plc_unconstrain($self, cmp, vert, num_verts);
-	}
-	inline void remove_constraint(const plc_cst_kind kind,
-				      const plc_vector vect[]) {
-	    plc_remove_constraint($self, kind, vect);
-	}
-	inline void remove_all_constraints() {
-	    plc_remove_all_constraints($self);
-	}
-	// TODO: make this just return the constraints? (empty list means false)
-	// inline bool is_constrained(int cp, int vt, plc_constraint **constraint)
-	inline void fix_wrap() { plc_fix_wrap($self); }
-	inline void fix_constraints() { plc_fix_cst($self); }
-	%newobject double_vertices;
-	inline plCurve *double_vertices() { return plc_double_verts($self); }
+    // Geometric Operations
+    //
+    inline void scale(const double alpha) {
+      plc_scale($self, alpha);
+    }
+    //inline void whitten(int mirror, int *eps, int *perm);
+    inline void pfm(int cp, int vt0, int vt1, double angle) {
+      plc_pfm($self, cp, vt0, vt1, angle);
+    }
+    inline void rotate(plc_vector axis, double angle) {
+      plc_rotate($self, axis, angle);
+    }
+    inline void random_rotate(plc_vector axis) {
+      plc_random_rotate($self, axis);
+    }
+    inline void translate(plc_vector translation) {
+      plc_translate($self, translation);
+    }
+    inline void perturb(double radius) {
+      plc_perturb($self, radius);
+    }
+    inline void project(plc_vector normal) {
+      plc_project($self, normal);
+    }
+    inline void delete_arc(int cp, int vt1, int vt2) {
+      plc_delete_arc($self, cp, vt1, vt2);
+    }
 
-	// Spline methods
-	%newobject convert_to_spline;
-	plc_spline *convert_to_spline(bool *ok) {
-	    return plc_convert_to_spline($self, ok);
-	}
+    // Symmetry methods
+    // presently omitted
+    //
 
-	// Geometric information methods
-	inline int num_edges() { return plc_edges($self, NULL); }
-	inline int num_vertices() { return plc_num_verts($self); }
-	inline int vertex_num(const int cp, const int vt) {
-	    return plc_vertex_num($self, cp, vt);
-	}
-	inline int cp_num(int wrapVt) { return plc_cp_num($self, wrapVt); }
-	inline int vt_num(int wrapVt) { return plc_vt_num($self, wrapVt); }
-	inline double turning_angle(const int component, const int vertex, bool *ok) {
-	    return plc_turning_angle($self, component, vertex, ok);
-	}
-	inline double MR_curvature(const int component, const int vertex) {
-	    return plc_MR_curvature($self, component, vertex);
-	}
-	//double total_curvature(...)
-	//double total_torsion(...)
-	//float *plc_dihedral_angles() needs out array typemap...
-	inline plc_vector mean_tangent(const int component, const int vertex, bool *ok) {
-	    return plc_mean_tangent($self, component, vertex, ok);
-	}
-	// arclength
-	inline double subarc_length(const int cmp, const int v1, const int v2) {
-	    return plc_subarc_length($self, cmp, v1, v2);
-	}
-	inline double s(const int cmp, const int vert) {
-	    return plc_s($self, cmp, vert);
-	}
-	// inline void edgelength_stats
-	inline double check_constraint() { return plc_check_cst($self); }
-	const double pointset_diameter;
-	const plc_vector center_of_mass;
-	const double gyradius;
-	inline double mean_squared_chordlengths(int cp, int *skips, int nskips) {
-	    plc_mean_squared_chordlengths($self, cp, skips, nskips); // TODO: typemap
-	}
-	// nearest_neighbor
-	// nearest_vertex
-
-	// Geometric Operations
-	//
-	inline void scale(const double alpha) {
-	    plc_scale($self, alpha);
-	}
-	//inline void whitten(int mirror, int *eps, int *perm);
-	inline void pfm(int cp, int vt0, int vt1, double angle) {
-	    plc_pfm($self, cp, vt0, vt1, angle);
-	}
-	inline void rotate(plc_vector axis, double angle) {
-	    plc_rotate($self, axis, angle);
-	}
-	inline void random_rotate(plc_vector axis) {
-	    plc_random_rotate($self, axis);
-	}
-	inline void translate(plc_vector translation) {
-	    plc_translate($self, translation);
-	}
-	inline void perturb(double radius) {
-	    plc_perturb($self, radius);
-	}
-	inline void project(plc_vector normal) {
-	    plc_project($self, normal);
-	}
-	inline void delete_arc(int cp, int vt1, int vt2) {
-	    plc_delete_arc($self, cp, vt1, vt2);
-	}
-
-	// Symmetry methods
-	// presently omitted
-	//
-
-	// Topology methods
-	//
-	const char *const ccode;
-	const char *const homfly;
-	%newobject classify;
-	plc_knottype *classify(int *nposs) { return plc_classify($self, nposs); }
+    // Topology methods
+    //
+    const char *const ccode;
+    const char *const homfly;
+    %newobject classify;
+    plc_knottype *classify(int *nposs) { return plc_classify($self, nposs); }
 
     // Python special methods
     //
     const char *__str__() {
       char buf[255];
 
-	    sprintf(buf, "PlCurve with %d components", $self->nc);
-	    return buf;
-	}
-
-	inline void serialize(char **var_buf, int *len) {
-          *var_buf = (char *)(plc_serialize($self, len));
-	}
+      sprintf(buf, "PlCurve with %d components", $self->nc);
+      return buf;
     }
 
-    //inline void serialize(char **var_buf, int *len) {
-    //  *var_buf = (char *)(plc_serialize($self, len));
-    //}
+    inline void serialize(char **var_buf, int *len) {
+      *var_buf = (char *)(plc_serialize($self, len));
+    }
   }
 };
 
 %{
-    const varray plc_type_components_get(plCurve *curve) {
-	varray arr;
-	arr.len = curve->nc;
-	arr.array = curve->cp;
-	return arr;
-    }
-    const double plc_type_pointset_diameter_get(plCurve *c) {
-	return plc_pointset_diameter(c);
-    }
-    const plc_vector plc_type_center_of_mass_get(plCurve *c) {
-	return plc_center_of_mass(c);
-    }
-    const double plc_type_gyradius_get(plCurve *c) {
-	return plc_gyradius(c);
-    }
-    inline char *plc_type_ccode_get(plCurve *c) {
-	return plc_ccode(c);
-    }
-    inline char *plc_type_homfly_get(plCurve *c) {
-	return plc_homfly(c);
-    }
-%}
+  const varray plc_type_components_get(plCurve *curve) {
+    varray arr;
+    arr.len = curve->nc;
+    arr.array = curve->cp;
+    return arr;
+  }
+  const double plc_type_pointset_diameter_get(plCurve *c) {
+    return plc_pointset_diameter(c);
+  }
+  const plc_vector plc_type_center_of_mass_get(plCurve *c) {
+    return plc_center_of_mass(c);
+  }
+  const double plc_type_gyradius_get(plCurve *c) {
+    return plc_gyradius(c);
+  }
+  inline char *plc_type_ccode_get(plCurve *c) {
+    return plc_ccode(c);
+  }
+  inline char *plc_type_homfly_get(plCurve *c) {
+    return plc_homfly(c);
+  }
+  %}
 
 /* PlCurve_spline types */
 %rename(SplineStrand) plc_spline_strand_type;
@@ -742,11 +645,6 @@ typedef struct {
   int cr;
   int ind;
   char sym[128];
-	%extend {
-		~prime_factor() {
-			free($self);
-		}
-	}
 } prime_factor;
 
 %rename(KnotType) knottypestruct;
@@ -759,34 +657,26 @@ typedef struct knottypestruct {
   char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
   char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
 
-	%typemap(out) plc_knottype *factors {
-		int i;
-		prime_factor *f;
-		$result = PyTuple_New($1->nf);
-		for (i = 0; i < $1->nf; i++) {
-			f = calloc(1, sizeof(prime_factor));
-			f->cr = $1->cr[i];
-			f->ind = $1->ind[i];
-			memcpy(f->sym, $1->sym[i], 128*sizeof(char));
-			PyTuple_SetItem($result, i,
-							SWIG_NewPointerObj((prime_factor*)f,
-											   SWIGTYPE_p_prime_factor, 1));
-		}
-	}
-
   %extend {
     ~knottypestruct() {
       free($self);
     }
 
-    const plc_knottype *const factors;
+    const prime_factor *const factors;
   }
 
 } plc_knottype;
 
 %{
-  const plc_knottype *knottypestruct_factors_get(plc_knottype *kt) {
-	  return kt;
+  const prime_factor *knottypestruct_factors_get(plc_knottype *kt) {
+    int i;
+    prime_factor *pfs = malloc(sizeof(prime_factor)*kt->nf);
+    for (i = 0; i < kt->nf; i++) {
+      pfs[i].cr = kt->cr[i];
+      pfs[i].ind = kt->ind[i];
+      memcpy(pfs[i].sym, kt->sym[i], sizeof(char)*128);
+    }
+    return pfs;
   }
   %}
 
