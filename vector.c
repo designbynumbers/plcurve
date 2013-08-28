@@ -423,46 +423,18 @@ double plc_dihedral_angle(plc_vector A, plc_vector B, plc_vector C, plc_vector D
 
   *ok = true;
 
-  plc_vector crossA;
-  crossA = plc_cross_prod(normABC,AC); 
+  double theta = plc_angle(normABC,normACD,ok);
+  if (!(*ok)) { return 0; } 
 
-  /* This cross product should never have small norm, since AC and
-     normABC are orthogonal. */
+  /* We have the angle. The question is how the angle is oriented. */
 
-  if (plc_dot_prod(crossA,normACD) < -0.1) { 
+  if (plc_dot_prod(plc_cross_prod(normABC,AC),normACD) > 0) { /* A positively oriented frame. */
 
-    /* The sign is (dependably) negative, which means the dihedral is between 0 and PI. */
+    return theta + PI;
 
-    return PI - plc_angle(normABC,normACD,&local_ok);
+  } else { 
 
-  } else if (plc_dot_prod(crossA,normACD) > 0.1) { 
-      
-    /* The sign is (dependably) positive, which means the dihedral is between 2PI and PI */
-
-    return PI + plc_angle(normABC,normACD,&local_ok);
-
-  } else { /* The sign is wishy-washy, which means we'll try another method. */
-
-    if (plc_dot_prod(normABC,normACD) > 0.1) { /* The dihedral is close to PI. */
-
-      return 3.0*PI/2.0 - plc_angle(normACD,crossA,&local_ok); 
-
-    } else { /* The dihedral is close to 0 or 2*PI */
-             /* In this case, it's always the angle */
-             /* between normACD and crossA - PI/2, */
-             /* but if that's negative, we normalize it */
-
-      if (plc_angle(normABC,crossA,&local_ok) - PI/2.0 < 0) { 
-
-	return 3.0*PI/2.0 + plc_angle(normACD,crossA,&local_ok);
-
-      } else {
-
-	return plc_angle(normACD,crossA,&local_ok) - PI/2.0;
-
-      }
-
-    }
+    return PI - theta;
 
   }
 
