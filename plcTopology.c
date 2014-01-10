@@ -60,15 +60,199 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 char *plc_lmpoly(char *ccode,int timeout); // This is in pllmpoly02.c.
 
-/* Convert plCurve to Millett/Ewing crossing code (documented in plCurve.h)
+/* Convert plCurve to Millett/Ewing crossing code (documented in plCurve.h) */
 
-   This version is a cheat, writing the first component of the plCurve to
-   disk and calling the utility program compEric.f in order to compute the
-   crossing code representation. We then read the representation from disk
-   and parse it into the crossing code array.
+/* Plan: 
 
-   This is scheduled to be replaced with a better version which handles links
-   correctly, so this version should only be used for testing. */
+   Find crossings of each component with itself, then crossings 
+   of pairs of components, add to a container of crossings. */
+
+typedef struct crossing_struct { 
+
+  // The crossing struct encodes parameter values along each 
+  // component, as well as component numbers.
+
+  int lower_cmp;
+  int upper_cmp;
+  double lower_s;
+  double upper_s;
+  
+} crossing;
+
+typedef struct crossing_container_struct { 
+
+  // A simple array which resizes. 
+
+  int size;
+  int used;
+  crossing *buf;
+
+} crossing_container;
+
+int crossing_compare(const void *A, const void *B) { 
+
+  crossing *a = (crossing *)(A);
+  crossing *b = (crossing *)(B);
+
+  int acmp,bcmp; 
+  double as,bs;
+
+  if (a->lower_cmp < a->upper_cmp) { 
+
+    acmp = a->lower_cmp; as = a->lower_s;
+    
+  } else {
+
+    acmp = a->upper_cmp; as = a->upper_s;
+
+  }
+
+  if (b->lower_cmp < b->upper_cmp) { 
+
+    bcmp = b->lower_cmp; as = a->lower_s;
+
+  } else {
+
+    bcmp = b->upper_cmp; bs = b->upper_s;
+
+  }
+
+  if (a->cmp != b->cmp) { 
+
+    return acmp - bcmp;
+
+  } else { 
+
+    if (as < bs) { return -1; } 
+    else { return +1; }
+
+  }
+
+}
+
+crossing_container *crossing_container_new(int size)
+{
+  
+  crossing_container *ret;
+
+  ret = (crossing_container *)(calloc(1,sizeof(crossing_container)));
+  if (ret == NULL) { exit(1); }
+  
+  ret->size = size;
+  ret->used = 0;
+  ret->buf = calloc(size,sizeof(crossing));
+  
+  if (ret->bug == NULL) { exit(1); }
+
+  return ret;
+}
+
+
+void crossing_container_free(crossing_container **c) 
+{
+  if (c != NULL) { 
+
+    if (*c != NULL) { 
+
+      if ((*c)->buf != NULL) { free((*c)->buf); (*c)->buf = NULL; }
+      free(*c);
+
+    }
+
+    *c = NULL;
+
+  }
+
+}
+
+void crossing_container_add(crossing_container *c,crossing cross) { 
+
+  if (c->size == c->used) { 
+
+    c->size = 2*c->size;
+    c->buf = realloc(c->buf,c->size*sizeof(crossing));
+    if (c->buf == NULL) { exit(1); }
+
+  }
+
+  c->buf[c->used++] = cross;
+
+}
+
+/* We now have the main crossing primitive. The idea is that we have
+   a pair of "C" shapes and we want to figure out the crossings of the
+   middle segment of either (up to and including the FINAL vertex, but 
+   NOT including the START vertex). 
+
+   If there is a crossing, we'll return true and populate c. 
+   Otherwise, we'll return false and leave c untouched. There are 
+   an annoyingly large number of special cases here, but we try 
+   to handle them gracefully. */
+
+int  segment_side(plc_vector A[2],plc_vector B) { /* Classify which side of the segment B is on */
+
+  
+
+}
+
+bool edges_cross(plc_vector A[4], plc_vector B[4],crossing *c) {
+
+  if (plc_distance(A[1],A[2]) < 1e-8 || plc_distance(B[1],B[2]) < 1e-8) { 
+
+    return false; /* One or the other edge is actually a point. Can't compute. */
+
+  } 
+
+  
+
+
+}
+
+/* Now we need to isolate the crossings and populate the crossing container. */
+
+crossing_container *findcrossings(plCurve *L) {
+
+  crossing_container *cc = crossing_container_new(1024);
+  int cmp1,cmp2,vt1,vt2;
+
+  /* Make sure all components are closed */
+
+  for(cmp1=0;cmp1<L->nc;cmp1++) { 
+    
+    if(L->cp[cmp1].open == true) { 
+
+      fprintf(stderr,"plcurve: Can't compute crossing code for open components.\n");
+      exit(1);
+
+    }
+    
+  }
+
+  /* Main loop */
+
+  for(cmp1=0;cmp1<L->nc;cmp1++) { 
+
+    for(cmp2=cmp1;cmp2<L->nc;cmp2++) { 
+
+      for(vt1=0;vt1<L->nc;vt1++) { 
+
+	for(vt2=vt2+2;vt2<L->nc;vt2++) { 
+
+	  /* Check for a crossing between 
+
+	     edge L->cp[cmp1].vt[vt1] -- L->cp[cmp1].vt[vt1+1]
+	     edge L->cp[cmp2].vt[vt2] -- L->cp[cmp2].vt[vt2+1]
+
+	     If the crossing occurs at the _far_ end of either
+	     edge, lookahead to try to resolve the crossing.
+	     
+	     If the crossing occurs at the _near_ end of either
+	     edge, ignore it. */
+
+}
+   
+
+
 
 char *plc_ccode( plCurve *L )
 {
