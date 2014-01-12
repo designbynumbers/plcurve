@@ -19,7 +19,7 @@ AC_COPYRIGHT(
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT(libplCurve, 6.0.0, cantarel@math.uga.edu)
+AC_INIT(libplCurve, 7.0.1, cantarel@math.uga.edu)
 #AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE
 
@@ -40,34 +40,26 @@ AM_INIT_AUTOMAKE
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
 #
-AC_SUBST(LIB_VERSION, 6:0:0)
-AC_CONFIG_SRCDIR([configure])
+AC_SUBST(LIB_VERSION, 7:0:1)
+AC_CONFIG_SRCDIR([src/plcurve.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_GNU_SOURCE
+#AC_GNU_SOURCE
 LT_INIT
 
 # Checks for programs.
-AC_PROG_AWK
-AC_PROG_YACC
+#AC_PROG_AWK
+#AC_PROG_YACC
 AC_PROG_CC
 AM_PROG_CC_C_O
-AC_PROG_F77
 AC_PROG_CPP
-AM_PROG_LEX
+
+#AM_PROG_LEX
 AC_PROG_LN_S
+
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
-
-AM_CONDITIONAL([HAVE_F77],[test ! -z "${F77}" && test "X$F77" != "Xno"])
-if test -z "${F77}" || test "X$F77" = "Xno"; then
-AC_MSG_WARN([
------------------------------------------------------------
-Unable to find a fortran compiler on this system. Classification
-of plCurves will not be possible.
------------------------------------------------------------])
-fi
 
 # Checks for libraries.
 AC_SEARCH_LIBS([sqrt],[m])
@@ -115,7 +107,9 @@ AC_C_INLINE
 AC_C_CONST
 
 # Output
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+		src/Makefile
+		test/Makefile])
 AC_OUTPUT
 
 echo \

@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+die "$0: How many edges per circle (3 or more)?\n" unless $ARGV[0] >= 3;
+print "Building Hopf Link . . . \n";
+system('perl','make_hopf',$ARGV[0]) and 
+  die "Trouble running make_hopf:$?, stopped";
+my %struts_expected;
+open(EXP,"/tmp/struts_expected");
+while (<EXP>) {
+  s/-0.000/0.000/g;
+  $struts_expected{$_} = 1;
+}
+print "Analyzing . . .\n";
+open(hopf_test,"./hopf_test /tmp/hopf.vect |") or 
+  open(hopf_test,"../../_build/src/octropesrc/hopf_test /tmp/hopf.vect |") or 
+    die "Unable to run hopf_test: $!, stopped";
+while (<hopf_test>) {
+  s/-0.000/0.000/g;
+  my $switched_strut = $_;
+  $switched_strut =~ s/(\([^)]+\)) - (\([^)]+\))/$2 - $1/;
+  $switched_strut =~ s/(\d+:\d+)--(\d+:\d+)/$2--$1/;
+  unless ($struts_expected{$_} or $struts_expected{$switched_strut}) {
+    print;
+  } else {
+    delete($struts_expected{$_});
+    delete($struts_expected{$switched_strut});
+  }
+}
+close hopf_test;
+if (keys %struts_expected) {
+  print "Missing struts:\n";
+  foreach (sort keys %struts_expected) {
+    print;
+  }
+  die "Struts missing, stopped";
+}
+unlink '/tmp/hopf.vect','/tmp/struts_expected';

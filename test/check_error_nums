@@ -1,0 +1,25 @@
+#!/sw/bin/perl
+
+use strict;
+use warnings;
+
+our @error_nums;
+open(GREP,'grep octrope_error_num *.c|');
+while (<GREP>) {
+  next unless /octrope_error_num\s*=\s*(\d+)/;
+  next unless $1;
+  warn "Two errors numbered $1" if defined($error_nums[$1]);
+  $error_nums[$1] = 1;
+}
+my($num,$cnt);
+for ($num = 0; $num <= $#error_nums; $num += 10) {
+  my @out = ();
+  for ($cnt = 1; $cnt <= 10; $cnt++) {
+    $out[$cnt-1] = defined($error_nums[$num+$cnt]) ? $num+$cnt : '';
+  }
+  write;
+  format STDOUT = 
+^>> ^>> ^>> ^>> ^>> ^>> ^>> ^>> ^>> ^>>
+@out
+.
+}
