@@ -179,34 +179,140 @@ void crossing_container_add(crossing_container *c,crossing cross) {
 
 }
 
-/* We now have the main crossing primitive. The idea is that we have
-   a pair of "C" shapes and we want to figure out the crossings of the
-   middle segment of either (up to and including the FINAL vertex, but 
-   NOT including the START vertex). 
+/* We now have the main crossing primitive. The basic error handling
+   strategy here is this. First, we'll choose a random rotation of 
+   the curve. The projection direction will always be the z-axis.
 
-   If there is a crossing, we'll return true and populate c. 
-   Otherwise, we'll return false and leave c untouched. There are 
-   an annoyingly large number of special cases here, but we try 
-   to handle them gracefully. */
+   Then, we'll generate a "flat" version of the curve, and run through 
+   the planar crossing algorithm to figure out where the crossings are. 
+   Each crossing will either be able to be classified, or the edges
+   involved will be "tagged-as-trouble". 
+
+   If there is a crossing, and we can figure out where, we'll return true
+   and fill in the fields in the crossing record c. 
+
+   If there is a special case of some kind, we'll just tag the offending
+   vertices and continue. We'll then perturb just those vertices in space
+   and re-run the process, hoping to converge. 
+*/
 
 int  segment_side(plc_vector A[2],plc_vector B) { /* Classify which side of the segment B is on */
 
-  
+  plc_vector a0a1,a0b,cross;
+
+  a0a1 = plc_vect_diff(A[1],A[0]);
+  a0b = plc_vect_diff(b,A[0]);
+  cross = plc_cross_prod(a0a1,a0b);
+
+  if (cross.c[2] > 1e-10) { return +1; } 
+  else if (cross.c[2] < -1e-10) { return -1; }
+  return 0;
 
 }
 
-bool edges_cross(plc_vector A[4], plc_vector B[4],crossing *c) {
+void locate_crossing(plc_vector A[2],plc_vector B[2],double *sA,double *sB,bool *ok)
+{
 
-  if (plc_distance(A[1],A[2]) < 1e-8 || plc_distance(B[1],B[2]) < 1e-8) { 
+  /* Locating the crossing point. 
 
-    return false; /* One or the other edge is actually a point. Can't compute. */
+       The plan is to consider the quadrilateral A[0] B[0] A[1] B[1].
+       We know that there's a crossing inside this thing:
+
+
+ B[1]  *---------*  A[1]
+       |\       /|
+       | \     / |
+       |1 \   /  |
+       |   \ /   |
+       |  2 * X  |
+       |   / \   |
+       |  /   \  |
+       |3/     \ |
+       |/       \|
+ A[0]  *---------*  B[0]
+
+
+       The idea is to compute angles 1 and 3 using plc_angle and then 
+       compute angle 2. Once we have all the angles of the triangle,
+       we can determine the distances from A[0] and B[1] to X using 
+       the law of sines. */
+
+    double angle1, angle2, angle3;
+    double pi = 3.141592653589793;
+    bool   ok1,ok3;
+
+    angle1 = plc_angle(plc_vect_diff(A[0],B[1]),plc_vect_diff(B[0],B[1]),&ok1);
+    angle3 = plc_angle(plc_vect_diff(B[1],A[0]),plc_vect_diff(A[1],A[0]),&ok3);
+
+    if (!ok1 || !ok3) { // We can't classify the crossing
+
+      *sA = 0; *sB = 0; *ok = false;
+      return;
+
+    } 
+
+    if (angle1 < 1e-8 || angle3 < 1e-8) { *sA = 0; *sB = 0; *ok = false; return; }
+
+    angle2 = pi - angle1 - angle3;
+
+    double s1,s2,s3;
+    s2 = plc_distance(A[0],B[1]);
+ 
+    if (s2 < 1e-8 || angle2 < 1e-8) { *sA = 0; *sB = 0; *ok = false; return; }
+
+    /* Now the law of sines says that s2/sin(angle2) = s1/sin(angle1) = s3/sin(angle3),
+       so we can solve for the unknown s1 and s3 reasonably easily. */
+    
+    s1 = sin(angle1) * s2/sin(angle2); 
+    s3 = sin(angle3) * s2/sin(angle2);
+
+    /* We now return the fractional distance along the edge. */
+
+    *sA = s1/plc_distance(A[0],A[1]);
+    *sB = 1 - (s3/plc_distance(B[0],B[1]));
+    *ok = true;
+    
+}
+   
+bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
+
+  if (plc_distance(A[0],A[1]) < 1e-8 || plc_distance(B[0],B[1]) < 1e-8) { 
+
+    return true;
 
   } 
 
-  
+  int ssAB0,ssAB1,ssBA0,ssBA1; // segment side (of segment) A (of point) B[0], and so forth.
 
+  ssAB0 = segment_side(A[0],B[0]); ssAB1 = segment_side(A[0],B[1]); 
+  ssBA0 = segment_side(B[0],A[0]); ssBA1 = segment_side(B[0],A[1]);
 
+  if (ssAB0*ssAB1 == -1 && ssBA0*ssBA1 == -1) { /* Edges definitely DO cross */
+
+    double sA, sB;
+    bool ok;
+
+    locate_crossing(A,B,&sA,&sB,&ok);
+
+    if (ok) { return false; } 
+    else {return true; }
+
+  } else if ((ssAB0*ssAB1 == 0 && ssBA0*ssBA1 != +1) || /* An endpoint of B is colinear with A and B is not separated from A */
+	     (ssAB0*ssAB1 != +1 && ssBA0*ssBA1 == 0)) { / * An endpoint of A is colinear with B and A is not separated from B */
+
+      return true;
+
+  } 
+
+  return false;  /* No trouble here; we can either separate the segments or resolve the crossing. */
+							   
 }
+
+/* We now make various passes through the curve in an attempt to make modifications
+   which don't change topology. We'll fold in the octrope library here, because that's
+   the best way to know what radius modifications are acceptable without changing knot type. */
+
+
 
 /* Now we need to isolate the crossings and populate the crossing container. */
 

@@ -89,7 +89,7 @@ fi
 
 # Check for SWIG and Python (for interface)
 AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_WARN([plCurve requires the SWIG interface library to build its Python interface]); have_swig=false])
-AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?
+# AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?
 AM_PATH_PYTHON(2.3)
 
 AM_CONDITIONAL([HAVE_SWIG],[test "x${have_swig}" = xtrue])
