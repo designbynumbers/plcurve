@@ -27,7 +27,7 @@ libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c
 libnplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
-knot_diagram_SOURCES = knot_diagram.c libplCurve.a
+knot_diagram_SOURCES = knot_diagram.c 
 knot_diagram_LDADD = -lplCurve
 if HAVE_ARGTABLE2
 knot_diagram_LDFLAGS = -static

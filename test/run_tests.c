@@ -126,7 +126,7 @@ static bool curves_match(const plCurve A, const plCurve B)
   printf("Passed %d\r",__LINE__); \
   (void)fflush(stdout);
 
-int main(void) {
+int main(int argc, char *argv[]) {
   plCurve S; /* The standard against which to measure */
   plCurve *L;
   int nv[components] = { 3, 4 };
@@ -611,18 +611,28 @@ int main(void) {
 
   /* We display working directory. */
 
-  char cwdbuffer[256];
-  getcwd(cwdbuffer,256);
+  char cwdbuffer[1024];
+
+  if (argc > 1) { /* We were called with an explicit location */
+
+    strncpy(cwdbuffer,argv[1],1024);
+
+  } else { 
+
+    getcwd(cwdbuffer,1024);
+
+  }
+
   printf("Attempting to load files from cwd %s/bad_vects/\n",cwdbuffer);
 
   /* Read invalid testfiles to exercise get_comment and PlCurve_read */
   filename = (char *)malloc((size_t)40);
   check(filename != NULL);
   for (ctr = 1; ctr <= num_bad_vect_files; ctr++) {
-    (void)snprintf(filename,(size_t)40,"./bad_vects/bad_%d.vect",ctr);
+    (void)snprintf(filename,(size_t)40,"%s/bad_vects/bad_%d.vect",cwdbuffer,ctr);
     filehandle = fopen(filename,"r");
     if (filehandle == NULL) {
-      fprintf(stderr,"Unable to open ./bad_vects/bad_%d.vect. Trying ../bad_vects/bad_%d.vect\n",ctr,ctr);
+      fprintf(stderr,"Unable to open %s/bad_vects/bad_%d.vect. Trying ../bad_vects/bad_%d.vect\n",cwdbuffer,ctr,ctr);
       (void)snprintf(filename,(size_t)40,"../bad_vects/bad_%d.vect",ctr);
       filehandle = fopen(filename,"r");
       if (filehandle == NULL) {
