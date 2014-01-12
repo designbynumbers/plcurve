@@ -35,25 +35,34 @@ else
 knot_diagram_LDFLAGS = -static
 endif
 
-resample_SOURCES = resample.c libplCurve.a
+spline_view_SOURCES = spline_view.c 
+spline_view_LDADD = -lplCurve
+spline_view_LDFLAGS = -static
+
+resample_SOURCES = resample.c 
 resample_LDADD = -lplCurve
 resample_LDFLAGS = -static
 
-plcurvature_SOURCES = plcurvature.c libplCurve.a
+plcurvature_SOURCES = plcurvature.c 
 plcurvature_LDADD = -lplCurve
 plcurvature_LDFLAGS = -static
 
-if HAVE_SWIG
-BUILT_SOURCES = plCurve_wrap.c
-SWIG_SOURCES = plCurve.i
+# There's a sort of aborted project to provide real Python wrappers for this
+# entire library using SWIG (eventually, future extensions to the library 
+# will be build natively in Python, but we're not there yet).
+# At the moment, all this is commented out.
 
-pkgpython_PYTHON = plcurve.py __init__.py
-pkgpyexec_LTLIBRARIES = _plcurve.la
-_plcurve_la_SOURCES = plCurve_wrap.c $(SWIG_SOURCES)
-_plcurve_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_srcdir)
-_plcurve_la_LDFLAGS = -module
-_plcurve_la_LIBADD = libplCurve.la
+#if HAVE_SWIG
+#BUILT_SOURCES = plCurve_wrap.c
+#SWIG_SOURCES = plCurve.i
 
-plCurve_wrap.c : $(SWIG_SOURCES)
-	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_srcdir) -o $@ $<
-endif
+#pkgpython_PYTHON = plcurve.py __init__.py
+#pkgpyexec_LTLIBRARIES = _plcurve.la
+#_plcurve_la_SOURCES = plCurve_wrap.c $(SWIG_SOURCES)
+#_plcurve_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_srcdir)
+#_plcurve_la_LDFLAGS = -module
+#_plcurve_la_LIBADD = libplCurve.la
+
+#plCurve_wrap.c : $(SWIG_SOURCES)
+#	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_srcdir) -o $@ $<
+#endif

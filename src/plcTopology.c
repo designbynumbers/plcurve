@@ -117,7 +117,7 @@ int crossing_compare(const void *A, const void *B) {
 
   }
 
-  if (a->cmp != b->cmp) { 
+  if (acmp != bcmp) { 
 
     return acmp - bcmp;
 
@@ -142,7 +142,7 @@ crossing_container *crossing_container_new(int size)
   ret->used = 0;
   ret->buf = calloc(size,sizeof(crossing));
   
-  if (ret->bug == NULL) { exit(1); }
+  if (ret->buf == NULL) { exit(1); }
 
   return ret;
 }
@@ -201,7 +201,7 @@ int  segment_side(plc_vector A[2],plc_vector B) { /* Classify which side of the 
   plc_vector a0a1,a0b,cross;
 
   a0a1 = plc_vect_diff(A[1],A[0]);
-  a0b = plc_vect_diff(b,A[0]);
+  a0b = plc_vect_diff(B,A[0]);
   cross = plc_cross_prod(a0a1,a0b);
 
   if (cross.c[2] > 1e-10) { return +1; } 
@@ -284,8 +284,8 @@ bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
 
   int ssAB0,ssAB1,ssBA0,ssBA1; // segment side (of segment) A (of point) B[0], and so forth.
 
-  ssAB0 = segment_side(A[0],B[0]); ssAB1 = segment_side(A[0],B[1]); 
-  ssBA0 = segment_side(B[0],A[0]); ssBA1 = segment_side(B[0],A[1]);
+  ssAB0 = segment_side(A,B[0]); ssAB1 = segment_side(A,B[1]); 
+  ssBA0 = segment_side(B,A[0]); ssBA1 = segment_side(B,A[1]);
 
   if (ssAB0*ssAB1 == -1 && ssBA0*ssBA1 == -1) { /* Edges definitely DO cross */
 
@@ -298,7 +298,7 @@ bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
     else {return true; }
 
   } else if ((ssAB0*ssAB1 == 0 && ssBA0*ssBA1 != +1) || /* An endpoint of B is colinear with A and B is not separated from A */
-	     (ssAB0*ssAB1 != +1 && ssBA0*ssBA1 == 0)) { / * An endpoint of A is colinear with B and A is not separated from B */
+	     (ssAB0*ssAB1 != +1 && ssBA0*ssBA1 == 0)) { /* An endpoint of A is colinear with B and A is not separated from B */
 
       return true;
 
@@ -355,10 +355,16 @@ crossing_container *findcrossings(plCurve *L) {
 	     If the crossing occurs at the _near_ end of either
 	     edge, ignore it. */
 
+	}
+
+      }
+
+    }
+
+  }
+
 }
    
-
-
 
 char *plc_ccode( plCurve *L )
 {
