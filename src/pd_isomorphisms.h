@@ -233,7 +233,7 @@ void         pd_stareq_iso(pd_iso_t *A,pd_iso_t *B);  /* A *= B (updates A in-pl
 unsigned int pd_iso_period(pd_iso_t *A); /* computes period of A in isoutation group. */
 
 /* If we're just interested in finding out whether two pd_codes are isomorphic,
-   we don't have to store the isomorphisms. (This also appears in pdcode.h.) */
+   we don't have to store the isomorphisms. (This also appears in plcTopology.h.) */
 
 bool      pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
  

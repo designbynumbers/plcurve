@@ -359,6 +359,14 @@ extern "C" {
 
   pd_code_t *pd_code_from_plCurve(plCurve *L);
 
+  /* Compute the HOMFLY polynomial of a pd_code (returned as string) */
+
+  char *pd_homfly( pd_code_t *pdC);
+
+  /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
+
+  char *plc_homfly( plCurve *L);
+
   /************************ plCurve Topology Library ********************/
 
   /* This contains some functionality designed to work with plCurves as knots,
@@ -366,38 +374,9 @@ extern "C" {
      computing their HOMFLY polynomials (using lmpoly) and identifying their
      knot types (by HOMFLY). */
   
-  /* The Millett/Ewing representation of a knot diagram numbers the
-     crossings from 1 to ncrossings and then stores for each crossing
-     the crossing connected to each arc coming from the crossing in the
-     order
-     
-         a
-         |
-         |
-     b---|-->d
-         |
-         V
-         c
+ 
 
-     So a crossing code representation of a plCurve is a char buffer
-     containing lines of the form
-
-     17+2b10c11c31a
-
-     meaning that crossing 17 is a positive crossing
-
-     connected in the a position to the b position of crossing 2,
-     connected in the b position to the c position of crossing 10,
-     connected in the c position to the c position of crossing 11 and
-     connected in the d position to the a position of crossing 31.
-
-     In order to simplify communication with the lmpoly code of Ewing
-     and Millett, we store the crossing code as a standard (0
-     terminated) string, including newlines. We will read from
-     that string using a replacement version of the "read" primitive.
-
-  */
-
+  
 #define MAXPRIMEFACTORS 10
 #define MAXHOMFLY       1024
 
@@ -411,12 +390,7 @@ extern "C" {
 
   } plc_knottype;
 
-  /* Convert a pd_code to Millett/Ewing crossing code. */
-  char *plc_ccode( pd_code_t *pdC);
-
-  /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
-  char *plc_homfly( plCurve *L);
-
+  
   /* Find the knot type of a single component plCurve */
   /* Sets nposs to the number of possible knottypes found for the curve. If we cannot
      classify the knot, return 0 for nposs and NULL for the buffer of knot types. */

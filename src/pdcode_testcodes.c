@@ -40,7 +40,7 @@
    #include<ctype.h>
 #endif
 
-#include<pdcode.h>
+#include<plcTopology.h>
 
 #include<pd_multidx.h>
 #include<pd_dihedral.h>
@@ -53,7 +53,7 @@ pd_code_t *pd_build_twist_knot(pd_idx_t n)
 /* Generate a twist knot diagram (scanned documentation in data/pd_twist_knot_doc.pdf) */
 
 {
-  pd_code_t *pd;
+  pd_code_t *pd = NULL;
 
   /* Make sure that the number of verts is ok */
 
@@ -111,7 +111,7 @@ pd_code_t *pd_build_torus_knot(pd_idx_t p, pd_idx_t q)
 /* Generate a (2,q) torus knot diagram (scanned documentation in data/pd_torus_knot_doc.pdf) */
 
 {
-  pd_code_t *pd;
+  pd_code_t *pd = NULL;
 
   /* Make sure that the number of verts is ok */
 
@@ -158,7 +158,7 @@ pd_code_t *pd_build_simple_chain(pd_idx_t n)
 /* Build a simple chain of n links (n > 2) */
 
 {
-  pd_code_t *pd;
+  pd_code_t *pd = NULL;
 
   /* First, check the size of the diagram. */
 
@@ -220,7 +220,7 @@ pd_code_t *pd_build_unknot(pd_idx_t n)
 /* An n-crossing unknot diagram. */
 
 {
-  pd_code_t *pd;
+  pd_code_t *pd = NULL;
 
   if (n > PD_MAXVERTS) { 
     
@@ -314,7 +314,7 @@ pd_code_t *pd_build_unknot_wye(pd_idx_t a, pd_idx_t b, pd_idx_t c)
 /* The number of twists can be zero. All n-crossing unknot-wyes should hash to the same value. */
 
 {
-  pd_code_t *pd;
+  pd_code_t *pd = NULL;
   pd_idx_t   n = a + b + c + 3; /* The total wye should contain a+b+c+3 crossings. */
 
   if (n > PD_MAXVERTS) { 

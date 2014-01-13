@@ -88,9 +88,12 @@ AM_CONDITIONAL([HAVE_SWIG],[test "x${have_swig}" = xtrue])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h math.h malloc.h stdarg.h ctype.h stdio.h assert.h \
+AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
-                  time.h sys/times.h sys/types.h fcntl.h signal.h complex.h gsl/gsl_rng.h gsl/gsl_randist.h gsl/gsl_combination.h])
+                  time.h sys/times.h sys/types.h fcntl.h signal.h complex.h \
+		  gsl/gsl_rng.h gsl/gsl_randist.h gsl/gsl_combination.h gsl/gsl_permutation.h \
+		  libintl.h limits.h strings.h stdint.h ])
+
 
 # Signal to AUTOMAKE if we have argtable2
 
@@ -98,9 +101,15 @@ AM_CONDITIONAL([HAVE_ARGTABLE2],[test "x${have_argtable2}" = xtrue])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+AC_TYPE_MODE_T
+AC_TYPE_SIZE_T
 
 # Checks for library functions.
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_STRTOD
 AC_CHECK_FUNCS([strcasestr mkstemp strcasecmp time floor sqrt ceil srandomdev sranddev random srandom])
+AC_CHECK_FUNCS([bzero memset mkdir regcomp strchr strcspn strerror strrchr strstr strtol getline fstat64 memcpy])
 
 # Can we inline and/or const?
 AC_C_INLINE

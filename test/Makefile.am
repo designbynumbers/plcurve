@@ -26,7 +26,13 @@ check_PROGRAMS = nn_test \
                  test_minrad \
                  test_findpoca \
                  call_check \
-                 hopf_test
+                 hopf_test \
+		 test_pdcode \
+		 test_isomorphism \
+		 test_pdcontainer \
+	         test_multidx \
+		 test_dihedral \
+	         test_perm
 
 TESTS = nn_test \
 	symmetry_test \
@@ -36,7 +42,13 @@ TESTS = nn_test \
 	test_findpoca \
         test_struts \
         call_check \
-        hopf_test
+        hopf_test \
+	test_pdcode \
+	test_isomorphism \
+	test_pdcontainer \
+	test_multidx \
+	test_dihedral \
+	test_perm
 
 nn_test_SOURCES = nn_test.c
 nn_test_LDADD = -L$(top_builddir)/src -lplCurve
@@ -101,5 +113,30 @@ hopf_test_CFLAGS = -I$(top_srcdir)/src
 octrope_timing_SOURCES = octrope_timing.c
 octrope_timing_LDADD = -L$(top_builddir)/src -lplCurve
 octrope_timing_CFLAGS = -I$(top_srcdir)/src
+
+test_isomorphism_SOURCES = test_isomorphism.c
+test_isomorphism_LDADD = -L$(top_builddir)/src -lplCurve
+test_isomorphism_CFLAGS = -I$(top_srcdir)/src
+
+test_pdcode_SOURCES = test_pdcode.c 
+test_pdcode_LDADD = -L$(top_builddir)/src -lplCurve
+test_pdcode_CFLAGS = -I$(top_srcdir)/src
+
+test_pdcontainer_SOURCES = test_pdcontainer.c 
+test_pdcontainer_LDADD = -L$(top_builddir)/src -lplCurve
+test_pdcontainer_CFLAGS = -I$(top_srcdir)/src
+
+test_multidx_SOURCES = test_multidx.c
+test_multidx_LDADD = -L$(top_builddir)/src -lplCurve
+test_multidx_CFLAGS = -I$(top_srcdir)/src
+
+test_dihedral_SOURCES = test_dihedral.c
+test_dihedral_LDADD = -L$(top_builddir)/src -lplCurve
+test_dihedral_CFLAGS = -I$(top_srcdir)/src
+
+test_perm_SOURCES = test_perm.c
+test_perm_LDADD = -L$(top_builddir)/src -lplCurve
+test_perm_CFLAGS = -I$(top_srcdir)/src
+
 
 noinst_SCRIPTS = make_hopf

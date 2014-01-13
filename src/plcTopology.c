@@ -25,8 +25,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <config.h>
 #include <plCurve.h>
+#include <plcTopology.h>
 #include <homfly.h>
 #include <octrope.h>
+
 
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
@@ -514,9 +516,52 @@ crossing_container *findcrossings(plCurve *L) {
   return cc;
 
 }
-   
 
-char *plc_ccode( plCurve *L )
+
+/* We now have a convenience function to convert the resulting pdcode into 
+   a Millett-Ewing crossing code. */
+
+/* The Millett/Ewing representation of a knot diagram numbers the
+   crossings from 1 to ncrossings and then stores for each crossing
+   the crossing connected to each arc coming from the crossing in the
+   order
+   
+         a
+         |
+         |
+     b---|-->d
+         |
+         V
+         c
+
+     So a crossing code representation of a plCurve is a char buffer
+     containing lines of the form
+
+     17+2b10c11c31a
+
+     meaning that crossing 17 is a positive crossing
+
+     connected in the a position to the b position of crossing 2,
+     connected in the b position to the c position of crossing 10,
+     connected in the c position to the c position of crossing 11 and
+     connected in the d position to the a position of crossing 31.
+
+     In order to simplify communication with the lmpoly code of Ewing
+     and Millett, we store the crossing code as a standard (0
+     terminated) string, including newlines. We will read from
+     that string using a replacement version of the "read" primitive.
+
+  */
+
+char *ccode_from_pd_code( pd_code_t *pdC) {
+
+  /* This is just a stub for now. */
+
+  return NULL;
+
+}   
+
+char *old_plc_ccode( plCurve *L )
 {
   char *code;
 
@@ -642,17 +687,24 @@ char *plc_ccode( plCurve *L )
 
 }
 
+
+
+
 char *plc_homfly( plCurve *L )
 /* Compute homfly polynomial by calling the hidden plc_lmpoly function */
 /* By default, this version times out after 60 seconds. */
 
 {
+  pd_code_t *pdC;
   char *ccode;
   char *homfly;
 
-  ccode = plc_ccode(L);
+  pdC = pd_code_from_plCurve(L);
+  ccode = ccode_from_pd_code(pdC);
+
   homfly = plc_lmpoly(ccode,60);
   free(ccode);
+  free(pdC);
 
   if (homfly == NULL) {
     homfly = calloc(128,sizeof(char));
@@ -687,7 +739,11 @@ plc_knottype *plc_classify( plCurve *L, int *nposs)
      crossing diagrams. */
 
   char *ccode,*cptr;
-  ccode = plc_ccode(L);  /* The number of crossings is 2 + the number of \n's in ccode. */
+  pd_code_t *pdC;
+  
+  pdC = pd_code_from_plCurve(L);
+  ccode = ccode_from_pd_code(pdC);  /* The number of crossings is 2 + the number of \n's in ccode. */
+  free(pdC); /* We're not going to use this again, may as well free it now */
 
   int Ncount = 0;
   for(cptr = strchr(ccode,'\n');cptr != NULL;cptr = strchr(cptr+1,'\n'),Ncount++);
@@ -703,7 +759,6 @@ plc_knottype *plc_classify( plCurve *L, int *nposs)
     return ret;
 
   }
-
 
   /* Now we know that the ccode has at least 3 crossings, compute the homfly (lmpoly should work) */
 

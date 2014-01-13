@@ -36,7 +36,6 @@ libplCurveStatic_la_SOURCES = plCurve.c \
         octcnv4.h \
 	ordie.h \
 	ordie.c \
-	pdcode.h \
 	pdcode.c \
 	pd_orperms.h \
 	pd_isomorphism.h \
@@ -50,9 +49,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	pd_dihedral.c \
 	pd_permdata.h \
 	pd_perm.h \
-	pd_perm.c \
-	pd_storage.h \
-	pd_storage.c 
+	pd_perm.c 
 
 libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -77,7 +74,23 @@ libplCurve_la_SOURCES = plCurve.c \
         octmem.c \
         minrad.c \
         octcnv2.h \
-        octcnv4.h 
+        octcnv4.h \
+	ordie.h \
+	ordie.c \
+	pdcode.c \
+	pd_orperms.h \
+	pd_isomorphism.h \
+	pd_isomorphisms.c \
+	pd_container.h \
+	pd_container.c \
+	pd_multidx.h \
+	pd_multidx.c \
+	pdcode_testcodes.c \
+	pd_dihedral.h \
+	pd_dihedral.c \
+	pd_permdata.h \
+	pd_perm.h \
+	pd_perm.c 
 
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
