@@ -86,7 +86,7 @@ int main(int argc,char *argv[]) {
 
   char winning_file[1024] = "No file";
   double winning_ropelength = 1e128, winning_thickness = -1;
-  int    winning_strutcount = -1, winning_mrstruts  = -1;
+  /*int    winning_strutcount = -1, winning_mrstruts  = -1;*/
 
   dollar = strchr(&revision[1],'$');
   dollar[0] = '\0';

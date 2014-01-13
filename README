@@ -1,3 +1,9 @@
 This is the plCurve library, designed for working with piecewise linear 
 (not necessarily connected) R^3 curves.  It also includes vector-handling 
 routines and some basic support for spline equivalents of the plCurves.
+
+New in library versions 7.0.1 (and later), this includes the functionality
+of the previous octrope library for computing the thickness and ropelength
+of polygonal curves.
+
+

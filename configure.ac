@@ -65,7 +65,7 @@ AC_PROG_LIBTOOL
 AC_SEARCH_LIBS([sqrt],[m])
 AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
 AC_SEARCH_LIBS([cblas_dasum],[gslcblas],,,)
-AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x requires gsl (for random number generation)]),[-lgslcblas])
+AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x and higher require gsl (for random number generation)]),[-lgslcblas])
 
 if test "x${have_argtable2}" = xtrue; then
    AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
@@ -100,7 +100,7 @@ AM_CONDITIONAL([HAVE_ARGTABLE2],[test "x${have_argtable2}" = xtrue])
 AC_C_CONST
 
 # Checks for library functions.
-AC_CHECK_FUNCS([strcasestr mkstemp strcasecmp time])
+AC_CHECK_FUNCS([strcasestr mkstemp strcasecmp time floor sqrt ceil srandomdev sranddev random srandom])
 
 # Can we inline and/or const?
 AC_C_INLINE

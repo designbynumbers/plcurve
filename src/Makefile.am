@@ -5,7 +5,7 @@ include_HEADERS = plCurve.h nplCurve.h
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
 if HAVE_ARGTABLE2
-bin_PROGRAMS = knot_diagram resample plcurvature 
+bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs 
 else
 bin_PROGRAMS = knot_diagram 
 endif
@@ -13,13 +13,53 @@ endif
 noinst_PROGRAMS = spline_view # gcov_tests
 noinst_HEADERS = homfly.h
 
-libplCurveStatic_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-				plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c plc_dihedrals.c
+libplCurveStatic_la_SOURCES = plCurve.c \
+	plCurve.h \
+	vector.c \
+	splines.c \
+	pllmpoly02.c \
+	plcTopology.c \
+	plwhitten.c \
+	nearest_neighbor.c \
+	symmetries.c \
+	matrix.c \
+	matrix.h \
+	plcRandomPolygon.c \
+	plc_dihedrals.c \
+	octrope.h \
+	octrope_internal.h \
+        octrope.c \
+        octmem.h \
+        octmem.c \
+        minrad.c \
+        octcnv2.h \
+        octcnv4.h 
+
 libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
 
-libplCurve_la_SOURCES = plCurve.c plCurve.h vector.c splines.c pllmpoly02.c plcTopology.c \
-			plwhitten.c nearest_neighbor.c symmetries.c matrix.c matrix.h plcRandomPolygon.c plc_dihedrals.c
+libplCurve_la_SOURCES = plCurve.c \
+	plCurve.h \
+	vector.c \
+	splines.c \
+	pllmpoly02.c \
+	plcTopology.c \
+	plwhitten.c \
+	nearest_neighbor.c \
+	symmetries.c \
+	matrix.c \
+	matrix.h \
+	plcRandomPolygon.c \
+	plc_dihedrals.c \
+	octrope.h \
+	octrope_internal.h \
+        octrope.c \
+        octmem.h \
+        octmem.c \
+        minrad.c \
+        octcnv2.h \
+        octcnv4.h 
+
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
@@ -46,6 +86,18 @@ resample_LDFLAGS = -static
 plcurvature_SOURCES = plcurvature.c 
 plcurvature_LDADD = -lplCurve
 plcurvature_LDFLAGS = -static
+
+ropelength_SOURCES = ropelength.c
+ropelength_LDADD = -lplCurve
+
+struts_SOURCES = struts.c 
+struts_LDADD = -lplCurve
+
+roundout_rl_SOURCES = roundout_rl.c 
+roundout_rl_LDADD = -lplCurve
+
+mrlocs_SOURCES = mrlocs.c
+mrlocs_LDADD = -lplCurve
 
 # There's a sort of aborted project to provide real Python wrappers for this
 # entire library using SWIG (eventually, future extensions to the library 

@@ -78,7 +78,7 @@ typedef struct pair_of_interest_type {
   double dist;
 } pair_of_interest;
 
-inline void add_arc_points(point_n_curvature *points, int *num_points,
+/*inline*/ void add_arc_points(point_n_curvature *points, int *num_points,
                     plc_strand P, int vert, double accuracy,
                     double *total_len, double *total_curvature,
                     double *MinRad) {
@@ -159,7 +159,7 @@ inline void add_arc_points(point_n_curvature *points, int *num_points,
   *total_curvature += alpha;
 }
 
-inline int pair_compare(const void *A,const void *B) {
+/*inline*/ int pair_compare(const void *A,const void *B) {
   pair_of_interest *a,*b;
   
   a = (pair_of_interest *)(A);
@@ -177,7 +177,7 @@ inline int pair_compare(const void *A,const void *B) {
   return 0;
 }
 
-inline int wrap(plCurve*L,int *np_array,const int comp, int point) {
+/*inline*/ int wrap(plCurve*L,int *np_array,const int comp, int point) {
   if (point < 0) {
     point = (L->cp[comp].open) ?  0 : point + np_array[comp];
   } else if (point >= np_array[comp]) {
@@ -186,7 +186,7 @@ inline int wrap(plCurve*L,int *np_array,const int comp, int point) {
   return point;
 }
   
-inline void add_three_points(plCurve*L,int *np_array,
+/*inline*/ void add_three_points(plCurve*L,int *np_array,
                       point_n_curvature **points,double *curvatures,
                       char *argv[],pair_of_interest **poi,
                       const int poi_ptr,int *poi_cnt,

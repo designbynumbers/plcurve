@@ -15,8 +15,28 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 	bad_vects/bad_13.vect \
 	bad_vects/bad_14.vect 
 
-check_PROGRAMS =  nn_test symmetry_test randompolygon_test eq_primitives_test loopclosure_test run_tests exit_failure_tests
-TESTS = nn_test symmetry_test eq_primitives_test loopclosure_test runtest_wrapper.sh
+check_PROGRAMS = nn_test \
+	         symmetry_test \
+	         randompolygon_test \
+	         eq_primitives_test \
+	         loopclosure_test \
+	         run_tests \
+	         exit_failure_tests  \
+	         test_struts \
+                 test_minrad \
+                 test_findpoca \
+                 call_check \
+                 hopf_test
+
+TESTS = nn_test \
+	symmetry_test \
+	eq_primitives_test \
+	loopclosure_test \
+	runtest_wrapper.sh \
+	test_findpoca \
+        test_struts \
+        call_check \
+        hopf_test
 
 nn_test_SOURCES = nn_test.c
 nn_test_LDADD = -L$(top_builddir)/src -lplCurve
@@ -51,3 +71,35 @@ runtest_wrapper.sh:
 	chmod +x runtest_wrapper.sh
 
 CLEANFILES = runtest_wrapper.sh
+
+noinst_PROGRAMS = test_levels octrope_timing
+
+test_levels_SOURCES = test_levels.c
+test_levels_LDADD = -L$(top_builddir)/src -lplCurve
+test_levels_CFLAGS = -I$(top_srcdir)/src
+
+test_struts_SOURCES = test_struts.c
+test_struts_LDADD = -L$(top_builddir)/src -lplCurve
+test_struts_CFLAGS = -I$(top_srcdir)/src
+
+test_minrad_SOURCES = test_minrad.c
+test_minrad_LDADD = -L$(top_builddir)/src -lplCurve
+test_minrad_CFLAGS = -I$(top_srcdir)/src
+
+test_findpoca_SOURCES = test_findpoca.c
+test_findpoca_LDADD = -L$(top_builddir)/src -lplCurve
+test_findpoca_CFLAGS = -I$(top_srcdir)/src
+
+call_check_SOURCES = call_check.c
+call_check_LDADD = -L$(top_builddir)/src -lplCurve
+call_check_CFLAGS = -I$(top_srcdir)/src
+
+hopf_test_SOURCES = hopf_test.c
+hopf_test_LDADD = -L$(top_builddir)/src -lplCurve
+hopf_test_CFLAGS = -I$(top_srcdir)/src
+
+octrope_timing_SOURCES = octrope_timing.c
+octrope_timing_LDADD = -L$(top_builddir)/src -lplCurve
+octrope_timing_CFLAGS = -I$(top_srcdir)/src
+
+noinst_SCRIPTS = make_hopf
