@@ -174,6 +174,9 @@ extern "C" {
   /* Returns a vector randomly distributed on the surface of the unit sphere */
   plc_vector plc_random_vect(void);
 
+  /* Perturb v uniformly within the sphere of radius maxradius. Needs a source of randomness. */
+  void plc_perturb_vect(gsl_rng *rng, plc_vector *v,double maxradius);
+
   /* Translate three doubles into a vector */
   plc_vector plc_build_vect(const double x, const double y, const double z);
 
@@ -737,70 +740,6 @@ double plc_symmetry_variation_check(plCurve *L,plc_vector *buffer,plc_symmetry *
 
 double plc_symmetry_group_check(plCurve *L);
 double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
-
-
-/************************ plCurve Topology Library ********************/
-
-/* This contains some functionality designed to work with plCurves as knots,
-   including converting them to an abstract ``crossing'' representation,
-   computing their HOMFLY polynomials (using lmpoly) and identifying their
-   knot types (by HOMFLY). */
-
-/* The Millett/Ewing representation of a knot diagram numbers the
-   crossings from 1 to ncrossings and then stores for each crossing
-   the crossing connected to each arc coming from the crossing in the
-   order
-
-       a
-       |
-       |
-   b---|-->d
-       |
-       V
-       c
-
-   So a crossing code representation of a plCurve is a char buffer
-   containing lines of the form
-
-   17+2b10c11c31a
-
-   meaning that crossing 17 is a positive crossing
-
-   connected in the a position to the b position of crossing 2,
-   connected in the b position to the c position of crossing 10,
-   connected in the c position to the c position of crossing 11 and
-   connected in the d position to the a position of crossing 31.
-
-   In order to simplify communication with the lmpoly code of Ewing
-   and Millett, we store the crossing code as a standard (0
-   terminated) string, including newlines. We will read from
-   that string using a replacement version of the "read" primitive.
-
-*/
-
-#define MAXPRIMEFACTORS 10
-#define MAXHOMFLY       1024
-
-typedef struct knottypestruct {
-
-  int  nf;                            /* Number of prime factors */
-  int  cr[MAXPRIMEFACTORS];           /* Crossing number of each prime factor */
-  int  ind[MAXPRIMEFACTORS];           /* Index (in Rolfsen or Cerf) of each prime factor */
-  char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
-  char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
-
-} plc_knottype;
-
-/* Convert a plCurve to Millett/Ewing crossing code. */
-char *plc_ccode( plCurve *L);
-
-/* Compute the HOMFLY polynomial of a plCurve (returned as string) */
-char *plc_homfly( plCurve *L);
-
-/* Find the knot type of a single component plCurve */
-/* Sets nposs to the number of possible knottypes found for the curve. If we cannot
-   classify the knot, return 0 for nposs and NULL for the buffer of knot types. */
-plc_knottype *plc_classify( plCurve *L, int *nposs);
 
 /* Define the error codes */
 #define PLC_E_NO_VECT       1

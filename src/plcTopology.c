@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <config.h>
 #include <plCurve.h>
 #include <homfly.h>
+#include <octrope.h>
 
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
@@ -76,6 +77,7 @@ typedef struct crossing_struct {
   int upper_cmp;
   double lower_s;
   double upper_s;
+  int sign;
   
 } crossing;
 
@@ -308,52 +310,69 @@ bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
 							   
 }
 
-/* We now make various passes through the curve in an attempt to make modifications
-   which don't change topology. We'll fold in the octrope library here, because that's
-   the best way to know what radius modifications are acceptable without changing knot type. */
+/* We now make various passes through the curve in an attempt to make
+   modifications which don't change topology. This returns a
+   z-axis-clean version of plCurve with the same topology, or NULL if
+   it can't find one (probably because the curve has a
+   self-intersection in space). */
 
+plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
 
+  plCurve *Lcopy,*Lprojection;
+  Lcopy = plc_copy(L);
+ 
+  int  cmpA,cmpB,vtA,vtB;
+  bool projection_clean = false;
+  int  attempt_counter;
+ 
+  for(attempt_counter = 0; attempt_counter < 5 && !projection_clean; attempt_counter++) {
 
-/* Now we need to isolate the crossings and populate the crossing container. */
+    /* We are going to run through the edge pairs in L, attempting to 
+       perturb our way out of any trouble that we run into. To do so,
+       we'll need to know how far we dare perturb any vertex. 
 
-crossing_container *findcrossings(plCurve *L) {
+       This data is provided by octrope. We cap the perturbation at 1e-4,
+       because a very large perturbation could run us into trouble
+       in some unexpected way. */
 
-  crossing_container *cc = crossing_container_new(1024);
-  int cmp1,cmp2,vt1,vt2;
-
-  /* Make sure all components are closed */
-
-  for(cmp1=0;cmp1<L->nc;cmp1++) { 
+    double safe_radius = (0.3)*octrope_thickness(Lcopy,NULL,0,0); 
+    safe_radius = (safe_radius > 1e-4) ? 1e-4 : safe_radius;
     
-    if(L->cp[cmp1].open == true) { 
+    if (safe_radius < 1e-16) { 
 
-      fprintf(stderr,"plcurve: Can't compute crossing code for open components.\n");
-      exit(1);
+      fprintf(stderr,"plc_ccode: plCurve is numerically singular. Can't compute projection.\n");
+      return NULL;
 
     }
+
+    Lprojection = plc_copy(Lcopy);
+    plc_project(Lprojection,plc_build_vect(0,0,1));
+
+    projection_clean = true;
     
-  }
+    for(cmpA=0;cmpA < Lcopy->nc;cmpA++) { 
+      
+      for(cmpB=cmpA;cmpB < Lcopy->nc;cmpB++) { 
+  
+	for(vtA=0;vtA < Lcopy->cp[cmpA].nv;vtA++) {
 
-  /* Main loop */
+	  for(vtB=vtA+2;vtB < Lcopy->cp[cmpB].nv;vtB++) {
 
-  for(cmp1=0;cmp1<L->nc;cmp1++) { 
+	    if (tag_as_trouble(&(Lcopy->cp[cmpA].vt[vtA]),&(Lcopy->cp[cmpB].vt[vtB]))) {
 
-    for(cmp2=cmp1;cmp2<L->nc;cmp2++) { 
+	      projection_clean = false;
 
-      for(vt1=0;vt1<L->nc;vt1++) { 
+	      plc_perturb_vect(rng,&Lcopy->cp[cmpA].vt[vtA],safe_radius);
+	      plc_perturb_vect(rng,&Lcopy->cp[cmpA].vt[vtA+1],safe_radius);
+	      
+	      plc_perturb_vect(rng,&Lcopy->cp[cmpB].vt[vtB],safe_radius);
+	      plc_perturb_vect(rng,&Lcopy->cp[cmpB].vt[vtB+1],safe_radius);
+	      
+	      plc_fix_wrap(Lcopy);
 
-	for(vt2=vt2+2;vt2<L->nc;vt2++) { 
+	    }
 
-	  /* Check for a crossing between 
-
-	     edge L->cp[cmp1].vt[vt1] -- L->cp[cmp1].vt[vt1+1]
-	     edge L->cp[cmp2].vt[vt2] -- L->cp[cmp2].vt[vt2+1]
-
-	     If the crossing occurs at the _far_ end of either
-	     edge, lookahead to try to resolve the crossing.
-	     
-	     If the crossing occurs at the _near_ end of either
-	     edge, ignore it. */
+	  }
 
 	}
 
@@ -361,7 +380,138 @@ crossing_container *findcrossings(plCurve *L) {
 
     }
 
+    /* Now that we've compared all pairs of vertices (agonizingly
+       slowly, but what other option do we really have?) we should
+       have checked for and eliminated all the nongeneric crossings in
+       this projection. We sweep again to make sure. */
+  
   }
+    
+  if (projection_clean == false) { 
+
+    fprintf(stderr,"plc_ccode: Couldn't resolve singularities in %d passes. plCurve is probably singular.\n",attempt_counter);
+    return NULL; 
+
+  }
+
+  plc_free(Lprojection);
+  return Lcopy;
+
+}
+
+/* Now we need to isolate the crossings and populate the crossing container. */
+
+crossing_container *findcrossings(plCurve *L) {
+
+  crossing_container *cc = crossing_container_new(1024);
+  int cmpA,cmpB,vtA,vtB;
+
+  /* Make sure all components are closed */
+
+  for(cmpA=0;cmpA<L->nc;cmpA++) { 
+    
+    if(L->cp[cmpA].open == true) { 
+
+      fprintf(stderr,"plc_ccode Can't compute crossing code for open components.\n");
+      exit(1);
+
+    }
+    
+  }
+
+  plCurve *Lproj;
+  Lproj = plc_copy(L);
+  plc_project(Lproj,plc_build_vect(0,0,1));
+
+  /* Main loop */
+
+  for(cmpA=0;cmpA < L->nc;cmpA++) { 
+      
+    for(cmpB=cmpA;cmpB < L->nc;cmpB++) { 
+  
+      for(vtA=0;vtA < L->cp[cmpA].nv;vtA++) {
+	
+	for(vtB=vtA+2;vtB < L->cp[cmpB].nv;vtB++) {
+	    
+	  /* Check for a crossing between 
+	     
+	     edge L->cp[cmpA].vt[vtA] -- L->cp[cmpA].vt[vtA+1]
+	     edge L->cp[cmpB].vt[vtB] -- L->cp[cmpB].vt[vtB+1]
+	     
+	     Since we've already made the projection generic, 
+	     this shouldn't occur at either end. 
+	  */
+	    
+	  int ssAB0,ssAB1,ssBA0,ssBA1; // segment side (of segment) A (of point) B[0], and so forth.
+	  
+	  plc_vector *A,*B;
+	  A = &(Lproj->cp[cmpA].vt[vtA]); B = &(Lproj->cp[cmpB].vt[vtB]);
+	  
+	  ssAB0 = segment_side(A,B[0]); ssAB1 = segment_side(A,B[1]); 
+	  ssBA0 = segment_side(B,A[0]); ssBA1 = segment_side(B,A[1]);
+	    
+	  if (ssAB0*ssAB1 == -1 && ssBA0*ssBA1 == -1) { /* Edges definitely DO cross */
+	      
+	    double sA, sB;
+	    bool ok;
+	      
+	    locate_crossing(A,B,&sA,&sB,&ok);
+	      
+	    if (ok) { 
+		
+	      double htA, htB; 
+	      htA = (1-sA)*L->cp[cmpA].vt[vtA].c[2] + (sA)*L->cp[cmpA].vt[vtA+1].c[2];
+	      htB = (1-sB)*L->cp[cmpB].vt[vtB].c[2] + (sB)*L->cp[cmpB].vt[vtB+1].c[2];
+	      crossing cross;
+		
+	      plc_vector Atan, Btan;
+	      Atan = plc_vect_diff(Lproj->cp[cmpA].vt[vtA+1],Lproj->cp[cmpA].vt[vtA]);
+	      Btan = plc_vect_diff(Lproj->cp[cmpB].vt[vtB+1],Lproj->cp[cmpB].vt[vtB]);
+	      plc_vector vcross;
+		
+	      if (htA > htB) { 
+
+		cross.upper_cmp = cmpA; cross.upper_s = vtA + sA;
+		cross.lower_cmp = cmpB; cross.lower_s = vtB + sB;
+		  
+		vcross = plc_cross_prod(Atan,Btan);
+		cross.sign = vcross.c[2] > 0 ? +1 : -1;
+		  
+	      } else {
+
+		cross.lower_cmp = cmpA; cross.lower_s = vtA + sA;
+		cross.upper_cmp = cmpB; cross.upper_s = vtB + sB;
+
+		vcross = plc_cross_prod(Btan,Atan);
+		cross.sign = vcross.c[2] > 0 ? +1 : -1;
+
+	      }
+		
+	      crossing_container_add(cc,cross);
+
+	    } else { 
+
+	      fprintf(stderr,"plc_ccode: Unexpected error computing crossings for (supposedly) generic L.\n");
+	      crossing_container_free(&cc);
+	      return NULL;
+
+	    }
+
+	  }
+	    
+	}
+	  
+      }
+	
+    }   
+      
+  }
+
+  /* Now we've filled the crossing container. We can free the projection curve
+     and contine to assembling the pd_code from this data. */
+
+  plc_free(Lproj);
+  return cc;
 
 }
    

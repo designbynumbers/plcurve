@@ -1,7 +1,7 @@
 AM_CFLAGS = -g -finline-functions -ftree-vectorize -Wall
 ACLOCAL_AMFLAGS = -I m4
 
-include_HEADERS = plCurve.h nplCurve.h
+include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
 if HAVE_ARGTABLE2
@@ -33,7 +33,26 @@ libplCurveStatic_la_SOURCES = plCurve.c \
         octmem.c \
         minrad.c \
         octcnv2.h \
-        octcnv4.h 
+        octcnv4.h \
+	ordie.h \
+	ordie.c \
+	pdcode.h \
+	pdcode.c \
+	pd_orperms.h \
+	pd_isomorphism.h \
+	pd_isomorphisms.c \
+	pd_container.h \
+	pd_container.c \
+	pd_multidx.h \
+	pd_multidx.c \
+	pdcode_testcodes.c \
+	pd_dihedral.h \
+	pd_dihedral.c \
+	pd_permdata.h \
+	pd_perm.h \
+	pd_perm.c \
+	pd_storage.h \
+	pd_storage.c 
 
 libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
