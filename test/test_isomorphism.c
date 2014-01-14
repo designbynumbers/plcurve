@@ -37,7 +37,7 @@
    #include<assert.h>
 #endif
 
-#include<pdcode.h>
+#include<plcTopology.h>
 
 #include<pd_multidx.h>
 #include<pd_perm.h>

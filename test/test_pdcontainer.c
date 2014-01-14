@@ -30,7 +30,7 @@
 #endif
 
 #include<ordie.h>
-#include<pdcode.h>
+#include<plcTopology.h>
 
 #include<pd_multidx.h>
 #include<pd_perm.h>
@@ -371,8 +371,8 @@ bool test_container() {
   if (!init_and_read_tests(1000,756,&cont)) { return false; }
   if (!free_with_null_test(&cont)) { return false; }
 
-  if (!init_and_read_tests(100000,234567,&cont)) { return false; }
-  if (!free_with_null_test(&cont)) { return false; }
+  //  if (!init_and_read_tests(100000,234567,&cont)) { return false; }
+  //if (!free_with_null_test(&cont)) { return false; }
 
   printf("\n"
 	 "Advanced freeing tests\n" 
@@ -384,15 +384,15 @@ bool test_container() {
   if (!init_and_read_with_comp_tests(1000,756,&cont)) { return false; }
   if (!free_with_compfree_test(&cont)) { return false; }
 
-  if (!init_and_read_with_comp_tests(100000,234567,&cont)) { return false; }
-  if (!free_with_compfree_test(&cont)) { return false; }
+  //if (!init_and_read_with_comp_tests(10000,2367,&cont)) { return false; }
+  //if (!free_with_compfree_test(&cont)) { return false; }
 
   printf("\n"
 	 "Push and Pop tests.\n\n");
 
   if(!push_and_pop_with_comp_tests(100,756)) { return false; }
   if(!push_and_pop_with_comp_tests(1000,756)) { return false; }
-  if(!push_and_pop_with_comp_tests(10000,75601)) { return false; }
+  //  if(!push_and_pop_with_comp_tests(10000,75601)) { return false; }
 
   printf("-----------------------------------\n"
 	 "pd_container test suite        PASS\n");

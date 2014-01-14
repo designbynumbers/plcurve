@@ -357,7 +357,7 @@ extern "C" {
 
   /**************************** Interface with traditional plCurve types **********************************/
 
-  pd_code_t *pd_code_from_plCurve(plCurve *L);
+  pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L);
 
   /* Compute the HOMFLY polynomial of a pd_code (returned as string) */
 
@@ -365,7 +365,7 @@ extern "C" {
 
   /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
 
-  char *plc_homfly( plCurve *L);
+  char *plc_homfly( gsl_rng *rng, plCurve *L);
 
   /************************ plCurve Topology Library ********************/
 
@@ -373,9 +373,6 @@ extern "C" {
      including converting them to an abstract ``crossing'' representation,
      computing their HOMFLY polynomials (using lmpoly) and identifying their
      knot types (by HOMFLY). */
-  
- 
-
   
 #define MAXPRIMEFACTORS 10
 #define MAXHOMFLY       1024
@@ -394,6 +391,6 @@ extern "C" {
   /* Find the knot type of a single component plCurve */
   /* Sets nposs to the number of possible knottypes found for the curve. If we cannot
      classify the knot, return 0 for nposs and NULL for the buffer of knot types. */
-  plc_knottype *plc_classify( plCurve *L, int *nposs);
+  plc_knottype *plc_classify( gsl_rng *rng, plCurve *L, int *nposs);
 
 #endif

@@ -13,7 +13,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 	bad_vects/bad_11.vect \
 	bad_vects/bad_12.vect \
 	bad_vects/bad_13.vect \
-	bad_vects/bad_14.vect 
+	bad_vects/bad_14.vect \
+	make_hopf
 
 check_PROGRAMS = nn_test \
 	         symmetry_test \
@@ -138,5 +139,3 @@ test_perm_SOURCES = test_perm.c
 test_perm_LDADD = -L$(top_builddir)/src -lplCurve
 test_perm_CFLAGS = -I$(top_srcdir)/src
 
-
-noinst_SCRIPTS = make_hopf

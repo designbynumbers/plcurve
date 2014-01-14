@@ -11,7 +11,7 @@ bin_PROGRAMS = knot_diagram
 endif
 
 noinst_PROGRAMS = spline_view # gcov_tests
-noinst_HEADERS = homfly.h
+noinst_HEADERS = homfly.h 
 
 libplCurveStatic_la_SOURCES = plCurve.c \
 	plCurve.h \
@@ -37,8 +37,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	ordie.h \
 	ordie.c \
 	pdcode.c \
-	pd_orperms.h \
-	pd_isomorphism.h \
+	pd_isomorphisms.h \
 	pd_isomorphisms.c \
 	pd_container.h \
 	pd_container.c \
@@ -78,8 +77,7 @@ libplCurve_la_SOURCES = plCurve.c \
 	ordie.h \
 	ordie.c \
 	pdcode.c \
-	pd_orperms.h \
-	pd_isomorphism.h \
+	pd_isomorphisms.h \
 	pd_isomorphisms.c \
 	pd_container.h \
 	pd_container.c \

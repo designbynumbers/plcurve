@@ -177,6 +177,9 @@ extern "C" {
   /* Perturb v uniformly within the sphere of radius maxradius. Needs a source of randomness. */
   void plc_perturb_vect(gsl_rng *rng, plc_vector *v,double maxradius);
 
+  /* Create a random (oriented) frame in R^3 by sampling the 3-sphere and using quaternions. */
+  void plc_random_frame(gsl_rng *rng, plc_vector *a, plc_vector *b, plc_vector *c);
+
   /* Translate three doubles into a vector */
   plc_vector plc_build_vect(const double x, const double y, const double z);
 
