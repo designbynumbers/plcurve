@@ -5,7 +5,7 @@ include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
 if HAVE_ARGTABLE2
-bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs 
+bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs plcrwalk
 else
 bin_PROGRAMS = knot_diagram 
 endif
@@ -48,7 +48,12 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	pd_dihedral.c \
 	pd_permdata.h \
 	pd_perm.h \
-	pd_perm.c 
+	pd_perm.c \
+	plcToricSymplectic.c \
+	plcToricSymplecticTriangulation.c \
+	tsmcmc.h \
+	geyer_estimators.h \
+	geyer_estimators.c
 
 libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -88,7 +93,12 @@ libplCurve_la_SOURCES = plCurve.c \
 	pd_dihedral.c \
 	pd_permdata.h \
 	pd_perm.h \
-	pd_perm.c 
+	pd_perm.c \
+	plcToricSymplectic.c \
+	plcToricSymplecticTriangulation.c \
+	tsmcmc.h \
+	geyer_estimators.h \
+	geyer_estimators.c
 
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
@@ -116,6 +126,9 @@ resample_LDFLAGS = -static
 plcurvature_SOURCES = plcurvature.c 
 plcurvature_LDADD = -lplCurve
 plcurvature_LDFLAGS = -static
+
+plcrwalk_SOURCES = plcrwalk.c
+plcrwalk_LDADD = -lplCurve
 
 ropelength_SOURCES = ropelength.c
 ropelength_LDADD = -lplCurve
