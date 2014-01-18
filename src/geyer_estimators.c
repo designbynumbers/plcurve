@@ -52,7 +52,6 @@ double ips_sigma_estimator_with_gammas(double *zero_meaned_data, int m,
 
   double *internal_Gammas;
   int     internal_Gammas_length = 256;
-  int     internal_Gammas_used = 0;
   double  internal_Gamma_sum = 0;
   
   int     k;
@@ -366,6 +365,12 @@ double geyer_ips_data_val(geyer_ips_t *gips,int i) {
     }
 
   }
+
+  fprintf(stderr,
+	  "geyer_ips_data_val: We don't have all the data, but haven't initialized initial/final\n"
+	  "                    buffers. Something must be very weird.\n");
+
+  exit(1);
 
 }
    
@@ -771,8 +776,6 @@ double geyer_ips_value(geyer_ips_t *gips,double *error,bool *ok)
   /* Fill the Gamma array, working our way through until Gammas are
      no longer positive or until we run out of lagged dots to use. */
     
-  bool doneflag = false;
-
   for(gips->Gamma[0] = littlegamma[0] + littlegamma[1],gips->N=1;
       gips->Gamma[gips->N-1] > 0 && (2*gips->N)+1 < gips->nldots;
       gips->N++) { 

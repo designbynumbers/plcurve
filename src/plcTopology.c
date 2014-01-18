@@ -156,7 +156,7 @@ int crossing_compare(const void *A, const void *B) {
 
 }
 
-int crossing_reference_compare(void *A,void *B) {
+int crossing_reference_compare(const void *A,const void *B) {
 
   crossing_reference *a = (crossing_reference *)(A);
   crossing_reference *b = (crossing_reference *)(B);
@@ -390,8 +390,30 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
   
 	for(vtA=0;vtA < Lcopy->cp[cmpA].nv;vtA++) {
 
-	  for(vtB=vtA+2;vtB < Lcopy->cp[cmpB].nv;vtB++) {
+	  int firstBvert, lastBvert; 
 
+	  /* If we're on the same component, then we start the B count _after_ A
+	     and end before the last vertex to avoid comparing the same pair of
+	     edges twice. We also have to be careful never to check adjacent edges,
+	     which will always have a degenerate crossing where they meet. Remember
+	     that there's a last edge which goes from nv-1 to nv (which is really
+	     the same as vertex 0 because of wraparound).
+	     
+	     If we're on different components, we need to run the A and B counts
+	     across the entire component. */
+
+	  if (cmpA == cmpB) { 
+	    firstBvert = vtA+2; 
+	    if (vtA==0) { 
+	      lastBvert = L->cp[cmpB].nv-1; // Do second-to-last, but not bridge edge.
+	    } else {
+	      lastBvert = L->cp[cmpB].nv; // Compare with bridge edge.
+	    }
+	  }
+	  else { firstBvert = 0; lastBvert = L->cp[cmpB].nv; }
+
+	  for(vtB=firstBvert;vtB < lastBvert;vtB++) { 
+	    
 	    if (tag_as_trouble(&(Lcopy->cp[cmpA].vt[vtA]),&(Lcopy->cp[cmpB].vt[vtB]))) {
 
 	      projection_clean = false;
@@ -464,8 +486,30 @@ crossing_container *findcrossings(plCurve *L) {
     for(cmpB=cmpA;cmpB < L->nc;cmpB++) { 
   
       for(vtA=0;vtA < L->cp[cmpA].nv;vtA++) {
+
+	int firstBvert, lastBvert; 
+
+	/* If we're on the same component, then we start the B count _after_ A
+	   and end before the last vertex to avoid comparing the same pair of
+	   edges twice. We also have to be careful never to check adjacent edges,
+	   which will always have a degenerate crossing where they meet. Remember
+	   that there's a last edge which goes from nv-1 to nv (which is really
+	   the same as vertex 0 because of wraparound).
+
+	   If we're on different components, we need to run the A and B counts
+	   across the entire component. */
+
+	if (cmpA == cmpB) { 
+	  firstBvert = vtA+2; 
+	  if (vtA==0) { 
+	    lastBvert = L->cp[cmpB].nv-1; // Do second-to-last, but not bridge edge.
+	  } else {
+	    lastBvert = L->cp[cmpB].nv; // Compare with bridge edge.
+	  }
+	}
+	else { firstBvert = 0; lastBvert = L->cp[cmpB].nv; }
 	
-	for(vtB=vtA+2;vtB < L->cp[cmpB].nv;vtB++) {
+	for(vtB=firstBvert;vtB < lastBvert;vtB++) { // We have to avoid comparing the last edge with the first.
 	    
 	  /* Check for a crossing between 
 	     
@@ -596,6 +640,8 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
 
     } 
 
+    qsort(crc[cmp].buf,crc[cmp].size,sizeof(crossing_reference),crossing_reference_compare);
+
   }
 
   return crc;
@@ -645,21 +691,21 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
       
       pd->cross[pd_crossing].sign = cc->buf[pd_crossing].sign > 0 ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
 
-      if (cmp == cc->buf[pd_crossing].upper_cmp || fabs(crc[cmp].buf[cr].s - cc->buf[pd_crossing].upper_s) < 1e-13) { // This is the upper arc
+      if (cmp == cc->buf[pd_crossing].upper_cmp && fabs(crc[cmp].buf[cr].s - cc->buf[pd_crossing].upper_s) < 1e-13) { // This is the upper arc
 
-	pd->cross[pd_crossing].edge[0] = (cr == 0) ? (edge+crc[cmp].used) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
+	pd->cross[pd_crossing].edge[0] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
 	pd->cross[pd_crossing].edge[2] = edge; // This (outgoing) edge is always the current edge number.
 
       } else { // This is the lower arc, which means that we have to pay attention to sign.
 
 	if (pd->cross[pd_crossing].sign == PD_POS_ORIENTATION) { // Upper out to lower out is ccw, meaning that upper in to lower in is ccw
   
-	  pd->cross[pd_crossing].edge[1] = (cr == 0) ? (edge+crc[cmp].used) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
+	  pd->cross[pd_crossing].edge[1] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
 	  pd->cross[pd_crossing].edge[3] = edge; // This (outgoing) edge is always the current edge number.
 	       
 	} else { // Upper out to lower out is cw, meaning that upper in to lower out is ccw
 
-	  pd->cross[pd_crossing].edge[3] = (cr == 0) ? (edge+crc[cmp].used) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
+	  pd->cross[pd_crossing].edge[3] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
 	  pd->cross[pd_crossing].edge[1] = edge; // This (outgoing) edge is always the current edge number.
 	 
 	}

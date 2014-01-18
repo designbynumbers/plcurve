@@ -712,6 +712,11 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
       vflip = plane_neg[0];
       hflip = plane_neg[1];
 
+    } else {
+
+      printf("FAIL. (couldn't identify hflip and vflip)\n");
+      return false;
+
     }
 
   }
@@ -878,8 +883,6 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
   pd_idx_t nfound=0;
   pd_idx_t evflip[4];
   pd_idx_t i;
-
-  pd_idx_t nfaces = pdA.nfaces;
 
   for(i=0;i<nisos;i++) {
 
@@ -1200,7 +1203,6 @@ bool torusknot_iso_test(pd_idx_t p,pd_idx_t q,bool prime,bool print)
   pd_idx_t nrots=0,nrefs=0;
   pd_idx_t rotbuf[2*MAXQ],refbuf[2*MAXQ];
   pd_idx_t i;
-  pd_idx_t nfaces = pdA.nfaces;
 
   for(i=0;i<nisos;i++) {
 

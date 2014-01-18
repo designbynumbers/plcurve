@@ -45,6 +45,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_ASSERT_H
   #include <assert.h>
 #endif
+#ifdef HAVE_GSL_GSL_RNG_H
+  #include <gsl/gsl_rng.h>
+#endif
+#ifdef HAVE_GSL_GSL_RANDIST_H
+  #include <gsl/gsl_randist.h>
+#endif
 
 /**************************************************************/
 /*   Basic Linear Algebra Operations                          */
@@ -561,3 +567,33 @@ plc_vector plc_rotate_vect(plc_vector v,plc_vector axis,double angle) {
   return plc_vect_sum(newnor,par);
   
 }
+
+void plc_perturb_vect(gsl_rng *rng,plc_vector *v,double maxradius)
+{
+  /* The simplest approach is best here; we just sample inside a 
+     box until we get a sphere point. */
+
+  int attempt_counter;
+  plc_vector delta = {{10,10,10}};
+
+  for(attempt_counter=0;attempt_counter < 1000 && plc_norm(delta) > 1.0;attempt_counter++) { 
+
+    delta.c[0] = gsl_ran_flat(rng,-1.0,1.0);
+    delta.c[1] = gsl_ran_flat(rng,-1.0,1.0);
+    delta.c[2] = gsl_ran_flat(rng,-1.0,1.0);
+
+  }
+
+  if (plc_norm(delta) > 1.0) { 
+
+    fprintf(stderr,"plc_perturb_vect: Random sampling seems broken.\n");
+    exit(1);
+
+  }
+
+  plc_M_scale_vect(maxradius,delta);
+  plc_M_add_vect((*v),delta);
+
+}
+  
+  

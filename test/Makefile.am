@@ -51,6 +51,11 @@ TESTS = nn_test \
 	test_dihedral \
 	test_perm
 
+#ccode_test_SOURCES = ccode_test.c 
+#ccode_test_LDADD = -L$(top_builddir)/src -lplCurve
+#ccode_test_LDFLAGS = -static
+#ccode_test_CFLAGS = -I$(top_srcdir)/src
+
 nn_test_SOURCES = nn_test.c
 nn_test_LDADD = -L$(top_builddir)/src -lplCurve
 nn_test_CFLAGS = -I$(top_srcdir)/src
