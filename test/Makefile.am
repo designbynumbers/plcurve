@@ -21,7 +21,6 @@ check_PROGRAMS = nn_test \
 	         randompolygon_test \
 	         eq_primitives_test \
 	         loopclosure_test \
-	         run_tests \
 	         exit_failure_tests  \
 	         test_struts \
                  test_minrad \
@@ -33,13 +32,13 @@ check_PROGRAMS = nn_test \
 		 test_pdcontainer \
 	         test_multidx \
 		 test_dihedral \
-	         test_perm
+	         test_perm \
+		 ccode_test
 
 TESTS = nn_test \
 	symmetry_test \
 	eq_primitives_test \
 	loopclosure_test \
-	runtest_wrapper.sh \
 	test_findpoca \
         test_struts \
         call_check \
@@ -49,12 +48,13 @@ TESTS = nn_test \
 	test_pdcontainer \
 	test_multidx \
 	test_dihedral \
-	test_perm
+	test_perm \
+	ccode_test
 
-#ccode_test_SOURCES = ccode_test.c 
-#ccode_test_LDADD = -L$(top_builddir)/src -lplCurve
-#ccode_test_LDFLAGS = -static
-#ccode_test_CFLAGS = -I$(top_srcdir)/src
+ccode_test_SOURCES = ccode_test.c 
+ccode_test_LDADD = -L$(top_builddir)/src -lplCurve
+ccode_test_LDFLAGS = -static
+ccode_test_CFLAGS = -I$(top_srcdir)/src
 
 nn_test_SOURCES = nn_test.c
 nn_test_LDADD = -L$(top_builddir)/src -lplCurve
@@ -88,7 +88,7 @@ runtest_wrapper.sh:
 	echo './run_tests $(top_srcdir)/test/' > runtest_wrapper.sh
 	chmod +x runtest_wrapper.sh
 
-CLEANFILES = runtest_wrapper.sh
+CLEANFILES = runtest_wrapper.sh hopftest.vect treftest.vect
 
 noinst_PROGRAMS = test_levels octrope_timing
 

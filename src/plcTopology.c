@@ -414,7 +414,7 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
 
 	  for(vtB=firstBvert;vtB < lastBvert;vtB++) { 
 	    
-	    if (tag_as_trouble(&(Lcopy->cp[cmpA].vt[vtA]),&(Lcopy->cp[cmpB].vt[vtB]))) {
+	    if (tag_as_trouble(&(Lprojection->cp[cmpA].vt[vtA]),&(Lprojection->cp[cmpB].vt[vtB]))) {
 
 	      projection_clean = false;
 
@@ -776,9 +776,8 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
       printf("pd_code_from_plCurve\n"
 	     "------------------------------------------------\n"
 	     "Starting run on %d vertex, %d component plCurve.\n",plc_num_verts(L),L->nc);
-      printf("Rotating so that (%g,%g,%g) becomes the z-axis.\n",plc_M_clist(new_axis));
-      printf("\n"
-	     "Perturbing to make crossing-clean...");
+      printf("Rotating so that (%g,%g,%g) becomes the z-axis...done\n",plc_M_clist(new_axis));
+      printf("Perturbing to make crossing-clean...");
     }
 
     /* Step 2. Perturb to make it crossing-clean. */
@@ -820,8 +819,8 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
       if (cc != NULL) {
 
-	printf("success\n"
-	       "Found %d crossings overall \n",cc->used);
+	printf("success "
+	       "(%d crossings)\n",cc->used);
 
       } else {
 
@@ -852,7 +851,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
     if (pd_code_from_plCurve_verbose) { 
 
       printf("done.\n"
-	     "%d crossings are divided among %d components as:\n",cc->used,L->nc);
+	     "\t%d crossings are divided among %d components as:\n",cc->used,L->nc);
 
       int i,total=0;
       for(i=0;i<L->nc;i++) { 
@@ -883,7 +882,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
     if (pd_code_from_plCurve_verbose) { 
       
-      printf("assembling pd code from crossing and crossing reference data...\n");
+      printf("assembling pd code from crossing and crossing reference data...");
 
     }					      
 
@@ -894,7 +893,8 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
       if (pd != NULL) {
 
 	printf("success\n");
-	printf("generated %d crossing pd code from crossing container of %d crossings.\n",
+	printf("generated %d crossing pd code from crossing container of %d crossings\n"
+	       "---------------------------------------------------------------------\n\n",
 	       pd->ncross,cc->used);
       } else {
 
