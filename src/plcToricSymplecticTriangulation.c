@@ -1677,5 +1677,182 @@ char *tsmcmc_triangulation_MathematicaForm(tsmcmc_triangulation_t T)
 
   return outstring;
 }
+
+
+void     tsmcmc_polymake_triangle_inequality(int chordA,chordtype_t typeA,
+					     int chordB,chordtype_t typeB,
+					     int chordC,chordtype_t typeC,
+					     double *edge_lengths,
+					     FILE *outfile,bool integral,
+					     int ndiags,
+					     int *inequality_count) 
+  /* 
+    Output the triangle inequality:
+
+    a + b - c >= 0
+    
+    in polymake form. This is a bit complicated. First, there are 
+    ndiags total variables, so the general form of the linear inequality
+    is 
+
+    a_0 + a_1 x_1 + ... + a_ndiags x_ndiags >= 0
+
+    If the sides of this triangle are _edges_, their lengths are added
+    to (or subtracted from) the first coefficient a0. 
+
+    If the sides of this triangle are _diagonals_, their lengths are
+    variables given by the diagonal number. All diagonals which do 
+    not appear in this triangle inequality are still written in the 
+    output form, which is a vector of ndiags+1 numbers in the Perlish
+    form
+
+    [a_0, a_1, ..., a_ndiags] 
+
+    if the integral flag is set to true, we output these as integers 
+    (otherwise, they appear as high-precision doubles). */
+
+{
+  double *coeffs = calloc(ndiags+1,sizeof(double));  /* Note the use of calloc here, which sets all coeffs to zero. */
+  assert(*coeffs != NULL);
+
+  if (typeA == edge) { 
+
+    coeffs[0] += edge_lengths[chordA]; 
+
+  } else { 
   
+    assert(0 <= chordA && ndiags > chordA);
+    coeffs[chordA+1] = 1.0; 
   
+  }
+
+  if (typeB == edge) { 
+
+    coeffs[0] += edge_lengths[chordB]; 
+
+  } else { 
+  
+    assert(0 <= chordB && ndiags > chordB);
+    coeffs[chordB+1] = 1.0; 
+  
+  }
+
+  /* Note that chord C appears with a minus sign in the triangle
+     inequality. So signs are _switched_ here. */
+
+  if (typeC == edge) { 
+
+    coeffs[0] -= edge_lengths[chordC]; 
+
+  } else { 
+  
+    assert(0 <= chordC && ndiags > chordC);
+    coeffs[chordC+1] = -1.0; 
+  
+  }
+
+  /* Now we're ready to output the vector. */
+
+  int i;
+
+  fprintf(outfile,"[");
+  for (i=0;i<ndiags+1;i++) { 
+
+    if (integral) { 
+      
+      fprintf(outfile,"%d",(int)(round(coeffs[i])));
+
+    } else {
+
+      fprintf(outfile,"%17.17g",coeffs[i]);
+
+    }
+
+    if (i < ndiags) { fprintf(outfile,", "); }
+
+  }
+
+  fprintf(outfile,"]");
+  (*inequality_count)++; 
+
+  /* Now we know that there will be ndiags + 1 triangles, and hence a total of 
+     3*ndiags + 3 inequalities. If this is NOT the last one, output a comma,
+     otherwise, not. */
+
+  if (*inequality_count < 3*ndiags+3) { 
+
+    fprintf(outfile,",\n");
+
+  } else { 
+
+    fprintf(outfile,"\n");
+
+  }
+
+  free(coeffs);
+
+}
+
+	  
+void     tsmcmc_triangulation_polymake_worker(FILE *outfile,
+					      tsmcmc_triangulation_t T,double *edge_lengths,
+					      int tri,
+					      bool integral,
+					      int *inequality_count)
+
+/* Output the triangle inequalities for the current triangle T. */
+
+{
+  int X,Y,Z;
+  chordtype_t Xtype, Ytype, Ztype;
+
+  X = T.triangles[tri].parent_chord;      Xtype = T.triangles[tri].parent_type;
+  Y = T.triangles[tri].daughter_chord[0]; Ytype = T.triangles[tri].daughter_type[0];
+  Z = T.triangles[tri].daughter_chord[1]; Ztype = T.triangles[tri].daughter_type[1];
+
+  tsmcmc_polymake_triangle_inequality(X,Xtype,Y,Ytype,Z,Ztype,edge_lengths,outfile,integral,T.ndiags,inequality_count);
+  tsmcmc_polymake_triangle_inequality(Y,Ytype,Z,Ztype,X,Xtype,edge_lengths,outfile,integral,T.ndiags,inequality_count);
+  tsmcmc_polymake_triangle_inequality(Z,Ztype,X,Xtype,Y,Ytype,edge_lengths,outfile,integral,T.ndiags,inequality_count);
+
+  /* Now recurse */
+  
+  int i;
+
+  for(i=0;i<2;i++) { 
+
+    if (T.triangles[tri].daughter_tri[i] != -1) { 
+
+      tsmcmc_triangulation_polymake_worker(outfile,T,edge_lengths,
+				    T.triangles[tri].daughter_tri[i],integral,inequality_count);
+      
+    }
+    
+  }
+
+}
+
+
+void tsmcmc_triangulation_polymake(FILE *outfile,tsmcmc_triangulation_t T,double *edge_lengths,bool integral)
+/* Outputs the moment polytope of the triangulation in polymake form 
+
+   Quoting from the polymake web documentation, we're using the form
+
+   new Polytope(INEQUALITIES=>[[a0,a1,...,ad],[b0,b1,...,bd]])
+
+   Here the vector 
+
+   [a0,a1,...,ad] corresponds to the inequality a0 + a1 x1 + ... + ad xd >= 0. 
+
+   If the integral flag is set, then we'll round everything to integers and
+   output with the <Rational> property set. */
+{
+  int inequality_count = 0;
+  
+  fprintf(outfile,"new Polytope");
+  if (integral) { fprintf(outfile,"<Rational>"); }
+  fprintf(outfile,"(INEQUALITIES=>[");
+  tsmcmc_triangulation_polymake_worker(outfile,T,edge_lengths,0,integral,&inequality_count);
+  fprintf(outfile,"]);\n");
+}
+     
+     

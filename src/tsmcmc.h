@@ -140,6 +140,8 @@ void tsmcmc_triangulation_print(FILE *outfile,tsmcmc_triangulation_t T);
 char *tsmcmc_triangulation_MathematicaForm(tsmcmc_triangulation_t T);
 /* Allocates a string for a Mathematica representation of the triangulation */
 
+void tsmcmc_triangulation_polymake(FILE *outfile,tsmcmc_triangulation_t T,double *edge_lengths,bool integral);
+/* Outputs the moment polytope of the triangulation in polymake form */
 
 /*-----------------------------------------------------------*/
 

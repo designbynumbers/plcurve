@@ -5,7 +5,7 @@ include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
 if HAVE_ARGTABLE2
-bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs plcrwalk
+bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs plcrwalk momentpolytope
 else
 bin_PROGRAMS = knot_diagram 
 endif
@@ -118,6 +118,9 @@ endif
 #ccode_test_SOURCES = ccode_test.c
 #ccode_test_LDADD = -lplCurve
 #ccode_test_LDFLAGS = -static
+
+momentpolytope_SOURCES = momentpolytope.c
+momentpolytope_LDADD = -lplCurve
 
 spline_view_SOURCES = spline_view.c 
 spline_view_LDADD = -lplCurve
