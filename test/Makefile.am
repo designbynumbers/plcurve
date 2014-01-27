@@ -16,7 +16,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 	bad_vects/bad_14.vect \
 	make_hopf
 
-check_PROGRAMS = nn_test \
+check_PROGRAMS = tsmcmc_random_test \
+		 nn_test \
 	         symmetry_test \
 	         randompolygon_test \
 	         eq_primitives_test \
@@ -35,7 +36,8 @@ check_PROGRAMS = nn_test \
 	         test_perm \
 		 ccode_test
 
-TESTS = nn_test \
+TESTS = tsmcmc_random_test \
+	nn_test \
 	symmetry_test \
 	eq_primitives_test \
 	loopclosure_test \
@@ -55,6 +57,10 @@ ccode_test_SOURCES = ccode_test.c
 ccode_test_LDADD = -L$(top_builddir)/src -lplCurve
 ccode_test_LDFLAGS = -static
 ccode_test_CFLAGS = -I$(top_srcdir)/src
+
+tsmcmc_random_test_SOURCES = tsmcmc_random_test.c
+tsmcmc_random_test_LDADD = -L$(top_builddir)/src -lplCurve
+tsmcmc_random_test_CFLAGS = -I$(top_srcdir)/src
 
 nn_test_SOURCES = nn_test.c
 nn_test_LDADD = -L$(top_builddir)/src -lplCurve

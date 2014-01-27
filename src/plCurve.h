@@ -687,6 +687,8 @@ extern "C" {
 
   plCurve *plc_loop_closure(gsl_rng *r,int cp,plCurve *openL,int nEdges);
 
+
+
 /****************************** plCurve Symmetry Functions ********************/
 
 void plc_identity_matrix(plc_matrix *A);

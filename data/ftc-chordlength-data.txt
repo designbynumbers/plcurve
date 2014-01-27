@@ -6,4 +6,3 @@ Chordlengths for failure-to-close of 2.0 in 10 edge polygon
 
 Chordlengths for failure-to-close of 5.0 in 10 edge polygon
 2143/476 953/238 1669/476 358/119 1195/476 30655/15232 719/476
-

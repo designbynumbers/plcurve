@@ -1,7 +1,7 @@
 AM_CFLAGS = -g -finline-functions -ftree-vectorize -Wall
 ACLOCAL_AMFLAGS = -I m4
 
-include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h
+include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.h
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
 if HAVE_ARGTABLE2
@@ -53,7 +53,8 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	plcToricSymplecticTriangulation.c \
 	tsmcmc.h \
 	geyer_estimators.h \
-	geyer_estimators.c
+	geyer_estimators.c \
+	plcRandomPolygon.h
 
 libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -98,7 +99,8 @@ libplCurve_la_SOURCES = plCurve.c \
 	plcToricSymplecticTriangulation.c \
 	tsmcmc.h \
 	geyer_estimators.h \
-	geyer_estimators.c
+	geyer_estimators.c \
+	plcRandomPolygon.h
 
 libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

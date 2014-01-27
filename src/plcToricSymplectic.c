@@ -1337,3 +1337,186 @@ double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(p
   return ret;
 
 }
+
+double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L),
+				      double failure_to_close,
+				      int max_steps,int max_seconds,
+				      tsmcmc_triangulation_t T,
+				      tsmcmc_run_parameters run_params,
+				      tsmcmc_run_stats *run_stats,
+				      double *error)
+
+ /* This is the "master" driver function for computing an expectation
+     over equilateral polygons with a fixed failure to close (one long
+     edge of length failure_to_close). These can be triangulated any way
+     that is desired, but the edge from vertex 0 to vertex 1 is still
+     the long edge. It uses the Geyer ips estimator to compute error
+     bars.
+
+     We set the run parameters with the usual run_params struct. Permutations
+     only permute the equal edge-length steps.
+
+     Detailed information about the run is returned run_stats (optional,
+     set to NULL if you don't care).
+  */
+
+
+{
+  clock_t start,end;
+  double  cpu_seconds_used = 0;
+
+  start = clock();
+  assert(max_steps > 0); assert(max_seconds > 0);
+  assert(run_params.burn_in > 0); assert(run_params.burn_in < max_steps); 
+  assert(failure_to_close > 0);
+
+  geyer_ips_t *gips;
+  int bufsize = 1000000 < max_steps+10 ? 1000000 : max_steps+10; 
+  gips = geyer_ips_new(bufsize);
+
+  if (run_stats != NULL) {
+
+    run_stats->dihedral_steps = 0; 
+    run_stats->mp_steps = 0;
+    run_stats->permute_steps = 0;
+
+  }
+    
+  double *edge_lengths, *diagonal_lengths, *dihedral_angles, ival;
+  int i;
+  plCurve *L;
+
+  tsmcmc_failure_to_close_ngon(rng,T,failure_to_close,&edge_lengths,&diagonal_lengths,&dihedral_angles);
+
+  for(i=0;i<max_steps && cpu_seconds_used < max_seconds;i++) { 
+
+    tsmcmc_step_t step;
+    step = tsmcmc_dihedral_diagonal_permute_step(rng,T,edge_lengths,diagonal_lengths,dihedral_angles,
+						 run_params.beta,run_params.delta,run_params.moment_polytope_repeat);
+
+    if (run_stats != NULL) {
+
+      switch (step) {
+
+      case moment_polytope: 
+	(run_stats->mp_steps)++; break;
+      case dihedral : 
+	(run_stats->dihedral_steps)++; break;
+      case permute : 
+	(run_stats->permute_steps)++; break;
+	
+      };
+
+    }
+      
+    if (i > run_params.burn_in) { 
+
+      L = tsmcmc_embed_polygon(T,edge_lengths,diagonal_lengths,dihedral_angles);
+      if (L != NULL) { 
+
+	ival =integrand(L);
+	geyer_ips_add(gips,ival);
+	plc_free(L);
+
+      } else {
+
+	printf("Warning! Could not embed a polygon.\n");
+	
+	printf("Edge lengths were:\n");
+	int j;
+	for(j=0;j<T.nedges;j++) { printf("%g ",edge_lengths[j]); }
+	printf("\n");
+
+	printf("Diagonal lengths were:\n");
+	for(j=0;j<T.ndiags;j++) { printf("%17.17g \n",diagonal_lengths[j]); }
+	printf("\n");
+
+	printf("Dihedral angles were:\n");
+       	for(j=0;j<T.ndiags;j++) { printf("%17.17g \n",dihedral_angles[j]); }
+	printf("\n");
+
+	exit(1);
+      }
+
+    }
+
+    if (i%1000 == 0) {  /* Check the time every 1,000 steps */
+
+      end = clock();
+      cpu_seconds_used = ((double)(end - start))/CLOCKS_PER_SEC;
+
+    }
+
+    if (run_params.logfile != NULL && i%run_params.log_interval == 0 ) {
+
+	char *configuration = tsmcmc_configuration_MathematicaForm(T,edge_lengths,diagonal_lengths,dihedral_angles);
+	fprintf(run_params.logfile,"{ \"step number\"->%d, %s, \"integrand\"->%g, \"sample mean\"->%g }\n",
+		i,configuration,ival,(double)(gips->sample_sum/(long double)(i)));
+	fflush(run_params.logfile);
+    }
+    
+  }
+  
+  end = clock();
+  if (run_stats != NULL) { run_stats->total_seconds = ((double)(end - start))/CLOCKS_PER_SEC; }
+
+  free(edge_lengths); free(diagonal_lengths); free(dihedral_angles);
+
+  double ret,err;
+  bool ok;
+  
+  start = clock();
+  ret = geyer_ips_value(gips,&err,&ok);
+  end = clock();
+
+  if (error != NULL) { if (ok) { *error = err; } else { *error = 1.0/0.0; } }
+  
+  if (run_stats != NULL) { 
+
+    run_stats->geyer_ips_seconds = ((double)(end - start))/CLOCKS_PER_SEC; 
+    run_stats->max_lagged_covariance_used   = 2*gips->N;
+    run_stats->lagged_covariances_available = gips->nldots > 0 ? gips->nldots : gips->buffer_size; 
+
+  }
+
+  geyer_ips_free(&gips);
+  
+  return ret;
+
+}
+  
+
+
+/*
+  Default run parameters:
+*/
+
+tsmcmc_run_parameters tsmcmc_default_unconfined_parameters()
+{
+  tsmcmc_run_parameters RP;
+
+  RP.burn_in = 100;
+  RP.delta   = 0.9;
+  RP.beta    = 0.5;
+  RP.moment_polytope_repeat = 10;
+  RP.log_interval = 1;
+  sprintf(RP.logfile_name,"");
+  RP.logfile = NULL;
+
+  return RP;
+}
+
+tsmcmc_run_parameters tsmcmc_default_confined_parameters() 
+{
+  tsmcmc_run_parameters RP;
+
+  RP.burn_in = 100;
+  RP.delta   = 0;       // In confinement, delta doesn't make sense anyway.
+  RP.beta    = 0.5;
+  RP.moment_polytope_repeat = 10;
+  RP.log_interval = 1;
+  sprintf(RP.logfile_name,"");
+  RP.logfile = NULL;
+
+  return RP;
+}

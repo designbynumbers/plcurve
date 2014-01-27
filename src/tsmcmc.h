@@ -313,6 +313,29 @@ double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(p
    set to NULL if you don't care).
 */
 
+double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L),
+				      double failure_to_close, 
+				      int max_steps,int max_seconds,
+				      tsmcmc_triangulation_t T,
+				      tsmcmc_run_parameters run_params,
+				      tsmcmc_run_stats *run_stats,
+				      double *error);
+
+
+/* This is the "master" driver function for computing an expectation
+   over equilateral polygons with a fixed failure to close (one long
+   edge of length failure_to_close). These can be triangulated any way
+   that is desired, but the edge from vertex 0 to vertex 1 is still
+   the long edge. It uses the Geyer ips estimator to compute error
+   bars.
+
+   We set the run parameters with the usual run_params struct. Permutations
+   only permute the equal edge-length steps.
+
+   Detailed information about the run is returned run_stats (optional,
+   set to NULL if you don't care).
+*/
+
 /*---*/
 
 #endif
