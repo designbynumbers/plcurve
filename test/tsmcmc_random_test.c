@@ -201,7 +201,7 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
   tsmcmc_run_stats run_stats;
   double error,result;
 
-  tsmcmc_triangulation_t T = tsmcmc_spiral_triangulation(n);
+  tsmcmc_triangulation_t T = tsmcmc_fan_triangulation(n);
   result = tsmcmc_fixed_ftc_expectation(rng,integrand,ftc,500000,10,T,run_params,&run_stats,&error);
 
   printf("done.\n"
@@ -293,12 +293,37 @@ bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
 
 {
   int n = 10;
+
   double ftc2[7] = {1.95118, 1.90235, 1.8472, 1.76726, 1.65451, 1.50066, 1.27735};
   double ftc3[7] = {3967.0/1428.0,1825.0/714.0,1111.0/476.0,144701.0/68544.0,8051.0/4284.0,74423.0/45696.0,635.0/476.0};
   double ftc5[7] = {2143.0/476.0,953.0/238.0,1669.0/476.0,358.0/119.0,1195.0/476.0,30655.0/15232.0,719.0/476.0};
 
   char pred_name[2048];
   int i;
+
+  for(i=2;i<8;i++) {
+
+    glob_skip = i;
+    sprintf(pred_name,"squared length of skip %d chord",i);
+    if (!test_ftc_prediction(rng,1.0,10,skip_squared_chordlength,
+			     eq_pol_prediction(10,i),pred_name)) { 
+
+      return false;
+
+    }
+
+  }
+
+
+  for(i=0;i<7;i++) { 
+
+    glob_v0 = 0; glob_v1 = i+2;
+    sprintf(pred_name,"length of %d-%d chord",glob_v0,glob_v1);
+    if(!test_ftc_prediction(rng,3.0,10,chordlength,ftc3[i],pred_name)) { 
+
+    }
+
+  }
 
   for(i=0;i<7;i++) { 
 
@@ -312,17 +337,7 @@ bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
 
   }
 
-  for(i=0;i<7;i++) { 
-
-    glob_v0 = 0; glob_v1 = i+2;
-    sprintf(pred_name,"length of %d-%d chord",glob_v0,glob_v1);
-    if(!test_ftc_prediction(rng,3.0,10,chordlength,ftc3[i],pred_name)) { 
-
-      return false;
-
-    }
-
-  }
+ 
 
   for(i=0;i<7;i++) { 
 

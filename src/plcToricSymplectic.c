@@ -257,6 +257,8 @@ void tsmcmc_regular_failure_to_close_ngon(tsmcmc_triangulation_t T,
 
   free(dihedrals_defined);
   plc_free(L);
+
+  assert(tsmcmc_edgelengths_obey_ftc(T,ftc,*edge_lengths));
   
 }
 
