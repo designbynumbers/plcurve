@@ -74,10 +74,10 @@ extern "C" {
 #define PD_NEG_ORIENTATION 0
 #define PD_UNSET_ORIENTATION 2
 
-  typedef uint_fast16_t  pd_idx_t ;  /* pd "index" type */
-  typedef uint_fast8_t   pd_or_t;    /* pd "orientation" type */
-  typedef uint_fast8_t   pd_pos_t;   /* pd "position" type */
-  typedef uint_fast64_t  pd_uid_t;   /* pd "uid" type */
+  typedef unsigned int      pd_idx_t ;  /* pd "index" type */
+  typedef unsigned char     pd_or_t;    /* pd "orientation" type */
+  typedef unsigned int      pd_pos_t;   /* pd "position" type */
+  typedef unsigned long int pd_uid_t;   /* pd "uid" type */
 
   typedef struct mem_test {
     char c;
