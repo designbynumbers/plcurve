@@ -19,7 +19,7 @@ AC_COPYRIGHT(
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT(libplCurve, 7.1.1, cantarel@math.uga.edu)
+AC_INIT(libplCurve, 7.2.1, cantarel@math.uga.edu)
 #AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE
 
@@ -40,7 +40,7 @@ AM_INIT_AUTOMAKE
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
 #
-AC_SUBST(LIB_VERSION, 7:1:1)
+AC_SUBST(LIB_VERSION, 7:2:1)
 AC_CONFIG_SRCDIR([src/plCurve.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -88,6 +88,7 @@ AM_CONDITIONAL([HAVE_SWIG],[test "x${have_swig}" = xtrue])
 
 # Checks for header files.
 AC_HEADER_STDC
+AC_HEADER_ASSERT
 AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
                   time.h sys/times.h sys/types.h fcntl.h signal.h complex.h \

@@ -163,7 +163,7 @@ bool equilateral_unconfined_chordlength_tests(gsl_rng *rng)
 {
   int nvals[10] = {50,100,200,250};
   int kvals[10] = {10,20,30};
-  int num_n = 1, num_k = 1;
+  int num_n = 4, num_k = 3;
   int n,k;
   char predname[2048];
 
@@ -244,8 +244,8 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
 	   fabs(expected-result),error,4*error);
 
     printf("Test will continue. The 95%% confidence interval fails 5%% of the time\n"
-	   "so you are likely to observe this from time to time. However, we \n"
-	   "should NEVER exceed the error bound above.\n");
+	   "so you are likely to observe this much error during an average test a \n"
+	   "couple of times.\n");
     return true;
 
   } else {
@@ -292,6 +292,8 @@ bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
    only a few tests are possible. */
 
 {
+
+  double ftc5gon25[2] = {2.0,1.5};
   int n = 10;
 
   double ftc2[7] = {1.95118, 1.90235, 1.8472, 1.76726, 1.65451, 1.50066, 1.27735};
@@ -300,6 +302,21 @@ bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
 
   char pred_name[2048];
   int i;
+
+  /* First, run some very simple checks on a 5-gon with failure-to-close = 2.5*/
+
+  for(i=0;i<2;i++) {
+
+    glob_v0 = 0; glob_v1 = i+2;
+    sprintf(pred_name,"length of %d-%d chord",glob_v0,glob_v1);
+    if (!test_ftc_prediction(rng,2.5,5,chordlength,ftc5gon25[i],pred_name)) {
+
+	return false;
+	
+      }
+  }	
+
+  /* Now test equilateral 10-gons. */
 
   for(i=2;i<8;i++) {
 
@@ -391,10 +408,8 @@ int main(int argc, char *argv[]) {
 	 "==========================================================================\n"
 	 ,gsl_rng_name(rng),seedi);
 
-
-  if (!equilateral_unconfined_chordlength_tests(rng)) { PASS = false; }
   if (!fixed_failure_to_close_chordlength_tests(rng)) { PASS = false; }
-
+  if (!equilateral_unconfined_chordlength_tests(rng)) { PASS = false; }
        
   gsl_rng_free(rng);
 

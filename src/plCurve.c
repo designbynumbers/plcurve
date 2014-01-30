@@ -2070,7 +2070,7 @@ void plc_drop_component(plCurve *L, const int cmp) {
   assert(L != NULL);
   assert(cmp >= 0);
   assert(cmp < L->nc);
-  assert(L->nc > 1);
+  assert(L->nc > 0);
 
   L->nc--;
   L->cp[cmp].vt--;

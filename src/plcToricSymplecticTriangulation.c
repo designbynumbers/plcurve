@@ -1713,7 +1713,7 @@ void     tsmcmc_polymake_triangle_inequality(int chordA,chordtype_t typeA,
 
 {
   double *coeffs = calloc(ndiags+1,sizeof(double));  /* Note the use of calloc here, which sets all coeffs to zero. */
-  assert(*coeffs != NULL);
+  assert(coeffs != NULL);
 
   if (typeA == edge) { 
 

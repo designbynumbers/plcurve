@@ -56,7 +56,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	geyer_estimators.c \
 	plcRandomPolygon.h
 
-libplCurveStatic_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
+libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
 
 libplCurve_la_SOURCES = plCurve.c \
@@ -102,11 +102,11 @@ libplCurve_la_SOURCES = plCurve.c \
 	geyer_estimators.c \
 	plcRandomPolygon.h
 
-libplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
+libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c
-libnplCurve_la_CFLAGS = -DNDEBUG  $(AM_CFLAGS)
+libnplCurve_la_CFLAGS = $(AM_CFLAGS)
 libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 knot_diagram_SOURCES = knot_diagram.c 

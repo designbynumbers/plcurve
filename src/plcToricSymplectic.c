@@ -15,6 +15,12 @@
 #include "tsmcmc.h"
 #include "geyer_estimators.h"
 
+#ifdef NDEBUG         /* Make sure assertions are always enabled! */
+  #undef NDEBUG
+#endif
+
+bool tsmcmc_edgelengths_obey_ftc(tsmcmc_triangulation_t T,double ftc, double *edge_lengths);
+
 struct dihedral_struct { 
 
   int triA[3];
@@ -242,7 +248,7 @@ void tsmcmc_regular_failure_to_close_ngon(tsmcmc_triangulation_t T,
   }
 
   plc_fix_wrap(L);
-  assert(tsmcmc_failure_to_close_check(L));
+  assert(tsmcmc_failure_to_close_check(L,ftc));
 
   /* Now we convert to edgelengths, diagonals, and dihedrals. */
 
@@ -818,6 +824,26 @@ void     tsmcmc_dihedrals_step(gsl_rng *rng,tsmcmc_triangulation_t T,double *dih
 }
     
 
+bool edgelengths_match_ftc_pattern(tsmcmc_triangulation_t T,double *edge_lengths)
+/* Check to see if all edges (but the first) are length 1. */
+{
+  int i;
+  for(i=1;i<T.nedges;i++) { 
+    if (fabs(edge_lengths[i] - 1.0) > 1e-8) { return false; }
+  }
+  return true;
+}
+
+bool edgelengths_match_equilateral_pattern(tsmcmc_triangulation_t T,double *edge_lengths) 
+/* Check to see if all edges are length 1. */
+{
+  int i;
+  for(i=0;i<T.nedges;i++) { 
+    if (fabs(edge_lengths[i] - 1.0) > 1e-8) { return false; }
+  }
+  return true;
+}
+
 void tsmcmc_edgepermute_step(gsl_rng *rng,tsmcmc_triangulation_t T,
 			     double *edge_lengths, double *diagonal_lengths, 
 			     double *dihedral_angles)
@@ -826,22 +852,44 @@ void tsmcmc_edgepermute_step(gsl_rng *rng,tsmcmc_triangulation_t T,
 {
   plCurve *L;
   plc_vector *edgeset;
+  double *old_edgelengths;
+  int i;
+ 
+  old_edgelengths = calloc(T.nedges,sizeof(double));
+  assert(old_edgelengths != NULL);
+  for(i=0;i<T.nedges;i++) { old_edgelengths[i] = edge_lengths[i]; }
 
   edgeset = calloc(T.nedges,sizeof(plc_vector));
   assert(edgeset != NULL);
-
   L = tsmcmc_embed_polygon(T,edge_lengths,diagonal_lengths,dihedral_angles);
 
-  int i;
   for(i=0;i<T.nedges;i++) { edgeset[i] = plc_vect_diff(L->cp[0].vt[i+1],L->cp[0].vt[i]); }
 
-  if (fabs(edge_lengths[0] - edge_lengths[1]) > 1e-8) { // Edgelength 0 is different, use pointer arithmetic to shuffle only part of the buffer of edges
+  /* 
+     Now there are three cases: 
+
+     1) The first edgelength is different, the rest are all 1. (The "fixed ftc" case.) 
+        In this case, we can permute the last n-1 edges. 
+
+     2) All the edgelengths are equal to 1. (The equilateral case.) 
+        In this case, we can permute everything.
+
+     3) Something else. In which case we throw an error and quit. 
+
+  */
+
+  if (edgelengths_match_equilateral_pattern(T,edge_lengths)) { // 
+
+    gsl_ran_shuffle(rng,edgeset,T.nedges,sizeof(plc_vector));
+
+  } else if (edgelengths_match_ftc_pattern(T,edge_lengths)) { 
 
     gsl_ran_shuffle(rng,edgeset+1,T.nedges-1,sizeof(plc_vector));
 
-  } else { // We assume that the polygon is equilateral. 
+  } else {
 
-    gsl_ran_shuffle(rng,edgeset,T.nedges,sizeof(plc_vector));
+    printf("tsmcmc_edgepermute_step: Called on polygon which is not ftc or equilateral.\n");
+    exit(1);
 
   }
 
@@ -857,7 +905,7 @@ void tsmcmc_edgepermute_step(gsl_rng *rng,tsmcmc_triangulation_t T,
   assert(newL != NULL);
 
   newL->cp[0].vt[0] = plc_build_vect(0,0,0);
-  for(i=1;i<T.nedges;i++) { newL->cp[0].vt[i] = plc_vect_sum(edgeset[i],newL->cp[0].vt[i-1]); }
+  for(i=1;i<T.nedges;i++) { newL->cp[0].vt[i] = plc_vect_sum(edgeset[i-1],newL->cp[0].vt[i-1]); }
   plc_fix_wrap(newL);
 
   free(edgeset);
@@ -870,6 +918,19 @@ void tsmcmc_edgepermute_step(gsl_rng *rng,tsmcmc_triangulation_t T,
   tsmcmc_compute_diagonals(newL,T,diagonal_lengths);
   tsmcmc_compute_dihedral_angles(newL,T,dihedral_angles,dihedral_defined);
   tsmcmc_compute_edgelengths(newL,T,edge_lengths);
+
+  for(i=0;i<T.nedges;i++) { 
+
+    if (fabs(edge_lengths[i] - old_edgelengths[i]) > 1e-8) { 
+
+      printf("tsmcmc_edgepermute_step: Internal error. Edgelengths don't match"
+	     "                         before and after step.\n");
+      exit(1);
+
+    }
+
+  }
+  free(old_edgelengths);
 
   plc_free(newL);
   free(dihedral_defined);
@@ -1411,6 +1472,13 @@ double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L),
 
     }
       
+    if (!tsmcmc_edgelengths_obey_ftc(T,failure_to_close,edge_lengths)) { 
+
+      printf("fixed_ftc_expectation: Generated polygon with incorrect edgelengths.\n");
+      exit(1);
+
+    }
+
     if (i > run_params.burn_in) { 
 
       L = tsmcmc_embed_polygon(T,edge_lengths,diagonal_lengths,dihedral_angles);
