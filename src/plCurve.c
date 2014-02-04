@@ -2546,8 +2546,6 @@ void plc_rotate(plCurve *link, plc_vector axis, double angle)
 
     }
     
-    free(A); free(Ainv);
-
   }
 
   for(cp=0;cp < link->nc;cp++) {
