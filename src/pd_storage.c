@@ -95,7 +95,7 @@ pd_stor_t *pd_new_pdstor()
 void pd_free_pdstor(pd_stor_t **pdstor)
 {
   Word_t *PValue_hash; /* Top Level (Hash indexed JudySL) Pointer */
-  uint8_t hash[32];
+  char    hash[32];
   Word_t  bytes_freed_all_hashes;
 
   hash[0] = 0;
@@ -190,7 +190,7 @@ void pd_copyinto_pdstor(pd_stor_t *pdstor,pd_code_t *pd)
      pd_stor_t is the root POINTER to the PJLArray of uids
      for this hash. */
   
-  JSLI(PValue_hash,pdstor->PJSLArray,(uint8_t *)(pd->hash));
+  JSLI(PValue_hash,pdstor->PJSLArray,/*(uint8_t *)*/(pd->hash));
   PJLArray = (Pvoid_t)(*PValue_hash); 
 
   /* PJLArray now maps to a JudyL (maybe an empty one!).
@@ -319,7 +319,7 @@ pd_code_t *pd_stor_firstelt(pd_stor_t *pdstor)
   /* Step 1: Find the first hash */
 
   JSLF(pdstor->iter_PValue_hash,pdstor->PJSLArray,
-       (uint8_t *)(pdstor->iter_hash));  /* Find the first hash */
+       /*(uint8_t *)*/(pdstor->iter_hash));  /* Find the first hash */
 
   if (pdstor->iter_PValue_hash == NULL) { /* The PJSLArray is actually empty! */ 
 
@@ -370,7 +370,7 @@ pd_code_t *pd_stor_nextelt(pd_stor_t *pdstor)
     /* We've reached the end of the current hash's JudyL and need to increment hashes */
 
     Word_t *PValue_hash;
-    JSLN(PValue_hash,pdstor->PJSLArray,(uint8_t *)(pdstor->iter_hash));
+    JSLN(PValue_hash,pdstor->PJSLArray,/*(uint8_t *)*/(pdstor->iter_hash));
 
     if (PValue_hash == NULL) {
 
@@ -421,7 +421,7 @@ pd_code_t *pd_search_pdstor_by_isomorphism(pd_stor_t *pdstor,pd_code_t *pd,
   PWord_t PValue_hash;
   Pvoid_t PJLArray;
 
-  JSLG(PValue_hash,pdstor->PJSLArray,(uint8_t *)(pd->hash)); /* Search for a matching hash */
+  JSLG(PValue_hash,pdstor->PJSLArray,/*(uint8_t *)*/(pd->hash)); /* Search for a matching hash */
 
   if (PValue_hash == NULL) { /* We didn't find one */
 
@@ -476,7 +476,7 @@ void pd_stor_stats(pd_stor_t *pdstor,unsigned int *nhashes,unsigned int *nelts)
 
 {
   Word_t  *PValue_hash; 
-  uint8_t Index[64];
+  char     Index[64];
   Index[0] = 0;
   
   JSLF(PValue_hash,pdstor->PJSLArray,Index);

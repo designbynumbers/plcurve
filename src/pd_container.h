@@ -15,7 +15,7 @@
 #ifndef __PD_CONTAINER_H__
 #define __PD_CONTAINER_H__ 1
 
-typedef uint32_t pd_contidx_t;  /* Index to elements in a pd_container_t. */
+typedef unsigned int pd_contidx_t;  /* Index to elements in a pd_container_t. */
 
 typedef void * pd_contdata_t; 
 

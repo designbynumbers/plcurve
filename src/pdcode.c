@@ -1279,7 +1279,7 @@ void pd_write(FILE *of,pd_code_t *pd)
   pd_idx_t cross,edge,face,comp;
   pd_pos_t  pos;
 
-  fprintf(of,"pd %s %ju\n",pd->hash,(uintmax_t)(pd->uid));
+  fprintf(of,"pd %s %lu\n",pd->hash,(unsigned long int)(pd->uid));
   
   /* Crossing data */
   
@@ -1369,18 +1369,18 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 {
   /* pd   <hash> <uid> */ /* Remember that the hash is base64 encoded using a-zA-Z;: character set */
 
-  uintmax_t input_temp,input_temp2,input_temp3,input_temp4;
+  unsigned long int input_temp,input_temp2,input_temp3,input_temp4;
 
   if (fscanf(infile," pd %32[a-zA-Z0-9;:]s ",pd->hash) != 1) { return false; }
 
-  if (fscanf(infile," %ju ", &input_temp) != 1) { return false; }
+  if (fscanf(infile," %lu ", &input_temp) != 1) { return false; }
   pd->uid = (pd_uid_t)(input_temp);
 
   /* nv   <nverts> */
 
   int cross,edge,comp,pos,face;
   
-  if (fscanf(infile,"nv %ju ",&input_temp) != 1) { return false; }
+  if (fscanf(infile,"nv %lu ",&input_temp) != 1) { return false; }
   pd->ncross = (pd_idx_t)(input_temp);
 
   if (pd->ncross > PD_MAXVERTS) {
@@ -1399,7 +1399,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
     for(pos=0;pos<4;pos++) {
 
-      if(fscanf(infile," %ju ",&input_temp) != 1) { return false; }
+      if(fscanf(infile," %lu ",&input_temp) != 1) { return false; }
       pd->cross[cross].edge[pos] = (pd_idx_t)(input_temp);
 
     }
@@ -1408,7 +1408,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   /* ne   <nedges> */
 
-  if (fscanf(infile,"ne %ju ",&input_temp) != 1) { return false; }
+  if (fscanf(infile,"ne %lu ",&input_temp) != 1) { return false; }
   pd->nedges = (pd_idx_t)(input_temp);
 
   if (pd->nedges > PD_MAXEDGES) {
@@ -1425,7 +1425,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   for(edge=0;edge<pd->nedges;edge++) {
 
-    if(fscanf(infile," %ju,%ju -> %ju,%ju ",
+    if(fscanf(infile," %lu,%lu -> %lu,%lu ",
 	      &input_temp,&input_temp2,&input_temp3,&input_temp4) != 4) { return false; }
 
     pd->edge[edge].tail = (pd_idx_t)(input_temp);
@@ -1438,7 +1438,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   /* nc   <ncomps> */
 
-  if (fscanf(infile,"nc %ju ",&input_temp) != 1) { return false; }
+  if (fscanf(infile,"nc %lu ",&input_temp) != 1) { return false; }
   pd->ncomps = (pd_idx_t)(input_temp);
 
   if (pd->ncomps > PD_MAXCOMPONENTS) {
@@ -1455,7 +1455,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   for(comp=0;comp<pd->ncomps;comp++) {
      
-    if (fscanf(infile," %ju : ",&input_temp) != 1) { return false; }
+    if (fscanf(infile," %lu : ",&input_temp) != 1) { return false; }
     pd->comp[comp].nedges = (pd_idx_t)(input_temp);
 
     if (pd->comp[comp].nedges > PD_MAXEDGES) {
@@ -1470,7 +1470,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
     for(edge=0;edge<pd->comp[comp].nedges;edge++) {
 
-      if(fscanf(infile," %ju ",&input_temp) != 1) { return false; }
+      if(fscanf(infile," %lu ",&input_temp) != 1) { return false; }
       pd->comp[comp].edge[edge] = (pd_idx_t)(input_temp);
       
 
@@ -1480,7 +1480,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   /*nf   <nfaces> */
  
-  if (fscanf(infile,"nf %ju ",&input_temp) != 1) { return false; }
+  if (fscanf(infile,"nf %lu ",&input_temp) != 1) { return false; }
   pd->nfaces = (pd_idx_t)(input_temp);
 
   if (pd->nfaces > PD_MAXFACES) {
@@ -1498,7 +1498,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   for(face=0;face<pd->nfaces;face++) {
     
-    if (fscanf(infile," %ju : ",&input_temp) != 1) { return false; }
+    if (fscanf(infile," %lu : ",&input_temp) != 1) { return false; }
     pd->face[face].nedges = (pd_idx_t)(input_temp);
 
     if (pd->face[face].nedges > PD_MAXEDGES) {
@@ -1520,7 +1520,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
       }
 
-      if (fscanf(infile," %ju ",&input_temp) != 1) { return false; }
+      if (fscanf(infile," %lu ",&input_temp) != 1) { return false; }
 
       pd->face[face].edge[edge] = (pd_idx_t)(input_temp);
       pd->face[face].or[edge] = (orientation[0] == '+') ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;

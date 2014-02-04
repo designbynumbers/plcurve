@@ -79,16 +79,15 @@ extern "C" {
   typedef unsigned int      pd_pos_t;   /* pd "position" type */
   typedef unsigned long int pd_uid_t;   /* pd "uid" type */
 
-  typedef struct mem_test {
-    char c;
+  /* typedef struct mem_test { */
+/*     char c; */
   
-    uint16_t n;
-  
-    int iarray[2];
+/*     uint16_t n; */
+/*     int iarray[2]; */
 
-    int another_array[2];
+/*     int another_array[2]; */
 
-  } mem_test_t;
+/*   } mem_test_t; */
 
   typedef struct pd_edge_struct {       
 

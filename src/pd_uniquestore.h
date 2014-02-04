@@ -89,6 +89,6 @@ pd_ll_t        *pdc_nextelt(pdc_t *pdc,pdc_liststate_t *pdls);
 /* Can be repeatedly called until it returns NULL to iterate over a pdc. */
 
 pd_ll_t        *pd_search_pdc_by_isomorphism(pdc_t *pdc,pd_code_t *pd,pd_iso_t **isos,unsigned int *nisos); 
-pd_ll_t        *pd_search_pdc_by_hash_uid(pdc_t *pdc,char *hash, uint_fast64_t uid);  
+pd_ll_t        *pd_search_pdc_by_hash_uid(pdc_t *pdc,char *hash,pd_uid_t uid);  
 
 #endif
