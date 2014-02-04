@@ -13,8 +13,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 	bad_vects/bad_11.vect \
 	bad_vects/bad_12.vect \
 	bad_vects/bad_13.vect \
-	bad_vects/bad_14.vect \
-	make_hopf
+	bad_vects/bad_14.vect 
+#	make_hopf
 
 check_PROGRAMS = tsmcmc_random_test \
 		 nn_test \
