@@ -121,7 +121,7 @@ int crossing_compare(const void *A, const void *B) {
   crossing *b = (crossing *)(B);
 
   int acmp,bcmp; 
-  double as,bs;
+  double as = -1.0,bs = -1.0;
 
   if (a->lower_cmp < a->upper_cmp) { 
 
@@ -135,7 +135,7 @@ int crossing_compare(const void *A, const void *B) {
 
   if (b->lower_cmp < b->upper_cmp) { 
 
-    bcmp = b->lower_cmp; as = a->lower_s;
+    bcmp = b->lower_cmp; bs = b->lower_s;
 
   } else {
 
@@ -149,6 +149,7 @@ int crossing_compare(const void *A, const void *B) {
 
   } else { 
 
+    assert(as > 0 && bs > 0);
     if (as < bs) { return -1; } 
     else { return +1; }
 
@@ -440,6 +441,8 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
        slowly, but what other option do we really have?) we should
        have checked for and eliminated all the nongeneric crossings in
        this projection. We sweep again to make sure. */
+
+    plc_free(Lprojection);
   
   }
     
@@ -450,7 +453,6 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
 
   }
 
-  plc_free(Lprojection);
   return Lcopy;
 
 }
@@ -608,12 +610,37 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
 
   for(cmp=0;cmp<L->nc;cmp++) { 
 
-    if (crc[cmp].size > 0) { 
-      crc[cmp].buf = calloc(crc[cmp].size,sizeof(crossing_reference));
-    } else {
-      crc[cmp].buf = NULL;
-    }
+    if (crc[cmp].size == 0) {
+
+      if (L->nc == 1) { 
+      
+	// We have a single unknotted component with no crossings. Add a "virtual" self-crossing 
+	// in order to generate a valid pd_code. Remember that this crossing will be 
+	// added twice to the component record, so we set size to 2, not 1.
+	
+	crc[cmp].size = 2;
+	
+	crossing cross;
+	cross.lower_cmp = cmp;
+	cross.upper_cmp = cmp;
+	cross.lower_s = 0.33;
+	cross.upper_s = 0.66;
+	cross.sign = +1;
+	
+	crossing_container_add(cc,cross);
+	
+      } else {
+
+	printf("pd_code_from_plCurve: This build does not handle split components of links.\n");
+	exit(1);
+
+      }
+
+    } 
+
+    crc[cmp].buf = calloc(crc[cmp].size,sizeof(crossing_reference));
     crc[cmp].used = 0;
+
   }
 
   for(cr=0;cr<cc->used;cr++) { 

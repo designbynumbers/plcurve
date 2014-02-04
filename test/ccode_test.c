@@ -131,11 +131,11 @@ bool torus_knot_test(gsl_rng *rng,int verts,int q) {
   plCurve *L = torusknot(verts,q,2,5.0,2.0);
   printf("done\n");
 
-  printf("writing to file torusknot_test.vect....");
-  FILE *outfile = fopen("/Users/cantarel/plcurve/test/torusknot_test.vect","w");
-  plc_write(outfile,L);
-  fclose(outfile);
-  printf("done\n");
+ /*  printf("writing to file torusknot_test.vect...."); */
+/*   FILE *outfile = fopen("/Users/cantarel/plcurve/test/torusknot_test.vect","w"); */
+/*   plc_write(outfile,L); */
+/*   fclose(outfile); */
+/*   printf("done\n"); */
 
   start=clock();
   printf("computing pd_code (random rotation disabled)...");
@@ -379,12 +379,12 @@ bool arcpresentation_tests(gsl_rng *rng) {
   plCurve *hopf = basic_hopf();
   printf("done\n");
 
-  printf("writing test file hopftest.vect...");
-  FILE *outfile;
-  outfile = fopen("hopftest.vect","w");
-  plc_write(outfile,hopf);
-  fclose(outfile);
-  printf("done\n");
+  /* printf("writing test file hopftest.vect..."); */
+/*   FILE *outfile; */
+/*   outfile = fopen("hopftest.vect","w"); */
+/*   plc_write(outfile,hopf); */
+/*   fclose(outfile); */
+/*   printf("done\n"); */
 
   start=clock();
   printf("computing pd_code (random rotation disabled)...");
@@ -443,6 +443,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
 
     exit(1);
   }
+  plc_free(hopf);
 
   printf("---------------------------------------\n"
 	 "generating plCurve for trefoil...");
@@ -450,11 +451,11 @@ bool arcpresentation_tests(gsl_rng *rng) {
   plCurve *tref = basic_trefoil();
   printf("done\n");
 
-  printf("writing test file treftest.vect...");
-  outfile = fopen("treftest.vect","w");
-  plc_write(outfile,tref);
-  fclose(outfile);
-  printf("done\n");
+ /*  printf("writing test file treftest.vect..."); */
+/*   outfile = fopen("treftest.vect","w"); */
+/*   plc_write(outfile,tref); */
+/*   fclose(outfile); */
+/*   printf("done\n"); */
 
   start=clock();
   printf("computing pd_code (random rotation disabled)...");
@@ -514,6 +515,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
     exit(1);
   }
 
+  plc_free(tref);
   return true;
 
 }
@@ -565,6 +567,173 @@ bool randomwalk_test(gsl_rng *rng,int nedges) {
 }
   
 
+plCurve *equilateral_ngon(int nedges) {
+
+  int n = nedges;
+  double ngon_radius;
+  double TWO_PI = 6.2831853071795864769;
+  double phi,theta;
+  int i;
+
+  plCurve *L;
+  bool open = false;
+  int  nv = (int)(n);
+  int  cc = 0;
+
+  L = plc_new(1,&nv,&open,&cc);
+
+  /* For the regular n-gon with side length 1, we have that the radius */
+  /* of the circumscribed circle obeys:
+
+     (1/2) / r = sin (theta/2), 
+
+     or r = (1/2) / sin (theta/2), where theta = TWO_PI/n_edges. 
+  */
+
+  theta = TWO_PI/(double)(nv);
+  ngon_radius = (1.0/2.0) / sin(theta/2.0);
+
+  for(i=0,phi=0;i<L->cp[0].nv;i++,phi += theta) { 
+
+    L->cp[0].vt[i].c[0] = ngon_radius*cos(phi);
+    L->cp[0].vt[i].c[1] = ngon_radius*sin(phi);
+    L->cp[0].vt[i].c[2] = 0;
+
+  }
+
+  plc_fix_wrap(L);
+  return L;
+}
+
+bool unknot_and_split_component_test(gsl_rng *rng) {
+
+  clock_t start,end;
+  double cpu_time_used;
+
+  printf("------------------------------------------------\n"
+	 "unknot and split component test\n"
+	 "------------------------------------------------\n");
+  
+  int nedges = 50;
+
+  start = clock();
+  printf("generating regular planar %d gon (0-crossing unknot)...",nedges);
+  plCurve *L = equilateral_ngon(nedges);
+  end = clock();
+  cpu_time_used = ((double)(end - start)/CLOCKS_PER_SEC);
+  printf("done (%2.4g sec)\n",cpu_time_used);
+
+  printf("computing pd_code (random rotation enabled, verbose enabled)...\n\n");
+  set_pd_code_from_plCurve_verbose(true);
+  pd_code_t *projected_pd = pd_code_from_plCurve(rng,L);
+  printf("done\n");
+
+  printf("crossings of produced pd code == 1 (expect 1 virtual crossing)...");
+
+  if (projected_pd->ncross == 1) { 
+    
+    printf("ok (%d crossings actual == 1)\n",projected_pd->ncross);
+
+  } else {
+
+    printf("FAIL (%d != 1)\n",projected_pd->ncross);
+    printf("pd code generated from plCurve was:\n");
+    printf("-----------------------------------\n");
+    pd_write(stdout,projected_pd);
+    free(projected_pd);
+
+    exit(1);
+  }
+
+  printf("checking pd_ok...");
+  if (pd_ok(projected_pd)) { 
+    
+    printf("pass\n");
+    free(projected_pd);
+
+  } else { 
+
+    printf("FAIL\n");
+    printf("pd code generated from plCurve was:\n");
+    printf("-----------------------------------\n");
+    pd_write(stdout,projected_pd);
+    free(projected_pd);
+
+    exit(1);
+  }
+
+  plc_free(L);
+
+  /***********************/ 
+  
+ /*  start = clock(); */
+/*   printf("generating (2,4) torus link + split component gon..."); */
+/*   plCurve *split = equilateral_ngon(nedges); */
+/*   plCurve *link = torusknot(250,4,2,5.0,2.0); */
+/*   plc_add_component(link,2,split->cp[0].nv,split->cp[0].open,split->cp[0].cc,split->cp[0].vt,split->cp[0].clr); */
+/*   end = clock(); */
+/*   cpu_time_used = ((double)(end - start)/CLOCKS_PER_SEC); */
+/*   printf("done (%2.4g sec)\n",cpu_time_used); */
+
+/*   printf("writing to file splitlink_test.vect...."); */
+/*   FILE *outfile = fopen("/Users/cantarel/plcurve/test/splitlink_test.vect","w"); */
+/*   plc_write(outfile,link); */
+/*   fclose(outfile); */
+/*   printf("done\n"); */
+
+/*   printf("computing pd_code (random rotation disabled, verbose enabled)...\n\n"); */
+
+/*   set_pd_code_from_plCurve_verbose(true); */
+/*   set_pd_code_from_plCurve_debug(true); */
+
+/*   projected_pd = pd_code_from_plCurve(rng,link); */
+/*   printf("done\n"); */
+
+/*   printf("crossings of produced pd code == 5 (expect 4 link + 1 virtual crossing)..."); */
+
+/*   if (projected_pd->ncross == 5) {  */
+    
+/*     printf("ok (%d crossings actual == 5)\n",projected_pd->ncross); */
+
+/*   } else { */
+
+/*     printf("FAIL (%d != 5)\n",projected_pd->ncross); */
+/*     printf("pd code generated from plCurve was:\n"); */
+/*     printf("-----------------------------------\n"); */
+/*     pd_write(stdout,projected_pd); */
+/*     free(projected_pd); */
+
+/*     exit(1); */
+/*   } */
+
+/*   printf("checking pd_ok..."); */
+/*   if (pd_ok(projected_pd)) {  */
+    
+/*     printf("pass\n"); */
+/*     free(projected_pd); */
+
+/*   } else {  */
+
+/*     printf("FAIL\n"); */
+/*     printf("pd code generated from plCurve was:\n"); */
+/*     printf("-----------------------------------\n"); */
+/*     pd_write(stdout,projected_pd); */
+/*     free(projected_pd); */
+
+/*     exit(1); */
+/*   } */
+
+/*   plc_free(split); */
+/*   plc_free(link); */
+
+  printf("disabling verbose mode...");
+  set_pd_code_from_plCurve_verbose(false);
+  printf("done\n");
+  printf("---------------------------------------------\n");
+  return true;
+ 
+}
+
 
 int main () {
 
@@ -585,6 +754,8 @@ int main () {
   printf("with %s random number gen, seeded with %d.\n",gsl_rng_name(rng),seedi);
   printf("==========================================\n");
 
+  unknot_and_split_component_test(rng);
+
   torus_knot_test(rng,150,4);
   torus_knot_test(rng,550,8);
 
@@ -596,7 +767,7 @@ int main () {
   torus_knot_test(rng,550,9);
 
   torus_knot_rotation_test(rng,150,3);
-  torus_knot_rotation_test(rng,150,4); 
+  torus_knot_rotation_test(rng,150,4);
 
   arcpresentation_tests(rng);
 
@@ -606,6 +777,8 @@ int main () {
 
   printf("=======================================\n"
 	 "pd_code_from_plCurve test suite PASSED.\n");
+
+  gsl_rng_free(rng);
   exit(0);
 
 }

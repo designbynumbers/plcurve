@@ -54,7 +54,7 @@ TESTS = tsmcmc_random_test \
 	ccode_test
 
 ccode_test_SOURCES = ccode_test.c 
-ccode_test_LDADD = -L$(top_builddir)/src -lplCurve
+ccode_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 ccode_test_LDFLAGS = -static
 ccode_test_CFLAGS = -I$(top_srcdir)/src
 

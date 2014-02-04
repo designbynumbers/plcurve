@@ -491,7 +491,7 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
   pd_code_t *pdpA, *pdpB;
   pd_code_t pdA,pdB;
   
-  printf("%2d-crossing unknot automorphism group test \n",ncross);
+  printf("%d-crossing unknot automorphism group test  \n",ncross);
   printf("--------------------------------------------\n");
 
   pdpA = pd_build_unknot(ncross);
