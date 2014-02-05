@@ -94,7 +94,7 @@ char  *pd_print_dihedral(void *dihedralP)
 {
   pd_dihedral_t *d = (pd_dihedral_t *)(dihedralP);
   bool can_id = true;
-  char *buf;
+  char *buf = NULL;
   pd_idx_t i;
   
   /* First, we try to identify the dihedral as a rotation or reflection. */

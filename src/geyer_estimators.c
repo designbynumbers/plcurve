@@ -504,7 +504,7 @@ void geyer_ips_add(geyer_ips_t *gips,double data)
     gips->databuf[(gips->samples % gips->buffer_size)] = data;
     gips->databuf_used++;
     gips->sample_sum += data;
-    if (gips->finalbuf != NULL & gips->ifsize > 0) { gips->finalbuf[gips->samples % gips->ifsize] = data; }
+    if (gips->finalbuf != NULL && gips->ifsize > 0) { gips->finalbuf[gips->samples % gips->ifsize] = data; }
     gips->samples++;
 
   } else if (gips->samples == gips->buffer_size) { /* The buffer is full for the first time. */

@@ -113,7 +113,7 @@ pd_crossing_t pd_build_cross(pd_idx_t e0,pd_idx_t e1,pd_idx_t e2,pd_idx_t e3)
 {
   pd_crossing_t cr;
 
-  cr.edge[0] = e0; cr.edge[1] = e1; cr.edge[2] = e2; cr.edge[3] = e3;
+  cr.edge[0] = e0; cr.edge[1] = e1; cr.edge[2] = e2; cr.edge[3] = e3; cr.sign = 0; /* We don't know, so initialize to 0 */
   
   return cr;
 }

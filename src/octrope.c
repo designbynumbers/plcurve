@@ -968,7 +968,7 @@ bool octrope_solveMatrixLU(double A[2][2],double b[2],double x[2])
   int index[2];
   LU_DOUBLE_TYPE D;
  
-  int      i,imax,j,k;
+  int      i,imax=0,j,k;
   LU_DOUBLE_TYPE   big,dum,temp,sum;
   LU_DOUBLE_TYPE   vv[3];
   LU_DOUBLE_TYPE   TINY = {1.0e-20};
