@@ -1,4 +1,4 @@
-LDADD = libplCurve.la
+#LDADD = libplCurve.la
 
 EXTRA_DIST = bad_vects/bad_1.vect \
 	bad_vects/bad_2.vect \
@@ -128,8 +128,9 @@ octrope_timing_LDADD = -L$(top_builddir)/src -lplCurve
 octrope_timing_CFLAGS = -I$(top_srcdir)/src
 
 test_isomorphism_SOURCES = test_isomorphism.c
-test_isomorphism_LDADD = -L$(top_builddir)/src -lplCurve
+test_isomorphism_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_isomorphism_CFLAGS = -I$(top_srcdir)/src
+test_isomorphism_LDFLAGS = -static
 
 test_pdcode_SOURCES = test_pdcode.c 
 test_pdcode_LDADD = -L$(top_builddir)/src -lplCurve
