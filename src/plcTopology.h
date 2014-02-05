@@ -46,10 +46,14 @@ extern "C" {
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
 #include <plCurve.h>    
 
-#define PD_MAXVERTS      1024                         /* We are only going to deal with diagrams with <= 1024 crossings. */
-#define PD_MAXEDGES      (int)(PD_MAXVERTS*2 + 1)
-#define PD_MAXCOMPONENTS (int)(PD_MAXVERTS/2)
-#define PD_MAXFACES      PD_MAXVERTS+2
+  /* This is going to take an actual fork to deal with the fact that 
+     we can't keep the data in static memory anymore. */
+
+#define PD_MAXVERTS         1024   /* We are only going to deal with diagrams with <= 1024 crossings. */
+#define PD_MAXEDGES         (int)(PD_MAXVERTS*2 + 1)
+#define PD_MAXCOMPONENTS    (int)(PD_MAXVERTS/2)
+#define PD_MAXFACES         PD_MAXVERTS+2
+#define PD_MAXEDGES_ON_FACE (int)(PD_MAXVERTS/128)
 
   extern int PD_VERBOSE;
 
@@ -125,8 +129,8 @@ extern "C" {
   typedef struct pd_face_struct { 
 
     pd_idx_t    nedges;
-    pd_idx_t    edge[PD_MAXEDGES];   
-    pd_or_t     or[PD_MAXEDGES];
+    pd_idx_t    edge[PD_MAXEDGES_ON_FACE];   
+    pd_or_t     or[PD_MAXEDGES_ON_FACE];
    
     /* Edge indices around the face in counterclockwise
        order. These are NOT consecutive, nor are they always

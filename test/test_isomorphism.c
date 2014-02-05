@@ -488,7 +488,7 @@ bool test_compperms_and_edgemaps() {
 bool unknot_iso_test(pd_idx_t ncross,bool print)
 
 {
-  pd_code_t *pdpA, *pdpB;
+  pd_code_t *pdpA = NULL, *pdpB = NULL;
   pd_code_t pdA,pdB;
   
   printf("%d-crossing unknot automorphism group test  \n",ncross);
