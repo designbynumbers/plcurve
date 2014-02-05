@@ -1199,7 +1199,7 @@ double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L
 
     }
 
-    if (run_params.logfile != NULL && i%run_params.log_interval == 0 ) {
+    if (run_params.logfile != NULL && i%run_params.log_interval == 0 && i>run_params.burn_in) {
 
 	char *configuration = tsmcmc_configuration_MathematicaForm(T,edge_lengths,diagonal_lengths,dihedral_angles);
 	fprintf(run_params.logfile,"{ \"step number\"->%d, %s, \"integrand\"->%g, \"sample mean\"->%g }\n",
@@ -1445,7 +1445,7 @@ double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L),
 
   }
     
-  double *edge_lengths, *diagonal_lengths, *dihedral_angles, ival;
+  double *edge_lengths, *diagonal_lengths, *dihedral_angles, ival = 0.0;
   int i;
   plCurve *L;
 
@@ -1517,7 +1517,7 @@ double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L),
 
     }
 
-    if (run_params.logfile != NULL && i%run_params.log_interval == 0 ) {
+    if (run_params.logfile != NULL && i%run_params.log_interval == 0 && i>run_params.burn_in) {
 
 	char *configuration = tsmcmc_configuration_MathematicaForm(T,edge_lengths,diagonal_lengths,dihedral_angles);
 	fprintf(run_params.logfile,"{ \"step number\"->%d, %s, \"integrand\"->%g, \"sample mean\"->%g }\n",
@@ -1570,7 +1570,7 @@ tsmcmc_run_parameters tsmcmc_default_unconfined_parameters()
   RP.beta    = 0.5;
   RP.moment_polytope_repeat = 10;
   RP.log_interval = 1;
-  sprintf(RP.logfile_name,"");
+  RP.logfile_name[0] = 0;
   RP.logfile = NULL;
 
   return RP;
@@ -1585,7 +1585,7 @@ tsmcmc_run_parameters tsmcmc_default_confined_parameters()
   RP.beta    = 0.5;
   RP.moment_polytope_repeat = 10;
   RP.log_interval = 1;
-  sprintf(RP.logfile_name,"");
+  RP.logfile_name[0] = 0;
   RP.logfile = NULL;
 
   return RP;
