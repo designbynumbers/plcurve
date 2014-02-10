@@ -55,6 +55,127 @@ int PD_VERBOSE;
 
 #include<pd_isomorphisms.h>
 
+pd_code_t *pd_code_new(pd_idx_t maxverts) {
+  
+  pd_code_t *pd = calloc(1,sizeof(pd_code_t));
+  assert(pd != NULL);
+  assert(maxverts > 1 && maxverts < PD_MAXVERTS);
+
+  pd->uid = 0;
+
+  pd->MAXVERTS = maxverts;
+  pd->MAXEDGES = 2*maxverts+1;
+  pd->MAXCOMPONENTS = (int)(floor(maxverts/2.0));
+  pd->MAXFACES = maxverts+2;
+  
+  pd->ncross = 0;
+  pd->nedges = 0;
+  pd->ncomps = 0;
+  pd->nfaces = 0;
+  
+  pd->hash = " ";
+  pd->edge = calloc(pd->MAXEDGES,sizeof(pd_edge_t));
+  assert(pd->edge != NULL);
+
+  pd->comp = calloc(pd->MAXCOMPS,sizeof(pd_component_t));
+  assert(pd->comp != NULL);
+
+  pd->cross = calloc(pd->MAXVERTS,sizeof(pd_crossing_t));
+  assert(pd->cross != NULL);
+
+  pd->face = calloc(pd->MAXFACES,sizeof(pd_face_t));
+  assert(pd->face != NULL);
+
+  return pd;
+
+}
+
+void pd_code_free(pd_code_t **PD) { 
+
+  int cr,cmp,edge;
+
+  if (*PD == NULL) { return; }
+
+  pd_code_t *pd = *PD;
+
+  if (pd->MAXCOMPONENTS != 0 && pd->comp != NULL) { 
+
+    for(cmp=0;cmp<pd->MAXCOMPONENTS;cmp++) { 
+      
+      if (pd->comp[cmp].edge != NULL) { 
+	
+	free(pd->comp[cmp].edge);
+	pd->comp[cmp].edge = NULL;
+	pd->comp[cmp].nedges = 0;
+	
+      }
+      
+    } 
+
+    free(pd->comp);
+    pd->MAXCOMPONENTS = 0;
+    pd->ncomps = 0;
+
+  }
+
+  if (pd->MAXFACES != 0 && pd->face != NULL) {
+
+    for(face=0;face<pd->MAXFACES;face++) { 
+      
+      if (pd->face[face].edge != NULL) {
+	
+	free(pd->face[face].edge);
+	pd->face[face].edge = NULL;
+	
+      } 
+      
+      if (pd->face[face].or != NULL) {
+	
+	free(pd->face[face].or);
+	pd->face[face].or = NULL;
+	
+      }
+
+      pd->face[face].nedges = 0;
+
+    }
+
+    free(pd->face);
+    pd->MAXFACES = 0;
+    pd->nfaces = 0;
+
+  }
+
+  if (pd->edge != NULL) { 
+
+    free(pd->edge);
+    pd->edge = NULL;
+    pd->nedges = 0;
+
+  }
+
+  if (pd->cross != NULL) { 
+
+    free(pd->cross);
+    pd->cross = NULL;
+    pd->ncross = 0;
+
+  }
+
+  pd->hash = " ";
+  pd->uid = 0;
+  pd->MAXVERTS = 0;
+  pd->MAXEDGES = 0;
+  pd->ncross = 0;
+  pd->nedges = 0;
+
+  free(pd);
+  *PD = NULL;
+
+}
+    
+/* These are the basic allocate/deallocate functions. */
+
 pd_or_t pd_compose_or(pd_or_t a,pd_or_t b)
 /* Returns the composition of the two orientation changes: ++ = -- = +, +- = -+ = - */
 {
@@ -408,7 +529,7 @@ void pd_regenerate_crossings(pd_code_t *pd)
      and update the crossing records accordingly. */
 
   pd_idx_t cross;
-  pd_pos_t cross_rotate[PD_MAXVERTS];
+  pd_pos_t cross_rotate[pd->MAXVERTS];
 
   for(cross=0;cross<pd->ncross;cross++) {
     
@@ -437,11 +558,11 @@ void pd_regenerate_crossings(pd_code_t *pd)
   /* fields and we'll need to update these as well. */
 
   pdint_cross_index_cmp_glob = pd;
-  pd_idx_t cross_perm[PD_MAXVERTS];
+  pd_idx_t cross_perm[pd->MAXVERTS];
   for(cross=0;cross<pd->ncross;cross++) { cross_perm[cross] = cross; }
   qsort(cross_perm,pd->ncross,sizeof(pd_idx_t),pdint_cross_index_cmp);
 
-  pd_idx_t new_cross_num[PD_MAXVERTS];
+  pd_idx_t new_cross_num[pd->MAXVERTS];
   for(cross=0;cross<pd->ncross;cross++) { new_cross_num[cross_perm[cross]] = cross; }
 
 
@@ -456,7 +577,7 @@ void pd_regenerate_crossings(pd_code_t *pd)
 
   /* Next, we rearrange the crossings themselves. */
 
-  pd_crossing_t newcross[PD_MAXVERTS];
+  pd_crossing_t newcross[pd->MAXVERTS];
 
   for(cross=0;cross<pd->ncross;cross++) { newcross[cross] = pd->cross[cross_perm[cross]]; }
   for(cross=0;cross<pd->ncross;cross++) { pd->cross[cross] = newcross[cross]; }
@@ -553,7 +674,7 @@ void pd_regenerate_comps(pd_code_t *pd)
 
 {
   assert(pd != NULL);
-  assert(pd->ncross <= PD_MAXVERTS);
+  assert(pd->ncross <= pd->MAXVERTS);
   
   /* Step 0: Generate SOME list of edges to get off the
      ground with using only crossing information. We don't
@@ -561,7 +682,7 @@ void pd_regenerate_comps(pd_code_t *pd)
      and ncross yet, so we reset nedges first. */
   
   pd_idx_t cross,edge;
-  bool     hit[PD_MAXEDGES];
+  bool     hit[pd->MAXEDGES];
 
   pd->nedges = pd->ncross*2;
 
@@ -592,7 +713,7 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   }
 
-  bool edge_used[PD_MAXEDGES];
+  bool edge_used[pd->MAXEDGES];
   bool all_used = false;
 
   /* Step 1. Run around the components, assembling the (old) edge
@@ -604,7 +725,7 @@ void pd_regenerate_comps(pd_code_t *pd)
   pd->ncomps = 0;
   edge_used[edge] = true;
 
-  for(;!all_used && pd->ncomps < PD_MAXCOMPONENTS+1;
+  for(;!all_used && pd->ncomps < pd->MAXCOMPONENTS+1;
       pd->ncomps++,edge=pdint_find_unused(pd,edge_used,&all_used)) {
 
     pd_idx_t comp = pd->ncomps;
@@ -617,7 +738,7 @@ void pd_regenerate_comps(pd_code_t *pd)
     pd->comp[comp].edge[0] = edge;
     pdint_next_comp_edge(pd,edge,&next_edge,&next_or);
 
-    for(;next_edge != pd->comp[comp].edge[0] && pd->comp[comp].nedges < PD_MAXEDGES + 1;
+    for(;next_edge != pd->comp[comp].edge[0] && pd->comp[comp].nedges < pd->MAXEDGES + 1;
 	pdint_next_comp_edge(pd,edge,&next_edge,&next_or),pd->comp[comp].nedges++) {
 
       pd_reorient_edge(pd,next_edge,next_or);
@@ -627,11 +748,11 @@ void pd_regenerate_comps(pd_code_t *pd)
 
     }
 
-    assert(pd->comp[comp].nedges <= PD_MAXEDGES);
+    assert(pd->comp[comp].nedges <= pd->MAXEDGES);
 
   }
 
-  assert(pd->ncomps <= PD_MAXCOMPONENTS);
+  assert(pd->ncomps <= pd->MAXCOMPONENTS);
 
   /* Step 2. Sort the components longest-first. */
 
@@ -640,8 +761,8 @@ void pd_regenerate_comps(pd_code_t *pd)
   /* Step 3. Build a translation table for edge reordering and update the
      comp records to standard edge numbers. */
 
-  pd_idx_t old_edge_num[PD_MAXEDGES];
-  pd_idx_t new_edge_num[PD_MAXEDGES];
+  pd_idx_t old_edge_num[pd->MAXEDGES];
+  pd_idx_t new_edge_num[pd->MAXEDGES];
 
   pd_idx_t comp;
   pd_idx_t i;
@@ -661,7 +782,7 @@ void pd_regenerate_comps(pd_code_t *pd)
   
   /* Step 4. Rearrange the edges buffer accordingly. */
   
-  pd_edge_t new_edges[PD_MAXEDGES];
+  pd_edge_t new_edges[pd->MAXEDGES];
   
   for(edge=0;edge<pd->nedges;edge++) {
     
@@ -860,8 +981,8 @@ void pd_regenerate_faces(pd_code_t *pd)
 {
   assert(pd != NULL);
 
-  bool pos_or_used[PD_MAXEDGES];
-  bool neg_or_used[PD_MAXEDGES];
+  bool pos_or_used[pd->MAXEDGES];
+  bool neg_or_used[pd->MAXEDGES];
 
   pd_idx_t edge;
 
@@ -993,12 +1114,12 @@ bool pd_cross_ok(pd_code_t *pd)
    pd->nedges-1, and that the crossing data is sorted. */
 {
   assert(pd != NULL);
-  int edge_seen[PD_MAXEDGES];
+  int edge_seen[pd->MAXEDGES];
 
   pd_idx_t edge, cross;
   pd_pos_t pos;
 
-  for(edge=0;edge<PD_MAXEDGES;edge++) { edge_seen[edge] = 0; }
+  for(edge=0;edge<pd->MAXEDGES;edge++) { edge_seen[edge] = 0; }
 
   for(cross=0;cross<pd->ncross;cross++) {
 
@@ -1105,9 +1226,9 @@ bool pd_comps_ok(pd_code_t *pd)
 
   assert(pd != NULL);
   
-  if (pd->ncomps > PD_MAXCOMPONENTS) {
+  if (pd->ncomps > pd->MAXCOMPONENTS) {
 
-    return pd_error(SRCLOC,"Number of components %d > PD_MAXCOMPONENTS %d in pd %PD",pd,pd->ncomps,PD_MAXCOMPONENTS);
+    return pd_error(SRCLOC,"Number of components %d > PD_MAXCOMPONENTS %d in pd %PD",pd,pd->ncomps,pd->MAXCOMPONENTS);
 
   }
 
@@ -1235,12 +1356,75 @@ bool pd_ok(pd_code_t *pd) {
 /* pd operations */
 
 pd_code_t *pd_copy(pd_code_t *pd)
-/* Make a new-memory copy of pd. */
+/* Make a new-memory copy of pd. This can require some care, for instance if the face and comp arrays aren't allocated yet. */
 {
   pd_code_t *pdA;
-  pdA = malloc(sizeof(pd_code_t));
-  assert(pdA != NULL);
-  (*pdA) = *pd;
+  pdA = pd_code_new(pd->MAXVERTS);
+
+  assert(pdA->MAXVERTS      == pd->MAXVERTS);
+  assert(pdA->MAXEDGES      == pd->MAXEDGES);
+  assert(pdA->MAXCOMPONENTS == pd->MAXCOMPONENTS);
+  assert(pdA->MAXFACES      == pd->MAXFACES);
+  
+  pd_idx_t i, edge, cmp, face, cr;
+
+  pdA->uid = pd->uid;
+
+  pdA->ncross = pd->ncross;
+  pdA->nedges = pd->nedges;
+  pdA->ncomps = pd->ncomps;
+  pdA->nfaces = pd->nfaces;
+
+  for(i=0;i<PD_HASHSIZE;i++) { pdA->hash[i] = pd->hash[i]; }
+  for(edge=0;edge<pd->MAXEDGES;edge++) { pdA->edge[i] = pd->edge[i]; };
+
+  for(cmp=0;cmp<pd->MAXCOMPONENTS;cmp++) { 
+
+    assert(   (pd->comp[cmp].nedges == 0 && pd->comp[cmp].edge == NULL) 
+	   || (pd->comp[cmp].nedges != 0 && pd->comp[cmp].edge != NULL));
+
+    if (pd->comp[cmp].nedges != 0) { 
+
+      pdA->comp[cmp].nedges = pd->comp[cmp].nedges;
+      pdA->comp[cmp].edge = calloc(pdA->comp[cmp].nedges,sizeof(pd_idx_t));
+      assert(pdA->comp[cmp].edge != NULL);
+
+      for(edge=0;edge<pdA->comp[cmp].nedges;edge++) { pdA->comp[cmp].edge[edge] = pd->comp[cmp].edge[edge]; }
+
+    }
+  
+  }
+
+  for(cr=0;cr<pdA->MAXVERTS;cr++) { 
+
+    pdA->cross[cr] = pd->cross[cr];
+
+  }
+
+  for(face=0;face<pdA->MAXFACES;face++) { 
+
+    assert((pd->face[face].nedges == 0 && (pd->face[face].edge == NULL && pd->face[face].or == NULL)) ||
+	   (pd->face[face].nedges != 0 && (pd->face[face].edge != NULL && pd->face[face].or != NULL)));
+
+    if (pd->face[face].nedges != 0) { 
+
+      pdA->face[face].nedges = pd->face[face].nedges;
+      pdA->face[face].edge   = calloc(pdA->face[face].nedges,sizeof(pd_idx_t));
+      pdA->face[face].or     = calloc(pdA->face[face].nedges,sizeof(pd_or_t));
+      
+      assert(pdA->face[face].edge != NULL && pdA->face[face].or != NULL);
+      
+      for(edge=0;edge<pdA->face[face].nedges;edge++) { 
+
+	pdA->face[face].edge[edge] = pd->face[face].edge[edge];
+	pdA->face[face].or[edge] = pd->face[face].or[edge];
+
+      }
+      
+    }
+
+  }
+   
   return pdA;
 }
 
@@ -1268,7 +1452,7 @@ void pd_write(FILE *of,pd_code_t *pd)
   /* First, we do a bit of sanity checking */
 
   if (pd == NULL) { return; }
-  if (pd->ncross > PD_MAXVERTS || pd->nedges > PD_MAXEDGES || pd->ncomps > PD_MAXCOMPONENTS || pd->nfaces > PD_MAXFACES) {
+  if (pd->ncross > pd->MAXVERTS || pd->nedges > pd->MAXEDGES || pd->ncomps > pd->MAXCOMPONENTS || pd->nfaces > pd->MAXFACES) {
 
     fprintf(of,"INVALID PD CODE\n");
     printf("%s (%d): Invalid PD code passed for writing.\n",SRCLOC);
@@ -1357,38 +1541,40 @@ void pd_write(FILE *of,pd_code_t *pd)
 
 }  
 
-bool pd_read(FILE *infile,pd_code_t *pd) 
+pd_code_t *pd_read(FILE *infile) 
 
-/* Reads an (ASCII) pd code written by pd_write. Return true if succeed, false if fail. */
-
-/* This is carefully written to check that the pd codes are compatible with this set of */
-/* compile-time constants (PD_MAXVERTS, PD_MAXEDGES, PD_MAXFACES, etc) since we set these as small */
-/* as possible to minimize run-time memory use, so it's completely plausible that we're  */
-/* trying to load a pd code which is valid, but may overrun our buffers. */
+/* Reads an (ASCII) pd code written by pd_write. Return a pointer if we succeed, NULL if we fail. */
 
 {
   /* pd   <hash> <uid> */ /* Remember that the hash is base64 encoded using a-zA-Z;: character set */
 
   unsigned long int input_temp,input_temp2,input_temp3,input_temp4;
+  char hash[PD_HASHSIZE];
+  pd_uid_t uid;
 
-  if (fscanf(infile," pd %32[a-zA-Z0-9;:]s ",pd->hash) != 1) { return false; }
-
-  if (fscanf(infile," %lu ", &input_temp) != 1) { return false; }
-  pd->uid = (pd_uid_t)(input_temp);
+  if (fscanf(infile," pd %32[a-zA-Z0-9;:]s ",hash) != 1) { return NULL; }
+  if (fscanf(infile," %lu ", &input_temp) != 1) { return NULL; }
+  uid = (pd_uid_t)(input_temp);
 
   /* nv   <nverts> */
 
   int cross,edge,comp,pos,face;
+  if (fscanf(infile,"nv %lu ",&input_temp) != 1) { return NULL; }
+
+  /* We now know the number of crossings to allocate space for, 
+     and we can call pd_new */
+
+  pd_code_t *pd = pd_code_new((pd_idx_t)(input_temp));
   
-  if (fscanf(infile,"nv %lu ",&input_temp) != 1) { return false; }
+  pd->uid = uid;
   pd->ncross = (pd_idx_t)(input_temp);
 
-  if (pd->ncross > PD_MAXVERTS) {
+  if (pd->ncross > pd->MAXVERTS) {
 
     fprintf(stderr,
 	    "%s (%d): Reading pd code which appears to be valid but has %d crossings. "
-	    "         This version of pdcode compiled for PD_MAXVERTS = %d.\n",__FILE__,__LINE__,
-	    pd->ncross,PD_MAXVERTS);
+	    "         We allocated space for pd->MAXVERTS = %d.\n",__FILE__,__LINE__,
+	    pd->ncross,pd->MAXVERTS);
     exit(1);
 
   }
@@ -1399,7 +1585,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
     for(pos=0;pos<4;pos++) {
 
-      if(fscanf(infile," %lu ",&input_temp) != 1) { return false; }
+      if(fscanf(infile," %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
       pd->cross[cross].edge[pos] = (pd_idx_t)(input_temp);
 
     }
@@ -1408,15 +1594,15 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   /* ne   <nedges> */
 
-  if (fscanf(infile,"ne %lu ",&input_temp) != 1) { return false; }
+  if (fscanf(infile,"ne %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
   pd->nedges = (pd_idx_t)(input_temp);
 
-  if (pd->nedges > PD_MAXEDGES) {
+  if (pd->nedges > pd->MAXEDGES) {
 
     fprintf(stderr,
 	    "%s (%d): Reading pd code which appears to be valid but has %d edges. "
-	    "         This version of pdcode compiled for PD_MAXEDGES = %d.\n",
-	    __FILE__,__LINE__,pd->nedges,PD_MAXEDGES);
+	    "         We allocated space for pd->MAXEDGES = %d.\n",
+	    __FILE__,__LINE__,pd->nedges,pd->MAXEDGES);
     exit(1);
 
   }
@@ -1426,7 +1612,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
   for(edge=0;edge<pd->nedges;edge++) {
 
     if(fscanf(infile," %lu,%lu -> %lu,%lu ",
-	      &input_temp,&input_temp2,&input_temp3,&input_temp4) != 4) { return false; }
+	      &input_temp,&input_temp2,&input_temp3,&input_temp4) != 4) { pd_code_free(&pd); return NULL; }
 
     pd->edge[edge].tail = (pd_idx_t)(input_temp);
     pd->edge[edge].tailpos = (pd_pos_t)(input_temp2);
@@ -1438,15 +1624,15 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   /* nc   <ncomps> */
 
-  if (fscanf(infile,"nc %lu ",&input_temp) != 1) { return false; }
+  if (fscanf(infile,"nc %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
   pd->ncomps = (pd_idx_t)(input_temp);
 
-  if (pd->ncomps > PD_MAXCOMPONENTS) {
+  if (pd->ncomps > pd->MAXCOMPONENTS) {
 
     fprintf(stderr,
 	    "%s (%d): Reading pd code which appears to be valid but has %d components. "
-	    "         This version of pdcode compiled for PD_MAXCOMPONENTS = %d.\n",
-	    __FILE__,__LINE__,pd->ncomps,PD_MAXCOMPONENTS);
+	    "         We allocated space for pd->MAXCOMPONENTS = %d.\n",
+	    __FILE__,__LINE__,pd->ncomps,pd->MAXCOMPONENTS);
     exit(1);
 
   }
@@ -1455,22 +1641,27 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   for(comp=0;comp<pd->ncomps;comp++) {
      
-    if (fscanf(infile," %lu : ",&input_temp) != 1) { return false; }
+    if (fscanf(infile," %lu : ",&input_temp) != 1) { pd_code_free(&pd); return false; }
     pd->comp[comp].nedges = (pd_idx_t)(input_temp);
 
-    if (pd->comp[comp].nedges > PD_MAXEDGES) {
+    /* We haven't allocated space in the component. */
+
+    pd->comp[comp].edge = calloc(pd->comp[comp].nedges,sizeof(pd_idx_t));
+    assert(pd->comp[comp].edge != NULL);
+
+    if (pd->comp[comp].nedges > pd->MAXEDGES) {
 
       fprintf(stderr,
 	    "%s (%d): Reading component which appears to be valid but has %d edges. "
-	    "         This version of pdcode compiled for PD_MAXEDGES = %d.\n",
-	      __FILE__,__LINE__,pd->nedges,PD_MAXEDGES);
+	    "         We expect only a maximum of pd->MAXEDGES = %d.\n",
+	      __FILE__,__LINE__,pd->nedges,pd->MAXEDGES);
       exit(1);
 
     }
 
     for(edge=0;edge<pd->comp[comp].nedges;edge++) {
 
-      if(fscanf(infile," %lu ",&input_temp) != 1) { return false; }
+      if(fscanf(infile," %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
       pd->comp[comp].edge[edge] = (pd_idx_t)(input_temp);
       
 
@@ -1480,15 +1671,15 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   /*nf   <nfaces> */
  
-  if (fscanf(infile,"nf %lu ",&input_temp) != 1) { return false; }
+  if (fscanf(infile,"nf %lu ",&input_temp) != 1) { pd_code_free(&pd); return false; }
   pd->nfaces = (pd_idx_t)(input_temp);
 
-  if (pd->nfaces > PD_MAXFACES) {
+  if (pd->nfaces > pd->MAXFACES) {
 
     fprintf(stderr,
 	    "%s (%d): Reading pd code which appears to be valid but has %d faces. "
-	    "         This version of pdcode compiled for PD_MAXFACES = %d.\n",
-	    __FILE__,__LINE__,pd->nfaces,PD_MAXFACES);
+	    "         We expected a maximum of pd->MAXFACES = %d.\n",
+	    __FILE__,__LINE__,pd->nfaces,pd->MAXFACES);
     exit(1);
 
   }
@@ -1498,29 +1689,33 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   for(face=0;face<pd->nfaces;face++) {
     
-    if (fscanf(infile," %lu : ",&input_temp) != 1) { return false; }
+    if (fscanf(infile," %lu : ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
     pd->face[face].nedges = (pd_idx_t)(input_temp);
 
-    if (pd->face[face].nedges > PD_MAXEDGES) {
+    if (pd->face[face].nedges > pd->MAXEDGES) {
 
       fprintf(stderr,
 	    "%s (%d): Reading face which appears to be valid but has %d edges. "
-	    "         This version of pdcode compiled for PD_MAXEDGES = %d.\n",
-	      __FILE__,__LINE__,pd->nedges,PD_MAXEDGES);
+	    "         We expected a maximum of pd->MAXEDGES = %d.\n",
+	      __FILE__,__LINE__,pd->nedges,pd->MAXEDGES);
       exit(1);
 
     }
+
+    pd->face[face].edge = calloc(pd->face[face].nedges,sizeof(pd_idx_t));
+    pd->face[face].or = calloc(pd->face[face].nedges,sizeof(pd_or_t));
+    assert(pd->face[face].edge != NULL && pd->face[face].or != NULL);
 
     for(edge=0;edge<pd->face[face].nedges;edge++) {
 
       char orientation[2];
       if(fscanf(infile," %1[+-]s ",orientation) != 1) {
 
-	return false;
+	return NULL;
 
       }
 
-      if (fscanf(infile," %lu ",&input_temp) != 1) { return false; }
+      if (fscanf(infile," %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
 
       pd->face[face].edge[edge] = (pd_idx_t)(input_temp);
       pd->face[face].or[edge] = (orientation[0] == '+') ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
@@ -1529,7 +1724,7 @@ bool pd_read(FILE *infile,pd_code_t *pd)
 
   }
 
-  return true;
+  return pd;
   
 }
 
@@ -1613,7 +1808,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       pd_idx_t edge;
 
       fprintf(stream,"face %d (",face);
-      for(edge=0;edge<pd->face[face].nedges-1 && edge<PD_MAXEDGES;edge++) {
+      for(edge=0;edge<pd->face[face].nedges-1 && edge<pd->MAXEDGES;edge++) {
 
 	fprintf(stream," (%c) %d ->",
 		pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
@@ -1643,7 +1838,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       pd_idx_t edge;
       
       fprintf(stream,"comp %d (",comp);
-      for(edge=0;edge<pd->comp[comp].nedges-1 && edge<PD_MAXEDGES;edge++) {
+      for(edge=0;edge<pd->comp[comp].nedges-1 && edge<pd->MAXEDGES;edge++) {
 
 	fprintf(stream," %d ->",
 		pd->comp[comp].edge[edge]);
@@ -1722,7 +1917,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       pd_compgrp_t *grp = (pd_compgrp_t *) va_arg(ap,void *);
 
       fprintf(stream,"compgrp ( ");
-      for(comp=0;comp<grp->ncomps && comp<PD_MAXCOMPONENTS;comp++) { fprintf(stream,"%d ",grp->comp[comp]); }
+      for(comp=0;comp<grp->ncomps && comp<pd->MAXCOMPONENTS;comp++) { fprintf(stream,"%d ",grp->comp[comp]); }
       fprintf(stream,")");
 
       nxtconv += 8;
@@ -1872,12 +2067,12 @@ bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB)
   }
   
   // Allocate the memory for the two pd code structs.
-  pd_code_t *pdA = calloc(1,sizeof(pd_code_t));
+  pd_code_t *pdA = pd_code_new(nA);
   assert(pdA != NULL);
 
   pdA->ncross = nA;
 
-  pd_code_t *pdB =calloc(1,sizeof(pd_code_t));
+  pd_code_t *pdB = pd_code_new(nB);
   assert(pdA !=NULL);
 
   pdB->ncross = nB;
@@ -1913,6 +2108,9 @@ bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB)
   pd_regenerate(pdB);
   assert(pd_ok(pdB));
 
-  // Return the call to pd_isomorphic
-  return pd_isomorphic(pdA,pdB);
+  // Store the call to pd_isomorphic
+  bool is_iso = pd_isomorphic(pdA,pdB);
+
+  pd_code_free(&pdA); pd_code_free(&pdB);
+  return is_iso;
 }

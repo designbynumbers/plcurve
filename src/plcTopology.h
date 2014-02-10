@@ -49,11 +49,12 @@ extern "C" {
   /* This is going to take an actual fork to deal with the fact that 
      we can't keep the data in static memory anymore. */
 
-#define PD_MAXVERTS         1024   /* We are only going to deal with diagrams with <= 1024 crossings. */
-#define PD_MAXEDGES         (int)(PD_MAXVERTS*2 + 1)
-#define PD_MAXCOMPONENTS    (int)(PD_MAXVERTS/2)
-#define PD_MAXFACES         PD_MAXVERTS+2
-#define PD_MAXEDGES_ON_FACE (int)(PD_MAXVERTS/128)
+/* #define PD_MAXVERTS         1024   /\* We are only going to deal with diagrams with <= 1024 crossings. *\/ */
+/* #define PD_MAXEDGES         (int)(PD_MAXVERTS*2 + 1) */
+/* #define PD_MAXCOMPONENTS    (int)(PD_MAXVERTS/2) */
+/* #define PD_MAXFACES         PD_MAXVERTS+2 */
+
+  #define PD_HASHSIZE 32
 
   extern int PD_VERBOSE;
 
@@ -83,16 +84,6 @@ extern "C" {
   typedef unsigned int      pd_pos_t;   /* pd "position" type */
   typedef unsigned long int pd_uid_t;   /* pd "uid" type */
 
-  /* typedef struct mem_test { */
-/*     char c; */
-  
-/*     uint16_t n; */
-/*     int iarray[2]; */
-
-/*     int another_array[2]; */
-
-/*   } mem_test_t; */
-
   typedef struct pd_edge_struct {       
 
     /* An oriented edge, joining two verts tail -> head */
@@ -118,7 +109,7 @@ extern "C" {
   typedef struct pd_component_struct {  
 
     pd_idx_t nedges;
-    pd_idx_t edge[PD_MAXEDGES]; 
+    pd_idx_t *edge;   // Should be allocated/deallocated as needed. 
 
     /* Edge indices in orientation order 
        around a component. These are expected 
@@ -129,8 +120,8 @@ extern "C" {
   typedef struct pd_face_struct { 
 
     pd_idx_t    nedges;
-    pd_idx_t    edge[PD_MAXEDGES_ON_FACE];   
-    pd_or_t     or[PD_MAXEDGES_ON_FACE];
+    pd_idx_t    *edge;   
+    pd_or_t     *or;
    
     /* Edge indices around the face in counterclockwise
        order. These are NOT consecutive, nor are they always
@@ -152,6 +143,18 @@ extern "C" {
     pd_uid_t uid;          
     /* Unique diagram id number (among nverts diagrams WITH THIS HASH). */
 
+    pd_idx_t MAXVERTS; 
+    /* Space for this number of vertices has been allocated. */
+
+    pd_idx_t MAXEDGES;
+    /* Space for this number of edges has been allocated. (Usually pd->MAXVERTS*2 + 1). */
+
+    pd_idx_t MAXCOMPONENTS;
+    /* Space for this number of components has been allocated. (Usually pd->MAXVERTS/2.) */
+
+    pd_idx_t MAXFACES; 
+    /* Space for this number of faces has been allocated. (Usually pd->MAXVERTS+2). */
+
     pd_idx_t  ncross;      
     /* The total number of crossings in the PD-Code */
 
@@ -164,19 +167,19 @@ extern "C" {
     pd_idx_t  nfaces;
     /* The number of faces in the PD-Code */
 
-    char hash[32];
+    char hash[PD_HASHSIZE];
     /* A printable 32 char hash string (incl trailing 0) from generate_pd_hash */
 
-    pd_edge_t      edge[PD_MAXEDGES];
+    pd_edge_t      *edge;
     /* nedges entries: tail and head vertices. */
 
-    pd_component_t comp[PD_MAXCOMPONENTS];
+    pd_component_t *comp;
     /* ncomps entries: edge indices/orientations in order around comp */
 
-    pd_crossing_t  cross[PD_MAXVERTS];   
+    pd_crossing_t  *cross;   
     /* nverts entries: 4 edge indices (ccw around cross)*/
   
-    pd_face_t      face[PD_MAXFACES];      
+    pd_face_t      *face;      
     /* nfaces entries: edge indices/orientations ccw around face */
 
   } pd_code_t;
@@ -194,6 +197,19 @@ extern "C" {
 
   */
 
+  /* A pdCode is like a plCurve... we always deal with a pointer
+     which is supposed to be created by the constructor function
+     pd_code_new. 
+
+     The tricky bit is that the actual list of edges along each face
+     is not known in advance (and we don't want to allocate the memory
+     for each face data type in advance, either). So we DO have an
+     array of edges and faces (though we might not use them all), but
+     we DON'T allocate the face records themselves.
+  */
+
+  pd_code_t *pd_code_new(int ncross); 
+  void       pd_code_free(pd_code_t **pd);
 
   /* Utility Functions For Dealing With PD-code primitives */
 
