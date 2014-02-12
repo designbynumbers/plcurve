@@ -74,6 +74,12 @@ bool pd_compgrp_ok(pd_code_t *pd,pd_compgrp_t *cgrp)
 
   } 
 
+  if (cgrp->comp == NULL) {
+
+    return pd_error(SRCLOC,"cgrp comp list not allocated\n");
+    
+  }
+
   pd_idx_t comp;
 
   for(comp=0;comp<cgrp->ncomps;comp++) {
@@ -116,6 +122,7 @@ pd_compgrp_t *pd_build_compgrps(pd_code_t *pdA,pd_code_t *pdB,pd_idx_t *ngrps)
    of edges is different in pdA and pdB, and terminates the program
    if the number of components in any compgrp is > MAXISOMCOMPONENTS. 
 
+   Allocates child memory in the compgrp types as needed.
    Returns the number of component groups in *ngrps. */
 
 {
@@ -138,38 +145,95 @@ pd_compgrp_t *pd_build_compgrps(pd_code_t *pdA,pd_code_t *pdB,pd_idx_t *ngrps)
 
   }
 
-  /* Now do the actual grouping */
+  /* Now we need to count the number of groups, using the fact
+     that the number of edges in each component are sorted. */
 
-  gps = calloc(PD_MAXCOMPONENTS,sizeof(pd_compgrp_t));
-  assert(gps != NULL);
-
-  /* Add component 0 to the initial group to get started */
-  
-  gp = 0;
-  gps[gp].comp[0] = 0;
-  gps[gp].ncomps = 1;
-  
-  for(comp=1;
-      comp < ncomps;
-      comp++) {
-
-    nedges = pdA->comp[comp].nedges; 
-
-    if (nedges != pdA->comp[comp-1].nedges) {
-      /* Shift to the next group */
-
-      gp++;
-      gps[gp].ncomps = 0;
-
-    }
-      
-    gps[gp].comp[ gps[gp].ncomps++ ] = comp;
-
+  *ngrps = 1;
+  for(comp=1;comp<pdA->ncomps;comp++) { 
+    if (pdA->comp[comp].nedges != pdA->comp[comp-1].nedges) { (*ngrps)++; }
   }
 
-  *ngrps = gp + 1;
+  gps = calloc(ngrps,sizeof(pd_compgrp_t));
+  assert(gps != NULL); 
+
+  /* We now count the number of components in each group on pass 2. */
+
+  gp[0].ncomps=1; gp[0].nedges = pdA->comp[0].nedges; /* Start by adding component 0 to group 0 */
+  for(gp=0,comp=1;comp<pdA->ncomps;comp++) { 
+    if (pdA->comp[comp].nedges != pdA->comp[comp-1].nedges) { gp++; gps[gp].nedges = pdA->comp[comp].nedges; }
+    gps[gp].ncomps++;
+  }
+
+  /* Knowing the number of components in each group, we can allocate space for them. */
+
+  for(gp=0;gp<(*ngrps);gp++) { 
+    gps[gp].comp = calloc(gps[gp].ncomps,sizeof(pd_idx_t));
+    assert(gps[gp].comp != NULL);
+    gps[gp].ncomps = 0; /* This is now the number of components actually written in */
+  }
+
+  /* On pass 3 (through the components), we can actually assign them to groups. */
+
+  gps[0].comp[0] = 0; gps[0].ncomps = 1;
+  for(gp=0,comp=1;comp<pdA->ncomps;comp++) { 
+    if (pdA->comp[comp].nedges != pdA->comp[comp-1].nedges) { gp++; }
+   
+    assert(gps[gp].nedges == pdA->comp[comp].nedges);
+    gps[gp].comp[gps[gp].ncomps] = comp;
+    gps[gp].ncomps++;
+  }
+  
+  /* We now check that the total number of components is right. */
+  
+  pd_idx_t totalcomps = 0;
+  for(gp=0;gp<(*ngrps);gp++) { totalcomps += gps[gp].ncomps; }
+  assert(totalcomps == pdA->ncomps);
+
+  /* We now check that every component has been assigned uniquely to a group. */
+
+#define PD_UNSET_GP -1
+
+  int *gp_assigned;
+  gp_assigned = calloc(pdA->ncomps,sizeof(int));
+  assert(gp_assigned != NULL);
+  
+  for(comp=0;comp<pdA->ncomps;comp++) { gp_assigned[comp] = PD_UNSET_GP; }
+
+  for(gp=0;gp<(*ngrps);gp++) { 
+    for(comp=0;comp<gps[gp].ncomps;comp++) {
+      assert(gp_assigned[gps[gp].comp[comp]] == PD_UNSET_GP);
+      assert(pdA->comp[gps[gp].comp[comp]].nedges == gps[gp].nedges);
+      gp_assigned[gps[gp].comp[comp]] = gp;
+    }
+  }
+
+  for(comp=0;comp<pdA->ncomps;comp++) { 
+    assert(gp_assigned[comp] != PD_UNSET_GP);
+  }
+
+  free(gp_assigned);
+
+  /* We have now grouped the components correctly. Return the list. */
 
   return gps;
+
+}
+
+void pd_free_compgrps(pd_compgrp_t *grps,pd_idx_t ngrps) 
+{
+
+  if (grps == NULL || ngrps == 0) { return; }
+  pd_idx_t gp;
+
+  for(gp=0;gp<ngrps;gp++) { 
+
+    if (grps[gp].comp != NULL) { free(grps[gp].comp); grps[gp].comp = NULL; }
+    grps[gp].ncomps = 0;
+    grps[gp].nedges = 0;
+    
+  }
+
+  free(grps);
 
 }
 
@@ -303,10 +367,11 @@ pd_edgemap_t  *pd_new_edgemap(pd_idx_t *nedges)
 
   edgemap = calloc(1,sizeof(pd_edgemap_t)); assert(edgemap != NULL);
   edgemap->perm = (pd_perm_t *) pd_new_perm(nedges);
-
+  
+  edgemap->or = calloc(*nedges,sizeof(pd_or_t));
+  assert(edgemap->or != NULL);
   pd_idx_t edge;
   for(edge=0;edge<*nedges;edge++) { edgemap->or[edge] = PD_POS_ORIENTATION; }
-  for(;edge<PD_MAXEDGES;edge++) { edgemap->or[edge] = PD_UNSET_ORIENTATION; }
     
   return edgemap;
 }
@@ -318,6 +383,8 @@ void pd_free_edgemap(pd_edgemap_t **edgemapP)
   if (edgemap == NULL) { return; }
 
   pd_free_perm((void **)(&(edgemap->perm)));
+  if (edgemap->or != NULL) { free(edgemap->or); edgemap->or = NULL; }
+
   free(edgemap);
   *edgemapP = NULL;
 }
@@ -372,7 +439,10 @@ void *pd_copy_edgemap(pd_edgemap_t *edgemap)
 
   newmap = calloc(1,sizeof(pd_edgemap_t));  assert(newmap != NULL);
   newmap->perm = pd_copy_perm(edgemap->perm);
-  memcpy(newmap->or,edgemap->or,PD_MAXEDGES*sizeof(pd_or_t));
+  newmap->or = calloc(edgemap->perm->n,sizeof(pd_idx_t));
+  assert(newmap->or != NULL);
+
+  memcpy(newmap->or,edgemap->or,edgemap->perm->n*sizeof(pd_or_t));
 
   return newmap;
 }
@@ -389,16 +459,6 @@ bool pd_edgemap_ok(pd_edgemap_t *edgemap)
     if (!(edgemap->or[edge] == PD_POS_ORIENTATION || edgemap->or[edge] == PD_NEG_ORIENTATION)) { 
 
       return pd_error(SRCLOC,"%EDGEMAP has illegal orientation for edge %d",NULL,edgemap,edge);
-
-    }
-
-  }
-
-  for(;edge<PD_MAXEDGES;edge++) {
-
-    if (edgemap->or[edge] != PD_UNSET_ORIENTATION) {
-
-      return pd_error(SRCLOC,"%EDGEMAP orientation buffer not cleared at position %d.",NULL,edgemap,edge);
 
     }
 
@@ -1163,7 +1223,7 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
   *nisos = 0;
 
   pd_idx_t i;  
-  for(i=0;i<32;i++) { if (pdA->hash[i] != pdB->hash[i]) { return NULL; } }
+  for(i=0;i<PD_HASHSIZE;i++) { if (pdA->hash[i] != pdB->hash[i]) { return NULL; } }
 
   pd_idx_t ncross,nedges,ncomps,nfaces;
 
@@ -1267,7 +1327,7 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
   } /* End of main (compperm) loop */
 
   pd_free_compperms(ncomp_perms,&comp_perms);
-  free(compgrp);
+  pd_free_compgrps(compgrp,ngrps);
   
   /* Now we need to move the data from the container into a simple array */
 
@@ -1441,7 +1501,7 @@ void pd_stareq_iso(pd_iso_t *A,pd_iso_t *B)
 }
   
 unsigned int pd_iso_period(pd_iso_t *A) 
-/* computes period of A in isoutation group. */
+/* computes period of A in isomorphism group. */
 {
   pd_iso_t *Apow;
   pd_idx_t  period,failsafe = 10000;
@@ -1710,7 +1770,8 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
      the other component with orientation consistent with
      the orientation records in the edgemap. */
 
-  pd_or_t comp_or[PD_MAXCOMPONENTS];
+  pd_or_t *comp_or;
+  comp_or = calloc(ncomps,sizeof(pd_or_t));
   
   for(comp=0;comp<ncomps;comp++) { 
 
@@ -1781,6 +1842,10 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
     }
 
   }
+
+  free(comp_or); /* We can now dispose of comp_or, and we do in order to avoid
+		    forgetting to do it later on. */
+  comp_or = NULL; 
 
   /* We have now checked that the edgemap is internally
      consistent and also that it's consistent with the

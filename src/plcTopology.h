@@ -74,10 +74,11 @@ extern "C" {
 
      We should use these by default in all the pdcode.c 
      functions. */
-
+  
 #define PD_POS_ORIENTATION 1
 #define PD_NEG_ORIENTATION 0
 #define PD_UNSET_ORIENTATION 2
+
 
   typedef unsigned int      pd_idx_t ;  /* pd "index" type */
   typedef unsigned char     pd_or_t;    /* pd "orientation" type */
@@ -114,7 +115,7 @@ extern "C" {
     /* Edge indices in orientation order 
        around a component. These are expected 
        to be consecutive. */
-
+    
   } pd_component_t;
 
   typedef struct pd_face_struct { 

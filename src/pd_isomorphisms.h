@@ -16,13 +16,15 @@
 
 typedef struct pdint_compgrp_struct {
 
-    pd_idx_t ncomps;
-    pd_idx_t comp[PD_MAXCOMPONENTS];
+  pd_idx_t  ncomps;
+  pd_idx_t  nedges; /* All the components in this group should have this many edges */
+  pd_idx_t *comp;
   
 } pd_compgrp_t;
 
 bool pd_compgrp_ok(pd_code_t *pd,pd_compgrp_t *compgrp);
 pd_compgrp_t *pd_build_compgrps(pd_code_t *pdA,pd_code_t *pdB,pd_idx_t *ngrps); 
+void pd_free_compgrps(pd_compgrp_t *grps,pd_idx_t ngrps);
 
 /* Once we have grouped the components, we can generate
    the list of possible component permutations. Since
@@ -47,8 +49,8 @@ bool        pd_compperms_ok(unsigned int ncomp_perms,pd_perm_t **comp_perms);
 
 typedef struct pd_edgemap_struct {
   
-  pd_perm_t *perm;
-  pd_or_t    or[PD_MAXEDGES];
+  pd_perm_t *perm;  /* Keep in mind that the "perm" type stores the number of entries. */
+  pd_or_t   *or;    /* This is a buffer of orientations of size perm->n. */
 
 } pd_edgemap_t;
 
