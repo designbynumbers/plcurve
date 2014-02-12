@@ -1,7 +1,9 @@
 /* 
 
    Code for handling pd_codes (link shadows). Part of the
-   general COLD (Census of Link Diagrams) project.  
+   general COLD (Census of Link Diagrams) project. This fork
+   incorporated in plCurve is significantly different, because
+   it changes the way that the code handles very large diagrams.
 
    Jason Cantarella, September 2012.
 
@@ -611,26 +613,44 @@ void pdint_next_comp_edge(pd_code_t *pd,pd_idx_t edge,pd_idx_t *nxt,pd_or_t *nxt
   }
 }
 
-pd_idx_t pdint_find_unused(pd_code_t *pd,bool *edge_used, bool *all_used)
+#define PD_UNSET_COMPONENT -1
+#define PD_UNSET_POSITION -1
+
+typedef struct edge_assignment_struct {   
+
+  /* When building the components from a pd code, we need 
+     to keep track of the component a given edge has been
+     assigned to, and the position of the edge within that
+     component. 
+
+     This structure stores that information. If the component
+     hasn't been assigned yet, the component is set to PD_UNSET_COMPONENT
+     and the pos is set to PD_UNSET_POSITION. */ 
+   
+    int comp;   
+    int pos; 
+
+} pdint_edge_assignment;
+
+pd_idx_t pdint_find_unassigned(pd_code_t *pd,pdint_edge_assignment *edge_assigned, bool *all_assigned)
 
 {
-  assert(pd != NULL && edge_used != NULL && all_used != NULL);
+  assert(pd != NULL && edge_assigned != NULL && all_assigned != NULL);
 
   pd_idx_t edge;
   
   for(edge=0;edge<pd->nedges;edge++) {
 
-    if (!edge_used[edge]) { 
+    if (edge_assigned[edge].comp == PD_UNSET_COMPONENT) { 
 
-      *all_used = false; 
-      edge_used[edge] = true;
+      *all_assigned = false; 
       return edge; 
 
     }
 
   }
 
-  *all_used = true;
+  *all_assigned = true;
   return 0;
 
 }
@@ -713,46 +733,135 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   }
 
-  bool edge_used[pd->MAXEDGES];
-  bool all_used = false;
+  /* Step 0. 
 
+     We need to assume that the component records have already been
+     allocated, but are filled with crap. We need to first free the 
+     crap (without losing memory), then go back and rebuild the 
+     components. If they haven't been allocated yet, we need to 
+     avoid attempting to free them.
+
+     We DON'T need to free the pd->comp array itself, which remains a
+     fixed size, and was allocated by pd_code_new, regardless of the
+     number of components that are actually used.
+
+  */
+
+  pd_idx_t i;
+  for(i=0;i<pd->MAXCOMPONENTS;i++) { 
+
+    if (pd->comp[i].edge != NULL) { free(pd->comp[i].edge); pd->comp[i].edge = NULL; }
+    pd->nedges = 0;
+
+  }
+  
   /* Step 1. Run around the components, assembling the (old) edge
      numbers of the edges, and reorienting edges as we go. */
 
-  for(edge=0;edge<pd->nedges;edge++) { edge_used[edge] = false; }
+  pdint_edge_assignment *edge_assigned;
+  edge_assigned = calloc(pd->nedges,sizeof(pdint_edge_assignment));
+  assert(edge_assigned != NULL);
 
-  edge = 0;                /* Now we start with edge 0 */
-  pd->ncomps = 0;
-  edge_used[edge] = true;
+  bool all_assigned = false;
 
-  for(;!all_used && pd->ncomps < pd->MAXCOMPONENTS+1;
-      pd->ncomps++,edge=pdint_find_unused(pd,edge_used,&all_used)) {
+  for(edge=0;edge<pd->nedges;edge++) { 
 
-    pd_idx_t comp = pd->ncomps;
-    pd_or_t  next_or;
-    pd_idx_t next_edge;
-
-    /* We are now starting a new component with an unused edge. */
-
-    pd->comp[comp].nedges = 1;
-    pd->comp[comp].edge[0] = edge;
-    pdint_next_comp_edge(pd,edge,&next_edge,&next_or);
-
-    for(;next_edge != pd->comp[comp].edge[0] && pd->comp[comp].nedges < pd->MAXEDGES + 1;
-	pdint_next_comp_edge(pd,edge,&next_edge,&next_or),pd->comp[comp].nedges++) {
-
-      pd_reorient_edge(pd,next_edge,next_or);
-      pd->comp[comp].edge[pd->comp[comp].nedges] = next_edge;
-      edge_used[next_edge] = true;
-      edge = next_edge;
-
-    }
-
-    assert(pd->comp[comp].nedges <= pd->MAXEDGES);
+    edge_assigned[edge].comp = PD_COMP_UNASSIGNED; 
+    edge_assigned[edge].pos = PD_POS_UNASSIGNED;
 
   }
 
-  assert(pd->ncomps <= pd->MAXCOMPONENTS);
+  /* We're now going to work our way through the edges, assigning 
+     them to components and positions. */
+
+  for(edge=0,pd->ncomps=0;            /* This loop is over components */
+      !all_assigned;
+      pd->ncomps++,edge=pdint_find_unassigned_edge(pd,edge_assigned,&all_assigned)) {
+    
+    pd_idx_t comp = pd->ncomps;
+    pd_or_t  next_or;
+    pd_idx_t next_edge, start_edge;
+    pd_idx_t nedges = 1;          /* Keep a counter here to prevent infinite loops */
+
+    /* We are now starting a new component with an unassigned edge. The first step 
+       is to assign it to this component in position 0. This is the first edge in 
+       the component, so we keep track of it in order to know when we've completed
+       the loop. */
+
+    edge_assigned[edge].comp = comp;
+    edge_assigned[edge].pos = 0;
+    start_edge = edge;
+
+    pdint_next_comp_edge(pd,edge,&next_edge,&next_or);
+
+    for(;next_edge != start_edge && nedges <= pd->MAXEDGES+1;    /* This loop is over edges in a component */
+	pdint_next_comp_edge(pd,edge,&next_edge,&next_or),nedges++) {
+
+      /* We've now discovered that next_edge is in this component. 
+	 Go ahead and assign it to this component, in the position given 
+	 by nedges, and change the orientation (if needed). */
+
+      pd_reorient_edge(pd,next_edge,next_or);
+      edge_assigned[next_edge].comp = comp;
+      edge_assigned[next_edge].pos = nedges;
+
+      /* Now set ourselves up to go to the next step by resetting edge. */
+
+      edge = next_edge;
+
+      /* Finally, we include a safety check to prevent infinite loops. */
+
+      if (nedges >= pd->nedges) { 
+
+	fprintf(stderr,
+		"pd_regenerate_comp: Found %d edges in component %d of %d edge pdcode.\n"
+		"                    Suspect that crossing information is poorly formed.\n"
+		nedges+1,comp,pd->nedges);
+	exit(1);
+
+      }
+
+    } /* End of loop over this component. */
+
+    if (pd->ncomps > pd->MAXCOMPONENTS) { 
+
+      fprintf(stderr,
+	      "pd_regenerate_components: Found %d components in %d edge pdcode without\n"
+	      "                          detecting \"all_assigned\". Suspect bug in \n"
+	      "                          assignment code?\n",
+	      pd->ncomps,pd->nedges);
+      exit(1);
+
+    }
+
+    /* We now know that component "comp" has "nedges" total edges. 
+       Use this to allocate space in the correct record in the pd->comp
+       array. */
+
+    pd->comp[comp].nedges = nedges;
+    pd->comp[comp].edge   = calloc(nedges,sizeof(pd_idx_t));
+    assert(pd->comp[comp].edge != NULL);
+
+  } /* End of loop over all components. */
+
+  /* We now need to actually build the component records from the 
+     data in the edge_assignment array. We've made space, so this
+     is just a matter of cruising throught the assignment array 
+     again, putting everybody in the right place. */
+ 
+  for(edge=0;edge<pd->nedges;edge++) { 
+
+    assert(edge_assigned[edge].comp >= 0 && edge_assigned[edge].comp < pd->ncomps);
+    assert(edge_assigned[edge].pos >= 0 && edge_assigned[edge].pos < pd->comp[edge_assigned[edge].comp].nedges);
+
+    pd->comp[edge_assigned[edge].comp].edge[edge_assigned[edge].pos] = edge;
+
+  }
+  
+  /* We can now free the edge_assignment data, since we've assigned all edges to components. */
+
+  free(edge_assigned);
+  edge_assigned = NULL;
 
   /* Step 2. Sort the components longest-first. */
 
@@ -931,7 +1040,7 @@ void pdint_next_edge_on_face(pd_code_t *pd,pd_idx_t ed,pd_or_t or,
     
   } 
   
-  next_pos = (this_pos + 3) % 4; /* Turn LEFT (clockwise) */
+  next_pos = (this_pos + 3) % 4; /* Turn LEFT (counterclockwise) */
   (*next_edge) = pd->cross[cross].edge[next_pos];
 
   /* Now we check data integrity */
@@ -968,6 +1077,119 @@ void pdint_next_edge_on_face(pd_code_t *pd,pd_idx_t ed,pd_or_t or,
   
 }
 
+#define PD_UNSET_FACE -1
+
+/* Each edge should occur on two faces, with a 
+   positive orientation on the "pos_face" and a
+   negative orientation on the "neg_face". We also 
+   keep track of _where_ this edge is going to show
+   up on the face. */
+
+typedef struct face_assignment_struct { 
+
+  int pos_face;
+  pd_idx_t pos_face_position;
+
+  int neg_face;
+  pd_idx_t neg_face_position;
+
+} pdint_face_assignment; 
+
+void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
+					pdint_face_assignment *face_assigned,
+					pd_idx_t *start_edge,pd_or_t *start_or,
+					bool *all_assigned)
+
+/* Search the array of face assignments for unset pos or neg faces, in the 
+   order edge 0-pos_face, edge 1-pos_face, ..., edge n-pos_face,
+         edge 0-neg_face, edge 1-neg_face, ..., edge n-neg_face.
+   When we find one, reset the start_edge/start_or values appropriately.	 
+*/
+
+{
+
+  /* First, the usual defensive asserts designed to make sure the 
+     input isn't garbage. */
+
+  assert(face_assigned != NULL);
+  assert(pd != NULL);
+  assert(start_edge != NULL);
+  assert(start_or != NULL);
+
+  assert(*start_edge < pd->nedges);
+  assert(*start_or == PD_POS_ORIENTATION || *start_or == PD_NEG_ORIENTATION);
+  assert(all_assigned != NULL);
+
+  /* Now we can actually start work. */
+
+  pd_idx_t edge;
+  pd_or_t  or;
+
+  if (*start_or == PD_POS_ORIENTATION) { 
+
+    for(edge=*start_edge+1,edge < pd->nedges;edge++) {
+
+      if (face_assigned[edge].pos_face == PD_UNSET_FACE) { 
+
+	*start_edge = edge; *start_or = PD_POS_ORIENTATION;
+	*all_assigned = false;
+	return;
+
+      }
+
+    }
+
+    /* Now we're cruising the negative orientations from the 
+       start. */
+
+    for(edge=0;edge < pd->nedges;edge++) { 
+
+      if (face_assigned[edge].neg_face == PD_UNSET_FACE) { 
+
+	*start_edge = edge; *start_or = PD_NEG_ORIENTATION;
+	*all_assigned = false;
+	return;
+
+      }
+
+    } 
+
+    /* Now we've actually checked everything. */
+
+    *start_edge = 0; *start_or = PD_UNSET_ORIENTATION;
+    *all_assigned = true;
+    return;
+
+  } else if (*start_or == PD_NEG_ORIENTATION) { /* We started with a negative orientation */
+
+    for(edge = *start_edge+1;edge < pd->nedges;edge++) { 
+
+      if (face_assigned[edge].neg_face == PD_UNSET_FACE) { 
+
+	*start_edge = edge; *start_or = PD_NEG_ORIENTATION;
+	*all_assigned = false;
+	return;
+
+      }
+
+    }
+
+    /* We've actually reached the end of the list. */
+
+    *start_edge = 0; *start_or = PD_UNSET_ORIENTATION;
+    *all_assigned = true;
+    return;
+    
+  }
+   
+  /* It should actually be impossible to get here, but it 
+     means that the input orientation was bogus. */
+
+  fprintf(stderr,"pdint_next_face_unassigned_edge_or: Shouldn't get here.\n");
+  exit(1);
+
+}
+
 void pd_regenerate_faces(pd_code_t *pd) 
 
 /* Generates faces of the polyhedron corresponding to the
@@ -976,91 +1198,154 @@ void pd_regenerate_faces(pd_code_t *pd)
 
    The basic idea here is that we're computing the orbits
    of pdint_next_edge_on_face. To do that, we need to keep track
-   of the edges and orientations we've used already. */
+   of the edges and orientations we've used already.
+
+   Again, this has to be done kind of carefully, because we 
+   may or may not have allocated memory for the individual face
+   records, and in any case don't know how much memory to allocate
+   for each face until we're through the orbit. */
 
 {
   assert(pd != NULL);
 
-  bool pos_or_used[pd->MAXEDGES];
-  bool neg_or_used[pd->MAXEDGES];
+  /* Step 0. Look at the face information we've got, and if 
+     the buffers are assigned, free them. We don't need to 
+     worry about the pd->face buffer itself because it's 
+     allocated by pd_code_new. */
 
+  assert(pd->face != NULL);
+  pd_idx_t face;
+
+  for(face=0;face<pd->MAXFACES;face++) { 
+
+    if (pd->face[face].edge != NULL) { free(pd->face[face].edge); pd->face[face].edge = NULL; }
+    if (pd->face[face].or != NULL) { free(pd->face[face].or); pd->face[face].or = NULL; }
+    pd->face[face].nedges = 0;
+
+  }
+
+  /* Step 1. Clean the buffer of face assignments, reflecting
+     that no edge has yet been assigned to any face, in either 
+     the positive or negative orientation. */
+
+  pdint_face_assignment *face_assigned;
+  face_assigned = calloc(pd->nedges,sizeof(pdint_face_assignment));
+  
   pd_idx_t edge;
 
   for(edge=0;edge < pd->nedges;edge++) { 
 
-    pos_or_used[edge] = false;
-    neg_or_used[edge] = false;
+    face_assigned[edge].pos_face = PD_UNSET_FACE;
+    face_assigned[edge].pos_face_position = pd->nedges+1; /* Set this to something impossible */
+
+    face_assigned[edge].neg_face = PD_UNSET_FACE;
+    face_assigned[edge].neg_face_position = pd->nedges+1;
   
   }
   
-  pd->nfaces = 0;
+  /* Step 3. Start the main (face-counting) loop. */
 
-  /* Start the main (face-counting) loop. */
+  pd_idx_t start_edge;
+  pd_or_t  start_or;
+  bool     all_assigned = false;
 
-  int used;
- 
-  for(used=0;used < 2*pd->nedges;pd->nfaces++) { /* Each edge occurs twice in a face list. */
-
-    pd_idx_t this_edge;
-    pd_or_t  this_or; 
-    
-    /* Scan for an unused edge/orientation pair. */
-    
-    for(this_or=PD_POS_ORIENTATION,this_edge = 0;
-	this_edge < pd->nedges;this_edge++) { if (!pos_or_used[this_edge]) { break; }    }
-    
-    if (this_edge == pd->nedges) { /* Positives are used; scan for a neg orientation unused. */
+  for(pd->nfaces=0, start_edge = 0, start_or = PD_POS_ORIENTATION;  /* Loop over faces. */
+      !all_assigned;
+      pd->nfaces++,pdint_next_face_unassigned_edge_or(pd,face_assigned,
+						      &start_edge,&start_or,
+						      &all_assigned)) {
       
-      for(this_or=PD_NEG_ORIENTATION,this_edge = 0;
-	  this_edge < pd->nedges;
-	  this_edge++) { if (!neg_or_used[this_edge]) { break; } }
-      
-    }
-    
-    assert(this_edge < pd->nedges && 
-	   (this_or == PD_POS_ORIENTATION || this_or == PD_NEG_ORIENTATION));
+    assert(start_edge < pd->nedges && 
+	   (start_or == PD_POS_ORIENTATION || start_or == PD_NEG_ORIENTATION));
     
     /* Now we have an unused edge/orientation pair to start 
-       the iteration on. */
+       the next loop (around the face) on. */
     
-    int start_edge, start_or;
+    pd_idx_t this_edge;
+    pd_or_t  this_or;
+    pd_idx_type nedges = 0; /* Stores the number of edges in this face. */
     
-    /* Add initial edge to face and mark as used in edge_checklist */
-    
-    pd_face_t *face = &(pd->face[pd->nfaces]); /* A convenience variable */
-    
-    start_edge = this_edge; start_or = this_or;
-    
-    face->nedges = 1;
-    face->edge[0] = start_edge;
-    face->or[0] = start_or;
-    
-    if (start_or == PD_POS_ORIENTATION) { pos_or_used[start_edge] = true; }
-    else { neg_or_used[start_edge] = true; }
+    for(this_edge = start_edge, this_or = start_or;    /* This loop travels around a single face. */
+	!(this_edge == start_edge && this_or == start_or);
+	pdint_next_edge_on_face(pd,this_edge,this_or,&this_edge,&this_or),nedges++) {
 
-    used++; /* We have just used an edge/or pair */
-    
-    /* Now increment to next edge and start working our way around the face. */
-    
-    int itcount = 0; /* Add a safety to make sure we don't just hang here if something is very wrong. */
-    
-    for(pdint_next_edge_on_face(pd,start_edge,start_or,&this_edge,&this_or);
-	!(this_edge == start_edge && this_or == start_or) && itcount < 4*pd->nedges;
-	pdint_next_edge_on_face(pd,this_edge,this_or,&this_edge,&this_or),itcount++) {
+      /* Assign this edge/orientation pair to the current face. */
 
-      if (this_or == PD_POS_ORIENTATION) { pos_or_used[this_edge] = true; }
-      else { neg_or_used[this_edge] = true; }
-      used++; /* We have used another edge/or pair. */
+      assert(this_or == PD_POS_ORIENTATION || this_or == PD_NEG_ORIENTATION);
 
-      face->or[face->nedges] = this_or;
-      face->edge[face->nedges] = this_edge; /* Add to this face. */
-      face->nedges += 1;
-      
+      if (this_or == PD_POS_ORIENTATION) { 
+
+	face_assigned[this_edge].pos_face = pd->nfaces;
+	face_assigned[this_edge].pos_face_position = nedges;
+
+      } else if (this_or == PD_NEG_ORIENTATION) {
+
+	face_assigned[this_edge].neg_face = pd->nfaces;
+	face_assigned[this_edge].neg_face_position = nedges;
+
+      } 
+
+      if (nedges > pd->nedges) { 
+
+	fprintf(stderr,
+		"pd_regenerate_faces: Face number %d appears to contain %d edges of %d edge diagram.\n"
+		"                     Suspect crossing or edge information corrupt.\n",
+		pd->nfaces,nedges,pd->nedges);
+	exit(1);
+
+      }
+
+    } /* End of loop around this face. */
+
+    /* Make sure the number of faces is sane. */
+
+    if (pd->nfaces >= pd->MAXFACES) { 
+
+      fprintf(stderr,
+	      "pd_regenerate_faces: Found %d faces on %d crossing diagram (maxfaces == %d).\n"
+	      "                     Suspect error in face assignment code?\n",
+	      pd->nfaces,pd->ncross,pd->MAXFACES);
+      exit(1);
+
     }
-    
-    assert(itcount < 4*pd->nedges); /* Put in an assert to make sure we didn't bail out. */
 
-    /* Make sure the face is in canonical order. */
+    /* We now know the number of edges in this face. Use this to allocate space. */
+
+    pd->face[pd->nfaces].nedges = nedges;
+    pd->face[pd->nfaces].edge = calloc(nedges,sizeof(pd_idx_t));
+    pd->face[pd->nfaces].or = calloc(nedges,sizeof(pd_or_t));
+    assert(pd->face[pd->nfaces].edge != NULL && pd->face[pd->nfaces].or != NULL);
+
+  } /* End of loop over faces. */
+
+  /* Now that we've allocated space in the individual face records, we can take 
+     another tour through the face_assigned array and put edge numbers and orientations
+     in the face records as appropriate. */
+
+  for(edge=0;edge<pd->nedges;edge++) { 
+
+    assert(face_assigned[edge].pos_face < pd->nfaces);
+    assert(face_assigned[edge].pos_face_position < pd->face[face_assigned[edge].pos_face].nedges);
+
+    pd->face[face_assigned[edge].pos_face].edge[face_assigned[edge].pos_face_position] = edge;
+    pd->face[face_assigned[edge].pos_face].or[face_assigned[edge].pos_face_position] = PD_POS_ORIENTATION;
+
+    assert(face_assigned[edge].neg_face < pd->nfaces);
+    assert(face_assigned[edge].neg_face_position < pd->face[face_assigned[edge].neg_face].nedges);
+
+    pd->face[face_assigned[edge].neg_face].edge[face_assigned[edge].neg_face_position] = edge;
+    pd->face[face_assigned[edge].neg_face].or[face_assigned[edge].neg_face_position] = PD_NEG_ORIENTATION;
+
+  }
+
+  /* We have finished building the faces, so we can release the face_assigned buffer. */
+
+  free(face_assigned);
+  face_assigned = NULL;
+
+  /* Now for each face, make sure it is in canonical order. */
+
+  for(face=0;face<pd->nfaces;face++) { 
 
     pd_canonorder_face(face,PD_POS_ORIENTATION);
     
@@ -1070,22 +1355,13 @@ void pd_regenerate_faces(pd_code_t *pd)
   
   qsort(pd->face,pd->nfaces,sizeof(pd_face_t),pd_face_cmp);
 
-  if (PD_VERBOSE > 10) {
+  /* Finally, check to make sure the face count is correct. */
 
-    if (pd->nfaces != pd->ncross + 2) {
+  if (pd->nfaces != pd->ncross + 2) { 
 
-      fprintf(stderr,"pd->nfaces (%d) does not equal pd->ncross + 2 (%d) for pd\n\n",
-	      pd->nfaces,pd->ncross);
-
-      pd_write(stderr,pd);
-
-      exit(1);
-
-    }
-
-  } else {
-
-    assert(pd->nfaces == pd->ncross + 2);  /* Euler characteristic check */
+    pd_error(SRCLOC,"pd->nfaces (%d) does not equal pd->ncross + 2 (%d) for pd %PD\n",
+	     pd,pd->nfaces,pd->ncross);
+    exit(1);
 
   }
   
@@ -1228,7 +1504,7 @@ bool pd_comps_ok(pd_code_t *pd)
   
   if (pd->ncomps > pd->MAXCOMPONENTS) {
 
-    return pd_error(SRCLOC,"Number of components %d > PD_MAXCOMPONENTS %d in pd %PD",pd,pd->ncomps,pd->MAXCOMPONENTS);
+    return pd_error(SRCLOC,"Number of components %d > pd->MAXCOMPONENTS %d in pd %PD",pd,pd->ncomps,pd->MAXCOMPONENTS);
 
   }
 
@@ -1282,6 +1558,12 @@ bool pd_faces_ok(pd_code_t *pd)
 
 {
   assert(pd != NULL);
+
+  if (pd->nfaces > pd->MAXFACES) {
+
+    return pd_error(SRCLOC,"Number of faces %d > pd->MAXFACES %d in pd %PD",pd,pd->nfaces,pd->MAXFACES);
+
+  }
   
   pd_idx_t face, edge, nxt_edge;
   pd_edge_t this,next;
