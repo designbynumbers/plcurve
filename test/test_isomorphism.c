@@ -56,12 +56,13 @@ bool test_compgrps()
   printf("pd_build_compgrps test suite\n"
 	 "-------------------------------\n");
 
-  pd_code_t pdA,pdB;
+  pd_code_t *pdA,*pdB;
+  pdA = pd_code_new(20); pdB = pd_code_new(20);
 
   printf("different number of components...");
 
-  pdA.ncomps = 5;
-  pdB.ncomps = 4;
+  pdA->ncomps = 5;
+  pdB->ncomps = 4;
 
   pd_compgrp_t *grps = NULL;
   pd_idx_t     ngrps = 255;
@@ -81,11 +82,11 @@ bool test_compgrps()
   
   printf("edge vectors (2,3,4) and (2,3,5) don't match...");
 
-  pdA.ncomps = 3;
-  pdA.comp[0].nedges = 2; pdA.comp[1].nedges = 3; pdA.comp[2].nedges = 4;
+  pdA->ncomps = 3;
+  pdA->comp[0].nedges = 2; pdA->comp[1].nedges = 3; pdA->comp[2].nedges = 4;
   
-  pdB.ncomps = 3;
-  pdB.comp[0].nedges = 2; pdB.comp[1].nedges = 3; pdB.comp[2].nedges = 5;
+  pdB->ncomps = 3;
+  pdB->comp[0].nedges = 2; pdB->comp[1].nedges = 3; pdB->comp[2].nedges = 5;
 
   grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
 
@@ -105,11 +106,11 @@ bool test_compgrps()
 	 "***********************\n"
 	 "nedges vec (2 3 5) -> ");
 
-  pdA.ncomps = 3;
-  pdA.comp[0].nedges = 2; pdA.comp[1].nedges = 3; pdA.comp[2].nedges = 5;
+  pdA->ncomps = 3;
+  pdA->comp[0].nedges = 2; pdA->comp[1].nedges = 3; pdA->comp[2].nedges = 5;
 
-  pdB.ncomps = 3;
-  pdB.comp[0].nedges = 2; pdB.comp[1].nedges = 3; pdB.comp[2].nedges = 5;
+  pdB->ncomps = 3;
+  pdB->comp[0].nedges = 2; pdB->comp[1].nedges = 3; pdB->comp[2].nedges = 5;
  
   grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
   
@@ -146,11 +147,11 @@ bool test_compgrps()
 
   printf("nedges vec (3 3 5) -> ");
 
-  pdA.ncomps = 3;
-  pdA.comp[0].nedges = 3; pdA.comp[1].nedges = 3; pdA.comp[2].nedges = 5;
+  pdA->ncomps = 3;
+  pdA->comp[0].nedges = 3; pdA->comp[1].nedges = 3; pdA->comp[2].nedges = 5;
 
-  pdB.ncomps = 3;
-  pdB.comp[0].nedges = 3; pdB.comp[1].nedges = 3; pdB.comp[2].nedges = 5;
+  pdB->ncomps = 3;
+  pdB->comp[0].nedges = 3; pdB->comp[1].nedges = 3; pdB->comp[2].nedges = 5;
  
   grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
   
@@ -180,11 +181,11 @@ bool test_compgrps()
 
   printf("nedges vec (3 5 5) -> ");
 
-  pdA.ncomps = 3;
-  pdA.comp[0].nedges = 3; pdA.comp[1].nedges = 5; pdA.comp[2].nedges = 5;
+  pdA->ncomps = 3;
+  pdA->comp[0].nedges = 3; pdA->comp[1].nedges = 5; pdA->comp[2].nedges = 5;
 
-  pdB.ncomps = 3;
-  pdB.comp[0].nedges = 3; pdB.comp[1].nedges = 5; pdB.comp[2].nedges = 5;
+  pdB->ncomps = 3;
+  pdB->comp[0].nedges = 3; pdB->comp[1].nedges = 5; pdB->comp[2].nedges = 5;
  
   grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
   
@@ -214,11 +215,11 @@ bool test_compgrps()
 
   printf("nedges vec (5 5 5) -> ");
 
-  pdA.ncomps = 3;
-  pdA.comp[0].nedges = 5; pdA.comp[1].nedges = 5; pdA.comp[2].nedges = 5;
+  pdA->ncomps = 3;
+  pdA->comp[0].nedges = 5; pdA->comp[1].nedges = 5; pdA->comp[2].nedges = 5;
 
-  pdB.ncomps = 3;
-  pdB.comp[0].nedges = 5; pdB.comp[1].nedges = 5; pdB.comp[2].nedges = 5;
+  pdB->ncomps = 3;
+  pdB->comp[0].nedges = 5; pdB->comp[1].nedges = 5; pdB->comp[2].nedges = 5;
  
   grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
   
@@ -239,6 +240,11 @@ bool test_compgrps()
   pd_printf("%COMPGRP                               pass.\n",&pdA,&(grps[0]));
   free(grps);
 
+  printf("trying to free with weird comp info...");
+  pd_code_free(&pdA);
+  pd_code_free(&pdB);
+  printf("survived.\n");
+
   printf("-------------------------------------------\n"
 	 "pd_build_compgrps test suite        PASS\n\n");
 
@@ -251,30 +257,40 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
 {
   if (printemaps) { printperms = true; }
 
-  if (ncomps > PD_MAXCOMPONENTS) { ncomps = PD_MAXCOMPONENTS; }
-
-  pd_code_t pdA, pdB;
+  pd_code_t *pdA, *pdB;
   pd_idx_t comp, compedge,edge=0;
+  
+  pd_idx_t total_edges = 0;
+  for(comp=0;comp<ncomps;comp++) { total_edges += evec[comp]; }
+
+  pdA = pd_code_new(3*total_edges);
+  pdB = pd_code_new(3*total_edges);
 
   printf("Checking nedges vec ...                  ( ");
 
-  pdA.ncomps = pdB.ncomps = ncomps;
-  pdA.nedges = pdB.nedges = 0;
+  pdA->ncomps = pdB->ncomps = ncomps;
+  pdA->nedges = pdB->nedges = 0;
   
   for(comp=0;comp<ncomps;comp++) {
     
-    pdA.comp[comp].nedges = evec[comp];
-    pdB.comp[comp].nedges = evec[comp];
+    pdA->comp[comp].nedges = evec[comp];
+    pdB->comp[comp].nedges = evec[comp];
+
+    pdA->comp[comp].edge = calloc(pdA->comp[comp].nedges,sizeof(pd_idx_t));
+    pdB->comp[comp].edge = calloc(pdB->comp[comp].nedges,sizeof(pd_idx_t));
+
+    assert(pdA->comp[comp].edge != NULL);
+    assert(pdB->comp[comp].edge != NULL);
     
     for(compedge=0;compedge < evec[comp];compedge++,edge++) {
       
-      pdA.comp[comp].edge[compedge] = edge;
-      pdB.comp[comp].edge[compedge] = edge;
+      pdA->comp[comp].edge[compedge] = edge;
+      pdB->comp[comp].edge[compedge] = edge;
       
     }
     
-    pdA.nedges += evec[comp];
-    pdB.nedges += evec[comp];
+    pdA->nedges += evec[comp];
+    pdB->nedges += evec[comp];
     
     printf("%d ",evec[comp]);
 
@@ -282,18 +298,22 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
 
   printf(")\n");
 
+  assert(pdA->nedges < pdA->MAXEDGES);
+  assert(pdA->ncomps < pdA->MAXCOMPONENTS);
+  assert(pdB->nedges < pdB->MAXEDGES);
+  assert(pdB->ncomps < pdB->MAXCOMPONENTS);
+
   /* First, we need to build comp_grps */
 
   pd_compgrp_t *compgrps;
   pd_idx_t      ngrps,grp;
-
   
   printf("Building compgrps ...                   ");
   
-  compgrps = pd_build_compgrps(&pdA,&pdB,&ngrps);
+  compgrps = pd_build_compgrps(pdA,pdB,&ngrps);
   for(grp=0;grp<ngrps;grp++) { 
 
-    if (pd_compgrp_ok(&pdA,&(compgrps[grp])) == false) {
+    if (pd_compgrp_ok(pdA,&(compgrps[grp])) == false) {
       
       printf("FAIL. grp %d doesn't pass pd_compgrp_ok.\n",grp);
       return false;
@@ -339,7 +359,7 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
     pd_edgemap_t **edgemap_buf;
     unsigned int nedgemaps;
     
-    edgemap_buf = pd_build_edgemaps(&pdA,&pdB,comp_perms[i],&nedgemaps);
+    edgemap_buf = pd_build_edgemaps(pdA,pdB,comp_perms[i],&nedgemaps);
       
     printf("\t\t %d edgemaps built ... ",nedgemaps);
 
@@ -368,7 +388,7 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
     unsigned int j;
     for(j=0;j<nedgemaps;j++) {
 
-      if (!pd_edgemap_consistent(&pdA,&pdB,edgemap_buf[j])) {
+      if (!pd_edgemap_consistent(pdA,pdB,edgemap_buf[j])) {
 
 	pd_printf("FAIL. %EDGEMAP %d not consistent with pdA, pdB.\n",NULL,
 		  edgemap_buf[j],j);
@@ -444,6 +464,9 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
   pd_free_compperms(ncomp_perms,&comp_perms);
   pd_free_compperms(ncomp_perms,&comp_perms);
 
+  pd_code_free(&pdA);
+  pd_code_free(&pdB);
+
   return true;
 
 }  
@@ -488,24 +511,21 @@ bool test_compperms_and_edgemaps() {
 bool unknot_iso_test(pd_idx_t ncross,bool print)
 
 {
-  pd_code_t *pdpA = NULL, *pdpB = NULL;
-  pd_code_t pdA,pdB;
+  pd_code_t *pdA,*pdB;
   
   printf("%d-crossing unknot automorphism group test  \n",ncross);
   printf("--------------------------------------------\n");
 
-  pdpA = pd_build_unknot(ncross);
-  pdpB = pd_build_unknot(ncross);
+  pdA = pd_build_unknot(ncross);
+  pdB = pd_build_unknot(ncross);
 
   printf("pd is ");
-  pd_write(stdout,pdpA);
-
-  pdA = *pdpB; pdB = *pdpB;
+  pd_write(stdout,pdA);
 
   printf("\t building (auto)morphisms...");
 
   unsigned int nisos;
-  pd_iso_t **isos = pd_build_isos(pdpA,pdpB,&nisos);
+  pd_iso_t **isos = pd_build_isos(pdA,pdB,&nisos);
 
   if (print) {
 
@@ -634,14 +654,14 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
        tell them apart, we will check their effect on the
        1-edge faces. */
 
-    assert(pdpA->face[pdpA->nfaces-1].nedges == 1 && pdpA->face[pdpA->nfaces-2].nedges == 1);
+    assert(pdA->face[pdA->nfaces-1].nedges == 1 && pdA->face[pdA->nfaces-2].nedges == 1);
 
     bool swaps_endfaces[2];
 
     for(iso=0;iso<2;iso++) { 
 
-      swaps_endfaces[iso] = (isos[plane_pos[iso]]->facemap->perm->map[pdpA->nfaces-1] == pdpA->nfaces-2 &&
-			     isos[plane_pos[iso]]->facemap->perm->map[pdpA->nfaces-2] == pdpA->nfaces-1);
+      swaps_endfaces[iso] = (isos[plane_pos[iso]]->facemap->perm->map[pdA->nfaces-1] == pdA->nfaces-2 &&
+			     isos[plane_pos[iso]]->facemap->perm->map[pdA->nfaces-2] == pdA->nfaces-1);
 
     }
 
@@ -679,8 +699,8 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
 
     for(iso=0;iso<2;iso++) { 
 
-      swaps_endfaces[iso] = (isos[plane_neg[iso]]->facemap->perm->map[pdpA->nfaces-1] == pdpA->nfaces-2 &&
-			     isos[plane_neg[iso]]->facemap->perm->map[pdpA->nfaces-2] == pdpA->nfaces-1);
+      swaps_endfaces[iso] = (isos[plane_neg[iso]]->facemap->perm->map[pdA->nfaces-1] == pdA->nfaces-2 &&
+			     isos[plane_neg[iso]]->facemap->perm->map[pdA->nfaces-2] == pdA->nfaces-1);
 
     }
 
@@ -809,7 +829,7 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
 
   pd_free_isos(&nisos,&isos);
   pd_free_isos(&nisos,&isos);
-  free(pdpA); free(pdpB);
+  pd_code_free(pdA); pd_code_free(pdB);
 
   printf("pass.\n");
  
@@ -823,8 +843,7 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
 bool twist_iso_test(pd_idx_t ntwist,bool print)
 
 {
-  pd_code_t *pdpA, *pdpB;
-  pd_code_t pdA,pdB;
+  pd_code_t *pdA,*pdB;
 
   if (ntwist < 3) {
 
@@ -836,18 +855,16 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
   printf("%2d-twist knot automorphism group test \n",ntwist);
   printf("--------------------------------------------\n");
   
-  pdpA = pd_build_twist_knot(ntwist);
-  pdpB = pd_build_twist_knot(ntwist);
+  pdA = pd_build_twist_knot(ntwist);
+  pdB = pd_build_twist_knot(ntwist);
   
   printf("pd is ");
-  pd_write(stdout,pdpA);
-  
-  pdA = *pdpB; pdB = *pdpB;
+  pd_write(stdout,pdA);
   
   printf("\t building (auto)morphisms...");
 
   unsigned int nisos;
-  pd_iso_t **isos = pd_build_isos(pdpA,pdpB,&nisos);
+  pd_iso_t **isos = pd_build_isos(pdA,pdB,&nisos);
 
   if (print) {
 
@@ -1128,7 +1145,8 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 
   pd_free_isos(&nisos,&isos);
   pd_free_isos(&nisos,&isos);
-  free(pdpA); free(pdpB);
+  pd_code_free(&pdA); 
+  pd_code_free(&pdB);
 
   printf("pass.\n");
  
@@ -1143,8 +1161,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 bool torusknot_iso_test(pd_idx_t p,pd_idx_t q,bool prime,bool print)
 
 {
-  pd_code_t *pdpA, *pdpB;
-  pd_code_t pdA,pdB;
+  pd_code_t *pdA,*pdB;
 
 #define MAXQ 64
 
@@ -1158,18 +1175,16 @@ bool torusknot_iso_test(pd_idx_t p,pd_idx_t q,bool prime,bool print)
   printf("(%2d,%2d)-torus knot automorphism group test \n",p,q);
   printf("---------------------------------------------\n");
   
-  pdpA = pd_build_torus_knot(p,q);
-  pdpB = pd_build_torus_knot(p,q);
+  pdA = pd_build_torus_knot(p,q);
+  pdB = pd_build_torus_knot(p,q);
   
   printf("pd is ");
-  pd_write(stdout,pdpA);
-  
-  pdA = *pdpB; pdB = *pdpB;
+  pd_write(stdout,pdA);
   
   printf("\t building (auto)morphisms...");
 
   unsigned int nisos;
-  pd_iso_t **isos = pd_build_isos(pdpA,pdpB,&nisos);
+  pd_iso_t **isos = pd_build_isos(pdA,pdB,&nisos);
 
   if (print) {
 
@@ -1325,7 +1340,8 @@ bool torusknot_iso_test(pd_idx_t p,pd_idx_t q,bool prime,bool print)
 
   pd_free_isos(&nisos,&isos);
   pd_free_isos(&nisos,&isos);
-  free(pdpA); free(pdpB);
+  pd_code_free(&pdA); 
+  pd_code_free(&pdB);
 
   printf("pass.\n");
  
@@ -1405,11 +1421,11 @@ bool test_isomorphic()
 
       }
 
-      free(pdB);
+      pd_code_free(&pdB);
 
     }
 
-    free(pdA);
+    pd_code_free(&pdA);
 
   }
 
@@ -1437,11 +1453,11 @@ bool test_isomorphic()
 
       }
 
-      free(pdB);
+      pd_code_free(&pdB);
 
     }
 
-    free(pdA);
+    pd_code_free(&pdA);
 
   }
 
@@ -1485,15 +1501,15 @@ bool test_isomorphic()
 	  
 	}
 	
-	free(pdC);
+	pd_code_free(pdC);
 
       }
 	  
-      free(pdB);
+      pd_code_free(pdB);
 
     }
 
-    free(pdA);
+    pd_code_free(pdA);
 
   }
 

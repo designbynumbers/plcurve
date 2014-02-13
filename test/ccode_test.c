@@ -402,7 +402,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
   if (pd_ok(projected_pd)) { 
     
     printf("pass\n");
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
   } else { 
 
@@ -410,7 +410,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
     printf("pd code generated from plCurve was:\n");
     printf("-----------------------------------\n");
     pd_write(stdout,projected_pd);
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
     exit(1);
   }
@@ -431,7 +431,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
   if (pd_ok(projected_pd)) { 
     
     printf("pass\n");
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
   } else { 
 
@@ -439,7 +439,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
     printf("pd code generated from plCurve was:\n");
     printf("-----------------------------------\n");
     pd_write(stdout,projected_pd);
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
     exit(1);
   }
@@ -473,7 +473,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
   if (pd_ok(projected_pd)) { 
     
     printf("pass\n");
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
   } else { 
 
@@ -481,7 +481,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
     printf("pd code generated from plCurve was:\n");
     printf("-----------------------------------\n");
     pd_write(stdout,projected_pd);
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
     exit(1);
   }
@@ -502,7 +502,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
   if (pd_ok(projected_pd)) { 
     
     printf("pass\n");
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
   } else { 
 
@@ -510,7 +510,7 @@ bool arcpresentation_tests(gsl_rng *rng) {
     printf("pd code generated from plCurve was:\n");
     printf("-----------------------------------\n");
     pd_write(stdout,projected_pd);
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
     exit(1);
   }
@@ -548,7 +548,7 @@ bool randomwalk_test(gsl_rng *rng,int nedges) {
   if (pd_ok(projected_pd)) { 
     
     printf("pass\n");
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
   } else { 
 
@@ -556,7 +556,7 @@ bool randomwalk_test(gsl_rng *rng,int nedges) {
     printf("pd code generated from plCurve was:\n");
     printf("-----------------------------------\n");
     pd_write(stdout,projected_pd);
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
     exit(1);
   }
@@ -640,7 +640,7 @@ bool unknot_and_split_component_test(gsl_rng *rng) {
     printf("pd code generated from plCurve was:\n");
     printf("-----------------------------------\n");
     pd_write(stdout,projected_pd);
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
     exit(1);
   }
@@ -649,7 +649,7 @@ bool unknot_and_split_component_test(gsl_rng *rng) {
   if (pd_ok(projected_pd)) { 
     
     printf("pass\n");
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
   } else { 
 
@@ -657,7 +657,7 @@ bool unknot_and_split_component_test(gsl_rng *rng) {
     printf("pd code generated from plCurve was:\n");
     printf("-----------------------------------\n");
     pd_write(stdout,projected_pd);
-    free(projected_pd);
+    pd_code_free(&projected_pd);
 
     exit(1);
   }
