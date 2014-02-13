@@ -67,7 +67,7 @@ bool insert_torusknots(int nknots,pd_stor_t **pdstor)
     pd_code_t *pd;
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -120,11 +120,11 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-    free(pd);
+    pd_code_free(&pd);
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do a repeat insert. */
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -134,11 +134,11 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-    free(pd);
+    pd_code_free(&pd);
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do a repeat insert. */
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -299,7 +299,7 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor)
       pd_code_t *pd;
       pd = pd_build_unknot_wye(a,m-a,n-m);
       pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-      free(pd);
+      pd_code_free(&pd);
 
     }
 
@@ -516,7 +516,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3); 
     if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -532,7 +532,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -562,7 +562,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3); 
     if (!should_succeed_iso_search(pd,*pdstor)) { return false; }
-    free(pd);
+    pd_code_free(&pd);
     
   }
 
@@ -575,7 +575,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
     pd_code_t *pd;
     pd = pd_build_twist_knot(i);
     if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -584,7 +584,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
     pd_code_t *pd;
     pd = pd_build_simple_chain(i);
     if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -593,7 +593,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
     pd_code_t *pd;
     pd = pd_build_unknot(i);
     if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -655,7 +655,7 @@ bool read_write_test()
     }
 
     pd_copyinto_pdstor(pdstor,pd);
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -676,7 +676,7 @@ bool read_write_test()
 	}
 	
 	pd_copyinto_pdstor(pdstor,pd);
-	free(pd);
+	pd_code_free(&pd);
 
       }
 

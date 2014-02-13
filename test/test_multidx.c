@@ -52,7 +52,7 @@ int PD_VERBOSE=50;
 
 
 /* We are responsible for implementing the following interface for the iterator in 
-   a multi-index:
+   a multi-index: */
 
 /* typedef struct pd_iterops_struct { */
 

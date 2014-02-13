@@ -71,7 +71,7 @@ bool init_and_read_tests(pd_contidx_t init,pd_contidx_t toadd,pd_container_t **r
   for(i=0;i<toadd;i++) {
 
     pd_code_t *pd;
-    pd = calloc_or_die(1,sizeof(pd_code_t));
+    pd = pd_code_new(14); /* Create a 14-crossing pd code */
     pd->uid = i; /* Tag it with a unique id for testing */
     pd_addto_container(cont,pd);
 

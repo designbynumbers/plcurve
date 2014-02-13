@@ -152,7 +152,8 @@ bool test_twistn(pd_idx_t n) {
 
   /* Now test the number of edges on each comp */
   
-  pd_idx_t cee[PD_MAXCOMPONENTS];
+  pd_idx_t *cee;
+  cee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
 
   cee[0] = pd->nedges;
 
@@ -160,7 +161,8 @@ bool test_twistn(pd_idx_t n) {
 
   /* Now test the number of edges on each face */
 
-  pd_idx_t fee[PD_MAXFACES],face;
+  pd_idx_t *fee,face;
+  fee = calloc(pd->MAXFACES,sizeof(pd_idx_t));
 
   fee[0] = 2; 
   fee[1] = 3;
@@ -179,7 +181,9 @@ bool test_twistn(pd_idx_t n) {
 
   printf("\t %d-twist knot ... pass.\n\n",n);
 
-  free(pd);
+  pd_code_free(&pd);
+  free(cee);
+  free(fee);
 
   return true;
 
@@ -200,14 +204,14 @@ bool test_twist() {
 bool test_unknot_wye_abcsum(pd_idx_t n) {
 
   pd_code_t *pd;
-  char      test_hash[64];
+  char      test_hash[2*PD_HASHSIZE];
 
   printf("testing unknot wyes with a + b + c = %d twists ...\n\n",n);
   
   pd = pd_build_unknot_wye(n,0,0);
-  strncpy(test_hash,pd->hash,32);
+  strncpy(test_hash,pd->hash,PD_HASHSIZE);
   printf("everything should have hash %s.\n",test_hash);
-  free(pd);
+  pd_code_free(&pd);
 
   pd_idx_t A,B;
 
@@ -230,7 +234,8 @@ bool test_unknot_wye_abcsum(pd_idx_t n) {
 
       /* Now test the number of edges on each comp */
       
-      pd_idx_t cee[PD_MAXCOMPONENTS];
+      pd_idx_t *cee;
+      cee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
       
       cee[0] = pd->nedges;
       
@@ -238,8 +243,9 @@ bool test_unknot_wye_abcsum(pd_idx_t n) {
       
       /* Now test the number of edges on each face */
       
-      pd_idx_t fee[PD_MAXFACES],face;
-      
+      pd_idx_t *fee,face;
+      fee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
+
       fee[0] = 1; 
       fee[1] = 1;
       fee[2] = 1;
@@ -259,7 +265,9 @@ bool test_unknot_wye_abcsum(pd_idx_t n) {
       if (strcmp(pd->hash,test_hash)) { printf("FAIL (hash %s != expected %s)\n",pd->hash,test_hash); return false; }
       printf("pass.\n\n");
 
-      free(pd);
+      pd_code_free(&pd);
+      free(cee);
+      free(fee);
 
     }
 
@@ -295,7 +303,8 @@ bool test_torus2q(pd_idx_t q) {
 
   /* Now test the number of edges on each comp */
 
-  pd_idx_t cee[PD_MAXCOMPONENTS];
+  pd_idx_t *cee;
+  cee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
   
   if ((q%2)==0) { /* link case */
     
@@ -312,7 +321,8 @@ bool test_torus2q(pd_idx_t q) {
 
   /* Now test the number of edges on each face */
 
-  pd_idx_t fee[PD_MAXFACES],face;
+  pd_idx_t *fee,face;
+  fee = calloc(pd->MAXFACES,sizeof(pd_idx_t));
 
   for(face=0;face<q;face++) {
 
@@ -327,8 +337,9 @@ bool test_torus2q(pd_idx_t q) {
 
   printf("\t (2,%d)-torus knot ... pass.\n\n",q);
   
-  free(pd);
-  
+  pd_code_free(&pd);
+  free(cee);
+  free(fee);
 
   return true;
 
@@ -359,7 +370,8 @@ bool test_nsimplechain(pd_idx_t n) {
 
   /* Now test the number of edges on each comp */
 
-  pd_idx_t cee[PD_MAXCOMPONENTS],comp=0;
+  pd_idx_t *cee,comp=0;
+  cee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
 
   cee[0] = cee[1] = 2;
 
@@ -369,7 +381,8 @@ bool test_nsimplechain(pd_idx_t n) {
 
   /* Now test the number of edges on each face */
 
-  pd_idx_t fee[PD_MAXFACES],face,i;
+  pd_idx_t *fee,face,i;
+  fee = calloc(pd->MAXFACES,sizeof(pd_idx_t));
 
   fee[0] = fee[1] = 2; /* end faces */
   face = 2;
@@ -393,7 +406,9 @@ bool test_nsimplechain(pd_idx_t n) {
 
   printf("\t %d-component simple chain ... pass.\n\n",n);
 
-  free(pd);
+  pd_code_free(&pd);
+  free(fee);
+  free(cee);
 
   return true;
 
@@ -424,13 +439,16 @@ bool test_nunknot(pd_idx_t n) {
 
   /* Now test the number of edges on each comp */
 
-  pd_idx_t cee[PD_MAXCOMPONENTS];
+  pd_idx_t *cee;
+  cee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
+
   cee[0] = 2*n;
   if (!comp_edgevec_test(pd,cee)) { return false; }
 
   /* Now test the number of edges on each face */
 
-  pd_idx_t fee[PD_MAXFACES],face,i;
+  pd_idx_t *fee,face,i;
+  fee = calloc(pd->MAXFACES,sizeof(pd_idx_t));
 
   fee[0] = fee[1] = 1; /* end faces */
   face = 2;
@@ -448,7 +466,9 @@ bool test_nunknot(pd_idx_t n) {
 
   printf("\t %d-crossing unknot ... pass.\n\n",n);
 
-  free(pd);
+  pd_code_free(&pd);
+  free(fee);
+  free(cee);
 
   return true;
 

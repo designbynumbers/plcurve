@@ -67,7 +67,7 @@ bool test_compgrps()
   pd_compgrp_t *grps = NULL;
   pd_idx_t     ngrps = 255;
 
-  grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
+  grps = pd_build_compgrps(pdA,pdB,&ngrps);
 
   if (grps == NULL && ngrps == 0) {
 
@@ -88,7 +88,7 @@ bool test_compgrps()
   pdB->ncomps = 3;
   pdB->comp[0].nedges = 2; pdB->comp[1].nedges = 3; pdB->comp[2].nedges = 5;
 
-  grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
+  grps = pd_build_compgrps(pdA,pdB,&ngrps);
 
   if (grps == NULL && ngrps == 0) {
 
@@ -112,7 +112,7 @@ bool test_compgrps()
   pdB->ncomps = 3;
   pdB->comp[0].nedges = 2; pdB->comp[1].nedges = 3; pdB->comp[2].nedges = 5;
  
-  grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
+  grps = pd_build_compgrps(pdA,pdB,&ngrps);
   
   if (grps == NULL || ngrps != 3) {
 
@@ -123,26 +123,26 @@ bool test_compgrps()
 
   if (grps[0].ncomps != 1 || grps[0].comp[0] != 0) {
 
-    pd_printf("FAIL. group 0 = %COMPGRP != ( 0 ) \n",&pdA,&(grps[0]));
+    pd_printf("FAIL. group 0 = %COMPGRP != ( 0 ) \n",pdA,&(grps[0]));
     return false;
 
   } 
 
   if (grps[1].ncomps != 1 || grps[1].comp[0] != 1) {
 
-    pd_printf("FAIL. group 0 = %COMPGRP != ( 1 ) \n",&pdA,&(grps[1]));
+    pd_printf("FAIL. group 0 = %COMPGRP != ( 1 ) \n",pdA,&(grps[1]));
     return false;
 
   } 
 
   if (grps[2].ncomps != 1 || grps[2].comp[0] != 2) {
 
-    pd_printf("FAIL. group 0 = %COMPGRP != ( 2 ) \n",&pdA,&(grps[2]));
+    pd_printf("FAIL. group 0 = %COMPGRP != ( 2 ) \n",pdA,&(grps[2]));
     return false;
 
   } 
 
-  pd_printf("%COMPGRP   %COMPGRP  %COMPGRP    pass.\n",&pdA,&(grps[0]),&(grps[1]),&(grps[2]));
+  pd_printf("%COMPGRP   %COMPGRP  %COMPGRP    pass.\n",pdA,&(grps[0]),&(grps[1]),&(grps[2]));
   free(grps);
 
   printf("nedges vec (3 3 5) -> ");
@@ -153,7 +153,7 @@ bool test_compgrps()
   pdB->ncomps = 3;
   pdB->comp[0].nedges = 3; pdB->comp[1].nedges = 3; pdB->comp[2].nedges = 5;
  
-  grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
+  grps = pd_build_compgrps(pdA,pdB,&ngrps);
   
   if (grps == NULL || ngrps != 2) {
 
@@ -164,19 +164,19 @@ bool test_compgrps()
 
   if (grps[0].ncomps != 2 || grps[0].comp[0] != 0 || grps[0].comp[1] != 1) {
 
-    pd_printf("FAIL. group 0 = %COMPGRP != ( 0 1 ) \n",&pdA,&(grps[0]));
+    pd_printf("FAIL. group 0 = %COMPGRP != ( 0 1 ) \n",pdA,&(grps[0]));
     return false;
 
   } 
 
   if (grps[1].ncomps != 1 || grps[1].comp[0] != 2) {
 
-    pd_printf("FAIL. group 0 = %COMPGRP != ( 2 ) \n",&pdA,&(grps[1]));
+    pd_printf("FAIL. group 0 = %COMPGRP != ( 2 ) \n",pdA,&(grps[1]));
     return false;
 
   } 
 
-  pd_printf("%COMPGRP %COMPGRP                   pass.\n",&pdA,&(grps[0]),&(grps[1]));
+  pd_printf("%COMPGRP %COMPGRP                   pass.\n",pdA,&(grps[0]),&(grps[1]));
   free(grps);
 
   printf("nedges vec (3 5 5) -> ");
@@ -187,7 +187,7 @@ bool test_compgrps()
   pdB->ncomps = 3;
   pdB->comp[0].nedges = 3; pdB->comp[1].nedges = 5; pdB->comp[2].nedges = 5;
  
-  grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
+  grps = pd_build_compgrps(pdA,pdB,&ngrps);
   
   if (grps == NULL || ngrps != 2) {
 
@@ -198,19 +198,19 @@ bool test_compgrps()
 
   if (grps[0].ncomps != 1 || grps[0].comp[0] != 0) {
 
-    pd_printf("FAIL. group 0 = %COMPGRP != ( 0 ) \n",&pdA,&(grps[0]));
+    pd_printf("FAIL. group 0 = %COMPGRP != ( 0 ) \n",pdA,&(grps[0]));
     return false;
 
   } 
 
   if (grps[1].ncomps != 2 || grps[1].comp[0] != 1 || grps[1].comp[1] != 2) {
 
-    pd_printf("FAIL. group 0 = %COMPGRP != ( 1 2 ) \n",&pdA,&(grps[1]));
+    pd_printf("FAIL. group 0 = %COMPGRP != ( 1 2 ) \n",pdA,&(grps[1]));
     return false;
 
   }  
 
-  pd_printf("%COMPGRP   %COMPGRP                 pass.\n",&pdA,&(grps[0]),&(grps[1]));
+  pd_printf("%COMPGRP   %COMPGRP                 pass.\n",pdA,&(grps[0]),&(grps[1]));
   free(grps);
 
   printf("nedges vec (5 5 5) -> ");
@@ -221,7 +221,7 @@ bool test_compgrps()
   pdB->ncomps = 3;
   pdB->comp[0].nedges = 5; pdB->comp[1].nedges = 5; pdB->comp[2].nedges = 5;
  
-  grps = pd_build_compgrps(&pdA,&pdB,&ngrps);
+  grps = pd_build_compgrps(pdA,pdB,&ngrps);
   
   if (grps == NULL || ngrps != 1) {
 
@@ -232,12 +232,12 @@ bool test_compgrps()
 
   if (grps[0].ncomps != 3 || grps[0].comp[0] != 0 || grps[0].comp[1] != 1 || grps[0].comp[2] != 2) {
 
-    pd_printf("FAIL. group 0 = %COMPGRP != ( 0 1 2 ) \n",&pdA,&(grps[0]));
+    pd_printf("FAIL. group 0 = %COMPGRP != ( 0 1 2 ) \n",pdA,&(grps[0]));
     return false;
 
   } 
 
-  pd_printf("%COMPGRP                               pass.\n",&pdA,&(grps[0]));
+  pd_printf("%COMPGRP                               pass.\n",pdA,&(grps[0]));
   free(grps);
 
   printf("trying to free with weird comp info...");
@@ -829,7 +829,7 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
 
   pd_free_isos(&nisos,&isos);
   pd_free_isos(&nisos,&isos);
-  pd_code_free(pdA); pd_code_free(pdB);
+  pd_code_free(&pdA); pd_code_free(&pdB);
 
   printf("pass.\n");
  
@@ -1501,15 +1501,15 @@ bool test_isomorphic()
 	  
 	}
 	
-	pd_code_free(pdC);
+	pd_code_free(&pdC);
 
       }
 	  
-      pd_code_free(pdB);
+      pd_code_free(&pdB);
 
     }
 
-    pd_code_free(pdA);
+    pd_code_free(&pdA);
 
   }
 
