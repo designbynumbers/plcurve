@@ -47,6 +47,10 @@ int PD_VERBOSE;
    #include<ctype.h>
 #endif
 
+#ifdef HAVE_MATH_H
+  #include<math.h>
+#endif
+
 #include<plcTopology.h>
 //#include<libcassie/cassie.h>
 //#include"/usr/local/include/thrift/Thrift.h"
@@ -61,7 +65,7 @@ pd_code_t *pd_code_new(pd_idx_t maxverts) {
   
   pd_code_t *pd = calloc(1,sizeof(pd_code_t));
   assert(pd != NULL);
-  assert(maxverts > 1 && maxverts < PD_MAXVERTS);
+  assert(maxverts > 1);
 
   pd->uid = 0;
 
@@ -75,11 +79,11 @@ pd_code_t *pd_code_new(pd_idx_t maxverts) {
   pd->ncomps = 0;
   pd->nfaces = 0;
   
-  pd->hash = " ";
+  sprintf(pd->hash," ");
   pd->edge = calloc(pd->MAXEDGES,sizeof(pd_edge_t));
   assert(pd->edge != NULL);
 
-  pd->comp = calloc(pd->MAXCOMPS,sizeof(pd_component_t));
+  pd->comp = calloc(pd->MAXCOMPONENTS,sizeof(pd_component_t));
   assert(pd->comp != NULL);
 
   pd->cross = calloc(pd->MAXVERTS,sizeof(pd_crossing_t));
@@ -94,7 +98,7 @@ pd_code_t *pd_code_new(pd_idx_t maxverts) {
 
 void pd_code_free(pd_code_t **PD) { 
 
-  int cr,cmp,edge;
+  int cmp;
 
   if (*PD == NULL) { return; }
 
@@ -119,6 +123,8 @@ void pd_code_free(pd_code_t **PD) {
     pd->ncomps = 0;
 
   }
+  
+  pd_idx_t face;
 
   if (pd->MAXFACES != 0 && pd->face != NULL) {
 
@@ -164,7 +170,7 @@ void pd_code_free(pd_code_t **PD) {
 
   }
 
-  pd->hash = " ";
+  sprintf(pd->hash," ");
   pd->uid = 0;
   pd->MAXVERTS = 0;
   pd->MAXEDGES = 0;
@@ -294,7 +300,7 @@ void pd_canonorder_face(pd_face_t *face, pd_or_t or)
   
   /* First, search for the position of the lowest edge # */
 
-  pd_idx_t lowE = PD_MAXEDGES+1,lowPos = 0;
+  pd_idx_t lowE = reface.edge[0],lowPos = 0;
   
   for(edge=0;edge<nedges;edge++) { 
     
@@ -632,7 +638,7 @@ typedef struct edge_assignment_struct {
 
 } pdint_edge_assignment;
 
-pd_idx_t pdint_find_unassigned(pd_code_t *pd,pdint_edge_assignment *edge_assigned, bool *all_assigned)
+pd_idx_t pdint_find_unassigned_edge(pd_code_t *pd,pdint_edge_assignment *edge_assigned, bool *all_assigned)
 
 {
   assert(pd != NULL && edge_assigned != NULL && all_assigned != NULL);
@@ -766,8 +772,8 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   for(edge=0;edge<pd->nedges;edge++) { 
 
-    edge_assigned[edge].comp = PD_COMP_UNASSIGNED; 
-    edge_assigned[edge].pos = PD_POS_UNASSIGNED;
+    edge_assigned[edge].comp = PD_UNSET_COMPONENT; 
+    edge_assigned[edge].pos = PD_UNSET_POSITION;
 
   }
 
@@ -815,7 +821,7 @@ void pd_regenerate_comps(pd_code_t *pd)
 
 	fprintf(stderr,
 		"pd_regenerate_comp: Found %d edges in component %d of %d edge pdcode.\n"
-		"                    Suspect that crossing information is poorly formed.\n"
+		"                    Suspect that crossing information is poorly formed.\n",
 		nedges+1,comp,pd->nedges);
 	exit(1);
 
@@ -874,7 +880,6 @@ void pd_regenerate_comps(pd_code_t *pd)
   pd_idx_t new_edge_num[pd->MAXEDGES];
 
   pd_idx_t comp;
-  pd_idx_t i;
   
   for(i=0,comp=0;comp<pd->ncomps;comp++) {
     
@@ -1123,11 +1128,10 @@ void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
   /* Now we can actually start work. */
 
   pd_idx_t edge;
-  pd_or_t  or;
 
   if (*start_or == PD_POS_ORIENTATION) { 
 
-    for(edge=*start_edge+1,edge < pd->nedges;edge++) {
+    for(edge=*start_edge+1;edge < pd->nedges;edge++) {
 
       if (face_assigned[edge].pos_face == PD_UNSET_FACE) { 
 
@@ -1263,7 +1267,7 @@ void pd_regenerate_faces(pd_code_t *pd)
     
     pd_idx_t this_edge;
     pd_or_t  this_or;
-    pd_idx_type nedges = 0; /* Stores the number of edges in this face. */
+    pd_idx_t nedges = 0; /* Stores the number of edges in this face. */
     
     for(this_edge = start_edge, this_or = start_or;    /* This loop travels around a single face. */
 	!(this_edge == start_edge && this_or == start_or);
@@ -1347,7 +1351,7 @@ void pd_regenerate_faces(pd_code_t *pd)
 
   for(face=0;face<pd->nfaces;face++) { 
 
-    pd_canonorder_face(face,PD_POS_ORIENTATION);
+    pd_canonorder_face(&(pd->face[face]),PD_POS_ORIENTATION);
     
   }
   

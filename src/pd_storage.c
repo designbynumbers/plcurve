@@ -59,7 +59,7 @@ struct pdstorage_struct {
 
   unsigned int nelts;
   
-  char         iter_hash[64];      /* Extra-large; should only ever need to contain 32 chars */
+  char         iter_hash[2*PD_HASHSIZE];      /* Extra-large; should only ever need to contain 32 chars */
   pd_uid_t     iter_uid;
   Word_t       *iter_PValue_hash;  /* Pointer to the current JudyL corresponding to iterator uid */
   
@@ -476,7 +476,7 @@ void pd_stor_stats(pd_stor_t *pdstor,unsigned int *nhashes,unsigned int *nelts)
 
 {
   Word_t  *PValue_hash; 
-  char     Index[64];
+  char     Index[2*PD_HASHSIZE];
   Index[0] = 0;
   
   JSLF(PValue_hash,pdstor->PJSLArray,Index);
@@ -520,11 +520,11 @@ void pd_display_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representatio
   /* Now list each hash and uid separately using iterators. */
 
   pd_code_t *pd;
-  char       cur_hash[64]; 
+  char       cur_hash[2*PD_HASHSIZE]; 
   pd_uid_t   uid_min,uid_max;
 
   pd = pd_stor_firstelt(pdstor);
-  strncpy(cur_hash,pd->hash,32);
+  strncpy(cur_hash,pd->hash,PD_HASHSIZE);
   uid_min = pd->uid;
   uid_max = pd->uid;
 

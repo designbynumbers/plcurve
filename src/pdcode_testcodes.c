@@ -57,14 +57,6 @@ pd_code_t *pd_build_twist_knot(pd_idx_t n)
 
   /* Make sure that the number of verts is ok */
 
-  if (n+2 > PD_MAXVERTS) {
-
-    pd_error(SRCLOC,"Can't generate pd_twist_knot diagram with %d (> PD_MAXVERTS == %d) crossings.\n",pd,
-	     n+2,PD_MAXVERTS);
-    exit(1);
-
-  }
-
   if (n<1) { 
 
     pd_error(SRCLOC,"Can't generate pd_twist_knot with %d (< 1) twists.\n",pd,n);
@@ -74,9 +66,8 @@ pd_code_t *pd_build_twist_knot(pd_idx_t n)
   
   /* Now generate crossings. */
 
-  pd = calloc(1,sizeof(pd_code_t));
+  pd = pd_code_new(n+2); /* Allocate just enough space */
   assert(pd != NULL); 
-
   pd->ncross = n+2;
 
   if (pd->ncross == 3) { /* This case is non-generic: hard code it */
@@ -122,21 +113,21 @@ pd_code_t *pd_build_torus_knot(pd_idx_t p, pd_idx_t q)
     exit(1);
 
   }
-    
-  if (q*(p-1) > PD_MAXVERTS) {
 
-    pd_error(SRCLOC,"Can't generate pd_torus_knot diagram with %d (> PD_MAXVERTS == %d) crossings.\n",pd,
-	     q*(p-1),PD_MAXVERTS);
+  if (q < 2) { 
+    
+    pd_error(SRCLOC,"pd_torus_knot can only generate (2,q) torus knots with q >= 2 (called with (%d,%d))\n",pd,
+	     p,q);
     exit(1);
 
   }
-
+    
   /* Now generate crossings. */
 
-  pd = calloc(1,sizeof(pd_code_t));
+  pd = pd_code_new(q*(p-1));
   assert(pd != NULL); 
 
-  pd->ncross = q;
+  pd->ncross = q; /* Note that this assumes that p = 2 */
   pd->cross[0] = pd_build_cross(0,(2*q)-2,(2*q)-1,1);
 
   pd_idx_t i;
@@ -169,17 +160,8 @@ pd_code_t *pd_build_simple_chain(pd_idx_t n)
 
   } 
 
-  if (2*(n-1) > PD_MAXVERTS) {
-
-    pd_error(SRCLOC,"Simple chain with %d links has %d crossings (> PD_MAXVERTS == %d)",pd,
-	     n,2*(n-1));
-    exit(1);
-
-  }
-
-  pd = calloc(1,sizeof(pd_code_t));
+  pd = pd_code_new(2*(n-1));
   assert(pd != NULL);
-
   pd->ncross = 2*(n-1);
 
   if (n == 3) { /* This is a nongeneric case; fill in by hand. */
@@ -221,13 +203,6 @@ pd_code_t *pd_build_unknot(pd_idx_t n)
 
 {
   pd_code_t *pd = NULL;
-
-  if (n > PD_MAXVERTS) { 
-    
-    pd_error(SRCLOC,"Can't generate unknot diagram with %d ( > PD_MAXVERTS = %d ) crossings.",pd,n,PD_MAXVERTS);
-    exit(1);
-    
-  }
   
   if (n < 2) { 
 
@@ -238,9 +213,8 @@ pd_code_t *pd_build_unknot(pd_idx_t n)
 
   /* Now we can generate */
 
-  pd = calloc(1,sizeof(pd_code_t));
+  pd = pd_code_new(n);
   assert(pd != NULL);
-
   pd->ncross = n;
   
   pd->cross[0]     = pd_build_cross(0,0,3,2);
@@ -317,13 +291,6 @@ pd_code_t *pd_build_unknot_wye(pd_idx_t a, pd_idx_t b, pd_idx_t c)
   pd_code_t *pd = NULL;
   pd_idx_t   n = a + b + c + 3; /* The total wye should contain a+b+c+3 crossings. */
 
-  if (n > PD_MAXVERTS) { 
-    
-    pd_error(SRCLOC,"Can't generate unknot-wye diagram with %d ( > PD_MAXVERTS = %d ) crossings.",pd,n,PD_MAXVERTS);
-    exit(1);
-    
-  }
-  
   if (n < 2) { 
 
     pd_error(SRCLOC,"Can't generate %d-crossing unknot-wye diagram.",pd,n);
@@ -333,7 +300,7 @@ pd_code_t *pd_build_unknot_wye(pd_idx_t a, pd_idx_t b, pd_idx_t c)
 
   /* Now we can generate */
 
-  pd = calloc(1,sizeof(pd_code_t));
+  pd = pd_code_new(n);
   assert(pd != NULL);
   pd->ncross = n;
   pd->nedges = 2*n;

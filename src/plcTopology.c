@@ -681,22 +681,8 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
   // numbering scheme to assemble a pd_code_t by walking around every component filling in 
   // the details. 
 
-  pd_code_t *pd = calloc(1,sizeof(pd_code_t));
-
-  if (cc->used > PD_MAXVERTS) { 
-
-    fprintf(stderr,
-	    "pdcode_from_plCurve: This plCurve has %d crossings in this projection, which is more than the %d crossings\n"
-	    "                     which can be handled by this build of plCurve. Modify line 49 of plcTopology.h, which\n"
-	    "\n"
-	    "                     #define PD_MAXVERTS      1024    /* We are only going to deal with diagrams with <= 1024 crossings. */ \n"
-	    "to\n"
-	    "                     #define PD_MAXVERTS      %d  \n"
-	    "or more.\n",
-	    cc->used,PD_MAXVERTS,cc->used+1);
-    exit(1);
-
-  } 
+  pd_code_t *pd = pd_code_new(cc->used); /* Clear as much space as we need */
+  assert(pd != NULL);
 
   pd->ncross = cc->used;
   pd->nedges = 2*pd->ncross;

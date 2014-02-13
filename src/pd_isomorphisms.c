@@ -76,7 +76,7 @@ bool pd_compgrp_ok(pd_code_t *pd,pd_compgrp_t *cgrp)
 
   if (cgrp->comp == NULL) {
 
-    return pd_error(SRCLOC,"cgrp comp list not allocated\n");
+    return pd_error(SRCLOC,"cgrp comp list not allocated\n",pd);
     
   }
 
@@ -127,7 +127,7 @@ pd_compgrp_t *pd_build_compgrps(pd_code_t *pdA,pd_code_t *pdB,pd_idx_t *ngrps)
 
 {
   pd_compgrp_t *gps;
-  pd_idx_t      comp,nedges,ncomps,gp;  
+  pd_idx_t      comp,ncomps,gp;  
 
   /* First, make sure that this can work by checking that the vector of 
      numbers of edges per component matches between pdA and pdB */
@@ -153,12 +153,12 @@ pd_compgrp_t *pd_build_compgrps(pd_code_t *pdA,pd_code_t *pdB,pd_idx_t *ngrps)
     if (pdA->comp[comp].nedges != pdA->comp[comp-1].nedges) { (*ngrps)++; }
   }
 
-  gps = calloc(ngrps,sizeof(pd_compgrp_t));
+  gps = calloc(*ngrps,sizeof(pd_compgrp_t));
   assert(gps != NULL); 
 
   /* We now count the number of components in each group on pass 2. */
 
-  gp[0].ncomps=1; gp[0].nedges = pdA->comp[0].nedges; /* Start by adding component 0 to group 0 */
+  gps[0].ncomps=1; gps[0].nedges = pdA->comp[0].nedges; /* Start by adding component 0 to group 0 */
   for(gp=0,comp=1;comp<pdA->ncomps;comp++) { 
     if (pdA->comp[comp].nedges != pdA->comp[comp-1].nedges) { gp++; gps[gp].nedges = pdA->comp[comp].nedges; }
     gps[gp].ncomps++;
@@ -250,9 +250,12 @@ pd_perm_t **pd_build_compperms(pd_idx_t ngrps, pd_compgrp_t *compgrps,
   /*    Compute total number of components as a side effect.  */
 
   pd_multidx_t *idx;
-  pd_idx_t*     grpsizes[PD_MAXCOMPONENTS];
+  pd_idx_t*     *grpsizes;
   pd_idx_t      grp;
   pd_idx_t      ncomps = 0;
+
+  grpsizes = calloc(ngrps,sizeof(pd_idx_t *));
+  assert(grpsizes != NULL);
 
   for(grp=0;grp<ngrps;grp++) {
 
@@ -304,6 +307,7 @@ pd_perm_t **pd_build_compperms(pd_idx_t ngrps, pd_compgrp_t *compgrps,
   }
 
   pd_free_multidx(&idx);
+  free(grpsizes);
 
   return comp_perms;
 
@@ -606,9 +610,12 @@ pd_edgemap_t **pd_build_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_t *comp_p
   /* 0. Set up a multi-idx with dihedral groups to iterate over. */
 
   pd_multidx_t *idx;
-  pd_idx_t*     compsizes[PD_MAXCOMPONENTS];
+  pd_idx_t*     *compsizes;
   pd_idx_t      comp;
- 
+  
+  compsizes = calloc(ncomps,sizeof(pd_idx_t *));
+  assert(compsizes != NULL);
+
   for(comp=0;comp<ncomps;comp++) {
 
     compsizes[comp] = &(pdA->comp[comp].nedges);
@@ -665,6 +672,7 @@ pd_edgemap_t **pd_build_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_t *comp_p
   }
 
   pd_free_multidx(&idx);
+  free(compsizes);
 
   return edgemaps;
 

@@ -209,7 +209,7 @@ extern "C" {
      we DON'T allocate the face records themselves.
   */
 
-  pd_code_t *pd_code_new(int ncross); 
+  pd_code_t *pd_code_new(pd_idx_t MAXVERTS); 
   void       pd_code_free(pd_code_t **pd);
 
   /* Utility Functions For Dealing With PD-code primitives */
@@ -309,8 +309,8 @@ extern "C" {
 
   /* entire pd operations */
 
-  void pd_write(FILE *outfile,pd_code_t *pd);
-  bool pd_read(FILE *infile,pd_code_t *pd); /* True if read ok */
+  void       pd_write(FILE *outfile,pd_code_t *pd);
+  pd_code_t *pd_read(FILE *infile); /* Returns NULL if the file is corrupt */
 
   bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
   /* Test whether two pd codes are isomorphic. */
