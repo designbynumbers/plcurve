@@ -408,8 +408,8 @@ int main(int argc, char *argv[]) {
 	 "==========================================================================\n"
 	 ,gsl_rng_name(rng),seedi);
 
-  // if (!fixed_failure_to_close_chordlength_tests(rng)) { PASS = false; }
-  // if (!equilateral_unconfined_chordlength_tests(rng)) { PASS = false; }
+  if (!fixed_failure_to_close_chordlength_tests(rng)) { PASS = false; }
+  if (!equilateral_unconfined_chordlength_tests(rng)) { PASS = false; }
        
   gsl_rng_free(rng);
 
