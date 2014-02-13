@@ -244,7 +244,7 @@ bool test_unknot_wye_abcsum(pd_idx_t n) {
       /* Now test the number of edges on each face */
       
       pd_idx_t *fee,face;
-      fee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
+      fee = calloc(pd->MAXFACES,sizeof(pd_idx_t));
 
       fee[0] = 1; 
       fee[1] = 1;

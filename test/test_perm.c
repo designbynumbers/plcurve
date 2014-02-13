@@ -237,6 +237,8 @@ bool test_nperm(pd_idx_t n, bool print)
   }
   printf("pass (all elts ok).\n");
 
+  /* We're done with the previous "e" */
+  pd_free_perm((void **)(&e));
 
   printf("checking return to identity ...       ");
   e = pd_new_perm(&n);

@@ -1105,14 +1105,17 @@ pd_facemap_t *pdint_build_oriented_facemap(pd_code_t *pdA,pd_code_t *pdB,
     /* Step 0. Build the face which this would map to. */
 
     pd_idx_t edge;
+
+    mapface.nedges = pdA->face[face].nedges;
+    mapface.edge = calloc(mapface.nedges,sizeof(pd_idx_t));
+    mapface.or = calloc(mapface.nedges,sizeof(pd_or_t));
+    assert(mapface.edge != NULL && mapface.or != NULL);
     
     for(edge=0;edge<pdA->face[face].nedges;edge++) {
 
       mapface.edge[edge] = edgemap->perm->map[pdA->face[face].edge[edge]];
 
     }
-    
-    mapface.nedges = pdA->face[face].nedges;
 
     pd_canonorder_face(&mapface,or);
 
@@ -1121,6 +1124,12 @@ pd_facemap_t *pdint_build_oriented_facemap(pd_code_t *pdA,pd_code_t *pdB,
 
     pd_face_t *bptr;
     bptr = bsearch(&mapface,pdB->face,pdB->nfaces,sizeof(pd_face_t),pd_face_cmp);
+
+    /* Now dispose of the mapface memory. */
+
+    free(mapface.edge); free(mapface.or);
+    mapface.edge = NULL; mapface.or = NULL;
+    mapface.nedges = 0;
 
     /* Step 2. If found, translate to index, continue, if not found, go on to negative orientation. */
 
@@ -1936,14 +1945,17 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
     pd_face_t after_edgemap_face; /* Faceing after edgemap */
     pd_idx_t  facepos;
 
+    after_edgemap_face.nedges = pdA->face[face].nedges;
+    after_edgemap_face.edge = calloc(after_edgemap_face.nedges,sizeof(pd_idx_t));
+    after_edgemap_face.or = calloc(after_edgemap_face.nedges,sizeof(pd_or_t));
+    assert(after_edgemap_face.edge != NULL && after_edgemap_face.or != NULL);
+
     for(facepos=0;facepos<pdA->face[face].nedges;facepos++) { 
 
       after_edgemap_face.edge[facepos] = iso->edgemap->perm->map[pdA->face[face].edge[facepos]]; 
 
     }
     
-    after_edgemap_face.nedges = pdA->face[face].nedges;
-
     pd_face_t *after_facemap_face = &(pdB->face[iso->facemap->perm->map[face]]);
 
     assert(after_facemap_face->nedges == after_edgemap_face.nedges);
@@ -1962,6 +1974,11 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
 		      after_facemap_face);
       
     }
+
+    /* Now free the after_edgemap face */
+    free(after_edgemap_face.edge); free(after_edgemap_face.or);
+    after_edgemap_face.edge = NULL; after_edgemap_face.or = NULL;
+    after_edgemap_face.nedges = 0;
 
   }
 

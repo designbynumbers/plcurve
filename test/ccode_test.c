@@ -170,8 +170,8 @@ bool torus_knot_test(gsl_rng *rng,int verts,int q) {
   } 
 
   plc_free(L);
-  free(projected_pd);
-  free(expected_pd);
+  pd_code_free(&projected_pd);
+  pd_code_free(&expected_pd);
 
   printf("PASS\n");
   printf("---------------------------------------------\n");
@@ -236,8 +236,8 @@ bool torus_knot_rotation_test(gsl_rng *rng,int verts,int q) {
       
     } 
 
-    free(projected_pd);
-    free(expected_pd);
+    pd_code_free(&projected_pd);
+    pd_code_free(&expected_pd);
   
   }
 
@@ -759,12 +759,12 @@ int main () {
   torus_knot_test(rng,150,4);
   torus_knot_test(rng,550,8);
 
-  torus_knot_test(rng,150,3);
-  torus_knot_test(rng,250,3);
-  torus_knot_test(rng,550,3);
-  torus_knot_test(rng,1050,3);
-  torus_knot_test(rng,150,7);
-  torus_knot_test(rng,550,9);
+  //  torus_knot_test(rng,150,3);
+  //torus_knot_test(rng,250,3);
+  //torus_knot_test(rng,550,3);
+  //torus_knot_test(rng,1050,3);
+  //torus_knot_test(rng,150,7);
+  //torus_knot_test(rng,550,9);
 
   torus_knot_rotation_test(rng,150,3);
   torus_knot_rotation_test(rng,150,4);
@@ -772,8 +772,8 @@ int main () {
   arcpresentation_tests(rng);
 
   randomwalk_test(rng,10);
-  randomwalk_test(rng,101);
-  randomwalk_test(rng,250);
+  //randomwalk_test(rng,101);
+  //randomwalk_test(rng,250);
 
   printf("=======================================\n"
 	 "pd_code_from_plCurve test suite PASSED.\n");

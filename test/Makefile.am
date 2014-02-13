@@ -133,22 +133,28 @@ test_isomorphism_CFLAGS = -I$(top_srcdir)/src
 test_isomorphism_LDFLAGS = -static
 
 test_pdcode_SOURCES = test_pdcode.c 
-test_pdcode_LDADD = -L$(top_builddir)/src -lplCurve
+test_pdcode_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_pdcode_CFLAGS = -I$(top_srcdir)/src
+test_pdcode_LDFLAGS = -static
 
 test_pdcontainer_SOURCES = test_pdcontainer.c 
-test_pdcontainer_LDADD = -L$(top_builddir)/src -lplCurve
+test_pdcontainer_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_pdcontainer_CFLAGS = -I$(top_srcdir)/src
+test_pdcontainer_LDFLAGS = -static
 
 test_multidx_SOURCES = test_multidx.c
-test_multidx_LDADD = -L$(top_builddir)/src -lplCurve
+test_multidx_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_multidx_CFLAGS = -I$(top_srcdir)/src
+test_multidx_LDFLAGS = -static
 
 test_dihedral_SOURCES = test_dihedral.c
-test_dihedral_LDADD = -L$(top_builddir)/src -lplCurve
+test_dihedral_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_dihedral_CFLAGS = -I$(top_srcdir)/src
+test_dihedral_LDFLAGS = -static
 
 test_perm_SOURCES = test_perm.c
-test_perm_LDADD = -L$(top_builddir)/src -lplCurve
+test_perm_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_perm_CFLAGS = -I$(top_srcdir)/src
+test_perm_LDFLAGS = -static
+
 

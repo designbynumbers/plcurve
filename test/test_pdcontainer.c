@@ -151,6 +151,27 @@ bool free_with_null_test(pd_container_t **cont)
 
 }
 
+bool free_with_pd_code_eltfree_test(pd_container_t **cont)
+{
+
+  printf("Freeing container (with pd_code_free) ... ");
+
+  pd_free_container(cont,pd_code_eltfree);
+  pd_free_container(cont,pd_code_eltfree);
+
+  if (*cont != NULL) {
+
+    printf("FAIL (didn't set cont to NULL).\n");
+    return false;
+
+  }
+
+  printf("       pass\n\n");
+
+  return true;
+
+}
+
 typedef struct composite_struct {
 
     unsigned int id;
@@ -335,6 +356,8 @@ bool push_and_pop_with_comp_tests(pd_contidx_t init,pd_contidx_t toadd)
 
     }
 
+    comp_free((void **)(&comp)); /* Must get rid of this to avoid memory leak */
+
   }
 
   printf(" pass (all elements popped).\n");
@@ -366,13 +389,13 @@ bool test_container() {
 	 "--------------------------------\n");
 
   if (!init_and_read_tests(100,756,&cont)) { return false; }
-  if (!free_with_null_test(&cont)) { return false; }
+  if (!free_with_pd_code_eltfree_test(&cont)) { return false; }
 
   if (!init_and_read_tests(1000,756,&cont)) { return false; }
-  if (!free_with_null_test(&cont)) { return false; }
+  if (!free_with_pd_code_eltfree_test(&cont)) { return false; }
 
-  //  if (!init_and_read_tests(100000,234567,&cont)) { return false; }
-  //if (!free_with_null_test(&cont)) { return false; }
+  //if (!init_and_read_tests(100000,234567,&cont)) { return false; }
+  //if (!free_with_pd_code_eltfree_test(&cont)) { return false; }
 
   printf("\n"
 	 "Advanced freeing tests\n" 

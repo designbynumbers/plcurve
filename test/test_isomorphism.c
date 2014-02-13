@@ -143,7 +143,7 @@ bool test_compgrps()
   } 
 
   pd_printf("%COMPGRP   %COMPGRP  %COMPGRP    pass.\n",pdA,&(grps[0]),&(grps[1]),&(grps[2]));
-  free(grps);
+  pd_free_compgrps(grps,ngrps);
 
   printf("nedges vec (3 3 5) -> ");
 
@@ -177,7 +177,7 @@ bool test_compgrps()
   } 
 
   pd_printf("%COMPGRP %COMPGRP                   pass.\n",pdA,&(grps[0]),&(grps[1]));
-  free(grps);
+  pd_free_compgrps(grps,ngrps);
 
   printf("nedges vec (3 5 5) -> ");
 
@@ -211,7 +211,7 @@ bool test_compgrps()
   }  
 
   pd_printf("%COMPGRP   %COMPGRP                 pass.\n",pdA,&(grps[0]),&(grps[1]));
-  free(grps);
+  pd_free_compgrps(grps,ngrps);
 
   printf("nedges vec (5 5 5) -> ");
 
@@ -238,7 +238,7 @@ bool test_compgrps()
   } 
 
   pd_printf("%COMPGRP                               pass.\n",pdA,&(grps[0]));
-  free(grps);
+  pd_free_compgrps(grps,ngrps);
 
   printf("trying to free with weird comp info...");
   pd_code_free(&pdA);
@@ -327,7 +327,7 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
 
   for(grp=0;grp<ngrps;grp++) { 
 
-    pd_printf("\t %COMPGRP \n",NULL,&(compgrps[grp])); 
+    pd_printf("\t %COMPGRP \n",pdA,&(compgrps[grp])); 
 
   }
 
@@ -346,7 +346,7 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
 
     if (printperms) {
 
-      pd_printf("\t %PERM ... ",NULL,comp_perms[i]);
+      pd_printf("\t %PERM ... ",pdA,comp_perms[i]);
       if (pd_perm_ok(comp_perms[i])) { printf("ok\n"); }
       else {printf("FAIL (not ok).\n"); return false; }
 
@@ -370,7 +370,7 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
       unsigned int j;
       for(j=0;j<nedgemaps;j++) {
 
-	pd_printf("\t\t %EDGEMAP ... ",NULL,edgemap_buf[j]);
+	pd_printf("\t\t %EDGEMAP ... ",pdA,edgemap_buf[j]);
 	if (pd_edgemap_ok(edgemap_buf[j])) { printf("ok.\n"); }
 	else { printf("FAIL (not ok).\n"); return false; }
 
@@ -459,7 +459,7 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
 
   printf(") pd_build_compperms tests pass.\n\n");
 
-  free(compgrps);
+  pd_free_compgrps(compgrps,ngrps);
 
   pd_free_compperms(ncomp_perms,&comp_perms);
   pd_free_compperms(ncomp_perms,&comp_perms);

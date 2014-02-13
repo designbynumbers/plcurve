@@ -211,6 +211,7 @@ extern "C" {
 
   pd_code_t *pd_code_new(pd_idx_t MAXVERTS); 
   void       pd_code_free(pd_code_t **pd);
+  void       pd_code_eltfree(void **PD);  /* Used when we make a pd_container of pd codes */
 
   /* Utility Functions For Dealing With PD-code primitives */
 

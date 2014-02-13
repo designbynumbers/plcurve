@@ -681,7 +681,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
   // numbering scheme to assemble a pd_code_t by walking around every component filling in 
   // the details. 
 
-  pd_code_t *pd = pd_code_new(cc->used); /* Clear as much space as we need */
+  pd_code_t *pd = pd_code_new(cc->used > 1 ? cc->used : 2); /* Clear as much space as we need */
   assert(pd != NULL);
 
   pd->ncross = cc->used;

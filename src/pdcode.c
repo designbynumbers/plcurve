@@ -71,7 +71,7 @@ pd_code_t *pd_code_new(pd_idx_t maxverts) {
 
   pd->MAXVERTS = maxverts;
   pd->MAXEDGES = 2*maxverts+1;
-  pd->MAXCOMPONENTS = (int)(floor(maxverts/2.0));
+  pd->MAXCOMPONENTS = (pd_idx_t)(floor(maxverts/2.0)) + 1;
   pd->MAXFACES = maxverts+2;
   
   pd->ncross = 0;
@@ -93,6 +93,13 @@ pd_code_t *pd_code_new(pd_idx_t maxverts) {
   assert(pd->face != NULL);
 
   return pd;
+
+}
+
+void pd_code_eltfree(void **PD) {
+
+  pd_code_t **pd = (pd_code_t **)(PD);
+  pd_code_free(pd);
 
 }
 
@@ -281,6 +288,9 @@ void pd_canonorder_face(pd_face_t *face, pd_or_t or)
   /* First we copy (or reverse-copy) the face data into reface. */
 
   nedges = reface.nedges = face->nedges;
+  reface.edge = calloc(reface.nedges,sizeof(pd_idx_t));
+  reface.or = calloc(reface.nedges,sizeof(pd_or_t));
+  assert(reface.edge != NULL && reface.or != NULL);
 
   if (or == PD_POS_ORIENTATION) { 
 
@@ -320,6 +330,11 @@ void pd_canonorder_face(pd_face_t *face, pd_or_t or)
     face->or[edge] = reface.or[(lowPos + edge) % nedges];
 
   }
+
+  /* Finally, free the scratch buffers reface.edge and reface.or. */
+  
+  free(reface.edge);
+  free(reface.or);
 
 }
 
@@ -708,7 +723,9 @@ void pd_regenerate_comps(pd_code_t *pd)
      and ncross yet, so we reset nedges first. */
   
   pd_idx_t cross,edge;
-  bool     hit[pd->MAXEDGES];
+  bool     *hit;
+  hit = calloc(pd->MAXEDGES,sizeof(bool));
+  assert(hit != NULL);
 
   pd->nedges = pd->ncross*2;
 
@@ -739,6 +756,8 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   }
 
+  free(hit);
+
   /* Step 0. 
 
      We need to assume that the component records have already been
@@ -757,7 +776,7 @@ void pd_regenerate_comps(pd_code_t *pd)
   for(i=0;i<pd->MAXCOMPONENTS;i++) { 
 
     if (pd->comp[i].edge != NULL) { free(pd->comp[i].edge); pd->comp[i].edge = NULL; }
-    pd->nedges = 0;
+    pd->comp[i].nedges = 0;
 
   }
   
@@ -1211,6 +1230,8 @@ void pd_regenerate_faces(pd_code_t *pd)
 
 {
   assert(pd != NULL);
+  assert(pd->ncross > 0);
+  assert(pd->nedges > 1);
 
   /* Step 0. Look at the face information we've got, and if 
      the buffers are assigned, free them. We don't need to 
@@ -1234,6 +1255,7 @@ void pd_regenerate_faces(pd_code_t *pd)
 
   pdint_face_assignment *face_assigned;
   face_assigned = calloc(pd->nedges,sizeof(pdint_face_assignment));
+  assert(face_assigned != NULL);
   
   pd_idx_t edge;
 
@@ -1265,13 +1287,11 @@ void pd_regenerate_faces(pd_code_t *pd)
     /* Now we have an unused edge/orientation pair to start 
        the next loop (around the face) on. */
     
-    pd_idx_t this_edge;
-    pd_or_t  this_or;
+    pd_idx_t this_edge = start_edge;
+    pd_or_t  this_or = start_or;
     pd_idx_t nedges = 0; /* Stores the number of edges in this face. */
     
-    for(this_edge = start_edge, this_or = start_or;    /* This loop travels around a single face. */
-	!(this_edge == start_edge && this_or == start_or);
-	pdint_next_edge_on_face(pd,this_edge,this_or,&this_edge,&this_or),nedges++) {
+    do {
 
       /* Assign this edge/orientation pair to the current face. */
 
@@ -1299,7 +1319,12 @@ void pd_regenerate_faces(pd_code_t *pd)
 
       }
 
-    } /* End of loop around this face. */
+      /* Increment the edge to the next edge on the face. */
+
+      pdint_next_edge_on_face(pd,this_edge,this_or,&this_edge,&this_or);
+      nedges++;
+
+    } while (!(this_edge == start_edge && this_or == start_or));  /* End of loop around this face. */
 
     /* Make sure the number of faces is sane. */
 
@@ -1394,7 +1419,9 @@ bool pd_cross_ok(pd_code_t *pd)
    pd->nedges-1, and that the crossing data is sorted. */
 {
   assert(pd != NULL);
-  int edge_seen[pd->MAXEDGES];
+  int *edge_seen;
+  edge_seen = calloc(pd->MAXEDGES,sizeof(int));
+  assert(edge_seen != NULL);
 
   pd_idx_t edge, cross;
   pd_pos_t pos;
@@ -1445,6 +1472,7 @@ bool pd_cross_ok(pd_code_t *pd)
 
   }
 
+  free(edge_seen);
   return true;
 
 }
@@ -2090,93 +2118,147 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
     if (!strncmp(nxtconv,"%FACE",5)) { /* %FACE conversion */
 
-      pd_idx_t face = (pd_idx_t) va_arg(ap,int);
-      pd_idx_t edge;
+      if (pd != NULL) { 
 
-      fprintf(stream,"face %d (",face);
-      for(edge=0;edge<pd->face[face].nedges-1 && edge<pd->MAXEDGES;edge++) {
+	pd_idx_t face = (pd_idx_t) va_arg(ap,int);
+	pd_idx_t edge;
+	
+	fprintf(stream,"face %d (",face);
+	for(edge=0;edge<pd->face[face].nedges-1 && edge<pd->MAXEDGES;edge++) {
+	  
+	  fprintf(stream," (%c) %d ->",
+		  pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
+		  pd->face[face].edge[edge]);
 
-	fprintf(stream," (%c) %d ->",
+	}
+
+	fprintf(stream,"(%c) %d) ",
 		pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
 		pd->face[face].edge[edge]);
 
+	nxtconv += 5;
+
+      } else {
+
+	fprintf(stderr,"pd_printf: Can't print %%FACE primitive without a pd.\n");
+	exit(1);
+
       }
-
-      fprintf(stream,"(%c) %d) ",
-	      pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
-	      pd->face[face].edge[edge]);
-
-      nxtconv += 5;
 
     } else if (!strncmp(nxtconv,"%EDGE ",6)) { /* %EDGE conversion */
 
-      pd_idx_t edge = (pd_idx_t) va_arg(ap,int);
+      if (pd != NULL) { 
 
-      fprintf(stream,"edge %d (%d,%d -> %d,%d)",edge,
-	      pd->edge[edge].tail,pd->edge[edge].tailpos,
-	      pd->edge[edge].head,pd->edge[edge].headpos);
+	pd_idx_t edge = (pd_idx_t) va_arg(ap,int);
+	
+	fprintf(stream,"edge %d (%d,%d -> %d,%d)",edge,
+		pd->edge[edge].tail,pd->edge[edge].tailpos,
+		pd->edge[edge].head,pd->edge[edge].headpos);
+	
+	nxtconv += 5;
 
-      nxtconv += 5;
+      } else {
 
-    } else if (!strncmp(nxtconv,"%COMP ",6)) { /* %COMP conversion */
-
-      pd_idx_t comp = (pd_idx_t) va_arg(ap,int);
-      pd_idx_t edge;
-      
-      fprintf(stream,"comp %d (",comp);
-      for(edge=0;edge<pd->comp[comp].nedges-1 && edge<pd->MAXEDGES;edge++) {
-
-	fprintf(stream," %d ->",
-		pd->comp[comp].edge[edge]);
+	fprintf(stderr,"pd_printf: Can't print %%EDGE primitive without a pd.\n");
+	exit(1);
 
       }
 
-      fprintf(stream," %d ) ",
-	      pd->comp[comp].edge[edge]);
+    } else if (!strncmp(nxtconv,"%COMP ",6)) { /* %COMP conversion */
 
-      nxtconv += 5;
+      if (pd != NULL) {
+	
+	pd_idx_t comp = (pd_idx_t) va_arg(ap,int);
+	pd_idx_t edge;
+	
+	fprintf(stream,"comp %d (",comp);
+	for(edge=0;edge<pd->comp[comp].nedges-1 && edge<pd->MAXEDGES;edge++) {
+	  
+	  fprintf(stream," %d ->",
+		  pd->comp[comp].edge[edge]);
+
+	}
+	
+	fprintf(stream," %d ) ",
+		pd->comp[comp].edge[edge]);
+	
+	nxtconv += 5;
+
+      } else { 
+
+	fprintf(stderr,"pd_printf: Can't print %%COMP primitive without a pd.\n");
+	exit(1);
+
+      }
 
     } else if (!strncmp(nxtconv,"%CROSS ",7)) { /* %CROSS conversion */
 
-      pd_idx_t cross = (pd_idx_t) va_arg(ap,int);
+      if (pd != NULL) { 
 
-      fprintf(stream,"cross %d (%d %d %d %d)",cross,
-	      pd->cross[cross].edge[0],	      
-	      pd->cross[cross].edge[1],
-	      pd->cross[cross].edge[2],
-	      pd->cross[cross].edge[3]);
+	pd_idx_t cross = (pd_idx_t) va_arg(ap,int);
+	
+	fprintf(stream,"cross %d (%d %d %d %d)",cross,
+		pd->cross[cross].edge[0],	      
+		pd->cross[cross].edge[1],
+		pd->cross[cross].edge[2],
+		pd->cross[cross].edge[3]);
+	
+	nxtconv += 6;
 
-      nxtconv += 6;
+      } else {
+
+	fprintf(stderr,"pd_printf: Can't print %%CROSS primitive without a pd.\n");
+	exit(1);
+
+      }
 
     } else if (!strncmp(nxtconv,"%CROSSPTR ",9)) { /* %CROSSPTR conversion */
 
       pd_crossing_t *cross = (pd_crossing_t *) va_arg(ap,void *);
-
+      
       fprintf(stream,"cross (%d %d %d %d)",
 	      cross->edge[0],	      
 	      cross->edge[1],
 	      cross->edge[2],
 	      cross->edge[3]);
-
-      nxtconv += 8;
-
+	
+	nxtconv += 8;
+	
     } else if (!strncmp(nxtconv,"%PD",3)) { /* %PD conversion */
 
-      fprintf(stream,"\n");
-      pd_write(stream,pd);
-      fprintf(stream,"\n");
+      if (pd != NULL) {
 
-      nxtconv += 3;
+	fprintf(stream,"\n");
+	pd_write(stream,pd);
+	fprintf(stream,"\n");
+
+	nxtconv += 3;
+
+      } else { 
+
+	fprintf(stderr,"pd_printf: Can't print %%PD primitive without a pd.\n");
+	exit(1);
+
+      }
 
     } else if (!strncmp(nxtconv,"%FEDGE",6)) { /* FACE/EDGE conversion */
 
-      pd_idx_t face = (pd_idx_t) va_arg(ap,int);
-      pd_idx_t edge = (pd_idx_t) va_arg(ap,int);
-       
-      fprintf(stream,"%d (%c)",pd->face[face].edge[edge],
-	      pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-');
+      if (pd != NULL) {
 
-      nxtconv += 6;
+	pd_idx_t face = (pd_idx_t) va_arg(ap,int);
+	pd_idx_t edge = (pd_idx_t) va_arg(ap,int);
+	
+	fprintf(stream,"%d (%c)",pd->face[face].edge[edge],
+		pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-');
+	
+	nxtconv += 6;
+
+      } else {
+
+	fprintf(stderr,"pd_printf: Can't print %%FEDGE primitive without a pd.\n");
+	exit(1);
+
+      }
 
     } else if (!strncmp(nxtconv,"%MULTIDX",8)) { /* multidx conversion */
 
@@ -2203,7 +2285,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       pd_compgrp_t *grp = (pd_compgrp_t *) va_arg(ap,void *);
 
       fprintf(stream,"compgrp ( ");
-      for(comp=0;comp<grp->ncomps && comp<pd->MAXCOMPONENTS;comp++) { fprintf(stream,"%d ",grp->comp[comp]); }
+      for(comp=0;comp<grp->ncomps;comp++) { fprintf(stream,"%d ",grp->comp[comp]); }
       fprintf(stream,")");
 
       nxtconv += 8;
