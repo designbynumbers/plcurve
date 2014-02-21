@@ -19,7 +19,7 @@ AC_COPYRIGHT(
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT(libplCurve, 7.3.1, cantarel@math.uga.edu)
+AC_INIT(libplCurve, 7.4.1, cantarel@math.uga.edu)
 #AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE
 
@@ -40,7 +40,7 @@ AM_INIT_AUTOMAKE
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
 #
-AC_SUBST(LIB_VERSION, 7:3:1)
+AC_SUBST(LIB_VERSION, 7:4:1)
 AC_CONFIG_SRCDIR([src/plCurve.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -106,8 +106,8 @@ AC_TYPE_MODE_T
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
+#AC_FUNC_MALLOC
+#AC_FUNC_REALLOC
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([strcasestr mkstemp strcasecmp time floor sqrt ceil srandomdev sranddev random srandom])
 AC_CHECK_FUNCS([bzero memset mkdir regcomp strchr strcspn strerror strrchr strstr strtol getline fstat64 memcpy])
