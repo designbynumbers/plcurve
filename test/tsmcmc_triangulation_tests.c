@@ -4,17 +4,56 @@
 
 */
 
-#include<plCurve.h>
+#ifdef HAVE_CONFIG_H
+  #include"config.h"
+#endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h> 
-#include <math.h>
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-#include <argtable2.h>
-#include <assert.h>
-#include <Accelerate/Accelerate.h>
+#ifdef HAVE_STDIO_H
+   #include<stdio.h>
+#endif 
+
+#ifdef HAVE_STRING_H
+   #include<string.h>
+#endif
+
+#ifdef HAVE_STDINT_H
+   #include<stdint.h>
+#endif
+
+#ifdef HAVE_STDLIB_H
+   #include<stdlib.h>
+#endif
+
+#ifdef HAVE_GSL_GSL_RNG_H
+   #include<gsl/gsl_rng.h>
+#endif
+
+#ifdef HAVE_GSL_GSL_RANDIST_H
+   #include<gsl/gsl_randist.h>
+#endif
+
+#ifdef HAVE_TIME_H
+  #include<time.h>
+#endif
+
+#ifdef HAVE_MATH_H
+  #include<math.h>
+#endif
+
+#ifdef HAVE_STDBOOL_H
+  #include<stdbool.h>
+#endif
+
+#ifdef HAVE_ASSERT_H
+  #include<assert.h>
+#endif
+
+#ifdef HAVE_ARGTABLE2_H
+  #include<argtable2.h>
+#endif
+
+#include<plCurve.h>
+//#include <Accelerate/Accelerate.h>
 #include <tsmcmc.h>
 
 /* Global variables live here. */

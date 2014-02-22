@@ -46,6 +46,10 @@
   #include<stdint.h>
 #endif
 
+#ifdef HAVE_ARGTABLE2_H
+  #include<argtable2.h>
+#endif
+
 #define MAXVERTS 12
 #define MAXEDGES 25
 
@@ -61,8 +65,6 @@ int PD_VERBOSE;
 
 #include<pd_isomorphisms.h>
 #include<pd_storage.h>
-
-#include"argtable2.h" /* We use a local copy of argtable to avoid having to depend on system utilities. */
 
 #define DEBUG 1            /* Turn on asserts */
 int PD_VERBOSE={0};       /* Turn on debugging info */

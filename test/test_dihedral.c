@@ -45,7 +45,9 @@
 #include<pd_multidx.h>
 #include<pd_dihedral.h>
 
-#include"argtable2.h" /* We use a local copy of argtable */
+#ifdef HAVE_ARGTABLE2_H
+   #include<argtable2.h> /* We use a local copy of argtable */
+#endif
 
 int PD_VERBOSE=50;
 

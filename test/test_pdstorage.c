@@ -33,6 +33,10 @@
    #include<assert.h>
 #endif
 
+#ifdef HAVE_ARGTABLE2_H
+  #include<argtable2.h>
+#endif
+
 #include<ordie.h>
 #include<plcTopology.h>
 
@@ -43,8 +47,6 @@
 #include<pd_isomorphisms.h>
 
 #include<pd_storage.h>
-
-#include"argtable2.h" /* We use a local copy of argtable */
 
 int PD_VERBOSE=50;
 

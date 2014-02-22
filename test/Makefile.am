@@ -16,6 +16,7 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 	bad_vects/bad_14.vect 
 #	make_hopf
 
+if HAVE_ARGTABLE2
 check_PROGRAMS = tsmcmc_random_test \
 		 nn_test \
 	         symmetry_test \
@@ -52,6 +53,32 @@ TESTS = tsmcmc_random_test \
 	test_dihedral \
 	test_perm \
 	ccode_test
+else
+check_PROGRAMS = tsmcmc_random_test \
+		 nn_test \
+	         symmetry_test \
+	         randompolygon_test \
+	         eq_primitives_test \
+	         loopclosure_test \
+	         exit_failure_tests  \
+	         test_struts \
+                 test_minrad \
+                 test_findpoca \
+                 call_check \
+                 hopf_test \
+		 ccode_test
+
+TESTS = tsmcmc_random_test \
+	nn_test \
+	symmetry_test \
+	eq_primitives_test \
+	loopclosure_test \
+	test_findpoca \
+        test_struts \
+        call_check \
+        hopf_test \
+	ccode_test
+endif
 
 ccode_test_SOURCES = ccode_test.c 
 ccode_test_LDADD = -L$(top_builddir)/src -lplCurveStatic

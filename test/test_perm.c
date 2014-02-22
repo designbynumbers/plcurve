@@ -41,14 +41,16 @@
   #include<assert.h>
 #endif
 
+#ifdef HAVE_ARGTABLE2_H
+  #include<argtable2.h>
+#endif
+
 #include<plcTopology.h>
 
 #include<pd_multidx.h>
 #include<pd_perm.h>
 #include<pd_dihedral.h>
 #include<pd_isomorphisms.h>
-
-#include"argtable2.h" /* We use a local copy of argtable */
 
 int PD_VERBOSE=50;
 
