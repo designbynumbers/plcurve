@@ -168,5 +168,5 @@ _plcurve_la_LDFLAGS = -module
 _plcurve_la_LIBADD = libplCurve.la
 
 plCurve_wrap.c : $(SWIG_SOURCES)
-	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_srcdir) -o $@ $<
+	$(SWIG) $(AX_SWIG_PYTHON_OPT) -I$(top_srcdir) -o $@ $<
 endif
