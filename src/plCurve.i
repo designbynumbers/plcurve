@@ -5,6 +5,7 @@
 #include "plcTopology.h"
     //#include "homfly.h"
 #include <gsl/gsl_rng.h>
+#include <stddef.h> // SWIG should include this itself but Debian version does not
 
   // varray is a hack-in to support passing variable length arrays to Python
   typedef struct variable_array_type {
