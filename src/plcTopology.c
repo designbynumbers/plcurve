@@ -65,14 +65,14 @@ char *plc_lmpoly(char *ccode,int timeout); // This is in pllmpoly02.c.
 
 /* Convert plCurve to Millett/Ewing crossing code (documented in plCurve.h) */
 
-/* Plan: 
+/* Plan:
 
-   Find crossings of each component with itself, then crossings 
+   Find crossings of each component with itself, then crossings
    of pairs of components, add to a container of crossings. */
 
-typedef struct crossing_struct { 
+typedef struct crossing_struct {
 
-  // The crossing struct encodes parameter values along each 
+  // The crossing struct encodes parameter values along each
   // component, as well as component numbers. This is the object
   // stored in the master list of crossings.
 
@@ -81,12 +81,12 @@ typedef struct crossing_struct {
   double lower_s;
   double upper_s;
   int sign;
-  
+
 } crossing;
 
 typedef struct crossing_reference {
 
-  // This crossing struct stores an index into the 
+  // This crossing struct stores an index into the
   // the main array of crossings. There are actually
   // two crossing_reference entries for each crossing,
   // as they are stored at the upper and lower position
@@ -97,9 +97,9 @@ typedef struct crossing_reference {
 
 } crossing_reference;
 
-typedef struct crossing_container_struct { 
+typedef struct crossing_container_struct {
 
-  // A simple array which resizes. 
+  // A simple array which resizes.
 
   int size;
   int used;
@@ -115,25 +115,25 @@ typedef struct crossing_reference_container_struct {
 
 } crossing_reference_container;
 
-int crossing_compare(const void *A, const void *B) { 
+int crossing_compare(const void *A, const void *B) {
 
   crossing *a = (crossing *)(A);
   crossing *b = (crossing *)(B);
 
-  int acmp,bcmp; 
+  int acmp,bcmp;
   double as = -1.0,bs = -1.0;
 
-  if (a->lower_cmp < a->upper_cmp) { 
+  if (a->lower_cmp < a->upper_cmp) {
 
     acmp = a->lower_cmp; as = a->lower_s;
-    
+
   } else {
 
     acmp = a->upper_cmp; as = a->upper_s;
 
   }
 
-  if (b->lower_cmp < b->upper_cmp) { 
+  if (b->lower_cmp < b->upper_cmp) {
 
     bcmp = b->lower_cmp; bs = b->lower_s;
 
@@ -143,14 +143,14 @@ int crossing_compare(const void *A, const void *B) {
 
   }
 
-  if (acmp != bcmp) { 
+  if (acmp != bcmp) {
 
     return acmp - bcmp;
 
-  } else { 
+  } else {
 
     assert(as > 0 && bs > 0);
-    if (as < bs) { return -1; } 
+    if (as < bs) { return -1; }
     else { return +1; }
 
   }
@@ -169,27 +169,27 @@ int crossing_reference_compare(const void *A,const void *B) {
 
 crossing_container *crossing_container_new(int size)
 {
-  
+
   crossing_container *ret;
 
   ret = (crossing_container *)(calloc(1,sizeof(crossing_container)));
   if (ret == NULL) { exit(1); }
-  
+
   ret->size = size;
   ret->used = 0;
   ret->buf = calloc(size,sizeof(crossing));
-  
+
   if (ret->buf == NULL) { exit(1); }
 
   return ret;
 }
 
 
-void crossing_container_free(crossing_container **c) 
+void crossing_container_free(crossing_container **c)
 {
-  if (c != NULL) { 
+  if (c != NULL) {
 
-    if (*c != NULL) { 
+    if (*c != NULL) {
 
       if ((*c)->buf != NULL) { free((*c)->buf); (*c)->buf = NULL; }
       free(*c);
@@ -202,9 +202,9 @@ void crossing_container_free(crossing_container **c)
 
 }
 
-void crossing_container_add(crossing_container *c,crossing cross) { 
+void crossing_container_add(crossing_container *c,crossing cross) {
 
-  if (c->size == c->used) { 
+  if (c->size == c->used) {
 
     c->size = 2*c->size;
     c->buf = realloc(c->buf,c->size*sizeof(crossing));
@@ -217,20 +217,20 @@ void crossing_container_add(crossing_container *c,crossing cross) {
 }
 
 /* We now have the main crossing primitive. The basic error handling
-   strategy here is this. First, we'll choose a random rotation of 
+   strategy here is this. First, we'll choose a random rotation of
    the curve. The projection direction will always be the z-axis.
 
-   Then, we'll generate a "flat" version of the curve, and run through 
-   the planar crossing algorithm to figure out where the crossings are. 
+   Then, we'll generate a "flat" version of the curve, and run through
+   the planar crossing algorithm to figure out where the crossings are.
    Each crossing will either be able to be classified, or the edges
-   involved will be "tagged-as-trouble". 
+   involved will be "tagged-as-trouble".
 
    If there is a crossing, and we can figure out where, we'll return true
-   and fill in the fields in the crossing record c. 
+   and fill in the fields in the crossing record c.
 
    If there is a special case of some kind, we'll just tag the offending
    vertices and continue. We'll then perturb just those vertices in space
-   and re-run the process, hoping to converge. 
+   and re-run the process, hoping to converge.
 */
 
 int  segment_side(plc_vector A[2],plc_vector B) { /* Classify which side of the segment B is on */
@@ -241,7 +241,7 @@ int  segment_side(plc_vector A[2],plc_vector B) { /* Classify which side of the 
   a0b = plc_vect_diff(B,A[0]);
   cross = plc_cross_prod(a0a1,a0b);
 
-  if (cross.c[2] > 1e-10) { return +1; } 
+  if (cross.c[2] > 1e-10) { return +1; }
   else if (cross.c[2] < -1e-10) { return -1; }
   return 0;
 
@@ -250,7 +250,7 @@ int  segment_side(plc_vector A[2],plc_vector B) { /* Classify which side of the 
 void locate_crossing(plc_vector A[2],plc_vector B[2],double *sA,double *sB,bool *ok)
 {
 
-  /* Locating the crossing point. 
+  /* Locating the crossing point.
 
        The plan is to consider the quadrilateral A[0] B[0] A[1] B[1].
        We know that there's a crossing inside this thing:
@@ -269,9 +269,9 @@ void locate_crossing(plc_vector A[2],plc_vector B[2],double *sA,double *sB,bool 
  A[0]  *---------*  B[0]
 
 
-       The idea is to compute angles 1 and 3 using plc_angle and then 
+       The idea is to compute angles 1 and 3 using plc_angle and then
        compute angle 2. Once we have all the angles of the triangle,
-       we can determine the distances from A[0] and B[1] to X using 
+       we can determine the distances from A[0] and B[1] to X using
        the law of sines. */
 
     double angle1, angle2, angle3;
@@ -286,7 +286,7 @@ void locate_crossing(plc_vector A[2],plc_vector B[2],double *sA,double *sB,bool 
       *sA = 0; *sB = 0; *ok = false;
       return;
 
-    } 
+    }
 
     if (angle1 < 1e-8 || angle3 < 1e-8) { *sA = 0; *sB = 0; *ok = false; return; }
 
@@ -294,13 +294,13 @@ void locate_crossing(plc_vector A[2],plc_vector B[2],double *sA,double *sB,bool 
 
     double s1,s2,s3;
     s2 = plc_distance(A[0],B[1]);
- 
+
     if (s2 < 1e-8 || angle2 < 1e-8) { *sA = 0; *sB = 0; *ok = false; return; }
 
     /* Now the law of sines says that s2/sin(angle2) = s1/sin(angle1) = s3/sin(angle3),
        so we can solve for the unknown s1 and s3 reasonably easily. */
-    
-    s1 = sin(angle1) * s2/sin(angle2); 
+
+    s1 = sin(angle1) * s2/sin(angle2);
     s3 = sin(angle3) * s2/sin(angle2);
 
     /* We now return the fractional distance along the edge. */
@@ -308,20 +308,20 @@ void locate_crossing(plc_vector A[2],plc_vector B[2],double *sA,double *sB,bool 
     *sA = s1/plc_distance(A[0],A[1]);
     *sB = 1 - (s3/plc_distance(B[0],B[1]));
     *ok = true;
-    
+
 }
-   
+
 bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
 
-  if (plc_distance(A[0],A[1]) < 1e-8 || plc_distance(B[0],B[1]) < 1e-8) { 
+  if (plc_distance(A[0],A[1]) < 1e-8 || plc_distance(B[0],B[1]) < 1e-8) {
 
     return true;
 
-  } 
+  }
 
   int ssAB0,ssAB1,ssBA0,ssBA1; // segment side (of segment) A (of point) B[0], and so forth.
 
-  ssAB0 = segment_side(A,B[0]); ssAB1 = segment_side(A,B[1]); 
+  ssAB0 = segment_side(A,B[0]); ssAB1 = segment_side(A,B[1]);
   ssBA0 = segment_side(B,A[0]); ssBA1 = segment_side(B,A[1]);
 
   if (ssAB0*ssAB1 == -1 && ssBA0*ssBA1 == -1) { /* Edges definitely DO cross */
@@ -331,7 +331,7 @@ bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
 
     locate_crossing(A,B,&sA,&sB,&ok);
 
-    if (ok) { return false; } 
+    if (ok) { return false; }
     else {return true; }
 
   } else if ((ssAB0*ssAB1 == 0 && ssBA0*ssBA1 != +1) || /* An endpoint of B is colinear with A and B is not separated from A */
@@ -339,10 +339,10 @@ bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
 
       return true;
 
-  } 
+  }
 
   return false;  /* No trouble here; we can either separate the segments or resolve the crossing. */
-							   
+
 }
 
 /* We now make various passes through the curve in an attempt to make
@@ -355,25 +355,25 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
 
   plCurve *Lcopy,*Lprojection;
   Lcopy = plc_copy(L);
- 
+
   int  cmpA,cmpB,vtA,vtB;
   bool projection_clean = false;
   int  attempt_counter;
- 
+
   for(attempt_counter = 0; attempt_counter < 5 && !projection_clean; attempt_counter++) {
 
-    /* We are going to run through the edge pairs in L, attempting to 
+    /* We are going to run through the edge pairs in L, attempting to
        perturb our way out of any trouble that we run into. To do so,
-       we'll need to know how far we dare perturb any vertex. 
+       we'll need to know how far we dare perturb any vertex.
 
        This data is provided by octrope. We cap the perturbation at 1e-4,
        because a very large perturbation could run us into trouble
        in some unexpected way. */
 
-    double safe_radius = (0.3)*octrope_thickness(Lcopy,NULL,0,0); 
+    double safe_radius = (0.3)*octrope_thickness(Lcopy,NULL,0,0);
     safe_radius = (safe_radius > 1e-4) ? 1e-4 : safe_radius;
-    
-    if (safe_radius < 1e-16) { 
+
+    if (safe_radius < 1e-16) {
 
       fprintf(stderr,"plc_ccode: plCurve is numerically singular. Can't compute projection.\n");
       return NULL;
@@ -384,14 +384,14 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
     plc_project(Lprojection,plc_build_vect(0,0,1));
 
     projection_clean = true;
-    
-    for(cmpA=0;cmpA < Lcopy->nc;cmpA++) { 
-      
-      for(cmpB=cmpA;cmpB < Lcopy->nc;cmpB++) { 
-  
+
+    for(cmpA=0;cmpA < Lcopy->nc;cmpA++) {
+
+      for(cmpB=cmpA;cmpB < Lcopy->nc;cmpB++) {
+
 	for(vtA=0;vtA < Lcopy->cp[cmpA].nv;vtA++) {
 
-	  int firstBvert, lastBvert; 
+	  int firstBvert, lastBvert;
 
 	  /* If we're on the same component, then we start the B count _after_ A
 	     and end before the last vertex to avoid comparing the same pair of
@@ -399,13 +399,13 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
 	     which will always have a degenerate crossing where they meet. Remember
 	     that there's a last edge which goes from nv-1 to nv (which is really
 	     the same as vertex 0 because of wraparound).
-	     
+
 	     If we're on different components, we need to run the A and B counts
 	     across the entire component. */
 
-	  if (cmpA == cmpB) { 
-	    firstBvert = vtA+2; 
-	    if (vtA==0) { 
+	  if (cmpA == cmpB) {
+	    firstBvert = vtA+2;
+	    if (vtA==0) {
 	      lastBvert = L->cp[cmpB].nv-1; // Do second-to-last, but not bridge edge.
 	    } else {
 	      lastBvert = L->cp[cmpB].nv; // Compare with bridge edge.
@@ -413,18 +413,18 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
 	  }
 	  else { firstBvert = 0; lastBvert = L->cp[cmpB].nv; }
 
-	  for(vtB=firstBvert;vtB < lastBvert;vtB++) { 
-	    
+	  for(vtB=firstBvert;vtB < lastBvert;vtB++) {
+
 	    if (tag_as_trouble(&(Lprojection->cp[cmpA].vt[vtA]),&(Lprojection->cp[cmpB].vt[vtB]))) {
 
 	      projection_clean = false;
 
 	      plc_perturb_vect(rng,&Lcopy->cp[cmpA].vt[vtA],safe_radius);
 	      plc_perturb_vect(rng,&Lcopy->cp[cmpA].vt[vtA+1],safe_radius);
-	      
+
 	      plc_perturb_vect(rng,&Lcopy->cp[cmpB].vt[vtB],safe_radius);
 	      plc_perturb_vect(rng,&Lcopy->cp[cmpB].vt[vtB+1],safe_radius);
-	      
+
 	      plc_fix_wrap(Lcopy);
 
 	    }
@@ -443,13 +443,13 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
        this projection. We sweep again to make sure. */
 
     plc_free(Lprojection);
-  
+
   }
-    
-  if (projection_clean == false) { 
+
+  if (projection_clean == false) {
 
     fprintf(stderr,"plc_ccode: Couldn't resolve singularities in %d passes. plCurve is probably singular.\n",attempt_counter);
-    return NULL; 
+    return NULL;
 
   }
 
@@ -466,15 +466,15 @@ crossing_container *findcrossings(plCurve *L) {
 
   /* Make sure all components are closed */
 
-  for(cmpA=0;cmpA<L->nc;cmpA++) { 
-    
-    if(L->cp[cmpA].open == true) { 
+  for(cmpA=0;cmpA<L->nc;cmpA++) {
+
+    if(L->cp[cmpA].open == true) {
 
       fprintf(stderr,"plc_ccode Can't compute crossing code for open components.\n");
       exit(1);
 
     }
-    
+
   }
 
   plCurve *Lproj;
@@ -483,13 +483,13 @@ crossing_container *findcrossings(plCurve *L) {
 
   /* Main loop */
 
-  for(cmpA=0;cmpA < L->nc;cmpA++) { 
-      
-    for(cmpB=cmpA;cmpB < L->nc;cmpB++) { 
-  
+  for(cmpA=0;cmpA < L->nc;cmpA++) {
+
+    for(cmpB=cmpA;cmpB < L->nc;cmpB++) {
+
       for(vtA=0;vtA < L->cp[cmpA].nv;vtA++) {
 
-	int firstBvert, lastBvert; 
+	int firstBvert, lastBvert;
 
 	/* If we're on the same component, then we start the B count _after_ A
 	   and end before the last vertex to avoid comparing the same pair of
@@ -501,62 +501,62 @@ crossing_container *findcrossings(plCurve *L) {
 	   If we're on different components, we need to run the A and B counts
 	   across the entire component. */
 
-	if (cmpA == cmpB) { 
-	  firstBvert = vtA+2; 
-	  if (vtA==0) { 
+	if (cmpA == cmpB) {
+	  firstBvert = vtA+2;
+	  if (vtA==0) {
 	    lastBvert = L->cp[cmpB].nv-1; // Do second-to-last, but not bridge edge.
 	  } else {
 	    lastBvert = L->cp[cmpB].nv; // Compare with bridge edge.
 	  }
 	}
 	else { firstBvert = 0; lastBvert = L->cp[cmpB].nv; }
-	
+
 	for(vtB=firstBvert;vtB < lastBvert;vtB++) { // We have to avoid comparing the last edge with the first.
-	    
-	  /* Check for a crossing between 
-	     
+
+	  /* Check for a crossing between
+
 	     edge L->cp[cmpA].vt[vtA] -- L->cp[cmpA].vt[vtA+1]
 	     edge L->cp[cmpB].vt[vtB] -- L->cp[cmpB].vt[vtB+1]
-	     
-	     Since we've already made the projection generic, 
-	     this shouldn't occur at either end. 
+
+	     Since we've already made the projection generic,
+	     this shouldn't occur at either end.
 	  */
-	    
+
 	  int ssAB0,ssAB1,ssBA0,ssBA1; // segment side (of segment) A (of point) B[0], and so forth.
-	  
+
 	  plc_vector *A,*B;
 	  A = &(Lproj->cp[cmpA].vt[vtA]); B = &(Lproj->cp[cmpB].vt[vtB]);
-	  
-	  ssAB0 = segment_side(A,B[0]); ssAB1 = segment_side(A,B[1]); 
+
+	  ssAB0 = segment_side(A,B[0]); ssAB1 = segment_side(A,B[1]);
 	  ssBA0 = segment_side(B,A[0]); ssBA1 = segment_side(B,A[1]);
-	    
+
 	  if (ssAB0*ssAB1 == -1 && ssBA0*ssBA1 == -1) { /* Edges definitely DO cross */
-	      
+
 	    double sA, sB;
 	    bool ok;
-	      
+
 	    locate_crossing(A,B,&sA,&sB,&ok);
-	      
-	    if (ok) { 
-		
-	      double htA, htB; 
+
+	    if (ok) {
+
+	      double htA, htB;
 	      htA = (1-sA)*L->cp[cmpA].vt[vtA].c[2] + (sA)*L->cp[cmpA].vt[vtA+1].c[2];
 	      htB = (1-sB)*L->cp[cmpB].vt[vtB].c[2] + (sB)*L->cp[cmpB].vt[vtB+1].c[2];
 	      crossing cross;
-		
+
 	      plc_vector Atan, Btan;
 	      Atan = plc_vect_diff(Lproj->cp[cmpA].vt[vtA+1],Lproj->cp[cmpA].vt[vtA]);
 	      Btan = plc_vect_diff(Lproj->cp[cmpB].vt[vtB+1],Lproj->cp[cmpB].vt[vtB]);
 	      plc_vector vcross;
-		
-	      if (htA > htB) { 
+
+	      if (htA > htB) {
 
 		cross.upper_cmp = cmpA; cross.upper_s = vtA + sA;
 		cross.lower_cmp = cmpB; cross.lower_s = vtB + sB;
-		  
+
 		vcross = plc_cross_prod(Atan,Btan);
 		cross.sign = vcross.c[2] > 0 ? +1 : -1;
-		  
+
 	      } else {
 
 		cross.lower_cmp = cmpA; cross.lower_s = vtA + sA;
@@ -566,10 +566,10 @@ crossing_container *findcrossings(plCurve *L) {
 		cross.sign = vcross.c[2] > 0 ? +1 : -1;
 
 	      }
-		
+
 	      crossing_container_add(cc,cross);
 
-	    } else { 
+	    } else {
 
 	      fprintf(stderr,"plc_ccode: Unexpected error computing crossings for (supposedly) generic L.\n");
 	      crossing_container_free(&cc);
@@ -578,13 +578,13 @@ crossing_container *findcrossings(plCurve *L) {
 	    }
 
 	  }
-	      
+
 	}
-	  
+
       }
-	
-    }   
-      
+
+    }
+
   }
 
   /* Now we've filled the crossing container. We can free the projection curve
@@ -602,33 +602,33 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
   crossing_reference_container *crc = calloc(L->nc,sizeof(crossing_reference_container));
   int cr,cmp;
 
-  for(cr=0;cr<cc->used;cr++) { 
+  for(cr=0;cr<cc->used;cr++) {
 
     crc[cc->buf[cr].lower_cmp].size++; crc[cc->buf[cr].upper_cmp].size++;
 
   }
 
-  for(cmp=0;cmp<L->nc;cmp++) { 
+  for(cmp=0;cmp<L->nc;cmp++) {
 
     if (crc[cmp].size == 0) {
 
-      if (L->nc == 1) { 
-      
-	// We have a single unknotted component with no crossings. Add a "virtual" self-crossing 
-	// in order to generate a valid pd_code. Remember that this crossing will be 
+      if (L->nc == 1) {
+
+	// We have a single unknotted component with no crossings. Add a "virtual" self-crossing
+	// in order to generate a valid pd_code. Remember that this crossing will be
 	// added twice to the component record, so we set size to 2, not 1.
-	
+
 	crc[cmp].size = 2;
-	
+
 	crossing cross;
 	cross.lower_cmp = cmp;
 	cross.upper_cmp = cmp;
 	cross.lower_s = 0.33;
 	cross.upper_s = 0.66;
 	cross.sign = +1;
-	
+
 	crossing_container_add(cc,cross);
-	
+
       } else {
 
 	printf("pd_code_from_plCurve: This build does not handle split components of links.\n");
@@ -636,14 +636,14 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
 
       }
 
-    } 
+    }
 
     crc[cmp].buf = calloc(crc[cmp].size,sizeof(crossing_reference));
     crc[cmp].used = 0;
 
   }
 
-  for(cr=0;cr<cc->used;cr++) { 
+  for(cr=0;cr<cc->used;cr++) {
 
     cmp = cc->buf[cr].lower_cmp;
     crc[cmp].buf[crc[cmp].used].crossnum = cr;
@@ -654,10 +654,10 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
     crc[cmp].buf[crc[cmp].used].crossnum = cr;
     crc[cmp].buf[crc[cmp].used].s = cc->buf[cr].upper_s;
     crc[cmp].used++;
-    
+
   }
-    
-  for(cmp=0;cmp<L->nc;cmp++) { 
+
+  for(cmp=0;cmp<L->nc;cmp++) {
 
     if (crc[cmp].used != crc[cmp].size) { /* There's a problem! */
 
@@ -665,7 +665,7 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
 	      cmp,crc[cmp].size,crc[cmp].used);
       exit(1);
 
-    } 
+    }
 
     qsort(crc[cmp].buf,crc[cmp].size,sizeof(crossing_reference),crossing_reference_compare);
 
@@ -678,8 +678,8 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
 pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossing_container *cc) {
 
   // We now use the component-wise crossing references and the crossing container's crossing
-  // numbering scheme to assemble a pd_code_t by walking around every component filling in 
-  // the details. 
+  // numbering scheme to assemble a pd_code_t by walking around every component filling in
+  // the details.
 
   pd_code_t *pd = pd_code_new(cc->used > 1 ? cc->used : 2); /* Clear as much space as we need */
   assert(pd != NULL);
@@ -692,16 +692,16 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
 
   edge = 0;
 
-  for(cmp=0;cmp<L->nc;cmp++) { 
+  for(cmp=0;cmp<L->nc;cmp++) {
 
-    for(cr=0;cr<crc[cmp].used;cr++,edge++) { 
+    for(cr=0;cr<crc[cmp].used;cr++,edge++) {
 
-      // The edge data is always going to be ordered starting at upper in. 
-      // This isn't required the by the pd_code_t spec, but it's going to 
+      // The edge data is always going to be ordered starting at upper in.
+      // This isn't required the by the pd_code_t spec, but it's going to
       // help keep us organized.
 
       int pd_crossing = crc[cmp].buf[cr].crossnum; // This is the index into cc->buf (the master crossing list)
-      
+
       pd->cross[pd_crossing].sign = cc->buf[pd_crossing].sign > 0 ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
 
       if (cmp == cc->buf[pd_crossing].upper_cmp && fabs(crc[cmp].buf[cr].s - cc->buf[pd_crossing].upper_s) < 1e-13) { // This is the upper arc
@@ -712,19 +712,19 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
       } else { // This is the lower arc, which means that we have to pay attention to sign.
 
 	if (pd->cross[pd_crossing].sign == PD_POS_ORIENTATION) { // Upper out to lower out is ccw, meaning that upper in to lower in is ccw
-  
+
 	  pd->cross[pd_crossing].edge[1] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
 	  pd->cross[pd_crossing].edge[3] = edge; // This (outgoing) edge is always the current edge number.
-	       
+
 	} else { // Upper out to lower out is cw, meaning that upper in to lower out is ccw
 
 	  pd->cross[pd_crossing].edge[3] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
 	  pd->cross[pd_crossing].edge[1] = edge; // This (outgoing) edge is always the current edge number.
-	 
+
 	}
 
       }
-      
+
     }
 
   }
@@ -735,7 +735,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
 
   /* This is the most important test: */
 
-  if (!pd_ok(pd)) { 
+  if (!pd_ok(pd)) {
 
     fprintf(stderr,"pd_code_from_plCurve: Algorithm produced the invalid pd_code\n");
     pd_write(stderr,pd);
@@ -747,7 +747,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
 
   return pd;
 
-}      
+}
 
 /* We can now finally assemble everything. We use a source of randomness to defeat nongeneric configurations. */
 
@@ -756,7 +756,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
 bool pd_code_from_plCurve_verbose = false;
 bool pd_code_from_plCurve_debug = false;
 
-void set_pd_code_from_plCurve_verbose(bool val) { 
+void set_pd_code_from_plCurve_verbose(bool val) {
 
   pd_code_from_plCurve_verbose = val;
 
@@ -775,16 +775,16 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
   plCurve    *workingL = plc_copy(L);
   pd_code_t  *pd;
   plc_vector new_axis = {{0,0,1}};
-  
-  for(attempt_number=0;attempt_number < 3 && !pd_created;attempt_number++) { 
-  
+
+  for(attempt_number=0;attempt_number < 3 && !pd_created;attempt_number++) {
+
     /* Step 1. Rotate the whole thing randomly. */
 
     if (!pd_code_from_plCurve_debug) { new_axis = plc_random_vect(); }
 
     plc_random_rotate(workingL,new_axis);
 
-    if (pd_code_from_plCurve_verbose) { 
+    if (pd_code_from_plCurve_verbose) {
 
       printf("pd_code_from_plCurve\n"
 	     "------------------------------------------------\n"
@@ -797,22 +797,22 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
     plCurve *genericL = make_zprojection_generic(rng,L);
 
-    if (pd_code_from_plCurve_verbose) { 
+    if (pd_code_from_plCurve_verbose) {
 
-      if (genericL != NULL) { 
+      if (genericL != NULL) {
 
 	printf("success.\n");
 
       } else {
 
 	printf("failure on attempt %d.\n",attempt_number);
-	
+
       }
 
     }
 
     if (genericL == NULL) { /* We didn't succeed. Randomly rotate, try again. */
-      
+
       pd_created = false;
       continue;
 
@@ -820,7 +820,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
     /* Step 3. Populate crossing container. */
 
-    if (pd_code_from_plCurve_verbose) { 
+    if (pd_code_from_plCurve_verbose) {
 
       printf("Searching for crossings in generic version of plCurve...");
 
@@ -843,7 +843,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
     }
 
-    if (cc == NULL) { 
+    if (cc == NULL) {
 
       pd_created = false;
       plc_free(genericL);
@@ -853,7 +853,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
     /* Step 4. Sort the crossings by component. */
 
-    if (pd_code_from_plCurve_verbose) { 
+    if (pd_code_from_plCurve_verbose) {
 
       printf("Splitting crossings up by component...");
 
@@ -861,13 +861,13 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
     crossing_reference_container *crc = divide_crossings_by_component(cc,genericL);
 
-    if (pd_code_from_plCurve_verbose) { 
+    if (pd_code_from_plCurve_verbose) {
 
       printf("done.\n"
 	     "\t%d crossings are divided among %d components as:\n",cc->used,L->nc);
 
       int i,total=0;
-      for(i=0;i<L->nc;i++) { 
+      for(i=0;i<L->nc;i++) {
 
 	printf("\t%d crossings on component %d (%d vertices)\n",crc[i].used,i,L->cp[i].nv);
 	total += crc[i].used;
@@ -876,7 +876,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
       printf("total number of crossings on components %d ",total);
 
-      if (total != 2*cc->used) { 
+      if (total != 2*cc->used) {
 
 	printf("!= expected number %d = 2 * %d crossings total\n",
 	       2*cc->used,cc->used);
@@ -887,21 +887,21 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 	printf("== expected number %d = 2 * %d crossings total\n",
 	       2*cc->used,cc->used);
 
-      }	
-      
+      }
+
     }
 
     /* Step 5. Assemble and test the pd_code */
 
-    if (pd_code_from_plCurve_verbose) { 
-      
+    if (pd_code_from_plCurve_verbose) {
+
       printf("assembling pd code from crossing and crossing reference data...");
 
-    }					      
+    }
 
     pd = assemble_pdcode(L,crc,cc);
 
-    if (pd_code_from_plCurve_verbose) { 
+    if (pd_code_from_plCurve_verbose) {
 
       if (pd != NULL) {
 
@@ -917,12 +917,12 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
     }
 
-    if (pd == NULL) { 
+    if (pd == NULL) {
 
       pd_created = false;
 
-    } else { 
-      
+    } else {
+
       pd_created = true;
 
     }
@@ -930,7 +930,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
     /* Step 6. Housekeeping! */
 
     int cmp;
-    for(cmp=0;cmp<L->nc;cmp++) { 
+    for(cmp=0;cmp<L->nc;cmp++) {
 
       if (crc[cmp].buf != NULL) { free(crc[cmp].buf); crc[cmp].buf = NULL; }
 
@@ -943,7 +943,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
   plc_free(workingL);
 
-  if (pd_created) { 
+  if (pd_created) {
 
     return pd;
 
@@ -956,26 +956,26 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
   }
 
 }
-    
-    
-      
-      
-    
-    
-  
-  
-  
-  
-      
 
-/* We now have a convenience function to convert the resulting pdcode into 
+
+
+
+
+
+
+
+
+
+
+
+/* We now have a convenience function to convert the resulting pdcode into
    a Millett-Ewing crossing code. */
 
 /* The Millett/Ewing representation of a knot diagram numbers the
    crossings from 1 to ncrossings and then stores for each crossing
    the crossing connected to each arc coming from the crossing in the
    order
-   
+
          a
          |
          |
@@ -1009,7 +1009,7 @@ char *ccode_from_pd_code( pd_code_t *pdC) {
 
   return NULL;
 
-}   
+}
 
 char *old_plc_ccode( plCurve *L )
 {
@@ -1190,10 +1190,12 @@ plc_knottype *plc_classify(gsl_rng *rng, plCurve *L, int *nposs)
 
   char *ccode,*cptr;
   pd_code_t *pdC;
-  
+
   pdC = pd_code_from_plCurve(rng,L);
   ccode = ccode_from_pd_code(pdC);  /* The number of crossings is 2 + the number of \n's in ccode. */
   free(pdC); /* We're not going to use this again, may as well free it now */
+
+  if (ccode == NULL) { *nposs = 0; return NULL; } // Otherwise you WILL segfaut
 
   int Ncount = 0;
   for(cptr = strchr(ccode,'\n');cptr != NULL;cptr = strchr(cptr+1,'\n'),Ncount++);

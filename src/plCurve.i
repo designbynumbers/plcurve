@@ -579,8 +579,9 @@ struct plc_type {
     //
     /* const char *const ccode; */
     /* const char *const homfly; */
-    /* %newobject classify; */
-    /* plc_knottype *classify(int *nposs) { return plc_classify($self, nposs); } */
+    %newobject classify;
+    plc_knottype *classify(gsl_rng *r, int *nposs)
+    { return plc_classify(r, $self, nposs); }
 
     // Python special methods
     //
