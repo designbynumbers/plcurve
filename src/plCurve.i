@@ -2,6 +2,8 @@
 %{
 #include "plCurve.h"
 #include "matrix.h"
+#include "plcTopology.h"
+    //#include "homfly.h"
 #include <gsl/gsl_rng.h>
 
   // varray is a hack-in to support passing variable length arrays to Python
@@ -574,10 +576,10 @@ struct plc_type {
 
     // Topology methods
     //
-    const char *const ccode;
-    const char *const homfly;
-    %newobject classify;
-    plc_knottype *classify(int *nposs) { return plc_classify($self, nposs); }
+    /* const char *const ccode; */
+    /* const char *const homfly; */
+    /* %newobject classify; */
+    /* plc_knottype *classify(int *nposs) { return plc_classify($self, nposs); } */
 
     // Python special methods
     //
@@ -617,10 +619,10 @@ struct plc_type {
     return plc_gyradius(c);
   }
   inline char *plc_type_ccode_get(plCurve *c) {
-    return plc_ccode(c);
+    return old_plc_ccode(c);
   }
   inline char *plc_type_homfly_get(plCurve *c) {
-    return plc_homfly(c);
+      //return plc_homfly(c);
   }
   %}
 
@@ -700,10 +702,10 @@ typedef struct knottypestruct {
 } plc_knottype;
 
 %{
-  const plc_knottype *knottypestruct_factors_get(plc_knottype *kt) {
-	  return kt;
-  }
-  %}
+    const plc_knottype *knottypestruct_factors_get(plc_knottype *kt) {
+        return kt;
+    }
+%}
 
 %rename(RandomGenerator) gsl_rng;
 typedef struct {
