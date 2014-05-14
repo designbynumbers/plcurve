@@ -1,4 +1,5 @@
 %module plcurve
+%feature("autodoc", "1");
 %{
 #include "plCurve.h"
 #include "matrix.h"
