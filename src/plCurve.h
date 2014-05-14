@@ -583,7 +583,7 @@ extern "C" {
   int plc_nearest_neighbor(const plc_vector pt,const int n, plc_vector *buffer,
 			   struct plc_nearest_neighbor_pc_data **pc_data, int *plc_error);
   void plc_nearest_neighbor_pc_data_free(struct plc_nearest_neighbor_pc_data **pc_data);
- 
+
   /************************* plCurve Geometric Operations ******************************************/
 
   /* Scale a plCurve (and its constraints!) by a factor. */

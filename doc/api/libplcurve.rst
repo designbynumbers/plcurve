@@ -1,22 +1,10 @@
 libplcurve package
 ==================
 
-Submodules
-----------
-
 libplcurve.plcurve module
 -------------------------
 
-.. automodule:: libplcurve.plcurve
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. currentmodule:: libplcurve.plcurve
 
-
-Module contents
----------------
-
-.. automodule:: libplcurve
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. autoclass:: PlCurve
+  :members:
