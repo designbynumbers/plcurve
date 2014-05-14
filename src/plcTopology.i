@@ -7,6 +7,8 @@
 #include "pd_perm.h"
 #include "pd_isomorphisms.h"
 #include "pd_storage.h"
+#include <stddef.h> // SWIG should include this itself but Debian version does not
+  static char eoi = 0; // end of iteration exception
 %}
 %include "typemaps.i"
 
@@ -38,6 +40,8 @@ typedef struct pd_edge_struct {
    the crossing record, so we can't determine
    orientation otherwise. */
 
+%feature("python:slot", "sq_length", functype="lenfunc") pd_component_struct::__len__;
+%feature("python:slot", "sq_item", functype="ssizeargfunc") pd_component_struct::__getitem__;
 %rename(Component) pd_component_struct;
 typedef struct pd_component_struct {
 
@@ -47,6 +51,27 @@ typedef struct pd_component_struct {
   /* Edge indices in orientation order
      around a component. These are expected
      to be consecutive. */
+
+  %exception __getitem__ {
+    assert(!eoi);
+    $action
+      if (eoi) {
+        eoi = 0; // clear flag for next time
+        PyErr_SetString(PyExc_StopIteration, "End of iterator");
+        return NULL;
+      }
+  }
+
+  %extend{
+    const pd_idx_t __len__() const { return (Py_ssize_t)($self->nedges); }
+    const pd_idx_t __getitem__(size_t j) const {
+      if (j < 0 || j >= $self->nedges) {
+        eoi=1;
+      } else {
+        return $self->edge[j];
+      }
+    }
+  }
 
 } pd_component_t;
 
@@ -65,21 +90,6 @@ typedef struct pd_face_struct {
      as well as their edge number. */
 
 } pd_face_t;
-
-// Crossing structs are really just 4-tuples, so let's treat it as such.
-#define _PY_PD_CROSSING_LEN 4
-%{
-#define _PY_PD_CROSSING_LEN 4
-  inline PyObject *pd_crossing_as_pytuple(pd_crossing_t *c) {
-    PyObject *result;
-    int i;
-    result = PyTuple_New(_PY_PD_CROSSING_LEN);
-    for (i = 0; i < _PY_PD_CROSSING_LEN; i++) {
-      PyTuple_SetItem(result, i, PyInt_FromLong((long)(c->edge[i])));
-    }
-    return result;
-  }
-%}
 
 // Huzzah! pd_crossings now have orientation data
 // Possibly extend these typemaps later on
