@@ -2424,7 +2424,21 @@ void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr)
 
   if (cr >= pd->ncross) { 
 
-    pd_error(file,line,"pd_code has %d crossings, and variable attempted to reference crossing %d.",pd->ncross,cr);
+    pd_error(file,line,"pd_code %PD has %d crossings, and variable attempted to reference crossing %d.",pd,pd->ncross,cr);
+
+  }
+
+}
+
+void pd_check_edge(char *file, int line, pd_code_t *pd, pd_idx_t edge) 
+
+/* Checks to see if cr is a legitimate crossing number for pd. */
+
+{
+
+  if (edge >= pd->nedges) { 
+
+    pd_error(file,line,"pd_code %PD has %d edges, and variable attempted to reference edge %d.",pd,pd->nedges,edge);
 
   }
 
@@ -2435,7 +2449,7 @@ void pd_check_notnull(char *file, int line, char *varname, void *ptr)
 
   if (ptr == NULL) { 
     
-    pd_error(file,line,"output variable %s is a NULL pointer",varname);
+    pd_error(file,line,"output variable %s is a NULL pointer",NULL,varname);
 
   }
 }

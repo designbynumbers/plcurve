@@ -61,9 +61,259 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <unistd.h>
 #endif
 
+
+
+/* 
+   Convert to a Millett/Ewing representation and then compute HOMFLY
+   using the venerable lmpoly code. 
+
+   The Millett/Ewing representation of a knot diagram numbers the
+   crossings from 1 to ncrossings and then stores for each crossing
+   the crossing connected to each arc coming from the crossing in the
+   order
+
+       a
+       |
+       |
+   b<--|-->d (meaning that this can go either way, depending on the orientation of cr)
+       |
+       V
+       c
+
+   So a crossing code representation of a plCurve is a char buffer 
+   containing lines of the form
+
+   17+2b10c11c31a
+
+   meaning that crossing 17 is a positive crossing 
+
+   connected in the a position to the b position of crossing 2,
+   connected in the b position to the c position of crossing 10,
+   connected in the c position to the c position of crossing 11 and
+   connected in the d position to the a position of crossing 31.
+
+   In order to simplify communication with the lmpoly code of Ewing
+   and Millett, we store the crossing code as a standard (0
+   terminated) string, including newlines. We will read from 
+   that string using a replacement version of the "read" primitive.
+
+   We first need a primitive which tells us which of the four positions
+   a given edge comes into or out of a crossing at: */
+
+void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char *tailpos)
+
+{
+  pd_check_edge(SRCLOC,pd,edge);
+  pd_check_notnull(SRCLOC,"headpos",headpos);
+  pd_check_notnull(SRCLOC,"tailpos",tailpos);
+
+  /* First, we get the head position */
+
+  pd_idx_t oip,oop; /* overstrand-in-pos, overstrand-out-pos */
+  pd_idx_t uip,uop; /* understrand-in-pos, understrand-out-pos */
+
+  pd_overstrand_pos(pd,pd->edge[edge].head,&oip,&oop);
+  pd_understrand_pos(pd,pd->edge[edge].head,&uip,&uop);
+
+  if (pd->cross[pd->edge[edge].head].edge[oip] == edge) { 
+
+    /* We found it coming IN as an overstrand -- this is position a */    
+    *headpos = 'a';
+
+  } else if (pd->cross[pd->edge[edge].head].edge[uip] == edge) { 
+
+    /* We found it coming IN as an understrand. This is either b or d,
+       depending on the sign of the crossing. */
+
+    if (pd->cross[pd->edge[edge].head].sign == PD_POS_ORIENTATION) { 
+
+      *headpos = 'b';
+
+    } else {
+
+      *headpos = 'd';
+
+    }
+
+  } else { 
+
+    pd_error(SRCLOC,
+	     "in pd %PD, edgenum %d (edge %EDGE) has head %d (%CROSS), \n"
+	     "but doesn't appear in the overstrand in position (%d) \n"
+	     "or understrand in position (%d).",
+	     pd, edge, edge, pd->edge[edge].head, pd->edge[edge].head,
+	     oip,uip);
+
+  }
+
+  /* Now we deal with the tail position */
+    
+  pd_overstrand_pos(pd,pd->edge[edge].tail,&oip,&oop);
+  pd_understrand_pos(pd,pd->edge[edge].tail,&uip,&uop);
+
+  if (pd->cross[pd->edge[edge].tail].edge[oop] == edge) { 
+
+    /* We found it going OUT as an overstrand -- this is position c */    
+    *tailpos = 'c';
+
+  } else if (pd->cross[pd->edge[edge].head].edge[uop] == edge) { 
+
+    /* We found it going OUT as an understrand. This is either b or d,
+       depending on the sign of the crossing. */
+
+    if (pd->cross[pd->edge[edge].head].sign == PD_POS_ORIENTATION) { 
+
+      *tailpos = 'd';
+
+    } else {
+
+      *tailpos = 'b';
+
+    }
+
+  } else { 
+
+    pd_error(SRCLOC,
+	     "in pd %PD, edgenum %d (edge %EDGE) has tail %d (%CROSS), \n"
+	     "but doesn't appear in the overstrand out position (%d) \n"
+	     "or understrand out position (%d).",
+	     pd, edge, edge, pd->edge[edge].tail, pd->edge[edge].tail,
+	     oop,uop);
+
+  }
+
+}
+
+/* We can now write the translator: */
+
+char *pdcode_to_ccode(pd_code_t *pd) 
+
+{
+  char *ccode;
+  int   ccode_size = 256*pd->ncross;
+
+  ccode = calloc(ccode_size,sizeof(char)); /* Get room for a big string */
+
+  pd_idx_t cr;
+  char    *ccode_buf = ccode;
+  int      thiscr_used,total_used=0;
+
+  for(cr=0;cr<pd->ncross;cr++) { 
+
+    char or = pd->cross[cr].sign == PD_POS_ORIENTATION ? '+':'-';
+
+    thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c",cr+1,or);    
+    total_used += thiscr_used;
+    ccode_buf += thiscr_used;
+
+    pd_idx_t a_edge, b_edge, c_edge, d_edge;
+    bool b_is_in; /* Keep track of whether the b position is coming in or going out */
+    pd_idx_t a_to, b_to, c_to, d_to;
+    char a_to_pos, b_to_pos, c_to_pos, d_to_pos;
+    char scratch;
+    
+    pd_overstrand(pd,cr,&a_edge,&c_edge);
+
+    a_to = pd->edge[a_edge].tail + 1;
+    pd_millet_ewing_positions(pd,a_edge,&scratch,&a_to_pos);
+
+    c_to = pd->edge[c_edge].head + 1;
+    pd_millet_ewing_positions(pd,c_edge,&c_to_pos,&scratch);
+
+    b_is_in = (pd->cross[cr].sign == PD_POS_ORIENTATION);
+
+    if (b_is_in) { 
+
+      pd_understrand(pd,cr,&b_edge,&d_edge);
+      
+      b_to = pd->edge[b_edge].tail + 1;
+      pd_millet_ewing_positions(pd,b_edge,&scratch,&b_to_pos);
+      
+      d_to = pd->edge[d_edge].head + 1;
+      pd_millet_ewing_positions(pd,d_edge,&d_to_pos,&scratch);
+    
+    } else { /* b is going OUT */
+
+      pd_understrand(pd,cr,&d_edge,&b_edge);
+
+      b_to = pd->edge[b_edge].head + 1;
+      pd_millet_ewing_positions(pd,b_edge,&b_to_pos,&scratch);
+
+      d_to = pd->edge[d_edge].tail + 1;
+      pd_millet_ewing_positions(pd,d_edge,&scratch,&d_to_pos);
+
+    }
+
+    /* Having gathered all the information, we can write it to 
+       the buffer now. */
+
+    thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c%d%c%d%c%d%c\n",
+			   a_to,a_to_pos,
+			   b_to,b_to_pos,
+			   c_to,c_to_pos,
+			   d_to,d_to_pos
+			   );    
+
+    total_used += thiscr_used;
+    ccode_buf += thiscr_used;
+
+    if (total_used >= ccode_size) { /* This shouldn't result in a write to unsafe memory because 
+				       we used snprintf, but is a sign that something's gone 
+				       horribly wrong. */
+
+      pd_error(SRCLOC,"conversion to millet-ewing code failed for %PD at Millet-Ewing code\n %s",pd,ccode_buf);
+      
+    }
+
+  }
+
+  return ccode;
+    
+}
+      
+
 char *plc_lmpoly(char *ccode,int timeout); // This is in pllmpoly02.c.
 
-/* Convert plCurve to Millett/Ewing crossing code (documented in plCurve.h) */
+char *pd_homfly(pd_code_t *pd) 
+{
+  char *ccode;
+  char *homfly;
+
+  ccode = pdcode_to_ccode(pd);
+  
+  if (PD_VERBOSE > 50) { 
+
+    pd_printf("pd_homfly: Converted pd code\n %PD \n to crossing code \n %s \n",
+	     pd,ccode);
+
+  }
+
+  homfly = plc_lmpoly(ccode,300); /* Maximum of 5 minutes */
+
+  if (PD_VERBOSE > 50) { 
+    
+    printf("got (raw) HOMFLY string %s\n",homfly);
+
+  }
+
+  free(ccode);
+  ccode = NULL;
+
+  return homfly;
+
+}
+
+char *plc_homfly( gsl_rng *rng, plCurve *L)
+
+{
+  pd_code_t *pd = pd_code_from_plCurve(rng,L);
+  char *homfly = pd_homfly(pd);
+  pd_code_free(&pd);
+  return homfly;
+}
+
+/* Convert plCurve to pd_code_t, projecting along a direction and 
+   resolving geometric degeneracies as needed. */
 
 /* Plan:
 
@@ -957,213 +1207,6 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-/* We now have a convenience function to convert the resulting pdcode into
-   a Millett-Ewing crossing code. */
-
-/* The Millett/Ewing representation of a knot diagram numbers the
-   crossings from 1 to ncrossings and then stores for each crossing
-   the crossing connected to each arc coming from the crossing in the
-   order
-
-         a
-         |
-         |
-     b---|-->d
-         |
-         V
-         c
-
-     So a crossing code representation of a plCurve is a char buffer
-     containing lines of the form
-
-     17+2b10c11c31a
-
-     meaning that crossing 17 is a positive crossing
-
-     connected in the a position to the b position of crossing 2,
-     connected in the b position to the c position of crossing 10,
-     connected in the c position to the c position of crossing 11 and
-     connected in the d position to the a position of crossing 31.
-
-     In order to simplify communication with the lmpoly code of Ewing
-     and Millett, we store the crossing code as a standard (0
-     terminated) string, including newlines. We will read from
-     that string using a replacement version of the "read" primitive.
-
-  */
-
-char *ccode_from_pd_code( pd_code_t *pdC) {
-
-  /* This is just a stub for now. */
-
-  return NULL;
-
-}
-
-char *old_plc_ccode( plCurve *L )
-{
-  char *code;
-
-  if (L->nc != 1) {
-
-    printf("plc_ccode: L has %d components, but this version only works for 1 comp.\n",
-	   L->nc);
-    return NULL;
-
-  }
-
-  /* Step 0. Change to a new temporary working directory to avoid stomping
-     any user files */
-
-  char *template,*newdir;
-
-  template = calloc(32,sizeof(char));
-  sprintf(template,"codedirXXXXXX");
-
-  newdir = mkdtemp(template);
-  assert(newdir != NULL);
-
-  int result;
-  result = chdir(newdir);
-  assert(result != -1);
-
-  /* Step 1. Write a res.pts file in compEric (21.17f) floating point format. */
-
-  int vt;
-  FILE *resfile;
-
-  resfile = fopen("res.pts","w");
-  assert(resfile != NULL);
-
-
-  for(vt=0;vt<L->cp[0].nv;vt++) {
-
-    fprintf(resfile,"  %21.17f  %21.17f  %21.17f\n",
-	    plc_M_clist(L->cp[0].vt[vt]));
-
-  }
-
-  fclose(resfile);
-
-  /* Step 2. Open a pipe to plcompEric and pass in answers
-     to the various questions to make it go. */
-
-  int edges;
-  FILE *CEpipe;
-
-  edges = plc_num_edges(L);
-
-  CEpipe = popen("plcompEric > /dev/null","w");
-  assert(CEpipe != NULL);
-
-  /* plcompEric expects
-
- 	# of edges
- 	# of reps  (needs to be at least 1)
- 	use restart? 1 yes, 0 no (we use 1 because we want to use res.pts)
- 	save points in zpoints? 1/0 (no, so 0)
- 	random seed, integer (useless, we set to 12345)
- 	ropelength (useless here, we set to 30, but don't know why)
- 	radius of perturbation (set to 0 to use this config)
-
-	Note: comp516 makes the zmatrix file (also zkdata and zpoints, don't need) */
-
-  fprintf(CEpipe,"%d\n1\n1\n1\n12345\n30\n0.0\n",edges);
-  pclose(CEpipe);
-
-  /* Step 4. Allocate space for the crossing code. */
-
-  int csize = 256*32;
-  code = calloc( csize, sizeof(char));
-
-  /* Step 3. Copy the zmatrix file generated by compEric. */
-
-  FILE *zmatrix;
-  int   spos = 0;
-
-  zmatrix = fopen("zmatrix","r");
-  assert(zmatrix != NULL);
-
-  int zmchar;
-  while((zmchar = fgetc(zmatrix)) != EOF) {
-
-    code[spos++] = (char)(zmchar);
-
-    if (spos > csize-10) {
-
-      csize *= 2;
-      code = realloc(code,csize*sizeof(char));
-      assert(code != NULL);
-
-    }
-
-  }
-
-  fclose(zmatrix);
-
-  code[spos] = 0; /* Add the terminating 0 manually */
-
-  /* Step 4. Check and return. */
-
-  //printf("Processed %d edge knot successfully. Crossing code is \n %s\n",
-  //	 edges,code);
-
-
-  /* Step 5. Cleanup the working directory. */
-
-  remove("res.pts");
-  remove("zkdata");
-  remove("zmatrix");
-  remove("zpoints");
-
-  result = chdir("..");
-  assert(result != -1);
-
-  remove(newdir);
-  free(template);
-
-  return code;
-
-}
-
-
-
-
-char *plc_homfly(gsl_rng *rng, plCurve *L )
-/* Compute homfly polynomial by calling the hidden plc_lmpoly function */
-/* By default, this version times out after 60 seconds. */
-
-{
-  pd_code_t *pdC;
-  char *ccode;
-  char *homfly;
-
-  pdC = pd_code_from_plCurve(rng,L);
-  ccode = ccode_from_pd_code(pdC);
-
-  homfly = plc_lmpoly(ccode,60);
-  free(ccode);
-  free(pdC);
-
-  if (homfly == NULL) {
-    homfly = calloc(128,sizeof(char));
-    sprintf(homfly,"ccode unable to create crossing code for L");
-  }
-
-  return homfly;
-}
-
 int homcmp(const void *A, const void *B)
 {
   plc_knottype *a,*b;
@@ -1192,7 +1235,7 @@ plc_knottype *plc_classify(gsl_rng *rng, plCurve *L, int *nposs)
   pd_code_t *pdC;
 
   pdC = pd_code_from_plCurve(rng,L);
-  ccode = ccode_from_pd_code(pdC);  /* The number of crossings is 2 + the number of \n's in ccode. */
+  ccode = pdcode_to_ccode(pdC);  /* The number of crossings is 2 + the number of \n's in ccode. */
   free(pdC); /* We're not going to use this again, may as well free it now */
 
   if (ccode == NULL) { *nposs = 0; return NULL; } // Otherwise you WILL segfaut

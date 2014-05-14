@@ -434,11 +434,18 @@ extern "C" {
   /* There are some standard error checks which we give convenience functions for: */
 
   void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr); 
-  /* Checks if crossing number is legal, dies with error if not. Expected to be called pd_check_cr(SRCLOC,pd,cr). */
+  /* Checks if crossing number is legal, dies with error if not. 
+     Expected to be called pd_check_cr(SRCLOC,pd,cr). */
+
+  void pd_check_edge(char *file, int line, pd_code_t *pd, pd_idx_t edge);
+  /* Checks if edge number is legal, dies with error if not. 
+     Expected to be called pd_check_edge(SRCLOC,pd,edge). */
 
   void pd_check_notnull(char *file, int line, char *varname, void *ptr); 
   /* Checks if pointer is null, dies with error if so. The field "varname" is a string giving
      the name of the pointer. Should be called like pd_check_notnull(SRCLOC,"invar",invar); */
+
+
 
   /* Standard, valid pd codes (for test purposes). */
 
