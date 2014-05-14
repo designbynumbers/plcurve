@@ -17,7 +17,7 @@
 
 %include "carrays.i"
 %include "typemaps.i"
-%import "plcTopology.i"
+ //%import "plcTopology.i"
 
 typedef double plc_matrix[3][3];
 

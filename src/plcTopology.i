@@ -1,4 +1,4 @@
-%module(package="plcurve.pd") pd
+%module(package="plcurvepd") pd
 %feature("autodoc", "1");
 %{
 #include "stdbool.h"
@@ -81,55 +81,60 @@ typedef struct pd_face_struct {
   }
 %}
 
-%typemap(in) pd_crossing_t (pd_crossing_t v) {
-  int i;
-  if (!PySequence_Check($input)) {
-    PyErr_SetString(PyExc_TypeError,
-                    "Expecting a sequence with _PY_PD_CROSSING_LEN elements");
-    return NULL;
-  }
-  if (PyObject_Length($input) != _PY_PD_CROSSING_LEN) {
-    PyErr_SetString(PyExc_ValueError,
-                    "Expecting a sequence with _PY_PD_CROSSING_LEN elements");
-    return NULL;
-  }
-  for (i =0; i < _PY_PD_CROSSING_LEN; i++) {
-    PyObject *o = PySequence_GetItem($input,i);
-    // TODO: Better handle pd_idx_t
-    if (PyInt_Check(o)) {
-      v.edge[i] = (pd_idx_t)PyInt_AsLong(o);
-      Py_DECREF(o);
-    } else if (PyLong_Check(o)) {
-      v.edge[i] = (pd_idx_t)PyLong_AsLong(o);
-      Py_DECREF(o);
-    } else {
-      Py_XDECREF(o);
-      PyErr_SetString(PyExc_ValueError,"Expecting a sequence of ints or longs");
-      return NULL;
-    }
-  }
-  $1 = v;
- }
-%typemap(out) pd_crossing_t {
-  int i;
-  $result = pd_crossing_as_pytuple(&$1);
- }
-%typemap(out) pd_crossing_t *{
-  int i;
-  if ($1 == NULL) {
-    $result = Py_None;
-    return;
-  }
-  $result = pd_crossing_as_pytuple($1);
- }
-/* %rename(Crossing) pd_crossing_struct; */
-/* typedef struct pd_crossing_struct { */
+// Huzzah! pd_crossings now have orientation data
+// Possibly extend these typemaps later on
+/* %typemap(in) pd_crossing_t (pd_crossing_t v) { */
+/*   int i; */
+/*   if (!PySequence_Check($input)) { */
+/*     PyErr_SetString(PyExc_TypeError, */
+/*                     "Expecting a sequence with _PY_PD_CROSSING_LEN elements"); */
+/*     return NULL; */
+/*   } */
+/*   if (PyObject_Length($input) != _PY_PD_CROSSING_LEN) { */
+/*     PyErr_SetString(PyExc_ValueError, */
+/*                     "Expecting a sequence with _PY_PD_CROSSING_LEN elements"); */
+/*     return NULL; */
+/*   } */
+/*   for (i =0; i < _PY_PD_CROSSING_LEN; i++) { */
+/*     PyObject *o = PySequence_GetItem($input,i); */
+/*     // TODO: Better handle pd_idx_t */
+/*     if (PyInt_Check(o)) { */
+/*       v.edge[i] = (pd_idx_t)PyInt_AsLong(o); */
+/*       Py_DECREF(o); */
+/*     } else if (PyLong_Check(o)) { */
+/*       v.edge[i] = (pd_idx_t)PyLong_AsLong(o); */
+/*       Py_DECREF(o); */
+/*     } else { */
+/*       Py_XDECREF(o); */
+/*       PyErr_SetString(PyExc_ValueError,"Expecting a sequence of ints or longs"); */
+/*       return NULL; */
+/*     } */
+/*   } */
+/*   $1 = v; */
+/*  } */
+/* %typemap(out) pd_crossing_t { */
+/*   int i; */
+/*   $result = pd_crossing_as_pytuple(&$1); */
+/*  } */
+/* %typemap(out) pd_crossing_t *{ */
+/*   int i; */
+/*   if ($1 == NULL) { */
+/*     $result = Py_None; */
+/*     return; */
+/*   } */
+/*   $result = pd_crossing_as_pytuple($1); */
+/*  } */
 
-/*   pd_idx_t edge[4]; */
-/*   /\* Edge indices around crossing */
-/*      in counterclockwise order *\/ */
+%feature("python:slot", "mp_subscript", functype="binaryfunc") pd_crossing_struct::__getitem__;
+%rename(Crossing) pd_crossing_struct;
+typedef struct pd_crossing_struct {
+  pd_idx_t edge[4]; /* Edge indices around crossing in counterclockwise order */
+  pd_or_t sign; /* Whether the crossing is positively or negatively oriented */
 
-/* } pd_crossing_t; */
+  %extend{
+    const int __getitem__(int pos) const { return $self->edge[pos]; }
+  }
+} pd_crossing_t;
 
 // Out of bounds exception typemap pair
 %typemap(in, numinputs=0) bool *OOB (bool e) {
@@ -166,11 +171,11 @@ typedef struct pd_code_struct {
 
   %typemap(out) pd_code_t *crossings {
     int i;
-    PyObject *cr_tuple;
     $result = PyTuple_New($1->ncross);
     for (i = 0; i < $1->ncross; i++) {
-      cr_tuple = pd_crossing_as_pytuple(&($1->cross[i]));
-      PyTuple_SetItem($result, i, cr_tuple);
+      PyTuple_SetItem($result, i,
+                      SWIG_NewPointerObj(((pd_crossing_t*)$1->cross)+i,
+                                         SWIGTYPE_p_pd_crossing_struct, 0));
     }
   }
   %typemap(out) pd_code_t *edges {
