@@ -136,7 +136,44 @@ extern "C" {
 
     pd_idx_t edge[4]; /* Edge indices around crossing in counterclockwise order */
     pd_or_t  sign;    /* Whether the crossing is positively or negatively oriented */
-  
+
+    /* The convention used to determine sign is this: 
+
+            ^
+            |
+       ----------->
+            |
+            |
+
+      positive crossing 
+      (upper tangent vector) x (lower tangent vector) points OUT of screen.
+
+            ^
+            |
+       -----|----->
+            |
+            |
+
+      negative crossing
+      (upper tangent vector) x (lower tangent vector) points INTO screen.
+
+
+      You often simply want to know which of the strands (0-2) or (1-3) is
+      on top. There are several cases, because it depends BOTH on the sign of the crossing
+      and the orientation of the strands. It's recommended to use the function
+
+      pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum)
+
+      to determine which is which. This returns the edge number  (that is, a number in 0..pd->nedges) 
+      of the incoming and outgoing edges of the strand going over at this crossing.
+
+      pd_overstrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos)
+
+      returns the position in this crossing (that is, a number in 0..3) of the incoming and outgoing
+      edges of the strand going over at this crossing.
+
+    */
+
   } pd_crossing_t;
 
   typedef struct pd_code_struct {
@@ -263,6 +300,32 @@ extern "C" {
   void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t or);
   /* Flips the edge in pd->edges[] if or == PD_NEG_ORIENTATION */
 
+  /* Over and under information at a crossing. */
+
+  void pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum);
+
+  /*  Returns the edge number  (that is, a number in 0..pd->nedges) 
+      of the incoming and outgoing edges of the strand going OVER at crossing cr of pd,
+      using the sign of the crossing to determine. */
+
+  void pd_understrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum);
+
+  /*  Returns the edge number  (that is, a number in 0..pd->nedges) 
+      of the incoming and outgoing edges of the strand going UNDER at crossing cr of pd,
+      using the sign of the crossing to determine. */
+
+  void pd_overstrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos);
+
+  /* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
+     edges of the strand going over at this crossing, using the crossing sign data 
+     and edge orientations in order to compute the answer. */
+
+  void pd_understrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos);
+
+  /* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
+     edges of the strand going under at this crossing, using the crossing sign data 
+     and edge orientations in order to compute the answer. */
+
   /* Functions to compute data from crossing (and other) information */
 
   void pd_regenerate_crossings(pd_code_t *pd);
@@ -367,6 +430,15 @@ extern "C" {
      to stderr, and then exits with error code 1. 
 
      Otherwise, simply returns false. */
+
+  /* There are some standard error checks which we give convenience functions for: */
+
+  void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr); 
+  /* Checks if crossing number is legal, dies with error if not. Expected to be called pd_check_cr(SRCLOC,pd,cr). */
+
+  void pd_check_notnull(char *file, int line, char *varname, void *ptr); 
+  /* Checks if pointer is null, dies with error if so. The field "varname" is a string giving
+     the name of the pointer. Should be called like pd_check_notnull(SRCLOC,"invar",invar); */
 
   /* Standard, valid pd codes (for test purposes). */
 

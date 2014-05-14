@@ -2416,6 +2416,30 @@ bool pd_error(char *file, int line, char *fmt, pd_code_t *pd, ...)
   exit(1);
 }
 
+void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr) 
+
+/* Checks to see if cr is a legitimate crossing number for pd. */
+
+{
+
+  if (cr >= pd->ncross) { 
+
+    pd_error(file,line,"pd_code has %d crossings, and variable attempted to reference crossing %d.",pd->ncross,cr);
+
+  }
+
+}
+
+void pd_check_notnull(char *file, int line, char *varname, void *ptr)
+{
+
+  if (ptr == NULL) { 
+    
+    pd_error(file,line,"output variable %s is a NULL pointer",varname);
+
+  }
+}
+
 void pd_printf(char *fmt,pd_code_t *pd, ... )
 
 {

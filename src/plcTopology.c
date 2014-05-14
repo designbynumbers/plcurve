@@ -1260,3 +1260,265 @@ plc_knottype *plc_classify(gsl_rng *rng, plCurve *L, int *nposs)
   return ret;
 
 }
+
+/*** Over and under information **/
+
+/* All of this will depend on an internal function. This will be called more than once in typical use,
+   but it's so fast that the time penalty is negligible in practice and more than offset by the coding
+   clarity of having the under and over information returned separately! */
+
+ /* The convention used to determine sign is this: 
+
+            ^
+            |
+       ----------->
+            |
+            |
+
+      positive crossing 
+      (upper tangent vector) x (lower tangent vector) points OUT of screen.
+
+            ^
+            |
+       -----|----->
+            |
+            |
+
+      negative crossing
+      (upper tangent vector) x (lower tangent vector) points INTO screen.
+
+ */
+
+void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr, 
+			   pd_idx_t *over_in_pos, pd_idx_t *over_out_pos, 
+			   pd_idx_t *under_in_pos, pd_idx_t *under_out_pos)
+
+{
+  pd_check_cr(SRCLOC,pd,cr);
+  pd_check_notnull(SRCLOC,"over_in_pos",over_in_pos); pd_check_notnull(SRCLOC,"over_out_pos",over_out_pos);
+  pd_check_notnull(SRCLOC,"under_in_pos",under_in_pos); pd_check_notnull(SRCLOC,"under_out_pos",under_out_pos);
+  
+  if (pd->edge[pd->cross[cr].edge[0]].head == cr) { /* The edge at position 0 is incoming */
+
+    if (pd->edge[pd->cross[cr].edge[1]].head == cr) { /* The edge at position 1 is incoming */
+
+      if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
+
+	/* We're in the case: 
+
+	          3
+                  ^
+                  |
+	    0 -----------> 2
+                  |
+                  |
+                  1
+
+	*/
+
+	*over_in_pos = 0; *over_out_pos = 2;
+	*under_in_pos = 1; *under_out_pos = 3;
+
+      } else { /* The sign of the crossing is negative */
+
+	/* We're in the case: 
+
+	          3
+                  ^
+                  |
+	    0 ----|------> 2
+                  |
+                  |
+                  1
+
+	*/
+	
+	*over_in_pos = 1; *over_out_pos = 3;
+	*under_in_pos = 0; *under_out_pos = 2;
+
+      }
+
+    } else { /* The edge at position 1 is outgoing */
+      
+       if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
+
+	/* We're in the case: 
+
+	          3
+                  |
+                  |
+	    0 ----|------> 2
+                  |
+                  |
+		  v
+                  1
+
+	*/
+
+	*over_in_pos = 3; *over_out_pos = 1;
+	*under_in_pos = 0; *under_out_pos = 2;
+
+      } else { /* The sign of the crossing is negative */
+
+	/* We're in the case: 
+
+	          3
+                  |
+                  |
+	    0 -----------> 2
+                  |
+                  |
+		  v
+                  1
+
+	*/
+	
+	*over_in_pos = 0; *over_out_pos = 2;
+	*under_in_pos = 3; *under_out_pos = 1;
+
+       }
+
+    }
+
+  } else { /* the edge at position 0 is outgoing! */
+
+    if (pd->edge[pd->cross[cr].edge[1]].head == cr) { /* The edge at position 1 is incoming */
+      
+      if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
+
+	  /* We're in the case: 
+
+	          3
+	          ^
+                  |
+	    0 <---|---- 2
+                  |
+                  |
+                  1
+
+	  */
+
+	*over_in_pos = 1; *over_out_pos = 3;
+	*under_in_pos = 2; *under_out_pos = 0;
+	
+      } else { /* The sign of the crossing is negative */
+
+	/* We're in the case: 
+
+	          3
+                  ^
+                  |
+	    0 <------- 2
+                  |
+                  |
+                  1
+
+	*/
+	
+	*over_in_pos = 2; *over_out_pos = 0;
+	*under_in_pos = 1; *under_out_pos = 3;
+	
+      }
+	
+    } else { /* The edge at position 1 is outgoing */
+	
+      if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
+	
+	/* We're in the case: 
+
+	          3
+                  |
+                  |
+	    0 <-------- 2
+                  |
+                  |
+		  v
+                  1
+
+	  */
+
+	*over_in_pos = 2; *over_out_pos = 0;
+	*under_in_pos = 3; *under_out_pos = 1;
+	  
+      } else { /* The sign of the crossing is negative */
+	  
+	/* We're in the case: 
+
+	          3
+                  |
+                  |
+	    0 <---|--- 2
+                  |
+                  |
+		  v
+                  1
+
+	  */
+	
+	*over_in_pos = 3; *over_out_pos = 1;
+	*under_in_pos = 2; *under_out_pos = 0;
+
+      }
+	
+    }
+    
+  }
+
+}
+
+void pd_overstrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos)
+
+/* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
+   edges of the strand going over at this crossing, using the crossing sign data 
+   and edge orientations in order to compute the answer. */
+{
+  pd_idx_t oip,oop;
+  pd_idx_t uip,uop;
+
+  pd_overunder_internal(pd,cr,&oip,&oop,&uip,&uop);
+  *incoming_edgepos = oip;
+  *outgoing_edgepos = oop;
+}
+
+void pd_understrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos)
+
+/* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
+   edges of the strand going under at this crossing, using the crossing sign data 
+   and edge orientations in order to compute the answer. */
+
+{
+  pd_idx_t oip,oop;
+  pd_idx_t uip,uop;
+
+  pd_overunder_internal(pd,cr,&oip,&oop,&uip,&uop);
+  *incoming_edgepos = uip;
+  *outgoing_edgepos = uop;
+}
+
+void pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum)
+
+/*  Returns the edge number  (that is, a number in 0..pd->nedges) 
+    of the incoming and outgoing edges of the strand going OVER at crossing cr of pd,
+    using the sign of the crossing to determine. */
+
+{
+  pd_idx_t oip, oop;
+
+  pd_overstrand_pos(pd,cr,&oip,&oop);
+  *incoming_edgenum = pd->cross[cr].edge[oip];
+  *outgoing_edgenum = pd->cross[cr].edge[oop];
+}
+
+void pd_understrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum)
+
+/*  Returns the edge number  (that is, a number in 0..pd->nedges) 
+    of the incoming and outgoing edges of the strand going UNDER at crossing cr of pd,
+    using the sign of the crossing to determine. */
+{
+  pd_idx_t uip, uop;
+
+  pd_understrand_pos(pd,cr,&uip,&uop);
+  *incoming_edgenum = pd->cross[cr].edge[uip];
+  *outgoing_edgenum = pd->cross[cr].edge[uop];
+}
+
