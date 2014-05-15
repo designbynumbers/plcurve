@@ -1,10 +1,10 @@
-%module plcurve
+%module(directors="1") plcurve
 %feature("autodoc", "1");
 %{
 #include "plCurve.h"
 #include "matrix.h"
 #include "plcTopology.h"
-    //#include "homfly.h"
+  //#include "homfly.h"
 #include <gsl/gsl_rng.h>
 #include <stddef.h> // SWIG should include this itself but Debian version does not
 
@@ -13,11 +13,15 @@
     int len;
     void *array;
   } varray;
-  %}
 
+static int _exception = 0; // For throwing interface exceptions
+#define PLC_IndexError 1
+#define PLC_NotImplementedError 2
+%}
+
+%include "exception.i"
 %include "carrays.i"
 %include "typemaps.i"
- //%import "plcTopology.i"
 
 typedef double plc_matrix[3][3];
 
@@ -78,6 +82,28 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
   }
   $1 = v;
  }
+%typemap(in) plc_vector *(plc_vector v) {
+  int i;
+  if (!PySequence_Check($input)) {
+    PyErr_SetString(PyExc_TypeError,"Expecting a sequence");
+    return NULL;
+  }
+  if (PyObject_Length($input) != 3) {
+    PyErr_SetString(PyExc_ValueError,"Expecting a sequence with 3 elements");
+    return NULL;
+  }
+  for (i =0; i < 3; i++) {
+    PyObject *o = PySequence_GetItem($input,i);
+    if (!PyFloat_Check(o) && !PyInt_Check(o) && !PyLong_Check(o)) {
+      Py_XDECREF(o);
+      PyErr_SetString(PyExc_ValueError,"Expecting a sequence of floats or ints");
+      return NULL;
+    }
+    v.c[i] = PyFloat_AsDouble(o);
+    Py_DECREF(o);
+  }
+  $1 = &v;
+ }
 
 %{
   static int fail_if_non_py_numeric(PyObject *o, char *fail_msg) {
@@ -127,8 +153,6 @@ plc_vector plc_vect_sum(plc_vector A, plc_vector B);
 
 %feature("python:slot", "tp_str", functype="reprfunc") plc_strand_type::__str__;
 %feature("python:slot", "tp_repr", functype="reprfunc") plc_strand_type::__repr__;
-
-
 %rename(Strand) plc_strand_type;
 typedef struct plc_strand_type {
   %rename(num_vertices) nv;
@@ -179,8 +203,41 @@ typedef struct plc_strand_type {
 
     // Python special methods
     //
+    // Sequence methods
+    // A strand masquerades as a sequence of vertices
+    %feature("python:slot", "sq_length", functype="lenfunc") __len__;
+    %feature("docstring") __len__
+       "Get the number of vertices which make up this Strand.";
+    const size_t __len__() const { return $self->nv; }
+
+    %feature("python:slot", "sq_item", functype="ssizeargfunc") __getitem__;
+    %feature("docstring") __getitem__
+       "Get a vertex by its index.";
+    const plc_vector  __getitem__(size_t j) const {
+      if (j < 0 || j >= $self->nv) { // Index range exception
+        _exception = PLC_IndexError; return;
+      }
+      return $self->vt[j];
+    }
+
+    %feature("python:slot", "sq_ass_item", functype="ssizeobjargproc") __setitem__;
+    %feature("docstring") __setitem__
+       "Set a vertex. Deletion is not implemented.";
+    int __setitem__(size_t j, plc_vector *v) {
+      if (j < 0 || j >= $self->nv) { // Index range exception
+        _exception = PLC_IndexError; return -1;
+      }
+      if (v == NULL) { // Deletion not yet implemented
+        _exception = PLC_NotImplementedError;
+        return -1;
+      } else {
+        memcpy(&($self->vt[j]), v, sizeof(plc_vector));
+      }
+      return 0;
+    }
+
+    // String methods
     %newobject __str__;
-    %newobject __repr__;
     const char *__str__() {
       char *buf;
       buf = malloc(255*sizeof(char));
@@ -190,6 +247,7 @@ typedef struct plc_strand_type {
               $self->nv);
       return buf;
     }
+    %newobject __repr__;
     const char *__repr__() {
       char *buf;
       buf = malloc(255*sizeof(char));
@@ -216,7 +274,7 @@ typedef struct plc_strand_type {
     arr.array = st->clr;
     return arr;
   }
-  %}
+%}
 
 /* Curve constraint kind */
 %rename(ConstantKind) plc_cst_kind_type;
@@ -402,6 +460,19 @@ struct plc_type {
     $1 = PyFile_AsFile($input);
   }
 
+  %exception {
+    assert (!_exception);
+    $action
+      if (_exception == PLC_IndexError) {
+        _exception = 0;
+        SWIG_exception(SWIG_IndexError, "Component index out of range");
+      }
+    if (_exception == PLC_NotImplementedError) {
+      _exception = 0;
+      PyErr_SetString(PyExc_NotImplementedError, "Feature not implemented");
+    }
+  }
+
   // SWIG extensions
   %extend {
     // Virtual class members
@@ -419,6 +490,42 @@ struct plc_type {
       plc_free($self);
     }
 
+    // Sequence methods
+    // A plCurve masquerades as a sequence of components
+    %feature("python:slot", "sq_length", functype="lenfunc") __len__;
+    %feature("docstring") __len__
+       "Get the number of Components which make up this PlCurve.";
+    const size_t __len__() const { return $self->nc; }
+
+    %feature("python:slot", "sq_item", functype="ssizeargfunc") __getitem__;
+    %feature("docstring") __getitem__
+       "Get a Component by its index.";
+    const plc_strand * __getitem__(size_t j) const {
+      if (j < 0 || j >= $self->nc) { // Index range exception
+        _exception = PLC_IndexError; return;
+      }
+      return &($self->cp[j]);
+    }
+
+    // TODO: Fix memory considerations for drop_component
+    // It should be okay because no one but a PlCurve should hold on
+    // to a reference to a component anyway.
+    %feature("python:slot", "sq_ass_item", functype="ssizeobjargproc") __setitem__;
+    %feature("docstring") __setitem__
+       "Drop a Component in place; (setting not currently implemented)
+
+Beware: Memory for deleted component is freed!";
+    int __setitem__(size_t j, PyObject *o) {
+      if (j < 0 || j >= $self->nc) { // Index range exception
+        _exception = PLC_IndexError; return -1;
+      }
+      plc_drop_component($self, j);
+      if (o != NULL) { // Assignment not implemented
+        _exception = PLC_NotImplementedError;
+      }
+      return 0;
+    }
+
     // File i/o
     %newobject from_file;
     static plCurve *from_file(FILE *file, int *error_num,
@@ -432,36 +539,36 @@ struct plc_type {
     // Random PlCurve creators
     //
     %feature("docstring") random_closed_polygon
-         "Generate random length 2 space polygons of nEdges edges using
+       "Generate random length 2 space polygons of nEdges edges using
 the symmetric measure of Cantarella, Deguchi, Shonkwiler";
     %newobject random_closed_polygon;
     static plCurve *random_closed_polygon(gsl_rng *r, int nEdges)
     {
-        return plc_random_closed_polygon(r, nEdges); }
+      return plc_random_closed_polygon(r, nEdges); }
 
     %feature("docstring") random_open_polygon
-         "Generate random length 2 space polygons of nEdges edges using
+       "Generate random length 2 space polygons of nEdges edges using
 the symmetric measure of Cantarella, Deguchi, Shonkwiler";
     %newobject random_open_polygon;
     static plCurve *random_open_polygon(gsl_rng *r,int nEdges)
     { return plc_random_open_polygon(r, nEdges); }
 
     %feature("docstring") random_closed_plane_polygon
-         "Generate random length 2 planar polygons of nEdges edges using
+       "Generate random length 2 planar polygons of nEdges edges using
 the symmetric measure of Cantarella, Deguchi, Shonkwiler";
     %newobject random_closed_plane_polygon;
     static plCurve *random_closed_plane_polygon(gsl_rng *r,int nEdges)
     { return plc_random_closed_plane_polygon(r, nEdges); }
 
     %feature("docstring") random_open_plane_polygon
-         "Generate random length 2 planar polygons of nEdges edges using
+       "Generate random length 2 planar polygons of nEdges edges using
 the symmetric measure of Cantarella, Deguchi, Shonkwiler";
     %newobject random_open_plane_polygon;
     static plCurve *random_open_plane_polygon(gsl_rng *r,int nEdges)
     { return plc_random_open_plane_polygon(r, nEdges); }
 
     %feature("docstring") random_equilateral_closed_polygon
-         "Random equilateral polygons (this uses a hedgehog/fold
+       "Random equilateral polygons (this uses a hedgehog/fold
 combination method).  They are scaled to total length 2 in order
 to be comparable to the polygons generated by the other methods.";
     %newobject random_equilateral_closed_polygon;
@@ -469,7 +576,7 @@ to be comparable to the polygons generated by the other methods.";
     { return plc_random_equilateral_closed_polygon(r, nEdges); }
 
     %feature("docstring") random_equilateral_open_polygon
-         "Random equilateral polygons (this uses a hedgehog/fold
+       "Random equilateral polygons (this uses a hedgehog/fold
 combination method).  They are scaled to total length 2 in order
 to be comparable to the polygons generated by the other methods.";
     %newobject random_equilateral_open_polygon;
@@ -659,7 +766,7 @@ to be comparable to the polygons generated by the other methods.";
   const double plc_type_gyradius_get(plCurve *c) {
     return plc_gyradius(c);
   }
-  %}
+%}
 
 /* PlCurve_spline types */
 %rename(SplineStrand) plc_spline_strand_type;
@@ -694,11 +801,11 @@ typedef struct {
   int cr;
   int ind;
   char sym[128];
-	%extend {
-		~prime_factor() {
-			free($self);
-		}
-	}
+  %extend {
+    ~prime_factor() {
+      free($self);
+    }
+  }
 } prime_factor;
 
 %rename(KnotType) knottypestruct;
@@ -711,20 +818,20 @@ typedef struct knottypestruct {
   char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
   char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
 
-	%typemap(out) plc_knottype *factors {
-		int i;
-		prime_factor *f;
-		$result = PyTuple_New($1->nf);
-		for (i = 0; i < $1->nf; i++) {
-			f = calloc(1, sizeof(prime_factor));
-			f->cr = $1->cr[i];
-			f->ind = $1->ind[i];
-			memcpy(f->sym, $1->sym[i], 128*sizeof(char));
-			PyTuple_SetItem($result, i,
-							SWIG_NewPointerObj((prime_factor*)f,
-											   SWIGTYPE_p_prime_factor, 1));
-		}
-	}
+  %typemap(out) plc_knottype *factors {
+    int i;
+    prime_factor *f;
+    $result = PyTuple_New($1->nf);
+    for (i = 0; i < $1->nf; i++) {
+      f = calloc(1, sizeof(prime_factor));
+      f->cr = $1->cr[i];
+      f->ind = $1->ind[i];
+      memcpy(f->sym, $1->sym[i], 128*sizeof(char));
+      PyTuple_SetItem($result, i,
+                      SWIG_NewPointerObj((prime_factor*)f,
+                                         SWIGTYPE_p_prime_factor, 1));
+    }
+  }
 
   %extend {
     ~knottypestruct() {
@@ -737,10 +844,10 @@ typedef struct knottypestruct {
 } plc_knottype;
 
 %{
-    const plc_knottype *knottypestruct_factors_get(plc_knottype *kt) {
-        return kt;
-    }
-%}
+  const plc_knottype *knottypestruct_factors_get(plc_knottype *kt) {
+    return kt;
+  }
+  %}
 
 %rename(RandomGenerator) gsl_rng;
 typedef struct {
