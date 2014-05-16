@@ -32,6 +32,16 @@ struct plc_vertex_loc {
 
 };
 
+%typemap(in) PySliceObject* {
+  if (!PySlice_Check($input)) {
+    %argument_fail(SWIG_TypeError, "$type", $symname, $argnum);
+  }
+  $1 = (PySliceObject *) $input;
+ }
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) PySliceObject* {
+  $1 = PySlice_Check($input);
+ }
+
 typedef struct plc_type plCurve; /* We need to forward declare the plCurve type. */
 
 %typemap(newfree) char * "free($1);";
@@ -229,15 +239,32 @@ typedef struct plc_strand_type {
        "Get the number of vertices which make up this Strand.";
     const size_t __len__() const { return $self->nv; }
 
+    %feature("python:slot", "mp_subscript", functype="binaryfunc") __getsubscript__;
     %feature("python:slot", "sq_item", functype="ssizeargfunc") __getitem__;
     %feature("docstring") __getitem__
        "Get a vertex by its index.";
-    const plc_vector  __getitem__(size_t j) const {
-      if (j < 0 || j >= $self->nv) { // Index range exception
+    const plc_vector  __getsubscript__(PySliceObject *slice) const {
+      // Read in the slice object
+      Py_ssize_t start,stop,step,length;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndicesEx((PySliceObject *)slice, (Py_ssize_t)$self->nv, &start, &stop, &step, &length);
+
+      // Actual get magic
+      if (start < 0 || start >= $self->nv) { // Index range exception
         _exception = PLC_IndexError; return;
       }
-      return $self->vt[j];
+      return $self->vt[start];
     }
+    const plc_vector __getitem__(int start) const {
+      if (start < 0 || start >= $self->nv) { // Index range exception
+        _exception = PLC_IndexError; return;
+      }
+      return $self->vt[start];
+    }
+
 
     %feature("python:slot", "sq_ass_item", functype="ssizeobjargproc") __setitem__;
     %feature("docstring") __setitem__
