@@ -34,6 +34,8 @@ struct plc_vertex_loc {
 
 typedef struct plc_type plCurve; /* We need to forward declare the plCurve type. */
 
+%typemap(newfree) char * "free($1);";
+
 %rename(Symmetry) plc_symmetry_type;
 typedef struct plc_symmetry_type {
 
@@ -83,26 +85,30 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
   $1 = v;
  }
 %typemap(in) plc_vector *(plc_vector v) {
-  int i;
-  if (!PySequence_Check($input)) {
-    PyErr_SetString(PyExc_TypeError,"Expecting a sequence");
-    return NULL;
-  }
-  if (PyObject_Length($input) != 3) {
-    PyErr_SetString(PyExc_ValueError,"Expecting a sequence with 3 elements");
-    return NULL;
-  }
-  for (i =0; i < 3; i++) {
-    PyObject *o = PySequence_GetItem($input,i);
-    if (!PyFloat_Check(o) && !PyInt_Check(o) && !PyLong_Check(o)) {
-      Py_XDECREF(o);
-      PyErr_SetString(PyExc_ValueError,"Expecting a sequence of floats or ints");
+  if ($input != Py_None && $input != NULL) {
+    int i;
+    if (!PySequence_Check($input)) {
+      PyErr_SetString(PyExc_TypeError,"Expecting a sequence");
       return NULL;
     }
-    v.c[i] = PyFloat_AsDouble(o);
-    Py_DECREF(o);
+    if (PyObject_Length($input) != 3) {
+      PyErr_SetString(PyExc_ValueError,"Expecting a sequence with 3 elements");
+      return NULL;
+    }
+    for (i =0; i < 3; i++) {
+      PyObject *o = PySequence_GetItem($input,i);
+      if (!PyFloat_Check(o) && !PyInt_Check(o) && !PyLong_Check(o)) {
+        Py_XDECREF(o);
+        PyErr_SetString(PyExc_ValueError,"Expecting a sequence of floats or ints");
+        return NULL;
+      }
+      v.c[i] = PyFloat_AsDouble(o);
+      Py_DECREF(o);
+    }
+    $1 = &v;
+  } else {
+    $1 = NULL;
   }
-  $1 = &v;
  }
 
 %{
@@ -194,6 +200,19 @@ typedef struct plc_strand_type {
       PyTuple_SetItem(temp_entry, 3,
                       PyFloat_FromDouble(((plc_color*)$1.array)[i].alpha));
       PyList_Append($result, temp_entry);
+    }
+  }
+
+  %exception {
+    assert (!_exception);
+    $action
+      if (_exception == PLC_IndexError) {
+        _exception = 0;
+        SWIG_exception(SWIG_IndexError, "Component index out of range");
+      }
+    if (_exception == PLC_NotImplementedError) {
+      _exception = 0;
+      PyErr_SetString(PyExc_NotImplementedError, "Feature not implemented");
     }
   }
 
@@ -471,6 +490,7 @@ struct plc_type {
       _exception = 0;
       PyErr_SetString(PyExc_NotImplementedError, "Feature not implemented");
     }
+    _exception = 0;
   }
 
   // SWIG extensions
