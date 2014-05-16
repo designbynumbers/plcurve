@@ -58,6 +58,7 @@ int PD_VERBOSE;
 #include<pd_multidx.h>
 #include<pd_dihedral.h>
 #include<pd_perm.h>
+#include<pd_orientation.h>
 
 #include<pd_isomorphisms.h>
 
@@ -508,7 +509,8 @@ void pdint_rotate_left(pd_crossing_t *cr,pd_pos_t k)
     ncr.edge[pos] = cr->edge[(pos+k)%4];
 
   }
-
+  
+  ncr.sign = cr->sign;
   *cr = ncr;
 }
 
@@ -1416,7 +1418,8 @@ void pd_regenerate(pd_code_t *pd)
 bool pd_cross_ok(pd_code_t *pd)
 /* Checks to see that the edge numbers referenced in the
    crossings are consecutive and between 0 and
-   pd->nedges-1, and that the crossing data is sorted. */
+   pd->nedges-1, and that the crossing data is sorted,
+   and that the crossing sign has a legal value for an orientation. */
 {
   assert(pd != NULL);
   int *edge_seen;
@@ -1429,6 +1432,13 @@ bool pd_cross_ok(pd_code_t *pd)
   for(edge=0;edge<pd->MAXEDGES;edge++) { edge_seen[edge] = 0; }
 
   for(cross=0;cross<pd->ncross;cross++) {
+
+    if (!pd_or_ok(pd->cross[cross].sign)) { 
+
+      return pd_error(SRCLOC,"%CROSS contains illegal sign %d in pd %PD",pd,
+		      cross,pd->cross[cross].sign);
+
+    }
 
     for(pos=0;pos<4;pos++) {
 
@@ -1752,7 +1762,7 @@ void pd_write(FILE *of,pd_code_t *pd)
 
    pd   <hash> <uid>
    nv   <nverts>
-   <nv lines of crossing information in the format edge edge edge edge>
+   <nv lines of crossing information in the format edge edge edge edge> <sign +/- optional>
    ne   <nedges>
    <ne lines of crossing information in the format tail, tailpos -> head, headpos>
    nc   <ncomps>
@@ -1789,6 +1799,12 @@ void pd_write(FILE *of,pd_code_t *pd)
 
       fprintf(of,"%u ",(unsigned int)(pd->cross[cross].edge[pos]));
 
+    }
+
+    if (pd->cross[cross].sign != PD_UNSET_ORIENTATION) { 
+
+      fprintf(of,"%c",pd_print_or(pd->cross[cross].sign));
+    
     }
 
     fprintf(of,"\n");
@@ -2116,7 +2132,18 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
     /* Now expand the current format conversion. */
 
-    if (!strncmp(nxtconv,"%FACE",5)) { /* %FACE conversion */
+    if (!strncmp(nxtconv,"%FACEMAP",8)) { /* Face map */
+
+      pd_facemap_t *facemap = (pd_facemap_t *) va_arg(ap,void *);
+      char *printed;
+
+      printed = pd_print_facemap(facemap);
+      fprintf(stream,"%s",printed);
+      free(printed);
+
+      nxtconv += 8;
+
+    } else if (!strncmp(nxtconv,"%FACE",5)) { /* %FACE conversion */
 
       if (pd != NULL) { 
 
@@ -2145,7 +2172,29 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       }
 
-    } else if (!strncmp(nxtconv,"%EDGE ",6)) { /* %EDGE conversion */
+    } else if (!strncmp(nxtconv,"%COMPGRP",8)) { /* Component group */
+
+      pd_idx_t comp;
+      pd_compgrp_t *grp = (pd_compgrp_t *) va_arg(ap,void *);
+
+      fprintf(stream,"compgrp ( ");
+      for(comp=0;comp<grp->ncomps;comp++) { fprintf(stream,"%d ",grp->comp[comp]); }
+      fprintf(stream,")");
+
+      nxtconv += 8;
+
+    } else if (!strncmp(nxtconv,"%EDGEMAP",8)) { /* Edge map */
+
+      pd_edgemap_t *edgemap = (pd_edgemap_t *) va_arg(ap,void *);
+      char *printed_form;
+
+      printed_form = pd_print_edgemap(edgemap);
+      fprintf(stream,"%s",printed_form);
+      free(printed_form);
+
+      nxtconv += 8;
+
+    } else if (!strncmp(nxtconv,"%EDGE",5)) { /* %EDGE conversion */
 
       if (pd != NULL) { 
 
@@ -2164,7 +2213,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       }
 
-    } else if (!strncmp(nxtconv,"%COMP ",6)) { /* %COMP conversion */
+    } else if (!strncmp(nxtconv,"%COMP",5)) { /* %COMP conversion */
 
       if (pd != NULL) {
 	
@@ -2191,17 +2240,42 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       }
 
-    } else if (!strncmp(nxtconv,"%CROSS ",7)) { /* %CROSS conversion */
+    } else if (!strncmp(nxtconv,"%CROSSPTR",9)) { /* %CROSSPTR conversion */
+
+      pd_crossing_t *cross = (pd_crossing_t *) va_arg(ap,void *);
+      
+      fprintf(stream,"cross (%d %d %d %d) %c",
+	      cross->edge[0],	      
+	      cross->edge[1],
+	      cross->edge[2],
+	      cross->edge[3],
+	      pd_print_or(cross->sign));
+	
+	nxtconv += 8;
+
+    }  else if (!strncmp(nxtconv,"%CROSSMAP",9)) { /* Crossing map */
+
+      pd_crossmap_t *crmap = (pd_crossmap_t *) va_arg(ap,void *);
+      char *printed;
+
+      printed = pd_print_crossmap(crmap);
+      fprintf(stream,"%s",printed);
+      free(printed);
+
+      nxtconv += 9;
+      
+    } else if (!strncmp(nxtconv,"%CROSS",6)) { /* %CROSS conversion */
 
       if (pd != NULL) { 
 
 	pd_idx_t cross = (pd_idx_t) va_arg(ap,int);
 	
-	fprintf(stream,"cross %d (%d %d %d %d)",cross,
+	fprintf(stream,"cross %d (%d %d %d %d) %c",cross,
 		pd->cross[cross].edge[0],	      
 		pd->cross[cross].edge[1],
 		pd->cross[cross].edge[2],
-		pd->cross[cross].edge[3]);
+		pd->cross[cross].edge[3],
+		pd_print_or(pd->cross[cross].sign));
 	
 	nxtconv += 6;
 
@@ -2211,18 +2285,6 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	exit(1);
 
       }
-
-    } else if (!strncmp(nxtconv,"%CROSSPTR ",9)) { /* %CROSSPTR conversion */
-
-      pd_crossing_t *cross = (pd_crossing_t *) va_arg(ap,void *);
-      
-      fprintf(stream,"cross (%d %d %d %d)",
-	      cross->edge[0],	      
-	      cross->edge[1],
-	      cross->edge[2],
-	      cross->edge[3]);
-	
-	nxtconv += 8;
 	
     } else if (!strncmp(nxtconv,"%PD",3)) { /* %PD conversion */
 
@@ -2279,27 +2341,17 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       nxtconv += 8;
 
-    } else if (!strncmp(nxtconv,"%COMPGRP",8)) { /* Component group */
+    } else if (!strncmp(nxtconv,"%ORIENTATION",12)) { /* Orientation group element */
 
-      pd_idx_t comp;
-      pd_compgrp_t *grp = (pd_compgrp_t *) va_arg(ap,void *);
+      pd_orientation_t *d = (pd_orientation_t *) va_arg(ap,void *);
 
-      fprintf(stream,"compgrp ( ");
-      for(comp=0;comp<grp->ncomps;comp++) { fprintf(stream,"%d ",grp->comp[comp]); }
-      fprintf(stream,")");
+      fprintf(stream,"multiorientation ");
 
-      nxtconv += 8;
+      char *dprint = pd_print_orientation(d);
+      fprintf(stream,"%s",dprint);
+      free(dprint);
 
-    } else if (!strncmp(nxtconv,"%EDGEMAP",8)) { /* Edge map */
-
-      pd_edgemap_t *edgemap = (pd_edgemap_t *) va_arg(ap,void *);
-      char *printed_form;
-
-      printed_form = pd_print_edgemap(edgemap);
-      fprintf(stream,"%s",printed_form);
-      free(printed_form);
-
-      nxtconv += 8;
+      nxtconv += 12;
 
     } else if (!strncmp(nxtconv,"%OR ",3)) { /* Edge map */
 
@@ -2308,16 +2360,6 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       nxtconv += 3;
 
-    }  else if (!strncmp(nxtconv,"%CROSSMAP ",10)) { /* Crossing map */
-
-      pd_crossmap_t *crmap = (pd_crossmap_t *) va_arg(ap,void *);
-      char *printed;
-
-      printed = pd_print_crossmap(crmap);
-      fprintf(stream,"%s",printed);
-      free(printed);
-
-      nxtconv += 9;
 
     } else if (!strncmp(nxtconv,"%ISO ",5)) { /* pd_code -> pd_code isomorphism */
 
@@ -2330,18 +2372,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       nxtconv += 4;
 
-    } else if (!strncmp(nxtconv,"%FACEMAP ",9)) { /* Face map */
-
-      pd_facemap_t *facemap = (pd_facemap_t *) va_arg(ap,void *);
-      char *printed;
-
-      printed = pd_print_facemap(facemap);
-      fprintf(stream,"%s",printed);
-      free(printed);
-
-      nxtconv += 8;
-
-    } else if (!strncmp(nxtconv,"%DIHEDRAL ",10)) { /* Dihedral group element */
+    } else if (!strncmp(nxtconv,"%DIHEDRAL",9)) { /* Dihedral group element */
 
       pd_dihedral_t *d = (pd_dihedral_t *) va_arg(ap,void *);
 
@@ -2353,7 +2384,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       nxtconv += 9;
 
-    } else if (!strncmp(nxtconv,"%PERM ",6)) { /* Permutation group elt */
+    } else if (!strncmp(nxtconv,"%PERM",5)) { /* Permutation group elt */
 
       pd_idx_t i;
       pd_perm_t *perm = (pd_perm_t *) va_arg(ap,void *);

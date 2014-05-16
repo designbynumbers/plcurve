@@ -46,6 +46,8 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	pdcode_testcodes.c \
 	pd_dihedral.h \
 	pd_dihedral.c \
+	pd_orientation.h \
+	pd_orientation.c \
 	pd_permdata.h \
 	pd_perm.h \
 	pd_perm.c \
@@ -92,6 +94,8 @@ libplCurve_la_SOURCES = plCurve.c \
 	pdcode_testcodes.c \
 	pd_dihedral.h \
 	pd_dihedral.c \
+	pd_orientation.h \
+	pd_orientation.c \
 	pd_permdata.h \
 	pd_perm.h \
 	pd_perm.c \

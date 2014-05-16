@@ -17,7 +17,9 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = tsmcmc_random_test \
+check_PROGRAMS = test_orientation \
+		 test_homfly \
+		 tsmcmc_random_test \
 		 nn_test \
 	         symmetry_test \
 	         randompolygon_test \
@@ -37,7 +39,9 @@ check_PROGRAMS = tsmcmc_random_test \
 	         test_perm \
 		 ccode_test
 
-TESTS = tsmcmc_random_test \
+TESTS = test_orientation \
+	test_homfly \
+	tsmcmc_random_test \
 	nn_test \
 	symmetry_test \
 	eq_primitives_test \
@@ -54,7 +58,8 @@ TESTS = tsmcmc_random_test \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = tsmcmc_random_test \
+check_PROGRAMS = test_homfly \
+	         tsmcmc_random_test \
 		 nn_test \
 	         symmetry_test \
 	         randompolygon_test \
@@ -64,11 +69,13 @@ check_PROGRAMS = tsmcmc_random_test \
 	         test_struts \
                  test_minrad \
                  test_findpoca \
+		 test_dihedral \
                  call_check \
                  hopf_test \
 		 ccode_test
 
-TESTS = tsmcmc_random_test \
+TESTS = test_homfly \
+	tsmcmc_random_test \
 	nn_test \
 	symmetry_test \
 	eq_primitives_test \
@@ -77,8 +84,14 @@ TESTS = tsmcmc_random_test \
         test_struts \
         call_check \
         hopf_test \
+	test_dihedral \
 	ccode_test
 endif
+
+test_homfly_SOURCES = test_homfly.c 
+test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_homfly_LDFLAGS = -static
+test_homfly_CFLAGS = -I$(top_srcdir)/src
 
 ccode_test_SOURCES = ccode_test.c 
 ccode_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
@@ -184,4 +197,7 @@ test_perm_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_perm_CFLAGS = -I$(top_srcdir)/src
 test_perm_LDFLAGS = -static
 
-
+test_orientation_SOURCES = test_orientation.c
+test_orientation_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_orientation_CFLAGS = -I$(top_srcdir)/src
+test_orientation_LDFLAGS = -static

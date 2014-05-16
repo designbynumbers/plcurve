@@ -90,6 +90,13 @@ pd_code_t *pd_build_twist_knot(pd_idx_t n)
     }
 
   }
+
+  pd_idx_t k;
+  for(k=0;k<pd->ncross;k++) { 
+
+    pd->cross[k].sign = PD_POS_ORIENTATION;
+
+  }
     
   pd_regenerate(pd);
   assert(pd_ok(pd));
@@ -99,7 +106,37 @@ pd_code_t *pd_build_twist_knot(pd_idx_t n)
 
 pd_code_t *pd_build_torus_knot(pd_idx_t p, pd_idx_t q) 
 
-/* Generate a (2,q) torus knot diagram (scanned documentation in data/pd_torus_knot_doc.pdf) */
+/*
+   q odd: the strand passes through all q crossings before coming back to this one
+          for the first time, when it's on the other strand at this crossing, and 
+	  passes through all q crossings twice before coming back to this crossing
+	  on the original strand.
+
+   +------------------------------------------------------------------------------------------------------+
+   |                                                                                                      |
+   +-- q-1----\    /---0---\   /--q+1--\    /-(2k+q-1)%2q-\    /-----2k-------\    /----(2k+q+1)%2q--\   /            
+               \0 /         \1/         \  /               \2k/                \ (2k+1)               \
+	        \            \           ..                 /                    /                     ..
+	       / \          / \         /  \               /  \                 / \                   /  \
+   +-- 2q-1---/   \----q--/    \---1---/    \---(2k-1)%2q-/    \--(2k+q)%(2q)--/   \----(2k+1)-------/    \      
+   |                                                                                                       |
+   +-------------------------------------------------------------------------------------------------------+
+
+   q even: the strand passes through all q crossings before coming back, but this time it comes
+           back on the SAME strand and closes. The other component starts at edge q and continues to 2q-1.
+           Basically, this looks exactly the same, EXCEPT at crossing 0.
+
+   +------------------------------------------------------------------------------------------------------+
+   |                                                                                                      |
+   +-- 2q-1---\    /---0---\   /--q+1--\    /-(2k+q-1)%2q-\    /-----2k-------\    /----(2k+q+1)%2q--\   /            
+               \0 /         \1/         \  /               \2k/                \ (2k+1)               \
+	        \            \           ..                 /                    /                     ..
+	       / \          / \         /  \               /  \                 / \                   /  \
+   +--  q-1---/   \----q--/    \---1---/    \---(2k-1)%2q-/    \--(2k+q)%(2q)--/   \----(2k+1)-------/    \      
+   |                                                                                                       |
+   +-------------------------------------------------------------------------------------------------------+
+
+*/
 
 {
   pd_code_t *pd = NULL;
@@ -128,15 +165,44 @@ pd_code_t *pd_build_torus_knot(pd_idx_t p, pd_idx_t q)
   assert(pd != NULL); 
 
   pd->ncross = q; /* Note that this assumes that p = 2 */
-  pd->cross[0] = pd_build_cross(0,(2*q)-2,(2*q)-1,1);
 
-  pd_idx_t i;
+  if (q%2 != 0) { /* q odd */
+
+    pd->cross[0] = pd_build_cross(0,q-1,2*q-1,q);
+
+  } else { /* q even */
+
+    pd->cross[0] = pd_build_cross(0,2*q-1,q-1,q);
+ 
+  }
+  
+  pd_idx_t i,k;
 
   for(i=1;i<q;i++) {
 
-    pd->cross[i] = pd_build_cross((2*i)-2,(2*i)-1,(2*i)+1,(2*i));
+    if (i%2 == 0) { /* even numbered crossing */
+
+      k = i/2;
+      pd->cross[2*k] = pd_build_cross(2*k,(2*k+q-1)%(2*q),(2*k-1)%(2*q),(2*k+q)%(2*q));
+
+    } else { /* odd numbered crossing */
+
+      k = (i-1)/2;
+      pd->cross[2*k+1] = pd_build_cross((2*k+q+1)%(2*q),2*k,(2*k+q)%(2*q),(2*k+1)%(2*q));
+      
+    }
+  
+  }
+  
+  /* All crossings have positive sign. */
+
+  for(i=0;i<pd->ncross;i++) { 
+
+    pd->cross[i].sign = PD_POS_ORIENTATION;
 
   }
+
+  /* Regenerating should respect the orientation that we've established. */
 
   pd_regenerate(pd);
   assert(pd_ok(pd));
@@ -190,6 +256,14 @@ pd_code_t *pd_build_simple_chain(pd_idx_t n)
 
   }
 
+  pd_idx_t k;
+  
+  for(k=0;k<pd->ncross;k++) { 
+
+    pd->cross[k].sign = PD_POS_ORIENTATION;
+
+  }
+
   pd_regenerate(pd);
   assert(pd_ok(pd));
 
@@ -225,6 +299,12 @@ pd_code_t *pd_build_unknot(pd_idx_t n)
   for(i=1;i<n-1;i++) {
 
     pd->cross[i] = pd_build_cross((2*i),(2*i)+1,(2*i)+3,(2*i)+2);
+    
+  }
+
+  for(i=0;i<pd->ncross;i++) { 
+
+    pd->cross[i].sign = PD_POS_ORIENTATION;
 
   }
 
@@ -308,6 +388,14 @@ pd_code_t *pd_build_unknot_wye(pd_idx_t a, pd_idx_t b, pd_idx_t c)
   pdint_build_tendril(pd,0,0,a);
   pdint_build_tendril(pd,a+1,2*a+2,b);
   pdint_build_tendril(pd,a+b+2,2*a+2*b+4,c);
+
+  pd_idx_t k;
+
+  for(k=0;k<pd->ncross;k++) { 
+
+    pd->cross[k].sign = PD_POS_ORIENTATION;
+
+  }
 
   pd_regenerate(pd);
 

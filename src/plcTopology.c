@@ -138,10 +138,12 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
   } else { 
 
     pd_error(SRCLOC,
-	     "in pd %PD, edgenum %d (edge %EDGE) has head %d (%CROSS), \n"
+	     "in pd \n"
+	     "%PD \n"
+	     "%EDGE has head %d (%CROSS), \n"
 	     "but doesn't appear in the overstrand in position (%d) \n"
 	     "or understrand in position (%d).",
-	     pd, edge, edge, pd->edge[edge].head, pd->edge[edge].head,
+	     pd, edge, pd->edge[edge].head, pd->edge[edge].head,
 	     oip,uip);
 
   }
@@ -156,12 +158,12 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
     /* We found it going OUT as an overstrand -- this is position c */    
     *tailpos = 'c';
 
-  } else if (pd->cross[pd->edge[edge].head].edge[uop] == edge) { 
+  } else if (pd->cross[pd->edge[edge].tail].edge[uop] == edge) { 
 
     /* We found it going OUT as an understrand. This is either b or d,
        depending on the sign of the crossing. */
 
-    if (pd->cross[pd->edge[edge].head].sign == PD_POS_ORIENTATION) { 
+    if (pd->cross[pd->edge[edge].tail].sign == PD_POS_ORIENTATION) { 
 
       *tailpos = 'd';
 
@@ -174,10 +176,12 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
   } else { 
 
     pd_error(SRCLOC,
-	     "in pd %PD, edgenum %d (edge %EDGE) has tail %d (%CROSS), \n"
+	     "in pd \n"
+	     "%PD \n"
+	     "%EDGE has tail %d (%CROSS), \n"
 	     "but doesn't appear in the overstrand out position (%d) \n"
 	     "or understrand out position (%d).",
-	     pd, edge, edge, pd->edge[edge].tail, pd->edge[edge].tail,
+	     pd, edge, pd->edge[edge].tail, pd->edge[edge].tail,
 	     oop,uop);
 
   }
@@ -1341,9 +1345,11 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
   pd_check_notnull(SRCLOC,"over_in_pos",over_in_pos); pd_check_notnull(SRCLOC,"over_out_pos",over_out_pos);
   pd_check_notnull(SRCLOC,"under_in_pos",under_in_pos); pd_check_notnull(SRCLOC,"under_out_pos",under_out_pos);
   
-  if (pd->edge[pd->cross[cr].edge[0]].head == cr) { /* The edge at position 0 is incoming */
+  if (pd->edge[pd->cross[cr].edge[0]].head == cr &&
+      pd->edge[pd->cross[cr].edge[0]].headpos == 0) { /* The edge at position 0 is incoming */
 
-    if (pd->edge[pd->cross[cr].edge[1]].head == cr) { /* The edge at position 1 is incoming */
+    if (pd->edge[pd->cross[cr].edge[1]].head == cr &&
+	pd->edge[pd->cross[cr].edge[1]].headpos == 1) { /* The edge at position 1 is incoming */
 
       if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
 
@@ -1425,7 +1431,8 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
 
   } else { /* the edge at position 0 is outgoing! */
 
-    if (pd->edge[pd->cross[cr].edge[1]].head == cr) { /* The edge at position 1 is incoming */
+    if (pd->edge[pd->cross[cr].edge[1]].head == cr &&
+	pd->edge[pd->cross[cr].edge[1]].headpos == 1) { /* The edge at position 1 is incoming */
       
       if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
 
