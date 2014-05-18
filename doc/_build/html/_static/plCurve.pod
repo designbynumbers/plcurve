@@ -1,0 +1,227 @@
+
+=head1 NAME
+
+plCurve, plCurve_pline, plCurve_constraint, plCurve_color, 
+plCurve_new, plCurve_free, plCurve_read, plCurve_write,
+plCurve_fix_wrap, plCurve_copy, plCurve_cst_check
+- interface functions and data types for storing space polygons in the 
+B<plCurve> library.
+
+=head1 LIBRARY
+
+B<plCurve> library (libplCurve, -lplCurve)
+
+=head1 SYNOPSIS
+
+ typedef struct octrope_vector_type {   /* A point in 3-space. */
+    double c[3];
+  } octrope_vector;
+
+ typedef struct octrope_color_type {
+  double r;
+  double g;
+  double b;
+  double alpha;
+} octrope_color;
+
+typedef struct octrope_strand_type {
+  int             open;   /* True if strand has distinct ends */
+  int             nv;        /* Number of vertices */
+  int             cc;        /* Color count (number of colors) */
+  octrope_vector *vt;        /* Vertex buffer */
+  octrope_color  *clr;       /* Actual colors */
+} octrope_strand;>
+
+octrope_link *octrope_link_new(int components, int *nv, int *open);
+void octrope_link_free(octrope_link *L);
+
+octrope_link *octrope_link_read(FILE *infile);
+int octrope_link_write(FILE *outfile, octrope_link *L);
+
+void octrope_link_fix_wrap(const octrope_link *L);
+int octrope_link_edges(const octrope_link *L);
+octrope_link *octrope_link_copy(octrope_link *L);
+
+=head1 DESCRIPTION
+
+The B<octrope_link> library consists of data types and interface
+functions designed for the efficient representation of polygonal links
+in 3-space. The fundamental data types, as given above, are the
+I<octrope_vector>, the I<octrope_strand>, and the I<octrope_link>.
+
+As expected, the I<octrope_vector> is a 3-vector.
+
+=head2 The I<octrope_strand> type
+
+The I<octrope_strand> is a bit more subtle. The data type contains a buffer
+of I<nv> vertices and the I<open> tag. The value of I<open> is
+true when the space polygon has two ends, and false when the
+space polygon is closed. For example, a line segment has I<nv> == 2 and
+I<open> == true, while a triangle has I<nv> == 3 and I<open> == false.
+
+However, I<nv> is B<not> the size of the buffer I<vt> allocated by
+octrope_link_new() and freed by octrope_link_free(). The reason for
+this is that in many geometric functions on polygonal curves, it is
+convenient to allow at least one step of "wraparound" addressing for
+closed curves. Using this feature often makes code much cleaner,
+faster, and more stable.
+
+But implementing this efficiently is a problem for the library
+designer. The obvious solution (allowing access only through special
+interface functions or macros which encode wraparound addressing via
+modular arithmetic or branching) turns out to be too slow. For
+instance, a test implementation of the library with this interface was
+almost 30% slower than the current version. Therefore, we have chosen
+to implement one step of wraparound by adding copies of the last and
+first vertices to the buffer locations I<vt>[-1] and I<vt>[nv]
+when I<open> == FALSE. As long as the extra memory is correctly
+allocated (by octrope_link_new()) and freed (by octrope_link_free()),
+this should be transparent to users of this code.
+
+Users may read and write freely from the buffer I<vt> as long as
+their code does not depend on wraparound addressing. To use the
+wraparound addressing facility, call octrope_link_fix_wrap(L) to
+update the "hidden" elements of the array I<vt> from the "visible"
+ones. Since octrope_link_fix_wrap() is very fast, it is acceptable
+to simply insert calls to it whenever one switches
+from writing to reading data from an  I<octrope_link>, or whenever
+one is unsure whether the hidden elements have been updated since the
+last write to the data structure. Many internal library functions use
+this procedure to ensure that wraparound addressing is updated before
+any other work is done.
+
+The I<octrope_strand> type also contains space for a buffer of colors,
+to ensure compatibility with the Geomview VECT
+specification. Currently, no use is made of these colors within the
+library, but they are read by octrope_link_read() and written by
+octrope_link_write().
+
+=head2 The I<octrope_link> type.
+
+An I<octrope_link> is simply an array of I<nc> pointers to
+I<octrope_strand>.  No facility has been provided in this version of
+B<Octrope> to work with these strands separately, and we discourage
+taking I<octrope_strand> types out of their I<octrope_link>
+wrappers: the proper representation for a single polygon in this
+library is as an I<octrope_link> with one component.
+
+=head2 octrope_link_new(): Allocating the I<octrope_link> type
+
+ octrope_link *octrope_link_new(int components, int *nv, int *open);
+
+creates a pointer to an I<octrope_link> structure containing space for
+I<components> I<octrope_strand> structures where the ith I<octrope_strand>
+has space for I<nv[i]> vertices. The I<octrope_link> structure itself
+is allocated inside I<octrope_link_new>, and must be later freed (the
+function octrope_link_free() handles this automatically). The
+buffers I<nv> and I<open> are copied into new memory locations inside
+I<octrope_link_new>. It is hence safe to free them after a call to
+I<octrope_link_new> if desired.
+
+The I<open> array contains TRUE in I<open[i]> if the ith component
+of the link has distinct end vertices and FALSE if the ith component is closed.
+
+=head2 octrope_link_free(): Destroying the I<octrope_link> type
+
+ void octrope_link_free(octrope_link *L);
+
+frees all the memory associated with an I<octrope_link> structure. As
+above, we note that the vertex buffers in the I<octrope_strand> members
+of the I<cp> array are larger than they appear, so freeing an
+I<octrope_link> without using this function is likely to cause a
+memory leak.
+
+=head2 octrope_link_read(): Read an I<octrope_link> from a Geomview I<VECT> file
+
+ octrope_link *octrope_link_read(FILE *infile);
+
+creates an I<octrope_link> from the data in I<infile>, which is
+assumed to be a Geomview I<VECT> file. A I<VECT> file is a text file
+which stores multi-component polygonal curves in human-readable
+format, with comments. The file format is documented with I<Geomview>,
+at L<http://www.geomview.org>, which provides an interactive 3d viewer for
+such links on X windows/OpenGL capable systems. The I<VECT> format
+also contains color information, which is recorded by octrope_link_read().
+
+=head2 octrope_link_write(): Write an I<octrope_link> to a Geomview I<VECT> file
+
+ int octrope_link_write(FILE *outfile, octrope_link *L);
+
+writes the I<octrope_link> I<L> to the (open) text file I<outfile> in
+the Geomview I<VECT> format mentioned above. Returns TRUE if the write
+was successful, FALSE otherwise.
+
+=head2 octrope_link_fix_wrap(): Provide "wraparound addressing" for I<octrope_strand>.
+
+ void octrope_link_fix_wrap(const octrope_link *L);
+
+updates the I<vt> (vertex) buffers in the members of I<L>'s I<cp>
+array so that if a component I<L>->cp[i] is closed (that is,
+I<L>->cp[i]->open == FALSE), then
+
+   L->cp[i]->vt[-1] == L->cp[i]->vt[L->cp[i]->nv-1]
+
+and
+
+   L->cp[i]->vt[L->cp[i]->nv] = L->cp[i]->vt[0].
+
+That is, it provides one element of "wraparound addressing" in the
+buffer I<L>->cp[i]->vt.  To implement this, the buffer I<L>->cp[i]->vt
+actually contains I<L>->cp[i]->nv + 2 elements, and I<L>->cp[i]->vt[0]
+points to the second element of the buffer. This procedure copies the
+elements I<L>->cp[i]->vt[0] and I<L>->cp[i]->vt[L->cp[i]->nv-1] to the
+"hidden" locations in the I<vt> buffer.
+
+B<Call this procedure before any code which depends on wraparound
+addressing in the I<vt> array.>
+
+=head2 octrope_link_edges(): Return edge count in an I<octrope_link>.
+
+ int octrope_link_edges(const octrope_link *L);
+
+returns the number of edges in the I<octrope_link> I<L>.
+
+
+=head2 octrope_link_copy(): Copy an I<octrope_link> to new memory.
+
+  octrope_link *octrope_link_copy(octrope_link *L);
+
+allocates new memory using octrope_link_new() and copies the data from
+L into that space.
+
+=head2 plc_pointset_diameter(): Find the diameter of the vertex set
+
+  double plc_pointset_diameter(const plCurve * const L);
+
+Use the basic n^2 algorithm to find the distance between the two vertices
+in the plCurve which are farthest apart.
+
+=head1 AUTHORS
+
+Ted Ashton and Jason Cantarella.
+
+=head1 SEE ALSO
+
+L<liboctrope>
+
+=head1 HISTORY
+
+This library was first released in September 2004. It is described in
+the paper I<A Fast Octree-Based Algorithm for Computing Ropelength> by
+Ashton and Cantarella, which is included in the library distribution
+as F<octrope-paper.pdf>, and published in the World Scientific Press
+volume.
+
+=head1 LICENSE RESTRICTIONS
+
+This library is covered by the GNU Public License for free software,
+modified as follows.  Any publication of computations performed using
+the Octrope library must include a citation of the paper I<A Fast
+Octree-Based Algorithm for Computing Ropelength> mentioned above.
+
+=head1 BUGS
+
+Reading a link with octrope_link_read() and then writing it with
+octrope_link_write() loses information from the initial VECT file,
+since comments aren't preserved.
+
