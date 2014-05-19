@@ -157,12 +157,11 @@ typedef struct tsmcmc_run_parameters_struct {
 } tsmcmc_run_parameters;
 
 %inline %{
-  static PyObject *py_integrand;
-
-  double py_integrand_helper(plCurve *L) {
+  double py_integrand_helper(plCurve *L, void *args) {
     PyObject *py_plc;
     PyObject *result;
     double ret;
+    PyObject *py_integrand = (PyObject *)args;
 
     py_plc = SWIG_InternalNewPointerObj(L, SWIGTYPE_p_plc_type, 0);
     result = PyObject_CallFunctionObjArgs(py_integrand, py_plc, NULL);
@@ -197,8 +196,6 @@ double eq_ex(gsl_rng *rng, PyObject *integrand, int max_steps,
   PyObject *result;
   double ret;
 
-  py_integrand = integrand;
-
   //py_plc = SWIG_InternalNewPointerObj(L, SWIGTYPE_p_plc_type, 0);
   //result = PyObject_CallFunctionObjArgs(integrand, NULL);
   //Py_DECREF(py_plc);
@@ -210,12 +207,13 @@ double eq_ex(gsl_rng *rng, PyObject *integrand, int max_steps,
   //Py_DECREF(result);
   //return ret;
 
-  return tsmcmc_equilateral_expectation(rng, &py_integrand_helper, max_steps,
+  return tsmcmc_equilateral_expectation(rng, &py_integrand_helper, (void *)integrand, max_steps,
                                         max_seconds, T, rp, rs, &t);
 }
 %}
 
-double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L),
+double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
+                                        void *args,
                                         int max_steps,int max_seconds,
                                         tsmcmc_triangulation_t T,
                                         tsmcmc_run_parameters run_params,
@@ -235,7 +233,8 @@ double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L
   */
 
 
-  double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L),
+double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
+                                                 void *args,
 						   double confinement_radius, int nedges,
 						   int max_steps,int max_seconds,
 						   tsmcmc_run_parameters run_params,
@@ -259,7 +258,8 @@ double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L
      set to NULL if you don't care).
   */
 
-  double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L),
+double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L, void* args),
+                                      void *args,
 					double failure_to_close,
 					int max_steps,int max_seconds,
 					tsmcmc_triangulation_t T,

@@ -246,19 +246,19 @@ typedef struct pd_code_struct {
     inline static pd_code_t *from_twist_knot(pd_idx_t n) {
       return pd_build_twist_knot(n);
     }
-    ("docstring") from_torus_knot
+    %feature("docstring") from_torus_knot
         "Torus knot. Only (2,q) is implemented for now.";
     %newobject from_torus_knot;
     inline static pd_code_t *from_torus_knot(pd_idx_t p,pd_idx_t q) {
       return pd_build_torus_knot(p, q);
     }
-    ("docstring") from_twist_knot
+    %feature("docstring") from_twist_knot
         "An ``n``-link chain";
     %newobject from_simple_chain;
     inline static pd_code_t *from_simple_chain(pd_idx_t n) {
       return pd_build_simple_chain(n);
     }
-    ("docstring") from_unknot
+    %feature("docstring") from_unknot
         "An ``n``-crossing unknot diagram";
     %newobject_from_unknot;
     inline static pd_code_t *from_unknot(pd_idx_t n) {

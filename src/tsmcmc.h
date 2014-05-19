@@ -1,30 +1,30 @@
 /*
 
-  This is a combined header file for the toric symplectic mcmc experiments. 
+  This is a combined header file for the toric symplectic mcmc experiments.
 
 */
 
-#ifndef __tsmcmc_h__ 
+#ifndef __tsmcmc_h__
 #define __tsmcmc_h__ 1
 
 #include<plCurve.h>
 
-/* 
+/*
    We will need some sort of framework for handling arbitrary
    triangulations.  The key insight here is that a triangulation is a
    tree. This means that each triangulation should be defined in terms
    of up to two daughter triangles. Embedding a triangulation is always
-   a journey from root to branch. 
+   a journey from root to branch.
 
-   Orientation is maintained in the following way: 
+   Orientation is maintained in the following way:
 
    1) Edges always have the orientation given by the vertex numbering
-      on the polygon. 
+      on the polygon.
 
    2) Diagonals are POSITIVELY oriented as daughters, and NEGATIVELY
-      oriented as parents. 
+      oriented as parents.
 
-   The list of daughter chords is maintained in orientation order on 
+   The list of daughter chords is maintained in orientation order on
    the current triangle.
 
 */
@@ -37,8 +37,8 @@ typedef struct chord_struct {
 
 } tsmcmc_chord_t;
 
-typedef struct triangle_struct { 
-  
+typedef struct triangle_struct {
+
   int         parent_chord;        /* The parent chord index.                              */
   chordtype_t parent_type;         /* Every chord is either a "diagonal" or "edge" chord.  */
 
@@ -49,15 +49,15 @@ typedef struct triangle_struct {
 				      daughter chord of type
 				      "diagonal", or (-1) for each daughter chord of type "edge". */
 
-  /* The daughter chords are stored in order by the orientation of the triangle so that 
-     the order goes "parent_diag->daughter_chord[0]->daughter_chord[1]". The chords are 
+  /* The daughter chords are stored in order by the orientation of the triangle so that
+     the order goes "parent_diag->daughter_chord[0]->daughter_chord[1]". The chords are
      stored oriented so that the daughter chords are oriented positively on this triangle,
-     so the "free" vertex is the second vertex of daughter_chord[0] or the first vertex 
+     so the "free" vertex is the second vertex of daughter_chord[0] or the first vertex
      of daughter_chord[1]. */
 
 } tsmcmc_triangle_t;
 
-typedef struct triangulation_struct { 
+typedef struct triangulation_struct {
 
   int                ntri;      /* This is a master list of (n-2) triangles. */
   tsmcmc_triangle_t *triangles; /* They have an internal tree structure,
@@ -83,10 +83,10 @@ int tsmcmc_triangulation_chordnum(tsmcmc_triangulation_t T,int a,int b);
 
 /* We generate triangulations from a much simpler object called a
    chord system.  A chord system for an n-gon is a selection of (n-3)
-   chords which do not cross each other. We can auto-generate a 
+   chords which do not cross each other. We can auto-generate a
    triangulation from a given chord system. */
 
-bool tsmcmc_chord_system_ok(int nchords,tsmcmc_chord_t *chord); 
+bool tsmcmc_chord_system_ok(int nchords,tsmcmc_chord_t *chord);
 /* Checks to make sure that no pair of chords cross. */
 
 tsmcmc_triangulation_t tsmcmc_generate_triangulation(int nedges,tsmcmc_chord_t *chord);
@@ -156,7 +156,7 @@ void tsmcmc_compute_edgelengths(plCurve *L,tsmcmc_triangulation_t T,double *edge
 void tsmcmc_compute_dihedral_angles(plCurve *L,tsmcmc_triangulation_t T,double *dihedral_angles,
 				    bool *dihedral_defined);
 
-bool tsmcmc_polygon_embedding_ok(plCurve *L, 
+bool tsmcmc_polygon_embedding_ok(plCurve *L,
 				 tsmcmc_triangulation_t T,double *edge_lengths,
 				 double *diagonal_lengths, double *dihedral_angles);
 /* Checks to see whether edgelengths, diagonallengths, and dihedrals are correct. */
@@ -185,31 +185,31 @@ bool     tsmcmc_diagonals_ok(tsmcmc_triangulation_t T,double *edge_lengths,doubl
 
 bool     tsmcmc_confined_diagonals_ok(tsmcmc_triangulation_t T,double confinement_radius,
 				      double *edge_lengths,double *diagonal_lengths,int step);
-/* Check to make sure that the diagonals obey the triangle AND CONFINEMENT inequalities for the 
+/* Check to make sure that the diagonals obey the triangle AND CONFINEMENT inequalities for the
    given triangulation. */
 
 void     tsmcmc_dihedrals_step(gsl_rng *rng,tsmcmc_triangulation_t T,double *dihedral_angles);
 /* Reset dihedral angles uniformly. */
 
 void     tsmcmc_edgepermute_step(gsl_rng *rng,tsmcmc_triangulation_t T,
-				 double *edge_lengths, double *diagonal_lengths, 
+				 double *edge_lengths, double *diagonal_lengths,
 				 double *dihedral_angles);
 /* Generate a polygon, permute edges, and then recompute diagonal_lengths and dihedral_angles. */
 /* If edgelength 0 is different from the other edgelengths, permutes only edges 1,...,n-1. Doesn't */
 /* check for other edgelength combinations at this point, though a very general algorithm would.*/
 
 tsmcmc_step_t tsmcmc_dihedral_diagonal_step(gsl_rng *rng, tsmcmc_triangulation_t T,
-					    double *edge_lengths, double *diagonal_lengths,double *dihedral_angles, 
+					    double *edge_lengths, double *diagonal_lengths,double *dihedral_angles,
 					    double beta);
 /* Randomly chooses dihedral or diagonal step. Returns the type of step taken. */
 
 tsmcmc_step_t tsmcmc_confined_dihedral_diagonal_step(gsl_rng *rng, tsmcmc_triangulation_t T,
 						     double confinement_radius,
 						     double *edge_lengths, double *diagonal_lengths,
-						     double *dihedral_angles, 
+						     double *dihedral_angles,
 						     double beta, int moment_polytope_repeat);
-/* Randomly chooses dihedral or confined moment polytope step. Returns type of step taken. 
-   Here 
+/* Randomly chooses dihedral or confined moment polytope step. Returns type of step taken.
+   Here
 
    (the fraction) beta of all steps are (confined) moment polytope steps
    all remaining steps are dihedral steps
@@ -219,9 +219,9 @@ tsmcmc_step_t tsmcmc_confined_dihedral_diagonal_step(gsl_rng *rng, tsmcmc_triang
 
 tsmcmc_step_t tsmcmc_dihedral_diagonal_permute_step(gsl_rng *rng, tsmcmc_triangulation_t T,
 						    double *edge_lengths, double *diagonal_lengths,
-						    double *dihedral_angles, 
+						    double *dihedral_angles,
 						    double beta,double delta,int moment_polytope_repeat);
-/* Randomly chooses dihedral, diagonal, or permute step. Returns type of step taken. Here 
+/* Randomly chooses dihedral, diagonal, or permute step. Returns type of step taken. Here
 
    (the fraction) delta of all steps are permutations
    (the fraction) beta of non-permutation steps are moment polytope steps
@@ -235,25 +235,25 @@ tsmcmc_step_t tsmcmc_dihedral_diagonal_permute_step(gsl_rng *rng, tsmcmc_triangu
 
 /**********************************************************************************************/
 /*
-  API: These are the functions which are exposed to the end user. 
+  API: These are the functions which are exposed to the end user.
 
 */
 
 typedef struct tsmcmc_run_stats_struct {
 
-  int max_lagged_covariance_used; 
+  int max_lagged_covariance_used;
   int lagged_covariances_available;
 
   int dihedral_steps;
   int mp_steps;
   int permute_steps;
-  
+
   double total_seconds;
   double geyer_ips_seconds;
 
 } tsmcmc_run_stats;
 
-typedef struct tsmcmc_run_parameters_struct { 
+typedef struct tsmcmc_run_parameters_struct {
 
   int    burn_in;
   double delta;                  /* The fraction of permute steps. */
@@ -269,27 +269,29 @@ typedef struct tsmcmc_run_parameters_struct {
 char    *tsmcmc_run_stats_MathematicaForm(tsmcmc_run_stats run_stats);
 char    *tsmcmc_run_params_MathematicaForm(tsmcmc_run_parameters run_params);
 
-double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L),
+double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
+                                        void *args,
 					int max_steps,int max_seconds,
 					tsmcmc_triangulation_t T,
 					tsmcmc_run_parameters run_params,
 					tsmcmc_run_stats *run_stats,
 					double *error);
-/* 
+/*
    This is the "master" driver function for computing an expectation
    over equilateral (unconfined) polygons. It uses the Geyer ips
    estimator to compute error bars.
 
    We set parameters for the algorithm with run_params (intended to be
    one of the predefined profiles for a run), and return a lot of detailed
-   information about the run in run_stats (optional, set to NULL if you 
-   don't care). 
+   information about the run in run_stats (optional, set to NULL if you
+   don't care).
 
    Note that the number of edges is set (implicitly) by the triangulation.
 */
 
 
-double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L),
+double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
+                                                 void *args,
 						 double confinement_radius, int nedges,
 						 int max_steps,int max_seconds,
 						 tsmcmc_run_parameters run_params,
@@ -313,8 +315,9 @@ double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(p
    set to NULL if you don't care).
 */
 
-double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L),
-				      double failure_to_close, 
+double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
+                                      void *args,
+				      double failure_to_close,
 				      int max_steps,int max_seconds,
 				      tsmcmc_triangulation_t T,
 				      tsmcmc_run_parameters run_params,

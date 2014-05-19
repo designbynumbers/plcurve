@@ -1,6 +1,6 @@
-/* 
+/*
 
-   tsmcmc_random_test.c : Test code for the random polygon generation functions in plCurve. 
+   tsmcmc_random_test.c : Test code for the random polygon generation functions in plCurve.
 
 */
 
@@ -44,19 +44,19 @@ void timestamp(FILE *outfile) {
 
   time_t curtime;
   struct tm *loctime;
-  
+
   /* Get the current time. */
   curtime = time (NULL);
-    
+
   /* Convert it to local time representation. */
   loctime = localtime (&curtime);
-  
+
   /* Print out the date and time in the standard format. */
   fputs (asctime (loctime), outfile);
-  
+
 }
 
-bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L),double expected,char *prediction_name)
+bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L, void *args),double expected,char *prediction_name)
 {
   printf("---------------------------------------"
 	 "-----------------------------------\n"
@@ -68,7 +68,7 @@ bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L)
   double error,result;
 
   tsmcmc_triangulation_t T = tsmcmc_spiral_triangulation(n);
-  result = tsmcmc_equilateral_expectation(rng,integrand,500000,10,T,run_params,&run_stats,&error);
+  result = tsmcmc_equilateral_expectation(rng,integrand,NULL,500000,10,T,run_params,&run_stats,&error);
 
   printf("done.\n"
          "Run statistics: \n"
@@ -84,7 +84,7 @@ bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L)
 
   printf("checking expected value (%g) within error bounds...",expected);
 
-  if (fabs(expected - result) < error) { 
+  if (fabs(expected - result) < error) {
 
     printf("pass\n"
 	   "Details:\n"
@@ -95,8 +95,8 @@ bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L)
 	   result,
 	   expected,
 	   fabs(expected-result),error);
-    
-  } else if (fabs(expected - result) < 4*error) { 
+
+  } else if (fabs(expected - result) < 4*error) {
 
     printf("conditional pass\n"
 	   "Details:\n"
@@ -104,7 +104,7 @@ bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L)
 	   "\tExact expectation   : %4.4g\n"
 	   "\tActual Error        : %4.2g\n"
 	   "\t95%% Error Bound    : %4.2g\n"
-	   "\tNever Error Bound   : %4.2g\n", 
+	   "\tNever Error Bound   : %4.2g\n",
 	   result,
 	   expected,
 	   fabs(expected-result),error,4*error);
@@ -134,7 +134,7 @@ bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L)
 }
 
 int glob_skip;
-double skip_squared_chordlength(plCurve *L) {
+double skip_squared_chordlength(plCurve *L, void *args) {
 
   /* Uses the global glob_skip to set the skip length,
      then computes the average sqaured length of chords skipping
@@ -142,8 +142,8 @@ double skip_squared_chordlength(plCurve *L) {
 
   double total = 0;
   int vt;
-  
-  for(vt=0;vt<L->cp[0].nv;vt++) { 
+
+  for(vt=0;vt<L->cp[0].nv;vt++) {
 
     total += plc_sq_dist(L->cp[0].vt[vt],L->cp[0].vt[(vt+glob_skip)%L->cp[0].nv]);
 
@@ -167,14 +167,14 @@ bool equilateral_unconfined_chordlength_tests(gsl_rng *rng)
   int n,k;
   char predname[2048];
 
-  for(n=0;n<num_n;n++) { 
+  for(n=0;n<num_n;n++) {
 
     for(k=0;k<num_k;k++) {
- 
+
       glob_skip = kvals[k];
       sprintf(predname,"avg squared length of skip %d chords",kvals[k]);
-   
-      if (!test_equilateral_prediction(rng,nvals[n],skip_squared_chordlength,eq_pol_prediction(nvals[n],kvals[k]),predname)) { 
+
+      if (!test_equilateral_prediction(rng,nvals[n],skip_squared_chordlength,eq_pol_prediction(nvals[n],kvals[k]),predname)) {
 
 	return false;
 
@@ -186,10 +186,10 @@ bool equilateral_unconfined_chordlength_tests(gsl_rng *rng)
 
   return true;
 
-}  
+}
 
 
-bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve *L),double expected,char *prediction_name)
+bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve *L, void *args),double expected,char *prediction_name)
 {
   printf("--------------------------------------"
 	 "-----------------------------------\n"
@@ -202,7 +202,7 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
   double error,result;
 
   tsmcmc_triangulation_t T = tsmcmc_fan_triangulation(n);
-  result = tsmcmc_fixed_ftc_expectation(rng,integrand,ftc,500000,10,T,run_params,&run_stats,&error);
+  result = tsmcmc_fixed_ftc_expectation(rng,integrand,NULL,ftc,500000,10,T,run_params,&run_stats,&error);
 
   printf("done.\n"
          "Run statistics: \n"
@@ -218,7 +218,7 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
 
   printf("checking expected value (%g) within error bounds...",expected);
 
-  if (fabs(expected - result) < error) { 
+  if (fabs(expected - result) < error) {
 
     printf("pass\n"
 	   "Details:\n"
@@ -229,8 +229,8 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
 	   result,
 	   expected,
 	   fabs(expected-result),error);
-    
-  } else if (fabs(expected - result) < 4*error) { 
+
+  } else if (fabs(expected - result) < 4*error) {
 
     printf("conditional pass\n"
 	   "Details:\n"
@@ -238,7 +238,7 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
 	   "\tExact expectation   : %4.4g\n"
 	   "\tActual Error        : %4.2g\n"
 	   "\t95%% Error Bound     : %4.2g\n"
-	   "\tNever Error Bound   : %4.2g\n", 
+	   "\tNever Error Bound   : %4.2g\n",
 	   result,
 	   expected,
 	   fabs(expected-result),error,4*error);
@@ -256,7 +256,7 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
 	   "\tExact expectation   : %4.4g\n"
 	   "\tActual Error        : %4.2g\n"
 	   "\t95%% Error Bound     : %4.2g\n"
-	   "\tNever Error Bound   : %4.2g\n", 
+	   "\tNever Error Bound   : %4.2g\n",
 	   result,
 	   expected,
 	   fabs(expected-result),error,4*error);
@@ -280,15 +280,15 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
 int glob_v0;
 int glob_v1;
 
-double chordlength(plCurve *L) {
+double chordlength(plCurve *L, void *args) {
 
   return plc_distance(L->cp[0].vt[glob_v0],L->cp[0].vt[glob_v1]);
 
 }
 
-bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng) 
+bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
 
-/* We got the data for this on an ad-hoc basis from polymake, so 
+/* We got the data for this on an ad-hoc basis from polymake, so
    only a few tests are possible. */
 
 {
@@ -312,9 +312,9 @@ bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
     if (!test_ftc_prediction(rng,2.5,5,chordlength,ftc5gon25[i],pred_name)) {
 
 	return false;
-	
+
       }
-  }	
+  }
 
   /* Now test equilateral 10-gons. */
 
@@ -323,7 +323,7 @@ bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
     glob_skip = i;
     sprintf(pred_name,"squared length of skip %d chord",i);
     if (!test_ftc_prediction(rng,1.0,10,skip_squared_chordlength,
-			     eq_pol_prediction(10,i),pred_name)) { 
+			     eq_pol_prediction(10,i),pred_name)) {
 
       return false;
 
@@ -332,21 +332,21 @@ bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
   }
 
 
-  for(i=0;i<7;i++) { 
+  for(i=0;i<7;i++) {
 
     glob_v0 = 0; glob_v1 = i+2;
     sprintf(pred_name,"length of %d-%d chord",glob_v0,glob_v1);
-    if(!test_ftc_prediction(rng,3.0,10,chordlength,ftc3[i],pred_name)) { 
+    if(!test_ftc_prediction(rng,3.0,10,chordlength,ftc3[i],pred_name)) {
 
     }
 
   }
 
-  for(i=0;i<7;i++) { 
+  for(i=0;i<7;i++) {
 
     glob_v0 = 0; glob_v1 = i+2;
     sprintf(pred_name,"length of %d-%d chord",glob_v0,glob_v1);
-    if(!test_ftc_prediction(rng,2.0,10,chordlength,ftc2[i],pred_name)) { 
+    if(!test_ftc_prediction(rng,2.0,10,chordlength,ftc2[i],pred_name)) {
 
       return false;
 
@@ -354,13 +354,13 @@ bool fixed_failure_to_close_chordlength_tests(gsl_rng *rng)
 
   }
 
- 
 
-  for(i=0;i<7;i++) { 
+
+  for(i=0;i<7;i++) {
 
     glob_v0 = 0; glob_v1 = i+2;
     sprintf(pred_name,"length of %d-%d chord",glob_v0,glob_v1);
-    if(!test_ftc_prediction(rng,5.0,10,chordlength,ftc5[i],pred_name)) { 
+    if(!test_ftc_prediction(rng,5.0,10,chordlength,ftc5[i],pred_name)) {
 
       return false;
 
@@ -376,19 +376,19 @@ double eq_pol_gyradius_prediction(int n) {
   return (double)(n+1)/(double)(3.0*n*n);
 }
 char eq_pol_gyradius_predstring[256] = "(1/3) (n+1)/n^2";
-  
+
 int main(int argc, char *argv[]) {
 
   bool PASS = {true};
 
   const gsl_rng_type * rng_T;
-     
-  gsl_rng_env_setup();  
+
+  gsl_rng_env_setup();
   rng_T = gsl_rng_default;
   rng = gsl_rng_alloc(rng_T);
-  
+
   int seedi = time(0);
-  
+
   //if (seed->count > 0) { seedi = seed->ival[0]; }
   //else { seedi = time(0); }
 
@@ -410,20 +410,20 @@ int main(int argc, char *argv[]) {
 
   if (!fixed_failure_to_close_chordlength_tests(rng)) { PASS = false; }
   if (!equilateral_unconfined_chordlength_tests(rng)) { PASS = false; }
-       
+
   gsl_rng_free(rng);
 
   printf("=========================================================================\n");
- 
-  if (PASS) { 
+
+  if (PASS) {
 
     printf("Random Polygon Test Suite: PASS\n");
-    exit(0); 
+    exit(0);
 
-  } else { 
+  } else {
 
     printf("Random Polygon Test Suite: FAIL\n");
-    exit(1); 
+    exit(1);
 
   }
 

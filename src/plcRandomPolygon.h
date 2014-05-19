@@ -1,11 +1,11 @@
 /* plcRandomPolygon.h  */
 
-/* This header file contains definitions and an API to create random 
+/* This header file contains definitions and an API to create random
    open and closed polygons (and polygons with various kinds of constraints).
-   It replaces the randompolygon section of the previous plCurve.h header. 
+   It replaces the randompolygon section of the previous plCurve.h header.
 
-   This file contains the exposed portion of the API. More is available 
-   in the (uninstalled) header file tsmcmc.h, which is distributed with 
+   This file contains the exposed portion of the API. More is available
+   in the (uninstalled) header file tsmcmc.h, which is distributed with
    plCurve. */
 
 /* Copyright 2014 The University of Georgia */
@@ -48,9 +48,9 @@ extern "C" {
 #include <stdio.h>
 #include <stdbool.h>
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
-#include <plCurve.h>    
+#include <plCurve.h>
 
-  /*-   
+  /*-
 
     This package uses the "toric symplectic Markov chain Monte Carlo
     (tsmcmc)" algorithm to generate Markov chains of equilateral (or
@@ -77,8 +77,8 @@ extern "C" {
 
   } tsmcmc_chord_t;
 
-  typedef struct triangle_struct { 
-  
+  typedef struct triangle_struct {
+
     int         parent_chord;        /* The parent chord index.                              */
     chordtype_t parent_type;         /* Every chord is either a "diagonal" or "edge" chord.  */
 
@@ -89,15 +89,15 @@ extern "C" {
 					daughter chord of type
 					"diagonal", or (-1) for each daughter chord of type "edge". */
 
-    /* The daughter chords are stored in order by the orientation of the triangle so that 
-       the order goes "parent_diag->daughter_chord[0]->daughter_chord[1]". The chords are 
+    /* The daughter chords are stored in order by the orientation of the triangle so that
+       the order goes "parent_diag->daughter_chord[0]->daughter_chord[1]". The chords are
        stored oriented so that the daughter chords are oriented positively on this triangle,
-       so the "free" vertex is the second vertex of daughter_chord[0] or the first vertex 
+       so the "free" vertex is the second vertex of daughter_chord[0] or the first vertex
        of daughter_chord[1]. */
 
   } tsmcmc_triangle_t;
 
-  typedef struct triangulation_struct { 
+  typedef struct triangulation_struct {
 
     int                ntri;      /* This is a master list of (n-2) triangles. */
     tsmcmc_triangle_t *triangles; /* They have an internal tree structure,
@@ -150,10 +150,10 @@ extern "C" {
     integrate it. The code below computes 95% confidence error bars
     for the result of the integral using the "Geyer IPS estimators".
 
-    Notice that this explicitly works (including convergence and 
+    Notice that this explicitly works (including convergence and
     error bars) for functions like:
 
-    double f(plCurve *L) { 
+    double f(plCurve *L) {
 
     if (is_trefoil_knot(L)) { return 1.0; }
     else {return 0.0;}
@@ -167,24 +167,24 @@ extern "C" {
     -*/
 
 
-  /* These structures deal with internals of the algorithm. It's ok to 
+  /* These structures deal with internals of the algorithm. It's ok to
      use the default values. */
 
   typedef struct tsmcmc_run_stats_struct {
 
-    int max_lagged_covariance_used; 
+    int max_lagged_covariance_used;
     int lagged_covariances_available;
 
     int dihedral_steps;
     int mp_steps;
     int permute_steps;
-  
+
     double total_seconds;
     double geyer_ips_seconds;
 
   } tsmcmc_run_stats;
 
-  typedef struct tsmcmc_run_parameters_struct { 
+  typedef struct tsmcmc_run_parameters_struct {
 
     int    burn_in;
     double delta;                  /* The fraction of permute steps. */
@@ -204,35 +204,37 @@ extern "C" {
   tsmcmc_run_parameters tsmcmc_default_confined_parameters();
 
   /*-
-    Master functions for integrating over polygon space. 
+    Master functions for integrating over polygon space.
     -*/
 
-  double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L),
-					  int max_steps,int max_seconds,
-					  tsmcmc_triangulation_t T,
-					  tsmcmc_run_parameters run_params,
-					  tsmcmc_run_stats *run_stats,
-					  double *error);
-  /* 
+    double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
+                                            void *args,
+                                            int max_steps,int max_seconds,
+                                            tsmcmc_triangulation_t T,
+                                            tsmcmc_run_parameters run_params,
+                                            tsmcmc_run_stats *run_stats,
+                                            double *error);
+  /*
      This is the "master" driver function for computing an expectation
      over equilateral (unconfined) polygons. It uses the Geyer ips
      estimator to compute error bars.
 
      We set parameters for the algorithm with run_params (intended to be
      one of the predefined profiles for a run), and return a lot of detailed
-     information about the run in run_stats (optional, set to NULL if you 
-     don't care). 
+     information about the run in run_stats (optional, set to NULL if you
+     don't care).
 
      Note that the number of edges is set (implicitly) by the triangulation.
   */
 
 
-  double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L),
-						   double confinement_radius, int nedges,
-						   int max_steps,int max_seconds,
-						   tsmcmc_run_parameters run_params,
-						   tsmcmc_run_stats *run_stats,
-						   double *error);
+    double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
+                                                     void *args,
+                                                     double confinement_radius, int nedges,
+                                                     int max_steps,int max_seconds,
+                                                     tsmcmc_run_parameters run_params,
+                                                     tsmcmc_run_stats *run_stats,
+                                                     double *error);
 
 
   /* This is the "master" driver function for computing an expectation
@@ -251,13 +253,14 @@ extern "C" {
      set to NULL if you don't care).
   */
 
-  double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L),
-					double failure_to_close,
-					int max_steps,int max_seconds,
-					tsmcmc_triangulation_t T,
-					tsmcmc_run_parameters run_params,
-					tsmcmc_run_stats *run_stats,
-					double *error);
+    double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
+                                          void *args,
+                                          double failure_to_close,
+                                          int max_steps,int max_seconds,
+                                          tsmcmc_triangulation_t T,
+                                          tsmcmc_run_parameters run_params,
+                                          tsmcmc_run_stats *run_stats,
+                                          double *error);
 
 
   /* This is the "master" driver function for computing an expectation
