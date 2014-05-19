@@ -9,9 +9,10 @@ Welcome to plCurve's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
-
+   api/plcurve
+   api/pd
 
 Indices and tables
 ==================
@@ -19,4 +20,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

@@ -1,4 +1,4 @@
-%module(package="plcurvepd") pd
+%module(package="libplcurve") pd
 %feature("autodoc", "1");
 %{
 #include "stdbool.h"

@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>libplcurve package &mdash; plCurve 7.3 documentation</title>
+  <title>libplcurve.plcurve module &mdash; plCurve 7.3 documentation</title>
   
 
   
@@ -28,7 +28,9 @@
   
 
   
-    <link rel="top" title="plCurve 7.3 documentation" href="../index.html"/> 
+    <link rel="top" title="plCurve 7.3 documentation" href="../index.html"/>
+        <link rel="next" title="libplcurve.pd module" href="pd.html"/>
+        <link rel="prev" title="Welcome to plCurve’s documentation!" href="../index.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -55,7 +57,19 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul class="simple">
+            <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">libplcurve.plcurve module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-plcurve-class">The PlCurve class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-strand-class">The Strand class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-randomgenerator-gsl-rng-interface-class">The RandomGenerator (gsl_rng interface) class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#auxiliary-classes">Auxiliary classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pd.html">libplcurve.pd module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pd.html#the-planardiagram-class">The PlanarDiagram class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pd.html#building-block-classes">Building block classes</a></li>
+</ul>
+</li>
 </ul>
 
         
@@ -79,10 +93,10 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-    <li>libplcurve package</li>
+    <li>libplcurve.plcurve module</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/api/libplcurve.txt" rel="nofollow"> View page source</a>
+          <a href="../_sources/api/plcurve.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -90,20 +104,76 @@
 </div>
           <div role="main">
             
-  <div class="section" id="libplcurve-package">
-<h1>libplcurve package<a class="headerlink" href="#libplcurve-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="libplcurve-plcurve-module">
-<h2>libplcurve.plcurve module<a class="headerlink" href="#libplcurve-plcurve-module" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="libplcurve-plcurve-module">
+<h1>libplcurve.plcurve module<a class="headerlink" href="#libplcurve-plcurve-module" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-plcurve-class">
+<h2>The PlCurve class<a class="headerlink" href="#the-plcurve-class" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="libplcurve.plcurve.PlCurve">
 <em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">PlCurve</tt><a class="headerlink" href="#libplcurve.plcurve.PlCurve" title="Permalink to this definition">¶</a></dt>
 <dd><p>::plc_type</p>
+<p>In addition to the methods below, PlCurves have the following
+functionality:</p>
+<ul>
+<li><p class="first">A PlCurve object can act like a list of its components</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Access of component by index:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plc</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">PlCurve</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s">&quot;example_pl.vert&quot;</span><span class="p">)</span>
+<span class="n">first_component</span> <span class="o">=</span> <span class="n">plc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">also_first_component</span> <span class="o">=</span> <span class="n">plc</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Deletion of component by index with <tt class="docutils literal"><span class="pre">del</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">del</span> <span class="n">plc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">The length of a PlCurve is its number of vertices:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nb">len</span><span class="p">(</span><span class="n">plc</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Iteration through components works as expected:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">plc</span><span class="p">:</span>
+    <span class="n">my_fancy_component_op</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">component</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">A PlCurve has a string representation which briefly describes it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">plc</span>
+<span class="go">PlCurve with 3 components</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p><strong>PlCurve constructor</strong></p>
 <p><strong>Static methods which create new PlCurves</strong></p>
 <dl class="method">
 <dt id="libplcurve.plcurve.PlCurve.from_file">
 <tt class="descname">from_file</tt><big>(</big><em>FILE * file</em><big>)</big> &rarr; PlCurve<a class="headerlink" href="#libplcurve.plcurve.PlCurve.from_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<p><strong>Static methods which create new random PlCurves</strong></p>
+<p>These functions use the gsl random number generator facilities.
+This adds some (minor) responsibilities for user programs; namely,
+you must create a random number generator explicitly before calling
+these functions.</p>
+<p>Typically, this will involve creating a <a class="reference internal" href="#libplcurve.plcurve.RandomGenerator" title="libplcurve.plcurve.RandomGenerator"><tt class="xref py py-class docutils literal"><span class="pre">RandomGenerator</span></tt></a>
+instance and (optionally) setting a seed with
+<a class="reference internal" href="#libplcurve.plcurve.RandomGenerator.set" title="libplcurve.plcurve.RandomGenerator.set"><tt class="xref py py-meth docutils literal"><span class="pre">RandomGenerator.set()</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">libplcurve.plcurve</span> <span class="kn">as</span> <span class="nn">pl</span>
+<span class="n">random_gen</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">RandomGenerator</span><span class="p">()</span>
+<span class="n">random_gen</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
+
+<span class="n">random_plc</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">PlCurve</span><span class="o">.</span><span class="n">random_closed_polygon</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="libplcurve.plcurve.PlCurve.random_closed_polygon">
 <tt class="descname">random_closed_polygon</tt><big>(</big><em>RandomGenerator r</em>, <em>int nEdges</em><big>)</big> &rarr; PlCurve<a class="headerlink" href="#libplcurve.plcurve.PlCurve.random_closed_polygon" title="Permalink to this definition">¶</a></dt>
@@ -348,6 +418,18 @@ if not.</p>
 points in \(\mathbb{R}^3\).</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="libplcurve.plcurve.PlCurve.center_of_mass">
+<tt class="descname">center_of_mass</tt><a class="headerlink" href="#libplcurve.plcurve.PlCurve.center_of_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_type.center_of_mass</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.PlCurve.gyradius">
+<tt class="descname">gyradius</tt><a class="headerlink" href="#libplcurve.plcurve.PlCurve.gyradius" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_type.gyradius</p>
+</dd></dl>
+
 <p><strong>Geometric operation methods</strong></p>
 <dl class="method">
 <dt id="libplcurve.plcurve.PlCurve.scale">
@@ -409,6 +491,351 @@ a closed curve). If the component is open, it is split in two.</p>
 <tt class="descname">classify</tt><big>(</big><em>RandomGenerator r</em><big>)</big> &rarr; KnotType<a class="headerlink" href="#libplcurve.plcurve.PlCurve.classify" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="libplcurve.plcurve.PlCurve.homfly">
+<tt class="descname">homfly</tt><big>(</big><em>RandomGenerator r</em><big>)</big> &rarr; char *<a class="headerlink" href="#libplcurve.plcurve.PlCurve.homfly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="libplcurve.plcurve.PlCurve.as_pd">
+<tt class="descname">as_pd</tt><big>(</big><em>RandomGenerator r</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libplcurve.plcurve.PlCurve.as_pd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="the-strand-class">
+<h2>The Strand class<a class="headerlink" href="#the-strand-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="libplcurve.plcurve.Strand">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">Strand</tt><a class="headerlink" href="#libplcurve.plcurve.Strand" title="Permalink to this definition">¶</a></dt>
+<dd><p>::plc_strand_type</p>
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Strand.colors">
+<tt class="descname">colors</tt><a class="headerlink" href="#libplcurve.plcurve.Strand.colors" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_strand_type.colors</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libplcurve.plcurve.Strand.get_vertex">
+<tt class="descname">get_vertex</tt><big>(</big><em>int i</em><big>)</big> &rarr; plc_vector const<a class="headerlink" href="#libplcurve.plcurve.Strand.get_vertex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Strand.is_open">
+<tt class="descname">is_open</tt><a class="headerlink" href="#libplcurve.plcurve.Strand.is_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_strand_type.is_open</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Strand.num_colors">
+<tt class="descname">num_colors</tt><a class="headerlink" href="#libplcurve.plcurve.Strand.num_colors" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_strand_type.num_colors</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Strand.num_vertices">
+<tt class="descname">num_vertices</tt><a class="headerlink" href="#libplcurve.plcurve.Strand.num_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_strand_type.num_vertices</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Strand.vertices">
+<tt class="descname">vertices</tt><a class="headerlink" href="#libplcurve.plcurve.Strand.vertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_strand_type.vertices</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="the-randomgenerator-gsl-rng-interface-class">
+<h2>The RandomGenerator (gsl_rng interface) class<a class="headerlink" href="#the-randomgenerator-gsl-rng-interface-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="libplcurve.plcurve.RandomGenerator">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">RandomGenerator</tt><a class="headerlink" href="#libplcurve.plcurve.RandomGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>::gsl_rng</p>
+<dl class="method">
+<dt id="libplcurve.plcurve.RandomGenerator.from_state">
+<tt class="descname">from_state</tt><big>(</big><em>char * stream</em><big>)</big> &rarr; RandomGenerator<a class="headerlink" href="#libplcurve.plcurve.RandomGenerator.from_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="libplcurve.plcurve.RandomGenerator.get_state">
+<tt class="descname">get_state</tt><big>(</big><big>)</big> &rarr; RandomGenerator<a class="headerlink" href="#libplcurve.plcurve.RandomGenerator.get_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="libplcurve.plcurve.RandomGenerator.set">
+<tt class="descname">set</tt><big>(</big><em>unsigned long s</em><big>)</big><a class="headerlink" href="#libplcurve.plcurve.RandomGenerator.set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="auxiliary-classes">
+<h2>Auxiliary classes<a class="headerlink" href="#auxiliary-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="libplcurve.plcurve.Symmetry">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">Symmetry</tt><a class="headerlink" href="#libplcurve.plcurve.Symmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>::plc_symmetry_type</p>
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Symmetry.curve">
+<tt class="descname">curve</tt><a class="headerlink" href="#libplcurve.plcurve.Symmetry.curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_symmetry_type.curve</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Symmetry.target">
+<tt class="descname">target</tt><a class="headerlink" href="#libplcurve.plcurve.Symmetry.target" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_symmetry_type.target</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Symmetry.transform">
+<tt class="descname">transform</tt><a class="headerlink" href="#libplcurve.plcurve.Symmetry.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_symmetry_type.transform</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libplcurve.plcurve.SymmetryGroup">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">SymmetryGroup</tt><a class="headerlink" href="#libplcurve.plcurve.SymmetryGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>::plc_symmetry_group_type</p>
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SymmetryGroup.inverse">
+<tt class="descname">inverse</tt><a class="headerlink" href="#libplcurve.plcurve.SymmetryGroup.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_symmetry_group_type.inverse</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SymmetryGroup.n">
+<tt class="descname">n</tt><a class="headerlink" href="#libplcurve.plcurve.SymmetryGroup.n" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_symmetry_group_type.n</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SymmetryGroup.sym">
+<tt class="descname">sym</tt><a class="headerlink" href="#libplcurve.plcurve.SymmetryGroup.sym" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_symmetry_group_type.sym</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">Symmetry</tt></dt>
+<dd><p>::plc_symmetry_type</p>
+<dl class="attribute">
+<dt>
+<tt class="descname">curve</tt></dt>
+<dd><p>plc_symmetry_type.curve</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<tt class="descname">target</tt></dt>
+<dd><p>plc_symmetry_type.target</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<tt class="descname">transform</tt></dt>
+<dd><p>plc_symmetry_type.transform</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libplcurve.plcurve.Constraint">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">Constraint</tt><a class="headerlink" href="#libplcurve.plcurve.Constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>::plc_constraint_type</p>
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Constraint.cmp">
+<tt class="descname">cmp</tt><a class="headerlink" href="#libplcurve.plcurve.Constraint.cmp" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_constraint_type.cmp</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Constraint.kind">
+<tt class="descname">kind</tt><a class="headerlink" href="#libplcurve.plcurve.Constraint.kind" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_constraint_type.kind</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Constraint.next">
+<tt class="descname">next</tt><a class="headerlink" href="#libplcurve.plcurve.Constraint.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_constraint_type.next</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Constraint.num_verts">
+<tt class="descname">num_verts</tt><a class="headerlink" href="#libplcurve.plcurve.Constraint.num_verts" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_constraint_type.num_verts</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Constraint.vect">
+<tt class="descname">vect</tt><a class="headerlink" href="#libplcurve.plcurve.Constraint.vect" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_constraint_type.vect</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Constraint.vert">
+<tt class="descname">vert</tt><a class="headerlink" href="#libplcurve.plcurve.Constraint.vert" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_constraint_type.vert</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libplcurve.plcurve.VertexQuantifier">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">VertexQuantifier</tt><a class="headerlink" href="#libplcurve.plcurve.VertexQuantifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>::plc_vert_quant_type</p>
+<dl class="attribute">
+<dt id="libplcurve.plcurve.VertexQuantifier.cmp">
+<tt class="descname">cmp</tt><a class="headerlink" href="#libplcurve.plcurve.VertexQuantifier.cmp" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_vert_quant_type.cmp</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.VertexQuantifier.next">
+<tt class="descname">next</tt><a class="headerlink" href="#libplcurve.plcurve.VertexQuantifier.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_vert_quant_type.next</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.VertexQuantifier.quant">
+<tt class="descname">quant</tt><a class="headerlink" href="#libplcurve.plcurve.VertexQuantifier.quant" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_vert_quant_type.quant</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.VertexQuantifier.tag">
+<tt class="descname">tag</tt><a class="headerlink" href="#libplcurve.plcurve.VertexQuantifier.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_vert_quant_type.tag</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.VertexQuantifier.vert">
+<tt class="descname">vert</tt><a class="headerlink" href="#libplcurve.plcurve.VertexQuantifier.vert" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_vert_quant_type.vert</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libplcurve.plcurve.SplineStrand">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">SplineStrand</tt><a class="headerlink" href="#libplcurve.plcurve.SplineStrand" title="Permalink to this definition">¶</a></dt>
+<dd><p>::plc_spline_strand_type</p>
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SplineStrand.cc">
+<tt class="descname">cc</tt><a class="headerlink" href="#libplcurve.plcurve.SplineStrand.cc" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_strand_type.cc</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SplineStrand.clr">
+<tt class="descname">clr</tt><a class="headerlink" href="#libplcurve.plcurve.SplineStrand.clr" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_strand_type.clr</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SplineStrand.ns">
+<tt class="descname">ns</tt><a class="headerlink" href="#libplcurve.plcurve.SplineStrand.ns" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_strand_type.ns</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SplineStrand.open">
+<tt class="descname">open</tt><a class="headerlink" href="#libplcurve.plcurve.SplineStrand.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_strand_type.open</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SplineStrand.svals">
+<tt class="descname">svals</tt><a class="headerlink" href="#libplcurve.plcurve.SplineStrand.svals" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_strand_type.svals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SplineStrand.vt">
+<tt class="descname">vt</tt><a class="headerlink" href="#libplcurve.plcurve.SplineStrand.vt" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_strand_type.vt</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.SplineStrand.vt2">
+<tt class="descname">vt2</tt><a class="headerlink" href="#libplcurve.plcurve.SplineStrand.vt2" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_strand_type.vt2</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libplcurve.plcurve.Spline">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">Spline</tt><a class="headerlink" href="#libplcurve.plcurve.Spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>::plc_spline_type</p>
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Spline.cp">
+<tt class="descname">cp</tt><a class="headerlink" href="#libplcurve.plcurve.Spline.cp" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_type.cp</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Spline.cst">
+<tt class="descname">cst</tt><a class="headerlink" href="#libplcurve.plcurve.Spline.cst" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_type.cst</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.Spline.nc">
+<tt class="descname">nc</tt><a class="headerlink" href="#libplcurve.plcurve.Spline.nc" title="Permalink to this definition">¶</a></dt>
+<dd><p>plc_spline_type.nc</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libplcurve.plcurve.KnotType">
+<em class="property">class </em><tt class="descclassname">libplcurve.plcurve.</tt><tt class="descname">KnotType</tt><a class="headerlink" href="#libplcurve.plcurve.KnotType" title="Permalink to this definition">¶</a></dt>
+<dd><p>::knottypestruct</p>
+<dl class="attribute">
+<dt id="libplcurve.plcurve.KnotType.cr">
+<tt class="descname">cr</tt><a class="headerlink" href="#libplcurve.plcurve.KnotType.cr" title="Permalink to this definition">¶</a></dt>
+<dd><p>knottypestruct.cr</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.KnotType.factors">
+<tt class="descname">factors</tt><a class="headerlink" href="#libplcurve.plcurve.KnotType.factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>knottypestruct.factors</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.KnotType.homfly">
+<tt class="descname">homfly</tt><a class="headerlink" href="#libplcurve.plcurve.KnotType.homfly" title="Permalink to this definition">¶</a></dt>
+<dd><p>knottypestruct.homfly</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.KnotType.ind">
+<tt class="descname">ind</tt><a class="headerlink" href="#libplcurve.plcurve.KnotType.ind" title="Permalink to this definition">¶</a></dt>
+<dd><p>knottypestruct.ind</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.KnotType.num_factors">
+<tt class="descname">num_factors</tt><a class="headerlink" href="#libplcurve.plcurve.KnotType.num_factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>knottypestruct.num_factors</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.plcurve.KnotType.sym">
+<tt class="descname">sym</tt><a class="headerlink" href="#libplcurve.plcurve.KnotType.sym" title="Permalink to this definition">¶</a></dt>
+<dd><p>knottypestruct.sym</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -417,6 +844,15 @@ a closed curve). If the component is open, it is split in two.</p>
 
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pd.html" class="btn btn-neutral float-right" title="libplcurve.pd module"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral" title="Welcome to plCurve’s documentation!"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

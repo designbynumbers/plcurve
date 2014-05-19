@@ -56,7 +56,19 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul class="simple">
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="api/plcurve.html">libplcurve.plcurve module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/plcurve.html#the-plcurve-class">The PlCurve class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/plcurve.html#the-strand-class">The Strand class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/plcurve.html#the-randomgenerator-gsl-rng-interface-class">The RandomGenerator (gsl_rng interface) class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/plcurve.html#auxiliary-classes">Auxiliary classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/pd.html">libplcurve.pd module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/pd.html#the-planardiagram-class">The PlanarDiagram class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/pd.html#building-block-classes">Building block classes</a></li>
+</ul>
+</li>
 </ul>
 
         
@@ -96,29 +108,41 @@
  <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.add_component">add_component() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.add_component">add_component() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.append">append() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.append">append() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.as_pd">as_pd() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
@@ -128,29 +152,107 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.check_constraint">check_constraint() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.cc">cc (libplcurve.plcurve.SplineStrand attribute)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.classify">classify() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.center_of_mass">center_of_mass (libplcurve.plcurve.PlCurve attribute)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.constrain_to_line">constrain_to_line() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.check_constraint">check_constraint() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.classify">classify() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.clr">clr (libplcurve.plcurve.SplineStrand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Constraint.cmp">cmp (libplcurve.plcurve.Constraint attribute)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.VertexQuantifier.cmp">(libplcurve.plcurve.VertexQuantifier attribute)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand.colors">colors (libplcurve.plcurve.Strand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Component">Component (class in libplcurve.pd)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.component_and_pos">component_and_pos() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.components">components (libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.comps_ok">comps_ok() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.constrain_to_line">constrain_to_line() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.constrain_to_plane">constrain_to_plane() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.constrain_to_plane">constrain_to_plane() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.convert_to_spline">convert_to_spline() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Constraint">Constraint (class in libplcurve.plcurve)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.cp_num">cp_num() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.convert_to_spline">convert_to_spline() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.copy">copy() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Spline.cp">cp (libplcurve.plcurve.Spline attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.cp_num">cp_num() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.KnotType.cr">cr (libplcurve.plcurve.KnotType attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.cross_ok">cross_ok() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Crossing">Crossing (class in libplcurve.pd)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.crossings">crossings (libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Spline.cst">cst (libplcurve.plcurve.Spline attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Symmetry.curve">curve (libplcurve.plcurve.Symmetry attribute)</a>, <a href="api/plcurve.html#libplcurve.plcurve.Symmetry.curve">[1]</a>
   </dt>
 
   </dl></td>
@@ -160,17 +262,51 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.delete_arc">delete_arc() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.delete_arc">delete_arc() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.double_vertices">double_vertices() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.double_vertices">double_vertices() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.drop_component">drop_component() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.drop_component">drop_component() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Edge">Edge (class in libplcurve.pd)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Component.edge">edge (libplcurve.pd.Component attribute)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="api/pd.html#libplcurve.pd.Crossing.edge">(libplcurve.pd.Crossing attribute)</a>
+  </dt>
+
+        
+  <dt><a href="api/pd.html#libplcurve.pd.Face.edge">(libplcurve.pd.Face attribute)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.edges">edges (libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.edges_ok">edges_ok() (libplcurve.pd.PlanarDiagram method)</a>
   </dt>
 
   </dl></td>
@@ -180,21 +316,157 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.fix_constraints">fix_constraints() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.Face">Face (class in libplcurve.pd)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.fix_wrap">fix_wrap() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.faces">faces (libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.faces_ok">faces_ok() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.KnotType.factors">factors (libplcurve.plcurve.KnotType attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.fix_constraints">fix_constraints() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.fix_wrap">fix_wrap() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.fold_move">fold_move() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.fold_move">fold_move() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.from_file">from_file() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.from_file">from_file() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.from_simple_chain">from_simple_chain() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.RandomGenerator.from_state">from_state() (libplcurve.plcurve.RandomGenerator method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.from_torus_knot">from_torus_knot() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.from_twist_knot">from_twist_knot() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.from_unknot">from_unknot() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.from_unknot_wye">from_unknot_wye() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.get_crossing">get_crossing() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.RandomGenerator.get_state">get_state() (libplcurve.plcurve.RandomGenerator method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand.get_vertex">get_vertex() (libplcurve.plcurve.Strand method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.gyradius">gyradius (libplcurve.plcurve.PlCurve attribute)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.hash">hash (libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Edge.head">head (libplcurve.pd.Edge attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Edge.headpos">headpos (libplcurve.pd.Edge attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.KnotType.homfly">homfly (libplcurve.plcurve.KnotType attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.homfly">homfly() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.KnotType.ind">ind (libplcurve.plcurve.KnotType attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SymmetryGroup.inverse">inverse (libplcurve.plcurve.SymmetryGroup attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.is_ok">is_ok() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand.is_open">is_open (libplcurve.plcurve.Strand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.isomorphic">isomorphic() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Constraint.kind">kind (libplcurve.plcurve.Constraint attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.KnotType">KnotType (class in libplcurve.plcurve)</a>
   </dt>
 
   </dl></td>
@@ -204,7 +476,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.loop_closure">loop_closure() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.loop_closure">loop_closure() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
@@ -214,17 +486,17 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.mean_squared_chordlengths">mean_squared_chordlengths() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.mean_squared_chordlengths">mean_squared_chordlengths() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.mean_tangent">mean_tangent() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.mean_tangent">mean_tangent() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.MR_curvature">MR_curvature() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.MR_curvature">MR_curvature() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
@@ -234,13 +506,93 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.num_edges">num_edges() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SymmetryGroup.n">n (libplcurve.plcurve.SymmetryGroup attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Spline.nc">nc (libplcurve.plcurve.Spline attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.ncomps">ncomps (libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.ncross">ncross (libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Component.nedges">nedges (libplcurve.pd.Component attribute)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="api/pd.html#libplcurve.pd.Face.nedges">(libplcurve.pd.Face attribute)</a>
+  </dt>
+
+        
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.nedges">(libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Constraint.next">next (libplcurve.plcurve.Constraint attribute)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.VertexQuantifier.next">(libplcurve.plcurve.VertexQuantifier attribute)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.nfaces">nfaces (libplcurve.pd.PlanarDiagram attribute)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.num_vertices">num_vertices() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.ns">ns (libplcurve.plcurve.SplineStrand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand.num_colors">num_colors (libplcurve.plcurve.Strand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.num_edges">num_edges() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.KnotType.num_factors">num_factors (libplcurve.plcurve.KnotType attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand.num_vertices">num_vertices (libplcurve.plcurve.Strand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.num_vertices">num_vertices() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Constraint.num_verts">num_verts (libplcurve.plcurve.Constraint attribute)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.open">open (libplcurve.plcurve.SplineStrand attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Face.ori">ori (libplcurve.pd.Face attribute)</a>
   </dt>
 
   </dl></td>
@@ -250,21 +602,35 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.perturb">perturb() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.perturb">perturb() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve">PlCurve (class in libplcurve.plcurve)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram">PlanarDiagram (class in libplcurve.pd)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve">PlCurve (class in libplcurve.plcurve)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.pointset_diameter">pointset_diameter (libplcurve.plcurve.PlCurve attribute)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.pointset_diameter">pointset_diameter (libplcurve.plcurve.PlCurve attribute)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.project">project() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.project">project() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.VertexQuantifier.quant">quant (libplcurve.plcurve.VertexQuantifier attribute)</a>
   </dt>
 
   </dl></td>
@@ -274,49 +640,81 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.random_closed_plane_polygon">random_closed_plane_polygon() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.random_closed_plane_polygon">random_closed_plane_polygon() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.random_closed_polygon">random_closed_polygon() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.random_closed_polygon">random_closed_polygon() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.random_equilateral_closed_polygon">random_equilateral_closed_polygon() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.random_equilateral_closed_polygon">random_equilateral_closed_polygon() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.random_equilateral_open_polygon">random_equilateral_open_polygon() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.random_equilateral_open_polygon">random_equilateral_open_polygon() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.random_open_plane_polygon">random_open_plane_polygon() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.random_open_plane_polygon">random_open_plane_polygon() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.random_open_polygon">random_open_polygon() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.random_open_polygon">random_open_polygon() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.random_rotate">random_rotate() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.RandomGenerator">RandomGenerator (class in libplcurve.plcurve)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.read">read() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.regenerate">regenerate() (libplcurve.pd.PlanarDiagram method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.random_rotate">random_rotate() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.regenerate_comps">regenerate_comps() (libplcurve.pd.PlanarDiagram method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.remove_all_constraints">remove_all_constraints() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.regenerate_crossings">regenerate_crossings() (libplcurve.pd.PlanarDiagram method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.remove_constraint">remove_constraint() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.regenerate_faces">regenerate_faces() (libplcurve.pd.PlanarDiagram method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.resize_colorbuf">resize_colorbuf() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.regenerate_hash">regenerate_hash() (libplcurve.pd.PlanarDiagram method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.rotate">rotate() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.remove_all_constraints">remove_all_constraints() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.remove_constraint">remove_constraint() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.reorient_edge">reorient_edge() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.resize_colorbuf">resize_colorbuf() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.rotate">rotate() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
@@ -326,21 +724,67 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.s">s() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.s">s() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.scale">scale() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.scale">scale() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.RandomGenerator.set">set() (libplcurve.plcurve.RandomGenerator method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.set_crossing">set_crossing() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.set_fixed">set_fixed() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Crossing.sign">sign (libplcurve.pd.Crossing attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Spline">Spline (class in libplcurve.plcurve)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.set_fixed">set_fixed() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand">SplineStrand (class in libplcurve.plcurve)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.subarc_length">subarc_length() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand">Strand (class in libplcurve.plcurve)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.subarc_length">subarc_length() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.svals">svals (libplcurve.plcurve.SplineStrand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.KnotType.sym">sym (libplcurve.plcurve.KnotType attribute)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SymmetryGroup.sym">(libplcurve.plcurve.SymmetryGroup attribute)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Symmetry">Symmetry (class in libplcurve.plcurve)</a>, <a href="api/plcurve.html#libplcurve.plcurve.Symmetry">[1]</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SymmetryGroup">SymmetryGroup (class in libplcurve.plcurve)</a>
   </dt>
 
   </dl></td>
@@ -350,21 +794,41 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.total_curvature">total_curvature() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.VertexQuantifier.tag">tag (libplcurve.plcurve.VertexQuantifier attribute)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.total_torsion">total_torsion() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.Edge.tail">tail (libplcurve.pd.Edge attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/pd.html#libplcurve.pd.Edge.tailpos">tailpos (libplcurve.pd.Edge attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Symmetry.target">target (libplcurve.plcurve.Symmetry attribute)</a>, <a href="api/plcurve.html#libplcurve.plcurve.Symmetry.target">[1]</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.total_curvature">total_curvature() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.translate">translate() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.total_torsion">total_torsion() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.turning_angle">turning_angle() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Symmetry.transform">transform (libplcurve.plcurve.Symmetry attribute)</a>, <a href="api/plcurve.html#libplcurve.plcurve.Symmetry.transform">[1]</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.translate">translate() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.turning_angle">turning_angle() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
@@ -374,7 +838,13 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.unconstrain">unconstrain() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.uid">uid (libplcurve.pd.PlanarDiagram attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.unconstrain">unconstrain() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
@@ -384,13 +854,53 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.vertex_num">vertex_num() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Constraint.vect">vect (libplcurve.plcurve.Constraint attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Constraint.vert">vert (libplcurve.plcurve.Constraint attribute)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.VertexQuantifier.vert">(libplcurve.plcurve.VertexQuantifier attribute)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.vertex_num">vertex_num() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.VertexQuantifier">VertexQuantifier (class in libplcurve.plcurve)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/libplcurve.html#libplcurve.plcurve.PlCurve.vt_num">vt_num() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand.vertices">vertices (libplcurve.plcurve.Strand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.vt">vt (libplcurve.plcurve.SplineStrand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.vt2">vt2 (libplcurve.plcurve.SplineStrand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.vt_num">vt_num() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.write">write() (libplcurve.pd.PlanarDiagram method)</a>
   </dt>
 
   </dl></td>

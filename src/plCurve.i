@@ -1,4 +1,4 @@
-%module(directors="1") plcurve
+%module(directors="1", package="libplcurve") plcurve
 %feature("autodoc", "1");
 %{
 #include "plCurve.h"
@@ -22,6 +22,7 @@ static int _exception = 0; // For throwing interface exceptions
 %include "exception.i"
 %include "carrays.i"
 %include "typemaps.i"
+%import "plcTopology.i"
 
 typedef double plc_matrix[3][3];
 
@@ -346,7 +347,7 @@ typedef struct plc_strand_type {
 %}
 
 /* Curve constraint kind */
-%rename(ConstantKind) plc_cst_kind_type;
+%rename(ConstraintKind) plc_cst_kind_type;
 typedef enum plc_cst_kind_type {
   unconstrained = 0,
   fixed,
@@ -453,7 +454,7 @@ struct plc_type {
       return NULL;
     }
   }
-  %typemap(in) (const int cc, const plc_color *const clr) {
+  %typemap(in,doc="Color[]") (const int cc, const plc_color *const clr) {
     PyObject *py_color;
     // Assert that input is a sequence
     if (PySequence_Check($input)) {
@@ -930,6 +931,14 @@ a closed curve). If the component is open, it is split in two.";
     %newobject classify;
     plc_knottype *classify(gsl_rng *r, int *nposs)
     { return plc_classify(r, $self, nposs); }
+
+    %newobject as_pd;
+    pd_code_t *as_pd(gsl_rng *r)
+        { return pd_code_from_plCurve(r, $self); }
+
+    %newobject homfly;
+    char *homfly(gsl_rng *r)
+    { return plc_homfly(r, $self); }
 
     // Python special methods
     //
