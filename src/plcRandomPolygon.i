@@ -10,8 +10,10 @@
 #include "pd_storage.h"
 #include <stddef.h> // SWIG should include this itself but Debian version does not
   static char eoi = 0; // end of iteration exception
+static char _exception =0;
 %}
 %include "typemaps.i"
+%include "exception.i"
 %import "plCurve.i"
 
 // typedef enum chord_enum {diagonal,edge} chordtype_t;
@@ -156,23 +158,48 @@ typedef struct tsmcmc_run_parameters_struct {
 
 } tsmcmc_run_parameters;
 
+
+%{
+  typedef struct {
+    PyObject *py_integrand;
+    PyObject *py_args;
+  } py_integrand_args;
+%}
+
+%exception equilateral_expectation {
+  assert(!_exception);
+  $action
+    if (_exception) {
+      _exception = 0;
+      //SWIG_fail;
+      SWIG_exception(SWIG_RuntimeError, "There was an error calling the Python callback.");
+      SWIG_fail;
+    }
+}
+
 %inline %{
-  double py_integrand_helper(plCurve *L, void *args) {
+  double py_integrand_helper(plCurve *L, void *argptr) {
     PyObject *py_plc;
     PyObject *result;
     double ret;
-    PyObject *py_integrand = (PyObject *)args;
+    PyObject *py_integrand;
+    PyObject *py_args;
+    py_integrand_args *args = (py_integrand_args *)argptr;
 
+    py_integrand = args->py_integrand;
+    py_args = args->py_args;
     py_plc = SWIG_InternalNewPointerObj(L, SWIGTYPE_p_plc_type, 0);
-    result = PyObject_CallFunctionObjArgs(py_integrand, py_plc, NULL);
+    result = PyObject_CallFunctionObjArgs(py_integrand, py_plc, args, NULL);
     Py_DECREF(py_plc);
-    if (result == NULL) {
-      return -2;
-    } else {
+    if (result != NULL) {
       ret = PyFloat_AsDouble(result);
+      Py_DECREF(result);
+      return ret;
+    } else {
+      fprintf(stdout, "111");
+      _exception = 1;
+      return 22;
     }
-    Py_DECREF(result);
-    return ret;
   }
 %}
 
@@ -185,41 +212,36 @@ typedef struct tsmcmc_run_parameters_struct {
   /*-
     Master functions for integrating over polygon space.
     -*/
-%inline %{
-double eq_ex(gsl_rng *rng, PyObject *integrand, int max_steps,
-             int max_seconds, tsmcmc_triangulation_t T,
-             tsmcmc_run_parameters rp,
-             tsmcmc_run_stats *rs,
-             double *e) {
-  double t;
-  PyObject *py_plc;
-  PyObject *result;
-  double ret;
 
-  //py_plc = SWIG_InternalNewPointerObj(L, SWIGTYPE_p_plc_type, 0);
-  //result = PyObject_CallFunctionObjArgs(integrand, NULL);
-  //Py_DECREF(py_plc);
-  //if (result == NULL) {
-  //  return -2;
-  //} else {
-  //  ret = PyFloat_AsDouble(result);
-  //}
-  //Py_DECREF(result);
-  //return ret;
-
-  return tsmcmc_equilateral_expectation(rng, &py_integrand_helper, (void *)integrand, max_steps,
-                                        max_seconds, T, rp, rs, &t);
+%typemap(check) PyObject *integrand
+{
+  if (!PyCallable_Check($1)) {
+    SWIG_exception(SWIG_TypeError, "Argument `integrand` must be callable");
+  }
 }
+
+%inline %{
+  double equilateral_expectation(gsl_rng *rng,
+                                 PyObject *integrand, PyObject *args,
+                                 int max_steps,
+                                 int max_seconds,
+                                 tsmcmc_triangulation_t T,
+                                 tsmcmc_run_parameters rp,
+                                 tsmcmc_run_stats *rs,
+                                 double *e) {
+    double t;
+    py_integrand_args arg_struct;
+
+    arg_struct.py_integrand = integrand;
+    arg_struct.py_args = args;
+
+    return tsmcmc_equilateral_expectation(rng, &py_integrand_helper, (void *)&arg_struct,
+                                          max_steps,
+                                          max_seconds, T, rp, rs, &t);
+  }
 %}
 
-double   tsmcmc_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
-                                        void *args,
-                                        int max_steps,int max_seconds,
-                                        tsmcmc_triangulation_t T,
-                                        tsmcmc_run_parameters run_params,
-                                        tsmcmc_run_stats *run_stats,
-                                        double *error);
-  /*
+/*
      This is the "master" driver function for computing an expectation
      over equilateral (unconfined) polygons. It uses the Geyer ips
      estimator to compute error bars.
