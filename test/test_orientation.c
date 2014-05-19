@@ -160,11 +160,6 @@ bool test_norientation(pd_idx_t n, bool print)
 bool test_orientation() {
 
   if (!test_norientation(1,true)) { return false; }
-  if (!test_norientation(2,true)) { return false; }
-  if (!test_norientation(3,true)) { return false; }
-  if (!test_norientation(4,true)) { return false; }
-  if (!test_norientation(5,false)) { return false; }
-  if (!test_norientation(6,false)) { return false; }
   
   return true;
 

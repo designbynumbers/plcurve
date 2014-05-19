@@ -269,6 +269,18 @@ bool unknot_generation_tests() {
 
   printf("testing all crossing signs for 7 crossing diagram...");
   
+  pd_code_t *pd = pd_build_unknot(7);
+  pd_multidx_t *sign_iterator = pd_new_multidx(7,NULL,orientation_ops);
+  unsigned int max = pd_multidx_nvals(sign_iterator);
+  unsigned int i;
+
+  for(i=0;i<max;i++,pd_increment_multidx(sign_iterator)) {
+
+    /* Actually set the crossings according to the information in the 
+       iterator. */
+
+    
+  
 
   printf("pass (survived)\n");
   printf("-----------------------------------------------\n"

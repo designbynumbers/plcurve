@@ -1,9 +1,8 @@
 /*
 
   pd_orientation.h : This is a minimal group implementation
-  which allows one to iterate over a collection of +/- orientations,
-  for instance to generate all possible crossing signs for a 
-  pd_code.
+  of Z/2Z, which feeds into the multidx data type to allow you 
+  to iterate, say, over all the possible crossing signs in a diagram.
 
 */
 
@@ -12,12 +11,11 @@
 
 typedef struct pd_orientation_struct {
 
-  pd_idx_t   n;  /* Number of objects to keep track of */
-  pd_or_t  *or;    /* PD_POS_ORIENTATION or PD_NEG_ORIENTATION for each */
+  pd_or_t  or;    /* PD_POS_ORIENTATION or PD_NEG_ORIENTATION */
  
 } pd_orientation_t;
 
-void           *pd_new_orientation(void *n); /* Pointer to pd_idx_t n */
+void           *pd_new_orientation(void *nodata); /* Initial data ignored */
 void            pd_free_orientation(void **orientation);
 
 char           *pd_print_orientation(void *orientation);

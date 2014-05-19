@@ -56,21 +56,13 @@ pd_iterops_t orientation_ops = {pd_new_orientation,pd_free_orientation,
 				pd_increment_orientation,pd_norientations,
 				pd_orientation_ok,pd_orientation_cmp};
 
-void *pd_new_orientation(void *np)
+void *pd_new_orientation(void *nodata)
 {
   pd_orientation_t *d;
-  pd_idx_t n = *(pd_idx_t *)(np);
-
   d = calloc(1,sizeof(pd_orientation_t));
   assert(d != NULL);
-
-  d->n = n;
-  d->or = calloc(n,sizeof(pd_or_t));
-  assert(d->or != NULL);
-
-  pd_idx_t i;
-  for(i=0;i<n;i++) { d->or[i] = PD_POS_ORIENTATION; }
-  
+  d->or = PD_POS_ORIENTATION;
+ 
   return d;
 }
 
@@ -79,10 +71,8 @@ void pd_free_orientation(void **orientationP)
   pd_orientation_t *d = *(pd_orientation_t **)(orientationP);
 
   if (d == NULL) { return; }
-  if (d->or != NULL) { free(d->or); d->or = NULL; }
-  d->n = 0;
-  
   free(d);
+
   *orientationP = NULL;
 }
 
@@ -92,25 +82,12 @@ char  *pd_print_orientation(void *orientationP)
 
 {
   pd_orientation_t *d = (pd_orientation_t *)(orientationP);
-  int bufsize = 2*d->n + 5, total_used=0, this_used=0;
+  size_t bufsize = 16;
 
   char *buf = calloc(bufsize,sizeof(char));
   assert(buf != NULL);
-  char *bufptr = buf;
-  pd_idx_t i;
 
-  this_used = snprintf(bufptr,bufsize-total_used,"or ");
-  total_used += this_used;
-  bufptr += this_used;
-
-  for(i=0;i<d->n;i++) { 
-    
-    this_used = snprintf(bufptr,bufsize-total_used,"%c",pd_print_or(d->or[i]));
-    total_used += this_used;
-    bufptr += this_used;
-
-  }
-  
+  snprintf(buf,bufsize,"or %c",pd_print_or(d->or));
   return buf;
 
 }
@@ -123,54 +100,41 @@ void  *pd_copy_orientation(void *orientationP)
   pd_orientation_t *d = (pd_orientation_t *)(orientationP);
   pd_orientation_t *new_d;
 
-  new_d = pd_new_orientation(&(d->n));
-  memcpy(new_d->or,d->or,d->n*sizeof(pd_or_t));
+  new_d = pd_new_orientation(NULL);
+  new_d->or = d->or;
   return (void *)(new_d);
 } 
 
 void pd_increment_orientation(void *orientationP) 
 
-/* Generates (in place) the next value of d. To do this, we 
-   implement (basically) a binary add: given a string of 
-   binary digits, read from left to right converting 1s to 0s
-   until you reach the first 0. Convert it to a 1.*/
+/* Generates (in place) the next value of d. */
 
 {
   pd_orientation_t *d = (pd_orientation_t *)(orientationP);
-  pd_idx_t i;
 
-  for(i=0;i<d->n && d->or[i] == PD_POS_ORIENTATION;i++) { 
-    
-    d->or[i] = PD_NEG_ORIENTATION;
+  if (d->or == PD_POS_ORIENTATION) { 
 
-  } 
+    d->or = PD_NEG_ORIENTATION;
 
-  if (i < d->n && d->or[i] == PD_NEG_ORIENTATION) { 
+  } else if (d->or == PD_NEG_ORIENTATION) { 
 
-    d->or[i] = PD_POS_ORIENTATION;
+    d->or = PD_POS_ORIENTATION;
+
+  } else {
+
+    pd_error(SRCLOC,"can't increment invalid orientation %d",NULL,d->or);
 
   }
-    
+
 }
 
 
 unsigned int pd_norientations(void *orientationP) 
 
 /* Count the number of unique values that d can take.
-
-   And yes, I realize that you might be able to do this faster with
-   bit shifting. But that's often buggy at the compiler level, and
-   anyway this will never be called enough for you to notice 
-   any difference.
-
 */
 {
-  pd_orientation_t *d = (pd_orientation_t *)(orientationP);
-  unsigned int result = 1;
-  pd_idx_t i;
-
-  for(i=0;i<d->n;i++) { result *= 2; }
-  return result ;
+  return 2;
 }
 
 
@@ -180,20 +144,15 @@ bool pd_orientation_ok(void *orientationP)
 
 {
   pd_orientation_t *d = (pd_orientation_t *)(orientationP);
-  pd_idx_t i;
 
-  for(i=0;i<d->n;i++) {
+  if (!pd_or_ok(d->or)) { 
 
-    if (!pd_or_ok(d->or[i])) { 
-
-      return pd_error(SRCLOC,
-		      "%ORIENTATION contains illegal orientation %d at position %d",
-		      NULL,d,d->or[i],i);
-
-    }
+    return pd_error(SRCLOC,
+		    "%ORIENTATION contains illegal orientation %d",
+		    NULL,d,d->or);
 
   }
-
+  
   return true;
 
 }
@@ -203,22 +162,21 @@ int pd_orientation_cmp(const void *orientationAp,const void *orientationBp)
   pd_orientation_t *orientationA = *(pd_orientation_t **)(orientationAp);
   pd_orientation_t *orientationB = *(pd_orientation_t **)(orientationBp);
 
-  pd_idx_t i,n;
+  if (orientationA->or == orientationB->or) {
 
-  assert(orientationA->n == orientationB->n);
-  n = orientationA->n;
+    return 0;
 
-  for(i=0;i<n;i++) {
+  } 
 
-    if (orientationA->or[i] != orientationB->or[i]) {
+  if (orientationA->or == PD_POS_ORIENTATION) {
 
-      return (orientationA->or[i] == PD_POS_ORIENTATION) ? 1 : -1;
+    return -1;
 
-    }
+  } else {
+
+    return 1;
 
   }
-
-  return 0;
 
 }
  
