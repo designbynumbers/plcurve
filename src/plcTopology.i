@@ -222,10 +222,7 @@ typedef struct pd_code_struct {
     pd_code_struct() { return (pd_code_t *)calloc(1, sizeof(pd_code_t)); }
     // Copy constructor
     pd_code_struct(pd_code_t *to_copy) { return pd_copy(to_copy); }
-    // From file pointer constructor
-    pd_code_struct(FILE *f) {
-      return pd_read(f);
-    }
+
     // Destructor
     ~pd_code_struct() { free($self); }
 
@@ -276,10 +273,10 @@ typedef struct pd_code_struct {
     const pd_code_t *const faces;
 
     // Get/set/add crossings
-    inline pd_crossing_t get_crossing(pd_idx_t i, bool *OOB) {
-      if(i < 0 || i >= $self->ncross) { *OOB = true; return; }
+    inline pd_crossing_t *get_crossing(pd_idx_t i, bool *OOB) {
+      if(i < 0 || i >= $self->ncross) { *OOB = true; return NULL; }
       *OOB = false;
-      return ($self->cross[i]);
+      return &($self->cross[i]);
     }
     inline void set_crossing(pd_idx_t i, pd_crossing_t cross, bool *OOB) {
       if(i < 0 || i >= $self->ncross) { *OOB = true; return; }
