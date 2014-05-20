@@ -163,8 +163,69 @@ typedef struct tsmcmc_run_parameters_struct {
   typedef struct {
     PyObject *py_integrand;
     PyObject *py_args;
+    PyObject *py_kwargs;
   } py_integrand_args;
 %}
+
+%typemap(in, doc="Callable integrand") (double (*integrand)(plCurve *L, void *args), void *args) (py_integrand_args arg_struct) {
+  Py_ssize_t len;
+  PyObject *o;
+  // The $input must be a callable or a sequence (which contains a callable!)
+  if (PySequence_Check($input) && (0 < (len = PySequence_Length($input))) && (len) <= 3) {
+    // A sequence passed as an integrand is of the form
+    //  (integrand, [args[, kwargs]])
+    // Read the callable
+    if (!PyCallable_Check(o = PySequence_GetItem($input, 0))) {
+      SWIG_exception(SWIG_TypeError,
+                     "Argument `integrand` must be callable or a tuple of the form (callable[ args[, kwargs]]).");
+    } else {
+      arg_struct.py_integrand = o;
+    }
+    if (len > 1) {
+      if (PySequence_Check(o = PySequence_GetItem($input, 1))) {
+      arg_struct.py_args = PyList_New(len+1);
+      if(-1 == PyList_SetSlice(arg_struct.py_args, 1, len+1, o)) {
+        SWIG_exception(SWIG_TypeError,
+                   "Something went terribly awry setting up the callback default arguments");
+      }
+      Py_XDECREF(o);
+      } else {
+        SWIG_exception(SWIG_TypeError,
+                       "Argument `integrand` must be callable or a tuple of the form (callable[ args[, kwargs]]).");
+      }
+      if (len > 2) {
+        if (PyDict_Check(o = PySequence_GetItem($input, 2))) {
+          arg_struct.py_kwargs = o;
+        } else {
+          SWIG_exception(SWIG_TypeError,
+                         "Argument `integrand` must be callable or a tuple of the form (callable[ args[, kwargs]]).");
+        }
+      } else {
+        arg_struct.py_kwargs = NULL;
+      }
+    } else {
+      arg_struct.py_args = NULL;
+      arg_struct.py_kwargs = NULL;
+    }
+  } else if (PyCallable_Check($input)) {
+    // Integrand is a callable
+    arg_struct.py_integrand = $input;
+    Py_INCREF($input);
+    arg_struct.py_args = NULL;
+    arg_struct.py_kwargs = NULL;
+  } else {
+    SWIG_exception(SWIG_TypeError,
+                   "Argument `integrand` must be callable or a tuple of the form (callable[ args[, kwargs]]).");
+  }
+
+  $1 = py_integrand_helper;
+  $2 = &arg_struct;
+}
+%typemap(freearg) (double (*integrand)(plCurve *L, void *args), void *args) {
+  Py_XDECREF(((py_integrand_args *)$2)->py_integrand);
+  Py_XDECREF(((py_integrand_args *)$2)->py_args);
+  Py_XDECREF(((py_integrand_args *)$2)->py_kwargs);
+}
 
 %exception equilateral_expectation {
   assert(!_exception);
@@ -189,16 +250,21 @@ typedef struct tsmcmc_run_parameters_struct {
     py_integrand = args->py_integrand;
     py_args = args->py_args;
     py_plc = SWIG_InternalNewPointerObj(L, SWIGTYPE_p_plc_type, 0);
-    result = PyObject_CallFunctionObjArgs(py_integrand, py_plc, args, NULL);
-    Py_DECREF(py_plc);
+    if (py_args) {
+      PyList_SetItem(py_args, 0, py_plc);
+      result = PyObject_Call(py_integrand, py_args=PyList_AsTuple(py_args), args->py_kwargs);
+      Py_DECREF(py_args);
+    } else {
+      result = PyObject_CallFunctionObjArgs(py_integrand, py_plc, NULL);
+      Py_DECREF(py_plc);
+    }
     if (result != NULL) {
       ret = PyFloat_AsDouble(result);
       Py_DECREF(result);
       return ret;
     } else {
-      fprintf(stdout, "111");
       _exception = 1;
-      return 22;
+      return 0;
     }
   }
 %}
@@ -220,97 +286,80 @@ typedef struct tsmcmc_run_parameters_struct {
   }
 }
 
-%inline %{
-  double equilateral_expectation(gsl_rng *rng,
-                                 PyObject *integrand, PyObject *args,
-                                 int max_steps,
-                                 int max_seconds,
-                                 tsmcmc_triangulation_t T,
-                                 tsmcmc_run_parameters rp,
-                                 tsmcmc_run_stats *rs,
-                                 double *e) {
-    double t;
-    py_integrand_args arg_struct;
+%rename(equilateral_expectation) tsmcmc_equilateral_expectation;
+%feature("autodoc", "equilateral_expectation(rng, df, max_steps, max_secs, T, run_params) -> result, error [, stats]")
+tsmcmc_equilateral_expectation;
+%feature("docstring") tsmcmc_equilateral_expectation
+"This is the 'master' driver function for computing an expectation over
+equilateral unconfined polygons. It uses the Geyer ips estimator to
+compute error bars.
 
-    arg_struct.py_integrand = integrand;
-    arg_struct.py_args = args;
+We set parameters for the algorithm with run_params (intended to be
+one of the predefined profiles for a run), and return a lot of
+detailed information about the run in run_stats (optional, set to NULL
+if you don't care).
 
-    return tsmcmc_equilateral_expectation(rng, &py_integrand_helper, (void *)&arg_struct,
-                                          max_steps,
-                                          max_seconds, T, rp, rs, &t);
-  }
-%}
-
-/*
-     This is the "master" driver function for computing an expectation
-     over equilateral (unconfined) polygons. It uses the Geyer ips
-     estimator to compute error bars.
-
-     We set parameters for the algorithm with run_params (intended to be
-     one of the predefined profiles for a run), and return a lot of detailed
-     information about the run in run_stats (optional, set to NULL if you
-     don't care).
-
-     Note that the number of edges is set (implicitly) by the triangulation.
-  */
-
-
-double   tsmcmc_confined_equilateral_expectation(gsl_rng *rng,double integrand(plCurve *L, void *args),
-                                                 void *args,
-						   double confinement_radius, int nedges,
-						   int max_steps,int max_seconds,
-						   tsmcmc_run_parameters run_params,
-						   tsmcmc_run_stats *run_stats,
-						   double *error);
-
-
-  /* This is the "master" driver function for computing an expectation
-     over equilateral polygons in "rooted" spherical confinement (the
-     confinement is "rooted" when the first vertex of the polygon is at
-     the center of the sphere). Since only one triangulation is
-     possible, we don't pass in a triangulation.  It uses the Geyer ips
-     estimator to compute error bars.
-
-     We set the run parameters with the usual run_params struct, but
-     notice that permutation steps aren't possible, so we ignore delta
-     (if set). Again, this is usually intended to be one of the
-     predefined defaults.
-
-     Detailed information about the run is returned run_stats (optional,
-     set to NULL if you don't care).
-  */
-
-double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L, void* args),
+Note that the number of edges is set (implicitly) by the triangulation.";
+double tsmcmc_equilateral_expectation(gsl_rng *rng,
+                                      double (*integrand)(plCurve *L,void *a),
                                       void *args,
-					double failure_to_close,
-					int max_steps,int max_seconds,
-					tsmcmc_triangulation_t T,
-					tsmcmc_run_parameters run_params,
-					tsmcmc_run_stats *run_stats,
-					double *error);
+                                      int max_steps,
+                                      int max_seconds,
+                                      tsmcmc_triangulation_t T,
+                                      tsmcmc_run_parameters rp,
+                                      tsmcmc_run_stats *rs,
+                                      double *e); %{%}
 
+%rename(confined_equilateral_expectation) tsmcmc_confined_equilateral_expectation;
+%feature("autodoc", "confined_equilateral_expectation(rng, df, n_edges, max_steps, max_secs, run_params) -> result, error [, stats]")
+tsmcmc_confined_equilateral_expectation;
+%feature("docstring") tsmcmc_confined_equilateral_expectation
+"This is the 'master' driver function for computing an expectation over
+equilateral polygons in 'rooted' spherical confinement (the
+confinement is 'rooted' when the first vertex of the polygon is at the
+center of the sphere). Since only one triangulation is possible, we
+don't pass in a triangulation.  It uses the Geyer ips estimator to
+compute error bars.
 
-  /* This is the "master" driver function for computing an expectation
-     over equilateral polygons with a fixed failure to close (one long
-     edge of length failure_to_close). These can be triangulated any way
-     that is desired, but the edge from vertex 0 to vertex 1 is still
-     the long edge. It uses the Geyer ips estimator to compute error
-     bars.
+We set the run parameters with the usual run_params struct, but notice
+that permutation steps aren't possible, so we ignore delta (if
+set). Again, this is usually intended to be one of the predefined
+defaults.
 
-     We set the run parameters with the usual run_params struct. Permutations
-     only permute the equal edge-length steps.
+If ``run_stats`` is ``True``, additionally return statistics.";
+double tsmcmc_confined_equilateral_expectation(gsl_rng *rng,
+                                               double (*integrand)(plCurve*,void*),
+                                               void *args,
+                                               double confinement_radius, int nedges,
+                                               int max_steps,int max_seconds,
+                                               tsmcmc_run_parameters run_params,
+                                               tsmcmc_run_stats *run_stats,
+                                               double *error); %{%}
 
-     Detailed information about the run is returned run_stats (optional,
-     set to NULL if you don't care).
+%rename(fixed_ftc_expectation) tsmcmc_fixed_ftc_expectation;
+%feature("autodoc", "fixed_ftc_expectation(rng, df, close_failure, max_steps, max_secs, T, run_params) -> result, error [, ostats]")
+tsmcmc_fixed_ftc_expectation;
+%feature("docstring") tsmcmc_fixed_ftc_expectation
+"This is the 'master' driver function for computing an expectation over
+equilateral polygons with a fixed failure to close (one long edge of
+length failure_to_close). These can be triangulated any way that is
+desired, but the edge from vertex 0 to vertex 1 is still the long
+edge. It uses the Geyer ips estimator to compute error bars.
 
-     Note that the number of edges is set (implicitly) by the triangulation.
+We set the run parameters with the usual ``run_params``
+argument. Permutations only permute the equal edge-length steps.
 
-  */
+If ``run_stats`` is ``True``, additionally return statistics.
+
+Note that the number of edges is set (implicitly) by the
+triangulation.";
+double tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L, void* args),
+                                    void *args,
+                                    double failure_to_close,
+                                    int max_steps,int max_seconds,
+                                    tsmcmc_triangulation_t T,
+                                    tsmcmc_run_parameters run_params,
+                                    tsmcmc_run_stats *run_stats,
+                                    double *error); %{%}
 
   /*---*/
-
-
-
-
-
-//// end copypaste

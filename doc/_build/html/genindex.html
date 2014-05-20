@@ -57,18 +57,19 @@
         
         
             <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/plcurve.html">libplcurve.plcurve module</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="api/plcurve.html">plcurve: Polygonal Links</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/plcurve.html#the-plcurve-class">The PlCurve class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/plcurve.html#the-strand-class">The Strand class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/plcurve.html#the-randomgenerator-gsl-rng-interface-class">The RandomGenerator (gsl_rng interface) class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/plcurve.html#auxiliary-classes">Auxiliary classes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api/pd.html">libplcurve.pd module</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="api/pd.html">pd: PlanarDiagrams</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/pd.html#the-planardiagram-class">The PlanarDiagram class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/pd.html#building-block-classes">Building block classes</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="api/tsmcmc.html">tsmcmc: Interface to plcRandomPolygon.h</a></li>
 </ul>
 
         
@@ -106,6 +107,7 @@
 
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
@@ -148,6 +150,22 @@
   </dl></td>
 </tr></table>
 
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams.beta">beta (libplcurve.tsmcmc.RunParams attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams.burn_in">burn_in (libplcurve.tsmcmc.RunParams attribute)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
@@ -161,6 +179,10 @@
 
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.check_constraint">check_constraint() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Chord">Chord (class in libplcurve.tsmcmc)</a>
   </dt>
 
       
@@ -202,11 +224,15 @@
   </dt>
 
       
-  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.constrain_to_line">constrain_to_line() (libplcurve.plcurve.PlCurve method)</a>
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.confined_equilateral_expectation">confined_equilateral_expectation() (in module libplcurve.tsmcmc)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.constrain_to_line">constrain_to_line() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.constrain_to_plane">constrain_to_plane() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
@@ -262,15 +288,43 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangle.daughter_chord">daughter_chord (libplcurve.tsmcmc.Triangle attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangle.daughter_tri">daughter_tri (libplcurve.tsmcmc.Triangle attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangle.daughter_type">daughter_type (libplcurve.tsmcmc.Triangle attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams.default_unconfined">default_unconfined() (libplcurve.tsmcmc.RunParams method)</a>
+  </dt>
+
+      
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.delete_arc">delete_arc() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams.delta">delta (libplcurve.tsmcmc.RunParams attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangulation.diags">diags (libplcurve.tsmcmc.Triangulation attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.tsmcmc_run_stats.dihedral_steps">dihedral_steps (libplcurve.tsmcmc.tsmcmc_run_stats attribute)</a>
   </dt>
 
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.double_vertices">double_vertices() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.drop_component">drop_component() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
@@ -299,14 +353,24 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.edges">edges (libplcurve.pd.PlanarDiagram attribute)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangulation.edges">(libplcurve.tsmcmc.Triangulation attribute)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.edges_ok">edges_ok() (libplcurve.pd.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.equilateral_expectation">equilateral_expectation() (in module libplcurve.tsmcmc)</a>
   </dt>
 
   </dl></td>
@@ -337,6 +401,10 @@
 
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.fix_wrap">fix_wrap() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.fixed_ftc_expectation">fixed_ftc_expectation() (in module libplcurve.tsmcmc)</a>
   </dt>
 
       
@@ -387,10 +455,14 @@
   <dt><a href="api/plcurve.html#libplcurve.plcurve.RandomGenerator.get_state">get_state() (libplcurve.plcurve.RandomGenerator method)</a>
   </dt>
 
+      
+  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand.get_vertex">get_vertex() (libplcurve.plcurve.Strand method)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api/plcurve.html#libplcurve.plcurve.Strand.get_vertex">get_vertex() (libplcurve.plcurve.Strand method)</a>
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.tsmcmc_run_stats.geyer_ips_seconds">geyer_ips_seconds (libplcurve.tsmcmc.tsmcmc_run_stats attribute)</a>
   </dt>
 
       
@@ -476,6 +548,28 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.tsmcmc_run_stats.lagged_covariances_available">lagged_covariances_available (libplcurve.tsmcmc.tsmcmc_run_stats attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#module-libplcurve.tsmcmc">libplcurve.tsmcmc (module)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams.log_interval">log_interval (libplcurve.tsmcmc.RunParams attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams.logfile">logfile (libplcurve.tsmcmc.RunParams attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams.logfile_name">logfile_name (libplcurve.tsmcmc.RunParams attribute)</a>
+  </dt>
+
+      
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.loop_closure">loop_closure() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
@@ -486,6 +580,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.tsmcmc_run_stats.max_lagged_covariance_used">max_lagged_covariance_used (libplcurve.tsmcmc.tsmcmc_run_stats attribute)</a>
+  </dt>
+
+      
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.mean_squared_chordlengths">mean_squared_chordlengths() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
@@ -495,6 +593,14 @@
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams.moment_polytope_repeat">moment_polytope_repeat (libplcurve.tsmcmc.RunParams attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.tsmcmc_run_stats.mp_steps">mp_steps (libplcurve.tsmcmc.tsmcmc_run_stats attribute)</a>
+  </dt>
+
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.MR_curvature">MR_curvature() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
@@ -522,6 +628,10 @@
   </dt>
 
       
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangulation.ndiags">ndiags (libplcurve.tsmcmc.Triangulation attribute)</a>
+  </dt>
+
+      
   <dt><a href="api/pd.html#libplcurve.pd.Component.nedges">nedges (libplcurve.pd.Component attribute)</a>
   </dt>
 
@@ -534,7 +644,15 @@
   <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram.nedges">(libplcurve.pd.PlanarDiagram attribute)</a>
   </dt>
 
+        
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangulation.nedges">(libplcurve.tsmcmc.Triangulation attribute)</a>
+  </dt>
+
       </dl></dd>
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangulation.new_fan">new_fan() (libplcurve.tsmcmc.Triangulation method)</a>
+  </dt>
+
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.Constraint.next">next (libplcurve.plcurve.Constraint attribute)</a>
   </dt>
@@ -553,6 +671,10 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.ns">ns (libplcurve.plcurve.SplineStrand attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangulation.ntri">ntri (libplcurve.tsmcmc.Triangulation attribute)</a>
   </dt>
 
       
@@ -602,9 +724,23 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangle.parent_chord">parent_chord (libplcurve.tsmcmc.Triangle attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangle.parent_type">parent_type (libplcurve.tsmcmc.Triangle attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.tsmcmc_run_stats.permute_steps">permute_steps (libplcurve.tsmcmc.tsmcmc_run_stats attribute)</a>
+  </dt>
+
+      
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.perturb">perturb() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="api/pd.html#libplcurve.pd.PlanarDiagram">PlanarDiagram (class in libplcurve.pd)</a>
   </dt>
@@ -613,8 +749,6 @@
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve">PlCurve (class in libplcurve.plcurve)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.pointset_diameter">pointset_diameter (libplcurve.plcurve.PlCurve attribute)</a>
   </dt>
@@ -717,6 +851,10 @@
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.rotate">rotate() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.RunParams">RunParams (class in libplcurve.tsmcmc)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -813,18 +951,38 @@
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.total_curvature">total_curvature() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.tsmcmc_run_stats.total_seconds">total_seconds (libplcurve.tsmcmc.tsmcmc_run_stats attribute)</a>
+  </dt>
+
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.total_torsion">total_torsion() (libplcurve.plcurve.PlCurve method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.Symmetry.transform">transform (libplcurve.plcurve.Symmetry attribute)</a>, <a href="api/plcurve.html#libplcurve.plcurve.Symmetry.transform">[1]</a>
   </dt>
 
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.PlCurve.translate">translate() (libplcurve.plcurve.PlCurve method)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangle">Triangle (class in libplcurve.tsmcmc)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangulation.triangles">triangles (libplcurve.tsmcmc.Triangulation attribute)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Triangulation">Triangulation (class in libplcurve.tsmcmc)</a>
+  </dt>
+
+      
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.tsmcmc_run_stats">tsmcmc_run_stats (class in libplcurve.tsmcmc)</a>
   </dt>
 
       
@@ -885,6 +1043,12 @@
   <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.vt">vt (libplcurve.plcurve.SplineStrand attribute)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="api/tsmcmc.html#libplcurve.tsmcmc.Chord.vt">(libplcurve.tsmcmc.Chord attribute)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="api/plcurve.html#libplcurve.plcurve.SplineStrand.vt2">vt2 (libplcurve.plcurve.SplineStrand attribute)</a>
   </dt>

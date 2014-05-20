@@ -1,5 +1,5 @@
-libplcurve.plcurve module
--------------------------
+plcurve: Polygonal Links
+------------------------
 
 .. currentmodule:: libplcurve.plcurve
 

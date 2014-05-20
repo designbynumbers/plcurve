@@ -13,6 +13,7 @@ Contents:
 
    api/plcurve
    api/pd
+   api/tsmcmc
 
 Indices and tables
 ==================

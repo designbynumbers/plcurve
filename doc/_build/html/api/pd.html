@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>libplcurve.pd module &mdash; plCurve 7.3 documentation</title>
+  <title>pd: PlanarDiagrams &mdash; plCurve 7.3 documentation</title>
   
 
   
@@ -29,7 +29,8 @@
 
   
     <link rel="top" title="plCurve 7.3 documentation" href="../index.html"/>
-        <link rel="prev" title="libplcurve.plcurve module" href="plcurve.html"/> 
+        <link rel="next" title="tsmcmc: Interface to plcRandomPolygon.h" href="tsmcmc.html"/>
+        <link rel="prev" title="plcurve: Polygonal Links" href="plcurve.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -57,18 +58,19 @@
         
         
             <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="plcurve.html">libplcurve.plcurve module</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="plcurve.html">plcurve: Polygonal Links</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="plcurve.html#the-plcurve-class">The PlCurve class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plcurve.html#the-strand-class">The Strand class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plcurve.html#the-randomgenerator-gsl-rng-interface-class">The RandomGenerator (gsl_rng interface) class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plcurve.html#auxiliary-classes">Auxiliary classes</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">libplcurve.pd module</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">pd: PlanarDiagrams</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#the-planardiagram-class">The PlanarDiagram class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#building-block-classes">Building block classes</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="tsmcmc.html">tsmcmc: Interface to plcRandomPolygon.h</a></li>
 </ul>
 
         
@@ -92,7 +94,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-    <li>libplcurve.pd module</li>
+    <li>pd: PlanarDiagrams</li>
       <li class="wy-breadcrumbs-aside">
         
           <a href="../_sources/api/pd.txt" rel="nofollow"> View page source</a>
@@ -103,8 +105,8 @@
 </div>
           <div role="main">
             
-  <div class="section" id="libplcurve-pd-module">
-<h1>libplcurve.pd module<a class="headerlink" href="#libplcurve-pd-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pd-planardiagrams">
+<h1>pd: PlanarDiagrams<a class="headerlink" href="#pd-planardiagrams" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="the-planardiagram-class">
 <h2>The PlanarDiagram class<a class="headerlink" href="#the-planardiagram-class" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -173,17 +175,20 @@
 <dl class="method">
 <dt id="libplcurve.pd.PlanarDiagram.from_torus_knot">
 <tt class="descname">from_torus_knot</tt><big>(</big><em>pd_idx_t p</em>, <em>pd_idx_t q</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libplcurve.pd.PlanarDiagram.from_torus_knot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Torus knot. Only (2,q) is implemented for now.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="libplcurve.pd.PlanarDiagram.from_twist_knot">
 <tt class="descname">from_twist_knot</tt><big>(</big><em>pd_idx_t n</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libplcurve.pd.PlanarDiagram.from_twist_knot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Twist knot with <tt class="docutils literal"><span class="pre">n</span></tt> twists</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="libplcurve.pd.PlanarDiagram.from_unknot">
 <tt class="descname">from_unknot</tt><big>(</big><em>pd_idx_t n</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libplcurve.pd.PlanarDiagram.from_unknot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>An <tt class="docutils literal"><span class="pre">n</span></tt>-crossing unknot diagram</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="libplcurve.pd.PlanarDiagram.from_unknot_wye">
@@ -390,8 +395,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="tsmcmc.html" class="btn btn-neutral float-right" title="tsmcmc: Interface to plcRandomPolygon.h"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="plcurve.html" class="btn btn-neutral" title="libplcurve.plcurve module"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="plcurve.html" class="btn btn-neutral" title="plcurve: Polygonal Links"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

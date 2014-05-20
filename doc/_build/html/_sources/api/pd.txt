@@ -1,5 +1,5 @@
-libplcurve.pd module
---------------------
+pd: PlanarDiagrams
+-------------------------------------
 
 .. currentmodule:: libplcurve.pd
 
