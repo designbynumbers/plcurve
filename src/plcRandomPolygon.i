@@ -124,19 +124,20 @@ typedef struct triangulation_struct {
   /* These structures deal with internals of the algorithm. It's ok to
      use the default values. */
 
-  typedef struct tsmcmc_run_stats_struct {
+%rename(RunStats) tsmcmc_run_stats_struct;
+typedef struct tsmcmc_run_stats_struct {
 
-    int max_lagged_covariance_used;
-    int lagged_covariances_available;
+  int max_lagged_covariance_used;
+  int lagged_covariances_available;
 
-    int dihedral_steps;
-    int mp_steps;
-    int permute_steps;
+  int dihedral_steps;
+  int mp_steps;
+  int permute_steps;
 
-    double total_seconds;
-    double geyer_ips_seconds;
+  double total_seconds;
+  double geyer_ips_seconds;
 
-  } tsmcmc_run_stats;
+} tsmcmc_run_stats;
 
 %rename(RunParams) tsmcmc_run_parameters_struct;
 typedef struct tsmcmc_run_parameters_struct {
@@ -154,6 +155,9 @@ typedef struct tsmcmc_run_parameters_struct {
     static tsmcmc_run_parameters default_unconfined() {
       return tsmcmc_default_unconfined_parameters();
     }
+    static tsmcmc_run_parameters default_confined() {
+      return tsmcmc_default_confined_parameters();
+    }
   }
 
 } tsmcmc_run_parameters;
@@ -167,9 +171,18 @@ typedef struct tsmcmc_run_parameters_struct {
   } py_integrand_args;
 %}
 
-%typemap(in, doc="Callable integrand") (double (*integrand)(plCurve *L, void *args), void *args) (py_integrand_args arg_struct) {
+%typecheck(SWIG_TYPECHECK_POINTER) (double (*integrand)(plCurve *L, void *args), void *args) (py_integrand_args arg_struct) {
+  $1 = ((PySequence_Check($input) &&
+         (0 < (len = PySequence_Length($input))) && (len) <= 3) ||
+        (PyCallable_Check($input))) ? 1 : 0;
+}
+%typemap(in, doc="Callable integrand", numargs=1) (double (*integrand)(plCurve *L, void *args), void *args) (py_integrand_args arg_struct) {
   Py_ssize_t len;
   PyObject *o;
+  arg_struct.py_integrand = NULL;
+  arg_struct.py_args = NULL;
+  arg_struct.py_kwargs = NULL;
+  $2 = &arg_struct;
   // The $input must be a callable or a sequence (which contains a callable!)
   if (PySequence_Check($input) && (0 < (len = PySequence_Length($input))) && (len) <= 3) {
     // A sequence passed as an integrand is of the form
@@ -177,28 +190,31 @@ typedef struct tsmcmc_run_parameters_struct {
     // Read the callable
     if (!PyCallable_Check(o = PySequence_GetItem($input, 0))) {
       SWIG_exception(SWIG_TypeError,
-                     "Argument `integrand` must be callable or a tuple of the form (callable[ args[, kwargs]]).");
+                     "Argument `integrand` must be callable or a tuple of the form (callable[, args[, kwargs]]).");
     } else {
       arg_struct.py_integrand = o;
     }
     if (len > 1) {
+      // If there's a list of args, take note of it; makes a new ref
       if (PySequence_Check(o = PySequence_GetItem($input, 1))) {
       arg_struct.py_args = PyList_New(len+1);
+      // We have to do a little magic since we pass the plCurve as args[0]
       if(-1 == PyList_SetSlice(arg_struct.py_args, 1, len+1, o)) {
         SWIG_exception(SWIG_TypeError,
                    "Something went terribly awry setting up the callback default arguments");
       }
-      Py_XDECREF(o);
+      Py_XDECREF(o); // We don't need this new ref anymore since we copied it all
       } else {
         SWIG_exception(SWIG_TypeError,
-                       "Argument `integrand` must be callable or a tuple of the form (callable[ args[, kwargs]]).");
+                       "Argument `integrand` must be callable or a tuple of the form (callable[, args[, kwargs]]).");
       }
       if (len > 2) {
+        // If there's a dict of kwargs, hold on to it
         if (PyDict_Check(o = PySequence_GetItem($input, 2))) {
           arg_struct.py_kwargs = o;
         } else {
           SWIG_exception(SWIG_TypeError,
-                         "Argument `integrand` must be callable or a tuple of the form (callable[ args[, kwargs]]).");
+                         "Argument `integrand` must be callable or a tuple of the form (callable[, args[, kwargs]]).");
         }
       } else {
         arg_struct.py_kwargs = NULL;
@@ -210,22 +226,72 @@ typedef struct tsmcmc_run_parameters_struct {
   } else if (PyCallable_Check($input)) {
     // Integrand is a callable
     arg_struct.py_integrand = $input;
-    Py_INCREF($input);
+    Py_INCREF($input); // kind-of a hack; we promise to decref in freearg
     arg_struct.py_args = NULL;
     arg_struct.py_kwargs = NULL;
   } else {
     SWIG_exception(SWIG_TypeError,
                    "Argument `integrand` must be callable or a tuple of the form (callable[ args[, kwargs]]).");
   }
-
   $1 = py_integrand_helper;
-  $2 = &arg_struct;
 }
 %typemap(freearg) (double (*integrand)(plCurve *L, void *args), void *args) {
-  Py_XDECREF(((py_integrand_args *)$2)->py_integrand);
-  Py_XDECREF(((py_integrand_args *)$2)->py_args);
-  Py_XDECREF(((py_integrand_args *)$2)->py_kwargs);
+  // Free all the python refs we made in the typemap
+  if($2) {
+    Py_XDECREF(((py_integrand_args *)$2)->py_integrand);
+    Py_XDECREF(((py_integrand_args *)$2)->py_args);
+    Py_XDECREF(((py_integrand_args *)$2)->py_kwargs);
+  }
 }
+%typemap(in, numinputs=0) double *error_OUT (double temp) {
+  $1 = &temp;
+}
+%typemap(in, numinputs=0) tsmcmc_run_stats *run_stats_OUT (tsmcmc_run_stats temp) {
+  $1 = &temp;
+}
+%typemap(argout) tsmcmc_run_stats *run_stats_OUT {
+// It's important that any functions to which this typemap applies NOT return tuples.
+// If they do, you will need to rework this (you probably don't want to append to it...)
+  PyObject *o, *o2, *o3;
+  $1_type real_out = malloc(sizeof($*1_type));
+  if ($1) {
+    memcpy(real_out, $1, sizeof($*1_type));
+    o = SWIG_NewPointerObj(real_out, $1_descriptor, 1);
+  } else {
+    o = Py_None;
+  }
+  // If the result is not a PyTuple (this is the FIRST argout; see comment above)
+  if (!PyTuple_Check($result)) {
+    PyObject *o2 = $result;
+    $result = PyTuple_New(1);
+    PyTuple_SetItem($result,0,o2);
+  }
+  o3 = PyTuple_New(1);
+  PyTuple_SetItem(o3,0,o);
+  o2 = $result;
+  $result = PySequence_Concat(o2,o3);
+  Py_DECREF(o2);
+  Py_DECREF(o3);
+}
+%typemap(argout) double *error_OUT {
+  // It's important that any functions to which this typemap applies NOT return tuples.
+  // If they do, you will need to rework this (you probably don't want to append to it...)
+  PyObject *o, *o2, *o3;
+  o = PyFloat_FromDouble(*$1);
+
+  // If the result is not a PyTuple (this is the FIRST argout; see comment above)
+  if (!PyTuple_Check($result)) {
+    PyObject *o2 = $result;
+    $result = PyTuple_New(1);
+    PyTuple_SetItem($result,0,o2);
+  }
+  o3 = PyTuple_New(1);
+  PyTuple_SetItem(o3,0,o);
+  o2 = $result;
+  $result = PySequence_Concat(o2,o3);
+  Py_DECREF(o2);
+  Py_DECREF(o3);
+ }
 
 %exception equilateral_expectation {
   assert(!_exception);
@@ -273,8 +339,6 @@ typedef struct tsmcmc_run_parameters_struct {
   char    *tsmcmc_run_stats_MathematicaForm(tsmcmc_run_stats run_stats);
   char    *tsmcmc_run_params_MathematicaForm(tsmcmc_run_parameters run_params);
 
-  tsmcmc_run_parameters tsmcmc_default_confined_parameters();
-
   /*-
     Master functions for integrating over polygon space.
     -*/
@@ -287,7 +351,8 @@ typedef struct tsmcmc_run_parameters_struct {
 }
 
 %rename(equilateral_expectation) tsmcmc_equilateral_expectation;
-%feature("autodoc", "equilateral_expectation(rng, df, max_steps, max_secs, T, run_params) -> result, error [, stats]")
+%feature("autodoc", "equilateral_expectation(rng, df, max_steps, max_secs, T, run_params) \
+-> result, stats, error")
 tsmcmc_equilateral_expectation;
 %feature("docstring") tsmcmc_equilateral_expectation
 "This is the 'master' driver function for computing an expectation over
@@ -307,11 +372,12 @@ double tsmcmc_equilateral_expectation(gsl_rng *rng,
                                       int max_seconds,
                                       tsmcmc_triangulation_t T,
                                       tsmcmc_run_parameters rp,
-                                      tsmcmc_run_stats *rs,
-                                      double *e); %{%}
+                                      tsmcmc_run_stats *run_stats_OUT,
+                                      double *error_OUT); %{%}
 
 %rename(confined_equilateral_expectation) tsmcmc_confined_equilateral_expectation;
-%feature("autodoc", "confined_equilateral_expectation(rng, df, n_edges, max_steps, max_secs, run_params) -> result, error [, stats]")
+%feature("autodoc", "confined_equilateral_expectation(rng, df, n_edges, max_steps, max_secs, run_params) \
+-> result, stats, error")
 tsmcmc_confined_equilateral_expectation;
 %feature("docstring") tsmcmc_confined_equilateral_expectation
 "This is the 'master' driver function for computing an expectation over
@@ -324,20 +390,19 @@ compute error bars.
 We set the run parameters with the usual run_params struct, but notice
 that permutation steps aren't possible, so we ignore delta (if
 set). Again, this is usually intended to be one of the predefined
-defaults.
-
-If ``run_stats`` is ``True``, additionally return statistics.";
+defaults..";
 double tsmcmc_confined_equilateral_expectation(gsl_rng *rng,
                                                double (*integrand)(plCurve*,void*),
                                                void *args,
                                                double confinement_radius, int nedges,
                                                int max_steps,int max_seconds,
                                                tsmcmc_run_parameters run_params,
-                                               tsmcmc_run_stats *run_stats,
-                                               double *error); %{%}
+                                               tsmcmc_run_stats *run_stats_OUT,
+                                               double *error_OUT); %{%}
 
 %rename(fixed_ftc_expectation) tsmcmc_fixed_ftc_expectation;
-%feature("autodoc", "fixed_ftc_expectation(rng, df, close_failure, max_steps, max_secs, T, run_params) -> result, error [, ostats]")
+%feature("autodoc", "fixed_ftc_expectation(rng, df, close_failure, max_steps, max_secs, T, run_params) \
+-> result, stats, error")
 tsmcmc_fixed_ftc_expectation;
 %feature("docstring") tsmcmc_fixed_ftc_expectation
 "This is the 'master' driver function for computing an expectation over
@@ -349,8 +414,6 @@ edge. It uses the Geyer ips estimator to compute error bars.
 We set the run parameters with the usual ``run_params``
 argument. Permutations only permute the equal edge-length steps.
 
-If ``run_stats`` is ``True``, additionally return statistics.
-
 Note that the number of edges is set (implicitly) by the
 triangulation.";
 double tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L, void* args),
@@ -359,7 +422,7 @@ double tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L, vo
                                     int max_steps,int max_seconds,
                                     tsmcmc_triangulation_t T,
                                     tsmcmc_run_parameters run_params,
-                                    tsmcmc_run_stats *run_stats,
-                                    double *error); %{%}
+                                    tsmcmc_run_stats *run_stats_OUT,
+                                    double *error_OUT); %{%}
 
   /*---*/

@@ -108,7 +108,7 @@
 <span id="tsmcmc-interface-to-plcrandompolygon-h"></span><h1>tsmcmc: Interface to plcRandomPolygon.h<a class="headerlink" href="#module-libplcurve.tsmcmc" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="libplcurve.tsmcmc.equilateral_expectation">
-<tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">equilateral_expectation</tt><big>(</big><em>rng</em>, <em>df</em>, <em>max_steps</em>, <em>max_secs</em>, <em>T</em>, <em>run_params</em><big>)</big> &rarr; result, error [, stats]<a class="headerlink" href="#libplcurve.tsmcmc.equilateral_expectation" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">equilateral_expectation</tt><big>(</big><em>rng</em>, <em>df</em>, <em>max_steps</em>, <em>max_secs</em>, <em>T</em>, <em>run_params</em><big>)</big> &rarr; result, stats, error<a class="headerlink" href="#libplcurve.tsmcmc.equilateral_expectation" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the &#8216;master&#8217; driver function for computing an expectation over
 equilateral unconfined polygons. It uses the Geyer ips estimator to
 compute error bars.</p>
@@ -121,7 +121,7 @@ if you don&#8217;t care).</p>
 
 <dl class="function">
 <dt id="libplcurve.tsmcmc.confined_equilateral_expectation">
-<tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">confined_equilateral_expectation</tt><big>(</big><em>rng</em>, <em>df</em>, <em>n_edges</em>, <em>max_steps</em>, <em>max_secs</em>, <em>run_params</em><big>)</big> &rarr; result, error [, stats]<a class="headerlink" href="#libplcurve.tsmcmc.confined_equilateral_expectation" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">confined_equilateral_expectation</tt><big>(</big><em>rng</em>, <em>df</em>, <em>n_edges</em>, <em>max_steps</em>, <em>max_secs</em>, <em>run_params</em><big>)</big> &rarr; result, stats, error<a class="headerlink" href="#libplcurve.tsmcmc.confined_equilateral_expectation" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the &#8216;master&#8217; driver function for computing an expectation over
 equilateral polygons in &#8216;rooted&#8217; spherical confinement (the
 confinement is &#8216;rooted&#8217; when the first vertex of the polygon is at the
@@ -131,13 +131,12 @@ compute error bars.</p>
 <p>We set the run parameters with the usual run_params struct, but notice
 that permutation steps aren&#8217;t possible, so we ignore delta (if
 set). Again, this is usually intended to be one of the predefined
-defaults.</p>
-<p>If <tt class="docutils literal"><span class="pre">run_stats</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt>, additionally return statistics.</p>
+defaults..</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="libplcurve.tsmcmc.fixed_ftc_expectation">
-<tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">fixed_ftc_expectation</tt><big>(</big><em>rng</em>, <em>df</em>, <em>close_failure</em>, <em>max_steps</em>, <em>max_secs</em>, <em>T</em>, <em>run_params</em><big>)</big> &rarr; result, error [, ostats]<a class="headerlink" href="#libplcurve.tsmcmc.fixed_ftc_expectation" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">fixed_ftc_expectation</tt><big>(</big><em>rng</em>, <em>df</em>, <em>close_failure</em>, <em>max_steps</em>, <em>max_secs</em>, <em>T</em>, <em>run_params</em><big>)</big> &rarr; result, stats, error<a class="headerlink" href="#libplcurve.tsmcmc.fixed_ftc_expectation" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the &#8216;master&#8217; driver function for computing an expectation over
 equilateral polygons with a fixed failure to close (one long edge of
 length failure_to_close). These can be triangulated any way that is
@@ -145,7 +144,6 @@ desired, but the edge from vertex 0 to vertex 1 is still the long
 edge. It uses the Geyer ips estimator to compute error bars.</p>
 <p>We set the run parameters with the usual <tt class="docutils literal"><span class="pre">run_params</span></tt>
 argument. Permutations only permute the equal edge-length steps.</p>
-<p>If <tt class="docutils literal"><span class="pre">run_stats</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt>, additionally return statistics.</p>
 <p>Note that the number of edges is set (implicitly) by the
 triangulation.</p>
 </dd></dl>
@@ -177,6 +175,11 @@ triangulation.</p>
 <tt class="descname">burn_in</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunParams.burn_in" title="Permalink to this definition">¶</a></dt>
 <dd><p>tsmcmc_run_parameters_struct.burn_in</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="libplcurve.tsmcmc.RunParams.default_confined">
+<tt class="descname">default_confined</tt><big>(</big><big>)</big> &rarr; RunParams<a class="headerlink" href="#libplcurve.tsmcmc.RunParams.default_confined" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="libplcurve.tsmcmc.RunParams.default_unconfined">
@@ -211,6 +214,54 @@ triangulation.</p>
 <dt id="libplcurve.tsmcmc.RunParams.moment_polytope_repeat">
 <tt class="descname">moment_polytope_repeat</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunParams.moment_polytope_repeat" title="Permalink to this definition">¶</a></dt>
 <dd><p>tsmcmc_run_parameters_struct.moment_polytope_repeat</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libplcurve.tsmcmc.RunStats">
+<em class="property">class </em><tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">RunStats</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>::tsmcmc_run_stats_struct</p>
+<dl class="attribute">
+<dt id="libplcurve.tsmcmc.RunStats.dihedral_steps">
+<tt class="descname">dihedral_steps</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunStats.dihedral_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>tsmcmc_run_stats_struct.dihedral_steps</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.tsmcmc.RunStats.geyer_ips_seconds">
+<tt class="descname">geyer_ips_seconds</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunStats.geyer_ips_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>tsmcmc_run_stats_struct.geyer_ips_seconds</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.tsmcmc.RunStats.lagged_covariances_available">
+<tt class="descname">lagged_covariances_available</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunStats.lagged_covariances_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>tsmcmc_run_stats_struct.lagged_covariances_available</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.tsmcmc.RunStats.max_lagged_covariance_used">
+<tt class="descname">max_lagged_covariance_used</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunStats.max_lagged_covariance_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>tsmcmc_run_stats_struct.max_lagged_covariance_used</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.tsmcmc.RunStats.mp_steps">
+<tt class="descname">mp_steps</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunStats.mp_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>tsmcmc_run_stats_struct.mp_steps</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.tsmcmc.RunStats.permute_steps">
+<tt class="descname">permute_steps</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunStats.permute_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>tsmcmc_run_stats_struct.permute_steps</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libplcurve.tsmcmc.RunStats.total_seconds">
+<tt class="descname">total_seconds</tt><a class="headerlink" href="#libplcurve.tsmcmc.RunStats.total_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>tsmcmc_run_stats_struct.total_seconds</p>
 </dd></dl>
 
 </dd></dl>
@@ -294,54 +345,6 @@ triangulation.</p>
 <dt id="libplcurve.tsmcmc.Triangulation.triangles">
 <tt class="descname">triangles</tt><a class="headerlink" href="#libplcurve.tsmcmc.Triangulation.triangles" title="Permalink to this definition">¶</a></dt>
 <dd><p>triangulation_struct.triangles</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="libplcurve.tsmcmc.tsmcmc_run_stats">
-<em class="property">class </em><tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">tsmcmc_run_stats</tt><a class="headerlink" href="#libplcurve.tsmcmc.tsmcmc_run_stats" title="Permalink to this definition">¶</a></dt>
-<dd><p>::tsmcmc_run_stats_struct</p>
-<dl class="attribute">
-<dt id="libplcurve.tsmcmc.tsmcmc_run_stats.dihedral_steps">
-<tt class="descname">dihedral_steps</tt><a class="headerlink" href="#libplcurve.tsmcmc.tsmcmc_run_stats.dihedral_steps" title="Permalink to this definition">¶</a></dt>
-<dd><p>tsmcmc_run_stats_struct.dihedral_steps</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="libplcurve.tsmcmc.tsmcmc_run_stats.geyer_ips_seconds">
-<tt class="descname">geyer_ips_seconds</tt><a class="headerlink" href="#libplcurve.tsmcmc.tsmcmc_run_stats.geyer_ips_seconds" title="Permalink to this definition">¶</a></dt>
-<dd><p>tsmcmc_run_stats_struct.geyer_ips_seconds</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="libplcurve.tsmcmc.tsmcmc_run_stats.lagged_covariances_available">
-<tt class="descname">lagged_covariances_available</tt><a class="headerlink" href="#libplcurve.tsmcmc.tsmcmc_run_stats.lagged_covariances_available" title="Permalink to this definition">¶</a></dt>
-<dd><p>tsmcmc_run_stats_struct.lagged_covariances_available</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="libplcurve.tsmcmc.tsmcmc_run_stats.max_lagged_covariance_used">
-<tt class="descname">max_lagged_covariance_used</tt><a class="headerlink" href="#libplcurve.tsmcmc.tsmcmc_run_stats.max_lagged_covariance_used" title="Permalink to this definition">¶</a></dt>
-<dd><p>tsmcmc_run_stats_struct.max_lagged_covariance_used</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="libplcurve.tsmcmc.tsmcmc_run_stats.mp_steps">
-<tt class="descname">mp_steps</tt><a class="headerlink" href="#libplcurve.tsmcmc.tsmcmc_run_stats.mp_steps" title="Permalink to this definition">¶</a></dt>
-<dd><p>tsmcmc_run_stats_struct.mp_steps</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="libplcurve.tsmcmc.tsmcmc_run_stats.permute_steps">
-<tt class="descname">permute_steps</tt><a class="headerlink" href="#libplcurve.tsmcmc.tsmcmc_run_stats.permute_steps" title="Permalink to this definition">¶</a></dt>
-<dd><p>tsmcmc_run_stats_struct.permute_steps</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="libplcurve.tsmcmc.tsmcmc_run_stats.total_seconds">
-<tt class="descname">total_seconds</tt><a class="headerlink" href="#libplcurve.tsmcmc.tsmcmc_run_stats.total_seconds" title="Permalink to this definition">¶</a></dt>
-<dd><p>tsmcmc_run_stats_struct.total_seconds</p>
 </dd></dl>
 
 </dd></dl>

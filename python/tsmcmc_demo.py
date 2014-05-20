@@ -22,9 +22,18 @@ import sys
 dummy = ("no one's ever typed this before", "nope nope")
 fakedict = {"newarg": 40}
 
-for i in range(100):
+for i in range(1):
     r.set(345)
     print sys.getrefcount(f), sys.getrefcount(dummy), sys.getrefcount(fakedict)
-    print ts.equilateral_expectation(r, (f, (dummy,), fakedict), 200, 10, T, rp, None, None)
-    print ts.confined_equilateral_expectation(r, f_noargs, 4.0, 40, 200, 10, rp, None, None)
-print sys.getrefcount(dummy)
+    res,s,e = ts.equilateral_expectation(r, (f, (dummy,), fakedict), 200, 10, T, rp)
+    print ts.confined_equilateral_expectation(r, f_noargs, 4.0, 40, 200, 10, rp)
+
+    print s.max_lagged_covariance_used
+    print s.lagged_covariances_available
+
+    print s.dihedral_steps
+    print s.mp_steps
+    print s.permute_steps
+
+    print s.total_seconds
+    print s.geyer_ips_seconds
