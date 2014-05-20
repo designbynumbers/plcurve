@@ -173,7 +173,7 @@ if (code == NULL) { return NULL; }
  if (newlinecount == 3) { /* Exactly one crossing */
 
    outpoly = calloc(128,sizeof(char));
-   sprintf(outpoly,"[[0]]N");
+   sprintf(outpoly,"[[1]]N ");
    return outpoly;
 
  }

@@ -107,9 +107,13 @@ bool trefoil_ccode_test() {
   */
 
   char correct_ccode[2048] =
-    "1+3d3c2b2a\n"
-    "2+1d1c3b3a\n"
-    "3+2d2c1b1a\n";
+    "1-3d3c2b2a\n"
+    "2-1d1c3b3a\n"
+    "3-2d2c1b1a\n"
+    "\n\n";
+
+  /* (remembering that we swap all crossing signs because M/E
+     uses the OTHER convention) */
 
   printf("testing +trefoil pd code\n");
   printf("computing ccode...");
@@ -165,9 +169,12 @@ bool trefoil_ccode_test() {
   */
 
   char minustref_expected[4096] =
-    "1-3b2a2d3c\n"
-    "2-1b3a3d1c\n"
-    "3-2b1a1d2c\n";
+    "1+3b2a2d3c\n"
+    "2+1b3a3d1c\n"
+    "3+2b1a1d2c\n"
+    "\n\n";
+
+  /* Again remembering that crossing signs are SWAPPED in M/E */
 
   printf("computed ccode:\n\n%s\n",ccode);
 
@@ -218,9 +225,12 @@ bool trefoil_ccode_test() {
   */
 
   char pmp_expected[4096] =
-    "1+3d3c2a2d\n"
-    "2-1c3b3a1d\n"
-    "3+2c2b1b1a\n";
+    "1-3d3c2a2d\n"
+    "2+1c3b3a1d\n"
+    "3-2c2b1b1a\n"
+    "\n\n";
+
+  /* As before, crossing signs are swapped! */
 
   printf("computed ccode:\n\n%s\n",ccode);
 
@@ -259,9 +269,10 @@ bool test_all_signs(pd_code_t *pd) {
     /* Actually set the crossings according to the information in the 
        iterator. */
 
+    pd_idx_t k;
     for(k=0;k<sign_iterator->nobj;k++) { 
 
-      pd->cross[k].sign = (pd_orientation_t *)(sign_iterator->obj[k])->or;
+      pd->cross[k].sign = ((pd_orientation_t *)(sign_iterator->obj[k]))->or;
 
     }
 
@@ -306,14 +317,13 @@ bool unknot_generation_tests() {
 
   }
 
-  printf("testing all crossing signs for 7 crossing diagram...");
+  printf("\npass. Generated 2-10 crossing unknot codes.\n");
+  printf("\ntesting all crossing signs for 5 crossing diagram...\n\n");
 
-  pd_code_t *pd = pd_build_unknot(7);
-
-  printf("testing all crossing signs for 7 crossing diagram...");
+  pd_code_t *pd = pd_build_unknot(5);
   if (test_all_signs(pd)) { 
 
-    printf("pass (generated all ccodes w/o crashing)\n");
+    printf("\npass (generated all ccodes w/o crashing)\n");
 
 
   } else {
@@ -325,12 +335,12 @@ bool unknot_generation_tests() {
       
   pd_code_free(&pd);
 
-  printf("testing all crossing signs for 6 crossing diagram...");
-  pd = pd_build_unknot(6);
+  printf("\ntesting all crossing signs for 4 crossing diagram...\n\n");
+  pd = pd_build_unknot(4);
 
   if (test_all_signs(pd)) { 
 
-    printf("pass (generated all ccodes w/o crashing)\n");
+    printf("\npass (generated all ccodes w/o crashing)\n");
 
   } else {
 
@@ -340,7 +350,7 @@ bool unknot_generation_tests() {
   }
       
   pd_code_free(&pd);
-  printf("pass (survived)\n");
+  printf("\npass (survived)\n");
 
   printf("-----------------------------------------------\n"
 	 "unknot-based crossing code generation tests: PASS \n"
@@ -360,6 +370,98 @@ bool test_ccode_conversion() {
   return true;
 }
 
+
+bool test_unknot_homfly_all_signs(pd_code_t *pd,char *desc) {
+
+  pd_multidx_t *sign_iterator = pd_new_multidx(pd->ncross,NULL,orientation_ops);
+  unsigned int max = pd_multidx_nvals(sign_iterator);
+  unsigned int i;
+
+  printf("\ttesting HOMFLY for %d crossing %s...",
+	 pd->ncross,desc);
+  fflush(stdout);
+
+  for(i=0;i<max;i++,pd_increment_multidx(sign_iterator)) {
+
+    /* Actually set the crossings according to the information in the 
+       iterator. */
+
+    pd_idx_t k;
+    for(k=0;k<sign_iterator->nobj;k++) { 
+
+      pd->cross[k].sign = ((pd_orientation_t *)(sign_iterator->obj[k]))->or;
+
+    }
+
+    if (!pd_ok(pd)) { 
+
+      pd_printf("FAIL at %MULTIDX. pd %PD not ok after sign assignment.\n",
+		pd,sign_iterator);
+      return false;
+
+    }
+
+    char *homfly = pd_homfly(pd);
+    char unknot_homfly[32] = "[[1]]N ";
+
+    if (strcmp(homfly,unknot_homfly)) {
+
+      pd_printf("\t FAIL at crsigns %MULTIDX\n",NULL,
+		sign_iterator);
+      printf("\t generated HOMFLY: %s\n\t expected HOMFLY: %s\n",
+	     homfly,unknot_homfly);
+      return false;
+
+    }
+
+  }
+  
+  printf("pass. (%d crossing sign choices verified).\n",i);
+  pd_free_multidx(&sign_iterator);
+  return true;
+
+} 
+
+bool test_unknot_homflys() { 
+
+  printf("--------------------------------------------------\n"
+	 "test unknot HOMFLY\n"
+	 "tests HOMFLY computation on various unknot diagrams\n"
+	 "--------------------------------------------------\n");
+  pd_idx_t i,j,k;
+
+  printf("testing pd_build_unknot diagrams (simple twists)...\n\n");
+  for (i=2;i<7;i++) {
+    pd_code_t *pd = pd_build_unknot(i);
+    if (!test_unknot_homfly_all_signs(pd,"simple twist")) {
+      return false;
+    }
+    pd_code_free(&pd);
+  }
+
+  printf("\ntesting pd_build_unknot_wye (plectonemes)...\n\n");
+  char desc[1024];
+  for(i=2;i<4;i++) {
+    for(j=2;j<4;j++) {
+      for(k=2;k<4;k++) {
+	sprintf(desc,"%d-%d-%d wye",i,j,k);
+	pd_code_t *pd = pd_build_unknot_wye(i,j,k);
+	if(!test_unknot_homfly_all_signs(pd,desc)) { 
+	  return false;
+	}
+	pd_code_free(&pd);
+      }
+    }
+  }
+
+  printf("\n--------------------------------------------------\n"
+	 "test unknot HOMFLY: PASS\n"
+	 "--------------------------------------------------\n");
+  return true;
+
+}
+    
+
 int main() {
 
   printf("test_homfly (%s)\n",PACKAGE_STRING);
@@ -367,7 +469,7 @@ int main() {
 	 "Unit tests for computing HOMFLY polynomial from pdcode. \n"
 	 "========================================================\n");
 
-  if (!test_ccode_conversion()) {
+  if (!test_ccode_conversion() || !test_unknot_homflys()) {
 
     printf("=======================================================\n");
     printf("test_homfly:  FAIL.\n");

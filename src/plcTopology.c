@@ -80,6 +80,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
        V
        c
 
+   Now the Millett/Ewing code uses the OPPOSITE convention for + and - 
+   crossings as our code. So we'll deal with this by swapping the signs
+   of the crossings as we write them into the crossing code.
+
    So a crossing code representation of a plCurve is a char buffer 
    containing lines of the form
 
@@ -204,7 +208,10 @@ char *pdcode_to_ccode(pd_code_t *pd)
 
   for(cr=0;cr<pd->ncross;cr++) { 
 
-    char or = pd->cross[cr].sign == PD_POS_ORIENTATION ? '+':'-';
+    char or = pd->cross[cr].sign == PD_POS_ORIENTATION ? '-':'+';
+
+    /* Notice that we're SWAPPING orientations here because the M/E
+       code uses the OTHER convention. */
 
     thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c",cr+1,or);    
     total_used += thiscr_used;
@@ -270,6 +277,11 @@ char *pdcode_to_ccode(pd_code_t *pd)
     }
 
   }
+
+  thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"\n\n");    
+
+  total_used += thiscr_used;
+  ccode_buf += thiscr_used;
 
   return ccode;
     

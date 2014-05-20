@@ -74,7 +74,19 @@ pd_multidx_t *pd_new_multidx(pd_idx_t nobj,void **initialdata,pd_iterops_t ops)
   idx->nobj = nobj;
 
   idx->obj  = calloc(nobj,sizeof(void *)); assert(idx->obj != NULL);
-  for(i=0;i<nobj;i++) { idx->obj[i] = ops.new(initialdata[i]); }   
+  for(i=0;i<nobj;i++) { 
+
+    if (initialdata == NULL) { /* We may not require initial data. */
+      
+      idx->obj[i] = ops.new(NULL);
+
+    } else {
+
+      idx->obj[i] = ops.new(initialdata[i]); 
+
+    } 
+
+  }
   
   idx->i = calloc(nobj,sizeof(unsigned int)); assert(idx->i != NULL);
   for(i=0;i<nobj;i++) { idx->i[i] = 0; }
