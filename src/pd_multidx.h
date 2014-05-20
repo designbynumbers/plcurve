@@ -21,8 +21,37 @@
   accessed in order with pd_increment_multidx(idx) which
   operates in place on idx.
 
-  The objects and methods can be NULL.
+  The objects and methods can be NULL. To use a multidx, we write 
+  code such as:
 
+  objdata = calloc(nobj,sizeof(object_data_t));
+  int i;
+
+  for(i=0;i<nobj;i++) { 
+
+     (initialize objdata[i] in here)
+
+  }
+
+  pd_multidx_t *idx = pd_new_multidx(nobj,(void **)objdata,obj_ops);
+  int nstates = pd_multidx_nvals(idx);
+
+  for(i=0;i<nstates;i++,pd_increment_multidx(idx)) { 
+
+     (do stuff depending on idx -- we can read the data from 
+      the object in each position with something like 
+
+     int j;
+     for(j=0;j<nobj;j++) { 
+
+         (object_t *)(idx->obj[j])->object_field
+
+     }
+
+  }
+
+  pd_free_multidx(&idx);
+  
 */
 
 #ifndef __PD_MULTIDX_H_

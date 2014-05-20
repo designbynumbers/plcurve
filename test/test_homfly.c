@@ -248,6 +248,44 @@ bool trefoil_ccode_test() {
   return true;
 }
 
+bool test_all_signs(pd_code_t *pd) {
+
+  pd_multidx_t *sign_iterator = pd_new_multidx(pd->ncross,NULL,orientation_ops);
+  unsigned int max = pd_multidx_nvals(sign_iterator);
+  unsigned int i;
+
+  for(i=0;i<max;i++,pd_increment_multidx(sign_iterator)) {
+
+    /* Actually set the crossings according to the information in the 
+       iterator. */
+
+    for(k=0;k<sign_iterator->nobj;k++) { 
+
+      pd->cross[k].sign = (pd_orientation_t *)(sign_iterator->obj[k])->or;
+
+    }
+
+    pd_printf("\t testing crsigns %MULTIDX...",NULL,sign_iterator);
+
+    if (!pd_ok(pd)) { 
+
+      pd_printf("FAIL. pd %PD not ok after sign assignment.\n",pd);
+      return false;
+
+    }
+
+    char *ccode = pdcode_to_ccode(pd);
+    free(ccode); 
+
+    printf("pass.\n");
+
+  }
+  
+  pd_free_multidx(&sign_iterator);
+  return true;
+
+} 
+
 bool unknot_generation_tests() {
 
   printf("-----------------------------------------------\n"
@@ -271,19 +309,39 @@ bool unknot_generation_tests() {
   printf("testing all crossing signs for 7 crossing diagram...");
 
   pd_code_t *pd = pd_build_unknot(7);
-  pd_multidx_t *sign_iterator = pd_new_multidx(7,NULL,orientation_ops);
-  unsigned int max = pd_multidx_nvals(sign_iterator);
-  unsigned int i;
 
-  for(i=0;i<max;i++,pd_increment_multidx(sign_iterator)) {
+  printf("testing all crossing signs for 7 crossing diagram...");
+  if (test_all_signs(pd)) { 
 
-    /* Actually set the crossings according to the information in the
-       iterator. */
+    printf("pass (generated all ccodes w/o crashing)\n");
+
+
+  } else {
+
+    printf("FAIL.\n");
+    return false;
 
   }
+      
+  pd_code_free(&pd);
 
+  printf("testing all crossing signs for 6 crossing diagram...");
+  pd = pd_build_unknot(6);
 
+  if (test_all_signs(pd)) { 
+
+    printf("pass (generated all ccodes w/o crashing)\n");
+
+  } else {
+
+    printf("FAIL.\n");
+    return false;
+
+  }
+      
+  pd_code_free(&pd);
   printf("pass (survived)\n");
+
   printf("-----------------------------------------------\n"
 	 "unknot-based crossing code generation tests: PASS \n"
 	 "-----------------------------------------------\n");
