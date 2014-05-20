@@ -71,6 +71,9 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
 %typemap(out) plc_vector {
   $result = plc_vector_as_py_tuple($1);
  }
+%typemap(out) plc_vector * {
+  $result = plc_vector_as_py_tuple(*$1);
+ }
 %typemap(in) plc_vector(plc_vector v) {
   int i;
   if (!PySequence_Check($input)) {
@@ -283,11 +286,11 @@ typedef struct plc_strand_type {
         return result;
       }
     }
-    const plc_vector get_vertex(int i) const {
+    const plc_vector *get_vertex(int i) const {
       if (i < 0 || i >= $self->nv) { // Index range exception
-        _exception = PLC_IndexError; return;
+        _exception = PLC_IndexError; return NULL;
       }
-      return $self->vt[i];
+      return &($self->vt[i]);
     }
 
     %feature("python:slot", "sq_ass_item", functype="ssizeobjargproc") __setitem__;
@@ -560,10 +563,6 @@ struct plc_type {
              const bool * const open,
              const int * const cc) { return plc_new(components, nv, open, cc); }
     plc_type(const plCurve * const L) { return plc_copy(L); }
-    plc_type(FILE *file, int  *error_num,
-             char error_str[], size_t error_str_len) {
-      return plc_read(file, error_num, error_str, error_str_len);
-    }
     ~plc_type() {
       plc_free($self);
     }
@@ -578,9 +577,9 @@ struct plc_type {
     %feature("python:slot", "sq_item", functype="ssizeargfunc") __getitem__;
     %feature("docstring") __getitem__
        "Get a Component by its index.";
-    const plc_strand * __getitem__(size_t j) const {
+    const plc_strand *__getitem__(size_t j) const {
       if (j < 0 || j >= $self->nc) { // Index range exception
-        _exception = PLC_IndexError; return;
+        _exception = PLC_IndexError; return NULL;
       }
       return &($self->cp[j]);
     }

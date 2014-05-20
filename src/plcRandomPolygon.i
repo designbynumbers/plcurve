@@ -364,7 +364,10 @@ one of the predefined profiles for a run), and return a lot of
 detailed information about the run in run_stats (optional, set to NULL
 if you don't care).
 
-Note that the number of edges is set (implicitly) by the triangulation.";
+Note that the number of edges is set (implicitly) by the triangulation.
+
+``df`` is either a callable object (i.e. a [lambda] function) or a tuple of the form
+``(callable[, arg_list[, kwarg_dict]])``";
 double tsmcmc_equilateral_expectation(gsl_rng *rng,
                                       double (*integrand)(plCurve *L,void *a),
                                       void *args,

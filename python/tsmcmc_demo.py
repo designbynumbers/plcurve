@@ -2,10 +2,13 @@ import libplcurve.tsmcmc as ts
 import libplcurve.plcurve as pl
 from IPython import start_ipython
 
+curves = []
+
 def f(plc, args, newarg=50):
     return plc.total_curvature()
 
 def f_noargs(plc):
+    print plc[0][::]
     return plc.total_curvature()
 
 class MethHolder(object):
@@ -26,7 +29,7 @@ for i in range(1):
     r.set(345)
     print sys.getrefcount(f), sys.getrefcount(dummy), sys.getrefcount(fakedict)
     res,s,e = ts.equilateral_expectation(r, (f, (dummy,), fakedict), 200, 10, T, rp)
-    print ts.confined_equilateral_expectation(r, f_noargs, 4.0, 40, 200, 10, rp)
+    print ts.confined_equilateral_expectation(r, f_noargs, 4.0, 5, 200, 10, rp)
 
     print s.max_lagged_covariance_used
     print s.lagged_covariances_available
@@ -37,3 +40,5 @@ for i in range(1):
 
     print s.total_seconds
     print s.geyer_ips_seconds
+
+print curves
