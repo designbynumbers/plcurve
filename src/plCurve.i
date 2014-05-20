@@ -865,9 +865,10 @@ points in $$\mathbb R^3$$.";
        "Return the average (squared) chordlengths of component ``cp`` at the
 array of skips given by ``nskips``.  Wraps if closed and doesn't wrap
 if not.";
-    inline double mean_squared_chordlengths(int cp, int *skips, int nskips) {
-      plc_mean_squared_chordlengths($self, cp, skips, nskips); // TODO: typemap
-    }
+    // requires array typemap
+    //inline double mean_squared_chordlengths(int cp, int *skips, int nskips) {
+    //  return plc_mean_squared_chordlengths($self, cp, skips, nskips); // TODO: typemap
+    //}
     // nearest_neighbor
     // nearest_vertex
 

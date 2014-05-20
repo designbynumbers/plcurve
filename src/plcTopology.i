@@ -67,6 +67,7 @@ typedef struct pd_component_struct {
     const pd_idx_t __getitem__(size_t j) const {
       if (j < 0 || j >= $self->nedges) {
         eoi=1;
+        return -1;
       } else {
         return $self->edge[j];
       }
