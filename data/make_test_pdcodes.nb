@@ -1,0 +1,116 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      3618,        107]
+NotebookOptionsPosition[      3056,         81]
+NotebookOutlinePosition[      3434,         98]
+CellTagsIndexPosition[      3391,         95]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Test suite of pd codes. ", "Title",
+ CellChangeTimes->{{3.610275794163118*^9, 3.610275797393983*^9}}],
+
+Cell["\<\
+--Jason, May 2014. 
+
+This notebook uses KnotTheory to come up with a list of pd codes and HOMFLY \
+polynomials, then converts them into a format that plcurve can read. This \
+autogenerates data used by test_homfly.\
+\>", "Text",
+ CellChangeTimes->{{3.610275801659213*^9, 3.6102758105880203`*^9}, {
+  3.6102758614763393`*^9, 3.610275929694169*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"AppendTo", "[", 
+  RowBox[{"$Path", ",", 
+   RowBox[{"NotebookDirectory", "[", "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.6102760767795897`*^9, 3.610276149417601*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"/Applications/Mathematica.app/SystemFiles/Links\"\>", 
+   ",", "\<\"/Users/cantarel/Library/Mathematica/Kernel\"\>", 
+   ",", "\<\"/Users/cantarel/Library/Mathematica/Autoload\"\>", 
+   ",", "\<\"/Users/cantarel/Library/Mathematica/Applications\"\>", 
+   ",", "\<\"/Library/Mathematica/Kernel\"\>", 
+   ",", "\<\"/Library/Mathematica/Autoload\"\>", 
+   ",", "\<\"/Library/Mathematica/Applications\"\>", ",", "\<\".\"\>", 
+   ",", "\<\"/Users/cantarel\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/AddOns/Packages\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/AddOns/LegacyPackages\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/SystemFiles/Autoload\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/AddOns/Autoload\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/AddOns/Applications\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/AddOns/ExtraPackages\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/SystemFiles/Kernel/Packages\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/Documentation/English/System\"\>", 
+   ",", "\<\"/Applications/Mathematica.app/SystemFiles/Data/ICC\"\>", 
+   ",", "\<\"/Users/cantarel/plcurve/data/KnotTheory/\"\>", 
+   ",", "\<\"/Users/cantarel/plcurve/data/KnotTheory\"\>", 
+   ",", "\<\"/Users/cantarel/plcurve/data/\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{{3.6102760989214478`*^9, 3.6102761501237288`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"<<", "KnotTheory`"}]], "Input",
+ CellChangeTimes->{{3.610275932921117*^9, 3.6102759360878677`*^9}}],
+
+Cell[BoxData["\<\"Loading KnotTheory` version of April 3, 2014, \
+16:23:56.0784.\\nRead more at http://katlas.org/wiki/KnotTheory.\"\>"], \
+"Print",
+ CellChangeTimes->{3.610276151339325*^9}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1217, 926},
+WindowMargins->{{465, Automatic}, {Automatic, 169}},
+Magnification->2.,
+FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (January 25, \
+2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 107, 1, 182, "Title"],
+Cell[689, 25, 357, 8, 212, "Text"],
+Cell[CellGroupData[{
+Cell[1071, 37, 196, 4, 56, "Input"],
+Cell[1270, 43, 1405, 22, 618, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2712, 70, 123, 2, 56, "Input"],
+Cell[2838, 74, 190, 3, 72, "Print"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
