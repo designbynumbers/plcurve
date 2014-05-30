@@ -1,6 +1,6 @@
 /*
 
-   test_homfly.c : Unit tests for the code in pdcode.c
+   test_homfly.c : Unit tests for the code in pdcode.c which converts pd codes to M/E codes and computes HOMFLY.
 
 
 */
@@ -11,6 +11,10 @@
 
 #ifdef HAVE_STDIO_H
    #include<stdio.h>
+#endif
+
+#ifdef HAVE_ASSERT_H
+   #include<assert.h>
 #endif
 
 #ifdef HAVE_STRING_H
@@ -361,9 +365,11 @@ bool unknot_generation_tests() {
 
 bool test_ccode_conversion() {
 
-  printf("tests for conversion of pd_code_t to Millett/Ewing crossing code\n");
+  printf("-----------------------------------------------\n"
+	 "Conversion of pd_code_t to Millett/Ewing crossing code tests\n");
   printf("tests function \"char *pdcode_to_ccode(pd_code_t *pd)\",\n"
-	 "(not part of exposed API)\n\n");
+	 "(not part of exposed API)\n"
+	 "-----------------------------------------------\n");
 
   if (!trefoil_ccode_test()) { return false; }
   if (!unknot_generation_tests()) { return false; }
@@ -402,7 +408,7 @@ bool test_unknot_homfly_all_signs(pd_code_t *pd,char *desc) {
     }
 
     char *homfly = pd_homfly(pd);
-    char unknot_homfly[32] = "[[1]]N ";
+    char unknot_homfly[32] = "1";
 
     if (strcmp(homfly,unknot_homfly)) {
 
@@ -461,6 +467,102 @@ bool test_unknot_homflys() {
 
 }
     
+/* We now write a test where we attempt to load a knot table and compute
+   HOMFLYs for it. */
+
+bool rolfsentabletest() 
+{
+ 
+  printf("\n--------------------------------------------------\n"
+	 "Rolfsen Knot Table test\n"
+	 "--------------------------------------------------\n"); 
+  
+  printf("Opening data file /data/rolfsentable.txt...");
+
+  FILE *infile;
+  infile = fopen("../data/rolfsentable.txt","r");
+  
+  if (infile != NULL) {
+
+    printf("pass\n");
+
+  } else { 
+
+    printf("fail\n");
+    return false;
+
+  }
+
+  printf("Loading Mathematica format pd codes from file...");
+
+  int pd_codes_expected;
+  if (!fscanf(infile,"pdcodes %d",&pd_codes_expected) == 1) { 
+
+    printf("fail. (Couldn't read # of codes in file)");
+    return false;
+
+  } 
+
+  pd_code_t **pdbuf;
+  pdbuf = calloc(pd_codes_expected,sizeof(pd_code_t *));
+  assert(pdbuf != NULL);
+
+  int loaded;
+  
+  for(loaded = 0;loaded < pd_codes_expected && !feof(infile); loaded++) {
+
+    pdbuf[loaded] = pd_read_KnotTheory(infile);
+
+    if (pdbuf[loaded] == NULL) {
+
+      printf("fail (on pd code %d)\n",loaded);
+      return false;
+
+    }
+
+  }
+
+  if (loaded != pd_codes_expected) { 
+
+    printf("fail. (expected %d pd codes, got %d)\n",
+	   pd_codes_expected,loaded);
+    return false;
+
+  }
+
+  printf("pass (%d pd codes loaded, %d expected).\n",loaded,pd_codes_expected);
+
+  printf("Computing HOMFLYs...");
+  clock_t start, end;
+  double cpu_time_used;
+
+  char **homflybuf = calloc(256,sizeof(char *));
+  assert(homflybuf != NULL);
+  int computed;
+
+  start = clock();
+
+  for(computed = 0; computed < loaded; computed++) { 
+
+    homflybuf[computed] = pd_homfly(pdbuf[computed]);
+    
+  }
+
+  end = clock();
+  cpu_time_used =  ((double)(end - start))/CLOCKS_PER_SEC;
+
+  printf("pass (%d homfly polynomials computed in %2.2g sec).\n",computed,cpu_time_used);
+
+  printf("\n--------------------------------------------------\n"
+	 "Rolfsen Knot Table test: pass\n"
+	 "--------------------------------------------------\n\n"); 
+
+  return true;
+
+}
+  
+
+    
 
 int main() {
 
@@ -469,7 +571,7 @@ int main() {
 	 "Unit tests for computing HOMFLY polynomial from pdcode. \n"
 	 "========================================================\n");
 
-  if (!test_ccode_conversion() || !test_unknot_homflys()) {
+  if (!rolfsentabletest() || !test_ccode_conversion() || !test_unknot_homflys()) {
 
     printf("=======================================================\n");
     printf("test_homfly:  FAIL.\n");

@@ -61,7 +61,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <unistd.h>
 #endif
 
-
+#include<polynomials.h>
 
 /* 
    Convert to a Millett/Ewing representation and then compute HOMFLY
@@ -289,11 +289,10 @@ char *pdcode_to_ccode(pd_code_t *pd)
       
 
 char *plc_lmpoly(char *ccode,int timeout); // This is in pllmpoly02.c.
-
 char *pd_homfly(pd_code_t *pd) 
 {
   char *ccode;
-  char *homfly;
+  char *homfly_lmpoly;
 
   ccode = pdcode_to_ccode(pd);
   
@@ -304,11 +303,22 @@ char *pd_homfly(pd_code_t *pd)
 
   }
 
-  homfly = plc_lmpoly(ccode,300); /* Maximum of 5 minutes */
+  homfly_lmpoly = plc_lmpoly(ccode,300); /* Maximum of 5 minutes */
 
   if (PD_VERBOSE > 50) { 
     
-    printf("got (raw) HOMFLY string %s\n",homfly);
+    printf("got (raw) HOMFLY string %s\n",homfly_lmpoly);
+
+  }
+
+  /* Now transform to (more readable) latex form */
+
+  char *homfly = lmpoly_to_latex(homfly_lmpoly);
+  free(homfly_lmpoly);
+
+  if (PD_VERBOSE > 50) { 
+
+    printf("got finished HOMFLY string %s\n",homfly);
 
   }
 

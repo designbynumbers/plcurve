@@ -2058,6 +2058,160 @@ pd_code_t *pd_read(FILE *infile)
   
 }
 
+pd_code_t *pd_read_KnotTheory(FILE *infile) 
+
+/* 
+
+Reads an (ASCII) pd code written by Mathematica. Return a pointer if we succeed, NULL if we fail. 
+These files will be single-line files which look like:
+
+PD[X[1, 6, 2, 7], X[3, 8, 4, 9], X[5, 10, 6, 1], X[7, 2, 8, 3], X[9, 4, 10, 5]]
+
+Here each "X" denotes a crossing, with X[i,j,k,l] denoting a crossing in the form
+
+            k
+            ^
+            |
+     l <----------> j
+            |
+            |
+            i
+
+the direction of the l,j strand is determined by the ordering of the edge numbers
+l and j. We know that each component is ordered consecutively by edges, but there
+is no particular ordering of the components in one of these codes.
+
+We are going to use a large buffer to store the incoming crossings, then discard the 
+ones we don't need.
+
+*/
+
+{
+  pd_crossing_t *crbuf;
+  int crbuf_size=10000, crbuf_used = 0;
+  crbuf = calloc(crbuf_size,sizeof(pd_crossing_t));
+  assert(crbuf != NULL);
+
+  if (fscanf(infile," PD [ X[ %d, %d, %d, %d ]",
+	     &(crbuf[0].edge[0]), 
+	     &(crbuf[0].edge[1]), 
+	     &(crbuf[0].edge[2]), 
+	     &(crbuf[0].edge[3])) != 4) { 
+
+    printf("pd_read_KnotTheory: Can't read first crossing from KnotTheory format PD code file");
+    free(crbuf);
+    return NULL;
+
+  }
+
+  crbuf_used++;
+
+  for(;fgetc(infile) == ',';crbuf_used++) {
+
+    if (fscanf(infile," X[ %d, %d, %d, %d ]",
+	       &(crbuf[crbuf_used].edge[0]), 
+	       &(crbuf[crbuf_used].edge[1]), 
+	       &(crbuf[crbuf_used].edge[2]), 
+	       &(crbuf[crbuf_used].edge[3])) != 4) {
+
+      printf("pd_read_KnotTheory: Couldn't read crossing %d\n",crbuf_used);
+      
+      free(crbuf);
+      return NULL;
+      
+    }
+   
+    if (crbuf_used == crbuf_size-10) { 
+
+      printf("pd_read_KnotTheory: Can't read a single PD code with more than %d crossings.\n",crbuf_size-10);
+      free(crbuf);
+      return NULL;
+
+    }
+  
+  }
+
+  /* We have now read all the crossings and won't bother with the file anymore. Our job is 
+     to extract the information needed to allocate and fill a pd_code_t from this buffer,
+     then free it. The first task is to allocate space for the code. */
+
+  pd_code_t *pd = pd_code_new(crbuf_used+2);
+  assert(pd != NULL);
+
+  pd_idx_t cr;
+
+  for(cr=0;cr<crbuf_used;cr++) {
+
+    pd_idx_t j;
+    for(j=0;j<4;j++) { pd->cross[cr].edge[j] = crbuf[cr].edge[j]-1; }
+   
+    /* Determining sign is a lot trickier. Recall that the 
+       convention used to determine sign is this: 
+       
+            ^
+            |
+       ----------->
+            |
+            |
+
+     positive crossing 
+     (upper tangent vector) x (lower tangent vector) points OUT of screen.
+     This is true when the edges in positions 1 and 3 are in the order 3 -> 1.
+	    
+            ^
+            |
+       -----|----->
+            |
+            |
+
+     negative crossing
+     (upper tangent vector) x (lower tangent vector) points INTO screen.
+     This is true when the edges in positions 1 and 3 are in the order 1 -> 3.
+     
+     The problem (and it's a large one) is that the edge numbers wrap around
+     at the end of the component. For a 2 edge component, this is genuinely 
+     ambiguous, for all others, we can use the rule:
+
+    */
+    
+    if (pd->cross[cr].edge[3] == pd->cross[cr].edge[1] + 1 
+	|| pd->cross[cr].edge[3] < pd->cross[cr].edge[1]-1) {
+
+      pd->cross[cr].sign = PD_NEG_ORIENTATION;
+
+    } else { 
+
+      pd->cross[cr].sign = PD_POS_ORIENTATION;
+
+    }
+
+  }
+
+  pd->ncross = crbuf_used;
+  pd->nedges = 2*crbuf_used;
+  pd->nfaces = crbuf_used + 2;
+
+  /* We can now detect everything else by regenerating... */
+
+  pd_regenerate(pd);
+
+  /* We're done with the crossing buffer. */
+  free(crbuf);
+
+  /* We now make a final check, then terminate... */
+  
+  if (!pd_ok(pd)) { 
+
+    printf("pd_read_KnotTheory: Regenerated PD does not pass pd_ok. Suspect data is corrupt.\n");
+    return NULL;
+
+  }
+
+  return pd;
+  
+}
+
+
 
 /* Pd human output */
 

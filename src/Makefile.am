@@ -56,7 +56,9 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	tsmcmc.h \
 	geyer_estimators.h \
 	geyer_estimators.c \
-	plcRandomPolygon.h
+	plcRandomPolygon.h \
+	polynomials.h \
+	polynomials.c 
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -104,7 +106,9 @@ libplCurve_la_SOURCES = plCurve.c \
 	tsmcmc.h \
 	geyer_estimators.h \
 	geyer_estimators.c \
-	plcRandomPolygon.h
+	plcRandomPolygon.h \
+	polynomials.h \
+	polynomials.c 
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

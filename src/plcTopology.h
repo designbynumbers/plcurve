@@ -373,8 +373,22 @@ extern "C" {
 
   /* entire pd operations */
 
+  /* These functions read and write an internal text format for pd codes: */
+
   void       pd_write(FILE *outfile,pd_code_t *pd);
   pd_code_t *pd_read(FILE *infile); /* Returns NULL if the file is corrupt */
+
+  /* This function reads a pdcode from the Mathematica package KnotTheory, 
+     exported as text with something like:
+
+     Export["7_2.txt",PD[Knot[7,2]]]
+
+     These PD codes don't have component or face information, so that is 
+     all regenerated once the crossings have been loaded from the file. 
+     This will only read one PD code per file. 
+  */
+
+  pd_code_t *pd_read_KnotTheory(FILE *infile); /* Returns NULL if the file is corrupt */
 
   bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
   /* Test whether two pd codes are isomorphic. */
@@ -460,6 +474,8 @@ extern "C" {
   pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L);
 
   /* Compute the HOMFLY polynomial of a pd_code (returned as string) */
+
+  
 
   char *pd_homfly( pd_code_t *pdC);
 
