@@ -2566,6 +2566,12 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       fprintf(stream,"%d",decimal);
       nxtconv += 2;
 
+    } else if (!strncmp(nxtconv,"%s",2)) { /* Standard string conversion */
+
+      char *str = (char *) va_arg(ap,char *);
+      fprintf(stream,"%s",str);
+      nxtconv += 2;
+
     } else { /* A standard or unrecognized format conversion */
 
       char *adv;

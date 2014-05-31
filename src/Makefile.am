@@ -1,4 +1,4 @@
-AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
+AM_CFLAGS = -ggdb -Wall #-finline-functions -ftree-vectorize -Wall
 ACLOCAL_AMFLAGS = -I m4
 
 include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.h

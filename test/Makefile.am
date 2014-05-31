@@ -13,7 +13,9 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 	bad_vects/bad_11.vect \
 	bad_vects/bad_12.vect \
 	bad_vects/bad_13.vect \
-	bad_vects/bad_14.vect 
+	bad_vects/bad_14.vect \
+	rolfsentable.txt \
+	thistlethwaitetable.txt
 #	make_hopf
 
 if HAVE_ARGTABLE2
@@ -40,8 +42,9 @@ check_PROGRAMS = test_orientation \
 		 ccode_test
 
 TESTS = test_orientation \
-	test_homfly \
-	tsmcmc_random_test \
+	test_homfly 
+
+#	tsmcmc_random_test \
 	nn_test \
 	symmetry_test \
 	eq_primitives_test \

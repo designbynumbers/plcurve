@@ -43,7 +43,7 @@
 
 typedef struct monomial_struct {
 
-    double coeff;
+    int coeff;
     int l;  /* Power of l in this monomial */
     int m;  /* Power of m in this monomial */
     

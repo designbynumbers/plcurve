@@ -44,6 +44,10 @@
 #include <time.h>
 #endif
 
+#ifdef HAVE_ASSERT_H
+#include <assert.h>
+#endif
+
   /* values the USER needs to define!! */
 #define XCNT       250     /* maximum crossings in knot (at most 255) */
 #define XCNTSQ   62500     /* YOU MUST CALCULATE XCNT SQUARED! */
@@ -58,33 +62,37 @@
 
 /* globals */
 
-int readpos = 0;
-int writepos = 0;
+typedef struct state_struct { 
 
-long plybuf[XCNTSQ], *poly[XCNT], notbeg, count[XCNT], b[XCNT+1];
-unsigned char sign[XCNT], donlnk[XCNT+1], t[XCNT+2], crsbuf[XCNT+1][8];
-unsigned char buf[XCSQTR], cbuf[10242], clist[XCNT+2], stc[XCNT*2];
-short numcrs, numlps, poslnk, neglnk, lowx, restrt, gapsto[65];
-short tt[XCNT+2], bstlst[XCNT], bilbuf[XCNTSQ], *bilion[XCNT], suplng;
+  int readpos;
+  int writepos; 
+  
+  long plybuf[XCNTSQ], *poly[XCNT], notbeg, count[XCNT], b[XCNT+1];
+  unsigned char sign[XCNT], donlnk[XCNT+1], t[XCNT+2], crsbuf[XCNT+1][8];
+  unsigned char buf[XCSQTR], cbuf[10242], clist[XCNT+2], stc[XCNT*2];
+  short numcrs, numlps, poslnk, neglnk, lowx, restrt, gapsto[65];
+  short tt[XCNT+2], bstlst[XCNT], bilbuf[XCNTSQ], *bilion[XCNT], suplng;
+
+} lmpoly_state_t;
 
 /* Prototypes for later functions */
 
 void mypause(int sig);
-int  ntc(long i,char *buf);
-int  conchk();
-void mrecon(unsigned char *c,unsigned char *p);
-void squish(short sqush);
-void sqush2(short n,short g);
-void triple(short m,short i,unsigned char *p);
-void untwst(short l,short n,short i,short ex);
-void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag);
-int  tstcir(short h,short *bstlst,short *dspair,short *skflag);
-void delpow();
-void addin(long kcoeff,short ypow,short xpow,int mult,int reach);
-int  bust(short tobust,short xpow,short ypow);
-int  skinny(int twist,short lencir,short lngpos);
+int  ntc(long i,char *buf,lmpoly_state_t *state);
+int  conchk(lmpoly_state_t *state);
+void mrecon(unsigned char *c,unsigned char *p,lmpoly_state_t *state);
+void squish(short sqush,lmpoly_state_t *state);
+void sqush2(short n,short g, lmpoly_state_t *state);
+void triple(short m,short i,unsigned char *p,lmpoly_state_t *state);
+void untwst(short l,short n,short i,short ex,lmpoly_state_t *state);
+void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag,lmpoly_state_t *state);
+int  tstcir(short h,short *bstlst,short *dspair,short *skflag,lmpoly_state_t *state);
+void delpow(lmpoly_state_t *state);
+void addin(long kcoeff,short ypow,short xpow,int mult,int reach,lmpoly_state_t *state);
+int  bust(short tobust,short xpow,short ypow,lmpoly_state_t *state);
+int  skinny(int twist,short lencir,short lngpos,lmpoly_state_t *state);
 
-int strread(char *str,void *buffer,size_t size)
+int strread(char *str,void *buffer,size_t size,lmpoly_state_t *state)
 
 /* Reads up to size characters from string, copying the results to buffer. */
 /* We keep a (global) count of our position in the string internally.      */
@@ -96,9 +104,9 @@ int strread(char *str,void *buffer,size_t size)
 
   for(ctried=0,cread=0;ctried < size;ctried++) {
 
-    if (str[readpos] != 0) {
+    if (str[(state->readpos)] != 0) {
 
-      ((char *) buffer)[cread++] = str[readpos++];
+      ((char *) buffer)[cread++] = str[(state->readpos)++];
       
     }
 
@@ -107,7 +115,7 @@ int strread(char *str,void *buffer,size_t size)
   return cread;
 }
 
-int strwrite(char *str,char *buffer,size_t size)
+int strwrite(char *str,char *buffer,size_t size,lmpoly_state_t *state)
 
 /*   Writes size characters from buffer to str. Returns the number of  */
 /*   characters written. We keep a static counter of where we are in   */
@@ -118,9 +126,9 @@ int strwrite(char *str,char *buffer,size_t size)
 
   for(ctried=0,cwrote=0;ctried < size;ctried++) {
 
-    str[writepos++] = buffer[cwrote++];
+    str[(state->writepos)++] = buffer[cwrote++];
 
-    if (writepos > MAXPOLY-1) {
+    if ((state->writepos) > MAXPOLY-1) {
 
       printf("lmpoly: Output polynomial larger than %d characters.\n",
 	     MAXPOLY);
@@ -150,9 +158,12 @@ char *plc_lmpoly(char *code, int timeout)
  clock_t start,end;
  double  cpu_time_used;
 
+ lmpoly_state_t *state = calloc(1,sizeof(lmpoly_state_t));
+ assert(state != NULL);
+
  start = clock();
  
-if (code == NULL) { return NULL; }
+ if (code == NULL) { free(state); return NULL; }
 
  /* It's possible that we'll be fed a code with only one crossing */
  /* This will crash the rest of the code, so we insert some stuff here */
@@ -174,6 +185,7 @@ if (code == NULL) { return NULL; }
 
    outpoly = calloc(128,sizeof(char));
    sprintf(outpoly,"[[1]]N ");
+   free(state);
    return outpoly;
 
  }
@@ -181,13 +193,13 @@ if (code == NULL) { return NULL; }
 /* Now back to your regularly scheduled programming. */
  
  outpoly = calloc(MAXPOLY,sizeof(char)); // Space for a large polynomial
- readpos = 0;  // Reset the globals
- writepos = 0;
+ (state->readpos) = 0;  // Reset the globals
+ (state->writepos) = 0;
 
  maxcrs=XCNT;    /* maximum crossings in a knot, including all limits */
- chksiz= 50;     /* knot size trigger where bilion is checked, stats printed */
- *sign= 255;      /* do 3 tests on the machine to verify trick operation */
- i= (short) *sign;
+ chksiz= 50;     /* knot size trigger where (state->bilion) is checked, stats printed */
+ *(state->sign)= 255;      /* do 3 tests on the machine to verify trick operation */
+ i= (short) *(state->sign);
  if (i< (lngi=0)){
   write (1,"unsigned char problem - can't calculate knot >127 crossings\n",60);
   if (maxcrs>127) maxcrs=127;
@@ -203,24 +215,24 @@ if (code == NULL) { return NULL; }
   write (1,"long int pointer copy problem -- halt/restart won't work\n",57);
  }
  *nbuf= nbuf[1]= nbuf[2]= nbuf[3]= 0;
- *t=1;
- t[1]=2;
- t[2]=3;
- t[3]=4;
- lp1= (long *) t;
+ (state->t)[0]=1;
+ (state->t)[1]=2;
+ (state->t)[2]=3;
+ (state->t)[3]=4;
+ lp1= (long *) (state->t);
  lp2= (long *) nbuf;
  *lp2= *lp1;
  if (*nbuf!=1 || nbuf[1]!=2 || nbuf[2]!=3 || nbuf[3]!=4){
   write (1,"4 byte copy problem -- use PORTABLE PROGRAM version!\n",53);
   exit (1);
  }
- if (sizeof(lngi)== (suplng=2)){
+ if (sizeof(lngi)== ((state->suplng)=2)){
   write(1,"halt/restart won't work, and watch for coefficient overflows\n",61);
   cmpval= 10000;
   chksiz= 20;
  }
  else cmpval= 1000000000;     /* how big a value fits in a poly memory slot? */
- if (sizeof(lngi)== 8) suplng= 1;
+ if (sizeof(lngi)== 8) (state->suplng)= 1;
 
  // if (argc<2){
  // write (1,"usage:  lmpoly -rs knotfile [knotfile ...]\n",43);
@@ -236,7 +248,7 @@ if (code == NULL) { return NULL; }
 /*  else lseek (out,(long) 0,2); */
 /*  close (out); */
 
- *count= restrt= i= j= kstrt= nopro= 0;
+ *(state->count)= (state->restrt)= i= j= kstrt= nopro= 0;
  stats= -1;
 
  /* This code appears to detect "restarts" and "stats", neither of which 
@@ -244,7 +256,7 @@ if (code == NULL) { return NULL; }
 
  /* if (*argv[1]=='-'){
   if (argc==2 && argv[1][1]=='r'){
-   restrt=1;
+   (state->restrt)=1;
    if (argv[1][2]=='s') stats= 0;
   }
   else if (argv[1][1]=='s'){
@@ -257,11 +269,11 @@ if (code == NULL) { return NULL; }
 
  signal(SIGTERM,mypause); // Not sure what this does.
 
- lp1= plybuf;
- sp= bilbuf;
+ lp1= state->plybuf;
+ sp= (state->bilbuf);
  while (j<XCNT){
-  poly[j]= lp1;
-  bilion[j]= sp;
+  (state->poly)[j]= lp1;
+  (state->bilion)[j]= sp;
   lp1+= 1+ 2* (XCNT- ++j);
   sp+= 1+ 2* (XCNT-j);
  }
@@ -286,42 +298,42 @@ NEWFIL:
 
  /* We also comment out some "restart" code since we aren't restarting */
 
- /*if (restrt!=0){           // if I am restarting an old calculation 
-  if ((in=open("lmpoly.restrt",0))== -1){
+ /*if ((state->restrt)!=0){           // if I am restarting an old calculation 
+  if ((in=open("lmpoly.(state->restrt)",0))== -1){
    write (1,"couldn't find restart file\n",27);
    exit (0);
   }
   read (in,nbuf,82);
-  read (in,cbuf,12);
-  *argv= (char *) cbuf;
-  read (in,buf,7);
-  numcrs= *buf;
-  xpow= (short) buf[2];
-  ypow= (short) buf[1];
-  numlps= (short) buf[3];
-  poslnk= (short) buf[4];
-  neglnk= (short) buf[5];
-  if ((buf[6]&1) !=0) ypow= -ypow;
-  if ((buf[6]&2) !=0) xpow|= 512;
-  read (in,*crsbuf,numcrs*8);
+  read (in,(state->cbuf),12);
+  *argv= (char *) (state->cbuf);
+  read (in,(state->buf),7);
+  (state->numcrs)= *(state->buf);
+  xpow= (short) (state->buf)[2];
+  ypow= (short) (state->buf)[1];
+  (state->numlps)= (short) (state->buf)[3];
+  (state->poslnk)= (short) (state->buf)[4];
+  (state->neglnk)= (short) (state->buf)[5];
+  if (((state->buf)[6]&1) !=0) ypow= -ypow;
+  if (((state->buf)[6]&2) !=0) xpow|= 512;
+  read (in,*(state->crsbuf),(state->numcrs)*8);
   i= 0;
-  while (i!=numcrs){
-   sign[i]= crsbuf[i][1]>>4;
-   crsbuf[i++][1]&=6;
+  while (i!=(state->numcrs)){
+   (state->sign)[i]= (state->crsbuf)[i][1]>>4;
+   (state->crsbuf)[i++][1]&=6;
   }
-  p= (unsigned char *) &lowx;
+  p= (unsigned char *) &(state->lowx);
   read (in,p,2);
   p= (unsigned char *) &kstrt;
   read (in,p,4);
   p= (unsigned char *) &notbeg;
   read (in,p,4);
-  read (in,buf, (int) notbeg);
+  read (in,(state->buf), (int) notbeg);
   read (in,(char *) count,XCNT*4);
-  read (in,(char *) plybuf,4*XCNT*XCNT);
-  read (in,(char *) bilbuf,2*XCNT*XCNT);
+  read (in,(char *) state->plybuf,4*XCNT*XCNT);
+  read (in,(char *) (state->bilbuf),2*XCNT*XCNT);
   close (in);
   in=0;
-  s= cbuf+14;
+  s= (state->cbuf)+14;
   *s= EOFCHR;
  }
  else if ((in=open(*++argv,0))==-1){
@@ -342,21 +354,21 @@ NEWFIL:
   *p=0;
   if ((stats=creat(t,0644)) <0) stats=0;
  }
- if (restrt!=0){
+ if ((state->restrt)!=0){
   if (stats>0){
    write (stats,nbuf,strlen(nbuf));
    write (stats,"\n",1);
   }
-  restrt=0;
+  (state->restrt)=0;
   goto STEP1; // restart file has set up all NEWNOT data already 
  }
  */
 
- c = cbuf;
+ c = (state->cbuf);
 
  /* This code fragment copies the input file into a character buffer, 
     appending the EOF character to the end of the string. Instead, we 
-    copy our input "code" buffer into the cbuf array. 
+    copy our input "code" buffer into the (state->cbuf) array. 
 
     Original code:
 
@@ -375,8 +387,8 @@ NEWFIL:
  s=c;
 NEWNOT:
  i= XCNT-1;
- while (i!=0 && count[i]==0) --i;
- if (*count!= (numcrs=0)){
+ while (i!=0 && (state->count)[i]==0) --i;
+ if (*(state->count)!= ((state->numcrs)=0)){
   if (stats>=0){
    if ((out=open("lmknot.stats",1))== -1) out=creat("lmknot.stats",0644);
    else lseek (out,(long) 0,2);
@@ -386,19 +398,19 @@ NEWNOT:
 /*    write (out,"\n",1);     /\* write out statistics for knot just completed *\/ */
 /*    lngi=0; */
 /*    while (i!=0){ */
-/*     write (out,t,ntc((long)(i+1),t)); */
+/*     write (out,t,ntc((long)(i+1),t,state)); */
 /*     write (out,"     ",5); */
-/*     write (out,t,ntc(count[i],t)+1); */
+/*     write (out,t,ntc(count[i],t)+1,state); */
 /*     lngi+= count[i--]; */
 /*    } */
 /*    write (out,"\ntotal: ",8); */
-/*    write (out,t,ntc(lngi,t)+1); */
+/*    write (out,t,ntc(lngi,t,state)+1); */
 /*    write (out,"run: ",5); */
 /*    times(&hi); */
 /*    lngi= ((hi.tms_utime-kstrt)*5)/3; */
-/*    write (out,t,ntc(lngi/100,t)); */
+/*    write (out,t,ntc(lngi/100,t,state)); */
 /*    write (out,".",1); */
-/*    len= ntc(lngi%100,t); */
+/*    len= ntc(lngi%100,t,state); */
 /*    write (out,"0",2-len); */
 /*    write (out,t,len); */
 /*    write (out," s\n\n",4); */
@@ -410,8 +422,8 @@ NEWNOT:
   i=0;
   while (k!=0 && i==0){
    i= 2+ 2*(XCNT-k);
-   lp1= poly[--k];
-   sp= bilion[k];
+   lp1= (state->poly)[--k];
+   sp= (state->bilion)[k];
    while (--i!=0 && *lp1==0 && *(sp++)==0) ++lp1;
   }
   if (i!=0){
@@ -437,14 +449,14 @@ NEWNOT:
     if (count[1]!=0) write (out,"coefficient overflow error: output BAD\n",39);
     */
 
-    if (count[2]<0) { 
+    if ((state->count)[2]<0) { 
 
       printf("lmpoly: knot became inconsistent.\n");
       exit(1);
 
     }
 
-    if (count[1]!=0) {
+    if ((state->count)[1]!=0) {
 
       printf("lmpoly: coefficient overflow error.\n");
       exit(1);
@@ -453,22 +465,22 @@ NEWNOT:
       
     len=m= -1;
     while (m++!=k){
-    if (lowx== (i=0)) strwrite (outpoly,"[",1);
+      if ((state->lowx)== (i=0)) strwrite (outpoly,"[",1,state);
     n= XCNT-m-1;
     j= n*2;
-    while (j!=n && poly[m][j]==0 && bilion[m][j]==0) --j;
-    while (i!=n && poly[m][i]==0 && bilion[m][i]==0) ++i;
-    if (len==0 || lowx>=0 || i!=j || poly[m][i]!=0 || bilion[m][i]!=0){
+    while (j!=n && (state->poly)[m][j]==0 && (state->bilion)[m][j]==0) --j;
+    while (i!=n && (state->poly)[m][i]==0 && (state->bilion)[m][i]==0) ++i;
+    if (len==0 || (state->lowx)>=0 || i!=j || (state->poly)[m][i]!=0 || (state->bilion)[m][i]!=0){
       while (i<=j){
-	if (i==n) strwrite (outpoly,"[",1);
+	if (i==n) strwrite (outpoly,"[",1,state);
 	h=0;
-	lngi= poly[m][i];
+	lngi= (state->poly)[m][i];
 	if (lngi>=cmpval || lngi<= -cmpval){
 	  h= lngi/cmpval;
 	  lngi-= h* cmpval;
 	}
-	h+= bilion[m][i];
-	if (h*lngi <0){   /* bilion and poly are different signs */
+	h+= (state->bilion)[m][i];
+	if (h*lngi <0){   /* (state->bilion) and poly are different signs */
 	  if (h<0){
 	    lngi-= cmpval;
 	    ++h;
@@ -480,29 +492,30 @@ NEWNOT:
 	}
 	if (h!=0){
 	  if (lngi<0) lngi= -lngi;
-	  strwrite (outpoly,(char *)(t),ntc((long) h,(char *)(t)));
-	  len= ntc(lngi,(char *)(t));
+	  strwrite (outpoly,(char *)(state->t),ntc((long) h,(char *)(state->t),state),state);
+	  len= ntc(lngi,(char *)(state->t),state);
 	  if (cmpval==10000) len2= 4-len;
 	  else len2= 9-len;
-	  strwrite (outpoly,"00000000",len2);
-	  strwrite (outpoly,(char *)(t),len);
+	  strwrite (outpoly,"00000000",len2,state);
+	  strwrite (outpoly,(char *)(state->t),len,state);
 	}
-	else strwrite (outpoly,(char *)(t),ntc(lngi,(char *)(t)));
-	if (i++ ==n) strwrite (outpoly,"]",1);
-	if (i<=j) strwrite (outpoly," ",1);
+	else strwrite (outpoly,(char *)(state->t),ntc(lngi,(char *)(state->t),state),state);
+	if (i++ ==n) strwrite (outpoly,"]",1,state);
+	if (i<=j) strwrite (outpoly," ",1,state);
       }
-      if (lowx== (len=0)) strwrite (outpoly,"]",1);
-      strwrite (outpoly,"N",1);
+      if ((state->lowx)== (len=0)) strwrite (outpoly,"]",1,state);
+      strwrite (outpoly,"N",1,state);
     }
-    ++lowx;
+    ++(state->lowx);
     }
   }
-  strwrite (outpoly," ",1);
+  strwrite (outpoly," ",1,state);
   /* close(out); */ /* We are done writing the polynomial, so return */
+  free(state);
   return outpoly;  
  }
  i= XCNT;
- while (i!=0) count[--i]=0; /* Erase the count buffer */
+ while (i!=0) (state->count)[--i]=0; /* Erase the (state->count) buffer */
  c=s;
  *nbuf=0;                   /* Erase the nbuf string? */
  if (*c!='1' || (*(c+1)!='+' && *(c+1)!='-')){
@@ -517,17 +530,18 @@ NEWNOT:
 /*   } */
  }
  if (*c=='\n') ++c;
- p= *crsbuf;
+ p= *(state->crsbuf);
  while (*c!='\n' && *c!=EOFCHR){
-  if (numcrs==maxcrs){
+  if ((state->numcrs)==maxcrs){
     //write (1,"too many crossings in knot\n",27);
     printf("lmpoly: too many crossings in knot\n");
     free(outpoly);
+    free(state);
     return NULL;
   }
   while (*c>='0' && *c<='9') ++c;
-  if (*c=='+') sign[numcrs]=6;      /* sign[] says what crossings are + or - */
-  else if (*c=='-') sign[numcrs]=2;
+  if (*c=='+') (state->sign)[(state->numcrs)]=6;      /* (state->sign)[] says what crossings are + or - */
+  else if (*c=='-') (state->sign)[(state->numcrs)]=2;
   else if (*c==EOFCHR) --c;
   else {
     //write (1,"the format of this knot is unreadable, skipping file\n",53);
@@ -535,6 +549,7 @@ NEWNOT:
     //goto NEWFIL;
     printf("lmpoly: Could not parse input string.\n");
     free(outpoly);
+    free(state);
     return NULL;
   }
   ++c;
@@ -550,6 +565,7 @@ NEWNOT:
      //goto NEWFIL;
      printf("lmpoly: Could not parse input string.\n");
      free(outpoly);
+     free(state);
      return NULL;
    }
    *(p++)= i-1;
@@ -560,16 +576,17 @@ NEWNOT:
       //goto NEWFIL;
       printf("lmpoly: Could not parse input string.\n");
       free(outpoly);
+      free(state);
       return NULL;
     }
     *(p++)= (*(c++)-'a')*2;
    }
   }
-  ++numcrs;
+  ++(state->numcrs);
   if (*c=='\n') ++c;
  }
  if (*c==EOFCHR){
-  c=cbuf;
+  c=(state->cbuf);
   len=10240;
   while (*s!=EOFCHR){
    *(c++)= *(s++);
@@ -577,7 +594,7 @@ NEWNOT:
   }
   if (in!=0 && (i=read(in,c,len))!=0){
    c[i]=EOFCHR;
-   c=cbuf;
+   c=(state->cbuf);
    while (*c=='\n') ++c;
    s=c;
    goto NEWNOT;
@@ -588,21 +605,21 @@ NEWNOT:
    in=0;
   }
   else goto NEWFIL;
-  if (numcrs<2) goto NEWFIL;
+  if ((state->numcrs)<2) goto NEWFIL;
  }
  while (*c=='\n') ++c;
  s=c;
- lp1= *poly;
- sp= *bilion;
+ lp1= *(state->poly);
+ sp= *(state->bilion);
  lngi= XCNT*XCNT;
  while (--lngi!=0) *(lp1++)= *(sp++)= 0;
- notbeg=numlps=poslnk=neglnk= xpow= ypow= 0;
- if (conchk()!=0) exit(0);
- *count=1;
+ (state->notbeg)=(state->numlps)=(state->poslnk)=(state->neglnk)= xpow= ypow= 0;
+ if (conchk(state)!=0) exit(0);
+ *(state->count)=1;
 STEP1:
  skflag=0;
 RESTRT:
- if (restrt!=0){
+ if ((state->restrt)!=0){
    /* We don't include the restart functionality for now. */
 
   /* if ((out=creat("lmpoly.restrt",0644))!= -1){ */
@@ -610,34 +627,34 @@ RESTRT:
 /*    i= strlen(*argv)-11; */
 /*    if (i<0) i=0; */
 /*    write (out,*argv+i,12); */
-/*    *cbuf= numcrs; */
+/*    *(state->cbuf)= (state->numcrs); */
 /*    if (ypow<0){ */
 /*     ypow= -ypow; */
-/*     cbuf[6]=1; */
+/*     (state->cbuf)[6]=1; */
 /*    } */
-/*    else cbuf[6]=0; */
-/*    if ((xpow&512) !=0) cbuf[6]|= 2; */
-/*    cbuf[1]= ypow; */
-/*    cbuf[2]= xpow; */
-/*    cbuf[3]= numlps; */
-/*    cbuf[4]= poslnk; */
-/*    cbuf[5]= neglnk; */
-/*    write (out,cbuf,7); */
+/*    else (state->cbuf)[6]=0; */
+/*    if ((xpow&512) !=0) (state->cbuf)[6]|= 2; */
+/*    (state->cbuf)[1]= ypow; */
+/*    (state->cbuf)[2]= xpow; */
+/*    (state->cbuf)[3]= (state->numlps); */
+/*    (state->cbuf)[4]= (state->poslnk); */
+/*    (state->cbuf)[5]= (state->neglnk); */
+/*    write (out,(state->cbuf),7); */
 /*    i= -1; */
-/*    while (++i!=numcrs) crsbuf[i][1]|= sign[i]<<4; */
-/*    write (out,*crsbuf,numcrs*8); */
-/*    p= (unsigned char *) &lowx; */
+/*    while (++i!=(state->numcrs)) (state->crsbuf)[i][1]|= (state->sign)[i]<<4; */
+/*    write (out,*(state->crsbuf),(state->numcrs)*8); */
+/*    p= (un(state->sign)ed char *) &(state->lowx); */
 /*    write (out,p,2); */
 /*    times(&hi); */
 /*    kstrt-= hi.tms_utime; */
-/*    p= (unsigned char *) &kstrt; */
+/*    p= (un(state->sign)ed char *) &kstrt; */
 /*    write (out,p,4); */
 /*    p= (unsigned char *) &notbeg; */
 /*    write (out,p,4); */
 /*    write (out,buf, (int) notbeg); */
 /*    write (out,(char *) count,XCNT*4); */
-/*    write (out,(char *) plybuf,4*XCNT*XCNT); */
-/*    write (out,(char *) bilbuf,2*XCNT*XCNT); */
+/*    write (out,(char *) state->plybufn,4*XCNT*XCNT); */
+/*    write (out,(char *) (state->bilbuf),2*XCNT*XCNT); */
 /*    close (out); */
 /*    close (stats); */
 /*    exit(0); */
@@ -656,42 +673,42 @@ RESTRT:
 /* THIRD -- remove bigons -- make sure loops don't get forgotten. */
 /* 2 cases "k?mcmb???? m???kbka??"  "k?mc????md  m?????kakd" */
 /* bigon yanker MUST be completely thorough or loops can get lost later */
- *dspair=g= i= numcrs;
- c=p= crsbuf[i];
+ *dspair=g= i= (state->numcrs);
+ c=p= (state->crsbuf)[i];
  k=2;
  while (i--!=0){  /* loop through all crossings */
   p-=8;
   if (*p==i){
-   if (p[4]==i) ++numlps;
-   else mrecon (p+4,p+sign[i]);
-   squish (i);
+   if (p[4]==i) ++(state->numlps);
+   else mrecon (p+4,p+(state->sign)[i],state);
+   squish (i,state);
    goto STEP1;
   }
   else if (p[4]==i){
-   mrecon (p,p+(sign[i]^4));
-   squish (i);
+    mrecon (p,p+((state->sign)[i]^4),state);
+    squish (i,state);
    goto STEP1;
   }
    /* this bigon test checks that ka points to some mc, */
     /* and kd to md, or kb to mb */
   if (p[1]==4 && ((*p==p[6] && p[7]==6) || (*p==p[2] && p[3]==2))){
    if ((j= *p) ==p[2]) k=6;
-   c= crsbuf[j];
-   if (p[4]==j) ++numlps;
-   if (p[2]==p[6]) ++numlps;
-   mrecon (p+4,c);
-   mrecon (p+k,c+k);
-   sqush2 (i,j);
+   c= (state->crsbuf)[j];
+   if (p[4]==j) ++(state->numlps);
+   if (p[2]==p[6]) ++(state->numlps);
+   mrecon (p+4,c,state);
+   mrecon (p+k,c+k,state);
+   sqush2 (i,j,state);
    goto STEP1;
   }
-  bstlst[i]= 0;
+  (state->bstlst)[i]= 0;
  }
- if (numcrs<6) g=0;
+ if ((state->numcrs)<6) g=0;
 /* find very good and ok triples */
  while (g--!= (lngi=0)){
   c-=8;
-  p= crsbuf[*c]+ ((c[1]^2)&2);
-  q= crsbuf[c[4]]+ ((c[5]^2)&2);
+  p= (state->crsbuf)[*c]+ ((c[1]^2)&2);
+  q= (state->crsbuf)[c[4]]+ ((c[5]^2)&2);
   if ((i= c[2]) != (j= c[6]) && *c!=c[4]){
    if ((m= *q) == (n= q[4])) m=n= -1;
    if ((h= *p) == (k= p[4])) h=k= -1;
@@ -707,21 +724,21 @@ RESTRT:
     h=2;
    }
    else if (*c==c[4]){
-    ++numlps; /* knot's a distant union with a 2-link */
-    if (sign[g]==2) ++neglnk;
-    else ++poslnk;
-    sqush2 (g,i);
+    ++(state->numlps); /* knot's a distant union with a 2-link */
+    if ((state->sign)[g]==2) ++(state->neglnk);
+    else ++(state->poslnk);
+    sqush2 (g,i,state);
     goto STEP1;
    }
    j=h;
    c+=h;
-   if (sign[g]!=sign[i]) ++numlps; /* loose ring */
+   if ((state->sign)[g]!=(state->sign)[i]) ++(state->numlps); /* loose ring */
    else {
-    if (sign[g]==2) ++neglnk;
-    else ++poslnk;
+    if ((state->sign)[g]==2) ++(state->neglnk);
+    else ++(state->poslnk);
     j= h^2;
    }
-   p= crsbuf[i]+j;  /* only do one mrecon unless I HAVE to do 2 */
+   p= (state->crsbuf)[i]+j;  /* only do one mrecon unless I HAVE to do 2 */
    q= c+4;
    if (*c==i){
     if ((c[1]&4) ==0) c= p+4;
@@ -731,9 +748,9 @@ RESTRT:
     if ((q[1]&4) ==0) q= p+4;
     else q=p;
    }
-   else mrecon (p,p+4);
-   mrecon (c,q);
-   sqush2 (g,i);
+   else mrecon (p,p+4,state);
+   mrecon (c,q,state);
+   sqush2 (g,i,state);
    goto STEP1;
   }
   if (lngi!=0){
@@ -741,71 +758,71 @@ RESTRT:
    *dspair=1;
    if ((k&3)!=0){
     if ((c[3]&c[7]&2)!=0){
-     triple((short) ((k&2)<<1),g,c);
+      triple((short) ((k&2)<<1),g,c,state);
      goto STEP1;
     }
     if (((c[3]^c[7])&2)!=0){
      if ((c[((k&2)<<1)|1]&2)==0){
-      if (sign[c[(k&2)<<1]]!=sign[g]) bstlst[i]= bstlst[j]= -19;
-      else bstlst[i]= bstlst[j]= 8;
+      if ((state->sign)[c[(k&2)<<1]]!=(state->sign)[g]) (state->bstlst)[i]= (state->bstlst)[j]= -19;
+      else (state->bstlst)[i]= (state->bstlst)[j]= 8;
      }
      else {
       n=8;
-      if (sign[c[(k&2)<<1]]==sign[g]) n= -8;
-      sp= bstlst+i;
-      if ((c[3]&2)!=0) sp= bstlst+j;
+      if ((state->sign)[c[(k&2)<<1]]==(state->sign)[g]) n= -8;
+      sp= (state->bstlst)+i;
+      if ((c[3]&2)!=0) sp= (state->bstlst)+j;
       if (*sp==0 || (n<0 && n<*sp)) *sp= n;
      }
     }
     else {
-     if (bstlst[g]>=0) bstlst[g]+= 8;
-     else bstlst[g]-= 8;
+     if ((state->bstlst)[g]>=0) (state->bstlst)[g]+= 8;
+     else (state->bstlst)[g]-= 8;
     }
    }
    if (k>3){
     if (((c[1]|c[5])&2)==0){
-     triple((short) ((k&4)|2),g,c);
+      triple((short) ((k&4)|2),g,c,state);
      goto STEP1;
     }
     if (((c[1]^c[5])&2)!=0){
      if ((c[(k&4)|3]&2)!=0){
-      if (sign[c[(k&4)|2]]!=sign[g]) bstlst[*c]= bstlst[c[4]]= -19;
-      else bstlst[*c]= bstlst[c[4]]= 8;
+      if ((state->sign)[c[(k&4)|2]]!=(state->sign)[g]) (state->bstlst)[*c]= (state->bstlst)[c[4]]= -19;
+      else (state->bstlst)[*c]= (state->bstlst)[c[4]]= 8;
      }
      else {
       n=8;
-      if (sign[c[(k&4)|2]]==sign[g]) n= -8;
-      sp= bstlst + c[4];
-      if ((c[1]&2)!=0) sp= bstlst+ *c;
+      if ((state->sign)[c[(k&4)|2]]==(state->sign)[g]) n= -8;
+      sp= (state->bstlst) + c[4];
+      if ((c[1]&2)!=0) sp= (state->bstlst)+ *c;
       if (*sp==0 || (n<0 && n<*sp)) *sp= n;
      }
     }
     else {
-     if (bstlst[g]>=0) bstlst[g]+= 8;
-     else bstlst[g]-= 8;
+     if ((state->bstlst)[g]>=0) (state->bstlst)[g]+= 8;
+     else (state->bstlst)[g]-= 8;
     }
    }
   }
  }
  /* circuit remover */
- j= numcrs-1;
+ j= (state->numcrs)-1;
  if (j<3) j= -1;
  else if (j<11){    /* <12 will blow up */
-  p= *crsbuf+1;
-  i=numcrs;
+  p= *(state->crsbuf)+1;
+  i=(state->numcrs);
   while (i--!=0 && *p!=4) p+=8; /* only non-alternating (a to c) knots */
   if (i< (n=0)) j= -1;
-  else p= crsbuf[j]+5;   /* remove twists */
+  else p= (state->crsbuf)[j]+5;   /* remove twists */
   while (j>=0){
    n^=4;
    k= *(p--)^4;
    if ((k&2) == 0){
-    c= crsbuf[*p]+k;
+    c= (state->crsbuf)[*p]+k;
     i= *c;
     k= c[1]^4;
-    if ((k&2) != 0 && crsbuf[i][k]==j){
-     untwst ((short) *p,i,j,n);
-     squish (j);
+    if ((k&2) != 0 && (state->crsbuf)[i][k]==j){
+      untwst ((short) *p,i,j,n,state);
+      squish (j,state);
      goto STEP1;
     }
    }
@@ -813,56 +830,56 @@ RESTRT:
    p-=3;
   }
  }
- g= donlnk[XCNT]= m= 0;
- while ((n=j) >= (*tt=tt[2]=h= 0)){
+ g= (state->donlnk)[XCNT]= m= 0;
+ while ((n=j) >= (*(state->tt)=(state->tt)[2]=h= 0)){
   k=g;
   do {
-   p= crsbuf[j]+k;
+   p= (state->crsbuf)[j]+k;
    j= *p;
    k= p[1]^4;
    i= h;
-   p=clist;
+   p=(state->clist);
    while (i--!=0 && *(p++) != j);
    if (i>=0){
     j= n;              /* circuit crosses itself */
     goto NXTCIR; /* skip circuit, wait for a sub-piece that doesn't */
    }
    else {
-    ++tt[k&2];
+    ++(state->tt)[k&2];
     *p= j;
-    t[h++]= (k&2)^2;
+    (state->t)[h++]= (k&2)^2;
    }
   } while (n!=j);
-  if (k != g) --tt[k&2];
+  if (k != g) --(state->tt)[k&2];
   else k= -1;
-  if (*tt==0 || tt[2]==0){
-   rmcir(h,j,k,t,0);
+  if (*(state->tt)==0 || (state->tt)[2]==0){
+    rmcir(h,j,k,state->t,0,state);
    goto STEP1;
   }
-  if (tstcir(h,bstlst,dspair,&skflag) !=0) goto RESTRT;
+  if (tstcir(h,(state->bstlst),dspair,&skflag,state) !=0) goto RESTRT;
   if (h==3){
-   stc[m++]=j; /* store vertex of 3 crossing circuit for bstlst later */
-   stc[m++]=g;
-   stc[m++]=k^4;
+   (state->stc)[m++]=j; /* store vertex of 3 crossing circuit for (state->bstlst) later */
+   (state->stc)[m++]=g;
+   (state->stc)[m++]=k^4;
   }
 NXTCIR:
-  if (g==0) g= sign[j];
+  if (g==0) g= (state->sign)[j];
   else {
    --j;
    g=0;
   }
  }
 /* if knot is tiny, store polynomial coefficients and restart a stored knot */
- if (numcrs<6){
+ if ((state->numcrs)<6){
   lngi= 1;
-  if (numcrs==0) --numlps;
-  delpow();
+  if ((state->numcrs)==0) --(state->numlps);
+  delpow(state);
   if ((xpow&512)!=0){
    lngi= -1;
    xpow&=511;
   }
-  if (numcrs==4){
-   c= *crsbuf;
+  if ((state->numcrs)==4){
+   c= *(state->crsbuf);
    p= c+4;
    if (*p==*c || c[2]==p[2]){
     g= -3;
@@ -870,15 +887,15 @@ NXTCIR:
    }
    else {
     g= 0;  /* 0 is flag for knot */
-    i= *sign+sign[1]+sign[2]+sign[3];
+    i= *(state->sign)+(state->sign)[1]+(state->sign)[2]+(state->sign)[3];
     if (i!=16) g=2;     /* flag for 2 links   */
    }
   }
-  else if (numcrs==5){
+  else if ((state->numcrs)==5){
    n=10;
    i=j= 0; /* step through knot, if don't get to end, it's a link */
    do {
-    p= crsbuf[i]+j;
+    p= (state->crsbuf)[i]+j;
     i= *p;
     j= p[1]^4;
     --n;
@@ -886,108 +903,108 @@ NXTCIR:
    if (n>0){
     i=h= 0; /* 5 crossing 2 link  or twisted 3 link  or tref and 2 links */
     g=m= 1;      /* or tref + link */
-    k= *sign+sign[1]+sign[2]+sign[3]+sign[4];
+    k= *(state->sign)+(state->sign)[1]+(state->sign)[2]+(state->sign)[3]+(state->sign)[4];
     if (k>10 && k<30){
      if (k>20){
-      while (sign[i]==6) ++i;
+      while ((state->sign)[i]==6) ++i;
      }
      else {
-      while (sign[i]==2) ++i;
+      while ((state->sign)[i]==2) ++i;
      }
      if (k==14 || k==26) goto FOURX;
-     c= crsbuf[i];
+     c= (state->crsbuf)[i];
      p= c+4;
      if (*p==*c || p[2]==c[2]){
       if (*p==p[2] && *c==c[2]) g=3;
       else {
        h=4;
-       if (sign[i]==6) m= -1;
+       if ((state->sign)[i]==6) m= -1;
       }
      }
      else {
       g=2;
       j=0;
-      if (sign[*c]!=sign[i]) j=4;
+      if ((state->sign)[*c]!=(state->sign)[i]) j=4;
       k= c[j];
-      if (crsbuf[k][j]!=i){
-       if (sign[i]==6) m= -1;
+      if ((state->crsbuf)[k][j]!=i){
+       if ((state->sign)[i]==6) m= -1;
       }
-      else if (sign[i]==2) m= -1;
+      else if ((state->sign)[i]==2) m= -1;
      }
     }
     if (g==1){
-     if (h==0 && sign[i]==2) m= -1;
+     if (h==0 && (state->sign)[i]==2) m= -1;
      i=j=k= 5;
-     c= t;
+     c= state->t;
      while (j!=0) c[--j]=0;
      while (k--!=0){
-      j= sign[k]; /* trefs + circles have fake bigons at all crossings */
-      p= crsbuf[k]; /* so find all fake bigons */
+      j= (state->sign)[k]; /* trefs + circles have fake bigons at all crossings */
+      p= (state->crsbuf)[k]; /* so find all fake bigons */
       if (p[1]==(j^4) && (*p==p[2] || *p==p[6])) c[k]=c[*p]= 1;
       if (p[5]==j && p[4]==p[j]) c[k]=c[p[4]]= 1;
      }
      while (--i>=0 && c[i]!=0);
      if (i>=0){
 FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
-      while (++i!=6) sign[i-1]= sign[i];
-      numcrs=4;
+      while (++i!=6) (state->sign)[i-1]= (state->sign)[i];
+      (state->numcrs)=4;
       g= -3;  /* flag for 4 crossing 3 links */
      }
      else {
-      p= *crsbuf;
+      p= *(state->crsbuf);
       if (n==4 || (n==8 && *p==p[4] && p[2]==p[6])) g=3;
      }
     }
    }
    else g= -1; /* it's a knot! */
   }
-  i= (*sign)/2 -2;
+  i= (*(state->sign))/2 -2;
   k= xpow;
   n=ypow;
-  p= *crsbuf;
-  if (numcrs==5){
+  p= *(state->crsbuf);
+  if ((state->numcrs)==5){
    if (g<0){ /* knots */
     if (i>0){
      if (*p==p[6] && p[2]==p[4] && p[10]==p[12]) g= -2;
     }
     else if (*p==p[2] && p[4]==p[6] && p[8]==p[10]) g= -2;
     if (g== -1){ /* knot five-two */
-     addin(lngi,(short)(n-i*6),k,0,0);      /* the flags at the end of addin  */
-     addin(lngi,(short)(n-i*4),k,-1,2);     /* let you do two addins at once, */
-     addin((long)-lngi,(short)(n-i*2),k,-1,2);    /* for addins with equal ypows.   */
+      addin(lngi,(short)(n-i*6),k,0,0,state);      /* the flags at the end of addin  */
+      addin(lngi,(short)(n-i*4),k,-1,2,state);     /* let you do two addins at once, */
+      addin((long)-lngi,(short)(n-i*2),k,-1,2,state);    /* for addins with equal ypows.   */
     }
     else { /* knot five-one */
      k+=2;
-     addin((long)(-4*lngi),(short)(n-i*4),k,0,0);
-     addin((long)-lngi,(short)(n-i*6),k,-2,-2);
-     addin(lngi,(short)(n-i*4),(short)(k+2),3,-4);
+     addin((long)(-4*lngi),(short)(n-i*4),k,0,0,state);
+     addin((long)-lngi,(short)(n-i*6),k,-2,-2,state);
+     addin(lngi,(short)(n-i*4),(short)(k+2),3,-4,state);
     }
    }
    else { /* links */
     if (g==1){ /* trefoil + circle */
      if (h!=0){
-      addin(lngi,(short)(n-m*3),++k,-1,-2);
-      addin((long)(3*lngi),(short)(n-m),k,-1,-2);
-      addin(lngi,(short)(n+m),k,-2,-2);
-      addin((long)-lngi,(short)(n-m),(short)(k+2),0,0);
+       addin(lngi,(short)(n-m*3),++k,-1,-2,state);
+       addin((long)(3*lngi),(short)(n-m),k,-1,-2,state);
+       addin(lngi,(short)(n+m),k,-2,-2,state);
+       addin((long)-lngi,(short)(n-m),(short)(k+2),0,0,state);
      }
      else {
-      addin((long)-lngi,(short)(n-m*7),--k,0,0);
-      addin((long)(-3*lngi),(short)(n-m*5),k,0,0);
+       addin((long)-lngi,(short)(n-m*7),--k,0,0,state);
+       addin((long)(-3*lngi),(short)(n-m*5),k,0,0,state);
       k+=2;
-      addin((long)(3*lngi),(short)(n-m*3),k,0,0);
-      addin((long)(2*lngi),(short)(n-m*5),k,0,0);
-      addin((long)-lngi,(short)(n-m*3),(short)(k+2),2,-4);
+      addin((long)(3*lngi),(short)(n-m*3),k,0,0,state);
+      addin((long)(2*lngi),(short)(n-m*5),k,0,0,state);
+      addin((long)-lngi,(short)(n-m*3),(short)(k+2),2,-4,state);
      }
     }
     else if (g==2){ /* 2 component link five-one */
-     addin((long)-lngi,(short)(n+m),--k,-2,2);
-     addin((long)-lngi,(short)(n-m),k,-1,2);
-     addin(lngi,(short)(n+m*3),(short)(k+2),0,0);
-     addin((long)-lngi,(short)(n+m),(short)(k+4),0,0);
+      addin((long)-lngi,(short)(n+m),--k,-2,2,state);
+      addin((long)-lngi,(short)(n-m),k,-1,2,state);
+      addin(lngi,(short)(n+m*3),(short)(k+2),0,0,state);
+      addin((long)-lngi,(short)(n+m),(short)(k+4),0,0,state);
     }
     else { /* trefoil and circle + circle */
-     i= *sign+sign[1]+sign[2]+sign[3]+sign[4];
+     i= *(state->sign)+(state->sign)[1]+(state->sign)[2]+(state->sign)[3]+(state->sign)[4];
      m=1;
      if (i<20){
       m= -1;
@@ -995,133 +1012,133 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
      }
      j= k-2;
      if (i!=30){
-      addin(lngi,(short)(n-m*4),j,-1,2);
-      addin((long)(4*lngi),(short)(n-m*2),j,-1,2);
-      addin((long)(5*lngi),n,j,0,0);
-      addin((long)-lngi,(short)(n+m*2),k,-2,-2);
+       addin(lngi,(short)(n-m*4),j,-1,2,state);
+       addin((long)(4*lngi),(short)(n-m*2),j,-1,2,state);
+       addin((long)(5*lngi),n,j,0,0,state);
+       addin((long)-lngi,(short)(n+m*2),k,-2,-2,state);
       k+=2;
-      addin(lngi,n,k,-4,-2);
-      addin(lngi,(short)(n-m*2),k,0,0);
+      addin(lngi,n,k,-4,-2,state);
+      addin(lngi,(short)(n-m*2),k,0,0,state);
      }
      else {
-      addin(lngi,(short)(n-m*8),j,0,0);
-      addin((long)(5*lngi),(short)(n-m*4),j,0,0);
-      addin((long)(2*lngi),(short)(n-m*2),j,0,0);
-      addin((long)(-2*lngi),(short)(n-m*6),k,-2,-2);
+       addin(lngi,(short)(n-m*8),j,0,0,state);
+       addin((long)(5*lngi),(short)(n-m*4),j,0,0,state);
+       addin((long)(2*lngi),(short)(n-m*2),j,0,0,state);
+       addin((long)(-2*lngi),(short)(n-m*6),k,-2,-2,state);
       k+=2;
-      addin(lngi,(short)(n-m*4),k,-5,-2);
-      addin(lngi,(short)(n-m*2),k,-3,-2);
+      addin(lngi,(short)(n-m*4),k,-5,-2,state);
+      addin(lngi,(short)(n-m*2),k,-3,-2,state);
      }
     }
    }
   }
-  else if (numcrs==4){
+  else if ((state->numcrs)==4){
    if (g==0){ /* knot 4-1 */
-    addin((long)-lngi,(short)(n-2),k,0,0);
-    addin((long)-lngi,n,k,-1,2);
-    addin((long)-lngi,(short)(n+2),k,0,0);
+     addin((long)-lngi,(short)(n-2),k,0,0,state);
+     addin((long)-lngi,n,k,-1,2,state);
+     addin((long)-lngi,(short)(n+2),k,0,0,state);
    }
    else if (g>0){
     i=1;
-    if (*crsbuf[*p]==0){
-     if (*sign==6) i= -1; /* 2 link 4^2-1 */
-     addin((long)-lngi,(short)(n+i*3),--k,-1,2);
-     addin((long)-lngi,(short)(n+i*5),k,0,0);
-     addin((long)-lngi,(short)(n+i),(short)(k+2),0,0);
+    if (*(state->crsbuf)[*p]==0){
+     if (*(state->sign)==6) i= -1; /* 2 link 4^2-1 */
+     addin((long)-lngi,(short)(n+i*3),--k,-1,2,state);
+     addin((long)-lngi,(short)(n+i*5),k,0,0,state);
+     addin((long)-lngi,(short)(n+i),(short)(k+2),0,0,state);
     }
     else {
-     if (*sign==2) i= -1;
-     addin((long)-lngi,(short)(n-i*5),--k,-1,2);
-     addin((long)-lngi,(short)(n-i*3),k,-3,2);
-     addin((long)-lngi,(short)(n-i*3),(short)(k+4),0,0);
+     if (*(state->sign)==2) i= -1;
+     addin((long)-lngi,(short)(n-i*5),--k,-1,2,state);
+     addin((long)-lngi,(short)(n-i*3),k,-3,2,state);
+     addin((long)-lngi,(short)(n-i*3),(short)(k+4),0,0,state);
     }
    }
    else if (g== -3){ /* 3 link */
-    j= *sign+sign[1]+sign[2]+sign[3];
+    j= *(state->sign)+(state->sign)[1]+(state->sign)[2]+(state->sign)[3];
     i= 8- j/2;
     if (i==0){
-     addin((long)-lngi,(short)(n-2),k,-1,-2);
-     addin((long)(-2*lngi),n,k,-1,-2);
-     addin((long)-lngi,(short)(n+2),k,-1,-2);
-     addin(lngi,n,(short)(k+2),0,0);
+      addin((long)-lngi,(short)(n-2),k,-1,-2,state);
+      addin((long)(-2*lngi),n,k,-1,-2,state);
+      addin((long)-lngi,(short)(n+2),k,-1,-2,state);
+      addin(lngi,n,(short)(k+2),0,0,state);
     }
     else {
      j= k-2;
-     addin(lngi,(short)(n-2+i),j,0,0);
-     addin((long)(2*lngi),(short)(n+i),j,-1,2);
-     addin(lngi,(short)(n+2+i),j,0,0);
-     addin(lngi,(short)(n+i/2),(short)(k+2),-2,-2);
+     addin(lngi,(short)(n-2+i),j,0,0,state);
+     addin((long)(2*lngi),(short)(n+i),j,-1,2,state);
+     addin(lngi,(short)(n+2+i),j,0,0,state);
+     addin(lngi,(short)(n+i/2),(short)(k+2),-2,-2,state);
     }
    }
    else { /* circle + circle  and  circle + circle */
-    j= *sign+sign[1]+sign[2]+sign[3];
+    j= *(state->sign)+(state->sign)[1]+(state->sign)[2]+(state->sign)[3];
     i= 8- j/2;
     if (i==0){
-     addin(lngi,(short)(n-3),--k,-1,-2);
-     addin((long)(3*lngi),(short)(n-1),k,-1,-2);
-     addin((long)(3*lngi),(short)(n+1),k,-1,-2);
-     addin(lngi,(short)(n+3),k,-1,-2);
+      addin(lngi,(short)(n-3),--k,-1,-2,state);
+      addin((long)(3*lngi),(short)(n-1),k,-1,-2,state);
+      addin((long)(3*lngi),(short)(n+1),k,-1,-2,state);
+      addin(lngi,(short)(n+3),k,-1,-2,state);
      k+=2;
-     addin((long)-lngi,(short)(n-1),k,0,0);
-     addin((long)-lngi,(short)(n+1),k,0,0);
+     addin((long)-lngi,(short)(n-1),k,0,0,state);
+     addin((long)-lngi,(short)(n+1),k,0,0,state);
     }
     else {
      k-=3;
-     addin((long)-lngi,(short)(n-3+i),k,0,0);
-     addin((long)(-3*lngi),(short)(n-1+i),k,0,0);
-     addin((long)(-3*lngi),(short)(n+1+i),k,0,0);
-     addin((long)-lngi,(short)(n+3+i),k,0,0);
+     addin((long)-lngi,(short)(n-3+i),k,0,0,state);
+     addin((long)(-3*lngi),(short)(n-1+i),k,0,0,state);
+     addin((long)(-3*lngi),(short)(n+1+i),k,0,0,state);
+     addin((long)-lngi,(short)(n+3+i),k,0,0,state);
      k+=2;
-     addin((long)(2*lngi),(short)(n-2+(i*3)/4),k,0,0);
-     addin((long)(4*lngi),(short)(n+(i*3)/4),k,0,0);
-     addin((long)(2*lngi),(short)(n+2+(i*3)/4),k,0,0);
+     addin((long)(2*lngi),(short)(n-2+(i*3)/4),k,0,0,state);
+     addin((long)(4*lngi),(short)(n+(i*3)/4),k,0,0,state);
+     addin((long)(2*lngi),(short)(n+2+(i*3)/4),k,0,0,state);
      k+=2;
-     addin((long)-lngi,(short)(n-1+i/2),k,0,0);
-     addin((long)-lngi,(short)(n+1+i/2),k,0,0);
+     addin((long)-lngi,(short)(n-1+i/2),k,0,0,state);
+     addin((long)-lngi,(short)(n+1+i/2),k,0,0,state);
     }
    }
   }
-  else if (numcrs==3){
-   addin((long)-lngi,(short)(n-i*4),k,0,0);
-   addin(lngi,(short)(n-i*2),(short)(k+2),-2,-2);
+  else if ((state->numcrs)==3){
+    addin((long)-lngi,(short)(n-i*4),k,0,0,state);
+    addin(lngi,(short)(n-i*2),(short)(k+2),-2,-2,state);
   }
-  else if (numcrs!=0){
-   addin(lngi,(short)(n-i),--k,-1,2);
-   addin(lngi,(short)(n-i*3),k,0,0);
+  else if ((state->numcrs)!=0){
+    addin(lngi,(short)(n-i),--k,-1,2,state);
+    addin(lngi,(short)(n-i*3),k,0,0,state);
   }
-  else addin(lngi,n,k,0,0);
-  if (notbeg!=0){
-   numcrs= buf[notbeg-1];
-   numlps= buf[notbeg-4];
-   poslnk= buf[notbeg-5];
-   neglnk= buf[notbeg-6];
-   xpow= buf[notbeg-3];
-   ypow= buf[notbeg-2];
-   if (buf[notbeg-7]!=0) ypow= -ypow;
-   if (buf[notbeg-8]!=0) xpow|= 512;
-   notbeg-= 8+ numcrs*8;
+  else addin(lngi,n,k,0,0,state);
+  if ((state->notbeg)!=0){
+   (state->numcrs)= (state->buf)[(state->notbeg)-1];
+   (state->numlps)= (state->buf)[(state->notbeg)-4];
+   (state->poslnk)= (state->buf)[(state->notbeg)-5];
+   (state->neglnk)= (state->buf)[(state->notbeg)-6];
+   xpow= (state->buf)[(state->notbeg)-3];
+   ypow= (state->buf)[(state->notbeg)-2];
+   if ((state->buf)[(state->notbeg)-7]!=0) ypow= -ypow;
+   if ((state->buf)[(state->notbeg)-8]!=0) xpow|= 512;
+   (state->notbeg)-= 8+ (state->numcrs)*8;
    i=0;
-   p= *crsbuf;
-   c= buf+notbeg;
-   while (i!=numcrs){
+   p= *(state->crsbuf);
+   c= (state->buf)+(state->notbeg);
+   while (i!=(state->numcrs)){
     j=4;
     while (j--!=0){
      *(p++)= *(c++);
      *(p++)= *(c++)&6;
     }
-    sign[i++]= (*(c-7))>>4;
+    (state->sign)[i++]= (*(c-7))>>4;
    }
-   if (numcrs>chksiz){
-    lp1= *poly;
-    sp= *bilion;
+   if ((state->numcrs)>chksiz){
+    lp1= *(state->poly);
+    sp= *(state->bilion);
     lngi= XCNT*XCNT;
     while (lngi--!=0){
      if (*lp1> cmpval){
-      if ((*sp)++ == MAXBIL) count[1]=1;
+      if ((*sp)++ == MAXBIL) (state->count)[1]=1;
       *lp1-= cmpval;
      }
      else if (*lp1< -cmpval){
-      if ((*sp)-- == -MAXBIL -1) count[1]=1;
+      if ((*sp)-- == -MAXBIL -1) (state->count)[1]=1;
       *lp1+= cmpval;
      }
      ++lp1;
@@ -1133,27 +1150,27 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
 /*      i= XCNT-1; */
 /*      while (count[i]==0) --i; */
 /*      while (i!=0){ */
-/*       write (stats,t,ntc((long)(i+1),t)); */
+/*       write (stats,t,ntc((long)(i+1),t),state); */
 /*       write (stats,"     ",5); */
-/*       write (stats,t,ntc(count[i],t)+1); */
+/*       write (stats,t,ntc(count[i],t)+1,state); */
 /*       lngi+= count[i--]; */
 /*      } */
 /*      write (stats,"\ntotal: ",8); */
-/*      write (stats,t,ntc(lngi,t)+1); */
+/*      write (stats,t,ntc(lngi,t,state)+1); */
 /*      write (stats,"\nbiggest stacked knots:\n",24); */
 /*      i=12; */
-/*      sp= bstlst; */
+/*      sp= (state->bstlst); */
 /*      while (i--!=0) sp[i]=0; */
 /*      lngi=notbeg-1; */
 /*      while (lngi>0){ */
-/*       k= buf[lngi]; */
+/*       k= (state->buf)[lngi]; */
 /*       sp[++i]= k; */
 /*       lngi-= k*8 + 8; */
 /*       if (i==10) i= -1; */
 /*      } */
 /*      k= 0; */
 /*      while (*sp!=0){ */
-/*       j= ntc((long) *(sp++),t); */
+/*       j= ntc((long) *(sp++),t,state); */
 /*       k+=j+1; */
 /*       write (stats,t,j); */
 /*       write (stats," ",1); */
@@ -1163,31 +1180,31 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
 /*     } */
    } 
   }
-  else numcrs=0;
+  else (state->numcrs)=0;
  }
  else {
-/* locate fake bigons, 0 branch bigons, and 3 cross circuits for bstlst */
-  k= numcrs;
-  p= crsbuf[k]; /* only set k, other crossings will be set in their loops   */
-  c= sign+k;    /* If a tangle is added to the knot with twists, I can find */
+/* locate fake bigons, 0 branch bigons, and 3 cross circuits for (state->bstlst) */
+  k= (state->numcrs);
+  p= (state->crsbuf)[k]; /* only set k, other crossings will be set in their loops   */
+  c= (state->sign)+k;    /* If a tangle is added to the knot with twists, I can find */
   while (k--!=0){ /* it sometimes and remove the twists! */
-   n= bstlst[k];
+   n= (state->bstlst)[k];
    p-=8;
    j= *--c;
    i= *p;
    g= p[4];
    if (g==p[j]){   /* good fake bigon behind me */
     if (p[5]!=j){
-     c= crsbuf[g];  /* wrong! twisted tangle ahead! remove twists! */
-     mrecon (p+(j^4),c+ (p[j+1]^4));
-     mrecon (p,c+ (p[5]^4));
-     sqush2 (k,g);
+     c= (state->crsbuf)[g];  /* wrong! twisted tangle ahead! remove twists! */
+     mrecon (p+(j^4),c+ (p[j+1]^4),state);
+     mrecon (p,c+ (p[5]^4),state);
+     sqush2 (k,g,state);
      goto STEP1;
     }
     if (n>0) n= -4-n;
     else n+= -8;
    }
-   if (p[j]==crsbuf[g][sign[g]^j^4] && (p[5]&2)!=0 && nopro!=numcrs){
+   if (p[j]==(state->crsbuf)[g][(state->sign)[g]^j^4] && (p[5]&2)!=0 && nopro!=(state->numcrs)){
     if ((p[j+1]&2)!=0){
      if (n<0) n-=12;
      else if (n>0) n= -8-n;  /* 0 branch has remov. bigon */
@@ -1202,10 +1219,10 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
    j^=4;
    if (p[j]==i){  /* good fake bigon ahead of me */
     if (p[1]!=j){
-     q= crsbuf[i];  /* wrong! twisted tangle behind! remove twists! */
-     mrecon (p+4,q+ (p[1]^4));
-     mrecon (p+ *c,q+ (p[j+1]^4));
-     sqush2 (k,i);
+     q= (state->crsbuf)[i];  /* wrong! twisted tangle behind! remove twists! */
+     mrecon (p+4,q+ (p[1]^4),state);
+     mrecon (p+ *c,q+ (p[j+1]^4),state);
+     sqush2 (k,i,state);
      goto STEP1;
     }
     if (n>0) n= -4-n;
@@ -1214,10 +1231,10 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
    else if (p[j^4]==i){  /* bad fake bigon ahead */
     if (n<0) n-= 8;
     else if (n<8) n= 8;
-    if (bstlst[i]<0) bstlst[i]-=8;     /* mutualize */
-    else if (bstlst[i]<8) bstlst[i]=8;
+    if ((state->bstlst)[i]<0) (state->bstlst)[i]-=8;     /* mutualize */
+    else if ((state->bstlst)[i]<8) (state->bstlst)[i]=8;
    }
-   if (p[j]==crsbuf[i][sign[i]^j^4] && (p[1]&2)!=0 && nopro!=numcrs){
+   if (p[j]==(state->crsbuf)[i][(state->sign)[i]^j^4] && (p[1]&2)!=0 && nopro!=(state->numcrs)){
     if ((p[j+1]&2)!=0){
      if (n<0) n-=12;
      else if (n>0) n= -8-n;  /* 0 branch has remov. bigon */
@@ -1229,29 +1246,29 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
      else if (n>0) n+=g;
     }
    }
-   bstlst[k]=n;
+   (state->bstlst)[k]=n;
   }
-  c= stc;
+  c= (state->stc);
   i= -8;
-  if (nopro==numcrs) m=0;
+  if (nopro==(state->numcrs)) m=0;
   while (m>0){
    m-=3;
    n= *(c++);
    g= *(c++);
-   p= crsbuf[n];  /* busting vertex of 3 cross circuit makes a removeable */
-   sp= bstlst+n;  /* + or - link on the 0 branch -- free 2 reduction */
+   p= (state->crsbuf)[n];  /* busting vertex of 3 cross circuit makes a removeable */
+   sp= (state->bstlst)+n;  /* + or - link on the 0 branch -- free 2 reduction */
    k= p[*(c++)];
    j= p[g];
-   if ((p[g|1]&2) != 0) p= crsbuf[j];
-   else p= crsbuf[j]+sign[j];
+   if ((p[g|1]&2) != 0) p= (state->crsbuf)[j];
+   else p= (state->crsbuf)[j]+(state->sign)[j];
    if (*p==k) --i;
    if (*sp<0) *sp+= i-4;
    else if (*sp==0) *sp= 4-i;
    else *sp= i- *sp;
   }
-  i= nopro= numcrs;
+  i= nopro= (state->numcrs);
   k=n= 0;
-  sp= bstlst+numcrs;
+  sp= (state->bstlst)+(state->numcrs);
   while (i--!=0){
    if (*--sp<n){
     n= *sp;
@@ -1270,22 +1287,23 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
    else j=m;
   }
   else if (n>-14 && k>12) j=m; /* since exponential growth is 1.41^n */
-  ypow += bust(j,xpow,ypow);
+  ypow += bust(j,xpow,ypow,state);
   xpow^=512;
-  ++count[numcrs-1];
+  ++(state->count)[(state->numcrs)-1];
  }
  // This point must be reached fairly often, so we're going to put in the timeout code here. 
  end = clock();
  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
  if (timeout > 0 && cpu_time_used > timeout) { 
    free(outpoly);
+   free(state);
    return NULL;
  }
- if (numcrs!=0) goto STEP1;
+ if ((state->numcrs)!=0) goto STEP1;
  goto NEWNOT;
 }
 
-void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag)
+void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag,lmpoly_state_t *state)
 /* short top, vnum, vbrnch;
    unsigned char *ovundr;
    int flag; */
@@ -1296,27 +1314,27 @@ void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag)
  short g;
  if ((m=vbrnch) >=0){
   i= vnum;
-  s= crsbuf[i];
+  s= (state->crsbuf)[i];
   k= s[m];
   g= s[m|1];
   if (m!=0) c= s+4;
-  else c= s+(sign[i]^4);
-  p= crsbuf[k]+g;
+  else c= s+((state->sign)[i]^4);
+  p= (state->crsbuf)[k]+g;
   h= *p= *c;
   n= p[1]= c[1];
-  p= crsbuf[h]+n;
+  p= (state->crsbuf)[h]+n;
   *p= k;
   p[1]= g;
   s[6]= s[4]= s[2]= *s= i;
  }
- else ++numlps;
- s= clist;
+ else ++(state->numlps);
+ s= (state->clist);
  j= -1;
  while (top-1 > (i=k= ++j)){
   while (++i<top){
    if (s[i] < s[k]) k=i;
   }
-  if (k!=j){    /* order crossings in clist */
+  if (k!=j){    /* order crossings in (state->clist) */
    i= s[j];
    s[j]= s[k];
    s[k]=i;
@@ -1330,44 +1348,44 @@ void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag)
  while (m--!=0){
   i= s[m];
   g= ovundr[m];
-  k= crsbuf[i][g];
-  j= crsbuf[i][g|1];
-  h= crsbuf[k][j]= crsbuf[i][g|4];
-  n= crsbuf[k][j|1]= crsbuf[i][g|5];
-  crsbuf[h][n]= k;
-  crsbuf[h][n|1]= j;
+  k= (state->crsbuf)[i][g];
+  j= (state->crsbuf)[i][g|1];
+  h= (state->crsbuf)[k][j]= (state->crsbuf)[i][g|4];
+  n= (state->crsbuf)[k][j|1]= (state->crsbuf)[i][g|5];
+  (state->crsbuf)[h][n]= k;
+  (state->crsbuf)[h][n|1]= j;
  }
  if (flag!=0) return;
       /* squish crossings out of the list */
  i= *s;
- lp1= (long *) crsbuf[i];
- lp2=lp1+suplng;
- p= sign+i;
+ lp1= (long *) (state->crsbuf)[i];
+ lp2=lp1+(state->suplng);
+ p= (state->sign)+i;
  c=p+1;
  j= 0;
  k=1;
- while (++i!=numcrs){
+ while (++i!=(state->numcrs)){
   if (s[k]== i){
-   lp2+= suplng;
+   lp2+= (state->suplng);
    ++c;
    if (++k==top) k=0;
   }
   else {
    *(lp1++)= *(lp2++);
-   if (suplng==2) *(lp1++)= *(lp2++);
+   if ((state->suplng)==2) *(lp1++)= *(lp2++);
    *(p++)= *(c++);
   }
  }
      /* renumber branch pointers (subtract 1 if the crossing was after) */
- numcrs-= top;
- k= numcrs;
- c= crsbuf[k];
+ (state->numcrs)-= top;
+ k= (state->numcrs);
+ c= (state->crsbuf)[k];
  while (k--!=0){
   j=5;
   while (--j!=0){
    c-=2;
    i=top;
-   s= clist+i;
+   s= (state->clist)+i;
    while (i--!=0){
     if (*c> *--s) --*c;
    }
@@ -1376,7 +1394,7 @@ void rmcir(short top,short vnum,short vbrnch,unsigned char *ovundr,int flag)
  return;
 }
 
-int ntc(long i,char *buf)
+int ntc(long i,char *buf,lmpoly_state_t *state)
 {
  long j;
  int r;
@@ -1407,18 +1425,18 @@ int ntc(long i,char *buf)
  return (r);
 }
 
-void delpow()
+void delpow(lmpoly_state_t *state)
 {
  register long *lp1, *lp2, *lsp, *osp;
  register short i, j, k, m, s, mpos;
  short numlnk, mpow, u, v, x, y, z, order[2], prslen[2], pstlen[2];
- lp1=b;
- if (numlps<4){
-  if (numlps==1){
+ lp1=(state->b);
+ if ((state->numlps)<4){
+  if ((state->numlps)==1){
    *(lp1++)= -1;
    *lp1= -1;
   }
-  else if (numlps==3){
+  else if ((state->numlps)==3){
    *(lp1++)= -1;
    *(lp1++)= -3;
    *(lp1++)= -3;
@@ -1432,26 +1450,26 @@ void delpow()
  }
  else {
   *lp1= 1;
-  b[1]= 4;
-  b[2]= 6;
-  k= b[3]= 4;
-  b[4]= 1;
-  while (k++!=numlps){
+  (state->b)[1]= 4;
+  (state->b)[2]= 6;
+  k= (state->b)[3]= 4;
+  (state->b)[4]= 1;
+  while (k++!=(state->numlps)){
    j=k;
-   b[j]=1;
-   while (--j!=0) b[j]+= b[j-1];
+   (state->b)[j]=1;
+   while (--j!=0) (state->b)[j]+= (state->b)[j-1];
   }
-  if ((numlps&1)!=0) while (--k>=0) b[k]= -b[k];
+  if (((state->numlps)&1)!=0) while (--k>=0) (state->b)[k]= -(state->b)[k];
  }
  *prslen= *pstlen= prslen[1]= pstlen[1]= mpos= mpow= 0;
- osp= b+ numlps+1;
- if (poslnk>neglnk){
-  order[1]= poslnk;
-  *order= neglnk;
+ osp= (state->b)+ (state->numlps)+1;
+ if ((state->poslnk)>(state->neglnk)){
+  order[1]= (state->poslnk);
+  *order= (state->neglnk);
  }
  else {
-  order[1]= neglnk;
-  *order= poslnk;
+  order[1]= (state->neglnk);
+  *order= (state->poslnk);
   mpos=2;
  }
  z=2;
@@ -1460,7 +1478,7 @@ void delpow()
   mpos^=2;
   while (numlnk--!=0){
    m= ++mpow;
-   s=j=k= numlps+1;
+   s=j=k= (state->numlps)+1;
    u= *pstlen;
    v= pstlen[1];
    ++prslen[z];
@@ -1501,23 +1519,23 @@ void delpow()
  }
 }
 
-void addin(long kcoeff,short ypow,short xpow,int mult,int reach)
+void addin(long kcoeff,short ypow,short xpow,int mult,int reach,lmpoly_state_t *state)
 /*short ypow, xpow;
 long kcoeff;
 int mult, reach;*/
 {
   register long *lp1, *lp2 = NULL, addon, *p; // Added init for lp2, JC.
   register short i, j, k, numlnk, loops;
-  i= poslnk;
-  k= neglnk;
+  i= (state->poslnk);
+  k= (state->neglnk);
   numlnk= i+k;
-  loops= numlps+ numlnk;
-  ypow+= XCNT-xpow-1+lowx+ 2*(k-i);
-  xpow-=lowx+loops;
-  p=b;
+  loops= (state->numlps)+ numlnk;
+  ypow+= XCNT-xpow-1+(state->lowx)+ 2*(k-i);
+  xpow-=(state->lowx)+loops;
+  p=(state->b);
   while (numlnk-->=0){
-    if (reach!=0) lp2= poly[xpow+reach]+ypow-reach;
-    lp1= poly[xpow]+ ypow;
+    if (reach!=0) lp2= (state->poly)[xpow+reach]+ypow-reach;
+    lp1= (state->poly)[xpow]+ ypow;
     j= loops;
     while (j-->=0){
       addon= kcoeff* *(p++);
@@ -1535,17 +1553,17 @@ int mult, reach;*/
   }
 }
 
-void untwst(short l,short n,short i,short ex)
+void untwst(short l,short n,short i,short ex,lmpoly_state_t *state)
 /* short l, n, i, ex; */
 {
  register unsigned char *pl, *pn;
  register short g, h, m, k, d, e;
  short j;
- j= sign[i]; /* flip 3 crossing circuits */
+ j= (state->sign)[i]; /* flip 3 crossing circuits */
  k= j^ex;
  ex^=4;
  m= j^ex;
- if (sign[l]-ex==2){
+ if ((state->sign)[l]-ex==2){
   g= j^2;
   h= g^4;
   j= 6;
@@ -1555,8 +1573,8 @@ void untwst(short l,short n,short i,short ex)
   g= h^4;
   j= 2;
  }
- pl= crsbuf[l];
- pn= crsbuf[n];
+ pl= (state->crsbuf)[l];
+ pn= (state->crsbuf)[n];
  d= pl[m];
  e= pl[m|1];
  pl[m]= pn[g];
@@ -1569,8 +1587,8 @@ void untwst(short l,short n,short i,short ex)
   pn[g]= l;
   pn[g|1]= k;
  }
- crsbuf[pl[m]][pl[m|1]]= l;
- crsbuf[pl[m]][pl[m|1]|1]= m;
+ (state->crsbuf)[pl[m]][pl[m|1]]= l;
+ (state->crsbuf)[pl[m]][pl[m|1]|1]= m;
  d= pn[h];
  e= pn[h|1];
  pn[h]= pl[k];
@@ -1583,57 +1601,57 @@ void untwst(short l,short n,short i,short ex)
   pl[k]= n;
   pl[k|1]= g;
  }
- crsbuf[pn[h]][m]= n;
- crsbuf[pn[h]][m|1]= h;
+ (state->crsbuf)[pn[h]][m]= n;
+ (state->crsbuf)[pn[h]][m|1]= h;
  h= pn[g|1];
- crsbuf[pn[g]][h]= n;
- crsbuf[pn[g]][h|1]= g;
+ (state->crsbuf)[pn[g]][h]= n;
+ (state->crsbuf)[pn[g]][h|1]= g;
  d= pl[k];
  e= pl[k|1];
- crsbuf[d][e]= l;
- crsbuf[d][e|1]= k;
- pl[ex]= g= crsbuf[i][ex];
- pl[ex|1]= h= crsbuf[i][ex|1];
- crsbuf[g][h]= l;
- crsbuf[g][h|1]= ex;
- pn[j]= g= crsbuf[i][k];
- pn[j|1]= h= crsbuf[i][k|1];
- crsbuf[g][h]= n;
- crsbuf[g][h|1]= j;
+ (state->crsbuf)[d][e]= l;
+ (state->crsbuf)[d][e|1]= k;
+ pl[ex]= g= (state->crsbuf)[i][ex];
+ pl[ex|1]= h= (state->crsbuf)[i][ex|1];
+ (state->crsbuf)[g][h]= l;
+ (state->crsbuf)[g][h|1]= ex;
+ pn[j]= g= (state->crsbuf)[i][k];
+ pn[j|1]= h= (state->crsbuf)[i][k|1];
+ (state->crsbuf)[g][h]= n;
+ (state->crsbuf)[g][h|1]= j;
 }
 
-int conchk()
+int conchk(lmpoly_state_t *state)
 {
  register short i, j;
  int vnum, vbrnch, top;
- char str[20], cbuf[XCNT*2];
+ char str[20], local_cbuf[XCNT*2];
  vnum=vbrnch= 0;
- lowx= 1;
- i=top= numcrs*2;
- while (i>=0) cbuf[i--]=0;
+ (state->lowx)= 1;
+ i=top= (state->numcrs)*2;
+ while (i>=0) local_cbuf[i--]=0;
  i=0;
  while (i!=top){
-  --lowx;
-  while (cbuf[i]==0){
-   cbuf[i]=1;
+  --(state->lowx);
+  while (local_cbuf[i]==0){
+   local_cbuf[i]=1;
    i=vnum;
    j=vbrnch;
-   vnum= crsbuf[i][j];
-   vbrnch= crsbuf[i][j|1];
-   if (vnum>=numcrs){
+   vnum= (state->crsbuf)[i][j];
+   vbrnch= (state->crsbuf)[i][j|1];
+   if (vnum>=(state->numcrs)){
     write (1,"error at crossing #",19);
-    write (1,str,ntc((long)(i+1),str));
+    write (1,str,ntc((long)(i+1),str,state));
     write (1,", knot can't have a crossing #",30);
-    write (1,str,ntc((long)(vnum+1),str)+1);
+    write (1,str,ntc((long)(vnum+1),str,state)+1);
     return (1);
    }
-   if (crsbuf[vnum][vbrnch]!=i || (crsbuf[vnum][vbrnch|1])!=j){
+   if ((state->crsbuf)[vnum][vbrnch]!=i || ((state->crsbuf)[vnum][vbrnch|1])!=j){
     write (1,"the possible connection from branch ",36);
-    write (1,str,ntc((long)(i+1),str));
+    write (1,str,ntc((long)(i+1),str,state));
     *str= 'a'+(j>>1);
     write (1,str,1);
     write (1," to branch ",11);
-    write (1,str,ntc((long)(vnum+1),str));
+    write (1,str,ntc((long)(vnum+1),str,state));
     *str= 'a'+(vbrnch>>1);
     write (1,str,1);
     write (1," is inconsistent\n",17);
@@ -1641,27 +1659,27 @@ int conchk()
    }
    if (vbrnch==0){
     write (1,"a-c part of crossing #",22);
-    write (1,str,ntc((long)(vnum+1),str));
+    write (1,str,ntc((long)(vnum+1),str,state));
     write (1," is oriented backwards\n",23);
     write (1,"with respect to crossing #",26);
-    write (1,str,ntc((long)(i+1),str)+1);
+    write (1,str,ntc((long)(i+1),str,state)+1);
     return (1);
    }
-   else if (vbrnch== (sign[vnum] & 6)){
+   else if (vbrnch== ((state->sign)[vnum] & 6)){
     write (1,"b-d part of crossing #",22);
-    write (1,str,ntc((long)(vnum+1),str));
+    write (1,str,ntc((long)(vnum+1),str,state));
     write (1," is oriented backwards\n",23);
     write (1,"with respect to crossing #",26);
-    write (1,str,ntc((long)(i+1),str)+1);
+    write (1,str,ntc((long)(i+1),str,state)+1);
     return (1);
    }
    i= (vnum<<1) + ((vbrnch>>1)&1);
    vbrnch^=4;
   }
   i=0;
-  while (cbuf[i]!=0) ++i;
+  while (local_cbuf[i]!=0) ++i;
   vnum= i/2;
-  if ((i&1)!=0) vbrnch= sign[vnum] & 6;
+  if ((i&1)!=0) vbrnch= (state->sign)[vnum] & 6;
   else vbrnch=0;
  }
  return(0);
@@ -1669,12 +1687,12 @@ int conchk()
 
 void mypause(int sig)
 {
- restrt=1;
+  //(state->restrt)=1;
  //signal(SIGTERM,pause);  /* pause is now a system function */
  signal(sig,mypause);
 }
 
-int bust(short tobust,short xpow,short ypow)
+int bust(short tobust,short xpow,short ypow,lmpoly_state_t *state)
 /* short tobust, xpow, ypow; */
 {
  register unsigned char *fastp, *c;
@@ -1683,21 +1701,21 @@ int bust(short tobust,short xpow,short ypow)
  unsigned char *inbuf[XCNT], tsign[XCNT], *bstcrs;
  int dir;
  //long lngi;
- bstcrs= crsbuf[tobust];
- fastp=sign;
+ bstcrs= (state->crsbuf)[tobust];
+ fastp=(state->sign);
  c=tsign;
- lp2= (long *) *crsbuf;
- lp1= (long *) (buf+notbeg);
+ lp2= (long *) *(state->crsbuf);
+ lp1= (long *) ((state->buf)+(state->notbeg));
  j=0;
- while (j!=numcrs){
+ while (j!=(state->numcrs)){
   if (j==tobust) ++fastp;
   *(c++)= *(fastp++);
   inbuf[j++]= (unsigned char *) lp1;
-  if (suplng==2) *(lp1++)= *(lp2++);
+  if ((state->suplng)==2) *(lp1++)= *(lp2++);
   *(lp1++)= *(lp2++);
  }
  fastp= bstcrs;
- l= sign[tobust]/2;
+ l= (state->sign)[tobust]/2;
  dir= 2-l;
  m= fastp[7-l];
  n= fastp[8-l];
@@ -1715,17 +1733,17 @@ int bust(short tobust,short xpow,short ypow)
  inbuf[j][k|1]= n;
  inbuf[m][n]= j;
  inbuf[m][n|1]= k;
- k= numcrs-1;
+ k= (state->numcrs)-1;
      /* squish crossing out of the list (tsign has already been squished) */
  i= k-tobust;
  lp1= (long *) inbuf[tobust];
- lp2=lp1+suplng;
+ lp2=lp1+(state->suplng);
  while (i--!=0){
-  if (suplng==2) *(lp1++)= *(lp2++);
+  if ((state->suplng)==2) *(lp1++)= *(lp2++);
   *(lp1++)= *(lp2++);
  }
      /* renumber branch pointers (subtract 1 if the crossing was after) */
- notbeg+= numcrs*8;
+ (state->notbeg)+= (state->numcrs)*8;
  fastp= *inbuf;
  while (++i!=k){
   fastp[1]|= tsign[i]<<4;
@@ -1735,19 +1753,19 @@ int bust(short tobust,short xpow,short ypow)
    fastp+=2;
   }
  }
- fastp= buf+notbeg-7;
+ fastp= (state->buf)+(state->notbeg)-7;
  *fastp= *(fastp-1)=0;
  if (ypow+dir<0){
   *fastp=1;
-  buf[notbeg-2]= -ypow-dir;
+  (state->buf)[(state->notbeg)-2]= -ypow-dir;
  }
- else buf[notbeg-2]= ypow+dir;
- if ((xpow&512) ==0) buf[notbeg-8]=1;
- *++fastp= neglnk;
- *++fastp= poslnk;
- *++fastp= numlps;
+ else (state->buf)[(state->notbeg)-2]= ypow+dir;
+ if ((xpow&512) ==0) (state->buf)[(state->notbeg)-8]=1;
+ *++fastp= (state->neglnk);
+ *++fastp= (state->poslnk);
+ *++fastp= (state->numlps);
  *++fastp= xpow+1;
- buf[notbeg-1]= i;
+ (state->buf)[(state->notbeg)-1]= i;
  fastp= bstcrs;
  sp= (short *) fastp;
  j= *sp;
@@ -1755,30 +1773,30 @@ int bust(short tobust,short xpow,short ypow)
  sp[l]= sp[2];
  sp[2]= sp[l^2];
  sp[l^2]= j;
- sign[tobust]^=4;
- crsbuf[*fastp][fastp[1]|1]=0;
- crsbuf[fastp[2]][fastp[3]|1]=2;
- crsbuf[fastp[4]][fastp[5]|1]=4;
- crsbuf[fastp[6]][fastp[7]|1]=6;
+ (state->sign)[tobust]^=4;
+ (state->crsbuf)[*fastp][fastp[1]|1]=0;
+ (state->crsbuf)[fastp[2]][fastp[3]|1]=2;
+ (state->crsbuf)[fastp[4]][fastp[5]|1]=4;
+ (state->crsbuf)[fastp[6]][fastp[7]|1]=6;
  return (dir*2);
 }
 
-void mrecon(unsigned char *c,unsigned char *p)
+void mrecon(unsigned char *c,unsigned char *p,lmpoly_state_t *state)
 /*unsigned char *c, *p;*/
 {
  register short j, k, m, n;
  register unsigned char *ccb;
  k= *c;
  j= c[1];
- ccb= crsbuf[k]+j;
+ ccb= (state->crsbuf)[k]+j;
  n= *ccb= *p;
  m= ccb[1]= p[1];
- ccb= crsbuf[n]+m;
+ ccb= (state->crsbuf)[n]+m;
  *ccb= k;
  ccb[1]= j;
 }
 
-void squish(short sqush)
+void squish(short sqush,lmpoly_state_t *state)
 /* short sqush; */
 {
  register short i, j, tosqsh;
@@ -1786,19 +1804,19 @@ void squish(short sqush)
  register long *lp1, *lp2;
        /* squish crossing out of the list */
  tosqsh= sqush;
- j= --numcrs-tosqsh;
- lp1= (long *) crsbuf[tosqsh];
- lp2=lp1+suplng;
- p= sign+tosqsh;
+ j= --(state->numcrs)-tosqsh;
+ lp1= (long *) (state->crsbuf)[tosqsh];
+ lp2=lp1+(state->suplng);
+ p= (state->sign)+tosqsh;
  c=p+1;
  while (j--!=0){
-  if (suplng==2) *(lp1++)= *(lp2++);
+  if ((state->suplng)==2) *(lp1++)= *(lp2++);
   *(lp1++)= *(lp2++);
   *(p++)= *(c++);
  }
     /* renumber branch pointers (subtract 1 if the crossing was after) */
- i= numcrs;
- p= crsbuf[i];
+ i= (state->numcrs);
+ p= (state->crsbuf)[i];
  while (i--!=0){
   j=5;
   while (--j!=0){
@@ -1808,7 +1826,7 @@ void squish(short sqush)
  }
 }
 
-void sqush2(short n,short g)
+void sqush2(short n,short g,lmpoly_state_t *state)
 /* short n, g; */
 {
  long *lp1, *lp2;
@@ -1822,28 +1840,28 @@ void sqush2(short n,short g)
   m=i;
   i=j;
  }
- lp1= (long *) crsbuf[m];
- lp2=lp1+suplng;
- p=sign+m;
+ lp1= (long *) (state->crsbuf)[m];
+ lp2=lp1+(state->suplng);
+ p=(state->sign)+m;
  c=p+1;
  j= i-m;
  while (--j!=0){
-  if (suplng==2) *(lp1++)= *(lp2++);
+  if ((state->suplng)==2) *(lp1++)= *(lp2++);
   *(lp1++)= *(lp2++);
   *(p++)= *(c++);
  }
- lp2+=suplng;
+ lp2+=(state->suplng);
  ++c;
- j= numcrs-i;
- numcrs-=2;
+ j= (state->numcrs)-i;
+ (state->numcrs)-=2;
  while (--j!=0){
-  if (suplng==2) *(lp1++)= *(lp2++);
+  if ((state->suplng)==2) *(lp1++)= *(lp2++);
   *(lp1++)= *(lp2++);
   *(p++)= *(c++);
  }
     /* renumber branch pointers (subtract 1 if the crossing was after) */
- p= crsbuf[numcrs];
- n= numcrs;
+ p= (state->crsbuf)[(state->numcrs)];
+ n= (state->numcrs);
  while (n--!=0){
   j=5;
   while (--j!=0){
@@ -1854,7 +1872,7 @@ void sqush2(short n,short g)
  }
 }
 
-void triple(short m,short i,unsigned char *p)
+void triple(short m,short i,unsigned char *p,lmpoly_state_t *state)
 /*short m, i;
   unsigned char *p; */
 {
@@ -1863,17 +1881,17 @@ void triple(short m,short i,unsigned char *p)
  crsi= p;
  n= m^4;
  k= crsi[m];
- crsk= crsbuf[k];
+ crsk= (state->crsbuf)[k];
  j= crsi[m|1];
  d= crsk[j]= crsi[n];
  e= crsk[j|1]= crsi[n|1];
- crsbuf[d][e]= k;
- crsbuf[d][e|1]= j;
+ (state->crsbuf)[d][e]= k;
+ (state->crsbuf)[d][e|1]= j;
  j^=4;
  d= crsi[m]= crsk[j];
  e= crsi[m|1]= crsk[j|1];
- crsbuf[d][e]= i;
- crsbuf[d][e|1]= m;
+ (state->crsbuf)[d][e]= i;
+ (state->crsbuf)[d][e|1]= m;
  crsi[n]= k;
  crsi[n|1]= j;
  crsk[j]= i;
@@ -1881,60 +1899,60 @@ void triple(short m,short i,unsigned char *p)
  j^=2;
  n= crsk[j];
  h= crsk[j|1]^4;
- d= crsk[j]= crsbuf[n][h];
- e= crsk[j|1]= crsbuf[n][h|1];
- crsbuf[d][e]= k;
- crsbuf[d][e|1]= j;
+ d= crsk[j]= (state->crsbuf)[n][h];
+ e= crsk[j|1]= (state->crsbuf)[n][h|1];
+ (state->crsbuf)[d][e]= k;
+ (state->crsbuf)[d][e|1]= j;
  j^=4;
  n= crsk[j];
  h= crsk[j|1]^4;
- d= crsk[j]= crsbuf[n][h];
- e= crsk[j|1]= crsbuf[n][h|1];
- crsbuf[d][e]= k;
- crsbuf[d][e|1]= j;
+ d= crsk[j]= (state->crsbuf)[n][h];
+ e= crsk[j|1]= (state->crsbuf)[n][h|1];
+ (state->crsbuf)[d][e]= k;
+ (state->crsbuf)[d][e|1]= j;
  j=m^2;
  n= crsi[j];
  h= crsi[j|1]^4;
- d= crsi[j]= crsbuf[n][h];
- e= crsi[j|1]= crsbuf[n][h|1];
- crsbuf[d][e]= i;
- crsbuf[d][e|1]= j;
+ d= crsi[j]= (state->crsbuf)[n][h];
+ e= crsi[j|1]= (state->crsbuf)[n][h|1];
+ (state->crsbuf)[d][e]= i;
+ (state->crsbuf)[d][e|1]= j;
  j^=4;
  m= crsi[j];
  h= crsi[j|1]^4;
- d= crsi[j]= crsbuf[m][h];
- e= crsi[j|1]= crsbuf[m][h|1];
- crsbuf[d][e]= i;
- crsbuf[d][e|1]= j;
- sqush2(n,m);
+ d= crsi[j]= (state->crsbuf)[m][h];
+ e= crsi[j|1]= (state->crsbuf)[m][h|1];
+ (state->crsbuf)[d][e]= i;
+ (state->crsbuf)[d][e|1]= j;
+ sqush2(n,m,state);
 }
 
-int tstcir(short h,short *bstlst,short *dspair,short *skflag)
+int tstcir(short h,short *bstlst,short *dspair,short *skflag,lmpoly_state_t *state)
 /* short h, *bstlst, *dspair, *skflag; */
 {
  register short d, g, i, j, m, length, *q, *sp;
  register unsigned char *p, *tp = NULL, *vp; // Added init for tp. JC
  short k = 0, n, lngsum, badcrs = 0, vertex, lngpos = 0, i1, i2, i3, j1, j2, j3;
- sp=q= tt;  /* # of overs and unders were passed in through *tt and [2] */
+ sp=q= (state->tt);  /* # of overs and unders were passed in through *(state->tt) and [2] */
  lngsum= n= 0;
- if (*tt > tt[2]) n=2;
- else if (*tt == tt[2]) lngsum=1;   /* need to test BOTH overs & unders */
- vp= clist;
+ if (*(state->tt) > (state->tt)[2]) n=2;
+ else if (*(state->tt) == (state->tt)[2]) lngsum=1;   /* need to test BOTH overs & unders */
+ vp= (state->clist);
  vertex=h;
- while (vertex-->0) *(sp++)= *(vp++);   /* make a working copy of clist */
+ while (vertex-->0) *(sp++)= *(vp++);   /* make a working copy of (state->clist) */
  i= h-1;
- if ((h&1)!=(length=0)) vertex= clist[i];
+ if ((h&1)!=(length=0)) vertex= (state->clist)[i];
  else {
-  if (donlnk[XCNT]==0){   /* if my check-off list is now invalid */
-   d= numcrs;             /* re-set it all to 0 */
-   while (d-->0) donlnk[d]= 0;
-   donlnk[XCNT]=1;
+  if ((state->donlnk)[XCNT]==0){   /* if my check-off list is now invalid */
+   d= (state->numcrs);             /* re-set it all to 0 */
+   while (d-->0) (state->donlnk)[d]= 0;
+   (state->donlnk)[XCNT]=1;
   }
-  if ((donlnk[clist[i]]&(t[i]+2))!=0) return(0);
+  if (((state->donlnk)[(state->clist)[i]]&((state->t)[i]+2))!=0) return(0);
  }
  m=j= h/2;
  *sp= -1;
- p=t;
+ p=state->t;
  while (j-->length){
   i=2;
   while (*q==1024){
@@ -1942,8 +1960,8 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
    ++p;
   }
   d= *q;
-  if (*(p++)==0) i+= sign[d];
-  g= crsbuf[d][i&6];
+  if (*(p++)==0) i+= (state->sign)[d];
+  g= (state->crsbuf)[d][i&6];
   sp= ++q;
   while (*sp>=0 && *sp!=g) ++sp;
   if (*sp<0) j= -10;
@@ -1952,11 +1970,11 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
  }
  if (j== -11){
   d=h;
-  sp=q= tt;
-  vp= clist;
+  sp=q= (state->tt);
+  vp= (state->clist);
   while (d-->0) *(sp++)= *(vp++);
   length=0;
-  p=t;
+  p=state->t;
   while (m-->length){
    i=6;
    while (*q==1024){
@@ -1964,8 +1982,8 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
     ++p;
    }
    d= *q;
-   if (*(p++)==0) i+= sign[d];
-   g= crsbuf[d][i&6];
+   if (*(p++)==0) i+= (state->sign)[d];
+   g= (state->crsbuf)[d][i&6];
    sp= ++q;
    while (*sp>=0 && *sp!=g) ++sp;
    if (*sp<0) m= -10;
@@ -1975,39 +1993,39 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
   j-=m;
  }
  if (vertex< (length=lngsum=d=m= 0)){  /* if a link */
-  tp=p= t;
+  tp=p= state->t;
   while ((n^*(p++))==0) ++d;  /* find first bad crossing and move it to the */
-  vp= clist+d;                /* front so that clist cannot break a string */
+  vp= (state->clist)+d;                /* front so that (state->clist) cannot break a string */
   --p;                        /* of good crossings in a link from */
-  sp= tt;                     /* clist[h-1] to clist[0] */
+  sp= (state->tt);                     /* (state->clist)[h-1] to (state->clist)[0] */
   i=m= h-d;
   while (m-->0){
-   donlnk[*vp]|= *(p++)+2;  /* also check off all list elements to assure */
+   (state->donlnk)[*vp]|= *(p++)+2;  /* also check off all list elements to assure */
    *(sp++)= *(vp++);        /* this link never comes to tstcir again with */
   }                         /* a different beginning crossing */
   m=d;
-  vp= clist;
+  vp= (state->clist);
   while (m-->0){
-   donlnk[*vp]|= *tp+2;
+   (state->donlnk)[*vp]|= *tp+2;
    *(sp++)= *vp;
    *(vp++)= *(tp++);
   }
-  p=t;
+  p=state->t;
   while (i-->0) *(p++)= *(tp++);
-  vp= clist;
+  vp= (state->clist);
   while (d-->0) *(p++)= *(vp++);
   d=m= 0;
  }
  else {
-  sp= tt;
-  vp= clist;
+  sp= (state->tt);
+  vp= (state->clist);
   i= h;
   while (i-->0) *(sp++)= *(vp++);
  }
- p=t;
+ p=state->t;
  g= h|1;         /* find the longest good string & put in "length" */
- t[g]= t[g-1];   /* also, the longest with only 1 bad crossing in "lngsum" */
- t[g-1]= n^2;    /* badcrs is the bad crossing in lngsum */
+ (state->t)[g]= (state->t)[g-1];   /* also, the longest with only 1 bad crossing in "lngsum" */
+ (state->t)[g-1]= n^2;    /* badcrs is the bad crossing in lngsum */
  while (++i<g){
   if ((n^*(p++)) ==0) ++d;
   else {
@@ -2019,8 +2037,8 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
     lngsum= m+d+1;
     if (d==0) tp= p-3;  /* tp points to a generic good crossing in lngsum */
     else tp= p-2;
-    if (d!= (lngpos=i)) badcrs= tt[i-d-1];
-    else badcrs= tt[i];
+    if (d!= (lngpos=i)) badcrs= (state->tt)[i-d-1];
+    else badcrs= (state->tt)[i];
    }
    m=d;
    d=0;
@@ -2028,28 +2046,28 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
  }
  i= h/2;
  if (vertex>=0 && length>=i){ /* can this circuit untwist its vertex? */
-  if (k==0 && (*t^*p)!=0) return (skinny(1,h,(short) 0));
-  else if (k+length+1==h && (t[k]^*p)==0) return (skinny(1,h,i));
+   if (k==0 && (*(state->t)^*p)!=0) return (skinny(1,h,(short) 0,state));
+   else if (k+length+1==h && ((state->t)[k]^*p)==0) return (skinny(1,h,i,state));
  }
  if (j==0 && length>=i){     /* circuit is not skinny, and can be skinnied */
   if (vertex>= (i1=0) && length==i){
    m= k+i;
    *(p-1)= *p;     /* infinite loops happen when the loose strand is shared */
-   d= tt[m-1];        /* between 2 intersecting circuits -- skflag prevents */
+   d= (state->tt)[m-1];        /* between 2 intersecting circuits -- skflag prevents */
    while (m>=k){           /* looping, allows me to skinny once per bust!   */
-    vp= crsbuf[tt[m]];
-    if (t[m]!=0) j=2;
+    vp= (state->crsbuf)[(state->tt)[m]];
+    if ((state->t)[m]!=0) j=2;
     if (vp[j]==d || vp[j^4]==d) m=i1= -1;  /* possible inf. loop circuit! */
     else j=0;
     m-=i;
-    if (k==0) d= tt[h-1];
-    else d=tt[k-1];
+    if (k==0) d= (state->tt)[h-1];
+    else d=(state->tt)[k-1];
    }
   }
-  if (i1== (j=0)) return (skinny(0,h,k)); /* OK to skinny it! */
+  if (i1== (j=0)) return (skinny(0,h,k,state)); /* OK to skinny it! */
   if (*skflag==0){
    *skflag=1;
-   return (skinny(0,h,k)); /* OK to do ONE skinny */
+   return (skinny(0,h,k,state)); /* OK to do ONE skinny */
   }
  }
  if (lngsum>=i){
@@ -2062,23 +2080,23 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
    else if (lngsum+1==h) d+=4;
   }
   if (d==8 && length==lngsum-1) d=0; /* this is really just a fake bigon */
-  if (j==0 && d!=0 && numcrs+ 2*(i-lngsum)>11) d+=2;
+  if (j==0 && d!=0 && (state->numcrs)+ 2*(i-lngsum)>11) d+=2;
   if ((k=lngpos-lngsum)!= (m=0) && d!=0){
-   if (t[k]!=0) m= sign[tt[k]];
-   if (crsbuf[tt[k]][m] == tt[k-1]) ++d;
-   if (k!=1 && (t[k-2]^t[k-1])!=0) ++d;
+   if ((state->t)[k]!=0) m= (state->sign)[(state->tt)[k]];
+   if ((state->crsbuf)[(state->tt)[k]][m] == (state->tt)[k-1]) ++d;
+   if (k!=1 && ((state->t)[k-2]^(state->t)[k-1])!=0) ++d;
   }
   if (lngpos+1 != g && d!=0){
-   if (t[lngpos]!= (m=0)) m= sign[tt[lngpos]];
-   if (crsbuf[tt[lngpos]][m] == tt[lngpos-1]) ++d;
-   if (lngpos+2 !=g && (t[lngpos+1]^t[lngpos])!=0) ++d;
+   if ((state->t)[lngpos]!= (m=0)) m= (state->sign)[(state->tt)[lngpos]];
+   if ((state->crsbuf)[(state->tt)[lngpos]][m] == (state->tt)[lngpos-1]) ++d;
+   if (lngpos+2 !=g && ((state->t)[lngpos+1]^(state->t)[lngpos])!=0) ++d;
   }
   if (d<6 && j==0){    /* min. one point for making skinny circuits */
    if (bstlst[badcrs]==0) bstlst[badcrs]= *dspair= 1;
   }
   else {
    *dspair=1;
-   donlnk[badcrs]=0;  /* from badcrs's perspective, link may be better */
+   (state->donlnk)[badcrs]=0;  /* from badcrs's perspective, link may be better */
    if (bstlst[badcrs]<0){
     if (bstlst[badcrs]> -8-d) bstlst[badcrs]= -8-d;
    }
@@ -2090,16 +2108,16 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
   if (*dspair<k) k= *dspair;
   m=1;
   while (m++<k){
-   tp=t;
-   *gapsto=j= 0;
+   tp=state->t;
+   *(state->gapsto)=j= 0;
    d= m+1;
    while (--d>0){
     while ((*(tp++)^n) ==0) ++j;
-    gapsto[d]= j++;
+    (state->gapsto)[d]= j++;
    }
    while (j<g){
     while ((*(tp++)^n) ==0) ++j;
-    length= (j-gapsto[d]-i)*4 +2;
+    length= (j-(state->gapsto)[d]-i)*4 +2;
     if (length>0 && (m<*dspair || (m== *dspair && length>=dspair[1]))){
      if (m<*dspair || length>dspair[1]) dspair[3]=0;
      *dspair=m;
@@ -2107,19 +2125,19 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
      length=lngpos= 0;
      if (d!=m) lngpos= d+1;
      j1= j;
-     j2= gapsto[lngpos];
+     j2= (state->gapsto)[lngpos];
      h=m;
      while (h-->0){
       if (++lngpos>m) lngpos=0;
-      vertex= tt[j2];
-      j3= gapsto[lngpos];
+      vertex= (state->tt)[j2];
+      j3= (state->gapsto)[lngpos];
       lngsum= j1-j3;
-      p= crsbuf[vertex];
-      i1= sign[vertex];
+      p= (state->crsbuf)[vertex];
+      i1= (state->sign)[vertex];
       i2= p[i1];
       i3= p[i1|1];
       i1^=4;
-      if (crsbuf[i2][(i3+i1)&6]== p[4]){
+      if ((state->crsbuf)[i2][(i3+i1)&6]== p[4]){
 	//if ((p[5]^i3&2) !=0) lngsum= -1 -lngsum;
 	/* According to wikipedia, the & should come first, so this is */
 	if ((p[5]^(i3&2)) !=0) lngsum= -1 -lngsum; 
@@ -2127,7 +2145,7 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
       }
       i2= p[i1];
       i3= p[i1|1];
-      if (crsbuf[i2][(i3+i1)&6]== *p){
+      if ((state->crsbuf)[i2][(i3+i1)&6]== *p){
 	if ((p[1]^(i3&2)) !=0){  // The same is true here
         if (lngsum<0) lngsum-=5;
         else lngsum= -1 -lngsum;
@@ -2161,7 +2179,7 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
      }
      k=0;
     }
-    gapsto[d--]= j++;
+    (state->gapsto)[d--]= j++;
     if (d<0) d=m;
    }
   }
@@ -2169,7 +2187,7 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag)
  return(0);
 }
 
-int skinny(int twist,short lencir,short lngpos)
+int skinny(int twist,short lencir,short lngpos,lmpoly_state_t *state)
 /* short lencir, lngpos;
    int twist; */
 {
@@ -2179,31 +2197,31 @@ int skinny(int twist,short lencir,short lngpos)
  vnum= -1;     /* assume circuit is a link */
  dir= 6;       /* and I will be placing loose strand LEFT of fixed strand */
  if ((lencir&1)!= (b=0)){
-  vnum= tt[lencir-1];                /* if not a link */
-  if ((t[lencir-1]=t[lencir]) ==0) b= sign[vnum];
-    /* tstcir wrecks t[lencir-1] on non-links but saves a copy! */
+  vnum= (state->tt)[lencir-1];                /* if not a link */
+  if (((state->t)[lencir-1]=(state->t)[lencir]) ==0) b= (state->sign)[vnum];
+    /* tstcir wrecks (state->t)[lencir-1] on non-links but saves a copy! */
  }
  if (vnum>=0){
   g=vnum;      /* SET DIR PROPERLY!! */
   while (b>=0){        /* if VERTEX is left of fixed strand, set dir RIGHT */
-   p=crsbuf[g]+b;  /* there is also a special case if I am untwisting */
+   p=(state->crsbuf)[g]+b;  /* there is also a special case if I am untwisting */
    g= *p;
    b= *(p+1)^4;  /* walk out from the vertex -- do I run into the circuit? */
    a=lencir;
-   c= tt;
+   c= (state->tt);
    while (a>0 && *(c++)!=g) --a;
    if (a>0){
     if (*--c!=vnum){
-     if (b==0) dir= sign[*c]^4;     /* yes */
+     if (b==0) dir= (state->sign)[*c]^4;     /* yes */
      else dir=b;
     }
     else {
-     g= *tt;     /* no -- I ran back into the vertex again */
+     g= *(state->tt);     /* no -- I ran back into the vertex again */
      b=6;              /* trace the first left region of the circuit */
-     if (*t==0) b=sign[g]-2;
-     n= tt[lencir-2];  /* does it connect to the other side of the circuit? */
+     if (*(state->t)==0) b=(state->sign)[g]-2;
+     n= (state->tt)[lencir-2];  /* does it connect to the other side of the circuit? */
      while (g!=vnum && g!=n){
-      p= crsbuf[g]+b;
+      p= (state->crsbuf)[g]+b;
       g= *p;
       b= (*(p+1)+2)&6;
      }
@@ -2215,11 +2233,11 @@ int skinny(int twist,short lencir,short lngpos)
   if (twist!=0) dir^=4;
  }
  a=j= lencir/2;   /* to move strand, remove it - then reinsert crossings by */
- p= clist;       /* hand.  Put moveable crossings in clist & call rmcir */
- c= tt+lngpos;
+ p= (state->clist);       /* hand.  Put moveable crossings in (state->clist) & call rmcir */
+ c= (state->tt)+lngpos;
  while (a-->0) *(p++)= *(c++);
- --numlps;                   /* rmcir adds a numlps for fun */
- rmcir (j,(short) 0,a,t+lngpos,1);
+ --(state->numlps);                   /* rmcir adds a (state->numlps) for fun */
+ rmcir (j,(short) 0,a,(state->t)+lngpos,1,state);
  i=k= lngpos+j;
  if (vnum>=0){
   --lencir;
@@ -2227,27 +2245,27 @@ int skinny(int twist,short lencir,short lngpos)
  }
  else if (i==lencir) i=0;
  if (twist> (m=b= 0) && lngpos!=0){
-  if (t[lencir]==0) b= sign[vnum];
-  last= crsbuf[vnum][b];   /* set last properly if I am untwisting vertex */
-  f= crsbuf[vnum][b|1];
+  if ((state->t)[lencir]==0) b= (state->sign)[vnum];
+  last= (state->crsbuf)[vnum][b];   /* set last properly if I am untwisting vertex */
+  f= (state->crsbuf)[vnum][b|1];
  }
  else {
-  last= tt[i];  /* set last to automatically hook up one of the bigon ends */
+  last= (state->tt)[i];  /* set last to automatically hook up one of the bigon ends */
   f= 4;
-  if (t[i]==0) f= sign[last]^4;
+  if ((state->t)[i]==0) f= (state->sign)[last]^4;
  }
- if (t[--k]==0) m=4;
+ if ((state->t)[--k]==0) m=4;
  while (j-->0){
   if (i==lencir) i=0;
   g=dir;
-  vnum= tt[i];   /* vnum is the crossing on the fixed strand */
-  b= sign[vnum];
-  if (t[i++]==0) g+=b;
+  vnum= (state->tt)[i];   /* vnum is the crossing on the fixed strand */
+  b= (state->sign)[vnum];
+  if ((state->t)[i++]==0) g+=b;
   else b^=4;
-  p= crsbuf[last]+f;  /* reconnect the loose end from the last loop to the */
-  *(p++)= n= tt[k--];  /* present n */
-  q= crsbuf[n];   /* n is the crossing on the loose strand - q points to it */
-  sign[n]= a= b^m;   /* this calculation for sign[n] is a 2 step trick */
+  p= (state->crsbuf)[last]+f;  /* reconnect the loose end from the last loop to the */
+  *(p++)= n= (state->tt)[k--];  /* present n */
+  q= (state->crsbuf)[n];   /* n is the crossing on the loose strand - q points to it */
+  (state->sign)[n]= a= b^m;   /* this calculation for (state->sign)[n] is a 2 step trick */
   if (m==0){
    a=0;
    b=dir;
@@ -2258,7 +2276,7 @@ int skinny(int twist,short lencir,short lngpos)
   q[a+1]=f;
   f= a^4;
   g&=6;
-  cp= crsbuf[vnum]+g;
+  cp= (state->crsbuf)[vnum]+g;
   v2= *cp;             /* v2 is one step out the dir branch of fixed strand */
   *(cp++)= last= n;
   a= *cp;    /* reconnect vnum to n instead (insert n) */
@@ -2267,7 +2285,7 @@ int skinny(int twist,short lencir,short lngpos)
   *(p++)= vnum;   /* mutual from n to vnum */
   *p=g;
   b^=4;
-  p= crsbuf[v2]+a;  /* insert n from v2 side */
+  p= (state->crsbuf)[v2]+a;  /* insert n from v2 side */
   *(p++)= n;
   *p=b;
   p= q+b;     /* mutual connect from n */
@@ -2275,37 +2293,37 @@ int skinny(int twist,short lencir,short lngpos)
   *p=a;
  }
  if (twist!=0){       /* reconnect the loose end properly */
-  vnum=tt[lencir];
-  if (t[lencir]!= (dir=b=0)) dir=b=sign[vnum];
+  vnum=(state->tt)[lencir];
+  if ((state->t)[lencir]!= (dir=b=0)) dir=b=(state->sign)[vnum];
   if (twist>0){
-   p= crsbuf[vnum];
+   p= (state->crsbuf)[vnum];
    if (lngpos==0){
     n= p[b^4];
     b= p[b^5];
-    if (t[lencir]== (dir=0)) dir=sign[vnum];
+    if ((state->t)[lencir]== (dir=0)) dir=(state->sign)[vnum];
    }
    else {
-    n= tt[--i];
-    if (t[i]== (b=0)) b=sign[n];
+    n= (state->tt)[--i];
+    if ((state->t)[i]== (b=0)) b=(state->sign)[n];
    }
    a= p[dir];
    g= p[dir|1];
    k= p[dir^5];
    dir= p[dir^4];
-   crsbuf[a][g]= dir;
-   crsbuf[a][g|1]=k;
-   crsbuf[dir][k]=a;
-   crsbuf[dir][k|1]=g;
+   (state->crsbuf)[a][g]= dir;
+   (state->crsbuf)[a][g|1]=k;
+   (state->crsbuf)[dir][k]=a;
+   (state->crsbuf)[dir][k|1]=g;
   }
   else twist=0;
  }
- else if (t[--i]== (b=0)) b= sign[tt[i]];
- if (twist==0) n= tt[i];
- crsbuf[last][f]= n;
- crsbuf[last][f|1]= b;
- crsbuf[n][b]= last;
- crsbuf[n][b|1]= f;
- if (twist!=0) squish(vnum); /* if I untwisted vertex, now eliminate it */
+ else if ((state->t)[--i]== (b=0)) b= (state->sign)[(state->tt)[i]];
+ if (twist==0) n= (state->tt)[i];
+ (state->crsbuf)[last][f]= n;
+ (state->crsbuf)[last][f|1]= b;
+ (state->crsbuf)[n][b]= last;
+ (state->crsbuf)[n][b|1]= f;
+ if (twist!=0) squish(vnum,state); /* if I untwisted vertex, now eliminate it */
  return(1);
 }
 

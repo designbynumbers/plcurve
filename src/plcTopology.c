@@ -73,17 +73,26 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
    order
 
        a
+       ^
        |
        |
-   b<--|-->d (meaning that this can go either way, depending on the orientation of cr)
+   d<--|-->b (meaning that this can go either way, depending on the orientation of cr)
        |
-       V
+       |
        c
 
-   Now the Millett/Ewing code uses the OPPOSITE convention for + and - 
-   crossings as our code. So we'll deal with this by swapping the signs
-   of the crossings as we write them into the crossing code.
+   Note that the crossings are ordered CLOCKWISE, and that the +/- convention is 
+   the same as our usual one (see the Millett/Ewing paper, goddamn it!).   
 
+       d                    a
+       ^                    ^
+       |                    |
+  c--------->a        d-----|----->b
+       |                    |
+       |                    |
+       b                    c
+   + crossing            - crossing         
+ 
    So a crossing code representation of a plCurve is a char buffer 
    containing lines of the form
 
@@ -121,8 +130,8 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
 
   if (pd->cross[pd->edge[edge].head].edge[oip] == edge) { 
 
-    /* We found it coming IN as an overstrand -- this is position a */    
-    *headpos = 'a';
+    /* We found it coming IN as an overstrand -- this is position c */    
+    *headpos = 'c';
 
   } else if (pd->cross[pd->edge[edge].head].edge[uip] == edge) { 
 
@@ -159,8 +168,8 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
 
   if (pd->cross[pd->edge[edge].tail].edge[oop] == edge) { 
 
-    /* We found it going OUT as an overstrand -- this is position c */    
-    *tailpos = 'c';
+    /* We found it going OUT as an overstrand -- this is position a */    
+    *tailpos = 'a';
 
   } else if (pd->cross[pd->edge[edge].tail].edge[uop] == edge) { 
 
@@ -208,10 +217,10 @@ char *pdcode_to_ccode(pd_code_t *pd)
 
   for(cr=0;cr<pd->ncross;cr++) { 
 
-    char or = pd->cross[cr].sign == PD_POS_ORIENTATION ? '-':'+';
+    char or = pd->cross[cr].sign == PD_POS_ORIENTATION ? '+':'-';
 
     /* Notice that we're SWAPPING orientations here because the M/E
-       code uses the OTHER convention. */
+       code uses the OTHER convention. -- trying it the other way*/
 
     thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c",cr+1,or);    
     total_used += thiscr_used;
@@ -223,13 +232,13 @@ char *pdcode_to_ccode(pd_code_t *pd)
     char a_to_pos, b_to_pos, c_to_pos, d_to_pos;
     char scratch;
     
-    pd_overstrand(pd,cr,&a_edge,&c_edge);
+    pd_overstrand(pd,cr,&c_edge,&a_edge);
 
-    a_to = pd->edge[a_edge].tail + 1;
-    pd_millet_ewing_positions(pd,a_edge,&scratch,&a_to_pos);
+    a_to = pd->edge[a_edge].head + 1;  /* The +1 is because M/E codes are 1-based */
+    pd_millet_ewing_positions(pd,a_edge,&a_to_pos,&scratch);
 
-    c_to = pd->edge[c_edge].head + 1;
-    pd_millet_ewing_positions(pd,c_edge,&c_to_pos,&scratch);
+    c_to = pd->edge[c_edge].tail + 1;  /* The +1 is because M/E codes are 1-based */
+    pd_millet_ewing_positions(pd,c_edge,&scratch,&c_to_pos);
 
     b_is_in = (pd->cross[cr].sign == PD_POS_ORIENTATION);
 

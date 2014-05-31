@@ -5,6 +5,7 @@
 
 ***************/
 
+#include<plcTopology.h>
 #include<polynomials.h>
 
 void homfly_polynomial_free(homfly_polynomial_t **homfly)
@@ -193,7 +194,7 @@ homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
 
       /* Process the coefficient with sscanf */
 
-      if (sscanf(&(lmoutput[i]),"%lf",&(homfly->mono[mono_count].coeff)) != 1) {
+      if (sscanf(&(lmoutput[i]),"%d",&(homfly->mono[mono_count].coeff)) != 1) {
 
 	fprintf(stderr,"Couldn't process string %s.\n",&(lmoutput[i]));
 	exit(1);
@@ -250,7 +251,7 @@ char *poly_to_mathematica(homfly_polynomial_t *homfly)
     
     if (i > 0) { sprintf(buffer," + "); strcat(output,buffer); }
 
-    sprintf(buffer,"(%g)",homfly->mono[i].coeff); strcat(output,buffer);
+    sprintf(buffer,"(%d)",homfly->mono[i].coeff); strcat(output,buffer);
 
     if (homfly->mono[i].l != 0) { 
       sprintf(buffer,"*a^(%d)",homfly->mono[i].l); strcat(output,buffer);
@@ -627,4 +628,66 @@ char *lmpoly_check(char *lmpoly_output)
   
   return cvtback;
 }
+
+
   
+homfly_polynomial_t *KnotTheory_to_polynomial(char *knottheoryform) 
+
+/* Convert a polynomial in our output form from Mathematica, eg:
+
+   1 a^0 z^0 + -1 a^2 z^0 + 2 a^4 z^0 + -1 a^6 z^0 + 1 a^0 z^2 + -2 a^2 z^2 + 2 a^4 z^2 + -1 a^2 z^4
+
+   to a homfly polynomial data structure. 
+*/
+
+{
+  /* The first step is to count terms: this is exactly the same as counting pluses and adding 1 */
+
+  int nterms = 1;
+  char *pos = knottheoryform;
+
+  for(;*pos != 0;pos++) {
+    
+    if (*pos == '+') { nterms++; }
+
+  }
+
+  homfly_polynomial_t *homfly = calloc(1,sizeof(homfly_polynomial_t *));
+  assert(homfly != NULL);
+  homfly->mono = calloc(nterms,sizeof(monomial_t));
+  assert(homfly->mono != NULL);
+  homfly->nmonomials = nterms;
+  
+  /* Now we tokenize on the pluses */
+
+  char *monostring;
+  int i;
+  for(monostring = strtok(knottheoryform,"+"),i=0;i<nterms;i++,monostring = strtok(NULL,"+")) { 
+
+    if (monostring == NULL) {
+
+      pd_error( SRCLOC ,"ran out of monomials early: expected %d, got as far as %d\n",
+		NULL, nterms, i);
+      return NULL;
+    
+    }
+
+    if (sscanf(monostring," %d a^%d z^%d ",
+	       &(homfly->mono[i].coeff),&(homfly->mono[i].l), &(homfly->mono[i].m)) != 3) { 
+      
+      pd_error( SRCLOC ,"failed to decode monomial %s", NULL, monostring);
+      return NULL;
+	
+    }
+
+  }
+
+  /* Finally, we sort terms. */
+
+  qsort(homfly->mono,homfly->nmonomials,sizeof(monomial_t),monomial_cmp);
+
+  /* Now we're done. */
+
+  return homfly;
+
+}

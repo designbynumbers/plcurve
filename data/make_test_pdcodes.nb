@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[      3618,        107]
-NotebookOptionsPosition[      3056,         81]
-NotebookOutlinePosition[      3434,         98]
-CellTagsIndexPosition[      3391,         95]
+NotebookDataLength[     24045,        652]
+NotebookOptionsPosition[     21972,        576]
+NotebookOutlinePosition[     22350,        593]
+CellTagsIndexPosition[     22307,        590]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -76,11 +76,506 @@ Cell[BoxData["\<\"Loading KnotTheory` version of April 3, 2014, \
 16:23:56.0784.\\nRead more at http://katlas.org/wiki/KnotTheory.\"\>"], \
 "Print",
  CellChangeTimes->{3.610276151339325*^9}]
+}, Open  ]],
+
+Cell["\<\
+The basic idea is that we can load the existing pd codes with the \
+\[OpenCurlyDoubleQuote]AllKnots\[CloseCurlyDoubleQuote] command:\
+\>", "Text",
+ CellChangeTimes->{{3.610276338141629*^9, 3.61027634371634*^9}, {
+  3.61027637529012*^9, 3.610276383747752*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"AllKnots", "[", "5", "]"}]], "Input",
+ CellChangeTimes->{{3.610276306686179*^9, 3.610276327403404*^9}, {
+  3.6102763880046453`*^9, 3.6102763888445387`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"Knot", "[", 
+    RowBox[{"5", ",", "1"}], "]"}], ",", 
+   RowBox[{"Knot", "[", 
+    RowBox[{"5", ",", "2"}], "]"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.610276310076359*^9, 3.6102763279213953`*^9}, 
+   3.610276389271635*^9}]
+}, Open  ]],
+
+Cell["\<\
+and convert them into KnotTheory\[CloseCurlyQuote]s version of PD codes with \
+PD:\
+\>", "Text",
+ CellChangeTimes->{{3.6102763917248383`*^9, 3.610276405417987*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ListofPDs", " ", "=", " ", 
+   RowBox[{"PD", " ", "/@", " ", 
+    RowBox[{"AllKnots", "[", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "11"}], "}"}], "]"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6102764069022417`*^9, 3.6102764128244457`*^9}, {
+  3.610380329710492*^9, 3.610380355922011*^9}, {3.6105304226237087`*^9, 
+  3.610530449105954*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"NotebookDirectory", "[", "]"}], " ", "<>", " ", 
+    "\"\<../test/rolfsentable.txt\>\""}], ",", 
+   RowBox[{"Prepend", "[", 
+    RowBox[{"ListofPDs", ",", 
+     RowBox[{"\"\<pdcodes \>\"", " ", "<>", " ", 
+      RowBox[{"ToString", "[", 
+       RowBox[{"Length", "[", "ListofPDs", "]"}], "]"}]}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.610276678664235*^9, 3.6102767042531013`*^9}, {
+  3.61037783790079*^9, 3.610377843028413*^9}, {3.6103803665971403`*^9, 
+  3.610380379753525*^9}, {3.610384723212287*^9, 3.6103847493369083`*^9}, {
+  3.6105382965133*^9, 3.610538297751687*^9}}],
+
+Cell[BoxData["\<\"/Users/cantarel/plcurve/data/rolfsentable.txt\"\>"], \
+"Output",
+ CellChangeTimes->{{3.6102766980421753`*^9, 3.610276705011335*^9}, 
+   3.610377844212399*^9, 3.610380381131748*^9, 3.6103847500024548`*^9, 
+   3.610530454463279*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ListofLinkPDs", " ", "=", " ", 
+   RowBox[{"PD", " ", "/@", " ", 
+    RowBox[{"AllLinks", "[", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "11"}], "}"}], "]"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6105306432186327`*^9, 3.610530654808908*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"KnotTheory", "::", "loading"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Loading precomputed data in \
+\[NoBreak]\\!\\(\\\"PD4Links`\\\"\\)\[NoBreak].\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.610530655841997*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"NotebookDirectory", "[", "]"}], " ", "<>", " ", 
+    "\"\<thistlethwaitetable.txt\>\""}], ",", 
+   RowBox[{"Prepend", "[", 
+    RowBox[{"ListofLinkPDs", ",", 
+     RowBox[{"\"\<pdcodes \>\"", " ", "<>", " ", 
+      RowBox[{"ToString", "[", 
+       RowBox[{"Length", "[", "ListofLinkPDs", "]"}], "]"}]}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.610530669948406*^9, 3.610530696416967*^9}}],
+
+Cell[BoxData["\<\"/Users/cantarel/plcurve/data/thistlethwaitetable.txt\"\>"], \
+"Output",
+ CellChangeTimes->{3.610530698270546*^9}]
+}, Open  ]],
+
+Cell["\<\
+We now output the HOMFLY polynomial for each of these. In order to read these \
+in for testing, we\[CloseCurlyQuote]ll need to break the nice mathematica \
+output so that, for instance, no coefficient explicitly writes a \
+\[OpenCurlyDoubleQuote]1\[CloseCurlyDoubleQuote] and a^0 and z^0 are not \
+auto-simplified to 1.\
+\>", "Text",
+ CellChangeTimes->{{3.610380385021947*^9, 3.6103804618335047`*^9}, {
+  3.610381050884107*^9, 3.610381051177042*^9}, {3.61038128758672*^9, 
+  3.61038128839069*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"FixMon", "[", "m_", "]"}], " ", ":=", " ", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{
+         RowBox[{"Exponent", "[", 
+          RowBox[{"m", ",", "a"}], "]"}], " ", "\[Equal]", " ", "0"}], " ", "&&",
+         " ", 
+        RowBox[{
+         RowBox[{"Exponent", "[", 
+          RowBox[{"m", ",", "z"}], "]"}], " ", "\[Equal]", " ", "0"}]}], ",", 
+       " ", 
+       RowBox[{"{", 
+        RowBox[{"m", ",", "0", ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"m", "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a", "^", 
+             RowBox[{"Exponent", "[", 
+              RowBox[{"m", ",", "a"}], "]"}]}], " ", 
+            RowBox[{"z", "^", 
+             RowBox[{"Exponent", "[", 
+              RowBox[{"m", ",", "z"}], "]"}]}]}], ")"}]}], ",", 
+         RowBox[{"Exponent", "[", 
+          RowBox[{"m", ",", "a"}], "]"}], ",", 
+         RowBox[{"Exponent", "[", 
+          RowBox[{"m", ",", "z"}], "]"}]}], "}"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Stringize", "[", 
+      RowBox[{"{", 
+       RowBox[{"k_", ",", "l1_", ",", "l2_"}], "}"}], "]"}], " ", ":=", " ", 
+     RowBox[{
+      RowBox[{"ToString", "[", "k", "]"}], " ", "<>", " ", "\"\< a^\>\"", " ",
+       "<>", " ", 
+      RowBox[{"ToString", "[", "l1", "]"}], " ", "<>", " ", "\"\< z^\>\"", 
+      " ", "<>", " ", 
+      RowBox[{"ToString", "[", "l2", "]"}]}]}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"CHOMFLYPT", "[", "MyPD_", "]"}], " ", ":=", " ", 
+     "\[IndentingNewLine]", 
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"Riffle", "[", 
+       RowBox[{
+        RowBox[{"Stringize", " ", "/@", " ", 
+         RowBox[{"(", 
+          RowBox[{"FixMon", " ", "/@", " ", 
+           RowBox[{"(", 
+            RowBox[{"List", "@@", 
+             RowBox[{
+              RowBox[{"HOMFLYPT", "[", "MyPD", "]"}], "[", 
+              RowBox[{
+               RowBox[{"I", " ", "a"}], ",", 
+               RowBox[{"I", " ", "z"}]}], "]"}]}], ")"}]}], ")"}]}], ",", 
+        "\"\< + \>\""}], "]"}], "]"}]}], ";"}], " "}]}]], "Input",
+ CellChangeTimes->CompressedData["
+1:eJxTTMoPSmViYGAQB2IQ7XdY/Ir9s1eOBoLKN0C04e/WzyA6jOEymD7FfZLN
+AUirbLnFDqKXhIcLgehX0zaA6bPlzyRBtNWbTDkQbeFXpweij+V6GYFog31X
+LUD0skO21iD6XJKTA4gOcSv2B9EbTvsGg2gxHpEwEG3kax8Dop+sySwG0Xq6
+9eUgOuhQ33wQHRFyfRmI3sfZtQJEZ/IpbAPRlvWrz4DoVcXHL4Hda2XwGEQ7
+TP/4AkQ/mF3C6Aikn3Zxy4LohKnOciD6UOIaMxDdkr7MCkQfy37vApYvTnMH
+0TqhSkEguuBuVBKIzhBbmgaixX59zQHReUH9JSB6Y2V4GYguE1UzTQTSxSfs
+wXRkls6cfFA4LewG0wAKdr/d
+  "]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ListofHOMFLYPTS", " ", "=", " ", 
+   RowBox[{"CHOMFLYPT", " ", "/@", " ", "ListofPDs"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.610380301886182*^9, 3.6103803095279818`*^9}, {
+  3.610380467587098*^9, 3.610380480885336*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"NotebookDirectory", "[", "]"}], " ", "<>", " ", 
+    "\"\<rolfsenhomflys.txt\>\""}], ",", 
+   RowBox[{"Prepend", "[", 
+    RowBox[{"ListofHOMFLYPTS", ",", 
+     RowBox[{"\"\<homfly polynomials \>\"", " ", "<>", " ", 
+      RowBox[{"ToString", "[", 
+       RowBox[{"Length", "[", "ListofHOMFLYPTS", "]"}], "]"}]}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.610378082506377*^9, 3.610378109269312*^9}, {
+  3.6103812944168797`*^9, 3.610381315472571*^9}, {3.61038453880035*^9, 
+  3.610384560235093*^9}, {3.6103846583613977`*^9, 3.6103847115085373`*^9}}],
+
+Cell[BoxData["\<\"/Users/cantarel/plcurve/data/rolfsenhomflys.txt\"\>"], \
+"Output",
+ CellChangeTimes->{{3.610384694317265*^9, 3.6103847129637547`*^9}, 
+   3.610446254019549*^9, 3.6104757523870163`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DrawPD", "[", 
+  RowBox[{"ListofPDs", "[", 
+   RowBox[{"[", "13", "]"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.610476055668651*^9, 3.6104760614645042`*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-2.055513826554467, 0.09244093597926839}, 
+     1.9037653130606587`, {-0.05675969229210495, 0.029680087701489315`}], 
+    CircleBox[{-2.055513826554467, 0.09244093597926839}, 
+     1.9037653130606587`, {-0.14694163689340167`, -0.06393841057600337}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.20279005332495537`, -4.904126541625105}, 
+     4.881978596089191, {1.5249812531020235`, 1.5940084474613796`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.40765373586289283`, -0.3501854457999745}, 
+     0.31902379326768304`, {2.3726238116958878`, 3.12527151833726}], 
+    CircleBox[{-0.40765373586289283`, -0.3501854457999745}, 
+     0.31902379326768304`, {1.7045912286623608`, 2.329785016754806}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.1140605085003269, 0.14993371787747634`}, 
+     0.5857719082736417, {-3.231740105486308, -2.355575801603411}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.14922604426868244`, -0.5938762729967462}, 
+     0.5625917771771533, {1.3216845255036298`, 1.5569101837794823`}], 
+    CircleBox[{0.14922604426868244`, -0.5938762729967462}, 
+     0.5625917771771533, {1.142505693357076, 1.2973923203638864`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.6331113172457724, -0.058462522269793094`}, 
+     0.3386666488729487, {2.734522928376011, 3.406474557408856}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.1920360132715553, -0.13233326822608504`}, 
+     0.6979932764943133, {1.4610303676360152`, 2.0141093385219335`}], 
+    CircleBox[{-0.1920360132715553, -0.13233326822608504`}, 
+     0.6979932764943133, {1.127396644860037, 1.4414505302344847`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.26900096879443963`, 0.3491121871435072}, 
+     0.4329924786247018, {1.9247639786250776`, 3.231495072749307}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.00702987915909592, 0.41982985240078385`}, 
+     0.4381233571965561, {-0.5375821488220733, -0.01788859386717925}], 
+    CircleBox[{0.00702987915909592, 0.41982985240078385`}, 
+     0.4381233571965561, {0.013304892251820086`, 0.659013674108814}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.21040169529409447`, -0.13876161691382544`}, 
+     0.6049887654273288, {0.6081692403285598, 1.5252524316610172`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.49668595207361954`, 0.00620290893726172}, 
+     0.2606627644471874, {-1.5826453300648915`, -0.4655731457561793}], 
+    CircleBox[{0.49668595207361954`, 0.00620290893726172}, 
+     0.2606627644471874, {-2.1602916433071133`, -1.6350755070029142`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.14126691179663792`, -0.31984150583374354`}, 
+     0.3516666330021687, {-0.817679721647525, 0.5787907064053911}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.13338460858139572`, -0.01870034364416162}, 
+     0.6829375170617195, {-2.3559931562731897`, -1.7929489497780202`}], 
+    CircleBox[{0.13338460858139572`, -0.01870034364416162}, 
+     0.6829375170617195, {-2.6366020352944797`, -2.3760046427118313`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.5034579018082126, -0.22064092515393502`}, 
+     0.3139422847988001, {-1.9027808426297994`, -0.35604358199215635`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-2.835029916218235, 0.06929803408814805}, 2.683624869617244, {
+     0.029680087701487848`, 0.0899024191595125}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.8758134099240951, -0.0821646726822704}, 
+     0.7112133470759726, {-0.3560435819921569, -0.1469416368934022}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.547331579938967, -0.3479055423716306}, 
+     0.1793273434724836, {-3.1579137888423263`, -1.9027808426297992`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.2878516241823846, -1.2402522063047243`}, 
+     1.217116986716185, {1.5940084474613814`, 1.7045912286623612`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.21631606764704692`, 4.237250054732781}, 
+     4.269000368867284, {-1.616611400487771, -1.5846824698103135`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.3309158132682792, -0.195917054836915}, 
+     0.12511867917281785`, {0.578790706405391, 1.1425056933570759`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.08010093259915357, -0.25459326033776686`}, 
+     0.4411015845115776, {-1.7929489497780204`, -0.8176797216475251}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.7951399715179637, -0.5319890191556114}, 
+     0.3780163746117077, {0.5049906182953138, 0.7860168519863823}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.33557367841361707`, 0.16995683482259497`}, 
+     0.36335561018100626`, {2.0141093385219335`, 3.0514452016932783`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.2534429568422474, 0.805634946269321}, 
+     0.3403881005619946, {-2.014196008729756, -1.6163402219287761`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.4513451386967341, 0.028982552684053687`}, 
+     0.31140428124466124`, {-0.46557314575617936`, 0.6081692403285598}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.41361438886095026`, -0.11800232942933445`}, 
+     0.1112377804174091, {-2.87671074977073, -2.1602916433071133`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{1.2698259788418258`, -0.33298320088783395`}, 
+     1.0320404032654023`, {2.60401050476772, 2.734522928376011}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.19038906045405599`, 0.5618462493487711}, 
+     0.20619826936161248`, {0.6590136741088137, 1.9247639786250779`}]}, 
+   {RGBColor[0, 0, 0]}},
+  AspectRatio->1]], "Output",
+ CellChangeTimes->{3.6104760648082457`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"HOMFLYPT", "[", 
+   RowBox[{"ListofPDs", "[", 
+    RowBox[{"[", "1", "]"}], "]"}], "]"}], "[", " ", 
+  RowBox[{"a", ",", 
+   RowBox[{"-", "z"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.6104760855776863`*^9, 3.610476106695429*^9}, {
+  3.6104943316456947`*^9, 3.610494369395599*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"2", " ", 
+   SuperscriptBox["a", "2"]}], "-", 
+  SuperscriptBox["a", "4"], "+", 
+  RowBox[{
+   SuperscriptBox["a", "2"], " ", 
+   SuperscriptBox["z", "2"]}]}]], "Output",
+ CellChangeTimes->{{3.610476097705193*^9, 3.610476107530801*^9}, {
+  3.610494335160709*^9, 3.610494370274179*^9}}]
+}, Open  ]],
+
+Cell["\<\
+Ok, so a puzzle: our ccode converter gives us
+
+1+3b2a2d3c
+2+1b3a3d1c
+3+2b1a1d2c
+
+for the PD code\
+\>", "Text",
+ CellChangeTimes->{{3.610452884277914*^9, 3.610452917639632*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PD", "[", 
+  RowBox[{"Knot", "[", 
+   RowBox[{"3", ",", "1"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.610452919523871*^9, 3.610452922228113*^9}}],
+
+Cell[BoxData[
+ RowBox[{"PD", "[", 
+  RowBox[{
+   RowBox[{"X", "[", 
+    RowBox[{"1", ",", "4", ",", "2", ",", "5"}], "]"}], ",", 
+   RowBox[{"X", "[", 
+    RowBox[{"3", ",", "6", ",", "4", ",", "1"}], "]"}], ",", 
+   RowBox[{"X", "[", 
+    RowBox[{"5", ",", "2", ",", "6", ",", "3"}], "]"}]}], "]"}]], "Output",
+ CellChangeTimes->{3.610452922645076*^9}]
+}, Open  ]],
+
+Cell["And lmpoly gives us the ", "Text",
+ CellChangeTimes->{{3.6104529301794567`*^9, 3.610452934794228*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"HOMFLYPT", "[", 
+   RowBox[{"Knot", "[", 
+    RowBox[{"3", ",", "1"}], "]"}], "]"}], "[", 
+  RowBox[{
+   RowBox[{"I", " ", "a"}], ",", 
+   RowBox[{"I", " ", "z"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.610451744187492*^9, 3.610451755111526*^9}, {
+  3.6104755197198877`*^9, 3.610475533112956*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"-", "2"}], " ", 
+   SuperscriptBox["a", "2"]}], "-", 
+  SuperscriptBox["a", "4"], "+", 
+  RowBox[{
+   SuperscriptBox["a", "2"], " ", 
+   SuperscriptBox["z", "2"]}]}]], "Output",
+ CellChangeTimes->{{3.610451749460647*^9, 3.610451755548442*^9}, {
+  3.610475520970387*^9, 3.61047553377991*^9}}]
+}, Open  ]],
+
+Cell["", "Text",
+ CellChangeTimes->{{3.610452879155754*^9, 3.610452880178255*^9}, {
+  3.610453926594564*^9, 3.610453929513987*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DrawPD", "[", 
+  RowBox[{"Knot", "[", 
+   RowBox[{"3", ",", "1"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.610453930489085*^9, 3.610453936144215*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"KnotTheory", "::", "credits"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"\[NoBreak]\\!\\(\\\"DrawPD was written by Emily Redelmeier \
+at the University of Toronto in the summers of 2003 and \
+2004.\\\"\\)\[NoBreak]\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.610453936619319*^9}],
+
+Cell[BoxData[
+ GraphicsBox[{
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.2180757477585984, 0.14423967199821985`}, 
+     0.47135641811746803`, {-2.143448022212354, -1.7471953018905626`}], 
+    CircleBox[{0.2180757477585984, 0.14423967199821985`}, 
+     0.47135641811746803`, {-1.401679499506962, -0.6804656347795537}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.21807574775856658`, -0.1442396719982219}, 
+     0.4713564181174401, {-1.2924039595228598`, 0.17057842790999933`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.01587734630469173, -0.26097897350735066`}, 
+     0.47135641811746604`, {2.04534218257404, 2.441594902895797}], 
+    CircleBox[{0.01587734630469173, -0.26097897350735066`}, 
+     0.47135641811746604`, {2.787110705279399, 3.5083245700067405`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.015877346304705275`, 0.26097897350731897`}, 
+     0.4713564181174387, {2.896386245263594, 4.359368632696352}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.23395309406326653`, 0.11673930150911749`}, 
+     0.47135641811743884`, {-0.049052919819129494`, 0.3471998005026893}], 
+    CircleBox[{-0.23395309406326653`, 0.11673930150911749`}, 
+     0.47135641811743884`, {0.6927156028863113, 1.4139294676137273`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.2339530940633047, -0.11673930150910106`}, 
+     0.471356418117458, {0.8019911428704226, 2.264973530303239}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.42828630437150234`, -0.8583133936672744}, 
+     0.7214958576942168, {0.9981446313774391, 1.2177759791065588`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.3685721928322425, 0.022423064453183435`}, 
+     0.2777370341354251, {-0.6804656347795538, 0.8019911428704228}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.5291780511384081, 0.8000635165120349}, 
+     0.721495857693916, {-1.0962504710157537`, -0.8766191232865544}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.16486715296899715`, -0.3304044143478509}, 
+     0.27773703413540096`, {-2.7748607371728458`, -1.2924039595228598`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{0.9574643555100109, 0.058249877154998894`}, 
+     0.7214958576941847, {3.0925397337706633`, 3.3121710814997924`}]}, 
+   {RGBColor[0, 0, 0], 
+    CircleBox[{-0.20370503986325278`, 0.30798134989464543`}, 
+     0.2777370341354119, {1.4139294676137273`, 2.8963862452635936`}]}, 
+   {RGBColor[0, 0, 0]}},
+  AspectRatio->1]], "Output",
+ CellChangeTimes->{3.610453936772931*^9}]
 }, Open  ]]
 }, Open  ]]
 },
-WindowSize->{1217, 926},
-WindowMargins->{{465, Automatic}, {Automatic, 169}},
+WindowSize->{1162, 1048},
+WindowMargins->{{Automatic, 180}, {Automatic, 37}},
 Magnification->2.,
 FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (January 25, \
 2013)",
@@ -107,6 +602,56 @@ Cell[1270, 43, 1405, 22, 618, "Output"]
 Cell[CellGroupData[{
 Cell[2712, 70, 123, 2, 56, "Input"],
 Cell[2838, 74, 190, 3, 72, "Print"]
+}, Open  ]],
+Cell[3043, 80, 269, 5, 98, "Text"],
+Cell[CellGroupData[{
+Cell[3337, 89, 180, 3, 56, "Input"],
+Cell[3520, 94, 281, 8, 78, "Output"]
+}, Open  ]],
+Cell[3816, 105, 174, 4, 60, "Text"],
+Cell[3993, 111, 382, 9, 78, "Input"],
+Cell[CellGroupData[{
+Cell[4400, 124, 664, 15, 123, "Input"],
+Cell[5067, 141, 248, 4, 78, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5352, 150, 284, 7, 78, "Input"],
+Cell[5639, 159, 273, 7, 44, "Message"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5949, 171, 475, 12, 145, "Input"],
+Cell[6427, 185, 131, 2, 78, "Output"]
+}, Open  ]],
+Cell[6573, 190, 507, 9, 174, "Text"],
+Cell[7083, 201, 2743, 73, 475, "Input"],
+Cell[9829, 276, 259, 5, 78, "Input"],
+Cell[CellGroupData[{
+Cell[10113, 285, 634, 14, 178, "Input"],
+Cell[10750, 301, 202, 3, 78, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10989, 309, 188, 4, 78, "Input"],
+Cell[11180, 315, 5411, 102, 772, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16628, 422, 317, 8, 78, "Input"],
+Cell[16948, 432, 320, 9, 117, "Output"]
+}, Open  ]],
+Cell[17283, 444, 186, 9, 288, "Text"],
+Cell[CellGroupData[{
+Cell[17494, 457, 176, 4, 78, "Input"],
+Cell[17673, 463, 353, 9, 78, "Output"]
+}, Open  ]],
+Cell[18041, 475, 108, 1, 60, "Text"],
+Cell[CellGroupData[{
+Cell[18174, 480, 334, 9, 78, "Input"],
+Cell[18511, 491, 338, 10, 83, "Output"]
+}, Open  ]],
+Cell[18864, 504, 131, 2, 60, "Text"],
+Cell[CellGroupData[{
+Cell[19020, 510, 180, 4, 78, "Input"],
+Cell[19203, 516, 337, 8, 110, "Message"],
+Cell[19543, 526, 2401, 46, 772, "Output"]
 }, Open  ]]
 }, Open  ]]
 }
