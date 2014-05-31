@@ -43,8 +43,7 @@ check_PROGRAMS = test_orientation \
 
 TESTS = test_orientation \
 	test_homfly 
-
-#	tsmcmc_random_test \
+	tsmcmc_random_test \
 	nn_test \
 	symmetry_test \
 	eq_primitives_test \

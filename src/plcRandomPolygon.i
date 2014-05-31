@@ -7,7 +7,6 @@
 #include "pd_multidx.h"
 #include "pd_perm.h"
 #include "pd_isomorphisms.h"
-#include "pd_storage.h"
 #include <stddef.h> // SWIG should include this itself but Debian version does not
   static char eoi = 0; // end of iteration exception
 static char _exception =0;
