@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_orientation \
+check_PROGRAMS = test_operations \
+	         test_orientation \
 		 test_homfly \
 		 tsmcmc_random_test \
 		 nn_test \
@@ -41,8 +42,9 @@ check_PROGRAMS = test_orientation \
 	         test_perm \
 		 ccode_test
 
-TESTS = test_orientation \
-	test_homfly 
+TESTS = test_operations \
+	test_orientation \
+	test_homfly  \
 	tsmcmc_random_test \
 	nn_test \
 	symmetry_test \
@@ -60,7 +62,8 @@ TESTS = test_orientation \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_homfly \
+check_PROGRAMS = test_operations \
+		 test_homfly \
 	         tsmcmc_random_test \
 		 nn_test \
 	         symmetry_test \
@@ -76,7 +79,8 @@ check_PROGRAMS = test_homfly \
                  hopf_test \
 		 ccode_test
 
-TESTS = test_homfly \
+TESTS = test_operations \
+	test_homfly \
 	tsmcmc_random_test \
 	nn_test \
 	symmetry_test \
@@ -94,6 +98,11 @@ test_homfly_SOURCES = test_homfly.c
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_homfly_LDFLAGS = -static
 test_homfly_CFLAGS = -I$(top_srcdir)/src
+
+test_operations_SOURCES = test_operations.c 
+test_operations_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_operations_LDFLAGS = -static
+test_operations_CFLAGS = -I$(top_srcdir)/src
 
 ccode_test_SOURCES = ccode_test.c 
 ccode_test_LDADD = -L$(top_builddir)/src -lplCurveStatic

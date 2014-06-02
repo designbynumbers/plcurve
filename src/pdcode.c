@@ -426,6 +426,80 @@ void pd_component_and_pos(pd_code_t *pd, pd_idx_t edge,
 
 }
 
+void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
+		     pd_idx_t *posface, pd_idx_t *posface_pos,
+		     pd_idx_t *negface, pd_idx_t *negface_pos)
+
+  /* Finds the two faces which edge occurs on, which should include
+     one face where edge appears in positive orientation (posface)     
+     and one where edge appears with negative orientation (negface).
+     If we don't find two with this description, die. 
+
+     Return the position (index) of the edge on each face. */
+
+{
+  bool pos_found = false, neg_found = false;
+  pd_idx_t face;
+  pd_idx_t fedge;
+
+  for(face=0;face < pd->nfaces;face++) {
+
+    for(fedge=0;fedge < pd->face[face].nedges; fedge++)  {
+
+      if (pd->face[face].edge[fedge] == edge) {
+
+	if (pd->face[face].or[fedge] == PD_POS_ORIENTATION) {
+
+	  if (pos_found == true) { /* We have a problem */
+
+	    pd_error(SRCLOC,
+		     "Found edge %EDGE twice with positive orientation \n"
+		     "%FACE, position %d\n"
+		     "%FACE, position %d\n",
+		     pd,edge,*posface,*posface_pos,face,fedge);
+
+	  } 
+
+	  pos_found = true;
+	  *posface = face; *posface_pos = fedge;
+
+	} else if (pd->face[face].or[fedge] == PD_NEG_ORIENTATION) { 
+
+	  if (neg_found == true) { /* We have a problem */
+
+	    pd_error(SRCLOC,
+		     "Found edge %EDGE twice with negative orientation \n"
+		     "%FACE, position %d\n"
+		     "%FACE, position %d\n",
+		     pd,edge,*negface,*negface_pos,face,fedge);
+
+	  } 
+
+	  neg_found = true;
+	  *negface = face; *negface_pos = fedge;
+
+	} else {
+
+	  pd_error(SRCLOC,"pd %PD contains unknown orientation %d for edge %d of face %FACE",pd,
+		   pd->face[face].or[fedge],fedge,face);
+
+	}
+
+      }
+
+    }
+
+  }
+
+  if (!pos_found || !neg_found) {
+
+    pd_error(SRCLOC,"couldn't find edge %EDGE on two faces of %PD with positive and negative orientation.\n",
+	     pd,edge);
+
+  }
+
+}
+
 pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or)
 /* Returns original edge if or = PD_POS_ORIENTATION, 
    reversed edge if or = PD_NEG_ORIENTATION */
@@ -2630,6 +2704,34 @@ void pd_check_edge(char *file, int line, pd_code_t *pd, pd_idx_t edge)
   if (edge >= pd->nedges) { 
 
     pd_error(file,line,"pd_code %PD has %d edges, and variable attempted to reference edge %d.",pd,pd->nedges,edge);
+
+  }
+
+}
+
+void pd_check_cmp(char *file, int line, pd_code_t *pd, pd_idx_t cmp) 
+
+/* Checks to see if cmp is a legitimate component number for pd. */
+
+{
+
+  if (cmp >= pd->ncomps) { 
+
+    pd_error(file,line,"pd_code %PD has %d components, and variable attempted to reference component %d.",pd,pd->ncomps,cmp);
+
+  }
+
+}
+
+void pd_check_face(char *file, int line, pd_code_t *pd, pd_idx_t face) 
+
+/* Checks to see if face is a legitimate face number for pd. */
+
+{
+
+  if (face >= pd->nfaces) { 
+
+    pd_error(file,line,"pd_code %PD has %d faces, and variable attempted to reference face %d.",pd,pd->nfaces,face);
 
   }
 

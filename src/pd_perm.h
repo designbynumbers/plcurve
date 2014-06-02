@@ -44,6 +44,9 @@ void         pd_regenerate_pcidx(pd_perm_t *perm);
 bool         pd_perm_pcdata_ok(bool verbose); 
              /* Self-tests on precomputed data. Prints output if verbose == true. */
 
+pd_perm_t    *pd_inverse_perm(pd_perm_t *perm);
+             /*inverts the permutation perm */
+
 extern pd_iterops_t perm_ops;
 
 #endif

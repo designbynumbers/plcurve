@@ -293,6 +293,17 @@ extern "C" {
   /* Returns component number and position on component of a
      given edge number (or die) */
 
+  void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
+		       pd_idx_t *posface, pd_idx_t *posface_pos,
+		       pd_idx_t *negface, pd_idx_t *negface_pos);
+
+  /* Finds the two faces which edge occurs on, which should include
+     one face where edge appears in positive orientation (posface)     
+     and one where edge appears with negative orientation (negface).
+     If we don't find two with this description, die. 
+
+     Return the position (index) of the edge on each face. */
+
   pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or);
   /* Returns original edge if or = PD_POS_EDGE_ORIENTATION, 
      reversed edge if or = PD_NEG_EDGE_ORIENTATION */
@@ -401,6 +412,9 @@ extern "C" {
   pd_code_t *pd_copy(pd_code_t *pd);
   /* Make a new-memory copy of pd */
 
+  void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp, pd_or_t or);
+  /* Reverse the orientation of component cmp iff or == PD_NEG_ORIENTATION */
+
   pd_code_t *pd_simplify(pd_code_t *pd);
   /* Simplify the pd code by eliminating loops and ``generalized loops''. */
 
@@ -455,6 +469,14 @@ extern "C" {
   /* Checks if edge number is legal, dies with error if not. 
      Expected to be called pd_check_edge(SRCLOC,pd,edge). */
 
+  void pd_check_cmp(char *file, int line, pd_code_t *pd, pd_idx_t cmp);
+  /* Checks if component number is legal, dies with error if not.
+     Expected to be called pd_check_cmp(SRCLOC,pd,cmp); */
+
+  void pd_check_face(char *file, int line, pd_code_t *pd, pd_idx_t face);
+  /* Checks if face number is legal, dies with error if not.
+     Expected to be called pd_check_cmp(SRCLOC,pd,face); */
+
   void pd_check_notnull(char *file, int line, char *varname, void *ptr); 
   /* Checks if pointer is null, dies with error if so. The field "varname" is a string giving
      the name of the pointer. Should be called like pd_check_notnull(SRCLOC,"invar",invar); */
@@ -474,8 +496,6 @@ extern "C" {
   pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L);
 
   /* Compute the HOMFLY polynomial of a pd_code (returned as string) */
-
-  
 
   char *pd_homfly( pd_code_t *pdC);
 

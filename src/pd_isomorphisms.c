@@ -794,6 +794,97 @@ void           pd_stareq_edgemap(pd_edgemap_t *A,pd_edgemap_t *B)
 }
 
 
+void pd_apply_edgemap(pd_code_t *pd, pd_edgemap_t *edgemap)
+/* Apply the transformation in edgemap to the pd, changing references to edges in 
+   component, face, and crossing data, reorienting edges as needed. */
+
+{
+  /* Zeroth, we need to check that this edgemap is really fully ok. 
+     If not, we're going to do Very Bad Things below. */
+
+  assert(pd_edgemap_consistent(pd,pd,edgemap));
+
+  pd_edge_t *new_edgebuf = calloc(pd->nedges,sizeof(pd_edge_t));
+  pd_idx_t   e;
+
+  /* First, we do the actual (possibly reversed) copy of edges
+     to the corresponding new places in the edge buffer. */
+
+  for(e=0;e<pd->nedges;e++) { 
+   
+    pd_reorient_edge(pd,edgemap->perm->map[e],edgemap->or[e]);
+    new_edgebuf[e] = pd->edge[edgemap->perm->map[e]];
+
+  }
+
+  for(e=0;e<pd->nedges;e++) {
+    pd->edge[e] = new_edgebuf[e];
+  }
+
+  free(new_edgebuf);
+
+  /* Next, we replace REFERENCES to the old edgenumbers in the
+     crossing and face data with corresponding NEW edgenumbers where
+     they occur. 
+
+     Remember that we've already checked that components go to
+     components in an orientation-consistent way, so we don't have to
+     worry about orientation (as the edges occur in components) or 
+     about swapping edge REFERENCES in components: we have swapped 
+     the actual edges underneath.
+
+     We DO have to swap orientations in face references if needed.*/
+
+  pd_idx_t c,f;
+
+  /* We need to be careful here. Suppose that our edgeperm is (1 2 0), 
+     meaning that the new edge 0 is the old edge 1, the new edge 1 is the 
+     old edge 2, and the new edge 2 is the old edge 0. 
+
+     When we see a REFERENCE to edge 1, we should replace that number
+     with 0 (the new index of edge 1), not with 2 (the old edge which 
+     is currently in position 1). That is, we need to compute the INVERSE
+     permutation of the one we've just applied:
+
+  */
+  pd_perm_t *iperm = pd_inverse_perm(edgemap->perm);
+
+  for(c=0;c<pd->ncross;c++) {
+
+    pd_idx_t p;
+    for(p=0;p<4;p++) { 
+
+      pd->cross[c].edge[p] = iperm->map[pd->cross[c].edge[p]];
+      
+    }
+
+  }
+
+  for(f=0;f<pd->nfaces;f++) {
+
+    for(e=0;e<pd->face[f].nedges;e++) {
+
+      pd->face[f].edge[e] = iperm->map[pd->face[f].edge[e]];
+      pd->face[f].or[e] = pd_compose_or(edgemap->or[pd->face[f].edge[e]],pd->face[f].or[e]);
+
+    }
+
+  }
+
+  pd_free_perm((void **)(&iperm));
+
+  /* All this has put the crossings and faces out of order, 
+     and may have destroyed the hash, too so we regenerate them. */
+
+  pd_regenerate_crossings(pd);
+  pd_regenerate_faces(pd);
+  pd_regenerate_hash(pd);
+
+}
+
+
+  
+
 /************************ crossmaps *****************************/
 
 pd_crossmap_t *pd_new_crossmap(pd_idx_t *ncross) 

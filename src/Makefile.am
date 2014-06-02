@@ -1,4 +1,4 @@
-AM_CFLAGS = -ggdb -Wall #-finline-functions -ftree-vectorize -Wall
+AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
 ACLOCAL_AMFLAGS = -I m4
 
 include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.h
@@ -58,7 +58,8 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	geyer_estimators.c \
 	plcRandomPolygon.h \
 	polynomials.h \
-	polynomials.c 
+	polynomials.c \
+	pd_operations.c 
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -108,7 +109,8 @@ libplCurve_la_SOURCES = plCurve.c \
 	geyer_estimators.c \
 	plcRandomPolygon.h \
 	polynomials.h \
-	polynomials.c 
+	polynomials.c \
+	pd_operations.c 
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

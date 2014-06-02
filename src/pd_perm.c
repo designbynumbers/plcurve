@@ -531,3 +531,21 @@ unsigned int pd_perm_period(pd_perm_t *A)
   
   return period;
 }
+
+pd_perm_t    *pd_inverse_perm(pd_perm_t *perm)
+             /*inverts the permutation perm */
+{
+  pd_perm_t *iperm = pd_new_perm(&(perm->n));
+  pd_idx_t i;
+
+  for(i=0;i<perm->n;i++) {
+
+    iperm->map[perm->map[i]] = i;
+
+  }
+
+  pd_regenerate_pcidx(iperm); /* Just in case we need it. */
+
+  return iperm;
+
+}

@@ -79,6 +79,12 @@ pd_edgemap_t  *pd_compose_edgemaps(pd_edgemap_t *edgemapA,pd_edgemap_t *edgemapB
 void           pd_stareq_edgemap(pd_edgemap_t *edgemapA,pd_edgemap_t *edgemapB);
 /* Compose A with B in-place. */
 
+void           pd_apply_edgemap(pd_code_t *pd, pd_edgemap_t *edgemap);
+/* Apply the transformation in edgemap to the pd, changing references to edges in 
+   component, face, and crossing data, reorienting edges as needed. This has the 
+   side effect of regenerating crossings, because the edge permutation will put
+   the crossings out of canonical order. */
+
 /* A permutation of the edges MAY induce a (unique)
    permutation of the crossings, either preserving cyclic
    orientation at all crossings or reversing cyclic
