@@ -1774,7 +1774,7 @@ pd_code_t *pd_copy(pd_code_t *pd)
   pdA->nfaces = pd->nfaces;
 
   for(i=0;i<PD_HASHSIZE;i++) { pdA->hash[i] = pd->hash[i]; }
-  for(edge=0;edge<pd->MAXEDGES;edge++) { pdA->edge[i] = pd->edge[i]; };
+  for(edge=0;edge<pd->MAXEDGES;edge++) { pdA->edge[edge] = pd->edge[edge]; };
 
   for(cmp=0;cmp<pd->MAXCOMPONENTS;cmp++) { 
 

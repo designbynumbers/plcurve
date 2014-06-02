@@ -37,23 +37,19 @@ int monomial_cmp(const void *A,const void *B)
   a = (monomial_t *)(A);
   b = (monomial_t *)(B);
 
-  if (a->m + a->l == b->m + b->l) {
+  if (a->l != b->l) { 
 
-    if (a->l == b->l) {
+    return a->l - b->l;
 
-      return b->m - a->m;
+  } 
 
-    } else {
+  if (a->m != b->m) {
 
-      return b->l - a->l;
-
-    }
-
-  } else {
-
-    return (b->m + b->l - a->m - a->l);
+    return a->m - b->m;
 
   }
+
+  return a->coeff - b->coeff;
 
 }
  
@@ -689,5 +685,29 @@ homfly_polynomial_t *KnotTheory_to_polynomial(char *knottheoryform)
   /* Now we're done. */
 
   return homfly;
+
+}
+
+bool  polynomials_eq(homfly_polynomial_t *a, homfly_polynomial_t *b) 
+/* Compare two polynomials. */
+{
+  if (a->nmonomials != b->nmonomials) { return false; }
+
+  qsort(a->mono,a->nmonomials,sizeof(monomial_t),monomial_cmp);
+  qsort(b->mono,b->nmonomials,sizeof(monomial_t),monomial_cmp);
+  
+  pd_idx_t i;
+
+  for(i=0;i<a->nmonomials;i++) {
+
+    if (monomial_cmp(&(a->mono[i]),&(b->mono[i])) != 0) { 
+
+      return false;
+
+    }
+
+  }
+
+  return true;
 
 }

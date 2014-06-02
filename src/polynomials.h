@@ -71,5 +71,8 @@ char     *polynomial_to_lmpoly(monomial_t *poly,int nmonos);
 
 char *lmpoly_check(char *lmpoly_output);
 
+bool  polynomials_eq(homfly_polynomial_t *a, homfly_polynomial_t *b);
+/* Compare two polynomials. */
+
 
 #endif

@@ -222,206 +222,49 @@ bool trefoil_reverse_test() {
   return true;
 }
 
-bool test_all_signs(pd_code_t *pd) {
+bool test_all_component_reversals(pd_code_t *pd, int *tests_run) {
 
-  pd_multidx_t *sign_iterator = pd_new_multidx(pd->ncross,NULL,orientation_ops);
+  pd_multidx_t *sign_iterator = pd_new_multidx(pd->ncomps,NULL,orientation_ops);
   unsigned int max = pd_multidx_nvals(sign_iterator);
   unsigned int i;
 
+  printf("\t testing %d component reversals for %d component link...",max,pd->ncomps);
+
   for(i=0;i<max;i++,pd_increment_multidx(sign_iterator)) {
 
-    /* Actually set the crossings according to the information in the 
+    /* Actually set the component orientations according to the information in the 
        iterator. */
+
+    pd_code_t *working_copy = pd_copy(pd);
 
     pd_idx_t k;
     for(k=0;k<sign_iterator->nobj;k++) { 
 
-      pd->cross[k].sign = ((pd_orientation_t *)(sign_iterator->obj[k]))->or;
+      pd_reorient_component(working_copy,k,((pd_orientation_t *)(sign_iterator->obj[k]))->or);
 
     }
 
-    pd_printf("\t testing crsigns %MULTIDX...",NULL,sign_iterator);
-
-    if (!pd_ok(pd)) { 
-
-      pd_printf("FAIL. pd %PD not ok after sign assignment.\n",pd);
-      return false;
-
-    }
-
-
-    printf("pass.\n");
-
-  }
-  
-  pd_free_multidx(&sign_iterator);
-  return true;
-
-} 
-
-bool unknot_generation_tests() {
-
-  printf("-----------------------------------------------\n"
-	 "testing diagrams based on unknots \n"
-	 "-----------------------------------------------\n");
-
-  printf("generating codes for unknots with 2-10 + crossings...\n"
-	 "\t");
-
-  pd_idx_t k;
-  for(k=2;k<11;k++) {
-
-    pd_code_t *pd = pd_build_unknot(k);
-    pd_code_free(&pd);
-    printf("%d ",k);
-
-  }
-
-  printf("\npass. Generated 2-10 crossing unknot codes.\n");
-  printf("\ntesting all crossing signs for 5 crossing diagram...\n\n");
-
-  pd_code_t *pd = pd_build_unknot(5);
-  if (test_all_signs(pd)) { 
-
-    printf("\npass (generated all ccodes w/o crashing)\n");
-
-
-  } else {
-
-    printf("FAIL.\n");
-    return false;
-
-  }
+    if (!pd_ok(working_copy)) { 
       
-  pd_code_free(&pd);
-
-  printf("\ntesting all crossing signs for 4 crossing diagram...\n\n");
-  pd = pd_build_unknot(4);
-
-  if (test_all_signs(pd)) { 
-
-    printf("\npass (generated all ccodes w/o crashing)\n");
-
-  } else {
-
-    printf("FAIL.\n");
-    return false;
-
-  }
+      pd_printf("FAIL. pd %PD not ok \n"
+		"after component orientation reversal %MULTIDX.\n",pd,sign_iterator);
+      pd_printf("yielded pd %PD\n",working_copy);
+      return false;
       
-  pd_code_free(&pd);
-  printf("\npass (survived)\n");
-
-  printf("-----------------------------------------------\n"
-	 "unknot-based crossing code generation tests: PASS \n"
-	 "-----------------------------------------------\n");
-
-  return true;
-}
-
-bool test_ccode_conversion() {
-
-  printf("-----------------------------------------------\n"
-	 "Conversion of pd_code_t to Millett/Ewing crossing code tests\n");
-  printf("tests function \"char *pdcode_to_ccode(pd_code_t *pd)\",\n"
-	 "(not part of exposed API)\n"
-	 "-----------------------------------------------\n");
-
-  if (!unknot_generation_tests()) { return false; }
-  return true;
-}
-
-
-bool test_unknot_homfly_all_signs(pd_code_t *pd,char *desc) {
-
-  pd_multidx_t *sign_iterator = pd_new_multidx(pd->ncross,NULL,orientation_ops);
-  unsigned int max = pd_multidx_nvals(sign_iterator);
-  unsigned int i;
-
-  printf("\ttesting HOMFLY for %d crossing %s...",
-	 pd->ncross,desc);
-  fflush(stdout);
-
-  for(i=0;i<max;i++,pd_increment_multidx(sign_iterator)) {
-
-    /* Actually set the crossings according to the information in the 
-       iterator. */
-
-    pd_idx_t k;
-    for(k=0;k<sign_iterator->nobj;k++) { 
-
-      pd->cross[k].sign = ((pd_orientation_t *)(sign_iterator->obj[k]))->or;
-
     }
-
-    if (!pd_ok(pd)) { 
-
-      pd_printf("FAIL at %MULTIDX. pd %PD not ok after sign assignment.\n",
-		pd,sign_iterator);
-      return false;
-
-    }
-
-    char *homfly = pd_homfly(pd);
-    char unknot_homfly[32] = "1";
-
-    if (strcmp(homfly,unknot_homfly)) {
-
-      pd_printf("\t FAIL at crsigns %MULTIDX\n",NULL,
-		sign_iterator);
-      printf("\t generated HOMFLY: %s\n\t expected HOMFLY: %s\n",
-	     homfly,unknot_homfly);
-      return false;
-
-    }
-
-  }
-  
-  printf("pass. (%d crossing sign choices verified).\n",i);
-  pd_free_multidx(&sign_iterator);
-  return true;
-
-} 
-
-bool test_unknot_homflys() { 
-
-  printf("--------------------------------------------------\n"
-	 "test unknot HOMFLY\n"
-	 "tests HOMFLY computation on various unknot diagrams\n"
-	 "--------------------------------------------------\n");
-  pd_idx_t i,j,k;
-
-  printf("testing pd_build_unknot diagrams (simple twists)...\n\n");
-  for (i=2;i<7;i++) {
-    pd_code_t *pd = pd_build_unknot(i);
-    if (!test_unknot_homfly_all_signs(pd,"simple twist")) {
-      return false;
-    }
-    pd_code_free(&pd);
-  }
-
-  printf("\ntesting pd_build_unknot_wye (plectonemes)...\n\n");
-  char desc[1024];
-  for(i=2;i<4;i++) {
-    for(j=2;j<4;j++) {
-      for(k=2;k<4;k++) {
-	sprintf(desc,"%d-%d-%d wye",i,j,k);
-	pd_code_t *pd = pd_build_unknot_wye(i,j,k);
-	if(!test_unknot_homfly_all_signs(pd,desc)) { 
-	  return false;
-	}
-	pd_code_free(&pd);
-      }
-    }
-  }
-
-  printf("\n--------------------------------------------------\n"
-	 "test unknot HOMFLY: PASS\n"
-	 "--------------------------------------------------\n");
-  return true;
-
-}
     
+    pd_code_free(&working_copy);
+      
+  }
+    
+  printf("pass.\n");
+  pd_free_multidx(&sign_iterator);
+  *tests_run = max;
+
+  return true;
+
+} 
+
 /* We now write a test where we attempt to load a knot table and compute
    HOMFLYs for it. */
 
@@ -429,7 +272,7 @@ bool rolfsentabletest()
 {
  
   printf("\n--------------------------------------------------\n"
-	 "Rolfsen Knot Table/Thistlethwaite Link Table test\n"
+	 "Rolfsen/Thistlethwaite Link Table test\n"
 	 "--------------------------------------------------\n"); 
   
   printf("Trying to determine srcdir from environment...");
@@ -507,33 +350,19 @@ bool rolfsentabletest()
   fclose(infile);
 
 
-  printf("Computing HOMFLYs...");
+  printf("trying all component reversals for %d pd codes...\n\n",loaded);
   clock_t start, end;
   double cpu_time_used;
-
-  char **homflybuf = calloc(loaded,sizeof(char *));
-  assert(homflybuf != NULL);
-  int computed;
+  long int total_tests_run = 0;
+  int tests_run;
 
   start = clock();
+  int computed;
 
   for(computed = 0; computed < loaded; computed++) { 
 
-    homflybuf[computed] = pd_homfly(pdbuf[computed]);
-    if (homflybuf[computed] == NULL) {
-
-      printf("fail. (pdcode %d doesn't produce HOMFLY)\n",computed);
-      return false;
-
-    }
-
-    if (strlen(homflybuf[computed]) == 0) { 
-
-      printf("fail. (produced homfly %s for pdcode %d)\n",
-	     homflybuf[computed],computed);
-      return false;
-
-    }
+    test_all_component_reversals(pdbuf[computed],&tests_run);
+    total_tests_run += tests_run;
     pd_code_free(&(pdbuf[computed]));
 
   }
@@ -541,15 +370,8 @@ bool rolfsentabletest()
   end = clock();
   cpu_time_used =  ((double)(end - start))/CLOCKS_PER_SEC;
 
-  printf("pass (%d homfly polynomials computed in %2.2g sec).\n\n",computed,cpu_time_used);
+  printf("\n\n...pass (%ld component reversal tests computed in %2.2g sec).\n\n",total_tests_run,cpu_time_used);
   free(pdbuf);
-
-  for(computed = 0; computed < loaded; computed++) { 
-
-    free(homflybuf[computed]);
-
-  }
-  free(homflybuf);
   free(rolfsentable);
 
   char *thistlethwaitetable = calloc(4096,sizeof(char));
@@ -606,31 +428,14 @@ bool rolfsentabletest()
   printf("pass (%d pd codes loaded, %d expected).\n",loaded,pd_codes_expected);
   fclose(infile);
 
-
-  printf("Computing HOMFLYs...");
-  homflybuf = calloc(loaded,sizeof(char *));
-  assert(homflybuf != NULL);
-  
+  printf("trying all component reversals for %d pd codes...\n\n",loaded);
   start = clock();
+  total_tests_run = 0;
 
   for(computed = 0; computed < loaded; computed++) { 
 
-    homflybuf[computed] = pd_homfly(pdbuf[computed]);
-
-    if (homflybuf[computed] == NULL) {
-
-      printf("fail. (pdcode %d doesn't produce HOMFLY)\n",computed);
-      return false;
-
-    }
-
-    if (strlen(homflybuf[computed]) == 0) { 
-
-      printf("fail. (produced homfly %s for pdcode %d)\n",
-	     homflybuf[computed],computed);
-      return false;
-
-    }
+    test_all_component_reversals(pdbuf[computed],&tests_run);
+    total_tests_run += tests_run;
     pd_code_free(&(pdbuf[computed]));
 
   }
@@ -638,26 +443,14 @@ bool rolfsentabletest()
   end = clock();
   cpu_time_used =  ((double)(end - start))/CLOCKS_PER_SEC;
 
-  printf("pass (%d homfly polynomials computed in %2.2g sec).\n",computed,cpu_time_used);
+  printf("\n ... pass (%ld component reversal tests computed in %2.2g sec).\n\n",total_tests_run,cpu_time_used);
 
-  for(computed = 0; computed < loaded; computed++) { 
-
-    free(homflybuf[computed]);
-
-  }
-  free(homflybuf);
   free(pdbuf);
   free(thistlethwaitetable);
-
-  printf("\n"
-	 "Note: This is not a test that the HOMFLYPTs are correct,\n"
-	 "      just that they don't crash the system, since we\n"
-	 "      we don't have an external verification for lmpoly's\n"
-	 "      computation of the HOMFLYPT. (KnotTheory uses a \n"
-	 "      different skein relation.)\n\n");
   
-  printf("\n--------------------------------------------------\n"
-	 "Rolfsen Knot Table test: pass\n"
+  printf("\n"
+	 "--------------------------------------------------\n"
+	 "Rolfsen/Thistlethwaite Table test: pass             \n"
 	 "--------------------------------------------------\n\n"); 
 
   return true;
@@ -674,7 +467,7 @@ int main() {
 	 "Unit tests for pdcode operation primitives. \n"
 	 "========================================================\n");
 
-  if (!trefoil_reverse_test()) {
+  if (!trefoil_reverse_test() || !rolfsentabletest()) {
 
     printf("=======================================================\n");
     printf("test_operations:  FAIL.\n");

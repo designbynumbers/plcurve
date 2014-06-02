@@ -169,6 +169,7 @@ mygetline (lineptr, n, stream)
 
 char *pdcode_to_ccode(pd_code_t *pd);
 char *plc_lmpoly(char *ccode,int timeout); // This is in pllmpoly02.c.
+int   monomial_cmp(const void *a, const void *b);
 
 bool millett_ewing_paper_test() { 
 
@@ -208,11 +209,62 @@ bool millett_ewing_paper_test() {
     "\n\n";
   
   printf("testing homfly of code from paper...");
-  char *homfly = plc_lmpoly(correct_ccode,300);
+  char *lmpoly_homfly = plc_lmpoly(correct_ccode,300);
   printf("pass (completed computation)\n");
+
+  printf("converting to homfly_polynomial_t...");
+  homfly_polynomial_t *poly_homfly = lmpoly_to_polynomial(lmpoly_homfly);
+  printf("done.\n");
+
+  homfly_polynomial_t *comp_homfly = calloc(1,sizeof(homfly_polynomial_t));
+  
+  assert(comp_homfly != NULL);
+  comp_homfly->nmonomials = 4;
+  comp_homfly->mono = calloc(4,sizeof(monomial_t));
+  assert(comp_homfly->mono != NULL);
+
+  /* The expected polynomial (hand computation by Eric Lybrand):
+     m^{2} - l^{2} - 1 - l^{-2}"
+  */
+  comp_homfly->mono[0].coeff = 1;
+  comp_homfly->mono[0].l = 0;
+  comp_homfly->mono[0].m = 2;
+
+  comp_homfly->mono[1].coeff = -1;
+  comp_homfly->mono[1].l = 2;
+  comp_homfly->mono[1].m = 0;
+
+  comp_homfly->mono[2].coeff = -1;
+  comp_homfly->mono[2].l = 0;
+  comp_homfly->mono[2].m = 0;
+
+  comp_homfly->mono[3].coeff = -1;
+  comp_homfly->mono[3].l = -2;
+  comp_homfly->mono[3].m = 0;
+  qsort(comp_homfly->mono,comp_homfly->nmonomials,sizeof(monomial_t),monomial_cmp);
   
   printf("testing against expected value for figure-8...");
-  printf("pass (got %s, expected %s)\n",homfly,homfly);
+  
+  if (!polynomials_eq(comp_homfly,poly_homfly)) {
+
+    printf("fail (got %s, expected %s)\n",
+	   poly_to_latex(poly_homfly),poly_to_latex(comp_homfly));
+    return false;
+
+  } else {
+    
+    char *lm_latex = poly_to_latex(poly_homfly);
+    char *cp_latex = poly_to_latex(comp_homfly);
+
+    printf("pass (got %s, expected %s)\n",lm_latex,cp_latex);
+    
+    free(lm_latex);
+    free(cp_latex);
+
+  }
+
+  homfly_polynomial_free(&poly_homfly);
+  homfly_polynomial_free(&comp_homfly);
 
   printf("----------------------------------------------\n"
 	 "crossing code from Millett/Ewing paper: pass  \n"
