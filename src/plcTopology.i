@@ -169,6 +169,7 @@ typedef struct pd_crossing_struct {
   $1 = PyFile_AsFile($input);
  }
 
+
 // SWIG wrapper declaration
 %rename(PlanarDiagram) pd_code_struct;
 typedef struct pd_code_struct {
@@ -300,6 +301,9 @@ typedef struct pd_code_struct {
     inline void reorient_edge(pd_idx_t edge, pd_or_t or) {
       pd_reorient_edge($self, edge, or);
     }
+    inline void reorient_component(pd_idx_t cmp, pd_or_t or) {
+      pd_reorient_component($self, cmp, or);
+    }
 
     //  Recomputing methods
     inline void regenerate_crossings() {
@@ -328,6 +332,12 @@ typedef struct pd_code_struct {
       return pd_isomorphic($self, to);
     }
 
+    // Topology methods
+    %newobject homfly;
+    inline char *homfly() {
+        return pd_homfly($self);
+    }
+
     //  Sanity checking methods
     inline bool cross_ok() {
       return pd_cross_ok($self);
@@ -343,6 +353,61 @@ typedef struct pd_code_struct {
     }
     inline bool is_ok() {
       return pd_ok($self);
+    }
+
+    // String & display methods
+    // TODO: Finish this implementation. May need to be done with Python? instead of SWIG
+    //  or require different implementation of pd_printf.
+    void printf(char *fmt, ...) {
+        pd_printf(fmt,$self);
+    }
+    %feature("python:slot", "tp_str", functype="reprfunc") __str__;
+    %feature("python:slot", "tp_repr", functype="reprfunc") __repr__;
+    %newobject __str__;
+    char *__str__() {
+        char *buf;
+        buf = malloc(255*sizeof(char)); // TODO: make more generic
+
+        snprintf(buf, 255, "PlanarDiagram of %d crossings made up of %d components",
+                $self->ncross,
+                $self->ncomps);
+        return buf;
+    }
+    %newobject __repr__;
+    char *__repr__() {
+        const int BUFLEN=500;
+        char *buf, *nbuf;
+        int edge, cross, cpos;
+        size_t pos;
+        buf = malloc(BUFLEN*sizeof(char)); // TODO: make more generic
+
+        pos = snprintf(buf, BUFLEN, "PlanarDiagram(edges=[");
+        for (edge = 0; edge<$self->nedges; edge++) {
+            nbuf = buf + pos*sizeof(char);
+            pos += snprintf(nbuf, BUFLEN-pos, "%u_%u->%u_%u, ",
+                           (unsigned int)($self->edge[edge].tail),
+                           (unsigned int)($self->edge[edge].tailpos),
+                           (unsigned int)($self->edge[edge].head),
+                           (unsigned int)($self->edge[edge].headpos));
+        }
+        pos -= 2;
+        nbuf = buf + pos*sizeof(char);
+        pos += snprintf(nbuf, BUFLEN-pos, "], cross=[");
+        for (cross = 0; cross<$self->ncross; cross++) {
+            nbuf = buf + pos*sizeof(char);
+            pos += snprintf(nbuf, BUFLEN-pos, "%u.%u.%u.%u%s, ",
+                            (unsigned int)($self->cross[cross].edge[0]),
+                            (unsigned int)($self->cross[cross].edge[1]),
+                            (unsigned int)($self->cross[cross].edge[2]),
+                            (unsigned int)($self->cross[cross].edge[3]),
+                            $self->cross[cross].sign != PD_UNSET_ORIENTATION ?
+                            ($self->cross[cross].sign == PD_POS_ORIENTATION ? "+" : "-") : "x");
+        }
+        pos -= 2;
+        nbuf = buf + pos*sizeof(char);
+        pos += snprintf(nbuf, BUFLEN-pos, "])");
+
+        return buf;
     }
   };
 
