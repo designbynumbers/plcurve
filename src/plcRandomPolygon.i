@@ -8,7 +8,7 @@
 #include "pd_perm.h"
 #include "pd_isomorphisms.h"
 #include <stddef.h> // SWIG should include this itself but Debian version does not
-  static char eoi = 0; // end of iteration exception
+//static char eoi = 0; // end of iteration exception
 static char _exception =0;
 %}
 %include "typemaps.i"
@@ -312,7 +312,6 @@ typedef struct tsmcmc_run_parameters_struct {
     PyObject *py_args;
     py_integrand_args *args = (py_integrand_args *)argptr;
     PyObject *err;
-    char *error_description, *full_backtrace;
 
     py_integrand = args->py_integrand;
     py_args = args->py_args;
@@ -327,10 +326,6 @@ typedef struct tsmcmc_run_parameters_struct {
     }
     err = PyErr_Occurred();
     if (err != NULL) {
-        PyObject *ptype, *pvalue, *ptraceback;
-        PyObject *pystr, *module_name, *pyth_module, *pyth_func;
-        char *str;
-
         PyErr_PrintEx(0);
     }
     if (result != NULL) {
