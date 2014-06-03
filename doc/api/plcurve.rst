@@ -40,9 +40,11 @@ The PlCurve class
 
    **PlCurve constructor**
 
-   **Static methods which create new PlCurves**
+   **File methods**
 
    .. automethod:: from_file
+
+   .. automethod:: write
 
    **Static methods which create new random PlCurves**
 

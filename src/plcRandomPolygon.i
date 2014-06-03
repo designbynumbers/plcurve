@@ -292,7 +292,7 @@ typedef struct tsmcmc_run_parameters_struct {
   Py_DECREF(o3);
  }
 
-%exception equilateral_expectation {
+%exception py_integrand_helper {
   assert(!_exception);
   $action
     if (_exception) {
@@ -311,6 +311,8 @@ typedef struct tsmcmc_run_parameters_struct {
     PyObject *py_integrand;
     PyObject *py_args;
     py_integrand_args *args = (py_integrand_args *)argptr;
+    PyObject *err;
+    char *error_description, *full_backtrace;
 
     py_integrand = args->py_integrand;
     py_args = args->py_args;
@@ -323,13 +325,25 @@ typedef struct tsmcmc_run_parameters_struct {
       result = PyObject_CallFunctionObjArgs(py_integrand, py_plc, NULL);
       Py_DECREF(py_plc);
     }
+    err = PyErr_Occurred();
+    if (err != NULL) {
+        PyObject *ptype, *pvalue, *ptraceback;
+        PyObject *pystr, *module_name, *pyth_module, *pyth_func;
+        char *str;
+
+        PyErr_PrintEx(0);
+    }
     if (result != NULL) {
+      if (!PyFloat_Check(result) && !PyLong_Check(result) && !PyInt_Check(result)) {
+        _exception = 1;
+        return NAN;
+      }
       ret = PyFloat_AsDouble(result);
       Py_DECREF(result);
       return ret;
     } else {
       _exception = 1;
-      return 0;
+      return NAN;
     }
   }
 %}

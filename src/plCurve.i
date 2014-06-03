@@ -609,6 +609,8 @@ Beware: Memory for deleted component is freed!";
                               char error_str[], size_t error_str_len) {
       return plc_read(file, error_num, error_str, error_str_len);
     }
+    %feature("docstring") write
+         "Write PlCurve in VECT format to Python file object ``outfile``.";
     void write(FILE *outfile) {
       plc_write(outfile, $self);
     }
