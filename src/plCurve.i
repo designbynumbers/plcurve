@@ -297,7 +297,7 @@ typedef struct plc_strand_type {
     %feature("docstring") __setitem__
        "Set a vertex. Deletion is not implemented.";
     int __setitem__(size_t j, plc_vector *v) {
-      if (j < 0 || j >= $self->nv) { // Index range exception
+      if (j >= $self->nv) { // Index range exception
         _exception = PLC_IndexError; return -1;
       }
       if (v == NULL) { // Deletion not yet implemented
@@ -578,7 +578,7 @@ struct plc_type {
     %feature("docstring") __getitem__
        "Get a Component by its index.";
     const plc_strand *__getitem__(size_t j) const {
-      if (j < 0 || j >= $self->nc) { // Index range exception
+      if (j >= $self->nc) { // Index range exception
         _exception = PLC_IndexError; return NULL;
       }
       return &($self->cp[j]);
@@ -593,7 +593,7 @@ struct plc_type {
 
 Beware: Memory for deleted component is freed!";
     int __setitem__(size_t j, PyObject *o) {
-      if (j < 0 || j >= $self->nc) { // Index range exception
+      if (j >= $self->nc) { // Index range exception
         _exception = PLC_IndexError; return -1;
       }
       plc_drop_component($self, j);

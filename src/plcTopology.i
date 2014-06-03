@@ -64,7 +64,7 @@ typedef struct pd_component_struct {
   %extend{
     const pd_idx_t __len__() const { return (Py_ssize_t)($self->nedges); }
     const pd_idx_t __getitem__(size_t j) const {
-      if (j < 0 || j >= $self->nedges) {
+      if (j >= $self->nedges) {
         eoi=1;
         return -1;
       } else {
@@ -275,12 +275,12 @@ typedef struct pd_code_struct {
 
     // Get/set/add crossings
     inline pd_crossing_t *get_crossing(pd_idx_t i, bool *OOB) {
-      if(i < 0 || i >= $self->ncross) { *OOB = true; return NULL; }
+      if(i >= $self->ncross) { *OOB = true; return NULL; }
       *OOB = false;
       return &($self->cross[i]);
     }
     inline void set_crossing(pd_idx_t i, pd_crossing_t cross, bool *OOB) {
-      if(i < 0 || i >= $self->ncross) { *OOB = true; return; }
+      if(i >= $self->ncross) { *OOB = true; return; }
       *OOB = false;
       $self->cross[i] = cross;
     }
@@ -377,7 +377,7 @@ typedef struct pd_code_struct {
     char *__repr__() {
         const int BUFLEN=500;
         char *buf, *nbuf;
-        int edge, cross, cpos;
+        int edge, cross;
         size_t pos;
         buf = malloc(BUFLEN*sizeof(char)); // TODO: make more generic
 
