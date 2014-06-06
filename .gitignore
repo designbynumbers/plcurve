@@ -40,7 +40,6 @@ plCurve.py
 py-compile
 plcurve.py
 INSTALL
-test
 /src/momentpolytope
 /src/mrlocs
 /src/plcrwalk
