@@ -423,6 +423,29 @@ struct plc_type {
                                        SWIGTYPE_p_plc_strand_type, 0));
     }
   }
+  %typemap(in) (const int components, const int * const nv) {
+    PyObject *py_int;
+    // Assert that input is a sequence
+    if (PySequence_Check($input)) {
+      int i;
+      $1 = PyObject_Length($input); // Set length argument
+      $2 = malloc(($1)*sizeof(int)); // Malloc array
+      for (i = 0; i < $1; i++) {
+        py_int = PySequence_GetItem($input,i);
+        // Assert that input sequence contains a triple
+        if (!PyInt_Check(py_int) && !PyLong_Check(py_int)) {
+          PyErr_SetString(PyExc_TypeError,
+                          "Components have an integral number of vertices");
+          free($2);
+          return;
+        }
+        $2[i] = (int)PyLong_AsLong(py_int);
+      }
+    } else {
+      PyErr_SetString(PyExc_TypeError,"nv must be a sequence");
+      return;
+    }
+  }
   %typemap(in) (const int nv, const plc_vector *const vt) {
     PyObject *py_vtx, *n;
     // Assert that input is a sequence
@@ -558,6 +581,15 @@ struct plc_type {
 
     // Constructors and destructor
     //
+    plc_type() {
+      plCurve *plc = malloc(sizeof(plCurve));
+      plc->nc = 0;
+      plc->cp = NULL;
+      plc->cst = NULL;
+      plc->quant = NULL;
+      plc->G = NULL;
+      return plc;
+    }
     plc_type(const int components,
              const int * const nv,
              const bool * const open,
