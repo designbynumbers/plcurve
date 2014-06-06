@@ -225,7 +225,9 @@ typedef struct pd_code_struct {
     pd_code_struct(pd_code_t *to_copy) { return pd_copy(to_copy); }
 
     // Destructor
-    ~pd_code_struct() { free($self); }
+    ~pd_code_struct() {
+        pd_code_free(&$self);
+    }
 
     // Copy as a method
     %newobject copy;
@@ -336,6 +338,10 @@ typedef struct pd_code_struct {
     %newobject homfly;
     inline char *homfly() {
         return pd_homfly($self);
+    }
+    %newobject ccode;
+    char *ccode() {
+        return pdcode_to_ccode($self);
     }
 
     //  Sanity checking methods
