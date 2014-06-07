@@ -56,7 +56,7 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
 } plc_symmetry_group;
 
 %{
-  PyObject *plc_vector_as_py_tuple(plc_vector v) {
+  PyObject *PyTuple_FromPlcVector(plc_vector v) {
     int i;
     PyObject *result;
     result = PyTuple_New(3);
@@ -69,10 +69,10 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
 
 // It is sufficient to pretend that plc_vectors are just python sequences of length 3
 %typemap(out) plc_vector {
-  $result = plc_vector_as_py_tuple($1);
+  $result = PyTuple_FromPlcVector($1);
  }
 %typemap(out) plc_vector * {
-  $result = plc_vector_as_py_tuple(*$1);
+  $result = PyTuple_FromPlcVector(*$1);
  }
 %typemap(in) plc_vector(plc_vector v) {
   int i;
@@ -258,15 +258,11 @@ typedef struct plc_strand_type {
           return NULL;
         if (i < 0)
           i += $self->nv;
-        return plc_vector_as_py_tuple($self->vt[i]);
-      } else {
+        return PyTuple_FromPlcVector($self->vt[i]);
+      } else if (PySlice_Check(o)) {
         // Read in the slice object
         Py_ssize_t start,stop,step,length,cur,i;
         PyObject *result;
-        if(!PySlice_Check(o)) {
-          SWIG_Error(SWIG_TypeError, "Slice object expected.");
-          return NULL;
-        }
         if(PySlice_GetIndicesEx((PySliceObject *)o,
                                 (Py_ssize_t)$self->nv,
                                 &start, &stop, &step, &length)) {
@@ -278,13 +274,40 @@ typedef struct plc_strand_type {
           result = PyTuple_New(length);
           if (!result) return NULL;
           for (cur = start, i = 0; i < length; cur += step, i++) {
-            PyTuple_SetItem(result, i, plc_vector_as_py_tuple($self->vt[cur]));
+            PyTuple_SetItem(result, i, PyTuple_FromPlcVector($self->vt[cur]));
           }
 
         }
 
         return result;
-      }
+      } else if (PySequence_Check(o)) {
+        // Return the slice determined by the input multiindex
+        PyObject *item;
+        PyObject *result;
+        Py_ssize_t i, cur;
+        Py_ssize_t length = PySequence_Length(o);
+        if (length == -1) return NULL;
+        result = PyTuple_New(length);
+        if (!result) return NULL;
+        for (i = 0; i < length; i++) {
+          item = PySequence_GetItem(o, i);
+          if (!PyIndex_Check(item)) {
+            Py_DECREF(item);
+            return NULL;
+          }
+          cur = PyNumber_AsSsize_t(item, PyExc_IndexError);
+          if (cur == -1 && PyErr_Occurred()) {
+            Py_DECREF(item);
+            return NULL;
+          }
+          if (cur < 0)
+            cur += $self->nv;
+          PyTuple_SET_ITEM(result, i, PyTuple_FromPlcVector($self->vt[cur]));
+          Py_DECREF(item);
+        }
+
+        return result;
+      } return NULL;
     }
     const plc_vector *get_vertex(int i) const {
       if (i < 0 || i >= $self->nv) { // Index range exception
