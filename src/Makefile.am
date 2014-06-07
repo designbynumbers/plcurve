@@ -59,7 +59,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	plcRandomPolygon.h \
 	polynomials.h \
 	polynomials.c \
-	pd_operations.c 
+	pd_operations.c
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -110,7 +110,7 @@ libplCurve_la_SOURCES = plCurve.c \
 	plcRandomPolygon.h \
 	polynomials.h \
 	polynomials.c \
-	pd_operations.c 
+	pd_operations.c
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

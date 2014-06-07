@@ -18,8 +18,8 @@ static int _exception = 0; // For throwing interface exceptions
 #define PLC_IndexError 1
 #define PLC_NotImplementedError 2
 %}
+#include "config.h"
 
-%include "config.h"
 %include "exception.i"
 %include "carrays.i"
 %include "typemaps.i"
@@ -81,7 +81,7 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
     }
     return result;
 }
-
+#ifdef HAVE_NUMPY
   PyObject *PyArray_FromPlcVector(plc_vector *v) {
     npy_intp dim;
     PyObject *result;
@@ -89,6 +89,7 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
     result = PyArray_SimpleNewFromData(1,&dim,NPY_DOUBLE,v->c);
     return result;
   }
+#endif
 %}
 
 // It is sufficient to pretend that plc_vectors are just python sequences of length 3
