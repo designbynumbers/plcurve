@@ -19,10 +19,26 @@ static int _exception = 0; // For throwing interface exceptions
 #define PLC_NotImplementedError 2
 %}
 
+%include "config.h"
 %include "exception.i"
 %include "carrays.i"
 %include "typemaps.i"
 %import "plcTopology.i"
+
+#ifdef HAVE_NUMPY
+%{
+# define SWIG_FILE_WITH_INIT
+# define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+# include <numpy/arrayobject.h>
+# include <numpy/npy_common.h>
+%}
+%init %{
+  import_array();
+%}
+# define PyObject_FromPlcVector PyArray_FromPlcVector
+#else
+# define PyObject_FromPlcVector PyTuple_FromPlcVector
+#endif
 
 typedef double plc_matrix[3][3];
 
@@ -56,23 +72,31 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
 } plc_symmetry_group;
 
 %{
-  PyObject *PyTuple_FromPlcVector(plc_vector v) {
+  PyObject *PyTuple_FromPlcVector(plc_vector *v) {
     int i;
     PyObject *result;
     result = PyTuple_New(3);
     for (i = 0; i < 3; i++) {
-      PyTuple_SetItem(result, i, PyFloat_FromDouble(v.c[i]));
+      PyTuple_SetItem(result, i, PyFloat_FromDouble(v->c[i]));
     }
     return result;
+}
+
+  PyObject *PyArray_FromPlcVector(plc_vector *v) {
+    npy_intp dim;
+    PyObject *result;
+    dim = 3;
+    result = PyArray_SimpleNewFromData(1,&dim,NPY_DOUBLE,v->c);
+    return result;
   }
-  %}
+%}
 
 // It is sufficient to pretend that plc_vectors are just python sequences of length 3
 %typemap(out) plc_vector {
-  $result = PyTuple_FromPlcVector($1);
+  $result = PyObject_FromPlcVector(&$1);
  }
 %typemap(out) plc_vector * {
-  $result = PyTuple_FromPlcVector(*$1);
+  $result = PyObject_FromPlcVector($1);
  }
 %typemap(in) plc_vector(plc_vector v) {
   int i;
@@ -185,6 +209,12 @@ typedef struct plc_strand_type {
   //plc_color    *clr;    /* Colors */
 
   %typemap(out) varray vertices {
+  #ifdef HAVE_NUMPY
+    npy_intp dims[2];
+    dims[0] = $1.len;
+    dims[1] = 3;
+    $result = PyArray_SimpleNewFromData(2, dims, NPY_DOUBLE, $1.array);
+  #else
     PyObject *temp_entry;
     int i, j;
     $result = PyList_New(0);
@@ -196,6 +226,7 @@ typedef struct plc_strand_type {
       }
       PyList_Append($result, temp_entry);
     }
+  #endif
   }
   %typemap(out) varray colors {
     PyObject *temp_entry;
@@ -258,7 +289,7 @@ typedef struct plc_strand_type {
           return NULL;
         if (i < 0)
           i += $self->nv;
-        return PyTuple_FromPlcVector($self->vt[i]);
+        return PyObject_FromPlcVector(&($self->vt[i]));
       } else if (PySlice_Check(o)) {
         // Read in the slice object
         Py_ssize_t start,stop,step,length,cur,i;
@@ -274,7 +305,7 @@ typedef struct plc_strand_type {
           result = PyTuple_New(length);
           if (!result) return NULL;
           for (cur = start, i = 0; i < length; cur += step, i++) {
-            PyTuple_SetItem(result, i, PyTuple_FromPlcVector($self->vt[cur]));
+            PyTuple_SetItem(result, i, PyObject_FromPlcVector(&($self->vt[cur])));
           }
 
         }
@@ -302,7 +333,7 @@ typedef struct plc_strand_type {
           }
           if (cur < 0)
             cur += $self->nv;
-          PyTuple_SET_ITEM(result, i, PyTuple_FromPlcVector($self->vt[cur]));
+          PyTuple_SET_ITEM(result, i, PyObject_FromPlcVector(&($self->vt[cur])));
           Py_DECREF(item);
         }
 
