@@ -11,6 +11,11 @@
 %}
 %include "typemaps.i"
 
+%{
+// Secret function which is used in test_homfly
+char *pdcode_to_ccode(pd_code_t *pd);
+%}
+
 typedef int pd_idx_t ;  /* pd "index" type */
 typedef int pd_or_t;    /* pd "orientation" type */
 typedef int pd_pos_t;   /* pd "position" type */
