@@ -17,9 +17,9 @@
 static int _exception = 0; // For throwing interface exceptions
 #define PLC_IndexError 1
 #define PLC_NotImplementedError 2
-%}
 #include "config.h"
-
+%}
+%include "config.h"
 %include "exception.i"
 %include "carrays.i"
 %include "typemaps.i"
