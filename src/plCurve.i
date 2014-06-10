@@ -37,9 +37,11 @@ static int _exception = 0; // For throwing interface exceptions
   import_array();
 %}
 # define PyObject_FromPlcVector(v) PyArray_FromPlcVector(self, v)
+# define PyObject_CopyFromPlcVector(v) PyArray_CopyFromPlcVector(v)
 # define InternalPyObject_FromPlcVector(v) PyArray_FromPlcVector(py_self, v)
 #else
 # define PyObject_FromPlcVector(v) PyTuple_FromPlcVector(v)
+# define PyObject_CopyFromPlcVector(v) PyTuple_FromPlcVector(v)
 # define InteralPyObject_FromPlcVector(v) PyTuple_FromPlcVector(v)
 #endif
 
@@ -48,10 +50,8 @@ typedef struct plc_type plCurve; /* We need to forward declare the plCurve type.
 typedef double plc_matrix[3][3];
 
 struct plc_vertex_loc {
-
   int cp;
   int vt;
-
 };
 
 %typemap(newfree) char * "free($1);";
@@ -74,6 +74,14 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
 
 } plc_symmetry_group;
 
+// plc_vector
+// Rather than wrap plc_vectors, we work with numpy arrays of appropriate size
+// which are able to be used as one would expect to use plc_vectors. In a worst-
+// case scenario (where numpy is not on the system), fall back to tuples, although
+// it cannot be guaranteed that all programs will work in this case?
+// TODO: Change backup plan to be compatible with numpy plan? Or remove
+//  backup and depend strongly on numpy.
+
 %{
   PyObject *PyTuple_FromPlcVector(plc_vector *v) {
     int i;
@@ -85,23 +93,37 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
     return result;
 }
 #ifdef HAVE_NUMPY
-  PyObject *PyArray_FromPlcVector(PyObject *owner, plc_vector *v) {
-    npy_intp dim;
-    PyObject *result;
-    dim = 3;
-    result = PyArray_SimpleNewFromData(1,&dim,NPY_DOUBLE,v->c);
-    Py_INCREF(owner);
-    PyArray_SetBaseObject((PyArrayObject *)result, owner);
-    return result;
-  }
+PyObject *PyArray_FromPlcVector(PyObject *owner, plc_vector *v) {
+  npy_intp dim;
+  PyObject *result;
+
+  dim = 3;
+  result = PyArray_SimpleNewFromData(1,&dim,NPY_DOUBLE,v->c);
+  Py_INCREF(owner);
+  PyArray_SetBaseObject((PyArrayObject *)result, owner);
+  return result;
+}
+PyObject *PyArray_CopyFromPlcVector(plc_vector *v) {
+  npy_intp dim;
+  PyObject *result;
+
+  v = memcpy(malloc(sizeof(plc_vector)),
+             v, sizeof(plc_vector));
+
+  dim = 3;
+  result = PyArray_SimpleNewFromData(1, &dim, NPY_DOUBLE, v->c);
+  PyArray_ENABLEFLAGS((PyArrayObject *)result, NPY_ARRAY_OWNDATA);
+  return result;
+}
 #endif
 %}
 
-// It is sufficient to pretend that plc_vectors are just python sequences of length 3
 %typemap(out) plc_vector {
-  $result = PyObject_FromPlcVector(&$1);
+  // If the vector is on the stack, we'll have to copy it
+  $result = PyObject_CopyFromPlcVector(&$1);
  }
 %typemap(out) plc_vector * {
+  // Return (the best available) python object pointing to this data
   $result = PyObject_FromPlcVector($1);
  }
 %typemap(in) plc_vector(plc_vector v) {
