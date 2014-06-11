@@ -19,12 +19,12 @@
                                            0);
             ret->py_cmps[i] = o;
         }
-        ret->no_own = 0;
+        ret->no_own = false;
         return ret;
     }
     plCurve_w *plCurve_w_from_plCurve_NOOWN(plCurve *p) {
         plCurve_w *ret = plCurve_w_from_plCurve(p);
-        ret->no_own = false;
+        ret->no_own = true;
         return ret;
     }
 %}

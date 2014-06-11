@@ -307,7 +307,7 @@ typedef struct tsmcmc_run_parameters_struct {
 
 %inline %{
   double py_integrand_helper(plCurve *L, void *argptr) {
-    plCurve *plcwrap;
+    plCurve_w *plcwrap;
     PyObject *py_plc;
     PyObject *result;
     double ret;
@@ -319,7 +319,8 @@ typedef struct tsmcmc_run_parameters_struct {
     py_integrand = args->py_integrand;
     py_args = args->py_args;
     plcwrap = plCurve_w_from_plCurve_NOOWN(L);
-    py_plc = SWIG_InternalNewPointerObj(plcwrap, SWIGTYPE_p_plc_type_w, 0);
+    py_plc = SWIG_InternalNewPointerObj(plcwrap, SWIGTYPE_p_plc_type_w,
+                                        SWIG_POINTER_OWN);
     if (py_args) {
       PyList_SetItem(py_args, 0, py_plc);
       result = PyObject_Call(py_integrand, py_args=PyList_AsTuple(py_args), args->py_kwargs);

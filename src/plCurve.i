@@ -694,27 +694,28 @@ typedef struct plc_type_w {
       SwigPyObject *p;
       // Free the PlCurve memory sans components
       // Decrease references to components
-      if ($self->py_cmps != NULL) {
-        for (i = 0; i < nc; i++) {
-          p = (SwigPyObject*)$self->py_cmps[i];
-          // If there exist python references to the struct still, we are going to
-          // copy the data and let the PyObject manage its memory.
-          if (p != NULL && (PyObject*)p != Py_None && p->ob_refcnt > 1) {
-            // The object has more than 1 ref, and so won't be freed.
-            // TODO: WARNING: Avoid possible race conditions?
-            // TODO: WARNING: Avoid cyclical references? (Should not be an issue)
-            p->ptr = plc_strand_copy((plc_strand *)p->ptr);
-            p->own = SWIG_POINTER_OWN; // p is now responsible for its memory
+      if(!$self->no_own) {
+        if ($self->py_cmps != NULL) {
+          // If we own the data, 'back up' the components
+          for (i = 0; i < nc; i++) {
+            p = (SwigPyObject*)$self->py_cmps[i];
+            // If there exist python references to the struct still, we are going to
+            // copy the data and let the PyObject manage its memory.
+            if (p != NULL && (PyObject*)p != Py_None && p->ob_refcnt > 1) {
+              // The object has more than 1 ref, and so won't be freed.
+              // TODO: WARNING: Avoid possible race conditions?
+              // TODO: WARNING: Avoid cyclical references? (Should not be an issue)
+              p->ptr = plc_strand_copy((plc_strand *)p->ptr);
+              p->own = SWIG_POINTER_OWN; // p is now responsible for its memory
+            }
+            Py_CLEAR(p);
           }
-          Py_CLEAR(p);
         }
-        // Free component array of PyObject*s
-        PyMem_Free($self->py_cmps);
-      }
-      if($self->no_own) {
         // Only free the internal plCurve if we own it
         plc_free($self->p);
       }
+      // Free component array of PyObject*s
+      PyMem_Free($self->py_cmps);
       // Free the wrapper
       free($self);
     }
