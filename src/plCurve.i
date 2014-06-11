@@ -26,6 +26,8 @@ static int _exception = 0; // For throwing interface exceptions
 %include "typemaps.i"
 %import "plcTopology.i"
 
+%include "plCurve_w_struct.i"
+
 #ifdef HAVE_NUMPY
 %{
 # define SWIG_FILE_WITH_INIT
@@ -450,31 +452,6 @@ typedef struct plc_strand_type {
   }
 %}
 
-%{
-  // Dirty trick which adds some Python object info to a plc_type.
-  typedef struct plc_type_w {
-    plCurve *p; // Honest pointer to plCurve C object
-    PyObject **py_cmps; // Sequence which holds objects for components
-  } plCurve_w;
-%}
-%{
-  // Create a new plCurve_w object from a plCurve.
-  plCurve_w *plCurve_w_from_plCurve(plCurve *p) {
-    int i;
-    PyObject *o;
-    plCurve_w *ret = malloc(sizeof(plCurve_w));
-    ret->p = p;
-    ret->py_cmps = PyMem_Malloc(p->nc * sizeof(PyObject*));
-    for (i = 0; i < p->nc; i++) {
-      o = SWIG_InternalNewPointerObj(p->cp+i,
-                                     SWIGTYPE_p_plc_strand_type,
-                                     0);
-      ret->py_cmps[i] = o;
-    }
-    return ret;
-  }
-%}
-
 %typemap(in) plCurve *COPY_L {
   plCurve_w *p_wrap;
   if ((SWIG_ConvertPtr($input, (void **) &p_wrap,
@@ -734,7 +711,10 @@ typedef struct plc_type_w {
         // Free component array of PyObject*s
         PyMem_Free($self->py_cmps);
       }
-      plc_free($self->p);
+      if($self->no_own) {
+        // Only free the internal plCurve if we own it
+        plc_free($self->p);
+      }
       // Free the wrapper
       free($self);
     }

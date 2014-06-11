@@ -11,9 +11,11 @@
 //static char eoi = 0; // end of iteration exception
 static char _exception =0;
 %}
+%include "plCurve_w_struct.i"
 %include "typemaps.i"
 %include "exception.i"
 %import "plCurve.i"
+
 
 // typedef enum chord_enum {diagonal,edge} chordtype_t;
 
@@ -305,6 +307,7 @@ typedef struct tsmcmc_run_parameters_struct {
 
 %inline %{
   double py_integrand_helper(plCurve *L, void *argptr) {
+    plCurve *plcwrap;
     PyObject *py_plc;
     PyObject *result;
     double ret;
@@ -315,7 +318,8 @@ typedef struct tsmcmc_run_parameters_struct {
 
     py_integrand = args->py_integrand;
     py_args = args->py_args;
-    py_plc = SWIG_InternalNewPointerObj(L, SWIGTYPE_p_plc_type, 0);
+    plcwrap = plCurve_w_from_plCurve_NOOWN(L);
+    py_plc = SWIG_InternalNewPointerObj(plcwrap, SWIGTYPE_p_plc_type_w, 0);
     if (py_args) {
       PyList_SetItem(py_args, 0, py_plc);
       result = PyObject_Call(py_integrand, py_args=PyList_AsTuple(py_args), args->py_kwargs);
