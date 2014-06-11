@@ -28,7 +28,7 @@ static int _exception = 0; // For throwing interface exceptions
 
 %include "plCurve_w_struct.i"
 
-#ifdef HAVE_NUMPY
+#if HAVE_NUMPY==1
 %{
 # define SWIG_FILE_WITH_INIT
 # define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
@@ -94,7 +94,7 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
     }
     return result;
 }
-#ifdef HAVE_NUMPY
+#if HAVE_NUMPY==1
 PyObject *PyArray_FromPlcVector(PyObject *owner, plc_vector *v) {
   npy_intp dim;
   PyObject *result;
@@ -247,7 +247,7 @@ typedef struct plc_strand_type {
   %rename(num_colors) cc;   int cc;          /* Color count (number of colors) */
 
   %typemap(out) varray vertices {
-  #ifdef HAVE_NUMPY
+  #if HAVE_NUMPY==1
     npy_intp dims[2];
     dims[0] = $1.len;
     dims[1] = 3;
