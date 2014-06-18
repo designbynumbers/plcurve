@@ -44,9 +44,9 @@ extern "C" {
 #include <stdio.h>
 #include <stdbool.h>
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
-#include <plCurve.h>    
+#include <plCurve.h>
 
-  /* This is going to take an actual fork to deal with the fact that 
+  /* This is going to take an actual fork to deal with the fact that
      we can't keep the data in static memory anymore. */
 
 /* #define PD_MAXVERTS         1024   /\* We are only going to deal with diagrams with <= 1024 crossings. *\/ */
@@ -58,9 +58,9 @@ extern "C" {
 
   extern int PD_VERBOSE;
 
-  /* For the sake of compactness and speed, everything 
+  /* For the sake of compactness and speed, everything
      is written on top of three "abstract" integer types,
-   
+
      1. the pd "index" type, which is used to index faces,
      edges, or crossings in a pd code,
 
@@ -69,12 +69,12 @@ extern "C" {
      PD_POS_ORIENTATION or PD_NEG_ORIENTATION, and
 
      3. the pd "position" type, which should contain only
-     values 0..3 corresponding to positions around a 
-     crossing. 
+     values 0..3 corresponding to positions around a
+     crossing.
 
-     We should use these by default in all the pdcode.c 
+     We should use these by default in all the pdcode.c
      functions. */
-  
+
 #define PD_POS_ORIENTATION 1
 #define PD_NEG_ORIENTATION 0
 #define PD_UNSET_ORIENTATION 2
@@ -85,46 +85,46 @@ extern "C" {
   typedef unsigned int      pd_pos_t;   /* pd "position" type */
   typedef unsigned long int pd_uid_t;   /* pd "uid" type */
 
-  typedef struct pd_edge_struct {       
+  typedef struct pd_edge_struct {
 
     /* An oriented edge, joining two verts tail -> head */
 
     pd_idx_t head;
-    pd_pos_t  headpos;  
+    pd_pos_t  headpos;
     /* Pos [0..3] in crossing record of head vertex. */
 
-    pd_idx_t tail;  
-    pd_pos_t  tailpos;  
+    pd_idx_t tail;
+    pd_pos_t  tailpos;
     /* Pos [0..3] in crossing record of tail vertex. */
 
   } pd_edge_t;
 
-  /* Since we may have loop edges, we need to record 
-     the position on the crossing where the head and 
-     tail of the edge come in. 
+  /* Since we may have loop edges, we need to record
+     the position on the crossing where the head and
+     tail of the edge come in.
 
      For a loop edge, the edge index occurs twice in
-     the crossing record, so we can't determine 
+     the crossing record, so we can't determine
      orientation otherwise. */
 
-  typedef struct pd_component_struct {  
+  typedef struct pd_component_struct {
 
     pd_idx_t nedges;
-    pd_idx_t *edge;   // Should be allocated/deallocated as needed. 
+    pd_idx_t *edge;   // Should be allocated/deallocated as needed.
 
-    /* Edge indices in orientation order 
-       around a component. These are expected 
+    /* Edge indices in orientation order
+       around a component. These are expected
        to be consecutive. */
-    
+
   } pd_component_t;
 
-  typedef struct pd_face_struct { 
+  typedef struct pd_face_struct {
 
     pd_idx_t    nedges;
-    pd_idx_t    *edge;   
+    pd_idx_t    *edge;
     pd_or_t     *or;
-   
-    /* Edge indices around the face in counterclockwise
+
+      /* Edge indices around the face in counterclockwise
        order. These are NOT consecutive, nor are they always
        positively oriented (according to their intrinsic
        edge orientation), so we store their orientation
@@ -137,7 +137,7 @@ extern "C" {
     pd_idx_t edge[4]; /* Edge indices around crossing in counterclockwise order */
     pd_or_t  sign;    /* Whether the crossing is positively or negatively oriented */
 
-    /* The convention used to determine sign is this: 
+    /* The convention used to determine sign is this:
 
             ^
             |
@@ -145,7 +145,7 @@ extern "C" {
             |
             |
 
-      positive crossing 
+      positive crossing
       (upper tangent vector) x (lower tangent vector) points OUT of screen.
 
             ^
@@ -164,7 +164,7 @@ extern "C" {
 
       pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum)
 
-      to determine which is which. This returns the edge number  (that is, a number in 0..pd->nedges) 
+      to determine which is which. This returns the edge number  (that is, a number in 0..pd->nedges)
       of the incoming and outgoing edges of the strand going over at this crossing.
 
       pd_overstrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos)
@@ -177,11 +177,11 @@ extern "C" {
   } pd_crossing_t;
 
   typedef struct pd_code_struct {
-  
-    pd_uid_t uid;          
+
+    pd_uid_t uid;
     /* Unique diagram id number (among nverts diagrams WITH THIS HASH). */
 
-    pd_idx_t MAXVERTS; 
+    pd_idx_t MAXVERTS;
     /* Space for this number of vertices has been allocated. */
 
     pd_idx_t MAXEDGES;
@@ -190,10 +190,10 @@ extern "C" {
     pd_idx_t MAXCOMPONENTS;
     /* Space for this number of components has been allocated. (Usually pd->MAXVERTS/2.) */
 
-    pd_idx_t MAXFACES; 
+    pd_idx_t MAXFACES;
     /* Space for this number of faces has been allocated. (Usually pd->MAXVERTS+2). */
 
-    pd_idx_t  ncross;      
+    pd_idx_t  ncross;
     /* The total number of crossings in the PD-Code */
 
     pd_idx_t  nedges;
@@ -214,15 +214,15 @@ extern "C" {
     pd_component_t *comp;
     /* ncomps entries: edge indices/orientations in order around comp */
 
-    pd_crossing_t  *cross;   
+    pd_crossing_t  *cross;
     /* nverts entries: 4 edge indices (ccw around cross)*/
-  
-    pd_face_t      *face;      
+
+    pd_face_t      *face;
     /* nfaces entries: edge indices/orientations ccw around face */
 
   } pd_code_t;
 
-  /* 
+  /*
      A pd_code is a representation of a link diagram with
      assignments of orientations and numberings to the
      components of the link, and numberings for the
@@ -237,7 +237,7 @@ extern "C" {
 
   /* A pdCode is like a plCurve... we always deal with a pointer
      which is supposed to be created by the constructor function
-     pd_code_new. 
+     pd_code_new.
 
      The tricky bit is that the actual list of edges along each face
      is not known in advance (and we don't want to allocate the memory
@@ -246,7 +246,7 @@ extern "C" {
      we DON'T allocate the face records themselves.
   */
 
-  pd_code_t *pd_code_new(pd_idx_t MAXVERTS); 
+  pd_code_t *pd_code_new(pd_idx_t MAXVERTS);
   void       pd_code_free(pd_code_t **pd);
   void       pd_code_eltfree(void **PD);  /* Used when we make a pd_container of pd codes */
 
@@ -285,7 +285,7 @@ extern "C" {
      on edge numbers. Used for searching, sorting. */
 
   int  pd_component_cmp(const void *A, const void *B);
-  /* Sort by number of components, then dictionary order on the edge numbers. 
+  /* Sort by number of components, then dictionary order on the edge numbers.
      Used for searching, sorting. */
 
   void pd_component_and_pos(pd_code_t *pd,pd_idx_t edge,
@@ -298,14 +298,14 @@ extern "C" {
 		       pd_idx_t *negface, pd_idx_t *negface_pos);
 
   /* Finds the two faces which edge occurs on, which should include
-     one face where edge appears in positive orientation (posface)     
+     one face where edge appears in positive orientation (posface)
      and one where edge appears with negative orientation (negface).
-     If we don't find two with this description, die. 
+     If we don't find two with this description, die.
 
      Return the position (index) of the edge on each face. */
 
   pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or);
-  /* Returns original edge if or = PD_POS_EDGE_ORIENTATION, 
+  /* Returns original edge if or = PD_POS_EDGE_ORIENTATION,
      reversed edge if or = PD_NEG_EDGE_ORIENTATION */
 
   void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t or);
@@ -315,26 +315,26 @@ extern "C" {
 
   void pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum);
 
-  /*  Returns the edge number  (that is, a number in 0..pd->nedges) 
+  /*  Returns the edge number  (that is, a number in 0..pd->nedges)
       of the incoming and outgoing edges of the strand going OVER at crossing cr of pd,
       using the sign of the crossing to determine. */
 
   void pd_understrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum);
 
-  /*  Returns the edge number  (that is, a number in 0..pd->nedges) 
+  /*  Returns the edge number  (that is, a number in 0..pd->nedges)
       of the incoming and outgoing edges of the strand going UNDER at crossing cr of pd,
       using the sign of the crossing to determine. */
 
   void pd_overstrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos);
 
   /* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
-     edges of the strand going over at this crossing, using the crossing sign data 
+     edges of the strand going over at this crossing, using the crossing sign data
      and edge orientations in order to compute the answer. */
 
   void pd_understrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos);
 
   /* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
-     edges of the strand going under at this crossing, using the crossing sign data 
+     edges of the strand going under at this crossing, using the crossing sign data
      and edge orientations in order to compute the answer. */
 
   /* Functions to compute data from crossing (and other) information */
@@ -345,19 +345,19 @@ extern "C" {
      in dictionary order based on this reordering. */
 
   void pd_regenerate_comps(pd_code_t *pd);
-  /* Generates randomly oriented and numbered 
-     edges from crossings, then strings them 
+  /* Generates randomly oriented and numbered
+     edges from crossings, then strings them
      into components, sorts components by
      size, renumbers edges and orients them along
      components. Updates and regenerates crossings. */
 
-  void pd_regenerate_faces(pd_code_t *pd); 
+  void pd_regenerate_faces(pd_code_t *pd);
   /* Fills in faces from crossing, edge
-     information, including orientation of 
+     information, including orientation of
      each edge along the face. */
 
-  void pd_regenerate_hash(pd_code_t *pd);  
-  /* Fill in (printable) hash value from 
+  void pd_regenerate_hash(pd_code_t *pd);
+  /* Fill in (printable) hash value from
      comps, faces, and crossings */
 
   void pd_regenerate(pd_code_t *pd);
@@ -365,15 +365,15 @@ extern "C" {
 
   /* pd sanity checking */
 
-  /* The ``cross'' data in a pd-code is the 
-     fundamental object. Everything else is 
-     computable from this. So these funcs 
+  /* The ``cross'' data in a pd-code is the
+     fundamental object. Everything else is
+     computable from this. So these funcs
      check the derived data against
-     the cross data. 
+     the cross data.
 
      If PD_VERBOSE > 10 they terminate on
      error with a helpful message. Otherwise
-     they just return true/false. 
+     they just return true/false.
   */
 
   bool pd_cross_ok(pd_code_t *pd);
@@ -389,14 +389,14 @@ extern "C" {
   void       pd_write(FILE *outfile,pd_code_t *pd);
   pd_code_t *pd_read(FILE *infile); /* Returns NULL if the file is corrupt */
 
-  /* This function reads a pdcode from the Mathematica package KnotTheory, 
+  /* This function reads a pdcode from the Mathematica package KnotTheory,
      exported as text with something like:
 
      Export["7_2.txt",PD[Knot[7,2]]]
 
-     These PD codes don't have component or face information, so that is 
-     all regenerated once the crossings have been loaded from the file. 
-     This will only read one PD code per file. 
+     These PD codes don't have component or face information, so that is
+     all regenerated once the crossings have been loaded from the file.
+     This will only read one PD code per file.
   */
 
   pd_code_t *pd_read_KnotTheory(FILE *infile); /* Returns NULL if the file is corrupt */
@@ -425,13 +425,13 @@ extern "C" {
 
      Tag        pd_idx_t           output
 
-     %FACE      face number        fnum (e1 (or1) -> e2 (or2) -> ... -> e1 (or1))        
+     %FACE      face number        fnum (e1 (or1) -> e2 (or2) -> ... -> e1 (or1))
      %EDGE      edge number        enum (tail (tailpos) -> head (headpos) )
      %CROSS     cross number       cnum (e0 e1 e2 e3)
      %COMP      comp number        compnum (e1 -> e2 -> e3 -> ..... -> e1 (or1))
      %PD        (no argument)      (\n\n output of pd_write \n\n)
 
-     We also have conversions for pointers. 
+     We also have conversions for pointers.
 
      %MULTIDX   *pd_multidx_t      multidx (i[0] i[1] ... i[n-1])
      %COMPGRP   *pd_compgrp_t      compgrp (comp[0] .. comp[n-1])
@@ -441,7 +441,7 @@ extern "C" {
 
      We ignore any other format conversions present in fmt,
      passing them unchanged into the output stream. The intention
-     is that these would have already been processed in fmt (using 
+     is that these would have already been processed in fmt (using
      sprintf) before calling pd_vfprintf.
 
   */
@@ -453,20 +453,20 @@ extern "C" {
 
   bool pd_error(char *file, int line, char *fmt, pd_code_t *pd, ...);
 
-  /* If PD_VERBOSE > 10, outputs the error string in fmt, 
-     converted with the special format conversions 
-     to stderr, and then exits with error code 1. 
+  /* If PD_VERBOSE > 10, outputs the error string in fmt,
+     converted with the special format conversions
+     to stderr, and then exits with error code 1.
 
      Otherwise, simply returns false. */
 
   /* There are some standard error checks which we give convenience functions for: */
 
-  void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr); 
-  /* Checks if crossing number is legal, dies with error if not. 
+  void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr);
+  /* Checks if crossing number is legal, dies with error if not.
      Expected to be called pd_check_cr(SRCLOC,pd,cr). */
 
   void pd_check_edge(char *file, int line, pd_code_t *pd, pd_idx_t edge);
-  /* Checks if edge number is legal, dies with error if not. 
+  /* Checks if edge number is legal, dies with error if not.
      Expected to be called pd_check_edge(SRCLOC,pd,edge). */
 
   void pd_check_cmp(char *file, int line, pd_code_t *pd, pd_idx_t cmp);
@@ -477,7 +477,7 @@ extern "C" {
   /* Checks if face number is legal, dies with error if not.
      Expected to be called pd_check_cmp(SRCLOC,pd,face); */
 
-  void pd_check_notnull(char *file, int line, char *varname, void *ptr); 
+  void pd_check_notnull(char *file, int line, char *varname, void *ptr);
   /* Checks if pointer is null, dies with error if so. The field "varname" is a string giving
      the name of the pointer. Should be called like pd_check_notnull(SRCLOC,"invar",invar); */
 
@@ -509,7 +509,7 @@ extern "C" {
      including converting them to an abstract ``crossing'' representation,
      computing their HOMFLY polynomials (using lmpoly) and identifying their
      knot types (by HOMFLY). */
-  
+
 #define MAXPRIMEFACTORS 10
 #define MAXHOMFLY       1024
 
@@ -523,7 +523,7 @@ extern "C" {
 
   } plc_knottype;
 
-  
+
   /* Find the knot type of a single component plCurve */
   /* Sets nposs to the number of possible knottypes found for the curve. If we cannot
      classify the knot, return 0 for nposs and NULL for the buffer of knot types. */

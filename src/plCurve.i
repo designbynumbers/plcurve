@@ -1,4 +1,4 @@
-//%module(directors="1", package="libplcurve") plcurve
+%module(package="libplcurve") plcurve
 %feature("autodoc", "1");
 %{
 #include "plCurve.h"
@@ -28,12 +28,14 @@ static int _exception = 0; // For throwing interface exceptions
 
 %include "plCurve_w_struct.i"
 
-#if HAVE_NUMPY==1
+#if HAVE_NUMPY
 %{
+#if HAVE_NUMPY
 # define SWIG_FILE_WITH_INIT
 # define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 # include <numpy/arrayobject.h>
 # include <numpy/npy_common.h>
+#endif
 %}
 %init %{
   import_array();
@@ -44,7 +46,7 @@ static int _exception = 0; // For throwing interface exceptions
 #else
 # define PyObject_FromPlcVector(v) PyTuple_FromPlcVector(v)
 # define PyObject_CopyFromPlcVector(v) PyTuple_FromPlcVector(v)
-# define InteralPyObject_FromPlcVector(v) PyTuple_FromPlcVector(v)
+# define InternalPyObject_FromPlcVector(v) PyTuple_FromPlcVector(v)
 #endif
 
 typedef struct plc_type plCurve; /* We need to forward declare the plCurve type. */
@@ -94,7 +96,7 @@ typedef struct plc_symmetry_group_type { /* This requires a little bit of the gr
     }
     return result;
 }
-#if HAVE_NUMPY==1
+#if HAVE_NUMPY
 PyObject *PyArray_FromPlcVector(PyObject *owner, plc_vector *v) {
   npy_intp dim;
   PyObject *result;
@@ -247,7 +249,7 @@ typedef struct plc_strand_type {
   %rename(num_colors) cc;   int cc;          /* Color count (number of colors) */
 
   %typemap(out) varray vertices {
-  #if HAVE_NUMPY==1
+  #if HAVE_NUMPY
     npy_intp dims[2];
     dims[0] = $1.len;
     dims[1] = 3;

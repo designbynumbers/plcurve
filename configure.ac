@@ -84,8 +84,10 @@ AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_WARN([plCurve requires the SWIG inter
 if test "x${have_swig}" = xtrue; then
    AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?
    AM_PATH_PYTHON(2.7)
-   CIT_NUMPY_PYTHON_MODULE
-   CIT_NUMPY_INCDIR
+   CIT_NUMPY_PYTHON_MODULE(1.8.0,[have_numpy=true],[have_numpy=false])
+   if test "x${have_numpy}" = xtrue; then
+      CIT_NUMPY_INCDIR
+   fi
 fi
 
 AM_CONDITIONAL([HAVE_SWIG],[test "x${have_swig}" = xtrue])

@@ -10,11 +10,14 @@
 AC_DEFUN([CIT_NUMPY_PYTHON_MODULE], [
 AC_REQUIRE([AM_PATH_PYTHON])
 AC_MSG_CHECKING(for numpy python module)
-$PYTHON -c "import numpy" 2>/dev/null
+$PYTHON -c "import numpy; import sys; maj,min,rev = tuple(int(d) for d in numpy.version.full_version.split('.')); sys.exit(0 if (maj >= 1 and min >= 8) else 1)" 2>/dev/null
 if test $? == 0; then
   AC_MSG_RESULT(found)
+  m4_ifval([$2],[$2],[:])
 else
-  AC_MSG_FAILURE(not found)
+  AC_MSG_WARN(not found)
+  AC_DEFINE([HAVE_NUMPY], [0], [Define to 1 if numpy header files found on the system])
+  m4_ifval([$3],[$3],[:])
 fi
 ]) dnl CIT_NUMPY_PYTHON_MODULE
 
