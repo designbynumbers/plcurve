@@ -1,4 +1,4 @@
-%module(directors="1", package="libplcurve") plcurve
+//%module(directors="1", package="libplcurve") plcurve
 %feature("autodoc", "1");
 %{
 #include "plCurve.h"
