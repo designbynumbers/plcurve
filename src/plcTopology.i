@@ -181,6 +181,18 @@ typedef struct pd_code_struct {
     }
   }
 
+  %typemap(in) (PyObject *_secret_to_replace, int success) {
+    SwigPyObject *sobj = (SwigPyObject *)$input;
+    SwigPyObject *swig_self = (SwigPyObject *)self;
+    sobj->ptr  = swig_self->ptr;
+    sobj->ty   = swig_self->ty;
+    sobj->own  = swig_self->own;
+    sobj->next = 0;
+    swig_self->own = false;
+    $1 = NULL;
+    $2 = 1;
+  }
+
   // Extend Shadow with methods
   %extend {
     %feature("python:slot", "tp_is_gc", functype="inquiry") __set_gc;
@@ -189,6 +201,10 @@ typedef struct pd_code_struct {
     pd_code_struct() { return (pd_code_t *)calloc(1, sizeof(pd_code_t)); }
     // Copy constructor
     pd_code_struct(pd_code_t *to_copy) { return pd_copy(to_copy); }
+
+    int _secret_swig_usurp(PyObject *_secret_to_replace, int success) {
+      return success;
+    }
 
     // Destructor
     ~pd_code_struct() {

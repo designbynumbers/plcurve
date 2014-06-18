@@ -162,28 +162,30 @@ mrlocs_SOURCES = mrlocs.c
 mrlocs_LDADD = -lplCurve
 
 if HAVE_SWIG
-BUILT_SOURCES = plCurve_wrap.c plcTopology_wrap.c plcRandomPolygon_wrap.c
+BUILT_SOURCES = $(builddir)/plCurve_wrap.c \
+		$(builddir)/plcTopology_wrap.c \
+		$(builddir)/plcRandomPolygon_wrap.c
 SWIG_SOURCES = plCurve.i plcTopology.i plcRandomPolygon.i
 
 pkgpython_PYTHON = plcurve.py pd.py tsmcmc.py __init__.py
 pkgpyexec_LTLIBRARIES = _plcurve.la _pd.la _tsmcmc.la
-_plcurve_la_SOURCES = plCurve_wrap.c plCurve.i
-_plcurve_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_srcdir)
+_plcurve_la_SOURCES = $(builddir)/plCurve_wrap.c plCurve.i
+_plcurve_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_builddir)
 _plcurve_la_LDFLAGS = -module
 _plcurve_la_LIBADD = libplCurve.la
-_pd_la_SOURCES = plcTopology_wrap.c plcTopology.i
-_pd_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_srcdir)
+_pd_la_SOURCES = $(builddir)/plcTopology_wrap.c plcTopology.i
+_pd_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_builddir)
 _pd_la_LDFLAGS = -module
 _pd_la_LIBADD = libplCurve.la
-_tsmcmc_la_SOURCES = plcRandomPolygon_wrap.c plcRandomPolygon.i
-_tsmcmc_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_srcdir)
+_tsmcmc_la_SOURCES = $(builddir)/plcRandomPolygon_wrap.c plcRandomPolygon.i
+_tsmcmc_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_builddir)
 _tsmcmc_la_LDFLAGS = -module
 _tsmcmc_la_LIBADD = libplCurve.la
 
-plCurve_wrap.c : plCurve.i
-	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_srcdir) -o $@ $<
-plcTopology_wrap.c : plcTopology.i
-	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_srcdir) -o $@ $<
-plcRandomPolygon_wrap.c: plcRandomPolygon.i
-	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_srcdir) -o $@ $<
+$(builddir)/plCurve_wrap.c : plCurve.i
+	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_builddir) -o $@ $<
+$(builddir)/plcTopology_wrap.c : plcTopology.i
+	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_builddir) -o $@ $<
+$(builddir)/plcRandomPolygon_wrap.c: plcRandomPolygon.i
+	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_builddir) -o $@ $<
 endif
