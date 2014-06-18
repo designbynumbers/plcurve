@@ -117,11 +117,13 @@ one of the predefined profiles for a run), and return a lot of
 detailed information about the run in run_stats (optional, set to NULL
 if you don&#8217;t care).</p>
 <p>Note that the number of edges is set (implicitly) by the triangulation.</p>
+<p><tt class="docutils literal"><span class="pre">df</span></tt> is either a callable object (i.e. a [lambda] function) or a tuple of the form
+<tt class="docutils literal"><span class="pre">(callable[,</span> <span class="pre">arg_list[,</span> <span class="pre">kwarg_dict]])</span></tt></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="libplcurve.tsmcmc.confined_equilateral_expectation">
-<tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">confined_equilateral_expectation</tt><big>(</big><em>rng</em>, <em>df</em>, <em>n_edges</em>, <em>max_steps</em>, <em>max_secs</em>, <em>run_params</em><big>)</big> &rarr; result, stats, error<a class="headerlink" href="#libplcurve.tsmcmc.confined_equilateral_expectation" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">libplcurve.tsmcmc.</tt><tt class="descname">confined_equilateral_expectation</tt><big>(</big><em>rng</em>, <em>df</em>, <em>confinement_r</em>, <em>n_edges</em>, <em>max_steps</em>, <em>max_secs</em>, <em>run_params</em><big>)</big> &rarr; result, stats, error<a class="headerlink" href="#libplcurve.tsmcmc.confined_equilateral_expectation" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the &#8216;master&#8217; driver function for computing an expectation over
 equilateral polygons in &#8216;rooted&#8217; spherical confinement (the
 confinement is &#8216;rooted&#8217; when the first vertex of the polygon is at the

@@ -14,6 +14,9 @@
 %{
 // Secret function which is used in test_homfly
 char *pdcode_to_ccode(pd_code_t *pd);
+int __set_gc(PyObject *self) {
+  return 1;
+}
 %}
 
 typedef int pd_idx_t ;  /* pd "index" type */
@@ -95,50 +98,6 @@ typedef struct pd_face_struct {
      as well as their edge number. */
 
 } pd_face_t;
-
-// Huzzah! pd_crossings now have orientation data
-// Possibly extend these typemaps later on
-/* %typemap(in) pd_crossing_t (pd_crossing_t v) { */
-/*   int i; */
-/*   if (!PySequence_Check($input)) { */
-/*     PyErr_SetString(PyExc_TypeError, */
-/*                     "Expecting a sequence with _PY_PD_CROSSING_LEN elements"); */
-/*     return NULL; */
-/*   } */
-/*   if (PyObject_Length($input) != _PY_PD_CROSSING_LEN) { */
-/*     PyErr_SetString(PyExc_ValueError, */
-/*                     "Expecting a sequence with _PY_PD_CROSSING_LEN elements"); */
-/*     return NULL; */
-/*   } */
-/*   for (i =0; i < _PY_PD_CROSSING_LEN; i++) { */
-/*     PyObject *o = PySequence_GetItem($input,i); */
-/*     // TODO: Better handle pd_idx_t */
-/*     if (PyInt_Check(o)) { */
-/*       v.edge[i] = (pd_idx_t)PyInt_AsLong(o); */
-/*       Py_DECREF(o); */
-/*     } else if (PyLong_Check(o)) { */
-/*       v.edge[i] = (pd_idx_t)PyLong_AsLong(o); */
-/*       Py_DECREF(o); */
-/*     } else { */
-/*       Py_XDECREF(o); */
-/*       PyErr_SetString(PyExc_ValueError,"Expecting a sequence of ints or longs"); */
-/*       return NULL; */
-/*     } */
-/*   } */
-/*   $1 = v; */
-/*  } */
-/* %typemap(out) pd_crossing_t { */
-/*   int i; */
-/*   $result = pd_crossing_as_pytuple(&$1); */
-/*  } */
-/* %typemap(out) pd_crossing_t *{ */
-/*   int i; */
-/*   if ($1 == NULL) { */
-/*     $result = Py_None; */
-/*     return; */
-/*   } */
-/*   $result = pd_crossing_as_pytuple($1); */
-/*  } */
 
 %feature("python:slot", "mp_subscript", functype="binaryfunc") pd_crossing_struct::__getitem__;
 %rename(Crossing) pd_crossing_struct;
@@ -224,6 +183,8 @@ typedef struct pd_code_struct {
 
   // Extend Shadow with methods
   %extend {
+    %feature("python:slot", "tp_is_gc", functype="inquiry") __set_gc;
+
     // Constructor
     pd_code_struct() { return (pd_code_t *)calloc(1, sizeof(pd_code_t)); }
     // Copy constructor

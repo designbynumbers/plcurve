@@ -392,7 +392,7 @@ double tsmcmc_equilateral_expectation(gsl_rng *rng,
                                       double *error_OUT); %{%}
 
 %rename(confined_equilateral_expectation) tsmcmc_confined_equilateral_expectation;
-%feature("autodoc", "confined_equilateral_expectation(rng, df, n_edges, max_steps, max_secs, run_params) \
+%feature("autodoc", "confined_equilateral_expectation(rng, df, confinement_r, n_edges, max_steps, max_secs, run_params) \
 -> result, stats, error")
 tsmcmc_confined_equilateral_expectation;
 %feature("docstring") tsmcmc_confined_equilateral_expectation

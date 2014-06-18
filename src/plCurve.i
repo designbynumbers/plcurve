@@ -720,6 +720,19 @@ typedef struct plc_type_w {
       free($self);
     }
 
+    // Copy methods. There is no such thing as a "shallow" copy
+    // for a plCurve, since it essentially owns its component data
+    // more than the components themselves!
+    plCurve_w *copy() {
+      return plCurve_w_from_plCurve(plc_copy($self->p));
+    }
+    plCurve_w *__copy__() {
+      return plCurve_w_from_plCurve(plc_copy($self->p));
+    }
+    plCurve_w *__deepcopy__(PyObject *memo) {
+      return plCurve_w_from_plCurve(plc_copy($self->p));
+    }
+
     // Sequence methods
     // A plCurve masquerades as a sequence of components
     %feature("python:slot", "sq_length", functype="lenfunc") __len__;
