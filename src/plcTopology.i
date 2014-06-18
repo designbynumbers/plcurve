@@ -201,26 +201,6 @@ typedef struct pd_face_struct {
       return PyTuple_FromEdgeOr($self->edge[i], $self->or[i]);
     }
 
-    // Python string methods
-    %feature("python:slot", "tp_str", functype="reprfunc") __str__;
-    %feature("python:slot", "tp_repr", functype="reprfunc") __repr__;
-    %newobject __str__;
-    %newobject __repr__;
-    const char *__str__() {
-      char *buf;
-      buf = malloc(255*sizeof(char));
-
-      sprintf(buf, "PlCurve with %d components", $self->p->nc);
-      return buf;
-    }
-    const char *__repr__() {
-      char *buf;
-      buf = malloc(255*sizeof(char));
-
-      sprintf(buf, "PlCurve with %d components", $self->p->nc);
-      return buf;
-    }
-
   }
 
 } pd_face_t;
