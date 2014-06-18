@@ -8,6 +8,9 @@
 #include "pd_isomorphisms.h"
 #include <stddef.h> // SWIG should include this itself but Debian version does not
   static char eoi = 0; // end of iteration exception
+  static int _exception = 0; // For throwing interface exceptions
+#define PLC_IndexError 1
+#define PLC_NotImplementedError 2
 %}
 %include "typemaps.i"
 
@@ -83,6 +86,17 @@ typedef struct pd_component_struct {
 
 } pd_component_t;
 
+%{ // Convenience function for returning edge and orientation
+PyObject *PyTuple_FromEdgeOr(pd_idx_t idx, pd_or_t or) {
+  int i;
+  PyObject *result;
+  result = PyTuple_New(2);
+  PyTuple_SetItem(result, 0, PyInt_FromLong(idx));
+  PyTuple_SetItem(result, 1, PyInt_FromLong(or));
+  return result;
+}
+%}
+
 %rename(ori) or;
 %rename(Face) pd_face_struct;
 typedef struct pd_face_struct {
@@ -96,6 +110,118 @@ typedef struct pd_face_struct {
      positively oriented (according to their intrinsic
      edge orientation), so we store their orientation
      as well as their edge number. */
+
+  %extend {
+    // Python special methods
+    //
+    // Sequence methods
+    // A strand masquerades as a sequence of vertices
+    %feature("python:slot", "sq_length", functype="lenfunc") __len__;
+    %feature("docstring") __len__
+       "Get the number of vertices which make up this Strand.";
+    const size_t __len__() const { return $self->nedges; }
+
+    // TODO: Better 'compartmentalize' this code (if nothing else):
+    //  It's barely SWIG, and all Python API! Which was fun to write
+    //  but maintainers shouldn't have to be so versed...
+    %feature("python:slot", "mp_subscript", functype="binaryfunc") __getitem__;
+    %feature("python:slot", "sq_item", functype="ssizeargfunc") get_vertex;
+    %feature("docstring") __getitem__
+       "Get an edge around this face by its index.";
+    %typemap(in, numinputs=0) PyObject *py_self {
+      $1 = self;
+    }
+    const PyObject *__getitem__(PyObject *py_self, PyObject *o) const {
+      // If subscript is an index (typically an int)
+      if (PyIndex_Check(o)) {
+        // Access the subscript
+        Py_ssize_t i;
+        i = PyNumber_AsSsize_t(o, PyExc_IndexError);
+        if (i == -1 && PyErr_Occurred())
+          return NULL;
+        if (i < 0)
+          i += $self->nedges;
+        return PyTuple_FromEdgeOr($self->edge[i], $self->or[i]);
+      } else if (PySlice_Check(o)) {
+        // Read in the slice object
+        Py_ssize_t start,stop,step,length,cur,i;
+        PyObject *result;
+        if(PySlice_GetIndicesEx((PySliceObject *)o,
+                                (Py_ssize_t)$self->nedges,
+                                &start, &stop, &step, &length)) {
+          return NULL;
+        }
+
+        if (length <= 0) { result = PyTuple_New(0); }
+        else {
+          result = PyTuple_New(length);
+          if (!result) return NULL;
+          for (cur = start, i = 0; i < length; cur += step, i++) {
+            PyTuple_SetItem(result, i,
+                            PyTuple_FromEdgeOr($self->edge[cur], $self->or[cur]));
+          }
+
+        }
+
+        return result;
+      } else if (PySequence_Check(o)) {
+        // Return the slice determined by the input multiindex
+        PyObject *item;
+        PyObject *result;
+        Py_ssize_t i, cur;
+        Py_ssize_t length = PySequence_Length(o);
+        if (length == -1) return NULL;
+        result = PyTuple_New(length);
+        if (!result) return NULL;
+        for (i = 0; i < length; i++) {
+          item = PySequence_GetItem(o, i);
+          if (!PyIndex_Check(item)) {
+            Py_DECREF(item);
+            return NULL;
+          }
+          cur = PyNumber_AsSsize_t(item, PyExc_IndexError);
+          if (cur == -1 && PyErr_Occurred()) {
+            Py_DECREF(item);
+            return NULL;
+          }
+          if (cur < 0)
+            cur += $self->nedges;
+          PyTuple_SET_ITEM(result, i,
+                           PyTuple_FromEdgeOr($self->edge[cur], $self->or[cur]));
+          Py_DECREF(item);
+        }
+
+        return result;
+      } return NULL;
+    }
+    const PyObject *get_vertex(int i) const {
+      if (i < 0 || i >= $self->nedges) { // Index range exception
+        _exception = PLC_IndexError; return NULL;
+      }
+      return PyTuple_FromEdgeOr($self->edge[i], $self->or[i]);
+    }
+
+    // Python string methods
+    %feature("python:slot", "tp_str", functype="reprfunc") __str__;
+    %feature("python:slot", "tp_repr", functype="reprfunc") __repr__;
+    %newobject __str__;
+    %newobject __repr__;
+    const char *__str__() {
+      char *buf;
+      buf = malloc(255*sizeof(char));
+
+      sprintf(buf, "PlCurve with %d components", $self->p->nc);
+      return buf;
+    }
+    const char *__repr__() {
+      char *buf;
+      buf = malloc(255*sizeof(char));
+
+      sprintf(buf, "PlCurve with %d components", $self->p->nc);
+      return buf;
+    }
+
+  }
 
 } pd_face_t;
 
