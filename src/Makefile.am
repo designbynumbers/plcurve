@@ -188,4 +188,7 @@ $(builddir)/plcTopology_wrap.c : plcTopology.i
 	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_builddir) -o $@ $<
 $(builddir)/plcRandomPolygon_wrap.c: plcRandomPolygon.i
 	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_builddir) -o $@ $<
+
+clean-local:
+	-rm $(BUILT_SOURCES) $(pkgpython_PYTHON)
 endif

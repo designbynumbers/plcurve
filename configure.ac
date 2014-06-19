@@ -87,6 +87,8 @@ if test "x${have_swig}" = xtrue; then
    CIT_NUMPY_PYTHON_MODULE(1.8.0,[have_numpy=true],[have_numpy=false])
    if test "x${have_numpy}" = xtrue; then
       CIT_NUMPY_INCDIR
+   else
+      AC_MSG_WARN([An appropriate numpy installation was not found with Python. numpy functionality will not be included.])
    fi
 fi
 
