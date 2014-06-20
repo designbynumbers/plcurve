@@ -509,16 +509,16 @@ typedef struct pd_code_struct {
 } pd_code_t;
 
 %{
-  inline pd_code_t *pd_code_struct_crossings_get(pd_code_t *pd) {
+  pd_code_t *pd_code_struct_crossings_get(pd_code_t *pd) {
     return pd;
   }
-  inline pd_code_t *pd_code_struct_edges_get(pd_code_t *pd) {
+  pd_code_t *pd_code_struct_edges_get(pd_code_t *pd) {
     return pd;
   }
-  inline pd_code_t *pd_code_struct_components_get(pd_code_t *pd) {
+  pd_code_t *pd_code_struct_components_get(pd_code_t *pd) {
     return pd;
   }
-  inline pd_code_t *pd_code_struct_faces_get(pd_code_t *pd) {
+  pd_code_t *pd_code_struct_faces_get(pd_code_t *pd) {
     return pd;
   }
 
