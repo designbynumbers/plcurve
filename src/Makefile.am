@@ -166,8 +166,9 @@ BUILT_SOURCES = $(builddir)/plCurve_wrap.c \
 		$(builddir)/plcTopology_wrap.c \
 		$(builddir)/plcRandomPolygon_wrap.c
 SWIG_SOURCES = plCurve.i plcTopology.i plcRandomPolygon.i
+PYTHON_GENERATED = plcurve.py pd.py tsmcmc.py
 
-pkgpython_PYTHON = plcurve.py pd.py tsmcmc.py __init__.py
+pkgpython_PYTHON = $(PYTHON_GENERATED) __init__.py
 pkgpyexec_LTLIBRARIES = _plcurve.la _pd.la _tsmcmc.la
 _plcurve_la_SOURCES = $(builddir)/plCurve_wrap.c plCurve.i
 _plcurve_la_CFLAGS = $(AX_SWIG_PYTHON_CPPFLAGS) -I$(top_builddir) -I$(NUMPY_INCDIR)
@@ -190,5 +191,5 @@ $(builddir)/plcRandomPolygon_wrap.c: plcRandomPolygon.i
 	$(SWIG) $(AX_SWIG_PYTHON_OPT) -builtin -I$(top_builddir) -o $@ $<
 
 clean-local:
-	-rm $(BUILT_SOURCES) $(pkgpython_PYTHON)
+	-rm $(BUILT_SOURCES) $(PYTHON_GENERATED)
 endif
