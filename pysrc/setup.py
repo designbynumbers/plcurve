@@ -4,7 +4,8 @@ from Cython.Build import cythonize
 
 extensions = [
     Extension("*", ["libpl/*.pyx"],
-              include_dirs = ["..","."],
+              include_dirs = ["../src","."],
+              library_dirs = ["../src/.libs"],
               libraries = ["gsl","plCurve"]),
 #    Extension("pdcode", ["libpl/pdcode.pyx"],
 #              include_dirs = ["..","."],
@@ -15,8 +16,8 @@ extensions = [
 ]
 
 setup(
-#    name = "libpl",
-#    packages = ["libpl"],
-#    package_data={"libpl": ["*.pxd"]},
+    name = "libpl",
+    packages = ["libpl"],
+    package_data={"libpl": ["*.pxd"]},
     ext_modules = cythonize(extensions),
 )

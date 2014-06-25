@@ -1,0 +1,477 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pdcode: PlanarDiagrams &mdash; plCurve 7.3 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="plCurve 7.3 documentation" href="../index.html"/>
+        <link rel="prev" title="tsmcmc: Interface to plcRandomPolygon.h" href="../api/tsmcmc.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> plCurve</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api/plcurve.html">plcurve: Polygonal Links</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/plcurve.html#the-plcurve-class">The PlCurve class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plcurve.html#the-strand-class">The Strand class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plcurve.html#the-randomgenerator-gsl-rng-interface-class">The RandomGenerator (gsl_rng interface) class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plcurve.html#auxiliary-classes">Auxiliary classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pd.html">pd: PlanarDiagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/pd.html#the-planardiagram-class">The PlanarDiagram class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/pd.html#building-block-classes">Building block classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsmcmc.html">tsmcmc: Interface to plcRandomPolygon.h</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">pdcode: PlanarDiagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-planardiagram-class">The PlanarDiagram class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-block-classes">Building block classes</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">plCurve</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>pdcode: PlanarDiagrams</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/libpl/pdcode.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="pdcode-planardiagrams">
+<h1>pdcode: PlanarDiagrams<a class="headerlink" href="#pdcode-planardiagrams" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-planardiagram-class">
+<h2>The PlanarDiagram class<a class="headerlink" href="#the-planardiagram-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="libpl.pdcode.PlanarDiagram">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">PlanarDiagram</tt><big>(</big><span class="optional">[</span><em>max_verts=15</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class which represents a PD code (planar diagram). There are
+a few different ways to create <tt class="docutils literal"><span class="pre">PlanarDiagram</span></tt>s:</p>
+<p>The constructor will create a new empty diagram with <cite>max_verts</cite>
+blank crossings.</p>
+<p>There are two class methods for reading diagrams from files, both
+from files written in <tt class="docutils literal"><span class="pre">PlanarDiagram</span></tt>&#8216;s own format, and from files
+written in Mathematica&#8217;s KnotTheory format.</p>
+<p>There are multiple class methods which create new <a href="#id1"><span class="problematic" id="id2">``</span></a>PlanarDiagram``s
+of basic examples; their docstrings contain some specific information.</p>
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.components_ok">
+<tt class="descname">components_ok</tt><big>(</big><big>)</big> &rarr; bool<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.components_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the component data agrees with crossing data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a memory deepcopy of this PlanarDiagram</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.crossings_ok">
+<tt class="descname">crossings_ok</tt><big>(</big><big>)</big> &rarr; bool<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.crossings_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crossings are the fundamental data from which
+PD codes are regenerated. This checks that the crossing
+data is sane.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.edges_ok">
+<tt class="descname">edges_ok</tt><big>(</big><big>)</big> &rarr; bool<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.edges_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the edge data agrees with crossing data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.faces_ok">
+<tt class="descname">faces_ok</tt><big>(</big><big>)</big> &rarr; bool<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.faces_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the face data agrees with crossing data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.homfly">
+<tt class="descname">homfly</tt><big>(</big><big>)</big> &rarr; str<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.homfly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the HOMFLY polynomial for this diagram (returned as string).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.is_ok">
+<tt class="descname">is_ok</tt><big>(</big><big>)</big> &rarr; bool<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.is_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that all data contained in this PD code is sane.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.read">
+<em class="property">static </em><tt class="descname">read</tt><big>(</big><em>file_obj</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the next pdcode from a file object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A new <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a>, or <tt class="docutils literal"><span class="pre">None</span></tt> on failure.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.read_knot_theory">
+<em class="property">static </em><tt class="descname">read_knot_theory</tt><big>(</big><em>file_obj</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.read_knot_theory" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function reads a pdcode from the Mathematica package KnotTheory,
+exported as text with something like:</p>
+<p><tt class="docutils literal"><span class="pre">Export[&quot;7_2.txt&quot;,PD[Knot[7,2]]]</span></tt></p>
+<p>These PD codes don&#8217;t have component or face information, so that is
+all regenerated once the crossings have been loaded from the file.
+This will only read one PD code per file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.regenerate">
+<tt class="descname">regenerate</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.regenerate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regenerates everything from cross data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.regenerate_components">
+<tt class="descname">regenerate_components</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.regenerate_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates randomly oriented and numbered
+edges from crossings, then strings them
+into components, sorts components by
+size, renumbers edges and orients them along
+components. Updates and regenerates crossings.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.regenerate_crossings">
+<tt class="descname">regenerate_crossings</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.regenerate_crossings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorders the crossings cyclically to put the
+lowest index edge first and sorts crossings
+in dictionary order based on this reordering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.regenerate_faces">
+<tt class="descname">regenerate_faces</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.regenerate_faces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fills in faces from crossing, edge
+information, including orientation of
+each edge along the face.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.regenerate_hash">
+<tt class="descname">regenerate_hash</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.regenerate_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill in (printable) hash value from
+comps, faces, and crossings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.reorient_component">
+<tt class="descname">reorient_component</tt><big>(</big><em>component</em>, <em>sign</em><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.reorient_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverse the orientation of component iff sign is <tt class="xref py py-const docutils literal"><span class="pre">PD_NEG_ORIENTATION</span></tt></p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.simple_chain">
+<em class="property">static </em><tt class="descname">simple_chain</tt><big>(</big><em>n_links</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.simple_chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> which represents an \(n\)-link chain.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.torus_knot">
+<em class="property">static </em><tt class="descname">torus_knot</tt><big>(</big><em>p</em>, <em>q</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.torus_knot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> which represents a \((p,q)\)-torus knot.</p>
+<p><em>Caveat</em> Only implemented for \(p=2\).</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.twist_knot">
+<em class="property">static </em><tt class="descname">twist_knot</tt><big>(</big><em>n_twists</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.twist_knot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> which represents a twist knot with \(n\) twists.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.unknot">
+<em class="property">static </em><tt class="descname">unknot</tt><big>(</big><em>n_crossings</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.unknot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> which represents an \(n\)-crossing unlink diagram</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.unknot_wye">
+<em class="property">static </em><tt class="descname">unknot_wye</tt><big>(</big><em>a</em>, <em>b</em>, <em>c</em><big>)</big> &rarr; PlanarDiagram<a class="headerlink" href="#libpl.pdcode.PlanarDiagram.unknot_wye" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> representing an unknot which is
+designed for hash collisions.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.components">
+<tt class="descname">components</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.components" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sequence of <a class="reference internal" href="#libpl.pdcode.Component" title="libpl.pdcode.Component"><tt class="xref py py-class docutils literal"><span class="pre">Component</span></tt></a> which belong to this diagram</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.crossings">
+<tt class="descname">crossings</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.crossings" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sequence of <a class="reference internal" href="#libpl.pdcode.Crossing" title="libpl.pdcode.Crossing"><tt class="xref py py-class docutils literal"><span class="pre">Crossing</span></tt></a> which belong to this diagram</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.edges">
+<tt class="descname">edges</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sequence of <a class="reference internal" href="#libpl.pdcode.Edge" title="libpl.pdcode.Edge"><tt class="xref py py-class docutils literal"><span class="pre">Edge</span></tt></a> which belong to this diagram</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.faces">
+<tt class="descname">faces</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.faces" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sequence of <a class="reference internal" href="#libpl.pdcode.Face" title="libpl.pdcode.Face"><tt class="xref py py-class docutils literal"><span class="pre">Face</span></tt></a> which belong to this diagram</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.ncomps">
+<tt class="descname">ncomps</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.ncomps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of components in this PlanarDiagram</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.ncross">
+<tt class="descname">ncross</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.ncross" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of crossings in this PlanarDiagram</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.nedges">
+<tt class="descname">nedges</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.nedges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of edges in this PlanarDiagram</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.nfaces">
+<tt class="descname">nfaces</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.nfaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of faces in this PlanarDiagram</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="building-block-classes">
+<h2>Building block classes<a class="headerlink" href="#building-block-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="libpl.pdcode.Component">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">Component</tt><a class="headerlink" href="#libpl.pdcode.Component" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="libpl.pdcode.Component.parent">
+<tt class="descname">parent</tt><a class="headerlink" href="#libpl.pdcode.Component.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> to which this component belongs.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libpl.pdcode.Edge">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">Edge</tt><a class="headerlink" href="#libpl.pdcode.Edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>An oriented edge, joining two verts tail -&gt; head</p>
+<dl class="method">
+<dt id="libpl.pdcode.Edge.next_crossing">
+<tt class="descname">next_crossing</tt><big>(</big><big>)</big> &rarr; Crossing<a class="headerlink" href="#libpl.pdcode.Edge.next_crossing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the crossing towards which this edge points</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.Edge.next_edge">
+<tt class="descname">next_edge</tt><big>(</big><big>)</big> &rarr; Edge<a class="headerlink" href="#libpl.pdcode.Edge.next_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the next edge along the component</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.Edge.prev_crossing">
+<tt class="descname">prev_crossing</tt><big>(</big><big>)</big> &rarr; Crossing<a class="headerlink" href="#libpl.pdcode.Edge.prev_crossing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the crossing from which this edge originates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libpl.pdcode.Edge.prev_edge">
+<tt class="descname">prev_edge</tt><big>(</big><big>)</big> &rarr; Edge<a class="headerlink" href="#libpl.pdcode.Edge.prev_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the precedent edge along the component</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.Edge.head">
+<tt class="descname">head</tt><a class="headerlink" href="#libpl.pdcode.Edge.head" title="Permalink to this definition">¶</a></dt>
+<dd><p>A tuple (vertex, pos) describing where this edge points.</p>
+<p>The position is an index [0..3] in crossing record of head vertex.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.Edge.parent">
+<tt class="descname">parent</tt><a class="headerlink" href="#libpl.pdcode.Edge.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> to which this edge belongs.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.Edge.tail">
+<tt class="descname">tail</tt><a class="headerlink" href="#libpl.pdcode.Edge.tail" title="Permalink to this definition">¶</a></dt>
+<dd><p>A tuple (vertex, pos) describing where this edge leaves.</p>
+<p>The position is an index [0..3] in crossing record of tail vertex.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libpl.pdcode.Crossing">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">Crossing</tt><a class="headerlink" href="#libpl.pdcode.Crossing" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="libpl.pdcode.Crossing.parent">
+<tt class="descname">parent</tt><a class="headerlink" href="#libpl.pdcode.Crossing.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> to which this crossing belongs.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libpl.pdcode.Face">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">Face</tt><a class="headerlink" href="#libpl.pdcode.Face" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="libpl.pdcode.Face.parent">
+<tt class="descname">parent</tt><a class="headerlink" href="#libpl.pdcode.Face.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#libpl.pdcode.PlanarDiagram" title="libpl.pdcode.PlanarDiagram"><tt class="xref py py-class docutils literal"><span class="pre">PlanarDiagram</span></tt></a> to which this face belongs.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../api/tsmcmc.html" class="btn btn-neutral" title="tsmcmc: Interface to plcRandomPolygon.h"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Jason Cantarella.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'7.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

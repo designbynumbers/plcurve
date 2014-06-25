@@ -108,12 +108,14 @@ cdef extern from "plcTopology.h":
     void pd_understrand_pos(
         pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos)
 
+    # Regenerate pd code data
     void pd_regenerate_crossings(pd_code_t *pd)
     void pd_regenerate_comps(pd_code_t *pd)
     void pd_regenerate_faces(pd_code_t *pd)
     void pd_regenerate_hash(pd_code_t *pd)
     void pd_regenerate(pd_code_t *pd)
 
+    # Validity checks
     bool pd_cross_ok(pd_code_t *pd)
     bool pd_edges_ok(pd_code_t *pd)
     bool pd_faces_ok(pd_code_t *pd)
@@ -143,6 +145,7 @@ cdef extern from "plcTopology.h":
     void pd_check_face(char *file, int line, pd_code_t *pd, pd_idx_t face)
     void pd_check_notnull(char *file, int line, char *varname, void *ptr)
 
+    # Builders for typical pd types
     pd_code_t *pd_build_twist_knot(pd_idx_t n)
     pd_code_t *pd_build_torus_knot(pd_idx_t p,pd_idx_t q)
     pd_code_t *pd_build_simple_chain(pd_idx_t n)

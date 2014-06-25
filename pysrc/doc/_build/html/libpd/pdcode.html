@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pdcode: PlanarDiagrams &mdash; plCurve 7.3 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="plCurve 7.3 documentation" href="../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> plCurve</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/plcurve.html">plcurve: Polygonal Links</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/plcurve.html#the-plcurve-class">The PlCurve class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plcurve.html#the-strand-class">The Strand class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plcurve.html#the-randomgenerator-gsl-rng-interface-class">The RandomGenerator (gsl_rng interface) class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plcurve.html#auxiliary-classes">Auxiliary classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pd.html">pd: PlanarDiagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/pd.html#the-planardiagram-class">The PlanarDiagram class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/pd.html#building-block-classes">Building block classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsmcmc.html">tsmcmc: Interface to plcRandomPolygon.h</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">plCurve</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>pdcode: PlanarDiagrams</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/libpd/pdcode.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="pdcode-planardiagrams">
+<h1>pdcode: PlanarDiagrams<a class="headerlink" href="#pdcode-planardiagrams" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-planardiagram-class">
+<h2>The PlanarDiagram class<a class="headerlink" href="#the-planardiagram-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="libpl.pdcode.PlanarDiagram">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">PlanarDiagram</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class which represents a PD code (planar diagram).</p>
+<dl class="method">
+<dt id="libpl.pdcode.PlanarDiagram.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a memory deepcopy of this PlanarDiagram</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.from_simple_chain">
+<em class="property">static </em><tt class="descname">from_simple_chain</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.from_simple_chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> which represents an $n$-link chain.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.from_torus_knot">
+<em class="property">static </em><tt class="descname">from_torus_knot</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.from_torus_knot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> which represents a $(p,q)$-torus knot.</p>
+<p><em>Caveat</em> Only implemented for $p=2$.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.from_twist_knot">
+<em class="property">static </em><tt class="descname">from_twist_knot</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.from_twist_knot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> which represents a twist knot with $n$ twists.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.from_unknot">
+<em class="property">static </em><tt class="descname">from_unknot</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.from_unknot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> which represents an $n$-crossing unlink diagram</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.from_unknot_wye">
+<em class="property">static </em><tt class="descname">from_unknot_wye</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.from_unknot_wye" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> representing an unknot which is
+designed for hash collisions.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="libpl.pdcode.PlanarDiagram.ncomps">
+<tt class="descname">ncomps</tt><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.ncomps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of components in this PlanarDiagram</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.simple_chain">
+<em class="property">static </em><tt class="descname">simple_chain</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.simple_chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> which represents an $n$-link chain.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.torus_knot">
+<em class="property">static </em><tt class="descname">torus_knot</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.torus_knot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> which represents a $(p,q)$-torus knot.</p>
+<p><em>Caveat</em> Only implemented for $p=2$.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.twist_knot">
+<em class="property">static </em><tt class="descname">twist_knot</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.twist_knot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> which represents a twist knot with $n$ twists.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.unknot">
+<em class="property">static </em><tt class="descname">unknot</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.unknot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> which represents an $n$-crossing unlink diagram</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libpl.pdcode.PlanarDiagram.unknot_wye">
+<em class="property">static </em><tt class="descname">unknot_wye</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.PlanarDiagram.unknot_wye" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>PlanarDiagram</cite> representing an unknot which is
+designed for hash collisions.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="building-block-classes">
+<h2>Building block classes<a class="headerlink" href="#building-block-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="libpl.pdcode.Component">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">Component</tt><a class="headerlink" href="#libpl.pdcode.Component" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="libpl.pdcode.Edge">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">Edge</tt><a class="headerlink" href="#libpl.pdcode.Edge" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="libpl.pdcode.Edge.disown">
+<tt class="descname">disown</tt><big>(</big><big>)</big><a class="headerlink" href="#libpl.pdcode.Edge.disown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect this data from its parent and copy the data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libpl.pdcode.Crossing">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">Crossing</tt><a class="headerlink" href="#libpl.pdcode.Crossing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="libpl.pdcode.Face">
+<em class="property">class </em><tt class="descclassname">libpl.pdcode.</tt><tt class="descname">Face</tt><a class="headerlink" href="#libpl.pdcode.Face" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Jason Cantarella.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'7.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
