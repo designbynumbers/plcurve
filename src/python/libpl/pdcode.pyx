@@ -149,7 +149,9 @@ cdef class _OwnedObjectList(list):
         del self[max(0,i):max(0,j):]
 
     cdef delitem(self, i):
-        OwnedObjectList.__delitem__(self, i)
+        _OwnedObjectList.__delitem__(self, i)
+    cdef clearout(self):
+        _OwnedObjectList.__delitem__(self, slice(None))
 
 cdef class _EdgeList(_OwnedObjectList):
     def __delitem__(self, i):
@@ -328,10 +330,10 @@ cdef class PlanarDiagram:
         return pd_homfly(self.p)
 
     cdef regenerate_py_os(self):
-        del self.edges[:]
-        #del self.components[:]
-        #del self.crossings[:]
-        #del self.faces[:]
+        self.edges.clearout()
+        self.components.clearout()
+        self.crossings.clearout()
+        self.faces.clearout()
         if self.p is not NULL:
             for i in range(self.p.nedges):
                 e = Edge(self)

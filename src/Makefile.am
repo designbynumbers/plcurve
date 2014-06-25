@@ -1,3 +1,4 @@
+SUBDIRS = nothing
 AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
 ACLOCAL_AMFLAGS = -I m4
 

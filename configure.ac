@@ -21,7 +21,7 @@ AC_COPYRIGHT(
 # wondering what the numbers mean.
 AC_INIT(libplCurve, 7.4.1, cantarel@math.uga.edu)
 #AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE([])
 
 #
 # The version number below has a very specific meaning.  It is in the form

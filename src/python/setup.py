@@ -3,17 +3,20 @@ from distutils.extension import Extension
 from Cython.Build import cythonize
 
 extensions = [
-    Extension("plcurve", ["plcurve/plcurve.pyx"],
-              include_dirs = [".."],
+    Extension("*", ["libpl/*.pyx"],
+              include_dirs = ["..","."],
               libraries = ["gsl","plCurve"]),
-    Extension("pdcode", ["plcurve/pdcode.pyx"],
-              include_dirs = [".."],
-              libraries = ["gsl","plCurve"])
+#    Extension("pdcode", ["libpl/pdcode.pyx"],
+#              include_dirs = ["..","."],
+#              libraries = ["gsl","plCurve"]),
+#    Extension("tsmcmc", ["libpl/plcurve.pyx", "libpl/tsmcmc.pyx",],
+#              include_dirs = ["..","."],
+#              libraries = ["gsl","plCurve"])
 ]
 
 setup(
-    name = "plcurve",
-    packages = ["plcurve"],
-    package_data={"plcurve": ["*.pxd"]},
+#    name = "libpl",
+#    packages = ["libpl"],
+#    package_data={"libpl": ["*.pxd"]},
     ext_modules = cythonize(extensions),
 )
