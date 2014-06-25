@@ -228,7 +228,7 @@ cdef class PlanarDiagram:
     from files written in ``PlanarDiagram``'s own format, and from files
     written in Mathematica's KnotTheory format.
 
-    There are multiple class methods which create new ``PlanarDiagram``s
+    There are multiple class methods which create new ``PlanarDiagram``\ s
     of basic examples; their docstrings contain some specific information."""
     cdef pd_code_t *p
     cdef readonly _EdgeList edges
@@ -354,7 +354,7 @@ cdef class PlanarDiagram:
         newobj.p = pd_build_twist_knot(n_twists)
         newobj.regenerate_py_os()
         return newobj
-    #from_twist_knot = twist_knot # Deprecated
+    from_twist_knot = twist_knot # Deprecated
 
     @classmethod
     def torus_knot(cls, p, q):
@@ -371,7 +371,7 @@ cdef class PlanarDiagram:
         newobj.p = pd_build_torus_knot(p,q)
         newobj.regenerate_py_os()
         return newobj
-    #from_torus_knot = torus_knot # Deprecated
+    from_torus_knot = torus_knot # Deprecated
 
     @classmethod
     def simple_chain(cls, n_links):
@@ -382,7 +382,7 @@ cdef class PlanarDiagram:
         newobj.p = pd_build_simple_chain(n_links)
         newobj.regenerate_py_os()
         return newobj
-    #from_simple_chain = simple_chain # Deprecated
+    from_simple_chain = simple_chain # Deprecated
 
     @classmethod
     def unknot(cls, n_crossings):
@@ -393,7 +393,7 @@ cdef class PlanarDiagram:
         newobj.p = pd_build_unknot(n_crossings)
         newobj.regenerate_py_os()
         return newobj
-    #from_unknot = unknot # Deprecated
+    from_unknot = unknot # Deprecated
 
     @classmethod
     def unknot_wye(cls, a,b,c):
@@ -405,7 +405,7 @@ cdef class PlanarDiagram:
         newobj.p = pd_build_unknot_wye(a,b,c)
         newobj.regenerate_py_os()
         return newobj
-    #from_unknot_wye = unknot_wye # Deprecated
+    from_unknot_wye = unknot_wye # Deprecated
 
     def reorient_component(self, pd_idx_t component, pd_or_t sign):
         """reorient_component(component, sign)
