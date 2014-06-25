@@ -145,6 +145,8 @@ cdef class Face(_Disownable):
                                      self.p, sizeof(pd_face_t))
         self.parent = None
 
+    def __src__(self):
+        return "A face."
 
 cdef class Crossing(_Disownable):
     cdef pd_crossing_t* p
