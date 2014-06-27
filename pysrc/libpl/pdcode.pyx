@@ -282,6 +282,24 @@ cdef class PlanarDiagram:
         of vertices by passing a number to `max_verts`."""
         self.p = pd_code_new(max_verts)
 
+    def __richcmp__(PlanarDiagram self, PlanarDiagram other_pd, int op):
+        if op == 2:
+            return pd_isomorphic(self.p, other_pd.p)
+        elif op == 3:
+            return not pd_isomorphic(self.p, other_pd.p)
+        else:
+            raise NotImplementedError(
+                "PlanarDiagrams do not support relative comparisons.")
+
+    def isomorphic(self, PlanarDiagram other_pd):
+        """isomorphic(PlanarDiagram other_pd) -> bool
+
+        Returns whether or not this pdcode is isomorphic to the input
+        pdcode ``other_pd``. This is equivalent to ``pd == other`` or
+        ``not pd != other``.
+        """
+        return pd_isomorphic(self.p, other_pd.p)
+
     def copy(self):
         """copy() -> PlanarDiagram
 
@@ -296,23 +314,25 @@ cdef class PlanarDiagram:
         if self.p is NULL:
             raise Exception("Initialization for this PlanarDiagram is incomplete.")
 
+    def write(self, f):
+        """write(file f)
+
+        Write this pdcode to the open file object ``f``.
+        """
+        if not ("w" in f.mode or "a" in f.mode or "+" in f.mode):
+            raise IOError("File must be opened in a writable mode.")
+        pd_write(PyFile_AsFile(f), self.p)
+
     @classmethod
     def read(cls, f):
-        """read(file_obj) -> PlanarDiagram
+        """read(file f) -> PlanarDiagram
 
         Read the next pdcode from a file object.
 
         :return: A new :py:class:`PlanarDiagram`, or ``None`` on failure.
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
-        open_f = None
-        to_close = False
-        if not isinstance(f, file):
-            open_f = open(f)
-            to_close = True
         newobj.p = pd_read(PyFile_AsFile(f))
-        if to_close:
-            open_f.close()
         if newobj.p is NULL:
             return None
         newobj.regenerate_py_os()
@@ -320,16 +340,17 @@ cdef class PlanarDiagram:
 
     @classmethod
     def read_knot_theory(cls, f):
-        """read_knot_theory(file_obj) -> PlanarDiagram
+        """read_knot_theory(file f) -> PlanarDiagram
 
-        This function reads a pdcode from the Mathematica package KnotTheory,
-        exported as text with something like:
+        This function reads a pdcode which was exported from the
+        Mathematica package KnotTheory, exported as text with
+        something like:
 
         ``Export["7_2.txt",PD[Knot[7,2]]]``
 
         These PD codes don't have component or face information, so that is
         all regenerated once the crossings have been loaded from the file.
-        This will only read one PD code per file.
+        This will only read one PD code from ``f``.
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         open_f = None
@@ -350,7 +371,8 @@ cdef class PlanarDiagram:
     def twist_knot(cls, n_twists):
         """twist_knot(n_twists) -> PlanarDiagram
 
-        Create a new :py:class:`PlanarDiagram` which represents a twist knot with \\\\(n\\\\) twists.
+        Create a new :py:class:`PlanarDiagram` which represents a
+        twist knot with \\\\(n\\\\) twists.
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd_build_twist_knot(n_twists)
@@ -362,9 +384,9 @@ cdef class PlanarDiagram:
     def torus_knot(cls, p, q):
         """torus_knot(p, q) -> PlanarDiagram
 
-        Create a new :py:class:`PlanarDiagram` which represents a \\\\((p,q)\\\\)-torus knot.
-
-        *Caveat* Only implemented for \\\\(p=2\\\\)."""
+        Create a new :py:class:`PlanarDiagram` which represents a
+        \\\\((p,q)\\\\)-torus knot. Only implemented for \\\\(p=2\\\\).
+        """
         cdef PlanarDiagram newobj
         if p != 2:
             raise(Exception("torus_knot only implemented for p=2"))
@@ -379,7 +401,9 @@ cdef class PlanarDiagram:
     def simple_chain(cls, n_links):
         """simple_chain(n_links) -> PlanarDiagram
 
-        Create a new :py:class:`PlanarDiagram` which represents an \\\\(n\\\\)-link chain."""
+        Create a new :py:class:`PlanarDiagram` which represents an
+        \\\\(n\\\\)-link chain.
+        """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd_build_simple_chain(n_links)
         newobj.regenerate_py_os()
@@ -390,7 +414,9 @@ cdef class PlanarDiagram:
     def unknot(cls, n_crossings):
         """unknot(n_crossings) -> PlanarDiagram
 
-        Create a new :py:class:`PlanarDiagram` which represents an \\\\(n\\\\)-crossing unlink diagram"""
+        Create a new :py:class:`PlanarDiagram` which represents an
+        \\\\(n\\\\)-crossing unlink diagram
+        """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd_build_unknot(n_crossings)
         newobj.regenerate_py_os()
