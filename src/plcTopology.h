@@ -412,6 +412,11 @@ extern "C" {
   /* These functions read and write an internal text format for pd codes: */
 
   void       pd_write(FILE *outfile,pd_code_t *pd);
+  void       pd_write_c(FILE *outfile, pd_code_t *pd, char *name);
+  /* Writes a c procedure which recreates the pd code pd.
+     The procedure will be called pd_create_name() and take 
+     no arguments. */  
+
   pd_code_t *pd_read(FILE *infile); /* Returns NULL if the file is corrupt */
 
   /* This function reads a pdcode from the Mathematica package KnotTheory,
