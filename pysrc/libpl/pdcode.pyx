@@ -221,7 +221,8 @@ cdef class Component(_Disownable):
     property edge:
         """A tuple of edge indices of which this component consists"""
         def __get__(self):
-            return tuple(self.p.edge[i] for i in xrange(self.p.nedges))
+            cdef int i
+            return tuple(self.p.edge[i] for i in range(self.p.nedges))
 
     def __init__(self, PlanarDiagram parent):
         self.parent = parent
@@ -248,7 +249,7 @@ cdef class Component(_Disownable):
             raise NoParentException("This Component is not owned by any PlanarDiagram.")
 
         if isinstance(i, slice):
-            return tuple(self.p.edge[j] for j in xrange(*i.indices(self.p.nedges)))
+            return tuple(self.p.edge[j] for j in range(*i.indices(self.p.nedges)))
         else:
             i = -i if i < 0 else i
             if i >= len(self):
@@ -275,13 +276,15 @@ cdef class Face(_Disownable):
 
         """
         def __get__(self):
-            return tuple(self.p.edge[i] for i in xrange(self.p.nedges))
+            cdef int i
+            return tuple(self.p.edge[i] for i in range(self.p.nedges))
     property signs:
         """A tuple of the signs of the edges around this face. The edges
         are in counterclockwise order around the face.
         """
         def __get__(self):
-            return tuple(self.p.ori[i] for i in xrange(self.p.nedges))
+            cdef int i
+            return tuple(self.p.ori[i] for i in range(self.p.nedges))
 
     def __init__(self, PlanarDiagram parent):
         self.parent = parent
@@ -308,7 +311,7 @@ cdef class Face(_Disownable):
             raise NoParentException("This Face is not owned by any PlanarDiagram.")
 
         if isinstance(i, slice):
-            return tuple(self.p.edge[j] for j in xrange(*i.indices(self.p.nedges)))
+            return tuple(self.p.edge[j] for j in range(*i.indices(self.p.nedges)))
         else:
             i = -i if i < 0 else i
             if i >= len(self):
@@ -468,10 +471,12 @@ cdef class Crossing(_Disownable):
         return incp, outp
 
     def __str__(self):
+        cdef int i
         return "%d.%d.%d.%d%s"%(
             tuple(self.p.edge[i] for i in range(4)) +
             (ori_char(self.p.sign),))
     def __repr__(self):
+        cdef int i
         return "Crossing(%d.%d.%d.%d %s)"%(
             tuple(self.p.edge[i] for i in range(4)) +
             (ori_char(self.p.sign),))
@@ -483,7 +488,7 @@ cdef class _OwnedObjectList(list):
             return
 
         if isinstance(i, slice):
-            for j in xrange(*i.indices(len(self))):
+            for j in range(*i.indices(len(self))):
                 (<_Disownable>self[j]).disown()
             super(_OwnedObjectList, self).__delitem__(i)
         else:
@@ -819,6 +824,7 @@ cdef class PlanarDiagram:
         return pd_homfly(self.p)
 
     cdef regenerate_py_os(self):
+        cdef int i
         cdef Edge e
         cdef Crossing c
         cdef Face f

@@ -79,7 +79,7 @@ if test "x${have_argtable2}" = xfalse; then
   -----------------------------------------------------------])
 fi
 
-# Check for SWIG and Python (for interface)
+# Check for SWIG and Python (for interface) [old, going to phase out to Cython...]
 AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_WARN([plCurve requires the SWIG interface library to build its Python interface]); have_swig=false])
 if test "x${have_swig}" = xtrue; then
    AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?
@@ -94,6 +94,27 @@ fi
 
 AM_CONDITIONAL([HAVE_SWIG],[test "x${have_swig}" = xtrue])
 
+# Python extension library checks
+AC_ARG_ENABLE([python],
+        [AS_HELP_STRING([--disable-python],
+                [do not build Python bindings])],
+        [enable_python=$enableval],
+        [enable_python=yes])
+
+if test "x${enable_python}" = xyes; then
+   AM_PATH_PYTHON(2.7)
+   CYTHON_CHECK_VERSION([0.20.0],
+        [have_cython=true],
+        [AC_MSG_FAILURE([Python bindings were not disabled but Cython was not found.]);
+         have_cython=false])
+   CIT_NUMPY_PYTHON_MODULE(1.8.0,
+        [have_numpy=true;
+         CIT_NUMPY_INCDIR],
+        [AC_MSG_WARN([Python bindings were not disabled but Numpy was not found.]);
+         have_numpy=false]])
+fi
+
+AM_CONDITIONAL([BUILD_PYTHON],[test "x${enable_python}" = xyes])
 
 # Checks for header files.
 AC_HEADER_STDC

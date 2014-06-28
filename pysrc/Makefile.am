@@ -1,3 +1,5 @@
+if BUILD_PYTHON
+
 PY_FILES = __init__.py
 PYX_FILES = plcurve.pyx pdcode.pyx tsmcmc.pyx
 PXD_FILES = plcurve.pxd pdcode.pxd plCurve_h.pxd tsmcmc.pxd gsl_rng.pxd
@@ -30,3 +32,5 @@ libpl:
 	mkdir -p libpl
 $(CPY_FILES): %: $(srcdir)/libpl/%
 	rsync -up $< libpl/$@
+
+endif
