@@ -1,7 +1,7 @@
 if BUILD_PYTHON
 
 PY_FILES = __init__.py
-PYX_FILES = plcurve.pyx pdcode.pyx tsmcmc.pyx
+PYX_FILES = plcurve.pyx pdcode.pyx tsmcmc.pyx pdstor.pyx
 PXD_FILES = plcurve.pxd pdcode.pxd plCurve_h.pxd tsmcmc.pxd gsl_rng.pxd
 
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
