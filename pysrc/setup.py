@@ -1,10 +1,11 @@
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
+import numpy
 
 extensions = [
     Extension("*", ["libpl/*.pyx"],
-              include_dirs = ["../src","."],
+              include_dirs = ["../src",".",numpy.__path__[0]],
               library_dirs = ["../src/.libs"],
               libraries = ["gsl","plCurve"]),
 #    Extension("pdcode", ["libpl/pdcode.pyx"],
