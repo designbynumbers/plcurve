@@ -782,49 +782,52 @@ int  pd_component_cmp(const void *A,const void *B) {
 
 }
   
+typedef struct crossing_marker_struct { 
+ 
+  bool     pos_used[4];
+  pd_idx_t num_used;
 
-void pd_regenerate_comps(pd_code_t *pd) 
+} pd_crossmark_t;
 
-/* This one is somewhat complicated, as it involves
-   an edge renumbering, and so goes all the way back 
-   to changing vertex data. */
+pd_crossmark_t *pdint_crossmark_new(pd_idx_t ncross) {
 
+  pd_crossmark_t *cm;
+  cm = calloc(ncross,sizeof(pd_crossmark_t));
+  assert(cm != NULL);
+  pd_idx_t i,j;
+
+  for(i=0;i<ncross;i++) { 
+
+    for(j=0;j<4;j++) { 
+
+      cm[i].pos_used[j] = false;
+
+    }
+
+    cm[i].num_used = 0;
+
+  }
+
+  return cm;
+
+}
+
+bool pdint_find_unused_cross(pd_crossmark_t *cm,pd_idx_t ncross,pd_idx_t *cross,pd_idx_t *pos) 
 {
-  assert(pd != NULL);
-  assert(pd->ncross <= pd->MAXVERTS);
-  
-  /* Step 0: Generate SOME list of edges to get off the
-     ground with using only crossing information. We don't
-     know that ANYTHING about the pd is good except for cross
-     and ncross yet, so we reset nedges first. */
-  
-  pd_idx_t cross,edge;
-  bool     *hit;
-  hit = calloc(pd->MAXEDGES,sizeof(bool));
-  assert(hit != NULL);
+  pd_idx_t i,j;
 
-  pd->nedges = pd->ncross*2;
+  for(i=0;i<ncross;i++) { 
 
-  for(edge=0;edge<pd->nedges;edge++) { hit[edge] = false; };
-  
-  for(cross=0;cross<pd->ncross;cross++) {
+    if (cm[i].num_used != 4) { 
 
-    pd_pos_t pos;
+      for(j=0;j<4;j++) { 
+	
+	if (!cm[i].pos_used[j]) { 
+	  
+	  *cross = i; *pos = j;
+	  return true;
 
-    for(pos=0;pos<4;pos++) {
-
-      edge = pd->cross[cross].edge[pos];
-
-      if (!hit[edge]) { 
-
-	pd->edge[edge].tail = cross;
-	pd->edge[edge].tailpos = pos;
-	hit[edge] = true;
-
-      } else {
-
-	pd->edge[edge].head = cross;
-	pd->edge[edge].headpos = pos;
+	}
 
       }
 
@@ -832,38 +835,218 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   }
 
-  free(hit);
+  return false;
+ 
+}
+
+void pdint_find_edge_in_crossings(pd_crossing_t *cross,pd_idx_t ncross,
+				  pd_idx_t edge,
+				  pd_idx_t ends[2], pd_pos_t pos[2])
+
+/* Search for this edge in crossing buffer. */
+
+{
+  pd_idx_t nfound = 0;
+  pd_idx_t i,j;
+
+  for(i=0;i<ncross;i++) { 
+    
+    for(j=0;j<4;j++) { 
+
+      if (cross[i].edge[j] == edge) { 
+
+	ends[nfound] = i; pos[nfound] = j;
+	nfound++;
+
+	if (nfound == 2) { return; }
+
+      }
+
+    }
+
+  }
+
+  /* We shouldn't get here. */
+  
+  printf("pdint_find_edge_in_crossings:"
+	 "Couldn't find edge %d twice"
+	 "in list of crossings\n",edge);
+  for(i=0;i<ncross;i++) { 
+
+    printf("\t %d %d %d %d \n",
+	   cross[i].edge[0],
+	   cross[i].edge[1],
+	   cross[i].edge[2],
+	   cross[i].edge[3]);
+  }
+
+  exit(1);
+
+} 
+
+void pd_regenerate_edges(pd_code_t *pd) 
+
+/* 
+  We do this the slow-but-clean way, generating edges in 
+  order around components by direct search. The idea is 
+  to mark used positions on each crossing, then enter 
+  edge records as we go. It's slow the first time, but 
+  cached for future accesses.
+*/
+
+{ 
+
+  /* First, mark all the crossings and positions as unused */
+
+  pd_crossmark_t *cm = pdint_crossmark_new(pd->ncross);
+  
+  /* Second, flush the current edgebuffer. */
+  
+  assert(pd->edge != NULL);
+  assert(pd->nedges == 2*pd->ncross);
+
+  pd_idx_t i,j;
+
+  for(i=0;i<pd->nedges;i++) { 
+
+    pd->edge[i].head    = PD_UNSET_IDX;
+    pd->edge[i].headpos = PD_UNSET_POS;
+    pd->edge[i].tail    = PD_UNSET_IDX;
+    pd->edge[i].tailpos = PD_UNSET_POS;
+
+  }
+
+  /* Now we recreate the old code, which simply loops through and generates 
+     edge records with no thought of consistent orientation. */
+
+  for(i=0;i<pd->nedges;i++) { 
+
+    pd_idx_t foundcr[2], foundpos[2];   
+    pdint_find_edge_in_crossings(pd->cross,pd->ncross,i,foundcr,foundpos);
+
+    pd->edge[i].head = foundcr[0];  pd->edge[i].headpos = foundpos[0];
+    pd->edge[i].tail = foundcr[1];  pd->edge[i].tailpos = foundpos[1];
+
+  }
+
+  /* Ok, we don't have any sense of consistent orientation here. So
+     this is where we'll try to generate one. */
+    
+  pd_idx_t start_edge_idx;
+  pd_edge_t start_edge;
+  pd_idx_t failsafe = 0;
+
+  while (pdint_find_unused_cross(cm,pd->ncross,&i,&j)) { 
+
+    start_edge_idx = pd->cross[i].edge[j];  
+    start_edge = pd->edge[start_edge_idx];
+    /* This edge is by assumption oriented positively. */
+    
+    cm[start_edge.head].pos_used[start_edge.headpos] = true;
+    cm[start_edge.tail].pos_used[start_edge.tailpos] = true;
+    cm[start_edge.head].num_used++;
+    cm[start_edge.tail].num_used++;
+
+    pd_idx_t next_edge_idx;
+    pd_or_t  next_or;
+    pd_idx_t compsafe = 0;
+
+    for (pdint_next_comp_edge(pd,start_edge_idx,
+			      &next_edge_idx,&next_or);
+	 next_edge_idx != start_edge_idx;
+	 pdint_next_comp_edge(pd,next_edge_idx,
+			      &next_edge_idx,&next_or),
+	   compsafe++) { 
+
+      pd->edge[next_edge_idx] 
+	= pd_oriented_edge(pd->edge[next_edge_idx],
+			   next_or);
+
+      pd_edge_t next_edge = pd->edge[next_edge_idx];
+
+      cm[next_edge.head].pos_used[next_edge.headpos] = true;
+      cm[next_edge.tail].pos_used[next_edge.tailpos] = true;
+      cm[next_edge.head].num_used++;
+      cm[next_edge.tail].num_used++;
+
+      if (compsafe >= pd->nedges) { 
+	
+	pd_error(SRCLOC,"component appears to have %d edges in %d edge pd %PD",pd,
+		 compsafe+1,pd->nedges);
+	exit(1);
+
+      }
+      
+    }
+
+    failsafe++;
+    if (failsafe > pd->ncross) { 
+
+      pd_error(SRCLOC,
+	       "Ran through list of edges %d times looking for components in %PD",pd,failsafe);
+      exit(1);
+
+    }
+
+  }
+  
+  /* At this point, we should pass pd_edges_ok. */
+
+  assert(pd_edges_ok(pd));
+
+  /* And we can safely do some housecleaning. */
+
+  free(cm);
+  
+}
+
+
+void pd_regenerate_comps(pd_code_t *pd) 
+
+/* This procedure assumes that there are NOT currently
+   components in existence, meaning that the compnum 
+   fields of all the edges are PD_UNSET_IDX, and that 
+   tags for the components don't exist yet. 
+
+   It also assumes that the edges are not ordered in 
+   any sensible way, so it will involve an edge renumbering
+   which reaches back to changing vertex data. 
+
+*/
+
+{
+  assert(pd != NULL);
+  assert(pd->ncross <= pd->MAXVERTS);
+  assert(pd_cross_ok(pd));
+  assert(pd_edges_ok(pd));
+  assert(pd->ncomps == 0);
 
   /* Step 0. 
 
-     We need to assume that the component records have already been
-     allocated, but are filled with crap. We need to first free the 
-     crap (without losing memory), then go back and rebuild the 
-     components. If they haven't been allocated yet, we need to 
-     avoid attempting to free them.
+     We're going to generate a new collection of components in any
+     case.  If we don't already have components, then we'll assign
+     tags now. 
 
      We DON'T need to free the pd->comp array itself, which remains a
      fixed size, and was allocated by pd_code_new, regardless of the
      number of components that are actually used.
 
   */
-
-  pd_idx_t i;
-  for(i=0;i<pd->MAXCOMPONENTS;i++) { 
-
-    if (pd->comp[i].edge != NULL) { free(pd->comp[i].edge); pd->comp[i].edge = NULL; }
-    pd->comp[i].nedges = 0;
-
-  }
   
-  /* Step 1. Run around the components, assembling the (old) edge
-     numbers of the edges, and reorienting edges as we go. */
+  pd->comp = calloc(pd->MAXCOMPONENTS,sizeof(pd_component_t));
+  assert(pd->comp != NULL);
+   
+  /* Step 1. Run around the components, 
+     assembling the (old) edge
+     numbers of the edges, and 
+     reorienting edges as we go. */
 
   pdint_edge_assignment *edge_assigned;
   edge_assigned = calloc(pd->nedges,sizeof(pdint_edge_assignment));
   assert(edge_assigned != NULL);
 
   bool all_assigned = false;
+  pd_idx_t edge;
 
   for(edge=0;edge<pd->nedges;edge++) { 
 
@@ -927,9 +1110,9 @@ void pd_regenerate_comps(pd_code_t *pd)
     if (pd->ncomps > pd->MAXCOMPONENTS) { 
 
       fprintf(stderr,
-	      "pd_regenerate_components: Found %d components in %d edge pdcode without\n"
-	      "                          detecting \"all_assigned\". Suspect bug in \n"
-	      "                          assignment code?\n",
+	      "pd_regenerate_comps: Found %d components in %d edge pdcode without\n"
+	      "                     detecting \"all_assigned\". Suspect bug in \n"
+	      "                     assignment code?\n",
 	      pd->ncomps,pd->nedges);
       exit(1);
 
@@ -967,6 +1150,16 @@ void pd_regenerate_comps(pd_code_t *pd)
   /* Step 2. Sort the components longest-first. */
 
   qsort(pd->comp,pd->ncomps,sizeof(pd_component_t),pd_component_cmp);
+
+  /* Step 2a. This is the canonical order for components (remember, this 
+     only ran if we didn't have components in the first place), so we assign
+     tags now. */
+
+  pd_tag_t tag = 'A';
+  pd_idx_t i;
+
+  for(i=0;i<pd->ncomps;i++,tag++) { 
+    pd->comp[i].tag = tag; }
 
   /* Step 3. Build a translation table for edge reordering and update the
      comp records to standard edge numbers. */
@@ -1008,13 +1201,14 @@ void pd_regenerate_comps(pd_code_t *pd)
   /* Step 5. Rewrite the crossing data with the
      new edge numbers. */
 
-  for(cross=0;cross<pd->ncross;cross++) { 
+  pd_pos_t j;
 
-    pd_pos_t pos;
+  for(i=0;i<pd->ncross;i++) { 
 
-    for(pos=0;pos<4;pos++) {
+    for(j=0;j<4;j++) {
 
-      pd->cross[cross].edge[pos] = new_edge_num[pd->cross[cross].edge[pos]];
+      pd->cross[i].edge[j] = 
+	new_edge_num[pd->cross[i].edge[j]];
 
     }
 
@@ -1590,15 +1784,34 @@ bool pd_edges_ok(pd_code_t *pd)
 
     if (hc->edge[e->headpos] != edge) {
 
-      return pd_error(SRCLOC,"%EDGE fails check at head %CROSS in pd %PD",pd,edge,e->head);
+      return pd_error(SRCLOC,"%EDGE is not in correct position at head %CROSS in pd %PD",pd,edge,e->head);
 
     }
 
     if (tc->edge[e->tailpos] != edge) {
 
-      return pd_error(SRCLOC,"%EDGE fails check at tail %CROSS in pd %PD",pd,edge,e->tail);
+      return pd_error(SRCLOC,"%EDGE is not in correct position at tail %CROSS in pd %PD",pd,edge,e->tail);
 
     }
+
+    /* We now check for consistent orientations along the components. */
+
+    pd_pos_t nextpos = (e->headpos+2)%4;
+    pd_pos_t prevpos = (e->tailpos+2)%4;
+
+    if (pd->edge[hc->edge[nextpos]].tail != e->head || 
+	pd->edge[hc->edge[nextpos]].tailpos != nextpos) { 
+
+      return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree",pd,edge,hc->edge[nextpos]);
+
+    }
+   
+    if (pd->edge[tc->edge[prevpos]].head != e->tail || 
+	pd->edge[tc->edge[prevpos]].tailpos != prevpos) { 
+
+       return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree",pd,edge,tc->edge[prevpos]);
+
+    } 
 
   }
 

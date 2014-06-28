@@ -45,6 +45,7 @@ extern "C" {
 #include <stdbool.h>
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
 #include <plCurve.h>
+#include <limits.h>
 
   /* This is going to take an actual fork to deal with the fact that
      we can't keep the data in static memory anymore. */
@@ -84,19 +85,32 @@ extern "C" {
   typedef unsigned char     pd_or_t;    /* pd "orientation" type */
   typedef unsigned int      pd_pos_t;   /* pd "position" type */
   typedef unsigned long int pd_uid_t;   /* pd "uid" type */
+  typedef char              pd_tag_t;   /* pd "component tag" type */
+
+  /* We are going to need special values of these to represent
+     UNSET indices at times. */
+
+#define PD_UNSET_IDX UINT_MAX
+#define PD_UNSET_POS 4
+
+  /* The basic architecture of the pd_code is kind of intricate.  The
+     problem is that we have to keep track of labelled diagram data in
+     such a way that we can access things relatively quickly as we
+     work and make an efficient search for isomorphisms, but also not
+     lose track of component identities as we go. */
 
   typedef struct pd_edge_struct {
 
     /* An oriented edge, joining two verts tail -> head */
 
     pd_idx_t head;
-    pd_pos_t  headpos;
+    pd_pos_t headpos;
     /* Pos [0..3] in crossing record of head vertex. */
 
     pd_idx_t tail;
-    pd_pos_t  tailpos;
+    pd_pos_t tailpos;
     /* Pos [0..3] in crossing record of tail vertex. */
-
+   
   } pd_edge_t;
 
   /* Since we may have loop edges, we need to record
@@ -116,6 +130,13 @@ extern "C" {
        around a component. These are expected
        to be consecutive. */
 
+    pd_tag_t tag;    /* This tag keeps track of the identity 
+			    of a component as we do crossing moves.
+			    It is a character, usually "A..Z" followed
+			    by lower case "a..z". It is independent
+			    of the position of the component in the component
+			    array because the component array gets resorted
+			    to be in canonical order. */
   } pd_component_t;
 
   typedef struct pd_face_struct {
@@ -124,11 +145,10 @@ extern "C" {
     pd_idx_t    *edge;
     pd_or_t     *or;
 
-      /* Edge indices around the face in counterclockwise
-       order. These are NOT consecutive, nor are they always
-       positively oriented (according to their intrinsic
-       edge orientation), so we store their orientation
-       as well as their edge number. */
+    /* Edge indices around the face in counterclockwise order. These
+       are NOT consecutive, nor are they always positively oriented
+       (according to their intrinsic edge orientation), so we store
+       their orientation as well as their edge number. */
 
   } pd_face_t;
 
@@ -293,6 +313,11 @@ extern "C" {
   /* Returns component number and position on component of a
      given edge number (or die) */
 
+  pd_idx_t pd_previous_edge(pd_code_t *pd, pd_idx_t edge);
+  pd_idx_t pd_next_edge(pd_code_t *pd,pd_idx_t edge);
+
+  /* Finds the number of the previous or next edge along the component containing edge. */
+
   void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 		       pd_idx_t *posface, pd_idx_t *posface_pos,
 		       pd_idx_t *negface, pd_idx_t *negface_pos);
@@ -414,6 +439,10 @@ extern "C" {
 
   void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp, pd_or_t or);
   /* Reverse the orientation of component cmp iff or == PD_NEG_ORIENTATION */
+
+  pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr);
+  /* Performs a loop deletion Reidemeister 1 move at the crossing cr. */
+  /* (A loop addition is a really different move, computationally speaking.) */
 
   pd_code_t *pd_simplify(pd_code_t *pd);
   /* Simplify the pd code by eliminating loops and ``generalized loops''. */
