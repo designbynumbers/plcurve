@@ -2,6 +2,21 @@ from pdcode cimport *
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libc.string cimport memcpy
 import sys
+from cython.operator cimport dereference as deref
+cimport cython
+
+cdef class Edge
+cdef class Crossing
+cdef class Face
+cdef class Component
+cdef class PlanarDiagram
+
+ctypedef fused Edge_or_idx:
+    short
+    int
+    long
+    pd_idx_t
+    Edge
 
 cdef extern from "stdio.h":
     ctypedef struct FILE:
@@ -10,14 +25,9 @@ cdef extern from "stdio.h":
 cdef extern from "Python.h":
     cdef FILE* PyFile_AsFile(file_obj)
 
-cdef pd_edge_t* Edge_as_pd_edge_t(Edge e):
-    cdef pd_edge_t* p = e.p
-    return p
-
 def ori_char(pd_or_t ori):
     return chr(pd_print_or(ori))
 
-cdef class PlanarDiagram
 
 cdef class _Disownable:
     cdef disown(self):
@@ -31,14 +41,33 @@ cdef class Edge(_Disownable):
     cdef pd_edge_t *p
     cdef readonly PlanarDiagram parent
     """The :py:class:`PlanarDiagram` to which this edge belongs."""
+    cdef readonly int index
+    """The index by which this edge is known in the parent."""
 
     property head:
+        """The index of the crossing towards which this edge points."""
+        def __get__(self):
+            return self.p.head
+    property headpos:
+        """The position in the crossing towards which this edge points."""
+        def __get__(self):
+            return self.p.headpos
+    property tail:
+        """The index of the crossing from which this edge leaves."""
+        def __get__(self):
+            return self.p.tail
+    property tailpos:
+        """The position in the crossing from which this edge leaves."""
+        def __get__(self):
+            return self.p.tailpos
+
+    property head_tuple:
         """A tuple (vertex, pos) describing where this edge points.
 
         The position is an index [0..3] in crossing record of head vertex."""
         def __get__(self):
             return (self.p.head, self.p.headpos)
-    property tail:
+    property tail_tuple:
         """A tuple (vertex, pos) describing where this edge leaves.
 
         The position is an index [0..3] in crossing record of tail vertex."""
@@ -46,13 +75,15 @@ cdef class Edge(_Disownable):
             return (self.p.tail, self.p.tailpos)
 
     def __cinit__(self):
-        pass
+        self.p = NULL
+        self.parent = None
+
     def __init__(self, PlanarDiagram parent):
         self.parent = parent
 
     def __dealloc__(self):
-        pass#if self.parent is None and self.p is not NULL:
-        #    PyMem_Free(self.p)
+        if self.parent is None and self.p is not NULL:
+            PyMem_Free(self.p)
 
     cdef disown(self):
         """Disconnect this data from its parent and copy the data."""
@@ -60,10 +91,89 @@ cdef class Edge(_Disownable):
                                      self.p, sizeof(pd_edge_t))
         self.parent = None
 
+    cpdef Edge oriented(self, pd_or_t sign):
+        """oriented(sign) -> Edge
+
+        Returns a copy of original edge if ``sign ==
+        PD_POS_EDGE_ORIENTATION``, or a new reversed edge if ``sign ==
+        PD_NEG_EDGE_ORIENTATION``.
+
+        The ``Edge`` returned is not connected to any
+        :py:class:`PlanarDiagram` until it is attached.
+        """
+        cdef Edge ret = self.__new__(self.__class__)
+        cdef pd_edge_t cedge = pd_oriented_edge(deref(self.p), sign)
+        ret.p = <pd_edge_t*>memcpy(PyMem_Malloc(sizeof(pd_edge_t)),
+                                   &cedge,
+                                   sizeof(pd_edge_t))
+        ret.parent = None
+        return ret
+
+    cpdef component_index_pos(self):
+        """component_index_pos() -> (component index, edge pos)
+
+        Returns the component on which this edge resides and this
+        edge's position on that component.
+        """
+        cdef pd_idx_t comp, comp_pos
+        if self.parent is None:
+            raise NoParentException("This edge is not part of a diagram.")
+        pd_component_and_pos(self.parent.p, self.index,
+                             &comp, &comp_pos)
+        return comp, comp_pos
+
+    cpdef component_pos(self):
+        """component_pos() -> (Component, edge pos)
+
+        Returns the component on which this edge resides and this
+        edge's position on that component. If you just want the index
+        of the component, use :py:meth:`component_index_pos`
+        """
+        cdef pd_idx_t comp, comp_pos
+        comp, comp_pos = self.component_index_pos()
+        return self.parent.components[comp], comp_pos
+
+    cpdef face_index_pos(self):
+        """face_index_pos() -> ((pos_face, pos), (neg_face, pos))
+
+        Returns the faces on which this edge resides and this
+        edge's position on those faces.
+        """
+        cdef pd_idx_t plus, plus_pos, minus, minus_pos
+        if self.parent is None:
+            raise NoParentException("This edge is not part of a diagram.")
+        pd_face_and_pos(self.parent.p, self.index,
+                             &plus, &plus_pos,
+                             &minus, &minus_pos)
+        return (plus, plus_pos), (minus, minus_pos)
+
+    cpdef face_pos(self):
+        """face_pos() -> ((Face plus, pos), (Face minus, pos))
+
+        Returns the Faces on which this edge resides and this
+        edge's position on that face. If you just want the indices
+        of the faces, use :py:meth:`face_index_pos`
+        """
+        cdef pd_idx_t plus, plus_pos, minus, minus_pos
+        (plus,plus_pos),(minus,minus_pos) = self.face_index_pos()
+        return ((self.parent.faces[plus], plus_pos),
+                (self.parent.faces[minus], minus_pos))
+
+    cpdef reorient(self, pd_or_t sign):
+        """reorient(sign)
+
+        Flips the edge if ``sign == PD_NEG_ORIENTATION``.
+        """
+        if self.parent is None:
+            raise NoParentException("Edge does not belong to a pdcode")
+        pd_reorient_edge(self.parent.p, self.index, sign)
+
     def __str__(self):
-        return "%d_%d->%d_%d"%(self.p.tail, self.p.tailpos, self.p.head, self.p.headpos)
+        return "%d_%d->%d_%d"%(
+            self.p.tail, self.p.tailpos, self.p.head, self.p.headpos)
     def __repr__(self):
-        return "Edge(%d_%d->%d_%d)"%(self.p.tail, self.p.tailpos, self.p.head, self.p.headpos)
+        return "Edge(%d_%d->%d_%d)"%(
+            self.p.tail, self.p.tailpos, self.p.head, self.p.headpos)
 
     def prev_crossing(self):
         """prev_crossing() -> Crossing
@@ -87,7 +197,7 @@ cdef class Edge(_Disownable):
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.edges[
-            self.parent.p.cross[self.p.tail].edge[(self.p.headpos+2)%4]]
+            self.parent.p.cross[self.p.tail].edge[(self.p.tailpos+2)%4]]
     def next_edge(self):
         """next_edge() -> Edge
 
@@ -101,16 +211,31 @@ cdef class Component(_Disownable):
     cdef pd_component_t* p
     cdef readonly PlanarDiagram parent
     """The :py:class:`PlanarDiagram` to which this component belongs."""
+    cdef readonly int index
+    """The index by which this component is known in the parent."""
 
     property nedges:
+        """The number of edges in this component. Equivalent to ``len(cmp)``."""
         def __get__(self):
             return self.p.nedges
+    property edge:
+        """A tuple of edge indices of which this component consists"""
+        def __get__(self):
+            return tuple(self.p.edge[i] for i in xrange(self.p.nedges))
 
     def __init__(self, PlanarDiagram parent):
         self.parent = parent
 
     def __len__(self):
         return self.p.nedges
+
+    def __cmp__(self, Component comp):
+        return pd_component_cmp(self.p, comp.p)
+
+    def __str__(self):
+        return "Component(%s)"%("->".join(str(e) for e in self.edges))
+    def __repr__(self):
+        return "Component(%s)"%("->".join(str(e) for e in self.edges))
 
     cdef disown(self):
         """Disconnect this data from its parent and copy the data."""
@@ -122,19 +247,41 @@ cdef class Component(_Disownable):
         if self.parent is None:
             raise NoParentException("This Component is not owned by any PlanarDiagram.")
 
-        i = -i if i < 0 else i
-        if i >= len(self):
-            raise IndexError("Out of bounds error on component access")
-        return self.parent.edges[self.p.edge[i]]
+        if isinstance(i, slice):
+            return tuple(self.p.edge[j] for j in xrange(*i.indices(self.p.nedges)))
+        else:
+            i = -i if i < 0 else i
+            if i >= len(self):
+                raise IndexError("Out of bounds error on component access")
+            return self.parent.edges[self.p.edge[i]]
 
 cdef class Face(_Disownable):
     cdef pd_face_t* p
     cdef readonly PlanarDiagram parent
     """The :py:class:`PlanarDiagram` to which this face belongs."""
+    cdef readonly int index
+    """The index by which this face is known in the parent."""
 
     property nedges:
+        """The number of edges in this face"""
         def __get__(self):
             return self.p.nedges
+    property edges:
+        """A tuple of the *indices* of the edges around this face. The edges
+        are in counterclockwise order around the face.
+
+        If you want to access the Python objects, use this Face object
+        like a sequence instead (e.g. ``face[4]`` or ``for edge in face:``).
+
+        """
+        def __get__(self):
+            return tuple(self.p.edge[i] for i in xrange(self.p.nedges))
+    property signs:
+        """A tuple of the signs of the edges around this face. The edges
+        are in counterclockwise order around the face.
+        """
+        def __get__(self):
+            return tuple(self.p.ori[i] for i in xrange(self.p.nedges))
 
     def __init__(self, PlanarDiagram parent):
         self.parent = parent
@@ -145,15 +292,81 @@ cdef class Face(_Disownable):
                                      self.p, sizeof(pd_face_t))
         self.parent = None
 
-    def __src__(self):
-        return "A face."
+    def __str__(self):
+        return "Face(%s)"%("->".join(str(e) for e in self.edges))
+    def __repr__(self):
+        return "Face(%s)"%("->".join(str(e) for e in self.edges))
+
+    def __cmp__(self, Face face):
+        return pd_face_cmp(self.p, face.p)
+
+    def __len__(self):
+        return self.p.nedges
+
+    def __getitem__(self, i):
+        if self.parent is None:
+            raise NoParentException("This Face is not owned by any PlanarDiagram.")
+
+        if isinstance(i, slice):
+            return tuple(self.p.edge[j] for j in xrange(*i.indices(self.p.nedges)))
+        else:
+            i = -i if i < 0 else i
+            if i >= len(self):
+                raise IndexError("Index is out of bounds")
+            return self.parent.edges[self.p.edge[i]]
+
 
 cdef class Crossing(_Disownable):
     cdef pd_crossing_t* p
     cdef readonly PlanarDiagram parent
     """The :py:class:`PlanarDiagram` to which this crossing belongs."""
+    cdef readonly int index
+    """The index by which this crossing is known in the parent."""
 
+    property edges:
+        """A tuple of the indices of the edges which connect to this crossing.
+
+        If you want objects instead of indices, access this ``Crossing``
+        like a sequence instead.
+        """
+        def __get__(self):
+            return (self.p.edge[0],
+                    self.p.edge[1],
+                    self.p.edge[2],
+                    self.p.edge[3])
     property sign:
+        """The orientation of this crossing. The convention used to determine
+        sign is this:
+
+        **Positive crossing**: (upper tangent vector) \\\\(\\\\times\\\\)
+        (lower tangent vector) points OUT of screen::
+
+                ^
+                |
+           ----------->
+                |
+                |
+
+        **Negative crossing**: (upper tangent vector) \\\\(\\\\times\\\\)
+        (lower tangent vector) points INTO screen::
+
+                ^
+                |
+           -----|----->
+                |
+                |
+
+        You often simply want to know which of the strands (0-2) or
+        (1-3) is on top. There are several cases, because it depends
+        BOTH on the sign of the crossing and the orientation of the
+        strands. It's recommended to use the methods
+        :py:meth:`overstrand` and :py:meth:`understrand` to determine
+        which is which. Also, the methods :py:meth:`overstrand_pos`
+        and :py:meth:`understrand_pos` return the position in this
+        crossing (that is, a number in 0..3) of the incoming and
+        outgoing edges of the strand going over at this crossing.
+
+        """
         def __get__(self):
             return self.p.sign
         def __set__(self, pd_or_t sign):
@@ -172,9 +385,87 @@ cdef class Crossing(_Disownable):
                                      self.p, sizeof(pd_crossing_t))
         self.parent = None
 
+    def __len__(self):
+        return 4
+    def __cmp__(self, Crossing cross):
+        return pd_cross_cmp(self.p, cross.p)
 
-    def __cmp__(self, Edge edge):
-        return pd_cross_cmp(self.p, edge.p)
+    cdef PlanarDiagram parent_x(self):
+        if self.parent is None:
+            raise NoParentException("This Crossing is not owned by any PlanarDiagram")
+        return self.parent
+
+    def overstrand(self):
+        """overstrand(self) -> (Edge incoming, Edge outgoing)
+
+        Return Edge objects which are the incoming and outgoing edges
+        for the strand which passes *over* this crossing.
+
+        If you want indices instead of objects, use
+        :py:meth:`overstrand_indices`.
+        """
+        inc, out = self.overstrand_indices()
+        return (self.parent_x().edges[inc], self.parent_x().edges[out])
+
+    cpdef overstrand_indices(self):
+        """overstrand_indices(self) -> (in_index, out_index)
+
+        Return indices corresponding to the incoming and outgoing
+        edges for the strand which passes *over* this crossing.
+
+        If you want objects instead of indices, use
+        :py:meth:`overstrand`.
+        """
+        cdef pd_idx_t inc,out
+        pd_overstrand(self.parent_x().p, self.index, &inc, &out)
+        return inc, out
+
+    cpdef overstrand_pos(self):
+        """overstrand_pos(self) -> (in_pos, out_pos)
+
+        Return indices around this crossing corresponding to the
+        incoming and outgoing edges for the strand which passes *over*
+        this crossing.
+        """
+        cdef pd_idx_t incp,outp
+        pd_overstrand_pos(self.parent_x().p, self.index, &incp, &outp)
+        return incp, outp
+
+    def understrand(self):
+        """understrand(self) -> (Edge incoming, Edge outgoing)
+
+        Return Edge objects which are the incoming and outgoing edges
+        for the strand which passes *under* this crossing.
+
+        If you want indices instead of objects, use
+        :py:meth:`understrand_indices`.
+        """
+        inc, out = self.understrand_indices()
+        return (self.parent_x().edges[inc], self.parent_x().edges[out])
+
+    cpdef understrand_indices(self):
+        """understrand_indices(self) -> (in_index, out_index)
+
+        Return indices corresponding to the incoming and outgoing
+        edges for the strand which passes *under* this crossing.
+
+        If you want objects instead of indices, use
+        :py:meth:`understrand`.
+        """
+        cdef pd_idx_t inc,out
+        pd_understrand(self.parent_x().p, self.index, &inc, &out)
+        return inc, out
+
+    cpdef understrand_pos(self):
+        """understrand_pos(self) -> (in_pos, out_pos)
+
+        Return indices around this crossing corresponding to the
+        incoming and outgoing edges for the strand which passes *under*
+        this crossing.
+        """
+        cdef pd_idx_t incp,outp
+        pd_understrand_pos(self.parent_x().p, self.index, &incp, &outp)
+        return incp, outp
 
     def __str__(self):
         return "%d.%d.%d.%d%s"%(
@@ -337,6 +628,18 @@ cdef class PlanarDiagram:
             return None
         newobj.regenerate_py_os()
         return newobj
+
+    @classmethod
+    def read_all(cls, f):
+        """read_all(file f) -> PlanarDiagram
+
+        Returns a generator that iterates through the pdcodes stored
+        in ``f``.
+        """
+        new_pd = cls.read(f)
+        while new_pd is not None:
+            yield new_pd
+            new_pd = cls.read(f)
 
     @classmethod
     def read_knot_theory(cls, f):
@@ -528,18 +831,22 @@ cdef class PlanarDiagram:
             for i in range(self.p.nedges):
                 e = Edge(self)
                 e.p = &(self.p.edge[i])
+                e.index = i
                 self.edges.append(e)
             for i in range(self.p.ncross):
                 c = Crossing(self)
                 c.p = &(self.p.cross[i])
+                c.index = i
                 self.crossings.append(c)
             for i in range(self.p.ncomps):
                 m = Component(self)
                 m.p = &(self.p.comp[i])
+                m.index = i
                 self.components.append(m)
             for i in range(self.p.nfaces):
                 f = Face(self)
                 f.p = &(self.p.face[i])
+                f.index = i
                 self.faces.append(f)
         else:
             raise Exception("Pointer for this PD code was not set")

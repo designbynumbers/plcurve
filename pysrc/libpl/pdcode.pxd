@@ -38,7 +38,7 @@ cdef extern from "plcTopology.h":
     cdef struct pd_face_struct:
         pd_idx_t nedges
         pd_idx_t *edge
-        pd_or_t *ori
+        pd_or_t *ori "or"
 
     ctypedef pd_face_struct pd_face_t
 
@@ -99,6 +99,7 @@ cdef extern from "plcTopology.h":
     pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t ori)
     void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t ori)
 
+    # Over/understrand (actually crossing methods)
     void pd_overstrand(
         pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum)
     void pd_understrand(
