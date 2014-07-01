@@ -971,7 +971,6 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
 
   pd->ncross = cc->used;
   pd->nedges = 2*pd->ncross;
-  pd->ncomps = L->nc;
 
   int cmp,cr,edge;
 
@@ -1017,6 +1016,10 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossi
   /* We should have assembled a (skeletal) pd_code now, containing only crossing information. */
 
   pd_regenerate(pd);
+
+  /* Now we know how many components we should have found from the plCurve data */
+
+  assert(pd->ncomps == L->nc);
 
   /* This is the most important test: */
 

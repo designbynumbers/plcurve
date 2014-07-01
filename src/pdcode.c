@@ -1019,7 +1019,27 @@ void pd_regenerate_comps(pd_code_t *pd)
   assert(pd->ncross <= pd->MAXVERTS);
   assert(pd_cross_ok(pd));
   assert(pd_edges_ok(pd));
-  assert(pd->ncomps == 0);
+
+  if (pd->ncomps != 0 && pd->ncomps != PD_UNSET_IDX) { /* We have components allocated. In this case, destroy them: */
+
+    pd_idx_t comp;
+
+    for(comp=0;comp<pd->ncomps;comp++) { 
+
+      if (pd->comp[comp].edge != NULL) { 
+	
+	free(pd->comp[comp].edge); pd->comp[comp].edge = NULL; 
+
+      }
+
+      pd->comp[comp].nedges = PD_UNSET_IDX;
+      pd->comp[comp].tag = PD_UNSET_TAG;
+
+    }
+
+    pd->ncomps = 0; /* There are 0 components NOW! */
+
+  }	  
 
   /* Step 0. 
 

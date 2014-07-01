@@ -92,6 +92,7 @@ extern "C" {
 
 #define PD_UNSET_IDX UINT_MAX
 #define PD_UNSET_POS 4
+#define PD_UNSET_TAG 0
 
   /* The basic architecture of the pd_code is kind of intricate.  The
      problem is that we have to keep track of labelled diagram data in
@@ -131,12 +132,12 @@ extern "C" {
        to be consecutive. */
 
     pd_tag_t tag;    /* This tag keeps track of the identity 
-			    of a component as we do crossing moves.
-			    It is a character, usually "A..Z" followed
-			    by lower case "a..z". It is independent
-			    of the position of the component in the component
-			    array because the component array gets resorted
-			    to be in canonical order. */
+			of a component as we do crossing moves.
+			It is a character, usually "A..Z" followed
+			by lower case "a..z". It is independent
+			of the position of the component in the component
+			array because the component array gets resorted
+			to be in canonical order. */
   } pd_component_t;
 
   typedef struct pd_face_struct {
