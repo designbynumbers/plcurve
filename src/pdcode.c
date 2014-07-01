@@ -1003,15 +1003,13 @@ void pd_regenerate_edges(pd_code_t *pd)
 
 void pd_regenerate_comps(pd_code_t *pd) 
 
-/* This procedure assumes that there are NOT currently
-   components in existence, meaning that the compnum 
-   fields of all the edges are PD_UNSET_IDX, and that 
-   tags for the components don't exist yet. 
-
-   It also assumes that the edges are not ordered in 
-   any sensible way, so it will involve an edge renumbering
-   which reaches back to changing vertex data. 
-
+/* 
+   This procedure assumes that edges exist, and possibly that components still
+   exist (because we've used this pdcode for something before this point). We 
+   delete any existing component records and reassemble the edges into components, 
+   flipping orientations as required. Note that pd_edges_ok is simply a check that
+   the vertex indices are valid-- it doesn't attempt to check orientations (although
+   the pd_regenerate_edges code should actually produce consistently oriented edges).
 */
 
 {
