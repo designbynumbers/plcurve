@@ -234,9 +234,9 @@ cdef class Component(_Disownable):
         return pd_component_cmp(self.p, comp.p)
 
     def __str__(self):
-        return "Component(%s)"%("->".join(str(e) for e in self.edges))
+        return "Component(%s)"%("->".join(str(e) for e in self.edge))
     def __repr__(self):
-        return "Component(%s)"%("->".join(str(e) for e in self.edges))
+        return "Component(%s)"%("->".join(str(e) for e in self.edge))
 
     cdef disown(self):
         """Disconnect this data from its parent and copy the data."""
