@@ -237,14 +237,40 @@ int main(int argc,char *argv[]) {
       exit(1);
     } 
     printf("done\n");
+    
+    printf("parsing header...");
+    int nelts_claimed,nelts_actual,nhashes;
+    if (fscanf(in,
+	       "pdstor \n"
+	       "nelts %d/%d (claimed/actual) nhashes %d\n\n",
+	       &nelts_claimed,&nelts_actual,&nhashes) != 3) { 
+
+      printf("fail (couldn't read header)\n");
+      exit(1);
+
+    }
+    
+    if (nelts_claimed != nelts_actual) { 
+
+      printf("fail (nelts claimed %d and actual %d don't match)\n",
+	     nelts_claimed,nelts_actual);
+
+      exit(1);
+
+    }
+
+    printf("done (%d pd codes, %d hashes)\n",nelts_claimed,nhashes);    
 
     printf("writing pd_create_X functions...");
     int j;
     for(j=0;!feof(in);j++) { 
       
       pd_code_t *inpd = pd_read(in);
+      assert(inpd != NULL);
       char name[4096];
-      sprintf(name,"%s-%d",infile->filename[i],j);
+      char *temp_name = mangle(infile->basename[i],".pdstor","");
+      sprintf(name,"%s_%d",temp_name,j);
+      free(temp_name);
       pd_write_c(out,inpd,name);
       pd_code_free(&inpd);
 

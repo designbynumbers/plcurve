@@ -50,176 +50,57 @@
 
 int PD_VERBOSE=50;
 
-bool trefoil_reverse_test() {
+bool isomorphism_matches_sign_iterator(pd_iso_t *iso,pd_code_t *pdA,pd_multidx_t *sign_iterator)
  
-  printf("-------------------------------------------\n"
-	 "testing diagrams based on torus knot/links\n"
-	 "-------------------------------------------\n");
-
-  pd_code_t *trefoil_pd = pd_build_torus_knot(2,3);
-
-  /*
- 
-    According to the docs for build torus knot, this should produce
-    the pd code
-
-   +-----<-----------------------------------<-----+
-   |                                               |
-   +-- 2 >----\    />--0---\   /-> 4 --\   /-->2---+
-               \0 /         \1/         \2/
-	        \ +          \ +         \ +
-	       / \          / \         / \
-   +-- 5 >----/   \---3->--/   \->-1---/   \---5->+
-   |                                              |
-   +------------<-----------------------<---------+
-
-   Reversing the orientation of component 0 should not change the sign
-   of any of the crossings, however, we should renumber to get:
-
-   +----->----------------------------------->-----+ 
-   |                                               |
-   +-- 4 <----\    /<--0---\   /-- 2<--\   /--<4---+
-               \0 /         \1/         \2/
-	        \ +          \ +         \ +
-	       / \          / \         / \
-   +-- 1 <----/   \---3-<--/   \-<-5---/   \---1-<+
-   |                                              |
-   +------------>----------1------------>---------+
-
-   There are several tests we can do to check that this
-   is the right thing:
-
-  */  
-
-  pd_printf("testing +trefoil pd code %PD",trefoil_pd);
-
-  printf("reversing orientation...");
-  pd_reorient_component(trefoil_pd,0,PD_NEG_ORIENTATION);
-  if (pd_ok(trefoil_pd)) { 
-    printf("pass (pd_ok after reorient)\n");
-  } else {
-    pd_printf("FAIL. pd %PD is not ok after reorient of component 0.\n",trefoil_pd);
+/* Runs a number of checks to make sure that the isomorphism matches the sign iterator given. 
+   Of course, the most important check is that we actual HAVE an isomorphism: checking signs
+   is secondary. 
+*/
+{
+  /* Check 1: The component permutation is the identity. */
+  
+  if (!pd_perm_is_e(iso->compperm)) { 
     return false;
   }
 
-  printf("checking crossing signs...");
-  pd_idx_t cr;
-  for(cr = 0; cr < 3;cr ++) { 
-    if (trefoil_pd->cross[cr].sign != PD_POS_ORIENTATION) { 
-      pd_printf("FAIL\n"
-		"crossing %d is not in PD_POS_ORIENTATION in \n"
-		"%PD",trefoil_pd,cr);
-      return false;
-    }
-  }
-  printf("pass (+++)\n");
+  /* Check 2: The edgemap reverses or preserves all the orientations in each component. */
 
-  printf("checking for 3 bigon and 2 trigon faces...");
-  pd_idx_t bigons[6],bigons_used = 0;
-  pd_idx_t trigons[6],trigons_used = 0;
-  pd_idx_t face;
+  pd_idx_t i,j;
+  pd_or_t *signs_actual = calloc(pdA->ncomps,sizeof(pd_or_t));
 
-  for(face=0;face<trefoil_pd->nfaces;face++) {
+  for(i=0;i<pdA->ncomps;i++) { 
+    
+    pd_or_t start_or = iso->edgemap->or[pdA->comp[i].edge[0]];
+    for(j=1;j<pdA->comp[i].nedges;j++) { 
 
-    if (trefoil_pd->face[face].nedges == 2) { 
-      
-      bigons[bigons_used++] = face;
+      if (iso->edgemap->or[pdA->comp[i].edge[j]] != start_or) { 
 
-    } else if (trefoil_pd->face[face].nedges == 3) {
+	free(signs_actual);
+	return false;
 
-      trigons[trigons_used++] = face;
-
-    } else { 
-
-      pd_printf("FAIL. Face %FACE is not a bigon or a trigon.",trefoil_pd,face);
-      return false;
+      }
 
     }
 
+    signs_actual[i] = start_or;
+
   }
 
-  if (bigons_used != 3 || trigons_used != 2) { 
+  /* Now we check if the sign iterator matches. */
 
-    pd_printf("FAIL. Found %d bigons and %d trigons in pd %PD\n",trefoil_pd,bigons_used,trigons_used);
-    return false;
+  for(i=0;i<sign_iterator->nobj;i++) { 
+    
+    if (signs_actual[i] != ((pd_orientation_t *)(sign_iterator->obj[i]))->or) {
 
-  } 
-
-  printf("pass (found 3 bigons, 3 trigons)\n");
-
-  printf("checking that 0, 2, 4 occur positively in bigons...");
-
-  pd_idx_t posface,posface_pos, negface, negface_pos;
-  pd_idx_t elist[3] = {0,2,4};
-  pd_idx_t edge;
-
-  for(edge=0;edge<3;edge++) { 
-
-    pd_face_and_pos(trefoil_pd,elist[edge],&posface,&posface_pos,&negface,&negface_pos);
-    if (trefoil_pd->face[posface].nedges != 2) {
-
-      pd_printf("FAIL. Edge %d occurs positively in non-bigon %FACE in pd %PD.\n",trefoil_pd,elist[edge],posface);
+      free(signs_actual);
       return false;
 
     }
 
   }
-  
-  printf("pass\n");
-  
-  printf("checking that 0, 2, 4 occur negatively in trigons..."); 
-
-  for(edge=0;edge<3;edge++) { 
-
-    pd_face_and_pos(trefoil_pd,elist[edge],&posface,&posface_pos,&negface,&negface_pos);
-    if (trefoil_pd->face[negface].nedges != 3) {
-
-      pd_printf("FAIL. Edge %d occurs negatively in non-trigon %FACE in pd %PD.\n",trefoil_pd,elist[edge],negface);
-      return false;
-
-    }
-
-  }
-  
-  printf("pass\n");
-
-  printf("checking that 1, 3, 5 occur positively in trigons...");
-
-  elist[0] = 1; elist[1] = 3; elist[2] = 5;
-
-  for(edge=0;edge<3;edge++) { 
-
-    pd_face_and_pos(trefoil_pd,elist[edge],&posface,&posface_pos,&negface,&negface_pos);
-    if (trefoil_pd->face[posface].nedges != 3) {
-
-      pd_printf("FAIL. Edge %d occurs positively in non-trigon %FACE in pd %PD.\n",trefoil_pd,elist[edge],posface);
-      return false;
-
-    }
-
-  }
-  
-  printf("pass\n");
-  
-  printf("checking that 1, 3, 5 occur negatively in bigons..."); 
-
-  for(edge=0;edge<3;edge++) { 
-
-    pd_face_and_pos(trefoil_pd,elist[edge],&posface,&posface_pos,&negface,&negface_pos);
-    if (trefoil_pd->face[negface].nedges != 2) {
-
-      pd_printf("FAIL. Edge %d occurs negatively in non-bigon %FACE in pd %PD.\n",trefoil_pd,elist[edge],negface);
-      return false;
-
-    }
-
-  }
-  
-  printf("pass\n");
-
-  printf("+trefoil tests...pass.\n\n");
 
   return true;
+  
 }
 
 bool test_all_component_reversals(pd_code_t *pd, int *tests_run) {
@@ -228,7 +109,7 @@ bool test_all_component_reversals(pd_code_t *pd, int *tests_run) {
   unsigned int max = pd_multidx_nvals(sign_iterator);
   unsigned int i;
 
-  printf("\t testing %d component reversals for %d component link...",max,pd->ncomps);
+  printf("\t testing %d component reversals for %d component link...\n",max,pd->ncomps);
 
   for(i=0;i<max;i++,pd_increment_multidx(sign_iterator)) {
 
@@ -252,7 +133,54 @@ bool test_all_component_reversals(pd_code_t *pd, int *tests_run) {
       return false;
       
     }
+
+    pd_printf("\t\t checking isos (all +) <-> %MULTIDX...",NULL,sign_iterator);
+
+    pd_iso_t **isomorphisms;
+    unsigned int nisos;
+    isomorphisms = pd_build_isos(pd,working_copy,&nisos);
+
+    if (nisos > 0) { 
+
+      printf("done (found %d)\n",nisos);
     
+    } else {
+      
+      pd_printf("FAIL. original pd %PD is not isomorphic to\n",pd);
+      pd_printf("orientation-reversed pd %PD\n",working_copy);
+      return false;
+    
+    }
+
+    pd_printf("\t\t searching isos for sign matching %MULTIDX ...",NULL,sign_iterator);
+
+    pd_idx_t i;
+    bool found_ok_iso = false;
+    pd_idx_t found_idx;
+     
+    for(i=0;i<nisos && !found_ok_iso;i++) { 
+    
+      if (isomorphism_matches_sign_iterator(isomorphisms[i],pd,sign_iterator)) {
+      
+	found_ok_iso = true;
+	found_idx = i;
+
+      }
+
+    }
+  
+    if (found_ok_iso) { 
+
+      printf("done (# %d matches)\n\n",found_idx);
+    
+    } else {
+
+      printf("failed. (no isomorphism matches component signs)\n");
+      return false;
+
+    }
+
+    pd_free_isos(&nisos,&isomorphisms);  
     pd_code_free(&working_copy);
       
   }
@@ -264,6 +192,37 @@ bool test_all_component_reversals(pd_code_t *pd, int *tests_run) {
   return true;
 
 } 
+
+
+bool trefoil_reverse_test() {
+ 
+  printf("-------------------------------------------\n"
+	 "testing diagrams based on torus knot/links\n"
+	 "-------------------------------------------\n");
+
+  pd_code_t *trefoil_pd = pd_build_torus_knot(2,3);
+  pd_printf("testing +trefoil pd code %PD",trefoil_pd);
+  int tests_run;
+
+  if (test_all_component_reversals(trefoil_pd,&tests_run)) {
+
+    printf("\tdone (%d tests run)\n",tests_run);
+    pd_code_free(&trefoil_pd);
+    return true;
+
+  } else {
+
+    printf("\tfail (%d tests run)\n",tests_run);
+    pd_code_free(&trefoil_pd);
+    return false;
+
+  }
+    
+  printf("+trefoil tests...pass.\n\n");
+
+  return true;
+}
+
 
 /* We now write a test where we attempt to load a knot table and compute
    HOMFLYs for it. */
@@ -324,6 +283,7 @@ bool rolfsentabletest()
   assert(pdbuf != NULL);
 
   int loaded;
+  if (pd_codes_expected > 100) { pd_codes_expected = 100; }
   
   for(loaded = 0;loaded < pd_codes_expected && !feof(infile); loaded++) {
 
@@ -400,6 +360,8 @@ bool rolfsentabletest()
     return false;
 
   } 
+
+  if (pd_codes_expected > 100) { pd_codes_expected = 100; }
 
   pdbuf = calloc(pd_codes_expected,sizeof(pd_code_t *));
   assert(pdbuf != NULL);
