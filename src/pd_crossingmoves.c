@@ -112,6 +112,7 @@ void pd_compacting_copy(void *source, size_t obj_size, size_t nobj,
     *target_idx = malloc(nobj*sizeof(pd_idx_t));
     assert(*target_idx != NULL);
     for(i=0;i<nobj;i++) { (*target_idx)[i] = i; }
+    *ntarget = nobj;
 
     return;
 
@@ -154,6 +155,7 @@ void pd_compacting_copy(void *source, size_t obj_size, size_t nobj,
 
   }
 
+  nuniquedeletions = j;
   assert(nuniquedeletions != nobj);
     
   /* Now we prepare space for the target array and index buffer. */
@@ -175,26 +177,25 @@ void pd_compacting_copy(void *source, size_t obj_size, size_t nobj,
 
   for(source_i = target_i = 0, deletions_i = 0;source_i < nobj;source_i++) { 
     
-    if (!all_deletions_used) { /* There's a chance we might not copy this guy */
-    
-      if (source_i == uniquedeletions[deletions_i]) { /* We're not copying this guy. */
+    if (!all_deletions_used && source_i == uniquedeletions[deletions_i]) { 
+      /* We're not copying this guy. */
 	
 	tidx[source_i] = PD_UNSET_IDX;
 	deletions_i++;
 	all_deletions_used = (deletions_i >= nuniquedeletions);
 	
-      }
-    
+    } else {
+
+      /* We're not at the current deletion, or there are no deletions left. */
+      /* So we're definitely copying THIS guy. We need to do the copy with */
+      /* memcpy because we're just copying bytes of memory-- we don't know */
+      /* the data type involved. */
+
+      memcpy(target + target_i*obj_size,source + source_i*obj_size,obj_size);
+      tidx[source_i] = target_i;
+      target_i++;
+
     }
-
-    /* We're not at the current deletion, or there are no deletions left. */
-    /* So we're definitely copying THIS guy. We need to do the copy with */
-    /* memcpy because we're just copying bytes of memory-- we don't know */
-    /* the data type involved. */
-
-    memcpy(target + target_i*obj_size,source + source_i*obj_size,obj_size);
-    tidx[source_i] = target_i;
-    target_i++;
     
   }
 
@@ -286,7 +287,8 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
 
   /* First, we find and label the edges e0, e1, and e2. */
   /* and figure out their positions ep[0], ep[1], and ep[2] */
-  /* in the crossing. */
+  /* in the crossing. We have to keep track of orientation */
+  /* here for everything else to make sense. */
 
   pd_idx_t e[3];  
   pd_pos_t ep[3];
@@ -296,8 +298,12 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
   for(i=0;i<4 && !found_flag;i++) { 
     
     if (pd->cross[cr].edge[i] == pd->cross[cr].edge[(i+1)%4]) { 
+      
+      e[1] = pd->cross[cr].edge[i];
 
-      ep[0] = (i+1)%4; ep[1] = i; ep[2] = (i+2)%4;
+      ep[1] = pd->edge[e[1]].headpos;
+      ep[0] = (pd->edge[e[1]].tailpos+2)%4; /* Across from the tail */
+      ep[2] = (pd->edge[e[1]].headpos+2)%4; /* Across from the head */
       
       pd_idx_t j;
       for(j=0;j<3;j++) e[j] = pd->cross[cr].edge[ep[j]];
@@ -357,15 +363,18 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
   pd_idx_t ndeletions = 1;
   pd_idx_t deletions[1] = {cr};
   
-  free(outpd->cross); /* We need to free the previously allocated buffer, as we're replacing it. */
+  free(outpd->cross);  /* We need to free the previously allocated buffer, as we're replacing it. */
+  outpd->cross = NULL; /* Just to mark it as freed. */
 
   void **target_var = (void **)(&(outpd->cross));
-  pd_idx_t *target_idx;
+  pd_idx_t *new_crossing_idx;
   pd_idx_t *ntarget = &(outpd->ncross);
 
   pd_compacting_copy(source,obj_size,nobj,
 		     ndeletions,deletions,
-		     target_var,&(target_idx),ntarget);
+		     target_var,&(new_crossing_idx),ntarget);
+
+  outpd->MAXVERTS = outpd->ncross; /* We trashed the buffer, so this is it! */
 
   /* We have now created a new buffer of crossings, and kept track 
      of the numberings associated to them with target_idx. */
@@ -375,35 +384,20 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
      the new e[0] will sew the tail of the old e[0] onto the head
      of the old e[2], eliminating the crossing in between.... */
 
-  outpd->cross[pd->edge[e[2]].head].edge[pd->edge[e[2]].headpos] = e[0];
+  /* This is the slyest line of code in the whole thing-- basically
+     everything else is housekeeping. Some pointers:
 
-  /* We now make a copy of the old edge buffer, in which the crossing
-     references refer to the NEW numbering scheme. */
+     1) The crossings have been renumbered, so the crossing we're
+        looking to modify is NOT the head of edge 2 but the new 
+	new_crossing_idx numbering of that crossing.
 
-  pd_edge_t *working_edges;
-  working_edges = calloc(pd->nedges,sizeof(pd_edge_t));
-  
-  for(i=0;i<pd->nedges;i++) { 
+     2) edge e[2], like edge e[1] is gonna go away entirely. It just
+        hasn't happened yet. */ 
 
-    working_edges[i].head = target_idx[pd->edge[i].head];
-    working_edges[i].headpos = pd->edge[i].headpos;
+  outpd->cross[new_crossing_idx[pd->edge[e[2]].head]].edge[pd->edge[e[2]].headpos] = e[0];
 
-    working_edges[i].tail = target_idx[pd->edge[i].tail];
-    working_edges[i].tailpos = pd->edge[i].tailpos;
-
-  }
-
-  /* Of course, in this blind copy, we're set head of e[0], both tail
-     and head of e[1], and the tail of e[2] to PD_UNSET_IDX, since
-     these all referred to the deleted crossing. We needn't worry
-     about e[1] and e[2] which are simply going away, but the head of
-     e[0] should be fixed. */
-
-  working_edges[e[0]].head = target_idx[pd->edge[e[2]].head];
-  working_edges[e[0]].headpos = target_idx[pd->edge[e[2]].headpos];
-
-  /* Our goal now is to make a compacting copy from the working_edges
-     buffer into the edge buffer of the new pd code. */
+  /* We now make a compacting copy of the edge buffer which eliminates 
+     edges e[0] and e[1]. */
 
   /* void pd_compacting_copy(void *source, size_t obj_size, size_t nobj, 
                              pd_idx_t ndeletions, pd_idx_t *deletions,
@@ -411,33 +405,57 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
 			     pd_idx_t **target_idx,
 			     pd_idx_t *ntarget) */
 
-  /* We're using the compacting_copy api here. */
-
-  source = working_edges;
+  source = (void *)(pd->edge);
   obj_size = sizeof(pd_edge_t);
   nobj = pd->nedges;
 
   ndeletions = 2;
   pd_idx_t newdeletions[2] = {e[1],e[2]};
   
-  free(outpd->edge); /* We need to free the previously allocated buffer, as we're replacing it. */
+  free(outpd->edge); /* We're replacing it. */
+  outpd->edge = NULL;
 
   target_var = (void **)(&(outpd->edge));
   ntarget = &(outpd->nedges);
   
-  free(target_idx); /* Again, we're not going to use the old crossing map again, so we can free it. */
+  pd_idx_t *new_edge_idx;
 
   pd_compacting_copy(source,obj_size,nobj,
 		     ndeletions,newdeletions,
-		     target_var,&(target_idx),ntarget);
+		     target_var,&(new_edge_idx),ntarget);
 
-  /* We now have the problem that the new buffer of crossings involves the OLD edge numbers. */
+  outpd->MAXEDGES = outpd->nedges; /* Again, we trashed the buffer, so this is it. */
+
+  /* Now we've eliminated edges e[1] and e[2] from the outpd
+     edge buffer, which is good. But the crossing numbers in 
+     the remaining edges still refer to crossing numbers in pd
+     (not in outpd), so we need to translate. */
+
+  for(i=0;i<outpd->nedges;i++) { 
+
+    outpd->edge[i].head = new_crossing_idx[outpd->edge[i].head];
+    outpd->edge[i].tail = new_crossing_idx[outpd->edge[i].tail];
+
+  }
+
+  /* Now we've just set the head of e[0] to PD_UNSET_IDX, since
+     it used to point to the crossing, which we've just eliminated. 
+     We need to change it to point to the (new numbering of) the 
+     head of e[2], and remember that it must show up in the same position.*/
+
+  outpd->edge[new_edge_idx[e[0]]].head = new_crossing_idx[pd->edge[e[2]].head];
+  outpd->edge[new_edge_idx[e[0]]].headpos = pd->edge[e[2]].headpos;
+
+  /* We've fixed the fact that the edges in outpd referred to the crossing
+     numbers in pd. But we haven't fixed the fact that the crossings in outpd
+     (though they've been compacted) still refer to the edge numbers in pd. 
+     Now is a good time to change that. */
 
   for(i=0;i<outpd->ncross;i++) { 
 
     for(j=0;j<4;j++) { 
 
-      outpd->cross[i].edge[j] = target_idx[outpd->cross[i].edge[j]];
+      outpd->cross[i].edge[j] = new_edge_idx[outpd->cross[i].edge[j]];
 
     }
   
@@ -463,7 +481,7 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
   
   for(i=0;i<pd->ncomps;i++) { 
 
-    pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,target_idx,
+    pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,new_edge_idx,
 				     &(outpd->comp[i].edge),&(outpd->comp[i].nedges));
     outpd->comp[i].tag = pd->comp[i].tag;
 
@@ -483,8 +501,8 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
   
   /* Housecleaning */
   
-  free(target_idx);
-  free(working_edges);
+  free(new_crossing_idx);
+  free(new_edge_idx);
 
   /* Now the sanity check that we'd like to do is just to check numbers of things:
      We should have 

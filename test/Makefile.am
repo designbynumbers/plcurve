@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_operations \
+check_PROGRAMS = test_crossingops \
+	         test_operations \
 	         test_orientation \
 		 test_homfly \
 		 tsmcmc_random_test \
@@ -40,9 +41,10 @@ check_PROGRAMS = test_operations \
 	         test_multidx \
 		 test_dihedral \
 	         test_perm \
-		 ccode_test
+		 ccode_test 
 
-TESTS = test_operations \
+TESTS = test_crossingops \
+	test_operations \
 	test_orientation \
 	test_homfly  \
 	tsmcmc_random_test \
@@ -62,7 +64,8 @@ TESTS = test_operations \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_operations \
+check_PROGRAMS = test_crossingops \
+	         test_operations \
 		 test_homfly \
 	         tsmcmc_random_test \
 		 nn_test \
@@ -79,7 +82,8 @@ check_PROGRAMS = test_operations \
                  hopf_test \
 		 ccode_test
 
-TESTS = test_operations \
+TESTS = test_crossingops \
+	test_operations \
 	test_homfly \
 	tsmcmc_random_test \
 	nn_test \
@@ -103,6 +107,11 @@ test_operations_SOURCES = test_operations.c
 test_operations_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_operations_LDFLAGS = -static
 test_operations_CFLAGS = -I$(top_srcdir)/src
+
+test_crossingops_SOURCES = test_crossingops.c 
+test_crossingops_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_crossingops_LDFLAGS = -static
+test_crossingops_CFLAGS = -I$(top_srcdir)/src
 
 ccode_test_SOURCES = ccode_test.c 
 ccode_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
