@@ -28,10 +28,13 @@ cdef extern from "Python.h":
 def ori_char(pd_or_t ori):
     return chr(pd_print_or(ori))
 
+cdef sgn(x):
+    if x == 0: return 0
+    return x / abs(x)
 
 cdef class _Disownable:
     cdef disown(self):
-        raise NotImplementedError("Object must implement a disown method!")
+        raise NotImplementedError
 
 class NoParentException(Exception):
     pass
@@ -231,7 +234,7 @@ cdef class Component(_Disownable):
         return self.p.nedges
 
     def __cmp__(self, Component comp):
-        return pd_component_cmp(self.p, comp.p)
+        return sgn(pd_component_cmp(self.p, comp.p))
 
     def __str__(self):
         return "Component(%s)"%("->".join(str(e) for e in self.edge))
@@ -301,7 +304,7 @@ cdef class Face(_Disownable):
         return "Face(%s)"%("->".join(str(e) for e in self.edges))
 
     def __cmp__(self, Face face):
-        return pd_face_cmp(self.p, face.p)
+        return sgn(pd_face_cmp(self.p, face.p))
 
     def __len__(self):
         return self.p.nedges
@@ -391,7 +394,7 @@ cdef class Crossing(_Disownable):
     def __len__(self):
         return 4
     def __cmp__(self, Crossing cross):
-        return pd_cross_cmp(self.p, cross.p)
+        return sgn(pd_cross_cmp(self.p, cross.p))
 
     cdef PlanarDiagram parent_x(self):
         if self.parent is None:
