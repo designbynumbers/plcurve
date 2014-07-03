@@ -494,6 +494,7 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
   /* It's ok to just regenerate the faces. */
 
   pd_regenerate_faces(outpd);
+  pd_regenerate_hash(outpd);
 
   /* Finally, we check that we survived all this. */
 

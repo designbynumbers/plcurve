@@ -392,7 +392,7 @@ bool unravel_unknot_test(pd_idx_t n)
 
   printf("running successive untwists...\n\n");
 
-  for(crossings_left=n;crossings_left > 1;crossings_left--) { 
+  for(crossings_left=n;crossings_left > 2;crossings_left--) { 
 
     pd_idx_t target_cr;
 
