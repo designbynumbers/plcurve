@@ -587,6 +587,153 @@ v         |                     |         ^
  
 {
   /* Step 1: Sanity check the input. */
+  
+  assert(pd_ok(pd));
+  pd_check_cr(SRCLOC,pd,cr[0]);
+  pd_check_cr(SRCLOC,pd,cr[1]);
+  assert(noutpd != NULL);
+  assert(outpd != NULL);
+
+  /* Step 2: Try to verify that we're actually in 
+     position for the move. */
+
+  pd_idx_t eA[3],eB[3];
+
+  pd_idx_t in_over,out_over;
+  pd_overstrand(pd,cr[0],&in_over,&out_over);
+
+  if (pd->edge[out_over].head != cr[1]) { 
+    /* Crossings are not in order along cmpA */
+    /* Try reversing order of crossings. */
+
+    pd_idx_t swap; 
+    swap = cr[0]; cr[0] = cr[1]; cr[1] = swap;
+
+  }
+
+  pd_overstrand(pd,cr[0],&in_over,&out_over);
+  
+  if (pd->edge[out_over].head != cr[1]) { 
+    /* The crossings just aren't consecutive 
+       along an overstrand. We have to quit. */
+
+    pd_error(SRCLOC,
+	     "crossings %CROSS and %CROSS aren't consecutive \n"
+	     "along an overstrand in %PD\n"
+	     "this is not a potential site for an R2 bigon elimination.\n",
+	     pd,cr[0],cr[1]);
+    exit(1);
+
+  }
+
+  eA[0] = in_over;
+  eA[1] = out_over;
+  eA[2] = pd_next_edge(pd,eA[1]);
+
+  /* We're now sure that cr[1] follows cr[0] along the overstrand 
+     from cr[0]. But is this the overstand at cr[1]? */
+
+  pd_overstrand(pd,cr[1],&in_over,&out_over);
+  
+  if (eA[1] != in_over || eA[2] != out_over) { 
+
+    pd_error(SRCLOC,
+	     "edges eA[1] = %EDGE and eA[2] = %EDGE aren't over at crossing %CROSS in %PD\n"
+	     "meaning that we can't do an R2 bigon elimination at %CROSS and %CROSS because\n"
+	     "the crossing signs are wrong",pd,
+	     eA[1],eA[2],cr[1],cr[0],cr[1]);
+    exit(1);
+
+  }
+
+  /* Ok, we're now sure that the "overstrand" sequence eA[0] -> eA[2] is right. */
+  /* Let's try to identify the "understrand" sequence. */
+
+  pd_idx_t in_under,out_under;
+
+  pd_understrand(pd,cr[0],&in_under,&out_under);
+  
+  if (pd->edge[out_under].head == cr[1]) { 
+  /*
+      (we're in this case)
+   
+     A                    A                   
+     |   +---->------+    |  
+     |   |           |    |                       
+     +-cr[0]--->---cr[1]--+                      
+         |           |         
+         B           B      
+
+  */
+	     
+    eB[0] = in_under;
+    eB[1] = out_under;
+    eB[2] = pd_next_edge(pd,eB[1]);
+
+    /* We need to check we're going under at cr[1]. */
+
+    pd_idx_t cr1_under_in,cr1_under_out;
+    pd_understrand(pd,cr[1],&cr1_under_in,&cr1_under_out);
+
+    if (eB[1] != cr1_under_in || eB[2] != cr1_under_out) { 
+
+      pd_error(SRCLOC,
+	     "edges eB[1] = %EDGE and eB[2] = %EDGE aren't under at crossing %CROSS in %PD\n"
+	     "meaning that we can't do an R2 bigon elimination at %CROSS and %CROSS because\n"
+	     "the crossing signs are wrong",pd,
+	     eB[1],eB[2],cr[1],cr[0],cr[1]);
+      exit(1);
+
+    }
+
+  } else if (pd->edge[in_under].tail == cr[1]) { 
+    
+ /*
+      (we're in this case)
+   
+     A                    A                   
+     |   +----<------+    |  
+     |   |           |    |                       
+     +-cr[0]--->---cr[1]--+                      
+         |           |         
+         B           B      
+
+  */
+
+    eB[2] = out_under;
+    eB[1] = in_under;
+    eB[0] = pd_previous_edge(pd,eB[1]);
+    
+    /* We need to check we're going under at cr[1]. */
+
+    pd_idx_t cr1_under_in,cr1_under_out;
+    pd_understrand(pd,cr[1],&cr1_under_in,&cr1_under_out);
+
+    if (eB[0] != cr1_under_in || eB[1] != cr1_under_out) { 
+
+      pd_error(SRCLOC,
+	     "edges eB[0] = %EDGE and eB[1] = %EDGE aren't under at crossing %CROSS in %PD\n"
+	     "meaning that we can't do an R2 bigon elimination at %CROSS and %CROSS because\n"
+	     "the crossing signs are wrong",pd,
+	     eB[0],eB[1],cr[1],cr[0],cr[1]);
+      exit(1);
+
+    }
+
+  } else { /* Crossings just aren't consecutive along strand B, period. */
+
+     pd_error(SRCLOC,
+	     "crossings %CROSS and %CROSS aren't consecutive \n"
+	     "along an understrand in %PD\n"
+	     "this is not a potential site for an R2 bigon elimination.\n",
+	     pd,cr[0],cr[1]);
+     exit(1);
+
+  }
+
+  /* Step 3. Begin the actual work of the bigon elimination. */
+
+  
 
 }  
   

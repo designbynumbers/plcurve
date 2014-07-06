@@ -317,7 +317,8 @@ extern "C" {
   pd_idx_t pd_previous_edge(pd_code_t *pd, pd_idx_t edge);
   pd_idx_t pd_next_edge(pd_code_t *pd,pd_idx_t edge);
 
-  /* Finds the number of the previous or next edge along the component containing edge. */
+  /* Finds the edge number of the previous or next edge from edge.
+     according to the orientation of edge. */
 
   void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 		       pd_idx_t *posface, pd_idx_t *posface_pos,
