@@ -450,6 +450,40 @@ extern "C" {
   /* Performs a loop deletion Reidemeister 1 move at the crossing cr. */
   /* (A loop addition is a really different move, computationally speaking.) */
 
+  void pd_R2_bigon_elimination(pd_code_t *pd,pd_idx_t cr[2],
+			       pd_idx_t  *noutpd,
+			       pd_code_t **outpd);
+
+  /* Performs a bigon-elimination Reidemeister 2 move. 
+    
+     |                    |     |               |
+     A                    A     |               |
+     |   +-----------+    |     +------A--------+
+     |   |           |    | ->                     
+     +-cr[0]-------cr[1]--+                      
+         |           |          +------B--------+
+         B           B          |               |
+  
+
+  Input is a pd code and two crossings defining the bigon. Output is a pair of 
+  pointers to child pd codes. There are several possibilities, because a bigon
+  elimination may split the pd code into a pair of disconnected pd codes.
+
+  noutpd counts the number of connected components of the output pd. 
+  
+  outpd[0] is the pd code containing the component "on top" in the bigon. It is NULL if 
+  this component is 0-crossing diagram. 
+
+  outpd[1] is always NULL if noutpd == 1 (in this case, both components are part of the same code).
+  
+  if noutpd == 2, then 
+
+    outpd[1] is NULL if the component is a 0-crossing diagram (split unknot)
+    outpd[1] otherwise contains the pd code of the component "on the bottom" 
+    in the bigon. 
+
+  */
+
   pd_code_t *pd_simplify(pd_code_t *pd);
   /* Simplify the pd code by eliminating loops and ``generalized loops''. */
 

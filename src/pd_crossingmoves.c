@@ -523,7 +523,71 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
 }
       
   
+void pd_R2_bigon_elimination(pd_code_t *pd,pd_idx_t cr[2],
+			     pd_idx_t  *noutpd,
+			     pd_code_t **outpd)
+
+/* Performs a bigon-elimination Reidemeister 2 move. 
+
+|                                         |                      |                             |
+|                                         |                      |        outA  pd code        |
+|                                         |                      v                             ^
+|                                         |                      |                             |
+|eA[0]                                    |eA[2]                 |                             |
+|                  eB[1]                  |                      |            eA[0]            |
+|         +-------->------------+         |                      +-------------->--------------+
+v         |                     |         ^                                                     
+|         |                     |         |                                                     
+|         |                     |         |                                                     
+|         |       eA[1]         |         |                                   eB[0]                    
++-------------->---------->---------------+                       +------------->--------------+
+     cr[0]|                     | cr[1]                           |                            |
+          |                     |                                 |                            |
+          |                     |                                 |                            |
+          ^                     V                                 |       outB pd code         |
+          |eB[0]                |eB[2]                            ^      (if different)        v
+          |                     |                                 |                            |
+          |                     |                                 |                            |
+
+  Input is a pd code and two crossings defining the bigon. Output is a pair of 
+  pointers to child pd codes. There are several possibilities. 
+
+  noutpd counts the number of connected components of the output pd. 
   
+  outpd[0] is the pd code containing the component "on top" in the bigon. It is NULL if 
+  this component is 0-crossing diagram. 
+
+  outpd[1] is always NULL if noutpd == 1 (in this case, both components are part of the same code).
   
+  if noutpd == 2, then 
+
+    outpd[1] is NULL if the component is a 0-crossing diagram (split unknot)
+    outpd[1] otherwise contains the pd code of the component "on the bottom" 
+    in the bigon. 
+
+  There are several possible complications and special cases here.
+
+  #1) You might entirely disconnect the diagram, meaning that you need to return 2 pd codes instead of 1.
+
+      #1a) Either (or both) of these might be 0-crossing diagrams. 
+
+  #2) The edges coming out of the diagram might not be distinct. 
+
+  #3) The crossings must be checked for the correct over/under pattern.
+
+  #4) We can ensure that the crossings cr[0] and cr[1] are in order on 
+  component A, but they might occur in either order on component B
+  since we can't predict the orientation of component B.
+
+  #5) We're eliminating four edges (eB[1], eB[2], eA[1], and eA[2]) and 
+  two crossings (cr[0] and cr[1]) from the diagram, and must do 
+  compactions and relabelings accordingly. 
+
+*/
+ 
+{
+  /* Step 1: Sanity check the input. */
+
+}  
   
   

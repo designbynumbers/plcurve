@@ -137,8 +137,9 @@ momentpolytope_SOURCES = momentpolytope.c
 momentpolytope_LDADD = -lplCurve
 
 carbonizepd_SOURCES = carbonizepd.c
-carbonizepd_LDADD = -lplCurve
+carbonizepd_LDADD = -lplCurve 
 carbonizepd_LDFLAGS = -static
+carbonizepd_CFLAGS = -I${top_builddir}/src
 
 spline_view_SOURCES = spline_view.c
 spline_view_LDADD = -lplCurve

@@ -2349,6 +2349,7 @@ pd_code_t *pd_read(FILE *infile)
   }
 
   /* <nv lines of crossing information in the format edge edge edge edge> */
+  /* There's an optional crossing sign at the end of the line (+ or -) */
 
   for(cross=0;cross<pd->ncross;cross++) {
 
@@ -2359,11 +2360,28 @@ pd_code_t *pd_read(FILE *infile)
 
     }
 
+    int peek;
+    peek = fgetc(infile);
+    if (peek == '+') { 
+
+      pd->cross[cross].sign = PD_POS_ORIENTATION;
+
+    } else if (peek == '-') { 
+
+      pd->cross[cross].sign = PD_NEG_ORIENTATION;
+
+    } else {
+
+      ungetc(peek,infile);
+      pd->cross[cross].sign = PD_UNSET_ORIENTATION;
+
+    }
+
   }
 
   /* ne   <nedges> */
 
-  if (fscanf(infile,"ne %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
+  if (fscanf(infile," ne %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
   pd->nedges = (pd_idx_t)(input_temp);
 
   if (pd->nedges > pd->MAXEDGES) {
@@ -2514,6 +2532,9 @@ pd_code_t *pd_read(FILE *infile)
     }
 
   }
+
+  assert(pd_ok(pd));
+  if (strstr(pd->hash,"unset") != NULL) { pd_regenerate_hash(pd); }
 
   return pd;
   
