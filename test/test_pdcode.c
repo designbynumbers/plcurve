@@ -488,6 +488,130 @@ bool test_unknot() {
 
 }
 
+bool test_readwrite_pd(pd_code_t *pd,char *name) { 
+
+  printf("----------------------------------------\n"
+	 "tests for pd_write and pd_read of %s \n"
+	 "----------------------------------------\n",name);
+
+  /* ---------- */
+
+  printf("building temp_file_name...");
+  char template[4096] = "/tmp/pdcodeXXXXXX";
+  int outfile_fd = mkstemp(template);
+
+  if (outfile_fd == -1) { 
+
+    printf("fail (couldn't open %s)\n",template);
+    return false;
+
+  }
+
+  FILE *outfile = fdopen(outfile_fd,"w");
+  
+  if (outfile == NULL) { 
+
+    printf("fail (couldn't convert filedescriptor %d to stream)\n",outfile_fd);
+    return false;
+
+  }
+
+  printf("done (%s)\n",template);
+  
+  /* ------------ */
+
+  printf("writing to file...");
+  pd_write(outfile,pd);
+  printf("pass (didn't crash)\n");
+
+  /* ------------ */
+
+  printf("closing file...");
+  fclose(outfile);
+  printf("done\n");
+  
+  printf("reopening file...");
+  FILE *infile = fopen(template,"r");
+  if (infile == NULL) { 
+    printf("fail (couldn't reopen %s)\n",template);
+    remove(template);
+    return false;
+  }
+  printf("pass\n");
+
+  /* ------------- */
+
+  printf("reading new_pd from file...");
+  pd_code_t *new_pd = pd_read(infile);
+  if (new_pd == NULL) { 
+    printf("fail (couldn't parse file)\n");
+    remove(template);
+    return false;
+  }
+
+  if (!pd_ok(new_pd)) { 
+    pd_printf("fail (input %PD doesn't pass pd_ok)\n",pd);
+    remove(template);
+    return false;
+  }
+
+  printf("pass (read %d cross, %d component pd)\n",pd->ncross,pd->ncomps);
+
+  /* ------------- */
+
+  printf("testing isomorphic to original...");
+
+  if (!pd_isomorphic(pd,new_pd)) { 
+    pd_printf("fail (read pd %PD \n is not isomorphic to original",new_pd);
+    pd_printf("%PD)",pd);
+    remove(template);
+    return false;
+  }
+
+  printf("pass\n");
+  
+  /* -------------- */
+
+  printf("housecleaning...");
+  fclose(infile);
+  remove(template);
+  pd_code_free(&new_pd);
+  printf("done\n");
+
+  printf("-------------------------------------------\n"
+	 "tests for pd_write and pd_read of %s: PASS \n"
+	 "-------------------------------------------\n",name);
+  
+
+  return true;
+}
+  
+bool test_rw() {
+
+  pd_code_t *pd;
+  pd_idx_t cr;
+
+  pd = pd_build_torus_knot(2,5);
+  if (!test_readwrite_pd(pd,"(2,5) torus knot (crossings set)")) { return false; }  
+  for(cr=0;cr<pd->ncross;cr++) { pd->cross[cr].sign = PD_UNSET_ORIENTATION; }
+  if (!test_readwrite_pd(pd,"(2,5) torus knot (crossings unset)")) { return false; }
+  pd_code_free(&pd);
+
+  pd = pd_build_torus_knot(2,6);
+  if (!test_readwrite_pd(pd,"(2,6) torus link (crossings set)")) { return false; }  
+  for(cr=0;cr<pd->ncross;cr++) { pd->cross[cr].sign = PD_UNSET_ORIENTATION; }
+  if (!test_readwrite_pd(pd,"(2,6) torus link (crossings unset)")) { return false; }
+  pd_code_free(&pd);
+
+  pd = pd_build_simple_chain(6);
+  if (!test_readwrite_pd(pd,"6 link chain (crossings set)")) { return false; }  
+  for(cr=0;cr<pd->ncross;cr++) { pd->cross[cr].sign = PD_UNSET_ORIENTATION; }
+  if (!test_readwrite_pd(pd,"6 link chain (crossings unset)")) { return false; }
+  pd_code_free(&pd);
+  
+  return true;
+
+}
 
 int main() {
 
@@ -496,7 +620,7 @@ int main() {
 	 "Unit tests for pdcode.c\n"
 	 "=======================================\n");
 
-  if (!test_twist() || !test_torus() || !test_simple_chain() || !test_unknot() || !test_unknotwye()) {
+  if (!test_rw() || !test_twist() || !test_torus() || !test_simple_chain() || !test_unknot() || !test_unknotwye()) {
 
     printf("=====================================\n");
     printf("test_pdcode:  FAIL.\n");

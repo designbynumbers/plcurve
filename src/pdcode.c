@@ -1721,7 +1721,7 @@ bool pd_cross_ok(pd_code_t *pd)
 
   for(cross=0;cross<pd->ncross;cross++) {
 
-    if (!pd_or_ok(pd->cross[cross].sign)) { 
+    if (!(pd->cross[cross].sign == PD_POS_ORIENTATION || pd->cross[cross].sign == PD_NEG_ORIENTATION || pd->cross[cross].sign == PD_UNSET_ORIENTATION)) { 
 
       return pd_error(SRCLOC,"%CROSS contains illegal sign %d in pd %PD",pd,
 		      cross,pd->cross[cross].sign);
@@ -2532,6 +2532,8 @@ pd_code_t *pd_read(FILE *infile)
     }
 
   }
+
+  pd_regenerate_crossings(pd); /* If the crossings were not in canonical order, fix it. */
 
   assert(pd_ok(pd));
   if (strstr(pd->hash,"unset") != NULL) { pd_regenerate_hash(pd); }

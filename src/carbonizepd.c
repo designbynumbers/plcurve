@@ -261,7 +261,7 @@ int main(int argc,char *argv[]) {
 
     printf("done (%d pd codes, %d hashes)\n",nelts_claimed,nhashes);    
 
-    printf("writing pd_create_X functions...");
+    printf("writing pd_create_X functions...\n");
     int j;
     for(j=0;!feof(in);j++) { 
       
@@ -273,6 +273,8 @@ int main(int argc,char *argv[]) {
       free(temp_name);
       pd_write_c(out,inpd,name);
       pd_code_free(&inpd);
+
+      printf("\t wrote pd_create_%s\n",name);
 
     }
     printf("done (wrote %d functions).\n",j);
