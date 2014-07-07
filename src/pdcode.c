@@ -3221,3 +3221,26 @@ bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB)
   pd_code_free(&pdA); pd_code_free(&pdB);
   return is_iso;
 }
+
+
+pd_idx_t pd_previous_edge(pd_code_t *pd, pd_idx_t edge)
+
+/* Find the previous edge number */
+
+{
+  pd_check_edge(SRCLOC,pd,edge);
+  pd_idx_t candidate_edge = pd->cross[pd->edge[edge].tail].edge[(pd->edge[edge].tailpos+2)%4];
+  assert(pd->edge[candidate_edge].head == pd->edge[edge].tail);
+  return candidate_edge;
+}
+
+pd_idx_t pd_next_edge(pd_code_t *pd,pd_idx_t edge)
+
+/* Find the next edge number */
+
+{
+  pd_check_edge(SRCLOC,pd,edge);
+  pd_idx_t candidate_edge = pd->cross[pd->edge[edge].head].edge[(pd->edge[edge].headpos+2)%4];
+  assert(pd->edge[candidate_edge].tail == pd->edge[edge].head);
+  return candidate_edge;
+}

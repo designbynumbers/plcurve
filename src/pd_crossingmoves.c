@@ -732,6 +732,21 @@ v         |                     |         ^
   }
 
   /* Step 3. Begin the actual work of the bigon elimination. */
+  /* We basically bifurcate here into the cases where we split */
+  /* and we don't split. The key is whether 
+
+     |                    |     |               |
+     A                    A     |               |
+     |   +-----------+    |     +------A--------+
+     |   |           |    | ->      merged F1 and F2               
+     +-cr[0]-------cr[1]--+                      
+     F1  |           |  F2      +------B--------+
+         B           B          |               |
+
+  the faces marked F1 and F2 are the same or different. 
+  If they are the same, then we've split the diagram. 
+  If different, we haven't. The course of action is 
+  really different in each case. */
 
   
 
