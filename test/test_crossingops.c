@@ -453,6 +453,92 @@ bool unravel_unknot_test(pd_idx_t n)
     
 }
 
+bool r2_twist_tests(pd_idx_t n) {
+
+  printf("-----------------------------------------\n"
+	 "r2 bigon elimination tests on %2d-twist  \n"
+	 "-----------------------------------------\n",n);
+
+  printf("generating %2d twist...",n);
+  pd_code_t *pd = pd_build_unknot(n);
+  if (!pd_ok(pd)) { 
+    printf("fail (couldn't generate unknot)\n");
+    return false;
+  } else {
+    printf("pass\n");
+  }
+
+  printf("resetting crossing signs to +-+-+- along component 0...");
+  pd_idx_t i;
+  for(i=0;i<pd->ncross;i++) { 
+    pd_idx_t cr = pd->edge[pd->comp[0].edge[i]].head;
+    pd->cross[cr].sign = (i%2) ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
+  }
+  if (!pd_ok(pd)) { 
+    printf("fail (couldn't reset crossing signs)\n");
+    return false;
+  } else {
+    printf("pass\n");
+  }
+  
+  pd_idx_t cr[2] = {pd->edge[pd->comp[0].edge[0]].head,pd->edge[pd->comp[0].edge[1]].head};
+
+  pd_code_t **outpd;
+  pd_idx_t noutpd;
+  
+  pd_printf("performing bigon elimination at %CROSS and %CROSS...",pd,cr[0],cr[1]);
+  pd_R2_bigon_elimination(pd,cr,&noutpd,&outpd);
+  
+  if (noutpd != 1) { 
+    printf("fail (constructed %d != 1 output pd codes)\n",noutpd);
+    return false;
+  } 
+
+  if (!pd_ok(outpd[0])) { 
+    pd_printf("fail (returned pd %PD does not pass pd_ok)\n",outpd[0]);
+    return false;
+  }
+
+  printf("pass (returned ok pd code)\n");
+  
+  printf("checking for isomorphism with %d twist knot...",n-2);
+  pd_code_t *check_pd = pd_build_unknot(n-2);
+
+  for(i=0;i<(outpd[0])->ncross;i++) { 
+    (outpd[0])->cross[i].sign = PD_POS_ORIENTATION; 
+  }
+
+  if (!pd_isomorphic((outpd[0]),check_pd)) { 
+    printf("fail (not isomorphic)\n");
+    return false;
+  } 
+  printf("pass\n");
+
+  printf("housecleaning...");
+  
+  pd_code_free(&(outpd[0]));
+  pd_code_free(&check_pd);
+  pd_code_free(&pd);
+  free(outpd);
+
+  printf("done (didn't crash)\n");
+
+  printf("----------------------------------------------\n"
+	 "r2 bigon elimination tests on %2d-twist:PASS  \n"
+	 "----------------------------------------------\n",n);
+
+  return true;
+
+}
+  
+bool r2_tests() {
+
+  if (!r2_twist_tests(4)) { return false; }
+  if (!r2_twist_tests(5)) { return false; }
+
+  return true;
+}
+
 int main() {
 
   printf("test_crossingops (%s)\n",PACKAGE_STRING);
@@ -460,7 +546,7 @@ int main() {
 	 "Unit tests for pdcode Reidemeister move primitives. \n"
 	 "========================================================\n");
 
-  if (!compacting_copy_tests() || !unravel_unknot_test(10)) {
+  if (!r2_tests() || !compacting_copy_tests() || !unravel_unknot_test(10)) {
 
     printf("\n=======================================================\n");
     printf("test_crossingops:  FAIL.\n");
