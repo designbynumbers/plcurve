@@ -525,7 +525,7 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
   
 void pd_R2_bigon_elimination(pd_code_t *pd,pd_idx_t cr[2],
 			     pd_idx_t  *noutpd,
-			     pd_code_t **outpd)
+			     pd_code_t ***outpd)
 
 /* Performs a bigon-elimination Reidemeister 2 move. 
 
@@ -737,9 +737,9 @@ v         |                     |         ^
 
      |                    |     |               |
      A                    A     |               |
-     |   +-----------+    |     +------A--------+
+     v   +-----------+    ^     +------A--------+
      |   |           |    | ->      merged F1 and F2               
-     +-cr[0]-------cr[1]--+                      
+     +-cr[0]-->----cr[1]--+                      
      F1  |           |  F2      +------B--------+
          B           B          |               |
 
@@ -748,8 +748,514 @@ v         |                     |         ^
   If different, we haven't. The course of action is 
   really different in each case. */
 
-  
+  pd_idx_t F1, F2;
 
-}  
+  /* We're going to use pd_face_and_pos to identify the faces. */
+  /* F1 should be the negface of eA[0] and of eA[2] */
+
+  pd_idx_t pf0,nf0,pfp0,nfp0;
+  pd_idx_t pf2,nf2,pfp2,nfp2;
+
+  pd_face_and_pos(pd,eA[0],&pf0,&pfp0,&nf0,&nfp0);
+  pd_face_and_pos(pd,eA[2],&pf2,&pfp2,&nf2,&nfp2);
   
+  F1 = nf0; F2 = nf2;
+
+  if (F1 != F2) { /* This is the conventional case where we output a single PD code */
+
+    *noutpd = 1;
+    *outpd = calloc(1,sizeof(pd_code_t *));
+    assert(*outpd != NULL);
+    
+    pd_code_t *out = pd_code_new(pd->ncross-2);
+    (*outpd)[0] = out;
+
+    /* Now we start by copying (compacted) the crossings. */
+
+    free(out->cross);
+    out->cross = NULL;
+    out->MAXVERTS = out->ncross = 0;
+
+    pd_idx_t crossing_deletions[2] = {cr[0],cr[1]};
+    pd_idx_t *new_crossing_idx;
+    
+    pd_compacting_copy((void *)(pd->cross),sizeof(pd_crossing_t),(size_t)(pd->ncross),
+		       2,crossing_deletions,
+		       (void *)(out->cross),
+		       &new_crossing_idx,
+		       &out->ncross);
+
+    out->MAXVERTS = out->ncross;
+
+    /* For the edges, we'll have a different set of deletions... */
+
+    free(out->edge);
+    out->edge = NULL;
+    out->MAXEDGES = out->nedges = 0;
+
+    pd_idx_t edge_deletions[4] = {eA[1],eA[2],eB[1],eB[2]};
+    pd_idx_t *new_edge_idx;
+
+    pd_compacting_copy((void *)(pd->edge),sizeof(pd_edge_t),(size_t)(pd->nedges),
+		       4,edge_deletions,
+		       (void *)(out->edge),
+		       &new_edge_idx,
+		       &out->nedges);
+
+    out->MAXEDGES = out->nedges;
+
+    /* Now we need to actually sew together the strands to do the 
+       move. As usual, these few lines of code are the most subtle
+       bits of the whole move. On the left hand side, we're modifying
+       positions in the new pd code. So these are addressed by their 
+       NEW indices. On the right, we refer to OLD crossing and edge
+       indices because we're about to translate absolutely everything
+       to new indices and we don't want to translate twice.
+    */
+
+    out->cross[new_crossing_idx[pd->edge[eA[2]].head]].edge[pd->edge[eA[2]].headpos] = eA[0]; 
+    out->edge[new_edge_idx[eA[0]]].head = pd->edge[eA[2]].head;
+    out->edge[new_edge_idx[eA[0]]].headpos = pd->edge[eA[2]].headpos;
+
+    out->cross[new_crossing_idx[pd->edge[eB[2]].head]].edge[pd->edge[eB[2]].headpos] = eB[0]; 
+    out->edge[new_edge_idx[eB[0]]].head = pd->edge[eB[2]].head;
+    out->edge[new_edge_idx[eB[0]]].headpos = pd->edge[eB[2]].headpos;
+
+    pd_idx_t i,j;
+
+    for(i=0;i<out->ncross;i++) { 
+      
+      for(j=0;j<4;j++) { 
+	
+	out->cross[i].edge[j] = new_edge_idx[out->cross[i].edge[j]];
+
+      }
+
+    }
+
+    for(i=0;i<out->nedges;i++) { 
+
+      out->edge[i].head = new_crossing_idx[out->edge[i].head];
+      out->edge[i].tail = new_crossing_idx[out->edge[i].tail];
+
+    }
+
+    /* We now need to regenerate crossings. */
+
+    pd_regenerate_crossings(out);
+     
+    /* Components are interesting. We have the same set of 
+       components (and want tags to persist). So we'll have
+       to do the same edge-deletion procedure that we did 
+       for the R1 move. 
+
+       This will use the 
+       transform_and_compact_indices api:
+ 
+       void pd_transform_and_compact_indices(pd_idx_t *source, pd_idx_t nobj, 
+                                             pd_idx_t *transform,
+				             pd_idx_t **target)
+    */
   
+    for(i=0;i<pd->ncomps;i++) { 
+
+      pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,new_edge_idx,
+				       &(out->comp[i].edge),&(out->comp[i].nedges));
+      out->comp[i].tag = pd->comp[i].tag;
+
+    }
+    
+    out->ncomps = pd->ncomps;
+    qsort(out->comp,out->ncomps,sizeof(pd_component_t),pd_component_cmp);
+    
+    /* The new pd now has crossings, edges, and components which make sense. */
+    /* It's ok to just regenerate the faces. */
+
+    pd_regenerate_faces(out);
+    pd_regenerate_hash(out);
+
+    /* Finally, we check that we survived all this. */
+
+    assert(pd_ok(out));
+  
+    /* Housecleaning */
+  
+    free(new_crossing_idx);
+    free(new_edge_idx);
+
+    /* Now the sanity check that we'd like to do is just to check numbers of things:
+       We should have 
+
+       2 fewer faces
+       2 fewer crossings
+       4 fewer edges
+     
+    */
+
+    assert(out->nfaces == pd->nfaces-2);
+    assert(out->ncross == pd->ncross-2);
+    assert(out->nedges == pd->nedges-4);
+
+  } else { 
+
+    /* F1 == F2.
+
+       This means that we're going to separate everything into two new
+       PD codes.  This isn't going to be particuarly easy, because we
+       don't even know which part of the diagram belongs to which
+       child pd code until we figure out how the components are
+       connected to one another at crossings.
+
+       The straightforward strategy here is to generate a graph of
+       connections between components and then find connected
+       components of the graph. The problem is that we're not in
+       Python, where that would be a reasonably easy thing to do. In
+       C, we're going to be forced to import a heavyweight graph
+       library, or introduce a weird dependency.
+
+       So the idea is basically that we're going to mark the
+       components as "A_unwalked", "B_unwalked", "A_walked",
+       "B_walked", or "Unknown". The initial labels are "A_unwalked"
+       and "B_unwalked" for the components containing arcs A and B,
+       and "Unknown_unwalked" for everything else. 
+
+       We're then going to make passes through the list of components,
+       walking each "(A|B)_unwalked" component, marking every unknown
+       component we see (except at the forbidden crossings cr[0] and
+       cr[1]) as "(A|B)_unwalked" and ignoring every component which
+       is "(A|B)_(un)walked". Finally, we mark this component as
+       "walked", and keep searching for an unwalked component. 
+
+       When we make a complete pass without finding any unwalked components,
+       we're done. We then use the A/B classification to define the child 
+       pd_codes.
+
+    */
+
+    typedef enum {A_unwalked,A_walked,B_unwalked,B_walked,Unknown} component_state_t;
+    component_state_t *compstate;
+    compstate = calloc(pd->ncomps,sizeof(component_state_t));
+    assert(compstate != NULL);
+    pd_idx_t i,j; 
+
+    for(i=0;i<pd->ncomps;i++) { compstate[i] = Unknown; }
+    
+    pd_idx_t compA, compB;
+    pd_idx_t cposA, cposB;
+
+    pd_component_and_pos(pd,eA[0],&compA,&cposA);
+    pd_component_and_pos(pd,eB[0],&compB,&cposB);
+    assert(compA != compB);
+
+    compstate[compA] = A_unwalked;
+    compstate[compB] = B_unwalked;
+
+    bool all_walked = false;
+    pd_idx_t safety = 0;
+
+    for(;!all_walked;safety++) { 
+
+      all_walked = true; /* Hope this is the case */
+
+      for(i=0;i<pd->ncomps;i++) { 
+
+	if (compstate[i] == A_unwalked) { 
+
+	  for(j=0;j<pd->comp[i].nedges;j++) { 
+
+	    pd_idx_t thiscr,thispos,cross_cmp,cross_pos;
+
+	    thiscr = pd->edge[pd->comp[i].edge[j]].head;
+	    thispos = pd->edge[pd->comp[i].edge[j]].headpos;
+
+	    if (thiscr != cr[0] && thiscr != cr[1]) { 
+
+	      pd_component_and_pos(pd,pd->cross[thiscr].edge[(thispos+1)%4],&cross_cmp,&cross_pos);	    
+	      if (compstate[cross_cmp] == Unknown) { compstate[cross_cmp] = A_unwalked; }
+
+	    }
+
+	  }
+
+	  compstate[i] = A_walked;
+
+	} else if (compstate[i] == B_unwalked) { 
+
+	  for(j=0;j<pd->comp[i].nedges;j++) { 
+
+	    pd_idx_t thiscr,thispos,cross_cmp,cross_pos;
+
+	    thiscr = pd->edge[pd->comp[i].edge[j]].head;
+	    thispos = pd->edge[pd->comp[i].edge[j]].headpos;
+
+	    if (thiscr != cr[0] && thiscr != cr[1]) { 
+
+	      pd_component_and_pos(pd,pd->cross[thiscr].edge[(thispos+1)%4],&cross_cmp,&cross_pos);	    
+	      if (compstate[cross_cmp] == Unknown) { compstate[cross_cmp] = B_unwalked; }
+
+	    }
+
+	  }
+
+	  compstate[i] = B_walked;
+	  
+	}
+
+      }
+
+      /* We've been through the list. Now scan for any unwalked/unknown components. */
+
+      for(all_walked=true,i=0;i<pd->ncomps && all_walked;i++) { 
+	if (compstate[i] == Unknown || compstate[i] == A_unwalked || compstate[i] == B_unwalked) { all_walked = false; } 
+      }
+
+    }
+
+    /* Now we've either walked all the components or something has gone really wrong. */
+    assert(all_walked);
+
+    /* We are now ready to partition the diagram. We know the components involved in each 
+       child diagram, so we'll have to get the edges and crossings as well now. */
+
+    pd_idx_t *A_crossings, *B_crossings, *A_edges, *B_edges;
+
+    A_crossings = calloc(2*pd->ncross,sizeof(pd_idx_t));
+    assert(A_crossings != NULL);
+    B_crossings = calloc(2*pd->ncross,sizeof(pd_idx_t));
+    assert(B_crossings != NULL);
+
+    A_edges = calloc(pd->nedges,sizeof(pd_idx_t));
+    assert(A_edges != NULL);
+    B_edges = calloc(pd->nedges,sizeof(pd_idx_t));
+    assert(B_edges != NULL);
+
+    pd_idx_t A_nedges = 0, B_nedges = 0, A_ncross = 0, B_ncross = 0;
+
+    for(i=0;i<pd->ncomps;i++) { 
+
+      if (compstate[i] == A_walked) { 
+
+	for(j=0;j<pd->comp[i].nedges;j++) { 
+
+	  pd_idx_t e;
+	  e = pd->comp[i].edge[j];
+	  
+	  A_crossings[A_ncross++] = pd->edge[e].head;
+	  A_edges[A_nedges++] = e;
+
+	}
+
+      } else if (compstate[i] == B_walked) { 
+
+	for(j=0;j<pd->comp[i].nedges;j++) { 
+
+	  pd_idx_t e;
+	  e = pd->comp[i].edge[j];
+	  
+	  B_crossings[B_ncross++] = pd->edge[e].head;
+	  B_edges[B_nedges++] = e;
+
+	}
+
+      } else {
+
+	printf("compstate[%d] == %d, which is not A_walked (%d) or B_walked (%d)\n"
+	       "suspect memory corruption bug, but your guess is as good as mine\n",
+	       i,compstate[i],A_walked,B_walked);
+	exit(1);
+
+      }
+
+    }
+
+    /* We now expect the crossings in A and B to have been entered
+       twice into our record-keeping scheme, since they will have 
+       been encounted as heads of TWO edges. 
+	 
+       The edges, on the other hand, have only been encountered once. 
+       
+       We are now going to make up new pd codes, and make compacting
+       copies, defining the crossings of A to be what's left when we 
+       DELETE the list of B crossings (and vice versa) and the same 
+       with the edges (we'll use B_edges as DELETIONS to define the
+       actual edges of A implicitly).
+
+       Note that we have already included the common crossings cr[0] 
+       and cr[1] on both lists of deletions. But we haven't included
+       the edges to be deleted. */
+
+    A_edges[A_nedges++] = eB[1]; A_edges[A_nedges++] = eB[2];
+    B_edges[B_nedges++] = eA[1]; B_edges[B_nedges++] = eA[2];
+
+    pd_code_t *pdA, *pdB;
+    pdA = pd_code_new(pd->ncross); /* Way too big, but that's ok right now */
+    pdB = pd_code_new(pd->ncross); /* Again, too big, but we're going to trim the buffers anyway */
+
+    pd_idx_t *new_crossing_idx_A, *new_edge_idx_A, *new_crossing_idx_B, *new_edge_idx_B;
+
+    /* Handle crossings of A, remembering that we get A's crossings by DELETING B's */
+
+    free(pdA->cross); pdA->cross = NULL; pdA->ncross = pdA->MAXVERTS = 0; 
+    pd_compacting_copy((void *)(pd->cross),sizeof(pd_crossing_t),(size_t)(pd->ncross),
+		       B_ncross,B_crossings,
+		       (void *)(pdA->cross),
+		       &new_crossing_idx_A,
+		       &(pdA->ncross));
+    pdA->MAXVERTS = pdA->ncross;
+
+    /* Handle edges of A, remembering that we get A's edges by DELETING B's */
+
+    free(pdA->edge); pdA->edge = NULL; pdA->nedges = pdA->MAXEDGES = 0;
+    pd_compacting_copy((void *)(pd->edge),sizeof(pd_edge_t),(size_t)(pd->nedges),
+		       B_nedges,B_edges,
+		       (void *)(pdA->edge),
+		       &new_edge_idx_A,
+		       &(pdA->nedges));
+    pdA->MAXEDGES = pdA->nedges;
+
+    /* Handle crossings of B, remembering we get B's edges by DELETING A's */
+      
+    free(pdB->cross); pdB->cross = NULL; pdB->ncross = pdB->MAXVERTS = 0; 
+    pd_compacting_copy((void *)(pd->cross),sizeof(pd_crossing_t),(size_t)(pd->ncross),
+		       A_ncross,A_crossings,
+		       (void *)(pdB->cross),
+		       &new_crossing_idx_B,
+		       &(pdB->ncross));
+    pdB->MAXVERTS = pdB->ncross;
+
+    /* Handle edges of B, remembering that we get B's edges by DELETING A's */
+
+    free(pdB->edge); pdB->edge = NULL; pdB->nedges = pdB->MAXEDGES = 0;
+    pd_compacting_copy((void *)(pd->edge),sizeof(pd_edge_t),(size_t)(pd->nedges),
+		       A_nedges,A_edges,
+		       (void *)(pdB->edge),
+		       &new_edge_idx_B,
+		       &(pdB->nedges));
+    pdB->MAXEDGES = pdB->nedges;
+
+    /* Now we do the clever sewing bit, keeping in mind that on the left we 
+       use NEW indices because we're in a child pd, and on the right we use
+       OLD indices because we're referring to the parent pd. */
+
+    pdA->cross[new_crossing_idx_A[pd->edge[eA[2]].head]].edge[pd->edge[eA[2]].headpos] = eA[0]; /* Since eA[2] was deleted, splice in eA[0]. */
+    pdA->edge[new_edge_idx_A[eA[0]]].head = pd->edge[eA[2]].head;    /* Reset the head of edge eA[0] */
+    pdA->edge[new_edge_idx_A[eA[0]]].headpos = pd->edge[eA[2]].headpos;
+
+    pdB->cross[new_crossing_idx_B[pd->edge[eB[2]].head]].edge[pd->edge[eB[2]].headpos] = eB[0]; /* Since eB[2] was deleted, splice in eB[0]. */
+    pdB->edge[new_edge_idx_B[eB[0]]].head = pd->edge[eB[2]].head;    /* Reset the head of edge eB[0] */
+    pdB->edge[new_edge_idx_B[eB[0]]].headpos = pd->edge[eB[2]].headpos;
+
+    /* Now we do the usual update of referred edge indices in the new crossings,
+       and referred crossing indices in the new edges. */
+
+    for(i=0;i<pdA->ncross;i++) { 
+
+      for(j=0;j<4;j++) { 
+
+	pdA->cross[i].edge[j] = new_edge_idx_A[pdA->cross[i].edge[j]];
+
+      }
+
+    }
+
+    for (i=0;i<pdA->nedges;i++) { 
+
+      pdA->edge[i].head = new_crossing_idx_A[pdA->edge[i].head];
+      pdA->edge[i].tail = new_crossing_idx_A[pdA->edge[i].tail];
+
+    }
+
+    /* Aaand for child diagram B.... */
+
+    for(i=0;i<pdB->ncross;i++) { 
+
+      for(j=0;j<4;j++) { 
+
+	pdB->cross[i].edge[j] = new_edge_idx_B[pdB->cross[i].edge[j]];
+
+      }
+
+    }
+
+    for (i=0;i<pdB->nedges;i++) { 
+
+      pdB->edge[i].head = new_crossing_idx_B[pdB->edge[i].head];
+      pdB->edge[i].tail = new_crossing_idx_B[pdB->edge[i].tail];
+
+    }
+
+    /* Ok, now we need to copy components into the child pd's appropriately. 
+       This takes a little thought, because we want the component TAGS to 
+       travel appropriately. */
+
+    pdA->ncomps = 0; pdB->ncomps = 0;
+
+    for(i=0;i<pd->ncomps;i++) { 
+
+      if (compstate[i] == A_walked) { 
+
+	pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,
+					 new_edge_idx_A,
+					 &(pdA->comp[pdA->ncomps].edge),
+					 &(pdA->comp[pdA->ncomps].nedges));
+	pdA->comp[pdA->ncomps].tag = pd->comp[i].tag;
+	pdA->ncomps++;
+
+      } else if (compstate[i] == B_walked) { 
+
+	pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,
+					 new_edge_idx_B,
+					 &(pdB->comp[pdB->ncomps].edge),
+					 &(pdB->comp[pdB->ncomps].nedges));
+	pdB->comp[pdB->ncomps].tag = pd->comp[i].tag;
+	pdB->ncomps++;
+
+      } else {
+
+	printf("compstate[%d] == %d, which is not A_walked (%d) or B_walked (%d)\n"
+	       "suspect memory corruption bug, but your guess is as good as mine\n",
+	       i,compstate[i],A_walked,B_walked);
+	exit(1);
+
+      }
+
+    }
+
+    qsort(pdA->comp,pdA->ncomps,sizeof(pd_component_t),pd_component_cmp);
+    qsort(pdB->comp,pdB->ncomps,sizeof(pd_component_t),pd_component_cmp);
+    
+    /* Ok, at this point the children have crossings, edges, and components. */
+    /* We can regenerate the crossings, and the faces. */
+
+    pd_regenerate_crossings(pdA); pd_regenerate_crossings(pdB);
+    pd_regenerate_faces(pdA); pd_regenerate_faces(pdB);
+
+    /* We can now do some counting to make sure things are sane: */
+
+    assert(pdA->ncomps + pdB->ncomps == pd->ncomps);
+    assert(pdA->ncross + pdB->ncross == pd->ncross - 2);
+    assert(pdA->nedges + pdB->nedges == pd->nedges - 4);
+    assert(pdA->ncross - pdA->nedges + pdA->nfaces == 2);
+    assert(pdB->ncross - pdB->nedges + pdB->nfaces == 2);
+
+    assert(pd_ok(pdA));
+    assert(pd_ok(pdB));
+
+    /* Then we do some housecleaning. */
+
+    free(compstate);
+    free(new_crossing_idx_A); free(new_crossing_idx_B);
+    free(new_edge_idx_A); free(new_edge_idx_B);
+    
+    /* Finally, we return the results. */
+
+    *noutpd = 2;
+    *outpd = calloc(2,sizeof(pd_code_t *));
+    (*outpd)[0] = pdA;
+    (*outpd)[1] = pdB;
+    
+  }
+
+}
+
+

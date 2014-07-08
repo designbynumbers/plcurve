@@ -371,12 +371,19 @@ extern "C" {
      lowest index edge first and sorts crossings
      in dictionary order based on this reordering. */
 
+  void pd_regnerate_edges(pd_code_t *pd);
+  /* Uses crossing information to create edge records
+     with random numberings and orientations, then walks
+     along components to make sure the edges have consistent
+     orientations. */
+
   void pd_regenerate_comps(pd_code_t *pd);
-  /* Generates randomly oriented and numbered
-     edges from crossings, then strings them
-     into components, sorts components by
-     size, renumbers edges and orients them along
-     components. Updates and regenerates crossings. */
+  /* Strings edges into components, which are then given 
+     new component tags. Renumbers the edges so that they 
+     appear consecutively along components, fixing any 
+     orientations needed along the way. Updates the edge
+     references in the crossing data to the new numbering 
+     scheme. */
 
   void pd_regenerate_faces(pd_code_t *pd);
   /* Fills in faces from crossing, edge
@@ -453,7 +460,7 @@ extern "C" {
 
   void pd_R2_bigon_elimination(pd_code_t *pd,pd_idx_t cr[2],
 			       pd_idx_t  *noutpd,
-			       pd_code_t **outpd);
+			       pd_code_t ***outpd);
 
   /* Performs a bigon-elimination Reidemeister 2 move. 
     
@@ -471,11 +478,12 @@ extern "C" {
   elimination may split the pd code into a pair of disconnected pd codes.
 
   noutpd counts the number of connected components of the output pd. 
+  outpd is set to a buffer of pd codes of size noutpd;
   
   outpd[0] is the pd code containing the component "on top" in the bigon. It is NULL if 
   this component is 0-crossing diagram. 
 
-  outpd[1] is always NULL if noutpd == 1 (in this case, both components are part of the same code).
+  outpd[1] isn't allocated if noutpd == 1 (in this case, both components are part of the same code).
   
   if noutpd == 2, then 
 
