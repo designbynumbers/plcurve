@@ -418,6 +418,7 @@ bool test_nsimplechain(pd_idx_t n) {
 
 bool test_simple_chain() {
 
+  if (!test_nsimplechain(2)) { return false; }
   if (!test_nsimplechain(3)) { return false; }
   if (!test_nsimplechain(4)) { return false; }
   if (!test_nsimplechain(5)) { return false; }
@@ -439,45 +440,53 @@ bool test_nunknot(pd_idx_t n) {
 
   if (!ncomps_test(pd,1)) { return false; }
 
-  /* Now test the number of edges on each comp */
+  if (n > 0) { 
 
-  pd_idx_t *cee;
-  cee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
+    /* Now test the number of edges on each comp */
 
-  cee[0] = 2*n;
-  if (!comp_edgevec_test(pd,cee)) { return false; }
+    pd_idx_t *cee;
+    cee = calloc(pd->MAXCOMPONENTS,sizeof(pd_idx_t));
 
-  /* Now test the number of edges on each face */
+    cee[0] = 2*n;
+    if (!comp_edgevec_test(pd,cee)) { return false; }
 
-  pd_idx_t *fee,face,i;
-  fee = calloc(pd->MAXFACES,sizeof(pd_idx_t));
+    /* Now test the number of edges on each face */
 
-  fee[0] = fee[1] = 1; /* end faces */
-  face = 2;
+    pd_idx_t *fee,face,i;
+    fee = calloc(pd->MAXFACES,sizeof(pd_idx_t));
+
+    fee[0] = fee[1] = 1; /* end faces */
+    face = 2;
   
-  for(i=0;i<n-1;i++,face++) {  /* n-1 "Middle" bigons */
+    for(i=0;i<n-1;i++,face++) {  /* n-1 "Middle" bigons */
 
-    fee[face] = 2;
+      fee[face] = 2;
+
+    } 
+
+    fee[face++] = 2*(n-1)+2; 
+    /* One gigantic exterior face-- 2 edges from each interior bigon, 1 from each end link */
+
+    if (!face_edgevec_test(pd,fee)) { return false; }
+    
+    free(fee);
+    free(cee);
 
   } 
 
-  fee[face++] = 2*(n-1)+2; 
-  /* One gigantic exterior face-- 2 edges from each interior bigon, 1 from each end link */
-
-  if (!face_edgevec_test(pd,fee)) { return false; }
-
-  printf("\t %d-crossing unknot ... pass.\n\n",n);
-
+  printf("\t testing pd_code_free on this unknot ...");
   pd_code_free(&pd);
-  free(fee);
-  free(cee);
-
+  printf("pass (didn't crash)\n");
+  printf("\t %d-crossing unknot ... pass.\n\n",n);
+  
   return true;
 
 }
 
 bool test_unknot() {
 
+  if (!test_nunknot(0)) { return false; }
+  if (!test_nunknot(1)) { return false; }
   if (!test_nunknot(2)) { return false; }
   if (!test_nunknot(3)) { return false; }
   if (!test_nunknot(4)) { return false; }
@@ -620,7 +629,7 @@ int main() {
 	 "Unit tests for pdcode.c\n"
 	 "=======================================\n");
 
-  if (!test_rw() || !test_twist() || !test_torus() || !test_simple_chain() || !test_unknot() || !test_unknotwye()) {
+  if (!test_simple_chain() || !test_unknot() || !test_rw() || !test_twist() || !test_torus() ||  !test_unknotwye()) {
 
     printf("=====================================\n");
     printf("test_pdcode:  FAIL.\n");

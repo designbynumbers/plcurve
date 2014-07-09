@@ -254,6 +254,18 @@ extern "C" {
      stores the "complementary" information for each edge
      about which pair of crossings it connects.
 
+     There are some special case pd codes. 
+
+     1) A diagram of an unknot with no crossings is denoted by 
+        a pd_code with ncross = 0, nedges = 1, 1 edge with 
+	everything (head, tail, headpos, tailpos) set to 
+	PD_UNSET_IDX or PD_UNSET_POS, 2 faces (each with 
+	1 edge), and 1 component. 
+
+     2) Split diagrams cannot be encoded by pd_code_t. The 
+        recommended way to handle split diagrams is to have 
+	an array of pd_code_t to cover the various connected
+	components of the diagram. 
   */
 
   /* A pdCode is like a plCurve... we always deal with a pointer
@@ -465,12 +477,12 @@ extern "C" {
   /* Performs a bigon-elimination Reidemeister 2 move. 
     
      |                    |     |               |
-     A                    A     |               |
-     |   +-----------+    |     +------A--------+
+     |                    |     |               |
+     |   +-----------+    |     +---------------+
      |   |           |    | ->                     
      +-cr[0]-------cr[1]--+                      
-         |           |          +------B--------+
-         B           B          |               |
+         |           |          +---------------+
+         |           |          |               |
   
 
   Input is a pd code and two crossings defining the bigon. Output is a pair of 
@@ -480,16 +492,15 @@ extern "C" {
   noutpd counts the number of connected components of the output pd. 
   outpd is set to a buffer of pd codes of size noutpd;
   
-  outpd[0] is the pd code containing the component "on top" in the bigon. It is NULL if 
-  this component is 0-crossing diagram. 
+  outpd[0] is the pd code containing the component "on top" in the bigon. It may 
+  be a 0-crossing diagram.
 
   outpd[1] isn't allocated if noutpd == 1 (in this case, both components are part of the same code).
   
   if noutpd == 2, then 
 
-    outpd[1] is NULL if the component is a 0-crossing diagram (split unknot)
-    outpd[1] otherwise contains the pd code of the component "on the bottom" 
-    in the bigon. 
+    outpd[1] contains the pd code of the component "on the bottom" 
+    in the bigon. Again, it might be a 0-crossing diagram.
 
   */
 
@@ -559,14 +570,29 @@ extern "C" {
   /* Checks if pointer is null, dies with error if so. The field "varname" is a string giving
      the name of the pointer. Should be called like pd_check_notnull(SRCLOC,"invar",invar); */
 
-
-
   /* Standard, valid pd codes (for test purposes). */
 
   pd_code_t *pd_build_twist_knot(pd_idx_t n);            /* Twist knot with n twists */
   pd_code_t *pd_build_torus_knot(pd_idx_t p,pd_idx_t q); /* Only 2, q implemented now */
+
   pd_code_t *pd_build_simple_chain(pd_idx_t n);          /* An n-link chain. */
-  pd_code_t *pd_build_unknot(pd_idx_t n);                /* An n-crossing unknot diagram */
+
+  pd_code_t *pd_build_unknot(pd_idx_t n);                /* An n-crossing unknot diagram, where n >= 0 */
+
+  /* An n-crossing unknot diagram in the form  
+
+
+         +--<--+       +--<--+            +-<--+      
+         |     |       |     |                 |      
+         |     |       |     |                 |      
+  +------|->-----------|->-------+  ...    +----->---+
+  |      |     |       |     |                 |     |
+  |      |     |       |     |                 ^     |
+  +--<---+     +---<---+     +---+             +-----+
+
+  with all crossings positive. This generates the 
+  case with n == 0 and n == 1 correctly. */
+
   pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c); /* An unknot diagram designed for hash collisions */
 
   /**************************** Interface with traditional plCurve types **********************************/

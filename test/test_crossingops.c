@@ -480,48 +480,56 @@ bool r2_twist_tests(pd_idx_t n) {
   } else {
     printf("pass\n");
   }
-  
-  pd_idx_t cr[2] = {pd->edge[pd->comp[0].edge[0]].head,pd->edge[pd->comp[0].edge[1]].head};
 
-  pd_code_t **outpd;
-  pd_idx_t noutpd;
-  
-  pd_printf("performing bigon elimination at %CROSS and %CROSS...",pd,cr[0],cr[1]);
-  pd_R2_bigon_elimination(pd,cr,&noutpd,&outpd);
-  
-  if (noutpd != 1) { 
-    printf("fail (constructed %d != 1 output pd codes)\n",noutpd);
-    return false;
-  } 
+  for(i=0;i<n-1;i++) { 
 
-  if (!pd_ok(outpd[0])) { 
-    pd_printf("fail (returned pd %PD does not pass pd_ok)\n",outpd[0]);
-    return false;
+    pd_idx_t cr[2] = {pd->edge[pd->comp[0].edge[i]].head,
+		      pd->edge[pd->comp[0].edge[i+1]].head};
+
+    pd_code_t **outpd;
+    pd_idx_t noutpd;
+  
+    pd_printf("\tperforming bigon elimination at %CROSS and %CROSS...",pd,cr[0],cr[1]);
+    pd_R2_bigon_elimination(pd,cr,&noutpd,&outpd);
+  
+    if (noutpd != 1) { 
+      printf("fail (constructed %d != 1 output pd codes)\n",noutpd);
+      return false;
+    } 
+
+    if (!pd_ok(outpd[0])) { 
+      pd_printf("fail (returned pd %PD does not pass pd_ok)\n",outpd[0]);
+      return false;
+    }
+
+    printf("pass (returned ok pd code)\n");
+    
+    printf("\tchecking for isomorphism with %d twist knot...",n-2);
+    pd_code_t *check_pd = pd_build_unknot(n-2);
+
+    pd_idx_t j;
+    
+    for(j=0;j<(outpd[0])->ncross;j++) { 
+      (outpd[0])->cross[j].sign = PD_POS_ORIENTATION; 
+    }
+    
+    if (!pd_isomorphic((outpd[0]),check_pd)) { 
+      printf("fail (not isomorphic)\n");
+      return false;
+    } 
+    printf("pass\n");
+
+    printf("\thousecleaning...");
+  
+    pd_code_free(&(outpd[0]));
+    pd_code_free(&check_pd);
+    free(outpd);
+    
+    printf("done\n\n");
+
   }
 
-  printf("pass (returned ok pd code)\n");
-  
-  printf("checking for isomorphism with %d twist knot...",n-2);
-  pd_code_t *check_pd = pd_build_unknot(n-2);
-
-  for(i=0;i<(outpd[0])->ncross;i++) { 
-    (outpd[0])->cross[i].sign = PD_POS_ORIENTATION; 
-  }
-
-  if (!pd_isomorphic((outpd[0]),check_pd)) { 
-    printf("fail (not isomorphic)\n");
-    return false;
-  } 
-  printf("pass\n");
-
-  printf("housecleaning...");
-  
-  pd_code_free(&(outpd[0]));
-  pd_code_free(&check_pd);
   pd_code_free(&pd);
-  free(outpd);
-
-  printf("done (didn't crash)\n");
 
   printf("----------------------------------------------\n"
 	 "r2 bigon elimination tests on %2d-twist:PASS  \n"
@@ -530,11 +538,194 @@ bool r2_twist_tests(pd_idx_t n) {
   return true;
 
 }
+
+bool is_0_crossing_diagram(pd_code_t *pd)
+{
+
+  if (pd->MAXVERTS == 0) { return false; }
+  if (pd->MAXEDGES == 0) { return false; }
+  if (pd->MAXFACES == 0) { return false; }
+  if (pd->MAXCOMPONENTS == 0) { return false; }
+
+  if (pd->ncross != 0) { return false; }
+  if (pd->nedges != 1) { return false; }
+  if (pd->nfaces != 2) { return false; }
+  if (pd->ncomps != 1) { return false; }
+
+  if (pd->cross == NULL) { return false; }
+  
+  if (pd->edge == NULL) { return false; }
+  if (pd->edge[0].head != PD_UNSET_IDX) { return false; }
+  if (pd->edge[0].headpos != PD_UNSET_POS) { return false; }
+  if (pd->edge[0].tail != PD_UNSET_IDX) { return false; }
+  if (pd->edge[0].tailpos != PD_UNSET_POS) { return false; }
+  
+  if (pd->face == NULL) { return false; }
+  if (pd->face[0].nedges != 1) { return false; }
+  if (pd->face[0].edge[0] != 0) { return false; }
+  if (pd->face[0].or[0] != PD_POS_ORIENTATION) { return false; }
+  if (pd->face[1].nedges != 1) { return false; }
+  if (pd->face[1].edge[0] != 0) { return false; }
+  if (pd->face[1].or[0] != PD_NEG_ORIENTATION) { return false; }
+  
+  if (pd->comp == NULL) { return false; }
+  if (pd->comp[0].nedges != 1) { return false; }
+  if (pd->comp[0].edge[0] != 0) { return false; }
+
+  return true;
+
+}
+
+bool r2_tiny_tests() { 
+
+  /* This tests the two cases where we pull apart linked rings or unfold a circle. */
+
+
+  printf("--------------------------------------------\n"
+	 "r2 bigon elimination tiny tests             \n"
+	 "--------------------------------------------\n");
+
+  printf("constructing 2-twist unknot...");
+  pd_code_t *pd = pd_build_unknot(2);
+  pd->cross[1].sign = PD_NEG_ORIENTATION;
+  if (!pd_ok(pd)) { 
+    printf("fail (returned pd not ok)\n");
+    return false;
+  } else {
+    printf("done\n");
+  }
+
+  printf("applying r2 bigon elimination...");
+  pd_idx_t noutpd;
+  pd_code_t **outpd;
+  pd_idx_t cr[2] = {0,1};
+
+  pd_R2_bigon_elimination(pd,cr,&noutpd,&outpd);
+  
+  if (noutpd != 1) { 
+
+    printf("fail (number of loops = %d != 1)\n",noutpd);
+    return false;
+
+  }
+
+  if (!pd_ok(outpd[0])) { 
+
+    pd_printf("fail (output pd %PD does not pass pd_ok)\n",outpd[0]);
+    return false;
+
+  }
+
+  if (!is_0_crossing_diagram(outpd[0])) { 
+
+    pd_printf("fail (output pd %PD doesn't match 0_crossing_diagram)\n",outpd[0]);
+    return false;
+
+  }
+
+  if (outpd[0]->comp[0].tag != pd->comp[0].tag) { 
+
+    printf("fail (tag of output %c != tag of input %c)\n",outpd[0]->comp[0].tag,pd->comp[0].tag);
+    return false;
+
+  }
+
+  printf("pass (output matches 0 crossing loop)\n");
+  pd_code_free(&outpd[0]);
+  pd_code_free(&pd);
+  free(outpd);
+
+  printf("generating 2-link simple chain...");
+  pd = pd_build_simple_chain(2);
+  pd->cross[1].sign = PD_NEG_ORIENTATION;
+  if (!pd_ok(pd)) { 
+    printf("fail (returned pd not ok)\n");
+    return false;
+  } else {
+    printf("done\n");
+  }
+
+  printf("applying r2 bigon elimination...");
+  pd_R2_bigon_elimination(pd,cr,&noutpd,&outpd);
+  
+  if (noutpd != 2) { 
+
+    printf("fail (number of loops = %d != 2)\n",noutpd);
+    return false;
+
+  }
+
+  if (!pd_ok(outpd[0])) { 
+
+    pd_printf("fail (output pd 0 %PD does not pass pd_ok)\n",outpd[0]);
+    return false;
+
+  }
+
+  if (!pd_ok(outpd[1])) { 
+
+    pd_printf("fail (output pd 1 %PD does not pass pd_ok)\n",outpd[0]);
+    return false;
+
+  }
+
+  if (!is_0_crossing_diagram(outpd[0])) { 
+
+    pd_printf("fail (output pd 0 %PD doesn't match 0_crossing_diagram)\n",outpd[0]);
+    return false;
+
+  }
+
+  if (!is_0_crossing_diagram(outpd[1])) { 
+
+    pd_printf("fail (output pd 1 %PD doesn't match 0_crossing_diagram)\n",outpd[0]);
+    return false;
+
+  }
+
+  /* Try to figure out how the tags should be set. */
+
+  pd_idx_t over_in,over_out;
+  pd_idx_t over_comp,over_pos;
+
+  pd_overstrand(pd,0,&over_in,&over_out);
+  pd_component_and_pos(pd,over_in,&over_comp,&over_pos);
+
+  pd_idx_t under_comp = (over_comp == 0) ? 1 : 0;
+
+  if (outpd[0]->comp[0].tag != pd->comp[over_comp].tag) { 
+
+    printf("fail (tag of output 0 %c != tag of input over component 0 %c)\n",outpd[0]->comp[0].tag,pd->comp[over_comp].tag);
+    return false;
+
+  }
+
+  if (outpd[1]->comp[0].tag != pd->comp[under_comp].tag) { 
+
+    printf("fail (tag of output 1 %c != tag of input under component 1 %c)\n",outpd[1]->comp[0].tag,pd->comp[under_comp].tag);
+    return false;
+
+  }
+
+  printf("pass (output matches pair of 0 crossing loops)\n");
+  pd_code_free(&outpd[0]);
+  pd_code_free(&outpd[1]);
+  pd_code_free(&pd);
+  free(outpd);
+
+  printf("--------------------------------------------\n"
+	 "r2 bigon elimination tiny tests: PASS       \n"
+	 "--------------------------------------------\n");
+  
+  return true;
+
+} 
   
 bool r2_tests() {
 
   if (!r2_twist_tests(4)) { return false; }
   if (!r2_twist_tests(5)) { return false; }
+  if (!r2_tiny_tests()) { return false; }
 
   return true;
 }

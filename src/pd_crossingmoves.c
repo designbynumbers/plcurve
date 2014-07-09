@@ -662,7 +662,7 @@ v         |                     |         ^
      |   |           |    |                       
      +-cr[0]--->---cr[1]--+                      
          |           |         
-         B           B      
+   F1    B           B      F2   
 
   */
 	     
@@ -731,6 +731,76 @@ v         |                     |         ^
 
   }
 
+  /* We now eliminate some special cases: 
+
++--------------+
+|              |
+|   +------+   |
+|   |      |   |      -> 2 0-crossing diagrams.
++--------------+
+    |      |    
+    |      |    
+    +------+    
+
+or
+
+            +----<---+    
+            |        |    
+            v        |    
+     +--->------->------->--+   -> 1 0-crossing diagram. 
+     |      |        |      |
+     |      |        |      |
+     +---<--+        +---<--+
+
+
+  */
+
+  if (pd->ncross == 2) { 
+
+    if (pd->ncomps == 2) { 
+
+      *noutpd = 2;
+      *outpd = calloc(2,sizeof(pd_code_t *));
+      assert(*outpd != NULL);
+
+      (*outpd)[0] = pd_build_unknot(0);
+      (*outpd)[1] = pd_build_unknot(0);
+
+      /* Now we need to figure out how to set the tags. */
+
+      pd_idx_t over_in, over_out;
+      pd_idx_t under_in, under_out;
+
+      pd_overstrand(pd,cr[0],&over_in,&over_out);
+      pd_understrand(pd,cr[0],&under_in,&under_out);
+
+      pd_idx_t over_comp, over_pos;
+      pd_idx_t under_comp, under_pos;
+
+      pd_component_and_pos(pd,over_in,&over_comp,&over_pos);
+      pd_component_and_pos(pd,under_in,&under_comp,&under_pos);
+
+      /* And finally we can set them. */
+
+      (*outpd)[0]->comp[0].tag = pd->comp[over_comp].tag;
+      (*outpd)[1]->comp[0].tag = pd->comp[under_comp].tag;
+
+      return;
+
+    } else if (pd->ncomps == 1) { 
+
+      *noutpd = 1;
+      *outpd = calloc(1,sizeof(pd_code_t *));
+      assert(*outpd != NULL);
+      (*outpd)[0] = pd_build_unknot(0);
+      (*outpd)[0]->comp[0].tag = pd->comp[0].tag;
+
+      return;
+
+    }
+
+  } 
+
   /* Step 3. Begin the actual work of the bigon elimination. */
   /* We basically bifurcate here into the cases where we split */
   /* and we don't split. The key is whether 
@@ -746,22 +816,89 @@ v         |                     |         ^
   the faces marked F1 and F2 are the same or different. 
   If they are the same, then we've split the diagram. 
   If different, we haven't. The course of action is 
-  really different in each case. */
+  really different in each case.
+
+  Determining which faces ARE F1 and F2 is not trivial. 
+
+  |                 |           |              |
+  v  +----------+   ^           |   +-A->--+   |
+  |  |          |   |           |   |      |   |
+  +------A->--------+     vs    +---|------|---+
+     |          |                   ^      v 
+     |          |                   |      |
+
+  In the case at left, we're looking for the negfaces
+  of eA[0] and eA[2], while in the case at right, we're 
+  looking for the posfaces, so orientation isn't a tell.
+
+  Instead, we should be looking for whether B[0] (or B[2])
+  is to the left or right at the crossings.
+
+  */
 
   pd_idx_t F1, F2;
+  bool use_negfaces_of_eA0_and_eA2;
 
+  if (pd->edge[eB[1]].tail == cr[0]) { 
+
+    /* Orientations AGREE: 
+
+       |                 |           |              |
+       v  +---B>-----+   ^           |   +-A->--+   |
+       |  |          |   |           |   |      |   |
+       +------A->--------+     vs    +---|--B>--|---+
+          |          |                   ^      v 
+	  |          |                   |      |
+	  
+    */
+
+    use_negfaces_of_eA0_and_eA2 = 
+      (pd->cross[cr[0]].edge[(pd->edge[eA[0]].headpos+1)%4] == eB[0]);
+
+    /* That is, we use negfaces <=> the next (counterclockwise)
+       edge from eA[0] at cr[0] is eB[0] */
+
+  } else { 
+
+     /* Orientations DISagree: 
+
+       |                 |           |              |
+       v  +---B<-----+   ^           |   +-A->--+   |
+       |  |          |   |           |   |      |   |
+       +------A->--------+     vs    +---|--B<--|---+
+          |          |                   ^      v 
+	  |          |                   |      |
+	  
+    */
+    
+    use_negfaces_of_eA0_and_eA2 =
+      (pd->cross[cr[0]].edge[(pd->edge[eA[0]].headpos+1)%4] == eB[2]);
+
+    /* That is, we use negfaces <=> the next (counterclockwise)
+       edge from eA[0] at cr[0] is eB[2] */
+
+  }
+       
   /* We're going to use pd_face_and_pos to identify the faces. */
-  /* F1 should be the negface of eA[0] and of eA[2] */
-
+  
   pd_idx_t pf0,nf0,pfp0,nfp0;
   pd_idx_t pf2,nf2,pfp2,nfp2;
 
   pd_face_and_pos(pd,eA[0],&pf0,&pfp0,&nf0,&nfp0);
   pd_face_and_pos(pd,eA[2],&pf2,&pfp2,&nf2,&nfp2);
   
-  F1 = nf0; F2 = nf2;
+  if (use_negfaces_of_eA0_and_eA2) { 
 
-  if (F1 != F2) { /* This is the conventional case where we output a single PD code */
+    F1 = nf0; F2 = nf2;
+
+  } else {
+
+    F1 = pf0; F2 = pf2;
+
+  }
+
+  if (F1 != F2) { 
+    /* This is the conventional case where we output a single PD code */
 
     *noutpd = 1;
     *outpd = calloc(1,sizeof(pd_code_t *));
@@ -781,7 +918,7 @@ v         |                     |         ^
     
     pd_compacting_copy((void *)(pd->cross),sizeof(pd_crossing_t),(size_t)(pd->ncross),
 		       2,crossing_deletions,
-		       (void *)(out->cross),
+		       (void **)(&out->cross),
 		       &new_crossing_idx,
 		       &out->ncross);
 
@@ -798,7 +935,7 @@ v         |                     |         ^
 
     pd_compacting_copy((void *)(pd->edge),sizeof(pd_edge_t),(size_t)(pd->nedges),
 		       4,edge_deletions,
-		       (void *)(out->edge),
+		       (void **)(&out->edge),
 		       &new_edge_idx,
 		       &out->nedges);
 
@@ -813,13 +950,75 @@ v         |                     |         ^
        to new indices and we don't want to translate twice.
     */
 
-    out->cross[new_crossing_idx[pd->edge[eA[2]].head]].edge[pd->edge[eA[2]].headpos] = eA[0]; 
-    out->edge[new_edge_idx[eA[0]]].head = pd->edge[eA[2]].head;
-    out->edge[new_edge_idx[eA[0]]].headpos = pd->edge[eA[2]].headpos;
+   
 
-    out->cross[new_crossing_idx[pd->edge[eB[2]].head]].edge[pd->edge[eB[2]].headpos] = eB[0]; 
-    out->edge[new_edge_idx[eB[0]]].head = pd->edge[eB[2]].head;
-    out->edge[new_edge_idx[eB[0]]].headpos = pd->edge[eB[2]].headpos;
+    if (eB[0] == eA[2]) {
+
+      /*  
+                +---eA[1]---+    
+                v           ^    
+		|           |
+                |cr[1]      |cr[0]
+      +--eB[0]--|->-eB[1]---|-->-eB[2]->
+      |         |           |    
+      |         |           |    
+      +--eA[2]--+           +----eA[0]-<
+
+      We're going to sew the head of eA[0] directly onto the head of eB[2] */
+
+      out->cross[new_crossing_idx[pd->edge[eB[2]].head]].edge[pd->edge[eB[2]].headpos] = eA[0];      
+      out->edge[new_edge_idx[eA[0]]].head = pd->edge[eB[2]].head;
+      out->edge[new_edge_idx[eA[0]]].headpos = pd->edge[eB[2]].headpos;
+
+    } else if (eB[2] == eA[0]) {
+
+      /*
+                +---eA[1]---+    
+                v           ^    
+		|           |
+                |cr[1]      |cr[0]
+      >--eB[0]--|->-eB[1]---|-->-eB[2]-+
+                |           |          |
+                |           |          |
+      <--eA[2]--+           +----eA[0]-+
+
+      We're going to sew the head of eB[0] directly onto the head of eA[2].
+
+      */
+	       
+
+      out->cross[new_crossing_idx[pd->edge[eA[2]].head]].edge[pd->edge[eA[2]].headpos] = eB[0];
+      out->edge[new_edge_idx[eB[0]]].head = pd->edge[eA[2]].head;
+      out->edge[new_edge_idx[eB[0]]].headpos = pd->edge[eA[2]].headpos;
+
+    } else { 
+
+       /*
+	 This is the generic case. 
+
+                +---eA[1]---+    
+                v           ^    
+		|           |
+                |cr[1]      |cr[0]
+      >--eB[0]--|->-eB[1]---|-->-eB[2]->
+                |           |          
+                |           |          
+      <--eA[2]--+           +----eA[0]-<
+
+      We're going to sew the head of eA[0] directly onto the head of eA[2]
+      and the head of eB[0] directly onto the head of eB[2].
+
+      */
+
+      out->cross[new_crossing_idx[pd->edge[eA[2]].head]].edge[pd->edge[eA[2]].headpos] = eA[0]; 
+      out->edge[new_edge_idx[eA[0]]].head = pd->edge[eA[2]].head;
+      out->edge[new_edge_idx[eA[0]]].headpos = pd->edge[eA[2]].headpos;
+
+      out->cross[new_crossing_idx[pd->edge[eB[2]].head]].edge[pd->edge[eB[2]].headpos] = eB[0]; 
+      out->edge[new_edge_idx[eB[0]]].head = pd->edge[eB[2]].head;
+      out->edge[new_edge_idx[eB[0]]].headpos = pd->edge[eB[2]].headpos;
+
+    }
 
     pd_idx_t i,j;
 

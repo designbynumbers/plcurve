@@ -167,6 +167,7 @@ void pd_code_free(pd_code_t **PD) {
     free(pd->edge);
     pd->edge = NULL;
     pd->nedges = 0;
+    pd->MAXEDGES = 0;
 
   }
 
@@ -175,6 +176,7 @@ void pd_code_free(pd_code_t **PD) {
     free(pd->cross);
     pd->cross = NULL;
     pd->ncross = 0;
+    pd->MAXVERTS = 0;
 
   }
 
@@ -1710,6 +1712,9 @@ bool pd_cross_ok(pd_code_t *pd)
    and that the crossing sign has a legal value for an orientation. */
 {
   assert(pd != NULL);
+  if (pd->ncross == 0) { return true; } 
+  /* The 0-crossing unknot diagram has nothing to check */
+
   int *edge_seen;
   edge_seen = calloc(pd->MAXEDGES,sizeof(int));
   assert(edge_seen != NULL);
@@ -1790,49 +1795,71 @@ bool pd_edges_ok(pd_code_t *pd)
     if (e->head >= pd->ncross || 
 	e->tail >= pd->ncross) {
 
-      return pd_error(SRCLOC,"%EDGE contains reference to illegal crossing in pd %PD\n",pd,edge);
+      if (pd->ncross != 0) { /* In which case this is XFAIL, because 
+				head and tail will be PD_UNSET_IDX */
+
+	return pd_error(SRCLOC,"%EDGE contains reference to illegal crossing in pd %PD\n",pd,edge);
+
+      } else if (e->head != PD_UNSET_IDX || e->tail != PD_UNSET_IDX) { 
+
+	return pd_error(SRCLOC,"%EDGE in 0-crossing diagram has head or tail not PD_UNSET_IDX",pd,edge);
+
+      }
 
     } 
     
     if (e->headpos >= 4 ||
 	e->tailpos >= 4) {
 
-      return pd_error(SRCLOC,"%EDGE contains reference to illegal position in pd %PD\n",pd,edge);
+      if (pd->ncross != 0) { 
+
+	return pd_error(SRCLOC,"%EDGE contains reference to illegal position in pd %PD\n",pd,edge);
+
+      } else if (e->headpos != PD_UNSET_POS || e->tailpos != PD_UNSET_POS) { 
+
+	return pd_error(SRCLOC,"%EDGE in 0-crossing diagram has headpos or tailpos not PD_UNSET_POS",pd,edge);
+
+      }
 
     }
 
-    pd_crossing_t *hc = &(pd->cross[e->head]), *tc = &(pd->cross[e->tail]);
+    if (pd->ncross > 0) { /* The next checks really only make sense 
+			     if the diagram HAS crossings. */
 
-    if (hc->edge[e->headpos] != edge) {
+      pd_crossing_t *hc = &(pd->cross[e->head]), *tc = &(pd->cross[e->tail]);
 
-      return pd_error(SRCLOC,"%EDGE is not in correct position at head %CROSS in pd %PD\n",pd,edge,e->head);
+      if (hc->edge[e->headpos] != edge) {
 
-    }
+	return pd_error(SRCLOC,"%EDGE is not in correct position at head %CROSS in pd %PD\n",pd,edge,e->head);
 
-    if (tc->edge[e->tailpos] != edge) {
+      }
 
-      return pd_error(SRCLOC,"%EDGE is not in correct position at tail %CROSS in pd %PD\n",pd,edge,e->tail);
+      if (tc->edge[e->tailpos] != edge) {
 
-    }
+	return pd_error(SRCLOC,"%EDGE is not in correct position at tail %CROSS in pd %PD\n",pd,edge,e->tail);
 
-    /* We now check for consistent orientations along the components. */
+      }
 
-    pd_pos_t nextpos = (e->headpos+2)%4;
-    pd_pos_t prevpos = (e->tailpos+2)%4;
+      /* We now check for consistent orientations along the components. */
 
-    if (pd->edge[hc->edge[nextpos]].tail != e->head || 
-	pd->edge[hc->edge[nextpos]].tailpos != nextpos) { 
+      pd_pos_t nextpos = (e->headpos+2)%4;
+      pd_pos_t prevpos = (e->tailpos+2)%4;
 
-      return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n",pd,edge,hc->edge[nextpos]);
+      if (pd->edge[hc->edge[nextpos]].tail != e->head || 
+	  pd->edge[hc->edge[nextpos]].tailpos != nextpos) { 
 
-    }
+	return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n",pd,edge,hc->edge[nextpos]);
+
+      }
    
-    if (pd->edge[tc->edge[prevpos]].head != e->tail || 
-	pd->edge[tc->edge[prevpos]].headpos != prevpos) { 
+      if (pd->edge[tc->edge[prevpos]].head != e->tail || 
+	  pd->edge[tc->edge[prevpos]].headpos != prevpos) { 
 
-       return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n",pd,edge,tc->edge[prevpos]);
+	return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n",pd,edge,tc->edge[prevpos]);
 
-    } 
+      } 
+
+    }
 
   }
 
@@ -1855,6 +1882,30 @@ bool pd_comps_ok(pd_code_t *pd)
   if (pd->ncomps > pd->MAXCOMPONENTS) {
 
     return pd_error(SRCLOC,"Number of components %d > pd->MAXCOMPONENTS %d in pd %PD",pd,pd->ncomps,pd->MAXCOMPONENTS);
+
+  }
+
+  if (pd->ncross == 0) { 
+
+    if (pd->ncomps != 1) { 
+
+      return pd_error(SRCLOC,"Wrong number of components %d != 1 in 0-crossing diagram %PD",pd,pd->ncomps);
+      
+    }
+
+    if (pd->comp[0].nedges != 1) { 
+
+       return pd_error(SRCLOC,"Wrong number of edges %d != 1 in component 0 of 0-crossing diagram %PD",pd,pd->comp[0].nedges);
+      
+    }
+
+    if (pd->comp[0].edge[0] != 0) { 
+
+      return pd_error(SRCLOC,"Edge 0 in component 0 of 0-crossing pd %PD is %d != 0",pd,pd->comp[0].edge[0]);
+      
+    }
+
+    return true;
 
   }
 
@@ -1913,6 +1964,42 @@ bool pd_faces_ok(pd_code_t *pd)
 
     return pd_error(SRCLOC,"Number of faces %d > pd->MAXFACES %d in pd %PD",pd,pd->nfaces,pd->MAXFACES);
 
+  }
+
+  if (pd->ncross == 0) { 
+
+    if (pd->nfaces != 2) { 
+    
+      return pd_error(SRCLOC,"Wrong number of faces %d != 2 in 0-crossing diagram %PD",pd,pd->nfaces);
+
+    } 
+
+    if (pd->face[0].nedges != 1) { 
+ 
+      return pd_error(SRCLOC,"Wrong number of edges %d != 1 in face 0 of 0-crossing diagram %PD",pd,pd->face[0].nedges);
+
+    } 
+
+    if (pd->face[0].edge[0] != 0) { 
+ 
+      return pd_error(SRCLOC,"Illegal edge reference %d in face 0 of 0-crossing diagram %PD",pd,pd->face[0].edge[0]);
+
+    } 
+
+    if (pd->face[1].nedges != 1) { 
+ 
+      return pd_error(SRCLOC,"Wrong number of edges %d != 1 in face 1 of 0-crossing diagram %PD",pd,pd->face[1].nedges);
+
+    } 
+
+    if (pd->face[1].edge[0] != 0) { 
+ 
+      return pd_error(SRCLOC,"Illegal edge reference %d in face 0 of 0-crossing diagram %PD",pd,pd->face[1].edge[0]);
+
+    } 
+    
+    return true;
+      
   }
   
   pd_idx_t face, edge, nxt_edge;
@@ -2708,6 +2795,42 @@ char pd_print_or(pd_or_t or)
   else return '?';
 }
 
+char *pd_print_idx(pd_idx_t idx) 
+/* Returns the index, either sprintf'd to an unsigned type, 
+   or the string "PD_UNSET_IDX" if this is equal to PD_UNSET_IDX. 
+   It's the user's responsibility to dispose of the char buffer,
+   unfortunately. */
+{
+  char *out;
+  out = calloc(64,sizeof(char));
+  assert(out != NULL);
+
+  if (idx != PD_UNSET_IDX) {   
+    sprintf(out,"%u",(unsigned int)(idx));
+  } else {
+    sprintf(out,"PD_UNSET_IDX");
+  }
+  return out;
+}
+
+char *pd_print_pos(pd_idx_t pos) 
+/* Returns the index, either sprintf'd to an unsigned type, 
+   or the string "PD_UNSET_POS" if this is equal to PD_UNSET_POS. 
+   It's the user's responsibility to dispose of the char buffer,
+   unfortunately. */
+{
+  char *out;
+  out = calloc(32,sizeof(char));
+  assert(out != NULL);
+
+  if (pos != PD_UNSET_POS) {   
+    sprintf(out,"%1u",(unsigned int)(pos));
+  } else {
+    sprintf(out,"PD_UNSET_POS");
+  }
+  return out;
+}
+
 void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
 /* This (internal) function is designed to make it easy to
@@ -2791,15 +2914,19 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	fprintf(stream,"face %d (",face);
 	for(edge=0;edge<pd->face[face].nedges-1 && edge<pd->MAXEDGES;edge++) {
 	  
-	  fprintf(stream," (%c) %d ->",
+	  char *edge_idx = pd_print_idx(pd->face[face].edge[edge]);
+	  fprintf(stream," (%c) %s ->",
 		  pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
-		  pd->face[face].edge[edge]);
+		  edge_idx);
+	  free(edge_idx);
 
 	}
 
-	fprintf(stream,"(%c) %d) ",
+	char *edge_idx = pd_print_idx(pd->face[face].edge[edge]);
+	fprintf(stream,"(%c) %s) ",
 		pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
-		pd->face[face].edge[edge]);
+		edge_idx);
+	free(edge_idx);
 
 	nxtconv += 5;
 
@@ -2837,11 +2964,19 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       if (pd != NULL) { 
 
 	pd_idx_t edge = (pd_idx_t) va_arg(ap,int);
-	
-	fprintf(stream,"edge %d (%d,%d -> %d,%d)",edge,
-		pd->edge[edge].tail,pd->edge[edge].tailpos,
-		pd->edge[edge].head,pd->edge[edge].headpos);
-	
+
+	char *ed = pd_print_idx(edge);
+	char *head, *headpos, *tail, *tailpos; 
+	tail = pd_print_idx(pd->edge[edge].tail);
+	tailpos = pd_print_pos(pd->edge[edge].tailpos);
+	head = pd_print_idx(pd->edge[edge].head);
+	headpos = pd_print_pos(pd->edge[edge].headpos);	
+
+	fprintf(stream,"edge %s (%s,%s -> %s,%s)",ed,
+		tail,tailpos,head,headpos);
+
+	free(ed);
+	free(head); free(headpos); free(tail); free(tailpos);
 	nxtconv += 5;
 
       } else {
@@ -2861,13 +2996,17 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	fprintf(stream,"comp %d (",comp);
 	for(edge=0;edge<pd->comp[comp].nedges-1 && edge<pd->MAXEDGES;edge++) {
 	  
-	  fprintf(stream," %d ->",
-		  pd->comp[comp].edge[edge]);
+	  char *ed; 
+	  ed = pd_print_idx(pd->comp[comp].edge[edge]);
+	  fprintf(stream," %s ->",ed);
+	  free(ed);
 
 	}
 	
-	fprintf(stream," %d ) ",
-		pd->comp[comp].edge[edge]);
+	char *ed; 
+	ed = pd_print_idx(pd->comp[comp].edge[edge]);
+	fprintf(stream," %s ) ",ed);
+	free(ed);
 	
 	nxtconv += 5;
 
@@ -2907,13 +3046,17 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       if (pd != NULL) { 
 
 	pd_idx_t cross = (pd_idx_t) va_arg(ap,int);
+
+	char *cr,*e[4];
+	cr = pd_print_idx(cross);
+	int i;
+	for(i=0;i<4;i++) { e[i] = pd_print_idx(pd->cross[cross].edge[i]); }
 	
-	fprintf(stream,"cross %d (%d %d %d %d) %c",cross,
-		pd->cross[cross].edge[0],	      
-		pd->cross[cross].edge[1],
-		pd->cross[cross].edge[2],
-		pd->cross[cross].edge[3],
+	fprintf(stream,"cross %s (%s %s %s %s) %c",cr,e[0],e[1],e[2],e[3],
 		pd_print_or(pd->cross[cross].sign));
+
+	for(i=0;i<4;i++) { free(e[i]); }
+	free(cr);
 	
 	nxtconv += 6;
 

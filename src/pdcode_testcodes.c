@@ -212,19 +212,58 @@ pd_code_t *pd_build_torus_knot(pd_idx_t p, pd_idx_t q)
 }
 
 pd_code_t *pd_build_simple_chain(pd_idx_t n) 
-/* Build a simple chain of n links (n > 2) */
+/* Build a simple chain of n links (n > 0) */
 
 {
   pd_code_t *pd = NULL;
 
   /* First, check the size of the diagram. */
 
-  if (n < 3) { 
+  if (n == 0) { 
 
-    pd_error(SRCLOC,"Can't build a simple chain with %d (< 3) links",pd,n);
+    pd_error(SRCLOC,"Can't build simple chain with 0 links.\n",NULL);
     exit(1);
 
+  }
+
+  if (n == 1) { 
+
+    return pd_build_unknot(0);
+
   } 
+
+  if (n == 2) { 
+
+    pd = pd_code_new(2);
+
+    pd->ncross = 2; 
+    pd->cross[0] = pd_build_cross(0,2,1,3);
+    pd->cross[1] = pd_build_cross(0,3,1,2);
+    pd->cross[0].sign = PD_POS_ORIENTATION;
+    pd->cross[1].sign = PD_POS_ORIENTATION;
+    
+    pd->nedges = 4;
+    
+    pd->edge[0].head = 1; pd->edge[0].headpos = 0;
+    pd->edge[0].tail = 0; pd->edge[0].tailpos = 0;
+    
+    pd->edge[1].head = 0; pd->edge[1].headpos = 2;
+    pd->edge[1].tail = 1; pd->edge[1].tailpos = 2;
+
+    pd->edge[2].head = 0; pd->edge[2].headpos = 1;
+    pd->edge[2].tail = 1; pd->edge[2].tailpos = 3;
+
+    pd->edge[3].head = 1; pd->edge[3].headpos = 1;
+    pd->edge[3].tail = 0; pd->edge[3].tailpos = 3;
+    
+    pd_regenerate_comps(pd);
+    pd_regenerate_faces(pd);
+    pd_regenerate_hash(pd);
+
+    assert(pd_ok(pd));
+    return pd;
+
+  }
 
   pd = pd_code_new(2*(n-1));
   assert(pd != NULL);
@@ -273,19 +312,146 @@ pd_code_t *pd_build_simple_chain(pd_idx_t n)
 
 pd_code_t *pd_build_unknot(pd_idx_t n) 
 
-/* An n-crossing unknot diagram. */
+/* An n-crossing unknot diagram in the form  
+
+
+       +--<--+       +--<--+            +-<--+      
+       |     |       |     |                 |      
+       |     |       |     |                 |      
++------|->-----------|->-------+  ...    +----->---+
+|      |     |       |     |                 |     |
+|      |     |       |     |                 ^     |
++--<---+     +---<---+     +---+             +-----+
+
+with all crossings positive. This generates the 
+case with n == 0 and n == 1 correctly. 
+
+*/
 
 {
   pd_code_t *pd = NULL;
   
-  if (n < 2) { 
+  if (n == 0) { 
 
-    pd_error(SRCLOC,"Can't generate %d-crossing unknot diagram.",pd,n);
-    exit(1);
+    pd = pd_code_new(2); /* Make room for 2, even though we won't use them. */
+    
+    pd->ncross = 0;
+    pd->nedges = 1;
+    pd->nfaces = 2;
+    pd->ncomps = 1;
+
+    pd->edge[0].head = PD_UNSET_IDX; pd->edge[0].headpos = PD_UNSET_POS;
+    pd->edge[0].tail = PD_UNSET_IDX; pd->edge[0].tailpos = PD_UNSET_POS;
+    
+    pd->face[0].nedges = 1;
+    
+    pd->face[0].edge = calloc(1,sizeof(pd_idx_t));
+    assert(pd->face[0].edge != NULL);
+    pd->face[0].edge[0] = 0;
+    
+    pd->face[0].or = calloc(1,sizeof(pd_or_t));
+    assert(pd->face[0].or != NULL);
+    pd->face[0].or[0] = PD_POS_ORIENTATION;
+
+    pd->face[1].nedges = 1;
+    
+    pd->face[1].edge = calloc(1,sizeof(pd_idx_t));
+    assert(pd->face[1].edge != NULL);
+    pd->face[1].edge[0] = 0;
+    
+    pd->face[1].or = calloc(1,sizeof(pd_or_t));
+    assert(pd->face[1].or != NULL);
+    pd->face[1].or[0] = PD_NEG_ORIENTATION;
+
+    pd->comp[0].nedges = 1;
+    pd->comp[0].edge = calloc(1,sizeof(pd_idx_t));
+    assert(pd->comp[0].edge != NULL);
+    pd->comp[0].edge[0] = 0;
+    pd->comp[0].tag = 'A';
+
+    assert(pd_ok(pd));
+    pd_regenerate_hash(pd);
+    return pd;
 
   }
 
-  /* Now we can generate */
+  if (n == 1) { 
+
+    /* 
+
+      Face 0  +--<--+
+              | F1  |
+           cr0|     0
+       +--->--------+
+       1  F2  |      
+       |      1      
+       +--<---+      
+
+    */
+
+    pd = pd_code_new(2); /* Make room for 2, even though we won't use them. */
+    
+    pd->ncross = 1;
+    pd->nedges = 2;
+    pd->nfaces = 3;
+    pd->ncomps = 1;
+
+    pd->cross[0].edge[0] = 0; pd->cross[0].edge[1] = 0; 
+    pd->cross[0].edge[2] = 1; pd->cross[0].edge[3] = 1;
+    pd->cross[0].sign = PD_POS_ORIENTATION;
+
+    pd->edge[0].head = 0; pd->edge[0].headpos = 1;
+    pd->edge[0].tail = 0; pd->edge[0].tailpos = 0;
+
+    pd->edge[1].head = 0; pd->edge[1].headpos = 2;
+    pd->edge[1].tail = 0; pd->edge[1].tailpos = 3;
+
+    pd->face[0].nedges = 2;
+    
+    pd->face[0].edge = calloc(2,sizeof(pd_idx_t));
+    assert(pd->face[0].edge != NULL);
+    pd->face[0].edge[0] = 0;
+    pd->face[0].edge[1] = 1;
+    
+    pd->face[0].or = calloc(2,sizeof(pd_or_t));
+    assert(pd->face[0].or != NULL);
+    pd->face[0].or[0] = PD_NEG_ORIENTATION;
+    pd->face[0].or[1] = PD_POS_ORIENTATION;
+
+    pd->face[1].nedges = 1;
+    
+    pd->face[1].edge = calloc(1,sizeof(pd_idx_t));
+    assert(pd->face[1].edge != NULL);
+    pd->face[1].edge[0] = 0;
+    
+    pd->face[1].or = calloc(1,sizeof(pd_or_t));
+    assert(pd->face[1].or != NULL);
+    pd->face[1].or[0] = PD_POS_ORIENTATION;
+
+    pd->face[2].nedges = 1;
+    
+    pd->face[2].edge = calloc(1,sizeof(pd_idx_t));
+    assert(pd->face[2].edge != NULL);
+    pd->face[2].edge[0] = 1;
+    
+    pd->face[2].or = calloc(1,sizeof(pd_or_t));
+    assert(pd->face[2].or != NULL);
+    pd->face[2].or[0] = PD_NEG_ORIENTATION;
+
+    pd->comp[0].nedges = 2;
+    pd->comp[0].edge = calloc(2,sizeof(pd_idx_t));
+    assert(pd->comp[0].edge != NULL);
+    pd->comp[0].edge[0] = 0;
+    pd->comp[0].edge[1] = 1;
+    pd->comp[0].tag = 'A';
+
+    assert(pd_ok(pd));
+    pd_regenerate_hash(pd);
+    return pd;
+
+  }
+   
+  /* Now we can generate the general case. */
 
   pd = pd_code_new(n);
   assert(pd != NULL);
