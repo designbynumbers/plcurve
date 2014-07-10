@@ -467,8 +467,20 @@ extern "C" {
   /* Reverse the orientation of component cmp iff or == PD_NEG_ORIENTATION */
 
   pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr);
-  /* Performs a loop deletion Reidemeister 1 move at the crossing cr. */
-  /* (A loop addition is a really different move, computationally speaking.) */
+  /* Performs a loop deletion Reidemeister 1 move at the crossing cr. 
+
+            +                   +        
+            |                   |        
+            |                   |        
+            |                   |        
+      +-------------+    ->     +-------+
+      |     | cr                           
+      |     |                            
+      +-----+                            
+
+   (A loop addition is a really different move, computationally speaking.) */
+
+
 
   void pd_R2_bigon_elimination(pd_code_t *pd,pd_idx_t cr[2],
 			       pd_idx_t  *noutpd,
@@ -504,8 +516,35 @@ extern "C" {
 
   */
 
+  pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3]);
+
+  /*                                                                
+     A "clump slide" moves a connect summand K of a pd_code_t across an edge.
+     The user is required to specify three edges along a component of pd in order
+     to define the desired slide, as below.
+     								    
+                 f[0]         |                 |                      
+	      +--------+      |                 |   +---------+        
+              |        |      |                 |   |         |        
+      --e[0]--+    K   +-e[1]---e[2]---  >  --------+    K    +------
+              |        |      |                 |   |         |        
+	      +--------+      |                 |   +---------+        
+                 f[1]         |                 |                      
+                   
+      Notes: We don't know the orientation of the component, so it might be the
+      case that e[0], e[1], and e[2] are positively or negatively orientated 
+      with respect to the component orientation. 
+
+      Also, the "clump" K may include additional components. However, there
+      must be a pair of faces f[0] and f[1] which share e[0] and e[1] to isolate 
+      the "clump". 
+
+  */
+
   pd_code_t *pd_simplify(pd_code_t *pd);
-  /* Simplify the pd code by eliminating loops and ``generalized loops''. */
+
+  /* Simplify the pd code using combinations of the moves above to 
+     reduce crossing number as far as possible. */
 
   /* pd human output */
 

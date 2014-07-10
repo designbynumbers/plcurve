@@ -1458,3 +1458,316 @@ or
 }
 
 
+pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3])
+
+  /*                                                                
+     A "clump slide" moves a connect summand K of a pd_code_t across an edge.
+     The user is required to specify three edges along a component of pd in order
+     to define the desired slide, as below.
+     								    
+                 f[0]         |                 |                      
+	      +--------+      |                 |   +---------+        
+              |        |      |                 |   |         |        
+      --e[0]--+    K   +-e[1]---e[2]---  >  --------+    K    +------
+              |        |      |                 |   |         |        
+	      +--------+      |                 |   +---------+        
+                 f[1]         |                 |                      
+                   
+      Notes: We don't know the orientation of the component, so it might be the
+      case that e[0], e[1], and e[2] are positively or negatively orientated 
+      with respect to the component orientation. 
+
+      Also, the "clump" K may include additional components. However, there
+      must be a pair of faces f[0] and f[1] which share e[0] and e[1] to isolate 
+      the "clump". 
+
+  */
+{
+  assert(pd != NULL);
+  pd_check_edge(SRCLOC,pd,e[0]);
+  pd_check_edge(SRCLOC,pd,e[1]);
+  pd_check_edge(SRCLOC,pd,e[2]);
+
+  if (e[0] == e[1] || e[1] == e[2] || e[0] == e[2]) { 
+
+    pd_error(SRCLOC,"edges e[0] = %d, e[1] = %d, and e[2] = %d have to be different in order to clump slide.\n",
+	     pd,e[0],e[1],e[2]);
+    exit(1);
+  }
+
+  /* We need to check that e[1] and e[2] share a vertex */
+
+  pd_or_t order_of_ei;
+
+  if (pd->edge[e[1]].head == pd->edge[e[2]].tail) { 
+
+    order_of_ei = PD_POS_ORIENTATION;
+
+  } else if (pd->edge[e[1]].tail == pd->edge[e[2]].head) {
+
+    order_of_ei = PD_NEG_ORIENTATION;
+
+  } else {
+
+    pd_error(SRCLOC,"clump_slide input error: edges e[1] == %EDGE and e[2] == %EDGE don't meet at a crossing\n",
+	     pd,e[1],e[2]);
+    exit(1);
+
+  }
+
+  /* Now we make sure that everybody is on the same component. */
+
+  pd_idx_t comp[3], pos[3],common_comp;
+  pd_idx_t i,j;
+
+  for(i=0;i<3;i++) { 
+     
+    pd_component_and_pos(pd,e[i],&comp[i],&pos[i]);
+
+  }
+
+  if (!(comp[0] == comp[1] && comp[1] == comp[2])) { 
+
+    pd_error(SRCLOC,"clump_slide input error: edges e[0] = %EDGE, e[1] = %EDGE, e[2] = %EDGE are on components %d, %d, %d, which are not the same\n",
+	     pd,e[0],e[1],e[2],comp[0],comp[1],comp[2]);
+    exit(1);
+
+  }
+
+  common_comp = comp[0];
+
+   /* Now we check for the existence of the faces f[0] and f[1] defining the clump.
+      By definition, f[0] is going to be the face on which e[0] and e[1] occur positively
+      and f[1] is going to be the face on which they occur negatively. 
+
+                 f[0]
+              
+              +--------+        
+              |        |             
+      e[0]->--+        +-->-e[1]
+              |        |          
+              +--------+     
+ 
+                 f[1]
+   
+   */
+   
+  pd_idx_t posface[2], negface[2], pfp[2], nfp[2];
+  for(i=0;i<2;i++) { pd_face_and_pos(pd,e[i],&posface[i],&pfp[i],&negface[i],&nfp[i]); }
+  pd_idx_t f[2];
+
+  if (posface[0] == posface[1]) { f[0] = posface[0]; } 
+  else {
+    pd_error(SRCLOC,"edges e[0] = %EDGE and e[1] = %EDGE are positive on faces %FACE and %FACE which are not the same\n",
+	     pd,e[0],e[1],posface[0],posface[1]);
+    exit(1);
+  }
+
+  if (negface[0] == negface[1]) { f[1] = negface[0]; } 
+  else {
+    pd_error(SRCLOC,"edges e[0] = %EDGE and e[1] = %EDGE are negative on faces %FACE and %FACE which are not the same\n",
+	     pd,e[0],e[1],negface[0],negface[1]);
+    exit(1);
+  }
+   
+  pd_code_t *out;
+  out = pd_code_new(pd->ncross);
+  pd_idx_t *new_edge_idx = calloc(pd->nedges,sizeof(pd_idx_t));
+  assert(new_edge_idx != NULL);
+
+  /* We've now checked that we are in position for the operation. The operation 
+     itself turns out to be surprisingly simple. 
+  */
+
+  /* We start by just making a copy of the existing edges and 
+     crossings. */
+   
+  for(i=0;i<pd->nedges;i++) { 
+    out->edge[i] = pd->edge[i];
+    new_edge_idx[i] = i; 
+  } 
+
+  for(i=0;i<pd->ncross;i++) { 
+    out->cross[i] = pd->cross[i];
+  }
+
+  for(i=0;i<pd->ncomps;i++) { 
+
+    out->comp[i].nedges = pd->comp[i].nedges;
+    out->comp[i].tag = pd->comp[i].tag;
+
+    out->comp[i].edge = calloc(out->comp[i].nedges,sizeof(pd_idx_t)); 
+    assert(out->comp[i].edge != NULL);
+     
+    for(j=0;j<out->comp[i].nedges;j++) { 
+
+      out->comp[i].edge[j] = pd->comp[i].edge[j];
+
+    }
+
+  }
+
+  /* Note: Faces are going to get regenerated later, because they really change. */
+
+  /*
+    If the orientations AGREE, we're
+    doing:
+
+                              |                     |                      
+	      +--------+      |                     |   +---------+        
+              |        |      |                     |   |         |  e[2] (new indices)      
+      --e[0]->+    K   +-e[1]>--e[2]->-  -->  ->e[0]-->-+    K    +-->---------------------
+              |        |      |                     |   |         |        
+	      +--------+      |                     |   +---------+        
+                              |                     |                      
+			      
+			      which is to say that first, the edges between e[0]+1 and e[1] need to be shifted up 
+			      by one index. Then we can splice a new edge in immediately after e[0] at the critical
+			      crossing. The crossings are not going to get renumbered (except by resorting).
+
+  */
+
+  if (order_of_ei == PD_POS_ORIENTATION) { 
+
+    /* Note the use of pd_next_edge as an iterator (instead of just
+       incrementing i). The point is that we're looping around a
+       component, whose edges very well might be consecutive, but
+       somewhere in the middle of a large collection of indices. So
+       figuring out the index of the "next in line" guy is not just
+       some modular arithmetic, but something that's actually a
+       pain. */
+
+    for(i=pd_next_edge(pd,e[0]); i != e[2]; i = pd_next_edge(pd,i)) { 
+       
+      out->edge[pd_next_edge(pd,i)] = pd->edge[i];
+      new_edge_idx[i] = pd_next_edge(pd,i);
+       
+    }
+
+    /* At this point, we've trashed e[2] (in the copy), and duplicated
+       the edge after e[0]. 
+
+       We now do the actual sewing, which as usual is the cleverest
+       lines in the code. The idea is that we're going to insert the 
+       crossing that used to be between e[1] and e[2] in between 
+       e[0] and the next edge to e[0], then go into the K stuff. */
+
+    pd_idx_t e0next = pd_next_edge(pd,e[0]);
+
+    out->edge[new_edge_idx[e0next]].head    = pd->edge[e[0]].head;
+    out->edge[new_edge_idx[e0next]].headpos = pd->edge[e[0]].headpos;
+
+    out->edge[new_edge_idx[e0next]].tail    = pd->edge[e[2]].tail;
+    out->edge[new_edge_idx[e0next]].tailpos = pd->edge[e[2]].tailpos;
+
+    out->edge[new_edge_idx[e[0]]].head    = pd->edge[e[1]].head;
+    out->edge[new_edge_idx[e[0]]].headpos = pd->edge[e[1]].headpos;
+
+    out->edge[new_edge_idx[e[1]]].head    = pd->edge[e[2]].head;
+    out->edge[new_edge_idx[e[1]]].headpos = pd->edge[e[2]].headpos;
+
+    out->cross[pd->edge[e[1]].head].edge[pd->edge[e[1]].headpos] = e[0]; /* Old edge number. */
+    out->cross[pd->edge[e[1]].head].edge[pd->edge[e[2]].tailpos] = e0next; /* Old edge number. */
+
+    /* We're going to translate crossing numbers (and regenerate faces)
+       after the branch comes back together. */
+     
+  } else { 
+
+    /*
+      If the orientations DISagree, we're
+      doing:
+
+                              |                     |                      
+	      +--------+      |                     |            +---------+        
+              |        |      |                     |            |         |  e[2] (new indices)      
+      --e[0]-<+    K   +-e[1]<--e[2]-<-  -->  -<e[0]--<--e0prev--+    K    +--<---------------------
+              |        |      |                     |            |         |        
+	      +--------+      |                     |            +---------+        
+	      |                     |                      
+			      
+	      which is to say that first, the edges between e[0]-1 and e[1] need to be shifted DOWN 
+	      by one index. Then we can splice a new edge in immediately BEFORE e[0] at the critical
+	      crossing. The crossings are not going to get renumbered (except by resorting).
+
+	      This is disgustingly like the previous code, except that we're swapping a lot of
+	      heads and tails and prevs and nexts. Still, we'll try to persevere through it.
+
+    */
+
+    for(i=pd_previous_edge(pd,e[0]); i != e[2]; i = pd_previous_edge(pd,i)) { 
+       
+      out->edge[pd_previous_edge(pd,i)] = pd->edge[i];
+      new_edge_idx[i] = pd_previous_edge(pd,i);
+       
+    }
+
+    /* At this point, we've trashed e[2] (in the copy), and duplicated
+       the edge after e[0]. 
+
+       We now do the actual sewing, which as usual is the cleverest
+       lines in the code. The idea is that we're going to insert the 
+       crossing that used to be between e[1] and e[2] in between 
+       e[0] and the previous edge to e[0], then go into the K stuff. */
+
+    pd_idx_t e0prev = pd_previous_edge(pd,e[0]);
+
+    out->edge[new_edge_idx[e0prev]].tail    = pd->edge[e[0]].tail;
+    out->edge[new_edge_idx[e0prev]].tailpos = pd->edge[e[0]].tailpos;
+     
+    out->edge[new_edge_idx[e0prev]].head    = pd->edge[e[2]].head;
+    out->edge[new_edge_idx[e0prev]].headpos = pd->edge[e[2]].headpos;
+
+    out->edge[new_edge_idx[e[0]]].tail    = pd->edge[e[1]].tail;
+    out->edge[new_edge_idx[e[0]]].tailpos = pd->edge[e[1]].tailpos;
+
+    out->edge[new_edge_idx[e[1]]].tail    = pd->edge[e[2]].tail;
+    out->edge[new_edge_idx[e[1]]].tailpos = pd->edge[e[2]].tailpos;
+
+    out->cross[pd->edge[e[1]].tail].edge[pd->edge[e[1]].tailpos] = e[0]; /* Old edge number. */
+    out->cross[pd->edge[e[1]].tail].edge[pd->edge[e[2]].headpos] = e0prev; /* Old edge number. */
+
+    /* We're going to translate crossing numbers (and regenerate faces)
+       after the branch comes back together. */
+  }
+
+  for(i=0;i<out->ncross;i++) { 
+
+    for(j=0;j<4;j++) { 
+
+      out->cross[i].edge[j] = new_edge_idx[out->cross[i].edge[j]];
+
+    }
+
+  }
+
+  /* Now there's no need to do anything other than copy components,
+     (which we've already done) because the same edges will still
+     make up each component (and they remain in order). For the same
+     reason, there's no need to resort the components, as they still
+     all have the same number of edges. 
+
+     However, the shift in edge numbers might resort the crossings,
+     and the faces and hash are definitely different. 
+  */
+
+  pd_regenerate_crossings(out);
+  pd_regenerate_faces(out);
+  pd_regenerate_hash(out);
+
+  assert(pd_ok(out));
+
+  assert(out->ncross == pd->ncross);
+  assert(out->nedges == pd->nedges);
+  assert(out->nfaces == pd->nfaces);
+  assert(out->ncomps == pd->ncomps);
+
+  /* Now we do some housecleaning */
+
+  free(new_edge_idx);
+
+  return out;
+   
+}
+
+
