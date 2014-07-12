@@ -559,12 +559,12 @@ bool test_readwrite_pd(pd_code_t *pd,char *name) {
   }
 
   if (!pd_ok(new_pd)) { 
-    pd_printf("fail (input %PD doesn't pass pd_ok)\n",pd);
+    pd_printf("fail (input %PD doesn't pass pd_ok)\n",new_pd);
     remove(template);
     return false;
   }
 
-  printf("pass (read %d cross, %d component pd)\n",pd->ncross,pd->ncomps);
+  printf("pass (read %d cross, %d component pd)\n",new_pd->ncross,new_pd->ncomps);
 
   /* ------------- */
 
@@ -622,6 +622,317 @@ bool test_rw() {
 
 }
 
+bool test_read_pd(char *pd_code_file, char *testname,bool xpass) { 
+
+  printf("----------------------------------------\n"
+	 "tests for pd_read of %s \n"
+	 "----------------------------------------\n",testname);
+
+  /* ---------- */
+
+  printf("building temp_file_name...");
+  char template[4096] = "/tmp/pdcodeXXXXXX";
+  int outfile_fd = mkstemp(template);
+
+  if (outfile_fd == -1) { 
+
+    printf("fail (couldn't open %s)\n",template);
+    return false;
+
+  }
+
+  FILE *outfile = fdopen(outfile_fd,"w");
+  
+  if (outfile == NULL) { 
+
+    printf("fail (couldn't convert filedescriptor %d to stream)\n",outfile_fd);
+    return false;
+
+  }
+
+  printf("done (%s)\n",template);
+  
+  /* ------------ */
+
+  printf("writing to file...");
+  fprintf(outfile,"%s",pd_code_file);
+  printf("pass (didn't crash)\n");
+
+  /* ------------ */
+
+  printf("closing file...");
+  fclose(outfile);
+  printf("done\n");
+  
+  printf("reopening file...");
+  FILE *infile = fopen(template,"r");
+  if (infile == NULL) { 
+    printf("fail (couldn't reopen %s)\n",template);
+    remove(template);
+    return false;
+  }
+  printf("pass\n");
+
+  /* ------------- */
+
+  pd_code_t *new_pd;
+
+  printf("reading new_pd from file ");
+  if (xpass) { 
+    printf("(expect pass)...");
+    PD_VERBOSE = 50;
+    new_pd = pd_read(infile); /* We WANT errors to stop the test. */
+  } else {
+    printf("(expect fail)...");
+    PD_VERBOSE = 0;
+    new_pd = pd_read(infile); /* We don't want errors to stop the test. */
+    PD_VERBOSE = 50;
+  }
+
+  if (new_pd == NULL && xpass) { 
+    printf("test FAILS (expected to parse file, couldn't)\n");
+    remove(template);
+    return false;
+  }
+
+  if (new_pd != NULL && !xpass) {
+
+    printf("test FAILS (expected to NOT parse file, but could)\n");
+    remove(template);
+    return false;
+
+  }
+
+  printf("pass (did as expected)\n");
+
+  if (xpass) { /* We only check the pd if, y'know, we read one */
+
+    if (!pd_ok(new_pd)) {
+ 
+      pd_printf("fail (input %PD doesn't pass pd_ok)\n",new_pd);
+      remove(template);
+      return false;
+
+    }
+
+    printf("pass (read %d cross, %d component pd)\n",new_pd->ncross,new_pd->ncomps);
+
+  }
+  
+  /* -------------- */
+
+  printf("housecleaning...");
+  fclose(infile);
+  remove(template);
+  pd_code_free(&new_pd);  /* Should work even if new_pd is NULL */
+  printf("done (didn't crash) \n");
+
+  printf("-------------------------------------------\n"
+	 "test for pd_read of %s: PASS \n"
+	 "-------------------------------------------\n",testname);
+  
+
+  return true;
+}
+
+bool test_rw_altforms() { 
+
+  /* This uses 
+
+     bool test_read_pd(char *pd_code_file, char *testname,bool xpass) 
+
+     together with some input pd codes to test various cases of the 
+     pd_read code and make sure that bad input doesn't cause segfaults
+     and that the various forms of good input are all ok. 
+  */ 
+
+  bool xpass = true;
+  bool xfail = false;
+
+  if (!test_read_pd(
+		    "pd \n"
+		    "nv 3\n"
+		    "0 0 5 1 -\n"
+		    "1 4 2 5 +\n"
+		    "2 3 3 4 +\n"
+		    "ne 6 \n"
+		    "0,0 -> 0,1 \n" 
+		    "0,3 -> 1,0 \n"
+		    "1,2 -> 2,0 \n"
+		    "2,2 -> 2,1 \n"
+		    "2,3 -> 1,1 \n"
+		    "1,3 -> 0,2 \n"
+		    "nc 1 \n"
+		    "6 : 0 1 2 3 4 5 tag A \n"
+		    "nf 5 \n"
+		    "4 : - 1 - 5 + 2 + 4 \n"
+		    "3 : - 0 + 1 + 5 \n"
+		    "3 : - 2 - 4 + 3 \n"
+		    "1 : + 0 \n"
+		    "1 : - 3 \n","no hash/uid test",xpass)) { return false; }
+
+  if (!test_read_pd(
+		    "pd pdunsethash 0\n"
+		    "nv 3\n"
+		    "0 0 5 1 -\n"
+		    "1 4 2 5 +\n"
+		    "2 3 3 4 +\n"
+		    "ne 6 \n"
+		    "0,0 -> 0,1 \n" 
+		    "0,3 -> 1,0 \n"
+		    "1,2 -> 2,0 \n"
+		    "2,2 -> 2,1 \n"
+		    "2,3 -> 1,1 \n"
+		    "1,3 -> 0,2 \n"
+		    "nc 1 \n"
+		    "6 : 0 1 2 3 4 5 tag A \n"
+		    "nf 5 \n"
+		    "4 : - 1 - 5 + 2 + 4 \n"
+		    "3 : - 0 + 1 + 5 \n"
+		    "3 : - 2 - 4 + 3 \n"
+		    "1 : + 0 \n"
+		    "1 : - 3 \n","short hash/uid test",xpass)) { return false; }
+
+  if (!test_read_pd(
+		    "pd pdunsethash \n"
+		    "nv 3\n"
+		    "0 0 5 1 -\n"
+		    "1 4 2 5 +\n"
+		    "2 3 3 4 +\n"
+		    "ne 6 \n"
+		    "0,0 -> 0,1 \n" 
+		    "0,3 -> 1,0 \n"
+		    "1,2 -> 2,0 \n"
+		    "2,2 -> 2,1 \n"
+		    "2,3 -> 1,1 \n"
+		    "1,3 -> 0,2 \n"
+		    "nc 1 \n"
+		    "6 : 0 1 2 3 4 5 tag A \n"
+		    "nf 5 \n"
+		    "4 : - 1 - 5 + 2 + 4 \n"
+		    "3 : - 0 + 1 + 5 \n"
+		    "3 : - 2 - 4 + 3 \n"
+		    "1 : + 0 \n"
+		    "1 : - 3 \n","hash, no uid test",xfail)) { return false; }
+
+  if (!test_read_pd(
+		    "pd \n"
+		    "nv 3\n"
+		    "0 0 5 1 -\n"
+		    "1 4 2 5 +\n"
+		    "2 3 3 4 +\n"
+		    "ne 6 \n"
+		    "0,0 -> 0,1 \n" 
+		    "0,3 -> 1,0 \n"
+		    "1,2 -> 2,0 \n"
+		    "2,2 -> 2,1 \n"
+		    "2,3 -> 1,1 \n"
+		    "1,3 -> 0,2 \n"
+		    "nc 1 \n"
+		    "6 : 0 1 2 3 4 5 \n"
+		    "nf 5 \n"
+		    "4 : - 1 - 5 + 2 + 4 \n"
+		    "3 : - 0 + 1 + 5 \n"
+		    "3 : - 2 - 4 + 3 \n"
+		    "1 : + 0 \n"
+		    "1 : - 3 \n","no component tags",xpass)) { return false; }
+
+  if (!test_read_pd(
+		    "pd \n"
+		    "nv 3\n"
+		    "0 0 5 1 -\n"
+		    "1 4 2 5 +\n"
+		    "2 3 3 4 +\n"
+		    "ne 6 \n"
+		    "0,0 -> 0,1 \n" 
+		    "0,3 -> 1,0 \n"
+		    "1,2 -> 2,0 \n"
+		    "2,2 -> 2,1 \n"
+		    "2,3 -> 1,1 \n"
+		    "1,3 -> 0,2 \n"
+		    "nc 1 \n"
+		    "6 : 0 1 2 3 4 5 tag 12\n"
+		    "nf 5 \n"
+		    "4 : - 1 - 5 + 2 + 4 \n"
+		    "3 : - 0 + 1 + 5 \n"
+		    "3 : - 2 - 4 + 3 \n"
+		    "1 : + 0 \n"
+		    "1 : - 3 \n","bad component tags",xfail)) { return false; }
+
+  if (!test_read_pd(
+		    "pd \n"
+		    "nv 3\n"
+		    "0 0 5 1 \n"
+		    "1 4 2 5 \n"
+		    "2 3 3 4 \n"
+		    "ne 6 \n"
+		    "0,0 -> 0,1 \n" 
+		    "0,3 -> 1,0 \n"
+		    "1,2 -> 2,0 \n"
+		    "2,2 -> 2,1 \n"
+		    "2,3 -> 1,1 \n"
+		    "1,3 -> 0,2 \n"
+		    "nc 1 \n"
+		    "6 : 0 1 2 3 4 5 tag A\n"
+		    "nf 5 \n"
+		    "4 : - 1 - 5 + 2 + 4 \n"
+		    "3 : - 0 + 1 + 5 \n"
+		    "3 : - 2 - 4 + 3 \n"
+		    "1 : + 0 \n"
+		    "1 : - 3 \n","no crossing signs",xpass)) { return false; }
+
+  if (!test_read_pd(
+		    "pd \n"
+		    "nv 3\n"
+		    "0 0 5 1 +\n"
+		    "1 4 2 5 +\n"
+		    "2 3 3 4 +\n"
+		    "ne 6 \n"
+		    "0,0 -> 0,1 \n" 
+		    "0,3 -> 1,0 \n"
+		    "1,2 -> 2,0 \n"
+		    "2,2 -> 2,1 \n"
+		    "2,3 -> 1,1 \n"
+		    "1,3 -> 0,2 \n"
+		    "nc 1 \n"
+		    "6 : 0 1 2 3 4 5 tag A\n"
+		    "nf 5 \n"
+		    "4 : - 1 - 5 + 2 + 4 \n"
+		    "3 : - 0 + 1 + 5 \n"
+		    /*	"3 : - 2 - 4 + 3 \n" */
+		    "1 : + 0 \n"
+		    "1 : - 3 \n","missing face",xfail)) { return false; }
+
+  if (!test_read_pd(
+		    "pd \n"
+		    "nv 3\n"
+		    "0 0 5 1 +\n"
+		    "1 4 2 5 +\n"
+		    "2 3 3 4 +\n"
+		    "ne 6 \n"
+		    "0,0 -> 0,1 \n" 
+		    "0,3 -> 1,0 \n"
+		    "1,2 -> 2,0 \n"
+		    "2,2 -> 2,1 \n"
+		    "2,3 -> 1,1 \n"
+		    "nc 1 \n"
+		    "6 : 0 1 2 3 4 5 tag A\n"
+		    "nf 5 \n"
+		    "4 : - 1 - 5 + 2 + 4 \n"
+		    "3 : - 0 + 1 + 5 \n"
+		    "3 : - 2 - 4 + 3 \n"
+		    "1 : + 0 \n"
+		    "1 : - 3 \n","missing edge",xfail)) { return false; }
+
+  return true;
+
+}
+
+  
+
+  
+
+
 int main() {
 
   printf("test_pdcode (%s)\n",PACKAGE_STRING);
@@ -629,7 +940,7 @@ int main() {
 	 "Unit tests for pdcode.c\n"
 	 "=======================================\n");
 
-  if (!test_simple_chain() || !test_unknot() || !test_rw() || !test_twist() || !test_torus() ||  !test_unknotwye()) {
+  if (!test_rw_altforms() || !test_simple_chain() || !test_unknot() || !test_rw() || !test_twist() || !test_torus() ||  !test_unknotwye()) {
 
     printf("=====================================\n");
     printf("test_pdcode:  FAIL.\n");

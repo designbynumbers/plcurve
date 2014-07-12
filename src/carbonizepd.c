@@ -265,8 +265,17 @@ int main(int argc,char *argv[]) {
     int j;
     for(j=0;!feof(in);j++) { 
       
+      PD_VERBOSE = 50;
       pd_code_t *inpd = pd_read(in);
       assert(inpd != NULL);
+
+      if (!pd_ok(inpd)) {
+
+	pd_printf("pdcode read from file does not pass pd_ok\n",inpd);
+	exit(1);
+
+      }
+
       char name[4096];
       char *temp_name = mangle(infile->basename[i],".pdstor","");
       sprintf(name,"%s_%d",temp_name,j);

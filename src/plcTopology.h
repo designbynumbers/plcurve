@@ -93,6 +93,7 @@ extern "C" {
 #define PD_UNSET_IDX UINT_MAX
 #define PD_UNSET_POS 4
 #define PD_UNSET_TAG 0
+#define PD_UNSET_UID ULONG_MAX
 
   /* The basic architecture of the pd_code is kind of intricate.  The
      problem is that we have to keep track of labelled diagram data in
@@ -516,30 +517,7 @@ extern "C" {
 
   */
 
-  pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3]);
-
-  /*                                                                
-     A "clump slide" moves a connect summand K of a pd_code_t across an edge.
-     The user is required to specify three edges along a component of pd in order
-     to define the desired slide, as below.
-     								    
-                 f[0]         |                 |                      
-	      +--------+      |                 |   +---------+        
-              |        |      |                 |   |         |        
-      --e[0]--+    K   +-e[1]---e[2]---  >  --------+    K    +------
-              |        |      |                 |   |         |        
-	      +--------+      |                 |   +---------+        
-                 f[1]         |                 |                      
-                   
-      Notes: We don't know the orientation of the component, so it might be the
-      case that e[0], e[1], and e[2] are positively or negatively orientated 
-      with respect to the component orientation. 
-
-      Also, the "clump" K may include additional components. However, there
-      must be a pair of faces f[0] and f[1] which share e[0] and e[1] to isolate 
-      the "clump". 
-
-  */
+  
 
   pd_code_t *pd_simplify(pd_code_t *pd);
 
@@ -608,6 +586,127 @@ extern "C" {
   void pd_check_notnull(char *file, int line, char *varname, void *ptr);
   /* Checks if pointer is null, dies with error if so. The field "varname" is a string giving
      the name of the pointer. Should be called like pd_check_notnull(SRCLOC,"invar",invar); */
+
+  /********** Tangle Operations **************/
+
+  /* It's often useful to cut "tangles" out of the center of pd codes.
+     A tangle is determined by a cycle of edges e[0] -> e[nedges-1] and a
+     corresponding cycle of faces f[0] -> f[nfaces-1], as below:
+
+               f[0]
+
+          +-------------+     
+          |             |     
+    e[0]--+             +---e[nedges-1]
+          |             |
+     f[1] |     T       |  f[nfaces-1]
+          |             |     
+    e[1]--+             +---e[nedges-2]
+          |             |     
+          +-------------+  f[nfaces-2]    
+     f[2]   |  ....   |               
+
+     Equivalently, a tangle is a cycle in the dual graph of the diagram.
+
+     The edges must join each other in a collection of nstrands = nedges/2
+     "strands", which pass through the tangle. The edges have boundary 
+     orientations on the tangle, which record whether they are heading 
+     into or out of the tangle. 
+
+  */
+
+  typedef enum {in,out} pd_boundary_or_t;
+
+  typedef struct tangle_strand_struct {
+    
+    pd_idx_t start_edge;
+    pd_idx_t end_edge;
+    pd_idx_t nedges;
+   
+    pd_idx_t comp;
+
+  } pd_tangle_strand_t;
+
+  typedef struct pd_tangle_struct {
+
+    pd_idx_t nedges;
+    pd_idx_t nstrands; /* Always equal to nedges/2 */
+
+    pd_idx_t *edge;
+    pd_idx_t *face;
+
+    pd_boundary_or_t *edge_bdy_or; /* in/out orientations for the edges e */    
+    pd_tangle_strand_t *strand;
+
+    pd_idx_t  ninterior_cross;   /* Crossings in the interior of the tangle. */
+    pd_idx_t *interior_cross;    /* List of interior crossing indices */
+
+    pd_idx_t  ninterior_edges;   /* Edges in the interior of the tangle. */
+    pd_idx_t *interior_edge;     /* List of interior edge indices. */
+    
+  } pd_tangle_t; 
+
+  bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t);
+  
+  pd_tangle_t *pd_tangle_new(pd_idx_t nedges);
+  void *pd_tangle_free(pd_tangle_t **t);
+  
+  void pd_regenerate_tangle(pd_code_t *pd,pd_tangle_t *t); 
+  /* Recreates tangle data from edges and faces */
+
+  pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
+			     pd_idx_t ncross_edges, pd_idx_t cross_edges[]);
+
+  /*                                                                
+     A "clump slide" moves a connect summand K of a pd_code_t across an edge.
+     The user is required to specify three edges along a component of pd in order
+     to define the desired slide, as below.
+     								    
+                 f[0]         |                 |                      
+	      +--------+      |                 |   +---------+        
+              |        |      |                 |   |         |        
+      --e[0]--+    K   +-e[1]---e[2]---  >  --------+    K    +------
+              |        |      |                 |   |         |        
+	      +--------+      |                 |   +---------+        
+                 f[1]         |                 |                      
+                   
+      Notes: We don't know the orientation of the component, so it might be the
+      case that e[0], e[1], and e[2] are positively or negatively orientated 
+      with respect to the component orientation. 
+
+      Also, the "clump" K may include additional components. However, there
+      must be a pair of faces f[0] and f[1] which share e[0] and e[1] to isolate 
+      the "clump". 
+
+  */
+
+  pd_code_t *pd_tangle_flype(pd_code_t *pd,pd_tangle_t *t);
+
+  /*  This is a classical "flype" move, which we define by giving input
+      and output edges. These must be connected in the (topological) 
+      situation below.
+                           +---------+          
+      +in[0]---+    +------+         +----out[0]--+
+               |    |      |         |          
+               |    |      |         |          
+            +--------+     |  VVVVV  |          
+            |  | cr        |         |          
+            |  |           |         |          
+      +in[1]+  +-----------+         +----out[1]--+
+                           +---------+          
+                        |                  
+                        v                  
+         +---------+                            
+         |         |                            
+      +--+         +------+  +-----------------+
+         |         |      |  |                  
+         |  ^^^^^  |      |  | cr                 
+         |         |      +------+              
+         |         |         |   |              
+      +--+         +---------+   +-------------+
+         +---------+                            
+
+  */
 
   /* Standard, valid pd codes (for test purposes). */
 

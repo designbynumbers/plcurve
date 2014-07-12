@@ -2038,9 +2038,11 @@ bool pd_faces_ok(pd_code_t *pd)
 
 	return pd_error(SRCLOC,
 			"%FEDGE -> %FEDGE transition not ok\n"
+			"in face %FACE of pd\n"
 			"Oriented %EDGE and %EDGE don't meet\n"
 			"correctly in pd %PD\n",
 			pd,face,edge,face,nxt_edge,
+			face,
 			pd->face[face].edge[edge],
 			pd->face[face].edge[nxt_edge]);
       }
@@ -2404,24 +2406,128 @@ pd_code_t *pd_read(FILE *infile)
   char hash[PD_HASHSIZE];
   pd_uid_t uid;
 
-  if (fscanf(infile," pd %32[a-zA-Z0-9;:]s ",hash) != 1) { return NULL; }
-  if (fscanf(infile," %lu ", &input_temp) != 1) { return NULL; }
-  uid = (pd_uid_t)(input_temp);
+  /* The first thing we do is spin through whitespace until we encounter a "p" */
+  int read_char;
+  for(read_char = fgetc(infile);isspace(read_char);read_char = fgetc(infile));
+  ungetc(read_char,infile);
+
+  /* We now read the rest of the line, to see if it contains a hash
+     and uid. We're going to bet on hashes (and hence, lines) no
+     longer than 4096 characters here. */
+
+  char pd_line[4096];
+
+  if (fgets(pd_line,4096,infile) == NULL) { 
+
+    pd_error(SRCLOC,"infile is already at EOF-- can't pd_read from it\n",NULL);
+    return NULL;
+
+  }
+
+  /* Now we try the alternatives. If we're going to read a hash, we have
+     to do a little dodge to construct the pattern for sscanf, because we
+     want the sscanf pattern to reflect PD_HASHSIZE (which might change) */
+
+  char hash_template[1024];
+  sprintf(hash_template," pd %%%d[a-zA-Z0-9;:] %%lu ",PD_HASHSIZE);
+
+  int sscanf_result = sscanf(pd_line,hash_template,hash,&input_temp);
+
+  if (sscanf_result != 2) { 
+
+    /* Check for an incorrect hash. */
+
+    char bogus_hash[4096];
+    if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 2) { 
+
+      pd_error(SRCLOC,
+	       "first line of pdcode file\n"
+	       "%s"
+	       "is in format\n"
+	       "pd <hash> <uid>\n"
+	       "but hash == %s, which violates a hash rule\n"
+	       "the hash may be at most %d characters long\n"
+	       "and should only contain characters [a-zA-Z0-9;:]\n"
+	       "\n"
+	       "If you don't know the hash, it should be omitted\n"
+	       "and this line should read\n"
+	       "\n"
+	       "pd\n",NULL,pd_line,bogus_hash,PD_HASHSIZE);
+      return NULL;
+   
+    } else if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 1) { 
+
+      pd_error(SRCLOC,
+	       "first line of pdcode file appears to be in format\n"
+	       "pd <hash> <uid>\n"
+	       "and includes hash %s, but does not include uid (an unsigned integer)\n",NULL,bogus_hash);
+      return NULL;
+
+    }
+
+    /* Well, it looks like we didn't even TRY to provide a hash and uid. */    
+    /* In this case, we should match "(whitespace)pd(whitespace)" */
+    
+    char pd_string[32];
+
+    if (sscanf(pd_line," %32s ",pd_string) != 1) { 
+
+      pd_error(SRCLOC,
+	       "first line of pdcode file is neither in format\n"
+	       "pd <hash> <uid>\n"
+	       "nor\n"
+	       "pd\n",NULL);
+      return NULL;
+
+    }
+    
+    if (strcmp(pd_string,"pd") != 0) { 
+      
+      pd_error(SRCLOC,
+	       "first line of pdcode file contains\n"
+	       "%s\n"
+	       "which is neither in format\n"
+	       "pd <hash> <uid>\n"
+	       "nor\n"
+	       "pd\n",NULL,pd_string);
+      return NULL;
+      
+    }
+  
+    /* We DO actually match this. This means that we should set the 
+       hash and the uid ourselves. */
+
+    uid = PD_UNSET_UID;
+    sprintf(hash,"unset");
+
+  } else { /* We matched the pd <hash> <uid> format */
+
+    uid = (pd_uid_t)(input_temp);
+
+  }
 
   /* nv   <nverts> */
 
   int cross,edge,comp,pos,face;
-  if (fscanf(infile,"nv %lu ",&input_temp) != 1) { return NULL; }
+  if (fscanf(infile," nv %lu ",&input_temp) != 1) { 
+
+    pd_error(SRCLOC,
+	     "second line of pdcode file should be in format\n"
+	     "nv <nverts>\n"
+	     "where <nverts> == number of crossings in pd_code\n",NULL);
+
+    return NULL; 
+
+  }
 
   /* We now know the number of crossings to allocate space for, 
      and we can call pd_new */
 
   pd_code_t *pd = pd_code_new((pd_idx_t)(input_temp));
 
-  /* We now have to read the hash. */
+  /* We now have to copy the hash into the new pd code. */
 
   strncpy(pd->hash,hash,PD_HASHSIZE);
-  
   pd->uid = uid;
   pd->ncross = (pd_idx_t)(input_temp);
 
@@ -2442,7 +2548,14 @@ pd_code_t *pd_read(FILE *infile)
 
     for(pos=0;pos<4;pos++) {
 
-      if(fscanf(infile," %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
+      if(fscanf(infile," %lu ",&input_temp) != 1) { 
+
+	pd_error(SRCLOC,"error on crossing %d (of %d), in pd (so far) %PD",pd,cross,pd->ncross);
+	pd_code_free(&pd); 
+	return NULL; 
+
+      }
+
       pd->cross[cross].edge[pos] = (pd_idx_t)(input_temp);
 
     }
@@ -2468,16 +2581,26 @@ pd_code_t *pd_read(FILE *infile)
 
   /* ne   <nedges> */
 
-  if (fscanf(infile," ne %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
+  if (fscanf(infile," ne %lu ",&input_temp) != 1) { 
+
+    pd_error(SRCLOC,
+	     "after crossing lines, should have\n"
+	     "ne <nedges>\n"
+	     "but this file does not\n",pd);
+    pd_code_free(&pd); 
+    return NULL; 
+
+  }
   pd->nedges = (pd_idx_t)(input_temp);
 
   if (pd->nedges > pd->MAXEDGES) {
 
-    fprintf(stderr,
+    pd_error(SRCLOC,
 	    "%s (%d): Reading pd code which appears to be valid but has %d edges. "
 	    "         We allocated space for pd->MAXEDGES = %d.\n",
-	    __FILE__,__LINE__,pd->nedges,pd->MAXEDGES);
-    exit(1);
+	    pd,pd->nedges,pd->MAXEDGES);
+    pd_code_free(&pd);
+    return NULL;
 
   }
 
@@ -2486,7 +2609,15 @@ pd_code_t *pd_read(FILE *infile)
   for(edge=0;edge<pd->nedges;edge++) {
 
     if(fscanf(infile," %lu,%lu -> %lu,%lu ",
-	      &input_temp,&input_temp2,&input_temp3,&input_temp4) != 4) { pd_code_free(&pd); return NULL; }
+	      &input_temp,&input_temp2,&input_temp3,&input_temp4) != 4) { 
+
+      pd_error(SRCLOC,
+	       "edge %d is not in the format\n"
+	       "<crossing>,<pos> -> <crossing>,<pos>\n"
+	       "where <crossing> and <pos> are positive integers\n",pd,edge);
+      pd_code_free(&pd); return NULL; 
+
+    }
 
     pd->edge[edge].tail = (pd_idx_t)(input_temp);
     pd->edge[edge].tailpos = (pd_pos_t)(input_temp2);
@@ -2498,16 +2629,26 @@ pd_code_t *pd_read(FILE *infile)
 
   /* nc   <ncomps> */
 
-  if (fscanf(infile,"nc %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
+  if (fscanf(infile,"nc %lu ",&input_temp) != 1) { 
+
+    pd_error(SRCLOC,
+	     "after edge lines, pdcode file should have a line\n"
+	     "nc <ncomps>\n"
+	     "where <ncomps> is a positive integer\n"
+	     "but this one doesn't",pd);
+    pd_code_free(&pd); return NULL; 
+
+  }
   pd->ncomps = (pd_idx_t)(input_temp);
 
   if (pd->ncomps > pd->MAXCOMPONENTS) {
 
-    fprintf(stderr,
-	    "%s (%d): Reading pd code which appears to be valid but has %d components. "
-	    "         We allocated space for pd->MAXCOMPONENTS = %d.\n",
-	    __FILE__,__LINE__,pd->ncomps,pd->MAXCOMPONENTS);
-    exit(1);
+    pd_error(SRCLOC,
+	    "Reading pd code which appears to be valid but has %d components. "
+	    "We allocated space for pd->MAXCOMPONENTS = %d in %PD\n",
+	    pd,pd->ncomps,pd->MAXCOMPONENTS);
+    pd_code_free(&pd);
+    return NULL;
 
   }
 
@@ -2517,7 +2658,18 @@ pd_code_t *pd_read(FILE *infile)
 
   for(comp=0;comp<pd->ncomps;comp++) {
      
-    if (fscanf(infile," %lu : ",&input_temp) != 1) { pd_code_free(&pd); return false; }
+    if (fscanf(infile," %lu : ",&input_temp) != 1) {
+ 
+      pd_error(SRCLOC,
+	       "component %d should start with\n"
+	       "<nedges> : \n"
+	       "where <nedges> is a positive integer\n"
+	       "but this file doesn't\n",pd,comp);
+      pd_code_free(&pd); 
+      return false; 
+
+    }
+    
     pd->comp[comp].nedges = (pd_idx_t)(input_temp);
 
     /* We haven't allocated space in the component. */
@@ -2537,7 +2689,14 @@ pd_code_t *pd_read(FILE *infile)
 
     for(edge=0;edge<pd->comp[comp].nedges;edge++) {
 
-      if(fscanf(infile," %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
+      if(fscanf(infile," %lu ",&input_temp) != 1) { 
+
+	pd_error(SRCLOC,"edge %d of component %d should be a positive integer\n"
+		 "but isn't in this file\n",pd,edge,comp);
+	pd_code_free(&pd); return NULL; 
+
+      }
+
       pd->comp[comp].edge[edge] = (pd_idx_t)(input_temp);
       
 
@@ -2553,7 +2712,15 @@ pd_code_t *pd_read(FILE *infile)
 
       ungetc((int)(testchar),infile);
       if (fscanf(infile," tag %c ",&(pd->comp[comp].tag)) != 1) { 
+	
+	pd_error(SRCLOC,
+		 "component %d of pd_code has extra characters after %d edges\n"
+		 "which start with t (so we're assuming a tag) but they don't match\n"
+		 "tag <tag>\n"
+		 "where <tag> is a single ASCII character\n",
+		 pd,comp,edge);
 	pd_code_free(&pd);
+	return NULL;
       }
       
     } else {
@@ -2567,16 +2734,25 @@ pd_code_t *pd_read(FILE *infile)
 
   /*nf   <nfaces> */
  
-  if (fscanf(infile,"nf %lu ",&input_temp) != 1) { pd_code_free(&pd); return false; }
+  if (fscanf(infile," nf %lu ",&input_temp) != 1) { 
+    
+    pd_error(SRCLOC,
+	     "after component data, pdfile should contain\n"
+	     "nf <nfaces>\n"
+	     "where <nfaces> is a positive integer\n"
+	     "but this one doesn't\n",pd);
+    pd_code_free(&pd); return NULL; 
+
+  }
   pd->nfaces = (pd_idx_t)(input_temp);
 
   if (pd->nfaces > pd->MAXFACES) {
 
-    fprintf(stderr,
-	    "%s (%d): Reading pd code which appears to be valid but has %d faces. "
-	    "         We expected a maximum of pd->MAXFACES = %d.\n",
-	    __FILE__,__LINE__,pd->nfaces,pd->MAXFACES);
-    exit(1);
+    pd_error(SRCLOC,
+	    "Reading pd code which appears to be valid but has %d faces. "
+	     "We expected a maximum of pd->MAXFACES = %d in %PD\n",pd,
+	     pd->nfaces,pd->MAXFACES);
+    return NULL;
 
   }
 
@@ -2585,16 +2761,29 @@ pd_code_t *pd_read(FILE *infile)
 
   for(face=0;face<pd->nfaces;face++) {
     
-    if (fscanf(infile," %lu : ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
+    if (fscanf(infile," %lu : ",&input_temp) != 1) { 
+      
+      pd_error(SRCLOC,
+	       "face record %d (of %d) is expected to begin\n"
+	       "<nedges> : \n"
+	       "where <nedges> is a positive integer\n"
+	       "but this one doesn't in %PD\n",pd,
+	       face,pd->nfaces);
+
+      pd_code_free(&pd); 
+      return NULL; 
+
+    }
+
     pd->face[face].nedges = (pd_idx_t)(input_temp);
 
     if (pd->face[face].nedges > pd->MAXEDGES) {
 
-      fprintf(stderr,
-	    "%s (%d): Reading face which appears to be valid but has %d edges. "
-	    "         We expected a maximum of pd->MAXEDGES = %d.\n",
-	      __FILE__,__LINE__,pd->nedges,pd->MAXEDGES);
-      exit(1);
+      pd_error(SRCLOC,
+	       "Reading face which appears to be valid but has %d edges. "
+	       "We expected a maximum of pd->MAXEDGES = %d.\n",
+	       pd,pd->face[face].nedges,pd->MAXEDGES);
+      return NULL;
 
     }
 
@@ -2607,11 +2796,26 @@ pd_code_t *pd_read(FILE *infile)
       char orientation[2];
       if(fscanf(infile," %1[+-]s ",orientation) != 1) {
 
+	pd_error(SRCLOC,
+		 "edge %d of face %d in pdcode file\n"
+		 "doesn't have a sign which matches [+-]\n",
+		 pd,edge,face);
+	pd_code_free(&pd);
 	return NULL;
 
       }
 
-      if (fscanf(infile," %lu ",&input_temp) != 1) { pd_code_free(&pd); return NULL; }
+      if (fscanf(infile," %lu ",&input_temp) != 1) { 
+
+	pd_error(SRCLOC,
+		 "edge %d of face %d in pdcode file\n"
+		 "has sign (+/-) but doesn't match\n"
+		 "<+-> <edge>\n"
+		 "where <edge> is a positive integer\n",
+		 pd,edge,face);
+
+	pd_code_free(&pd); return NULL; 
+      }
 
       pd->face[face].edge[edge] = (pd_idx_t)(input_temp);
       pd->face[face].or[edge] = (orientation[0] == '+') ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;

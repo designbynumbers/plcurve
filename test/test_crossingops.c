@@ -737,7 +737,7 @@ int main() {
 	 "Unit tests for pdcode Reidemeister move primitives. \n"
 	 "========================================================\n");
 
-  if (!r2_tests() || !compacting_copy_tests() || !unravel_unknot_test(10)) {
+  if (!r1testA() || !r2_tests() || !compacting_copy_tests() || !unravel_unknot_test(10)) {
 
     printf("\n=======================================================\n");
     printf("test_crossingops:  FAIL.\n");
