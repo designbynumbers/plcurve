@@ -199,6 +199,7 @@ bool compacting_copy_int_test(size_t nobj, pd_idx_t ndeletions, pd_idx_t *deleti
   printf("\t housecleaning...");
   free(target_var);
   free(target_idx);
+  free(source);
   printf("done\n\n");
 
   return true;

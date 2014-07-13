@@ -1053,9 +1053,10 @@ void pd_regenerate_comps(pd_code_t *pd)
      fixed size, and was allocated by pd_code_new, regardless of the
      number of components that are actually used.
 
+     But we don't need to reallocate it, either.
+
   */
-  
-  pd->comp = calloc(pd->MAXCOMPONENTS,sizeof(pd_component_t));
+ 
   assert(pd->comp != NULL);
    
   /* Step 1. Run around the components, 

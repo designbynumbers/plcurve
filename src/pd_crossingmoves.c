@@ -254,6 +254,8 @@ void pd_transform_and_compact_indices(pd_idx_t *source,
 
     pd_compacting_copy((void *)(source),sizeof(pd_idx_t),(size_t)(nobj),ndeletions,deletions,
 		       (void **)(target),&target_idx,ntarget);
+
+    free(deletions);  /* We're done with this */
     
   }
 
