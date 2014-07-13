@@ -221,7 +221,7 @@ void pd_transform_and_compact_indices(pd_idx_t *source,
 {
   pd_idx_t i, ndeletions=0;
   for(i=0;i<nobj;i++) { 
-    if (transform[i] == PD_UNSET_IDX) { 
+    if (transform[source[i]] == PD_UNSET_IDX) { 
       ndeletions++; 
     } 
   }
@@ -245,7 +245,12 @@ void pd_transform_and_compact_indices(pd_idx_t *source,
     assert(deletions != NULL);
 
     ndeletions = 0;
-    for(i=0;i<nobj;i++) { if (transform[i] == PD_UNSET_IDX) { deletions[ndeletions++] = i; } }
+    
+    for(i=0;i<nobj;i++) { 
+      if (transform[source[i]] == PD_UNSET_IDX) { 
+	deletions[ndeletions++] = i; 
+      } 
+    }
 
     pd_compacting_copy((void *)(source),sizeof(pd_idx_t),(size_t)(nobj),ndeletions,deletions,
 		       (void **)(target),&target_idx,ntarget);
@@ -265,6 +270,100 @@ void pd_transform_and_compact_indices(pd_idx_t *source,
   /* And we're done. */
 
 }
+
+void pd_compact_components(pd_code_t *pd, pd_code_t *outpd,pd_idx_t *new_edge_idx)
+
+/* Performs a compacting copy on each component of pd, eliminating edges
+   whose new_edge_idx is PD_UNSET_IDX. Then resorts components by length.
+   Afterwards, we apply an edgemap to return the edges to canonical order. */
+
+/* 
+   This will use the transform_and_compact_indices api:
+ 
+     void pd_transform_and_compact_indices(pd_idx_t *source, pd_idx_t nobj, 
+				      pd_idx_t *transform,
+				      pd_idx_t **target)
+*/
+
+{
+  pd_idx_t i;
+  
+  for(i=0;i<pd->ncomps;i++) { 
+
+    pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,new_edge_idx,
+				     &(outpd->comp[i].edge),&(outpd->comp[i].nedges));
+    outpd->comp[i].tag = pd->comp[i].tag;
+
+  }
+
+  outpd->ncomps = pd->ncomps;
+  qsort(outpd->comp,outpd->ncomps,sizeof(pd_component_t),pd_component_cmp);
+  
+  /* 
+     We now need to transform the edge indices again to make the edges
+     consecutive along the new components. Having done so, we'll scramble
+     the edge buffer in the corresponding way, which will cascade down to the
+     crossing buffer (because we've changed the edge number references in 
+     the crossings, we have to resort the crossings as well). 
+  */ 
+
+  pd_idx_t *resort_edge_idx;
+  resort_edge_idx = calloc(outpd->nedges,sizeof(pd_idx_t));
+  assert(resort_edge_idx != NULL);
+
+  pd_edge_t *new_edge_buf = calloc(outpd->nedges,sizeof(pd_edge_t));
+  assert(new_edge_buf != NULL);
+
+  pd_idx_t j,edge=0;
+
+  for(i=0;i<outpd->ncomps;i++) { 
+
+    for(j=0;j<outpd->comp[i].nedges;j++,edge++) { 
+
+      resort_edge_idx[outpd->comp[i].edge[j]] = edge;
+      new_edge_buf[edge] = outpd->edge[outpd->comp[i].edge[j]];
+
+    }
+
+  }
+
+  /* Now swap in the new edge buffer. */
+
+  free(outpd->edge);
+  outpd->edge = new_edge_buf;
+
+  /* Finally, we apply the transformation to the crossings and components. 
+     Faces we'll just regenerate. */
+
+  for(i=0;i<outpd->ncross;i++) { 
+
+    for(j=0;j<4;j++) { 
+
+      outpd->cross[i].edge[j] = resort_edge_idx[outpd->cross[i].edge[j]];
+
+    }
+
+  }
+
+  for(i=0;i<outpd->ncomps;i++) { 
+
+    for(j=0;j<outpd->comp[i].nedges;j++) { 
+
+      outpd->comp[i].edge[j] = resort_edge_idx[outpd->comp[i].edge[j]];
+
+    }
+
+  }
+
+  /* Finally, we'll regenerate crossings and faces. */
+
+  pd_regenerate_crossings(outpd);
+  pd_regenerate_faces(outpd);
+
+  free(resort_edge_idx);
+
+}
+
 
 pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
 
@@ -397,7 +496,7 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
   outpd->cross[new_crossing_idx[pd->edge[e[2]].head]].edge[pd->edge[e[2]].headpos] = e[0];
 
   /* We now make a compacting copy of the edge buffer which eliminates 
-     edges e[0] and e[1]. */
+     edges e[1] and e[2]. */
 
   /* void pd_compacting_copy(void *source, size_t obj_size, size_t nobj, 
                              pd_idx_t ndeletions, pd_idx_t *deletions,
@@ -469,31 +568,10 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
      there's nothing to be done about that right now! */
 
   pd_regenerate_crossings(outpd);
-  
-  /* We now need to compact and reorder the components, keeping in 
-     mind that the edge indices have now changed. This will use the 
-     transform_and_compact_indices api:
- 
-     void pd_transform_and_compact_indices(pd_idx_t *source, pd_idx_t nobj, 
-				      pd_idx_t *transform,
-				      pd_idx_t **target)
-  */
-  
-  for(i=0;i<pd->ncomps;i++) { 
+  pd_compact_components(pd,outpd,new_edge_idx);  
+  /* Transform, compact, and resort the components. (This fixes faces, too.) */
+  /* The new pd now has crossings, edges, components, and faces which make sense. */
 
-    pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,new_edge_idx,
-				     &(outpd->comp[i].edge),&(outpd->comp[i].nedges));
-    outpd->comp[i].tag = pd->comp[i].tag;
-
-  }
-
-  outpd->ncomps = pd->ncomps;
-  qsort(outpd->comp,outpd->ncomps,sizeof(pd_component_t),pd_component_cmp);
-
-  /* The new pd now has crossings, edges, and components which make sense. */
-  /* It's ok to just regenerate the faces. */
-
-  pd_regenerate_faces(outpd);
   pd_regenerate_hash(outpd);
 
   /* Finally, we check that we survived all this. */

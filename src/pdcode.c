@@ -72,7 +72,7 @@ pd_code_t *pd_code_new(pd_idx_t maxverts) {
 
   pd->MAXVERTS = maxverts;
   pd->MAXEDGES = 2*maxverts+1;
-  pd->MAXCOMPONENTS = (pd_idx_t)(floor(maxverts/2.0)) + 1;
+  pd->MAXCOMPONENTS = (pd_idx_t)(floor(maxverts/2.0)) + 2;
   pd->MAXFACES = maxverts+2;
   
   pd->ncross = 0;
@@ -127,6 +127,7 @@ void pd_code_free(pd_code_t **PD) {
     } 
 
     free(pd->comp);
+    pd->comp = NULL;
     pd->MAXCOMPONENTS = 0;
     pd->ncomps = 0;
 
@@ -157,6 +158,7 @@ void pd_code_free(pd_code_t **PD) {
     }
 
     free(pd->face);
+    pd->face = NULL;
     pd->MAXFACES = 0;
     pd->nfaces = 0;
 
