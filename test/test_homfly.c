@@ -265,6 +265,7 @@ bool millett_ewing_paper_test() {
 
   homfly_polynomial_free(&poly_homfly);
   homfly_polynomial_free(&comp_homfly);
+  free(lmpoly_homfly);
 
   printf("----------------------------------------------\n"
 	 "crossing code from Millett/Ewing paper: pass  \n"
@@ -671,6 +672,8 @@ bool test_unknot_homfly_all_signs(pd_code_t *pd,char *desc) {
 
     }
 
+    free(homfly);
+
   }
   
   printf("pass. (%d crossing sign choices verified).\n",i);
@@ -944,6 +947,7 @@ bool rolfsentabletest()
   free(homflybuf);
   free(pdbuf);
   free(thistlethwaitetable);
+  free(srcdir);
 
   printf("\n"
 	 "Note: This is not a test that the HOMFLYPTs are correct,\n"
