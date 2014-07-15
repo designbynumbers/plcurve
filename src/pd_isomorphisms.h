@@ -156,7 +156,7 @@ typedef struct pd_facemap_struct {
 
 } pd_facemap_t;
 
-pd_facemap_t  *pd_new_facemap(pd_idx_t *ncross);
+pd_facemap_t  *pd_new_facemap(pd_idx_t *nfaces);
 void           pd_free_facemap(pd_facemap_t **facemap);
 
 char          *pd_print_facemap(pd_facemap_t *facemap);

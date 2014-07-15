@@ -931,8 +931,10 @@ char           *pd_print_crossmap(pd_crossmap_t *crossmap)
 
 
 void           *pd_copy_crossmap(pd_crossmap_t *crossmap)
-/* A new-memory copy of crossmap. */
+/* A new-memory copy of crossmap, or pass through a NULL pointer. */
 {
+  if (crossmap == NULL) { return NULL; }
+
   pd_crossmap_t *newcrossmap;
 
   newcrossmap = calloc(1,sizeof(pd_crossmap_t)); assert(newcrossmap != NULL);
@@ -944,6 +946,7 @@ void           *pd_copy_crossmap(pd_crossmap_t *crossmap)
 
 bool pd_crossmap_ok(pd_crossmap_t *crossmap) 
 {
+  if (crossmap == NULL) { return true; }
   return pd_perm_ok(crossmap->perm);
 }
 
@@ -1028,17 +1031,19 @@ pd_crossmap_t **pd_build_crossmaps(pd_code_t *pdA,pd_code_t *pdB,
 				   pd_edgemap_t *emap,unsigned int *ncrmaps)
 
 /* 
-   This is where the rubber meets the road. IF POSSIBLE, use the edgemap to build 
-   a map from the crossings of pdA to the crossings of pdB. The crossings in pdA and pdB
-   should be sorted, so we can use the gcc searching functions to look for matching 
-   crossings. 
+   This is where the rubber meets the road. IF POSSIBLE, use the
+   edgemap to build a map from the crossings of pdA to the crossings
+   of pdB. The crossings in pdA and pdB should be sorted, so we can
+   use the gcc searching functions to look for matching crossings.
 
-   If the map reverses orientation in the plane (globally), it will be reflected in 
-   the cyclic ordering of the edges at each crossing, which will switch from clockwise
-   to counterclockwise. 
+   If the map reverses orientation in the plane (globally), it will be
+   reflected in the cyclic ordering of the edges at each crossing,
+   which will switch from clockwise to counterclockwise.
 
-   A buffer to crossing maps generated (if 1 or 2) and NULL otherwise. Returns
-   number of crmaps generated in ncrmaps.
+   A buffer to crossing maps generated (if 1 or 2) and NULL
+   otherwise. Returns number of crmaps generated in ncrmaps. If there
+   are no crossings, we return a buffer consisting of a single NULL
+   pointer.
 
 */
 
@@ -1046,6 +1051,13 @@ pd_crossmap_t **pd_build_crossmaps(pd_code_t *pdA,pd_code_t *pdB,
   pd_crossmap_t **cross_buf;
   cross_buf = calloc(2,sizeof(pd_crossmap_t *)); assert(cross_buf != NULL);
   *ncrmaps = 0;
+
+  if (pdA->ncross == 0 && pdB->ncross == 0) { 
+
+    *ncrmaps = 1;
+    return cross_buf;
+
+  }
 
   cross_buf[0] = pdint_build_oriented_crossmap(pdA,pdB,emap,PD_POS_ORIENTATION);
   if (cross_buf[0] != NULL) { (*ncrmaps)++; }
@@ -1258,7 +1270,7 @@ pd_facemap_t **pd_build_facemaps(pd_code_t *pdA,pd_code_t *pdB,
    If the map reverses orientation in the plane (globally), it will be reflected in 
    the cyclic ordering of the edges in each face, which will reverse.
 
-   A buffer to crossing maps generated (if 1 or 2) and NULL otherwise. Returns
+   A buffer to face maps generated (if 1 or 2) and NULL otherwise. Returns
    number of facemaps generated in nfacemaps.
 
 */
@@ -1267,6 +1279,17 @@ pd_facemap_t **pd_build_facemaps(pd_code_t *pdA,pd_code_t *pdB,
   pd_facemap_t **face_buf;
   face_buf = calloc(2,sizeof(pd_facemap_t *)); assert(face_buf != NULL);
   *nfacemaps = 0;
+
+  if (pdA->ncross == 0 && pdB->ncross == 0) { 
+
+    *nfacemaps = 1;
+    face_buf[0] = pd_new_facemap(&(pdA->nfaces)); /* That is, 2 faces */
+    face_buf[0]->or = emap->or[0];     /* Reverses <=> we reverse the edge */
+    face_buf[0]->perm->map[0] = 0;     /* Identity permutation. */
+    face_buf[0]->perm->map[1] = 1;
+    return face_buf;
+
+  }
 
   face_buf[0] = pdint_build_oriented_facemap(pdA,pdB,emap,PD_POS_ORIENTATION);
   if (face_buf[0] != NULL) { (*nfacemaps)++; }
@@ -1350,6 +1373,8 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
 
   for(comp=0;comp<ncomps;comp++) { if (pdA->comp[comp].nedges != pdB->comp[comp].nedges) return NULL; }
   for(face=0;face<nfaces;face++) { if (pdA->face[face].nedges != pdB->face[face].nedges) return NULL; }
+
+
 
   /* We could put in weirder topological comparisons here
      like "number of edges in faces adjacent to face i" or
@@ -1786,10 +1811,14 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
   assert(pdA->ncross == pdB->ncross);
   ncross = pdA->ncross;
 
-  if (ncross != iso->crossmap->perm->n) { 
+  if (ncross != 0) { 
 
-    return pd_error(SRCLOC,"# elements in iso->crossmap->perm->n (%d) != ncross (%d) for pd codes",NULL,
-		    iso->crossmap->perm->n,ncross);
+    if (ncross != iso->crossmap->perm->n) { 
+
+      return pd_error(SRCLOC,"# elements in iso->crossmap->perm->n (%d) != ncross (%d) for pd codes",NULL,
+		      iso->crossmap->perm->n,ncross);
+
+    }
 
   }
 

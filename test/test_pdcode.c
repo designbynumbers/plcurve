@@ -612,12 +612,16 @@ bool test_rw() {
   if (!test_readwrite_pd(pd,"(2,6) torus link (crossings unset)")) { return false; }
   pd_code_free(&pd);
 
-  pd = pd_build_simple_chain(6);
-  if (!test_readwrite_pd(pd,"6 link chain (crossings set)")) { return false; }  
+  pd = pd_build_simple_chain(3);
+  if (!test_readwrite_pd(pd,"3 link chain (crossings set)")) { return false; }  
   for(cr=0;cr<pd->ncross;cr++) { pd->cross[cr].sign = PD_UNSET_ORIENTATION; }
-  if (!test_readwrite_pd(pd,"6 link chain (crossings unset)")) { return false; }
+  if (!test_readwrite_pd(pd,"3 link chain (crossings unset)")) { return false; }
   pd_code_free(&pd);
-  
+
+  pd = pd_build_unknot(0);
+  if (!test_readwrite_pd(pd,"0 crossing unknot diagram")) { return false; }  
+  pd_code_free(&pd);
+    
   return true;
 
 }

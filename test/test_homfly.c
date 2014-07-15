@@ -733,11 +733,14 @@ bool rolfsentabletest()
   
   printf("Trying to determine srcdir from environment...");
   char *srcdir = getenv("srcdir");
+  bool free_srcdir = false;
+
   if (srcdir == NULL) { 
 
     printf("fail. (assuming data files local)\n");
     srcdir = calloc(4,sizeof(char));
     sprintf(srcdir,".");
+    free_srcdir = true;
 
   } else {
 
@@ -947,7 +950,7 @@ bool rolfsentabletest()
   free(homflybuf);
   free(pdbuf);
   free(thistlethwaitetable);
-  free(srcdir);
+  if (free_srcdir) {  free(srcdir); }
 
   printf("\n"
 	 "Note: This is not a test that the HOMFLYPTs are correct,\n"

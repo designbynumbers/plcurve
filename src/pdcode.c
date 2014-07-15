@@ -2524,7 +2524,15 @@ pd_code_t *pd_read(FILE *infile)
   }
 
   /* We now know the number of crossings to allocate space for, 
-     and we can call pd_new */
+     and we can call pd_new. We make sure that we have space for 
+     at least two more crossings than we see now (to prevent zero
+     crossing diagrams from crashing everything). */
+
+  if ((pd_idx_t)(input_temp) == 0) { 
+
+    return pd_build_unknot(0);
+
+  }
 
   pd_code_t *pd = pd_code_new((pd_idx_t)(input_temp));
 
