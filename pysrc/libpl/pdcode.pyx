@@ -520,6 +520,17 @@ cdef class _FaceList(_OwnedObjectList):
     def __delitem__(self, i):
         raise NotImplementedError("Can't delete faces.")
 
+cdef class _VirtualEdgeArray:
+    """Discreetly wraps an edge array so that Python code can mutate C data."""
+    pass
+
+cdef PlanarDiagram PlanarDiagram_wrap(pd_code_t *pd):
+    """Wraps a pd_code_t* in a PlanarDiagram"""
+    cdef PlanarDiagram newobj = PlanarDiagram.__new__(PlanarDiagram)
+    newobj.p = pd
+    newobj.regenerate_py_os()
+    return newobj
+
 cdef class PlanarDiagram:
     """Class which represents a PD code (planar diagram). There are
     a few different ways to create ``PlanarDiagram``\ s:
@@ -582,6 +593,16 @@ cdef class PlanarDiagram:
         Create a new PlanarDiagram. You may set the initial available number
         of vertices by passing a number to `max_verts`."""
         self.p = pd_code_new(max_verts)
+
+    @classmethod
+    def _wrap(cls, object pdp):
+        """Should be cdef but can't because classmethod. If you must call from
+        Python somehow, use this. Otherwise, use PlanarDiagram_wrap"""
+        cdef pd_code_t *pd = <pd_code_t*>pdp
+        cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+        newobj.p = pd
+        newobj.regenerate_py_os()
+        return newobj
 
     def __richcmp__(PlanarDiagram self, PlanarDiagram other_pd, int op):
         if op == 2:
@@ -793,6 +814,30 @@ cdef class PlanarDiagram:
         pd_regenerate(self.p)
         self.regenerate_py_os()
 
+    # Knot-isomorphic modifications
+    def R1_loopdeletion(self, pd_idx_t cr):
+        """R1_loopdeletion(crossing_or_index) -> result pdcode
+
+        Performs an (in-place) Reidemeister 1 loop deletion which
+        removes the input crossing.
+        """
+        return PlanarDiagram_wrap(pd_R1_loopdeletion(self.p, cr))
+
+    def R2_bigon_elimination(self, pd_idx_t cr1, pd_idx_t cr2):
+        """R2_bigon_elimination(crossing_or_index, crossing_or_index)
+        -> (Upper pdcode, [Lower pdcode])
+
+        Performs a Reidemeister 2 bigon elimination removing the bigon
+        with vertices the two inputs. This is **not an in-place operation**
+        as there may be more than one PlanarDiagram as a result of the move.
+        """
+        cdef pd_idx_t *cr = [cr1, cr2]
+        cdef pd_idx_t nout
+        cdef pd_code_t **out_pds
+
+        pd_R2_bigon_elimination(self.p, cr, &nout, &out_pds)
+        return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
+
     # Validity checks
     def crossings_ok(self):
         """crossings_ok() -> bool
@@ -868,6 +913,45 @@ cdef class PlanarDiagram:
     def __str__(self):
         return ("PlanarDiagram with %d crossings made up of %d components"%(
             self.p.ncross, self.p.ncomps))
+
+    # Special methods which allow pdcodes to be pickled.
+    def __reduce__(self):
+        """Required method to implement pickling of extension types.
+
+        Returns a tuple: (Constructor-ish, Constructor args, __getstate__ output).
+        """
+        return (self.__class__,
+                (self.p.ncross,),
+                self.__getstate__())
+    def __getstate__(self):
+        cross = []
+        edges = []
+        for i in range(self.p.ncross):
+            x = self.p.cross[i]
+            cross.append((x.edge[0], x.edge[1], x.edge[2], x.edge[3],
+                          x.sign))
+        for i in range(self.p.nedges):
+            e = self.p.edge[i]
+            edges.append((e.head, e.headpos,
+                          e.tail, e.tailpos))
+        return (cross, edges)
+
+    def __setstate__(self, state):
+        cross, edges = state # See __getstate__
+        for i,data in enumerate(cross):
+            self.p.cross[i].edge[0] = data[0]
+            self.p.cross[i].edge[1] = data[1]
+            self.p.cross[i].edge[2] = data[2]
+            self.p.cross[i].edge[3] = data[3]
+            self.p.cross[i].sign = data[4]
+        self.p.ncross = len(cross)
+        for i,data in enumerate(edges):
+            self.p.edge[i].head = data[0]
+            self.p.edge[i].headpos = data[1]
+            self.p.edge[i].tail = data[2]
+            self.p.edge[i].tailpos = data[3]
+        self.p.nedges = len(edges)
+        self.regenerate()
 
     def __repr__(self):
         return ("PlanarDiagram(edges=[" +

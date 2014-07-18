@@ -146,6 +146,13 @@ cdef extern from "plcTopology.h":
     void pd_check_face(char *file, int line, pd_code_t *pd, pd_idx_t face)
     void pd_check_notnull(char *file, int line, char *varname, void *ptr)
 
+    # Knot-isomorphic modifications
+    pd_code_t* pd_R1_loopdeletion(pd_code_t *pd, pd_idx_t cr)
+    void pd_R2_bigon_elimination(pd_code_t *pd,
+                                 pd_idx_t cr[2],
+                                 pd_idx_t *outpd,
+                                 pd_code_t ***outpd)
+
     # Builders for typical pd types
     pd_code_t *pd_build_twist_knot(pd_idx_t n)
     pd_code_t *pd_build_torus_knot(pd_idx_t p,pd_idx_t q)
