@@ -1,5 +1,6 @@
 from libpl.pdcode import PlanarDiagram
 from itertools import combinations, chain, compress, product
+from cpython cimport bool
 import pprint
 pp = pprint.PrettyPrinter(indent=2)
 import os
@@ -63,13 +64,14 @@ class PDDatabase(object):
         cPickle.dump(self, f, cPickle.HIGHEST_PROTOCOL)
         f.close()
 
-    def __init__(self, crossings_list=[3,4,5,6], dirloc=DEFAULT_PATH, amortize=True):
+    def __init__(self, crossings_list=[3,4,5,6], dirloc=DEFAULT_PATH,
+                 amortize=True, debug=False):
         self.amortize = amortize
         pd_files = (self._db_file(ncrs, dirloc) for ncrs in crossings_list)
         self.pd_dict = {}
         for f in pd_files:
-            self.parse_header(f)
-            self.read_pdstor(f)
+            _,npds,_ = self.parse_header(f, debug=debug)
+            self.read_pdstor(f, debug=debug, num_pds=int(npds))
             f.close()
 
     @staticmethod
@@ -134,7 +136,7 @@ class PDDatabase(object):
         else:
             return product([0,1], repeat=n)
     @classmethod
-    def crossing_combinations(cls, pdc, amortize=True):
+    def crossing_combinations(cls, pdc, bool amortize=True):
         """crossing_combinations(PlanarDiagram) -> generator(new
         PlanarDiagrams, masks)
 
@@ -160,6 +162,13 @@ class PDDatabase(object):
         self.read_pdstor(f)
         f.close()
 
+    def add_db(self, other_db):
+        for homfly, pds in other_db.pd_dict.iteritems():
+            if homfly in self.pd_dict:
+                self.pd_dict[homfly] |= pds
+            else:
+                self.pd_dict[homfly] = pds
+
     @classmethod
     def pd_by_filepos(cls, cross_count, pos, dirloc=DEFAULT_PATH):
         f = cls._db_file(cross_count, dirloc)
@@ -178,7 +187,7 @@ class PDDatabase(object):
                 cross_sgn), comp_sgn))
 
     @classmethod
-    def parse_header(cls, f):
+    def parse_header(cls, f, debug=False):
         # TODO: Actually parse the header
         header = f.readline()
         if "pdstor" not in header:
@@ -192,24 +201,54 @@ class PDDatabase(object):
             return None # actually throw an error here too
         return (claimed,actual,nhashes)
 
-    def read_pdstor(self, f):
+    def add_pd(self, homfly, pduid):
+        if homfly in self.pd_dict:
+            self.pd_dict[homfly].add(pduid)
+        else:
+            self.pd_dict[homfly] = set([pduid])
+
+
+    def read_pdstor(self, f, debug=False, num_pds=None):
         # Read in the pd codes one-by-one.
+        if debug: print "Reading file %s"%f.name
         for pd_id, pd in enumerate(self._pds_in_file(f)):
+            if debug: print "> Reading %s of %s (%0.1f%%)"%(
+                    pd_id+1,
+                    "Unknown" if num_pds is None else num_pds,
+                    "??" if num_pds is None else 100.0*pd_id/num_pds)
             for crs_pd, crs_sgn in self.crossing_combinations(pd, self.amortize):
                 for cmp_pd, cmp_sgn in self.component_combinations(crs_pd, self.amortize):
-                    hsh = cmp_pd.homfly()
-                    if hsh in self.pd_dict:
-                        self.pd_dict[hsh].add(
-                            self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn))
-                    else:
-                        self.pd_dict[hsh] = set(
-                            [self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn)])
+                    self.add_pd(cmp_pd.homfly(), self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn))
                     del cmp_pd
                 del crs_pd
             del pd
 
+    def subdb(self, select):
+        """Returns a new database which only contains diagrams held in
+        files contained in the list select"""
+        newdb = PDDatabase([])
+        for homfly, pds in self.pd_dict.iteritems():
+            for pduid in pds:
+                if pduid[0] in select:
+                    newdb.add_pd(homfly, pduid)
+        return newdb
+
+    def classify(self, clsdb):
+        """Separates the database by key"""
+        known = dict()
+        unknown = dict()
+        for homfly, pdids in self.pd_dict.iteritems():
+            if homfly in clsdb.cls_dict:
+                known[homfly] = (clsdb.cls_dict[homfly], pdids)
+            elif homfly == "1": # Unknot
+                known[homfly] = ("Knot[0, 0]", pdids)
+            else:
+                unknown[homfly] = (None, pdids)
+
+        return known, unknown
+
 if __name__ == "__main__":
-    pddb = PDDatabase([4], dirloc="../data/pdstors")
+    pddb = PDDatabase([3], dirloc="../data/pdstors")
     clsdb = ClassifyDatabase()
     clsdb.load_rolfsen(
         "../test/rolfsennames.txt",
@@ -219,5 +258,6 @@ if __name__ == "__main__":
         "../test/thistlethwaitetable.txt")
 
     pp.pprint(clsdb.cls_dict)
+    pp.pprint(pddb.classify(clsdb))
     #pp.pprint(pddb.pd_dict)
     #pddb.save("database_main.pystor")

@@ -85,8 +85,10 @@ cdef class Edge(_Disownable):
         self.parent = parent
 
     def __dealloc__(self):
+        #return
         if self.parent is None and self.p is not NULL:
-            PyMem_Free(self.p)
+            pass
+            #PyMem_Free(self.p)
 
     cdef disown(self):
         """Disconnect this data from its parent and copy the data."""
