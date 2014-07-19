@@ -13,6 +13,7 @@ class TestPDCode(unittest.TestCase):
         pdc_new = cPickle.loads(cPickle.dumps(pdc))
         self.assertTrue(pdc.isomorphic(pdc_new))
         self.assertFalse(pdc2.isomorphic(pdc_new))
+        self.assertEqual(pdc.homfly(), pdc_new.homfly())
 
 if __name__=="__main__":
     unittest.main()
