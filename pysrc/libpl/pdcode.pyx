@@ -3,6 +3,8 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libc.string cimport memcpy
 import sys
 from cython.operator cimport dereference as deref
+
+#from cython.view cimport array
 cimport cython
 
 cdef class Edge
@@ -17,6 +19,7 @@ ctypedef fused Edge_or_idx:
     long
     pd_idx_t
     Edge
+
 
 cdef extern from "stdio.h":
     ctypedef struct FILE:
@@ -51,18 +54,26 @@ cdef class Edge(_Disownable):
         """The index of the crossing towards which this edge points."""
         def __get__(self):
             return self.p.head
+        def __set__(self, pd_idx_t i):
+            self.p.head = i
     property headpos:
         """The position in the crossing towards which this edge points."""
         def __get__(self):
             return self.p.headpos
+        def __set__(self, pd_idx_t i):
+            self.p.headpos = i
     property tail:
         """The index of the crossing from which this edge leaves."""
         def __get__(self):
             return self.p.tail
+        def __set__(self, pd_idx_t i):
+            self.p.tail = i
     property tailpos:
         """The position in the crossing from which this edge leaves."""
         def __get__(self):
             return self.p.tailpos
+        def __set__(self, pd_idx_t i):
+            self.p.tailpos = i
 
     property head_tuple:
         """A tuple (vertex, pos) describing where this edge points.
@@ -331,6 +342,8 @@ cdef class Crossing(_Disownable):
     cdef readonly int index
     """The index by which this crossing is known in the parent."""
 
+    cdef pd_idx_t[:] edgeview_get(self):
+        return <pd_idx_t[:]>self.p.edge
     property edges:
         """A tuple of the indices of the edges which connect to this crossing.
 
@@ -338,10 +351,7 @@ cdef class Crossing(_Disownable):
         like a sequence instead.
         """
         def __get__(self):
-            return (self.p.edge[0],
-                    self.p.edge[1],
-                    self.p.edge[2],
-                    self.p.edge[3])
+            return self.edgeview_get()
     property sign:
         """The orientation of this crossing. The convention used to determine
         sign is this:
@@ -923,33 +933,40 @@ cdef class PlanarDiagram:
         return (self.__class__,
                 (self.p.ncross,),
                 self.__getstate__())
+
     def __getstate__(self):
+        cdef pd_crossing_t* x
+        cdef pd_edge_t* e
         cross = []
         edges = []
         for i in range(self.p.ncross):
-            x = self.p.cross[i]
+            x = &(self.p.cross[i])
             cross.append((x.edge[0], x.edge[1], x.edge[2], x.edge[3],
                           x.sign))
         for i in range(self.p.nedges):
-            e = self.p.edge[i]
+            e = &(self.p.edge[i])
             edges.append((e.head, e.headpos,
                           e.tail, e.tailpos))
         return (cross, edges)
 
     def __setstate__(self, state):
+        cdef pd_crossing_t* x
+        cdef pd_edge_t* e
         cross, edges = state # See __getstate__
         for i,data in enumerate(cross):
-            self.p.cross[i].edge[0] = data[0]
-            self.p.cross[i].edge[1] = data[1]
-            self.p.cross[i].edge[2] = data[2]
-            self.p.cross[i].edge[3] = data[3]
-            self.p.cross[i].sign = data[4]
+            x = &(self.p.cross[i])
+            x.edge[0] = data[0]
+            x.edge[1] = data[1]
+            x.edge[2] = data[2]
+            x.edge[3] = data[3]
+            x.sign = data[4]
         self.p.ncross = len(cross)
         for i,data in enumerate(edges):
-            self.p.edge[i].head = data[0]
-            self.p.edge[i].headpos = data[1]
-            self.p.edge[i].tail = data[2]
-            self.p.edge[i].tailpos = data[3]
+            e = &(self.p.edge[i])
+            e.head = data[0]
+            e.headpos = data[1]
+            e.tail = data[2]
+            e.tailpos = data[3]
         self.p.nedges = len(edges)
         self.regenerate()
 
