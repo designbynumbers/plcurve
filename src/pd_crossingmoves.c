@@ -88,7 +88,8 @@ void pd_compacting_copy(void *source, size_t obj_size, size_t nobj,
    deletions buffer when we find one of the elements to delete. 
 
    This is linear time, and most importantly, we only need to write (and debug)
-   it once. We should throw an error if EVERYTHING is being deleted.
+   it once. If we delete EVERYTHING (this can happen), then we set target_var to 
+   NULL, ntarget to zero, and all the entries of target_idx to PD_UNSET_IDX.
 
 */
 		   
@@ -149,15 +150,31 @@ void pd_compacting_copy(void *source, size_t obj_size, size_t nobj,
   
   /* We now scan to make sure that the deletions are in-range. */
 
-  for(i=0;i<nuniquedeletions;i++) { 
+  for(i=0;i<j;i++) { 
 
     assert(uniquedeletions[i] < nobj);
 
   }
 
   nuniquedeletions = j;
-  assert(nuniquedeletions != nobj);
-    
+
+  if (nuniquedeletions == nobj) { /* Special case: we're deleting everything. */
+
+    *target_var = NULL;
+    *ntarget = 0;
+    pd_idx_t *tidx = calloc(nobj,sizeof(pd_idx_t));
+    assert(tidx != NULL);
+    *target_idx = tidx;
+    for(i=0;i<nobj;i++) { 
+      tidx[i] = PD_UNSET_IDX;
+    }
+    return;
+  }
+
+  assert(nuniquedeletions < nobj); /* We've already taken care of the = case, 
+				      and something is very wrong if we have 
+				      MORE than nobj to delete! */
+
   /* Now we prepare space for the target array and index buffer. */
 
   void *target = calloc(nobj-nuniquedeletions,obj_size);
@@ -289,6 +306,33 @@ void pd_compact_components(pd_code_t *pd, pd_code_t *outpd,pd_idx_t *new_edge_id
 
 {
   pd_idx_t i;
+
+  /* First, we make sure that outpd doesn't have anything in the components
+     data, and then we resize the buffer to make sure it's big enough to work in. */
+
+  if (outpd->ncomps > 0) { 
+
+    for(i=0;i<outpd->ncomps;i++) { 
+
+      if (outpd->comp[i].edge != NULL) { 
+
+	free(outpd->comp[i].edge);
+	outpd->comp[i].edge = NULL;
+	outpd->comp[i].nedges = 0;
+
+      }
+
+    }
+
+  }
+
+  if (outpd->comp != NULL) { free(outpd->comp); }
+  outpd->ncomps = 0;
+  outpd->comp = calloc(pd->ncomps,sizeof(pd_component_t));
+  assert(outpd->comp != NULL);
+  outpd->MAXCOMPONENTS = pd->ncomps;
+
+  /* Now we're ready to do the transformation. */
   
   for(i=0;i<pd->ncomps;i++) { 
 
@@ -298,8 +342,14 @@ void pd_compact_components(pd_code_t *pd, pd_code_t *outpd,pd_idx_t *new_edge_id
 
   }
 
+  /* Keep in mind that some components may be entirely NOT PRESENT in 
+     outpd. These will have survived "transform_and_compact_indices", but
+     will have NULL edgebuffers and nedges == 0 */
+
   outpd->ncomps = pd->ncomps;
   qsort(outpd->comp,outpd->ncomps,sizeof(pd_component_t),pd_component_cmp);
+
+  for(i=0,outpd->ncomps=0;i<pd->ncomps && outpd->comp[i].nedges > 0;i++) { outpd->ncomps++; }
   
   /* 
      We now need to transform the edge indices again to make the edges
@@ -919,7 +969,15 @@ or
   pd_idx_t F1, F2;
   bool use_negfaces_of_eA0_and_eA2;
 
-  if (pd->edge[eB[1]].tail == cr[0]) { 
+  /* To figure this out, we need to identify the bigon face. */
+  
+  pd_idx_t pfA,pfpA,nfA,nfpA;
+  pd_idx_t pfB,pfpB,nfB,nfpB;
+
+  pd_face_and_pos(pd,eA[1],&pfA,&pfpA,&nfA,&nfpA);
+  pd_face_and_pos(pd,eB[1],&pfB,&pfpB,&nfB,&nfpB);
+
+  if (pfA == nfB || pfB == nfA) { 
 
     /* Orientations AGREE: 
 
@@ -938,7 +996,7 @@ or
     /* That is, we use negfaces <=> the next (counterclockwise)
        edge from eA[0] at cr[0] is eB[0] */
 
-  } else { 
+  } else if (pfA == pfB || nfA == nfB) { 
 
      /* Orientations DISagree: 
 
@@ -956,6 +1014,14 @@ or
 
     /* That is, we use negfaces <=> the next (counterclockwise)
        edge from eA[0] at cr[0] is eB[2] */
+
+  } else { 
+
+    pd_error(SRCLOC,
+	     "edges %EDGE and %EDGE don't share a bigon face in %PD"
+	     "which means they cannot be the 'middle' edges in an R2\n"
+	     "bigon elimination\n\n",pd,eA[1],eB[1]);
+    exit(1);
 
   }
        
@@ -1124,28 +1190,11 @@ or
     pd_regenerate_crossings(out);
      
     /* Components are interesting. We have the same set of 
-       components (and want tags to persist). So we'll have
-       to do the same edge-deletion procedure that we did 
-       for the R1 move. 
-
-       This will use the 
-       transform_and_compact_indices api:
- 
-       void pd_transform_and_compact_indices(pd_idx_t *source, pd_idx_t nobj, 
-                                             pd_idx_t *transform,
-				             pd_idx_t **target)
+       components (and want tags to persist). So we'll use 
+       the pd_compact_components function...
     */
   
-    for(i=0;i<pd->ncomps;i++) { 
-
-      pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,new_edge_idx,
-				       &(out->comp[i].edge),&(out->comp[i].nedges));
-      out->comp[i].tag = pd->comp[i].tag;
-
-    }
-    
-    out->ncomps = pd->ncomps;
-    qsort(out->comp,out->ncomps,sizeof(pd_component_t),pd_component_cmp);
+    pd_compact_components(pd,out,new_edge_idx);
     
     /* The new pd now has crossings, edges, and components which make sense. */
     /* It's ok to just regenerate the faces. */
@@ -1377,7 +1426,7 @@ or
     free(pdA->cross); pdA->cross = NULL; pdA->ncross = pdA->MAXVERTS = 0; 
     pd_compacting_copy((void *)(pd->cross),sizeof(pd_crossing_t),(size_t)(pd->ncross),
 		       B_ncross,B_crossings,
-		       (void *)(pdA->cross),
+		       (void *)(&(pdA->cross)),
 		       &new_crossing_idx_A,
 		       &(pdA->ncross));
     pdA->MAXVERTS = pdA->ncross;
@@ -1387,17 +1436,17 @@ or
     free(pdA->edge); pdA->edge = NULL; pdA->nedges = pdA->MAXEDGES = 0;
     pd_compacting_copy((void *)(pd->edge),sizeof(pd_edge_t),(size_t)(pd->nedges),
 		       B_nedges,B_edges,
-		       (void *)(pdA->edge),
+		       (void *)(&(pdA->edge)),
 		       &new_edge_idx_A,
 		       &(pdA->nedges));
     pdA->MAXEDGES = pdA->nedges;
 
-    /* Handle crossings of B, remembering we get B's edges by DELETING A's */
+    /* Handle crossings of B, remembering we get B's crossings by DELETING A's */
       
     free(pdB->cross); pdB->cross = NULL; pdB->ncross = pdB->MAXVERTS = 0; 
     pd_compacting_copy((void *)(pd->cross),sizeof(pd_crossing_t),(size_t)(pd->ncross),
 		       A_ncross,A_crossings,
-		       (void *)(pdB->cross),
+		       (void *)(&(pdB->cross)),
 		       &new_crossing_idx_B,
 		       &(pdB->ncross));
     pdB->MAXVERTS = pdB->ncross;
@@ -1407,115 +1456,138 @@ or
     free(pdB->edge); pdB->edge = NULL; pdB->nedges = pdB->MAXEDGES = 0;
     pd_compacting_copy((void *)(pd->edge),sizeof(pd_edge_t),(size_t)(pd->nedges),
 		       A_nedges,A_edges,
-		       (void *)(pdB->edge),
+		       (void *)(&(pdB->edge)),
 		       &new_edge_idx_B,
 		       &(pdB->nedges));
     pdB->MAXEDGES = pdB->nedges;
 
     /* Now we do the clever sewing bit, keeping in mind that on the left we 
        use NEW indices because we're in a child pd, and on the right we use
-       OLD indices because we're referring to the parent pd. */
+       OLD indices because we're referring to the parent pd. 
 
-    pdA->cross[new_crossing_idx_A[pd->edge[eA[2]].head]].edge[pd->edge[eA[2]].headpos] = eA[0]; /* Since eA[2] was deleted, splice in eA[0]. */
-    pdA->edge[new_edge_idx_A[eA[0]]].head = pd->edge[eA[2]].head;    /* Reset the head of edge eA[0] */
-    pdA->edge[new_edge_idx_A[eA[0]]].headpos = pd->edge[eA[2]].headpos;
+       We have to deal with a special case here when one or the other of the 
+       child pds is a 0-crossing diagram.
+    */
 
-    pdB->cross[new_crossing_idx_B[pd->edge[eB[2]].head]].edge[pd->edge[eB[2]].headpos] = eB[0]; /* Since eB[2] was deleted, splice in eB[0]. */
-    pdB->edge[new_edge_idx_B[eB[0]]].head = pd->edge[eB[2]].head;    /* Reset the head of edge eB[0] */
-    pdB->edge[new_edge_idx_B[eB[0]]].headpos = pd->edge[eB[2]].headpos;
+    if (pdA->ncross == 0) { 
 
-    /* Now we do the usual update of referred edge indices in the new crossings,
-       and referred crossing indices in the new edges. */
+      pd_code_free(&pdA);
+      pdA = pd_build_unknot(0);
+      pdA->comp[0].tag = pd->comp[compA].tag;
 
-    for(i=0;i<pdA->ncross;i++) { 
+    } else {
+      
+      pdA->cross[new_crossing_idx_A[pd->edge[eA[2]].head]].edge[pd->edge[eA[2]].headpos] = eA[0]; 
+      /* Since eA[2] was deleted, splice in eA[0]. */
+      pdA->edge[new_edge_idx_A[eA[0]]].head = pd->edge[eA[2]].head;    /* Reset the head of edge eA[0] */
+      pdA->edge[new_edge_idx_A[eA[0]]].headpos = pd->edge[eA[2]].headpos;
 
-      for(j=0;j<4;j++) { 
+      /* Now we do the usual update of referred edge indices in the new crossings,
+	 and referred crossing indices in the new edges. */
 
-	pdA->cross[i].edge[j] = new_edge_idx_A[pdA->cross[i].edge[j]];
+      for(i=0;i<pdA->ncross;i++) { 
+
+	for(j=0;j<4;j++) { 
+
+	  pdA->cross[i].edge[j] = new_edge_idx_A[pdA->cross[i].edge[j]];
+
+	}
 
       }
 
-    }
+      for (i=0;i<pdA->nedges;i++) { 
 
-    for (i=0;i<pdA->nedges;i++) { 
+	pdA->edge[i].head = new_crossing_idx_A[pdA->edge[i].head];
+	pdA->edge[i].tail = new_crossing_idx_A[pdA->edge[i].tail];
 
-      pdA->edge[i].head = new_crossing_idx_A[pdA->edge[i].head];
-      pdA->edge[i].tail = new_crossing_idx_A[pdA->edge[i].tail];
+      }
 
     }
 
     /* Aaand for child diagram B.... */
 
-    for(i=0;i<pdB->ncross;i++) { 
+    if (pdB->ncross == 0) { 
 
-      for(j=0;j<4;j++) { 
+      pd_code_free(&pdB);
+      pdB = pd_build_unknot(0);
+      pdB->comp[0].tag = pd->comp[compB].tag;
 
-	pdB->cross[i].edge[j] = new_edge_idx_B[pdB->cross[i].edge[j]];
+    } else {
+
+      pdB->cross[new_crossing_idx_B[pd->edge[eB[2]].head]].edge[pd->edge[eB[2]].headpos] = eB[0]; /* Since eB[2] was deleted, splice in eB[0]. */
+      pdB->edge[new_edge_idx_B[eB[0]]].head = pd->edge[eB[2]].head;    /* Reset the head of edge eB[0] */
+      pdB->edge[new_edge_idx_B[eB[0]]].headpos = pd->edge[eB[2]].headpos;
+
+      for(i=0;i<pdB->ncross;i++) { 
+
+	for(j=0;j<4;j++) { 
+
+	  pdB->cross[i].edge[j] = new_edge_idx_B[pdB->cross[i].edge[j]];
+
+	}
 
       }
 
-    }
+      for (i=0;i<pdB->nedges;i++) { 
 
-    for (i=0;i<pdB->nedges;i++) { 
+	pdB->edge[i].head = new_crossing_idx_B[pdB->edge[i].head];
+	pdB->edge[i].tail = new_crossing_idx_B[pdB->edge[i].tail];
 
-      pdB->edge[i].head = new_crossing_idx_B[pdB->edge[i].head];
-      pdB->edge[i].tail = new_crossing_idx_B[pdB->edge[i].tail];
+      }
 
     }
 
     /* Ok, now we need to copy components into the child pd's appropriately. 
        This takes a little thought, because we want the component TAGS to 
-       travel appropriately. */
+       travel appropriately. We need to exempt 0-crossing children from 
+       the proceedings here because we've already copied their tags above. */
 
-    pdA->ncomps = 0; pdB->ncomps = 0;
+    if (pdA->ncross != 0) { pd_compact_components(pd,pdA,new_edge_idx_A); }
+    if (pdB->ncross != 0) { pd_compact_components(pd,pdB,new_edge_idx_B); }
 
-    for(i=0;i<pd->ncomps;i++) { 
+    /* Ok, at this point the children have crossings, edges, and
+      components.  We can regenerate the crossings, and the
+      faces. Again, if we're a 0-crossing component, we're exempt from
+      this kind of thing-- at best it's unneeded, and at worst
+      buggy. */
 
-      if (compstate[i] == A_walked) { 
+    if (pdA->ncross != 0) { 
 
-	pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,
-					 new_edge_idx_A,
-					 &(pdA->comp[pdA->ncomps].edge),
-					 &(pdA->comp[pdA->ncomps].nedges));
-	pdA->comp[pdA->ncomps].tag = pd->comp[i].tag;
-	pdA->ncomps++;
-
-      } else if (compstate[i] == B_walked) { 
-
-	pd_transform_and_compact_indices(pd->comp[i].edge,pd->comp[i].nedges,
-					 new_edge_idx_B,
-					 &(pdB->comp[pdB->ncomps].edge),
-					 &(pdB->comp[pdB->ncomps].nedges));
-	pdB->comp[pdB->ncomps].tag = pd->comp[i].tag;
-	pdB->ncomps++;
-
-      } else {
-
-	printf("compstate[%d] == %d, which is not A_walked (%d) or B_walked (%d)\n"
-	       "suspect memory corruption bug, but your guess is as good as mine\n",
-	       i,compstate[i],A_walked,B_walked);
-	exit(1);
-
-      }
+      qsort(pdA->comp,pdA->ncomps,sizeof(pd_component_t),pd_component_cmp);
+      pd_regenerate_crossings(pdA); 
+      pd_regenerate_faces(pdA);
+      pd_regenerate_hash(pdA);
 
     }
 
-    qsort(pdA->comp,pdA->ncomps,sizeof(pd_component_t),pd_component_cmp);
-    qsort(pdB->comp,pdB->ncomps,sizeof(pd_component_t),pd_component_cmp);
-    
-    /* Ok, at this point the children have crossings, edges, and components. */
-    /* We can regenerate the crossings, and the faces. */
+    if (pdB->ncross != 0) { 
 
-    pd_regenerate_crossings(pdA); pd_regenerate_crossings(pdB);
-    pd_regenerate_faces(pdA); pd_regenerate_faces(pdB);
+      qsort(pdB->comp,pdB->ncomps,sizeof(pd_component_t),pd_component_cmp);
+
+      pd_regenerate_crossings(pdB);
+      pd_regenerate_faces(pdB);
+      pd_regenerate_hash(pdB);
+
+    }
 
     /* We can now do some counting to make sure things are sane: */
 
     assert(pdA->ncomps + pdB->ncomps == pd->ncomps);
     assert(pdA->ncross + pdB->ncross == pd->ncross - 2);
-    assert(pdA->nedges + pdB->nedges == pd->nedges - 4);
-    assert(pdA->ncross - pdA->nedges + pdA->nfaces == 2);
-    assert(pdB->ncross - pdB->nedges + pdB->nfaces == 2);
+
+    /* These checks get screwed up for 0 crossing diagrams. */
+
+    if (pdA->ncross != 0 && pdB->ncross != 0) { 
+      assert(pdA->nedges + pdB->nedges == pd->nedges - 4);
+    }
+
+    if (pdA->ncross != 0) { 
+      assert(pdA->ncross - pdA->nedges + pdA->nfaces == 2);
+    }
+
+    if (pdB->ncross != 0) { 
+      assert(pdB->ncross - pdB->nedges + pdB->nfaces == 2);
+    }
 
     assert(pd_ok(pdA));
     assert(pd_ok(pdB));

@@ -62,12 +62,13 @@ int PD_VERBOSE;
 
 #include<pd_isomorphisms.h>
 
-pd_code_t *pd_code_new(pd_idx_t maxverts) {
+pd_code_t *pd_code_new(pd_idx_t mv) {
+
+  assert(mv != 0);
+  pd_idx_t maxverts = (mv == 1) ? 2 : mv;
   
   pd_code_t *pd = calloc(1,sizeof(pd_code_t));
   assert(pd != NULL);
-  assert(maxverts > 1);
-
   pd->uid = 0;
 
   pd->MAXVERTS = maxverts;
@@ -2053,6 +2054,31 @@ bool pd_faces_ok(pd_code_t *pd)
     }
 
   }
+
+  /* Check that each face is rotated into canonical order */
+
+  for(face=0;face<pd->nfaces;face++) { 
+
+    pd_idx_t lowE = pd->face[face].edge[0];
+    pd_idx_t i;
+
+    for(i=1;i<pd->face[face].nedges;i++) { 
+
+      if (pd->face[face].edge[i] < lowE) { 
+
+	lowE = pd->face[face].edge[i];
+
+      }
+
+    }
+
+    if (lowE != pd->face[face].edge[0]) { 
+
+      return pd_error(SRCLOC,"face %FACE is not in canonical order in %PD",pd,face);
+
+    }
+
+  } 
 
   /* Check sort order according to pd_face_cmp */
 
