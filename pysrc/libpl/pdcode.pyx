@@ -43,7 +43,13 @@ class NoParentException(Exception):
     pass
 
 cdef class Edge(_Disownable):
-    """An oriented edge, joining two verts tail -> head"""
+    """An oriented edge, joining two verts tail -> head
+
+    Once you are finished setting any of the properties ``head``,
+    ``headpos``, ``tail``, and ``tailpos``, you **must** call
+    :py:meth:`PlanarDiagram.regenerate` on the parent so that sanity
+    can be checked and faces and components regenerated.
+    """
     cdef pd_edge_t *p
     cdef readonly PlanarDiagram parent
     """The :py:class:`PlanarDiagram` to which this edge belongs."""
@@ -336,6 +342,19 @@ cdef class Face(_Disownable):
 
 
 cdef class Crossing(_Disownable):
+    """A crossing, which holds four edges in positions and an orientation.
+
+    Crossing data is the **most important** piece of data in a
+    PlanarDiagram. A full diagram object can be built from crossing
+    data alone (although orientations of components may differ).
+
+    Once you are finished setting any of the properties ``head``,
+    ``headpos``, ``tail``, and ``tailpos``, you **must** call
+    :py:meth:`PlanarDiagram.regenerate` on the parent so that sanity
+    can be checked and faces and components regenerated.
+
+    """
+
     cdef pd_crossing_t* p
     cdef readonly PlanarDiagram parent
     """The :py:class:`PlanarDiagram` to which this crossing belongs."""
