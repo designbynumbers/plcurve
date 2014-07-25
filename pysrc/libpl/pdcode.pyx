@@ -307,6 +307,14 @@ cdef class Face(_Disownable):
         def __get__(self):
             cdef int i
             return tuple(self.p.ori[i] for i in range(self.p.nedges))
+    property vertices:
+        """A tuple of the crossing *indices* around this face in counterclockwise
+        order.
+        """
+        def __get__(self):
+            return tuple((edge.head if sign == PD_NEG_ORIENTATION else
+                          edge.tail) for
+                         edge, sign in zip(self, self.signs))
 
     def __init__(self, PlanarDiagram parent):
         self.parent = parent
@@ -950,14 +958,37 @@ cdef class PlanarDiagram:
         )
         return pdstr
 
+    def get_R1_loops(self):
+        """get_r1_loops() -> generator of Faces
+
+        Returns a generator of loops which are viable candidates
+        for Reidemeister 1 moves.
+        """
+        for face in self.faces:
+            if len(face) == 1:
+                yield face
+
+    def get_R2_bigons(self):
+        """get_r2_bigons() -> generator of Faces
+
+        Returns a generator of bigons which are viable candidates
+        for Reidemeister 2 moves.
+        """
+        return tuple()
+
     def neighbors(self):
-        """neighbors() -> generator of PlanarDiagrams
+        """neighbors() -> generator of tuples of PlanarDiagrams
 
         Returns a generator of knot-isomorphic PlanarDiagrams by
         identifying and performing knot moves which preserve
-        isomorphism (i.e. Reidemeister moves).
+        isomorphism (i.e. Reidemeister moves). The generator yields
+        *tuples* of PlanarDiagrams, in case the move untangled a link
+        into two separate diagrams.
         """
-        pass
+        for loop in self.get_R1_loops():
+            yield (self.R1_loop_deletion(loop.vertices[0]),)
+        for bigon in self.get_R2_bigons():
+            yield self.R2_bigon_elimination(*bigon.vertices)
         """pseudocode
         for edgeloop in self.find_r1_loops():
             yield self.r1_loopdeletion(edgeloop)
