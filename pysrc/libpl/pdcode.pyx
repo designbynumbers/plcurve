@@ -362,7 +362,7 @@ cdef class Crossing(_Disownable):
     """The index by which this crossing is known in the parent."""
 
     cdef pd_idx_t[:] edgeview_get(self):
-        return <pd_idx_t[:]>self.p.edge
+        return <pd_idx_t[:4]>self.p.edge
     property edges:
         """A tuple of the indices of the edges which connect to this crossing.
 
@@ -584,6 +584,7 @@ cdef class PlanarDiagram:
     """A sequence of :py:class:`Face` which belong to this diagram"""
 
     cdef bool hashed
+    cdef char* _homfly
 
     property ncomps:
         """Number of components in this PlanarDiagram"""
@@ -623,6 +624,7 @@ cdef class PlanarDiagram:
     def __cinit__(self):
         self.p = NULL
         self.hashed = False
+        self._homfly = NULL
         self.edges = _EdgeList()
         self.crossings = _CrossingList()
         self.components = _ComponentList()
@@ -694,6 +696,7 @@ cdef class PlanarDiagram:
 
         :return: A new :py:class:`PlanarDiagram`, or ``None`` on failure.
         """
+        cdef int err = 0
         if read_header == True:
             # Actually parse header and check validity
             f.readline()
@@ -701,7 +704,10 @@ cdef class PlanarDiagram:
             f.readline()
 
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
-        newobj.p = pd_read(PyFile_AsFile(f))
+        newobj.p = pd_read_err(PyFile_AsFile(f), &err)
+        if err:
+            if err == PD_NOT_OK:
+                raise Exception("Loaded PD code is not valid")
         if newobj.p is NULL:
             return None
         newobj.regenerate_py_os()
@@ -720,7 +726,7 @@ cdef class PlanarDiagram:
             f.readline()
             f.readline()
 
-        new_pd = cls.read(f)
+        new_pd = cls.read(f, read_header=False)
         while new_pd is not None:
             yield new_pd
             new_pd = cls.read(f)
@@ -868,8 +874,8 @@ cdef class PlanarDiagram:
         self.regenerate_py_os()
 
     # Knot-isomorphic modifications
-    def R1_loopdeletion(self, pd_idx_t cr):
-        """R1_loopdeletion(crossing_or_index) -> result pdcode
+    def R1_loop_deletion(self, pd_idx_t cr):
+        """R1_loop_deletion(crossing_or_index) -> result pdcode
 
         Performs an (in-place) Reidemeister 1 loop deletion which
         removes the input crossing.
@@ -926,6 +932,38 @@ cdef class PlanarDiagram:
 
         Compute the HOMFLY polynomial for this diagram (returned as string)."""
         return pd_homfly(self.p)
+
+    def unique_code(self):
+        """unique_code() -> str
+
+        Returns a 'pdcode-ish' string which uniquely identifies this
+        planar diagram. If another planar diagram is not isomorphic to
+        this, their ``unique_code()``\ s will differ, but two isomorphic
+        planar diagrams may have different ``unique_code()``\ s.
+        """
+        pdstr = "PD[%s, CompSigns=[%s]]"%(
+            ", ".join(("X{}[{},{},{},{}]".format(
+                ori_char(crossing.sign),*crossing.edges) for
+                       crossing in self.crossings)),
+            ",".join(ori_char(component[0].prev_crossing().sign) for
+                     component in self.components)
+        )
+        return pdstr
+
+    def neighbors(self):
+        """neighbors() -> generator of PlanarDiagrams
+
+        Returns a generator of knot-isomorphic PlanarDiagrams by
+        identifying and performing knot moves which preserve
+        isomorphism (i.e. Reidemeister moves).
+        """
+        pass
+        """pseudocode
+        for edgeloop in self.find_r1_loops():
+            yield self.r1_loopdeletion(edgeloop)
+        for bigon in self.find_r2_bigons():
+            yield self.r2_bigon_elemination(bigon)
+        """
 
     cdef regenerate_py_os(self):
         cdef int i

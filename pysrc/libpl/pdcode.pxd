@@ -9,6 +9,8 @@ cdef extern from "plcTopology.h":
         PD_POS_ORIENTATION = 1
         PD_NEG_ORIENTATION = 0
         PD_UNSET_ORIENTATION = 2
+    cdef enum:
+        PD_NOT_OK = 1
 
     ctypedef bint bool
 
@@ -124,7 +126,7 @@ cdef extern from "plcTopology.h":
     bool pd_ok(pd_code_t *pd)
 
     void       pd_write(FILE *outfile,pd_code_t *pd)
-    pd_code_t *pd_read(FILE *infile)
+    pd_code_t *pd_read_err(FILE *infile, int *err)
 
     pd_code_t *pd_read_KnotTheory(FILE *infile)
 

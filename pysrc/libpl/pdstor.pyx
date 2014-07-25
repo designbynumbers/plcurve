@@ -69,6 +69,7 @@ class PDDatabase(object):
         self.amortize = amortize
         pd_files = (self._db_file(ncrs, dirloc) for ncrs in crossings_list)
         self.pd_dict = {}
+        self.all_pds = {}
         for f in pd_files:
             _,npds,_ = self.parse_header(f, debug=debug)
             self.read_pdstor(f, debug=debug, num_pds=int(npds))
@@ -206,7 +207,6 @@ class PDDatabase(object):
             self.pd_dict[homfly].add(pduid)
         else:
             self.pd_dict[homfly] = set([pduid])
-
 
     def read_pdstor(self, f, debug=False, num_pds=None):
         # Read in the pd codes one-by-one.

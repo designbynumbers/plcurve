@@ -101,6 +101,14 @@ extern "C" {
      work and make an efficient search for isomorphisms, but also not
      lose track of component identities as we go. */
 
+
+/* Error codes for dynamic error handling */
+#define pd_err_check(CHECK,ERR,CODE,RET) { \
+    if(ERR) { if(!CHECK) {*ERR = CODE; return RET;} } \
+    else { assert(CHECK); }       \
+    }
+#define PD_NOT_OK 1
+
   typedef struct pd_edge_struct {
 
     /* An oriented edge, joining two verts tail -> head */
@@ -112,7 +120,7 @@ extern "C" {
     pd_idx_t tail;
     pd_pos_t tailpos;
     /* Pos [0..3] in crossing record of tail vertex. */
-   
+
   } pd_edge_t;
 
   /* Since we may have loop edges, we need to record
@@ -132,7 +140,7 @@ extern "C" {
        around a component. These are expected
        to be consecutive. */
 
-    pd_tag_t tag;    /* This tag keeps track of the identity 
+    pd_tag_t tag;    /* This tag keeps track of the identity
 			of a component as we do crossing moves.
 			It is a character, usually "A..Z" followed
 			by lower case "a..z". It is independent
@@ -255,18 +263,18 @@ extern "C" {
      stores the "complementary" information for each edge
      about which pair of crossings it connects.
 
-     There are some special case pd codes. 
+     There are some special case pd codes.
 
-     1) A diagram of an unknot with no crossings is denoted by 
-        a pd_code with ncross = 0, nedges = 1, 1 edge with 
-	everything (head, tail, headpos, tailpos) set to 
-	PD_UNSET_IDX or PD_UNSET_POS, 2 faces (each with 
-	1 edge), and 1 component. 
+     1) A diagram of an unknot with no crossings is denoted by
+        a pd_code with ncross = 0, nedges = 1, 1 edge with
+	everything (head, tail, headpos, tailpos) set to
+	PD_UNSET_IDX or PD_UNSET_POS, 2 faces (each with
+	1 edge), and 1 component.
 
-     2) Split diagrams cannot be encoded by pd_code_t. The 
-        recommended way to handle split diagrams is to have 
+     2) Split diagrams cannot be encoded by pd_code_t. The
+        recommended way to handle split diagrams is to have
 	an array of pd_code_t to cover the various connected
-	components of the diagram. 
+	components of the diagram.
   */
 
   /* A pdCode is like a plCurve... we always deal with a pointer
@@ -391,11 +399,11 @@ extern "C" {
      orientations. */
 
   void pd_regenerate_comps(pd_code_t *pd);
-  /* Strings edges into components, which are then given 
-     new component tags. Renumbers the edges so that they 
-     appear consecutively along components, fixing any 
+  /* Strings edges into components, which are then given
+     new component tags. Renumbers the edges so that they
+     appear consecutively along components, fixing any
      orientations needed along the way. Updates the edge
-     references in the crossing data to the new numbering 
+     references in the crossing data to the new numbering
      scheme. */
 
   void pd_regenerate_faces(pd_code_t *pd);
@@ -436,10 +444,11 @@ extern "C" {
   void       pd_write(FILE *outfile,pd_code_t *pd);
   void       pd_write_c(FILE *outfile, pd_code_t *pd, char *name);
   /* Writes a c procedure which recreates the pd code pd.
-     The procedure will be called pd_create_name() and take 
-     no arguments. */  
+     The procedure will be called pd_create_name() and take
+     no arguments. */
 
   pd_code_t *pd_read(FILE *infile); /* Returns NULL if the file is corrupt */
+  pd_code_t *pd_read_err(FILE *infile, int *err); // Same as above, but with err checking
 
   /* This function reads a pdcode from the Mathematica package KnotTheory,
      exported as text with something like:
@@ -468,16 +477,16 @@ extern "C" {
   /* Reverse the orientation of component cmp iff or == PD_NEG_ORIENTATION */
 
   pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr);
-  /* Performs a loop deletion Reidemeister 1 move at the crossing cr. 
+  /* Performs a loop deletion Reidemeister 1 move at the crossing cr.
 
-            +                   +        
-            |                   |        
-            |                   |        
-            |                   |        
+            +                   +
+            |                   |
+            |                   |
+            |                   |
       +-------------+    ->     +-------+
-      |     | cr                           
-      |     |                            
-      +-----+                            
+      |     | cr
+      |     |
+      +-----+
 
    (A loop addition is a really different move, computationally speaking.) */
 
@@ -487,41 +496,41 @@ extern "C" {
 			       pd_idx_t  *noutpd,
 			       pd_code_t ***outpd);
 
-  /* Performs a bigon-elimination Reidemeister 2 move. 
-    
+  /* Performs a bigon-elimination Reidemeister 2 move.
+
      |                    |     |               |
      |                    |     |               |
      |   +-----------+    |     +---------------+
-     |   |           |    | ->                     
-     +-cr[0]-------cr[1]--+                      
+     |   |           |    | ->
+     +-cr[0]-------cr[1]--+
          |           |          +---------------+
          |           |          |               |
-  
 
-  Input is a pd code and two crossings defining the bigon. Output is a pair of 
+
+  Input is a pd code and two crossings defining the bigon. Output is a pair of
   pointers to child pd codes. There are several possibilities, because a bigon
   elimination may split the pd code into a pair of disconnected pd codes.
 
-  noutpd counts the number of connected components of the output pd. 
+  noutpd counts the number of connected components of the output pd.
   outpd is set to a buffer of pd codes of size noutpd;
-  
-  outpd[0] is the pd code containing the component "on top" in the bigon. It may 
+
+  outpd[0] is the pd code containing the component "on top" in the bigon. It may
   be a 0-crossing diagram.
 
   outpd[1] isn't allocated if noutpd == 1 (in this case, both components are part of the same code).
-  
-  if noutpd == 2, then 
 
-    outpd[1] contains the pd code of the component "on the bottom" 
+  if noutpd == 2, then
+
+    outpd[1] contains the pd code of the component "on the bottom"
     in the bigon. Again, it might be a 0-crossing diagram.
 
   */
 
-  
+
 
   pd_code_t *pd_simplify(pd_code_t *pd);
 
-  /* Simplify the pd code using combinations of the moves above to 
+  /* Simplify the pd code using combinations of the moves above to
      reduce crossing number as far as possible. */
 
   /* pd human output */
@@ -595,34 +604,34 @@ extern "C" {
 
                f[0]
 
-          +-------------+     
-          |             |     
+          +-------------+
+          |             |
     e[0]--+             +---e[nedges-1]
           |             |
      f[1] |     T       |  f[nfaces-1]
-          |             |     
+          |             |
     e[1]--+             +---e[nedges-2]
-          |             |     
-          +-------------+  f[nfaces-2]    
-     f[2]   |  ....   |               
+          |             |
+          +-------------+  f[nfaces-2]
+     f[2]   |  ....   |
 
      Equivalently, a tangle is a cycle in the dual graph of the diagram.
 
      The edges must join each other in a collection of nstrands = nedges/2
-     "strands", which pass through the tangle. The edges have boundary 
-     orientations on the tangle, which record whether they are heading 
-     into or out of the tangle. 
+     "strands", which pass through the tangle. The edges have boundary
+     orientations on the tangle, which record whether they are heading
+     into or out of the tangle.
 
   */
 
   typedef enum {in,out} pd_boundary_or_t;
 
   typedef struct tangle_strand_struct {
-    
+
     pd_idx_t start_edge;
     pd_idx_t end_edge;
     pd_idx_t nedges;
-   
+
     pd_idx_t comp;
 
   } pd_tangle_strand_t;
@@ -635,7 +644,7 @@ extern "C" {
     pd_idx_t *edge;
     pd_idx_t *face;
 
-    pd_boundary_or_t *edge_bdy_or; /* in/out orientations for the edges e */    
+    pd_boundary_or_t *edge_bdy_or; /* in/out orientations for the edges e */
     pd_tangle_strand_t *strand;
 
     pd_idx_t  ninterior_cross;   /* Crossings in the interior of the tangle. */
@@ -643,68 +652,68 @@ extern "C" {
 
     pd_idx_t  ninterior_edges;   /* Edges in the interior of the tangle. */
     pd_idx_t *interior_edge;     /* List of interior edge indices. */
-    
-  } pd_tangle_t; 
+
+  } pd_tangle_t;
 
   bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t);
-  
+
   pd_tangle_t *pd_tangle_new(pd_idx_t nedges);
   void *pd_tangle_free(pd_tangle_t **t);
-  
-  void pd_regenerate_tangle(pd_code_t *pd,pd_tangle_t *t); 
+
+  void pd_regenerate_tangle(pd_code_t *pd,pd_tangle_t *t);
   /* Recreates tangle data from edges and faces */
 
   pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
 			     pd_idx_t ncross_edges, pd_idx_t cross_edges[]);
 
-  /*                                                                
+  /*
      A "clump slide" moves a connect summand K of a pd_code_t across an edge.
      The user is required to specify three edges along a component of pd in order
      to define the desired slide, as below.
-     								    
-                 f[0]         |                 |                      
-	      +--------+      |                 |   +---------+        
-              |        |      |                 |   |         |        
+
+                 f[0]         |                 |
+	      +--------+      |                 |   +---------+
+              |        |      |                 |   |         |
       --e[0]--+    K   +-e[1]---e[2]---  >  --------+    K    +------
-              |        |      |                 |   |         |        
-	      +--------+      |                 |   +---------+        
-                 f[1]         |                 |                      
-                   
+              |        |      |                 |   |         |
+	      +--------+      |                 |   +---------+
+                 f[1]         |                 |
+
       Notes: We don't know the orientation of the component, so it might be the
-      case that e[0], e[1], and e[2] are positively or negatively orientated 
-      with respect to the component orientation. 
+      case that e[0], e[1], and e[2] are positively or negatively orientated
+      with respect to the component orientation.
 
       Also, the "clump" K may include additional components. However, there
-      must be a pair of faces f[0] and f[1] which share e[0] and e[1] to isolate 
-      the "clump". 
+      must be a pair of faces f[0] and f[1] which share e[0] and e[1] to isolate
+      the "clump".
 
   */
 
   pd_code_t *pd_tangle_flype(pd_code_t *pd,pd_tangle_t *t);
 
   /*  This is a classical "flype" move, which we define by giving input
-      and output edges. These must be connected in the (topological) 
+      and output edges. These must be connected in the (topological)
       situation below.
-                           +---------+          
+                           +---------+
       +in[0]---+    +------+         +----out[0]--+
-               |    |      |         |          
-               |    |      |         |          
-            +--------+     |  VVVVV  |          
-            |  | cr        |         |          
-            |  |           |         |          
+               |    |      |         |
+               |    |      |         |
+            +--------+     |  VVVVV  |
+            |  | cr        |         |
+            |  |           |         |
       +in[1]+  +-----------+         +----out[1]--+
-                           +---------+          
-                        |                  
-                        v                  
-         +---------+                            
-         |         |                            
+                           +---------+
+                        |
+                        v
+         +---------+
+         |         |
       +--+         +------+  +-----------------+
-         |         |      |  |                  
-         |  ^^^^^  |      |  | cr                 
-         |         |      +------+              
-         |         |         |   |              
+         |         |      |  |
+         |  ^^^^^  |      |  | cr
+         |         |      +------+
+         |         |         |   |
       +--+         +---------+   +-------------+
-         +---------+                            
+         +---------+
 
   */
 
@@ -717,18 +726,18 @@ extern "C" {
 
   pd_code_t *pd_build_unknot(pd_idx_t n);                /* An n-crossing unknot diagram, where n >= 0 */
 
-  /* An n-crossing unknot diagram in the form  
+  /* An n-crossing unknot diagram in the form
 
 
-         +--<--+       +--<--+            +-<--+      
-         |     |       |     |                 |      
-         |     |       |     |                 |      
+         +--<--+       +--<--+            +-<--+
+         |     |       |     |                 |
+         |     |       |     |                 |
   +------|->-----------|->-------+  ...    +----->---+
   |      |     |       |     |                 |     |
   |      |     |       |     |                 ^     |
   +--<---+     +---<---+     +---+             +-----+
 
-  with all crossings positive. This generates the 
+  with all crossings positive. This generates the
   case with n == 0 and n == 1 correctly. */
 
   pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c); /* An unknot diagram designed for hash collisions */

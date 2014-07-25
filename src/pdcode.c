@@ -1,4 +1,4 @@
-/* 
+/*
 
    Code for handling pd_codes (link shadows). Part of the
    general COLD (Census of Link Diagrams) project. This fork
@@ -17,7 +17,7 @@ int PD_VERBOSE;
 
 #ifdef HAVE_STDIO_H
    #include<stdio.h>
-#endif 
+#endif
 
 #ifdef HAVE_STRING_H
    #include<string.h>
@@ -66,7 +66,7 @@ pd_code_t *pd_code_new(pd_idx_t mv) {
 
   assert(mv != 0);
   pd_idx_t maxverts = (mv == 1) ? 2 : mv;
-  
+
   pd_code_t *pd = calloc(1,sizeof(pd_code_t));
   assert(pd != NULL);
   pd->uid = 0;
@@ -75,12 +75,12 @@ pd_code_t *pd_code_new(pd_idx_t mv) {
   pd->MAXEDGES = 2*maxverts+1;
   pd->MAXCOMPONENTS = (pd_idx_t)(floor(maxverts/2.0)) + 2;
   pd->MAXFACES = maxverts+2;
-  
+
   pd->ncross = 0;
   pd->nedges = 0;
   pd->ncomps = 0;
   pd->nfaces = 0;
-  
+
   sprintf(pd->hash," ");
   pd->edge = calloc(pd->MAXEDGES,sizeof(pd_edge_t));
   assert(pd->edge != NULL);
@@ -105,7 +105,7 @@ void pd_code_eltfree(void **PD) {
 
 }
 
-void pd_code_free(pd_code_t **PD) { 
+void pd_code_free(pd_code_t **PD) {
 
   int cmp;
 
@@ -113,19 +113,19 @@ void pd_code_free(pd_code_t **PD) {
 
   pd_code_t *pd = *PD;
 
-  if (pd->MAXCOMPONENTS != 0 && pd->comp != NULL) { 
+  if (pd->MAXCOMPONENTS != 0 && pd->comp != NULL) {
 
-    for(cmp=0;cmp<pd->MAXCOMPONENTS;cmp++) { 
-      
-      if (pd->comp[cmp].edge != NULL) { 
-	
+    for(cmp=0;cmp<pd->MAXCOMPONENTS;cmp++) {
+
+      if (pd->comp[cmp].edge != NULL) {
+
 	free(pd->comp[cmp].edge);
 	pd->comp[cmp].edge = NULL;
 	pd->comp[cmp].nedges = 0;
-	
+
       }
-      
-    } 
+
+    }
 
     free(pd->comp);
     pd->comp = NULL;
@@ -133,25 +133,25 @@ void pd_code_free(pd_code_t **PD) {
     pd->ncomps = 0;
 
   }
-  
+
   pd_idx_t face;
 
   if (pd->MAXFACES != 0 && pd->face != NULL) {
 
-    for(face=0;face<pd->MAXFACES;face++) { 
-      
+    for(face=0;face<pd->MAXFACES;face++) {
+
       if (pd->face[face].edge != NULL) {
-	
+
 	free(pd->face[face].edge);
 	pd->face[face].edge = NULL;
-	
-      } 
-      
+
+      }
+
       if (pd->face[face].or != NULL) {
-	
+
 	free(pd->face[face].or);
 	pd->face[face].or = NULL;
-	
+
       }
 
       pd->face[face].nedges = 0;
@@ -165,7 +165,7 @@ void pd_code_free(pd_code_t **PD) {
 
   }
 
-  if (pd->edge != NULL) { 
+  if (pd->edge != NULL) {
 
     free(pd->edge);
     pd->edge = NULL;
@@ -174,7 +174,7 @@ void pd_code_free(pd_code_t **PD) {
 
   }
 
-  if (pd->cross != NULL) { 
+  if (pd->cross != NULL) {
 
     free(pd->cross);
     pd->cross = NULL;
@@ -194,20 +194,20 @@ void pd_code_free(pd_code_t **PD) {
   *PD = NULL;
 
 }
-    
+
 /* These are the basic allocate/deallocate functions. */
 
 pd_or_t pd_compose_or(pd_or_t a,pd_or_t b)
 /* Returns the composition of the two orientation changes: ++ = -- = +, +- = -+ = - */
 {
   if ((a == PD_POS_ORIENTATION && b == PD_POS_ORIENTATION) ||
-      (a == PD_NEG_ORIENTATION && b == PD_NEG_ORIENTATION)) { 
+      (a == PD_NEG_ORIENTATION && b == PD_NEG_ORIENTATION)) {
 
     return PD_POS_ORIENTATION;
 
   } else if ((a == PD_POS_ORIENTATION && b == PD_NEG_ORIENTATION) ||
 	     (a == PD_NEG_ORIENTATION && b == PD_POS_ORIENTATION)) {
-    
+
     return PD_NEG_ORIENTATION;
 
   }
@@ -241,22 +241,22 @@ int pd_or_cmp(const void *A, const void *B)
 	   orA,orB);
   exit(1);
 }
-    
+
 /* These functions appear in pdcode.c, but they are not exposed in the header. */
 
 pd_pos_t pdint_cross_rdist(pd_crossing_t *cr);
 void pdint_rotate_left(pd_crossing_t *cr,pd_pos_t k);
 
 
-pd_crossing_t pd_build_cross(pd_idx_t e0,pd_idx_t e1,pd_idx_t e2,pd_idx_t e3) 
-  
+pd_crossing_t pd_build_cross(pd_idx_t e0,pd_idx_t e1,pd_idx_t e2,pd_idx_t e3)
+
 /* Builds a pd_crossing_t from edge numbers */
 
 {
   pd_crossing_t cr;
 
   cr.edge[0] = e0; cr.edge[1] = e1; cr.edge[2] = e2; cr.edge[3] = e3; cr.sign = 0; /* We don't know, so initialize to 0 */
-  
+
   return cr;
 }
 
@@ -274,7 +274,7 @@ void pd_canonorder_cross(pd_crossing_t *cross, pd_or_t or)
     for(pos=0;pos<4;pos++) { cross->edge[pos] = rev[pos]; }
 
   }
-  
+
   pd_pos_t cross_rotate;
 
   cross_rotate = pdint_cross_rdist(cross);
@@ -298,39 +298,39 @@ void pd_canonorder_face(pd_face_t *face, pd_or_t or)
   reface.or = calloc(reface.nedges,sizeof(pd_or_t));
   assert(reface.edge != NULL && reface.or != NULL);
 
-  if (or == PD_POS_ORIENTATION) { 
+  if (or == PD_POS_ORIENTATION) {
 
     memcpy(reface.edge,face->edge,nedges*sizeof(pd_idx_t));
     memcpy(reface.or,face->or,nedges*sizeof(pd_or_t));
-    
+
   } else if (or == PD_NEG_ORIENTATION) { /* There's no library function for reverse-copy */
 
-    for(edge=0;edge < nedges;edge++) { 
-      
+    for(edge=0;edge < nedges;edge++) {
+
       reface.edge[edge] = face->edge[(nedges-1) - edge];
       reface.or[edge] = face->or[(nedges-1) - edge];
 
     }
 
   }
-  
+
   /* First, search for the position of the lowest edge # */
 
   pd_idx_t lowE = reface.edge[0],lowPos = 0;
-  
-  for(edge=0;edge<nedges;edge++) { 
-    
+
+  for(edge=0;edge<nedges;edge++) {
+
     if (reface.edge[edge] <= lowE) {
-      
+
       lowE = reface.edge[edge]; lowPos = edge;
-      
+
     }
-    
+
   }
-    
+
   /* Now copy this back into face->edge with the lowPos offset. */
 
-  for(edge=0;edge<nedges;edge++) { 
+  for(edge=0;edge<nedges;edge++) {
 
     face->edge[edge] = reface.edge[(lowPos + edge) % nedges];
     face->or[edge] = reface.or[(lowPos + edge) % nedges];
@@ -338,13 +338,13 @@ void pd_canonorder_face(pd_face_t *face, pd_or_t or)
   }
 
   /* Finally, free the scratch buffers reface.edge and reface.or. */
-  
+
   free(reface.edge);
   free(reface.or);
 
 }
 
-int  pd_cross_cmp(const void *A,const void *B) 
+int  pd_cross_cmp(const void *A,const void *B)
 
 /* Compares crossings in dictionary order. */
 
@@ -354,20 +354,20 @@ int  pd_cross_cmp(const void *A,const void *B)
   pd_pos_t pos;
 
   for(pos=0;pos<4;pos++) {
-    
+
     if (crA->edge[pos] != crB->edge[pos]) {
-      
+
       return crA->edge[pos] - crB->edge[pos];
-      
+
     }
-    
+
   }
-  
+
   return 0;
 
 }
 
-int  pd_face_cmp(const void *A, const void *B) 
+int  pd_face_cmp(const void *A, const void *B)
 
 /* Compares faces by number of components (largest number first) then dictionary order */
 
@@ -394,7 +394,7 @@ int  pd_face_cmp(const void *A, const void *B)
   }
 
   return 0;
- 
+
 }
 
 void pd_component_and_pos(pd_code_t *pd, pd_idx_t edge,
@@ -405,19 +405,19 @@ void pd_component_and_pos(pd_code_t *pd, pd_idx_t edge,
 
 {
   pd_idx_t comp, comp_pos;
-  
+
   assert(pd != NULL);
   assert(edge < pd->nedges);
-  
+
   for(comp=0;comp < pd->ncomps;comp++) {
 
     for(comp_pos=0;comp_pos < pd->comp[comp].nedges;comp_pos++) {
 
-      if (pd->comp[comp].edge[comp_pos] == edge) { 
+      if (pd->comp[comp].edge[comp_pos] == edge) {
 
 	if (compP != NULL) { *compP = comp; }
 	if (comp_posP != NULL) { *comp_posP = comp_pos; }
-	return; 
+	return;
 
       }
 
@@ -436,9 +436,9 @@ void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 		     pd_idx_t *negface, pd_idx_t *negface_pos)
 
   /* Finds the two faces which edge occurs on, which should include
-     one face where edge appears in positive orientation (posface)     
+     one face where edge appears in positive orientation (posface)
      and one where edge appears with negative orientation (negface).
-     If we don't find two with this description, die. 
+     If we don't find two with this description, die.
 
      Return the position (index) of the edge on each face. */
 
@@ -463,12 +463,12 @@ void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 		     "%FACE, position %d\n",
 		     pd,edge,*posface,*posface_pos,face,fedge);
 
-	  } 
+	  }
 
 	  pos_found = true;
 	  *posface = face; *posface_pos = fedge;
 
-	} else if (pd->face[face].or[fedge] == PD_NEG_ORIENTATION) { 
+	} else if (pd->face[face].or[fedge] == PD_NEG_ORIENTATION) {
 
 	  if (neg_found == true) { /* We have a problem */
 
@@ -478,7 +478,7 @@ void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 		     "%FACE, position %d\n",
 		     pd,edge,*negface,*negface_pos,face,fedge);
 
-	  } 
+	  }
 
 	  neg_found = true;
 	  *negface = face; *negface_pos = fedge;
@@ -506,7 +506,7 @@ void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 }
 
 pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or)
-/* Returns original edge if or = PD_POS_ORIENTATION, 
+/* Returns original edge if or = PD_POS_ORIENTATION,
    reversed edge if or = PD_NEG_ORIENTATION */
 
 { pd_edge_t ret;
@@ -525,7 +525,7 @@ pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or)
     ret.head = e.tail;
     ret.headpos = e.tailpos;
 
-  } 
+  }
 
   return ret;
 
@@ -537,12 +537,12 @@ void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t or)
   assert(pd != NULL);
   assert(edge < pd->nedges);
   assert(or == PD_POS_ORIENTATION || or == PD_NEG_ORIENTATION);
-  
+
   if (or == PD_NEG_ORIENTATION) {
 
     pd_idx_t cross_swap;
-    
-    cross_swap = pd->edge[edge].head; 
+
+    cross_swap = pd->edge[edge].head;
     pd->edge[edge].head = pd->edge[edge].tail;
     pd->edge[edge].tail = cross_swap;
 
@@ -556,8 +556,8 @@ void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t or)
 
 }
 
-/* pd "regeneration" functions. These help a pd code "grow back" 
-   auxiliary data after it's "damaged" by some operation such as 
+/* pd "regeneration" functions. These help a pd code "grow back"
+   auxiliary data after it's "damaged" by some operation such as
    a Reidemeister move or other simplication. */
 
 pd_code_t *pdint_cross_index_cmp_glob;
@@ -575,7 +575,7 @@ int  pdint_cross_index_cmp(const void *A, const void *B)
    return pd_cross_cmp(&(pd->cross[*idxA]),&(pd->cross[*idxB]));
 }
 
-void pdint_rotate_left(pd_crossing_t *cr,pd_pos_t k) 
+void pdint_rotate_left(pd_crossing_t *cr,pd_pos_t k)
 
 /* Rotates the buffer left by k spots */
 
@@ -588,14 +588,14 @@ void pdint_rotate_left(pd_crossing_t *cr,pd_pos_t k)
     ncr.edge[pos] = cr->edge[(pos+k)%4];
 
   }
-  
+
   ncr.sign = cr->sign;
   *cr = ncr;
 }
 
 pd_pos_t pdint_cross_rdist(pd_crossing_t *cr)
- 
-/* Detects how many spots to rotate left in order to put 
+
+/* Detects how many spots to rotate left in order to put
    lowest edge number first. */
 
 {
@@ -603,27 +603,27 @@ pd_pos_t pdint_cross_rdist(pd_crossing_t *cr)
   pd_idx_t lowedge;
 
   for(lowpos=0,lowedge=cr->edge[0],pos=1;pos<4;pos++) {
-      
+
     if (cr->edge[pos] < lowedge) {
 
       lowpos = pos; lowedge = cr->edge[pos];
 
     }
-    
+
   }
-  
+
   /* Make sure we have the "leftmost" copy. */
-  
+
   if (cr->edge[(lowpos+3)%4] == lowedge) { lowpos = (lowpos + 3) % 4; }
 
   return lowpos;
 
 }
 
-  
+
 void pd_regenerate_crossings(pd_code_t *pd)
 
-/* Cyclically reorders pd codes so lowest index edge 
+/* Cyclically reorders pd codes so lowest index edge
    comes first, fixing edgecodes as we go, sorts crossings. */
 
 {
@@ -636,7 +636,7 @@ void pd_regenerate_crossings(pd_code_t *pd)
   pd_pos_t cross_rotate[pd->MAXVERTS];
 
   for(cross=0;cross<pd->ncross;cross++) {
-    
+
     cross_rotate[cross] = pdint_cross_rdist(&(pd->cross[cross]));
     pdint_rotate_left(&(pd->cross[cross]),cross_rotate[cross]);
 
@@ -650,7 +650,7 @@ void pd_regenerate_crossings(pd_code_t *pd)
   for(edge=0;edge<pd->nedges;edge++) {
 
     pd_edge_t *e = &(pd->edge[edge]);
-    
+
     e->headpos = (e->headpos - cross_rotate[e->head] + 4) % 4;
     e->tailpos = (e->tailpos - cross_rotate[e->tail] + 4) % 4;
 
@@ -673,7 +673,7 @@ void pd_regenerate_crossings(pd_code_t *pd)
   /* First, we change the references to crossings in the edge records. */
 
   for(edge=0;edge<pd->nedges;edge++) {
-    
+
     pd->edge[edge].head = new_cross_num[pd->edge[edge].head];
     pd->edge[edge].tail = new_cross_num[pd->edge[edge].tail];
 
@@ -702,11 +702,11 @@ void pdint_next_comp_edge(pd_code_t *pd,pd_idx_t edge,pd_idx_t *nxt,pd_or_t *nxt
   pd_pos_t nxtpos = (pos+2)%4;
 
   *nxt = pd->cross[cross].edge[nxtpos];
-  
-  if (cross == pd->edge[*nxt].tail && nxtpos == pd->edge[*nxt].tailpos) { 
-    *nxt_or = PD_POS_ORIENTATION; 
+
+  if (cross == pd->edge[*nxt].tail && nxtpos == pd->edge[*nxt].tailpos) {
+    *nxt_or = PD_POS_ORIENTATION;
   } else if (cross == pd->edge[*nxt].head && nxtpos == pd->edge[*nxt].headpos) {
-    *nxt_or = PD_NEG_ORIENTATION; 
+    *nxt_or = PD_NEG_ORIENTATION;
   } else {
     pd_error(SRCLOC,"Mismatch between %CROSS, which has edge %d at position %d"
 	     "and record %EDGE which does not match either head/headpos or tail/tailpos",
@@ -718,19 +718,19 @@ void pdint_next_comp_edge(pd_code_t *pd,pd_idx_t edge,pd_idx_t *nxt,pd_or_t *nxt
 #define PD_UNSET_COMPONENT -1
 #define PD_UNSET_POSITION -1
 
-typedef struct edge_assignment_struct {   
+typedef struct edge_assignment_struct {
 
-  /* When building the components from a pd code, we need 
+  /* When building the components from a pd code, we need
      to keep track of the component a given edge has been
      assigned to, and the position of the edge within that
-     component. 
+     component.
 
      This structure stores that information. If the component
      hasn't been assigned yet, the component is set to PD_UNSET_COMPONENT
-     and the pos is set to PD_UNSET_POSITION. */ 
-   
-    int comp;   
-    int pos; 
+     and the pos is set to PD_UNSET_POSITION. */
+
+    int comp;
+    int pos;
 
 } pdint_edge_assignment;
 
@@ -740,13 +740,13 @@ pd_idx_t pdint_find_unassigned_edge(pd_code_t *pd,pdint_edge_assignment *edge_as
   assert(pd != NULL && edge_assigned != NULL && all_assigned != NULL);
 
   pd_idx_t edge;
-  
+
   for(edge=0;edge<pd->nedges;edge++) {
 
-    if (edge_assigned[edge].comp == PD_UNSET_COMPONENT) { 
+    if (edge_assigned[edge].comp == PD_UNSET_COMPONENT) {
 
-      *all_assigned = false; 
-      return edge; 
+      *all_assigned = false;
+      return edge;
 
     }
 
@@ -769,7 +769,7 @@ int  pd_component_cmp(const void *A,const void *B) {
 
     return pdcB->nedges - pdcA->nedges;
 
-  } 
+  }
 
   pd_idx_t edge,nedges = pdcA->nedges;
 
@@ -786,9 +786,9 @@ int  pd_component_cmp(const void *A,const void *B) {
   return 0;
 
 }
-  
-typedef struct crossing_marker_struct { 
- 
+
+typedef struct crossing_marker_struct {
+
   bool     pos_used[4];
   pd_idx_t num_used;
 
@@ -801,9 +801,9 @@ pd_crossmark_t *pdint_crossmark_new(pd_idx_t ncross) {
   assert(cm != NULL);
   pd_idx_t i,j;
 
-  for(i=0;i<ncross;i++) { 
+  for(i=0;i<ncross;i++) {
 
-    for(j=0;j<4;j++) { 
+    for(j=0;j<4;j++) {
 
       cm[i].pos_used[j] = false;
 
@@ -817,18 +817,18 @@ pd_crossmark_t *pdint_crossmark_new(pd_idx_t ncross) {
 
 }
 
-bool pdint_find_unused_cross(pd_crossmark_t *cm,pd_idx_t ncross,pd_idx_t *cross,pd_idx_t *pos) 
+bool pdint_find_unused_cross(pd_crossmark_t *cm,pd_idx_t ncross,pd_idx_t *cross,pd_idx_t *pos)
 {
   pd_idx_t i,j;
 
-  for(i=0;i<ncross;i++) { 
+  for(i=0;i<ncross;i++) {
 
-    if (cm[i].num_used != 4) { 
+    if (cm[i].num_used != 4) {
 
-      for(j=0;j<4;j++) { 
-	
-	if (!cm[i].pos_used[j]) { 
-	  
+      for(j=0;j<4;j++) {
+
+	if (!cm[i].pos_used[j]) {
+
 	  *cross = i; *pos = j;
 	  return true;
 
@@ -841,7 +841,7 @@ bool pdint_find_unused_cross(pd_crossmark_t *cm,pd_idx_t ncross,pd_idx_t *cross,
   }
 
   return false;
- 
+
 }
 
 void pdint_find_edge_in_crossings(pd_crossing_t *cross,pd_idx_t ncross,
@@ -854,11 +854,11 @@ void pdint_find_edge_in_crossings(pd_crossing_t *cross,pd_idx_t ncross,
   pd_idx_t nfound = 0;
   pd_idx_t i,j;
 
-  for(i=0;i<ncross;i++) { 
-    
-    for(j=0;j<4;j++) { 
+  for(i=0;i<ncross;i++) {
 
-      if (cross[i].edge[j] == edge) { 
+    for(j=0;j<4;j++) {
+
+      if (cross[i].edge[j] == edge) {
 
 	ends[nfound] = i; pos[nfound] = j;
 	nfound++;
@@ -872,11 +872,11 @@ void pdint_find_edge_in_crossings(pd_crossing_t *cross,pd_idx_t ncross,
   }
 
   /* We shouldn't get here. */
-  
+
   printf("pdint_find_edge_in_crossings:"
 	 "Couldn't find edge %d twice"
 	 "in list of crossings\n",edge);
-  for(i=0;i<ncross;i++) { 
+  for(i=0;i<ncross;i++) {
 
     printf("\t %d %d %d %d \n",
 	   cross[i].edge[0],
@@ -887,30 +887,30 @@ void pdint_find_edge_in_crossings(pd_crossing_t *cross,pd_idx_t ncross,
 
   exit(1);
 
-} 
+}
 
-void pd_regenerate_edges(pd_code_t *pd) 
+void pd_regenerate_edges(pd_code_t *pd)
 
-/* 
-  We do this the slow-but-clean way, generating edges in 
-  order around components by direct search. The idea is 
-  to mark used positions on each crossing, then enter 
-  edge records as we go. It's slow the first time, but 
+/*
+  We do this the slow-but-clean way, generating edges in
+  order around components by direct search. The idea is
+  to mark used positions on each crossing, then enter
+  edge records as we go. It's slow the first time, but
   cached for future accesses.
 */
 
-{ 
+{
 
   /* First, mark all the crossings and positions as unused */
 
   pd_crossmark_t *cm = pdint_crossmark_new(pd->ncross);
-  
+
   /* Second, flush the current edgebuffer. */
-  
+
   assert(pd->edge != NULL);
   pd_idx_t i,j;
 
-  for(i=0;i<pd->MAXEDGES;i++) { 
+  for(i=0;i<pd->MAXEDGES;i++) {
 
     pd->edge[i].head    = PD_UNSET_IDX;
     pd->edge[i].headpos = PD_UNSET_POS;
@@ -921,12 +921,12 @@ void pd_regenerate_edges(pd_code_t *pd)
 
   pd->nedges = 2*pd->ncross;
 
-  /* Now we recreate the old code, which simply loops through and generates 
+  /* Now we recreate the old code, which simply loops through and generates
      edge records with no thought of consistent orientation. */
 
-  for(i=0;i<pd->nedges;i++) { 
+  for(i=0;i<pd->nedges;i++) {
 
-    pd_idx_t foundcr[2], foundpos[2];   
+    pd_idx_t foundcr[2], foundpos[2];
     pdint_find_edge_in_crossings(pd->cross,pd->ncross,i,foundcr,foundpos);
 
     pd->edge[i].head = foundcr[0];  pd->edge[i].headpos = foundpos[0];
@@ -936,17 +936,17 @@ void pd_regenerate_edges(pd_code_t *pd)
 
   /* Ok, we don't have any sense of consistent orientation here. So
      this is where we'll try to generate one. */
-    
+
   pd_idx_t start_edge_idx;
   pd_edge_t start_edge;
   pd_idx_t failsafe = 0;
 
-  while (pdint_find_unused_cross(cm,pd->ncross,&i,&j)) { 
+  while (pdint_find_unused_cross(cm,pd->ncross,&i,&j)) {
 
-    start_edge_idx = pd->cross[i].edge[j];  
+    start_edge_idx = pd->cross[i].edge[j];
     start_edge = pd->edge[start_edge_idx];
     /* This edge is by assumption oriented positively. */
-    
+
     cm[start_edge.head].pos_used[start_edge.headpos] = true;
     cm[start_edge.tail].pos_used[start_edge.tailpos] = true;
     cm[start_edge.head].num_used++;
@@ -961,9 +961,9 @@ void pd_regenerate_edges(pd_code_t *pd)
 	 next_edge_idx != start_edge_idx;
 	 pdint_next_comp_edge(pd,next_edge_idx,
 			      &next_edge_idx,&next_or),
-	   compsafe++) { 
+	   compsafe++) {
 
-      pd->edge[next_edge_idx] 
+      pd->edge[next_edge_idx]
 	= pd_oriented_edge(pd->edge[next_edge_idx],
 			   next_or);
 
@@ -974,18 +974,18 @@ void pd_regenerate_edges(pd_code_t *pd)
       cm[next_edge.head].num_used++;
       cm[next_edge.tail].num_used++;
 
-      if (compsafe >= pd->nedges) { 
-	
+      if (compsafe >= pd->nedges) {
+
 	pd_error(SRCLOC,"component appears to have %d edges in %d edge pd %PD",pd,
 		 compsafe+1,pd->nedges);
 	exit(1);
 
       }
-      
+
     }
 
     failsafe++;
-    if (failsafe > pd->ncross) { 
+    if (failsafe > pd->ncross) {
 
       pd_error(SRCLOC,
 	       "Ran through list of edges %d times looking for components in %PD",pd,failsafe);
@@ -994,7 +994,7 @@ void pd_regenerate_edges(pd_code_t *pd)
     }
 
   }
-  
+
   /* At this point, we should pass pd_edges_ok. */
 
   assert(pd_edges_ok(pd));
@@ -1002,16 +1002,16 @@ void pd_regenerate_edges(pd_code_t *pd)
   /* And we can safely do some housecleaning. */
 
   free(cm);
-  
+
 }
 
 
-void pd_regenerate_comps(pd_code_t *pd) 
+void pd_regenerate_comps(pd_code_t *pd)
 
-/* 
+/*
    This procedure assumes that edges exist, and possibly that components still
-   exist (because we've used this pdcode for something before this point). We 
-   delete any existing component records and reassemble the edges into components, 
+   exist (because we've used this pdcode for something before this point). We
+   delete any existing component records and reassemble the edges into components,
    flipping orientations as required. Note that pd_edges_ok is simply a check that
    the vertex indices are valid-- it doesn't attempt to check orientations (although
    the pd_regenerate_edges code should actually produce consistently oriented edges).
@@ -1027,11 +1027,11 @@ void pd_regenerate_comps(pd_code_t *pd)
 
     pd_idx_t comp;
 
-    for(comp=0;comp<pd->ncomps;comp++) { 
+    for(comp=0;comp<pd->ncomps;comp++) {
 
-      if (pd->comp[comp].edge != NULL) { 
-	
-	free(pd->comp[comp].edge); pd->comp[comp].edge = NULL; 
+      if (pd->comp[comp].edge != NULL) {
+
+	free(pd->comp[comp].edge); pd->comp[comp].edge = NULL;
 
       }
 
@@ -1042,13 +1042,13 @@ void pd_regenerate_comps(pd_code_t *pd)
 
     pd->ncomps = 0; /* There are 0 components NOW! */
 
-  }	  
+  }
 
-  /* Step 0. 
+  /* Step 0.
 
      We're going to generate a new collection of components in any
      case.  If we don't already have components, then we'll assign
-     tags now. 
+     tags now.
 
      We DON'T need to free the pd->comp array itself, which remains a
      fixed size, and was allocated by pd_code_new, regardless of the
@@ -1057,12 +1057,12 @@ void pd_regenerate_comps(pd_code_t *pd)
      But we don't need to reallocate it, either.
 
   */
- 
+
   assert(pd->comp != NULL);
-   
-  /* Step 1. Run around the components, 
+
+  /* Step 1. Run around the components,
      assembling the (old) edge
-     numbers of the edges, and 
+     numbers of the edges, and
      reorienting edges as we go. */
 
   pdint_edge_assignment *edge_assigned;
@@ -1072,27 +1072,27 @@ void pd_regenerate_comps(pd_code_t *pd)
   bool all_assigned = false;
   pd_idx_t edge;
 
-  for(edge=0;edge<pd->nedges;edge++) { 
+  for(edge=0;edge<pd->nedges;edge++) {
 
-    edge_assigned[edge].comp = PD_UNSET_COMPONENT; 
+    edge_assigned[edge].comp = PD_UNSET_COMPONENT;
     edge_assigned[edge].pos = PD_UNSET_POSITION;
 
   }
 
-  /* We're now going to work our way through the edges, assigning 
+  /* We're now going to work our way through the edges, assigning
      them to components and positions. */
 
   for(edge=0,pd->ncomps=0;            /* This loop is over components */
       !all_assigned;
       pd->ncomps++,edge=pdint_find_unassigned_edge(pd,edge_assigned,&all_assigned)) {
-    
+
     pd_idx_t comp = pd->ncomps;
     pd_or_t  next_or;
     pd_idx_t next_edge, start_edge;
     pd_idx_t nedges = 1;          /* Keep a counter here to prevent infinite loops */
 
-    /* We are now starting a new component with an unassigned edge. The first step 
-       is to assign it to this component in position 0. This is the first edge in 
+    /* We are now starting a new component with an unassigned edge. The first step
+       is to assign it to this component in position 0. This is the first edge in
        the component, so we keep track of it in order to know when we've completed
        the loop. */
 
@@ -1105,8 +1105,8 @@ void pd_regenerate_comps(pd_code_t *pd)
     for(;next_edge != start_edge && nedges <= pd->MAXEDGES+1;    /* This loop is over edges in a component */
 	pdint_next_comp_edge(pd,edge,&next_edge,&next_or),nedges++) {
 
-      /* We've now discovered that next_edge is in this component. 
-	 Go ahead and assign it to this component, in the position given 
+      /* We've now discovered that next_edge is in this component.
+	 Go ahead and assign it to this component, in the position given
 	 by nedges, and change the orientation (if needed). */
 
       pd_reorient_edge(pd,next_edge,next_or);
@@ -1119,7 +1119,7 @@ void pd_regenerate_comps(pd_code_t *pd)
 
       /* Finally, we include a safety check to prevent infinite loops. */
 
-      if (nedges >= pd->nedges) { 
+      if (nedges >= pd->nedges) {
 
 	fprintf(stderr,
 		"pd_regenerate_comp: Found %d edges in component %d of %d edge pdcode.\n"
@@ -1131,7 +1131,7 @@ void pd_regenerate_comps(pd_code_t *pd)
 
     } /* End of loop over this component. */
 
-    if (pd->ncomps > pd->MAXCOMPONENTS) { 
+    if (pd->ncomps > pd->MAXCOMPONENTS) {
 
       fprintf(stderr,
 	      "pd_regenerate_comps: Found %d components in %d edge pdcode without\n"
@@ -1142,7 +1142,7 @@ void pd_regenerate_comps(pd_code_t *pd)
 
     }
 
-    /* We now know that component "comp" has "nedges" total edges. 
+    /* We now know that component "comp" has "nedges" total edges.
        Use this to allocate space in the correct record in the pd->comp
        array. */
 
@@ -1152,12 +1152,12 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   } /* End of loop over all components. */
 
-  /* We now need to actually build the component records from the 
+  /* We now need to actually build the component records from the
      data in the edge_assignment array. We've made space, so this
-     is just a matter of cruising throught the assignment array 
+     is just a matter of cruising throught the assignment array
      again, putting everybody in the right place. */
- 
-  for(edge=0;edge<pd->nedges;edge++) { 
+
+  for(edge=0;edge<pd->nedges;edge++) {
 
     assert(edge_assigned[edge].comp >= 0 && edge_assigned[edge].comp < pd->ncomps);
     assert(edge_assigned[edge].pos >= 0 && edge_assigned[edge].pos < pd->comp[edge_assigned[edge].comp].nedges);
@@ -1165,7 +1165,7 @@ void pd_regenerate_comps(pd_code_t *pd)
     pd->comp[edge_assigned[edge].comp].edge[edge_assigned[edge].pos] = edge;
 
   }
-  
+
   /* We can now free the edge_assignment data, since we've assigned all edges to components. */
 
   free(edge_assigned);
@@ -1175,14 +1175,14 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   qsort(pd->comp,pd->ncomps,sizeof(pd_component_t),pd_component_cmp);
 
-  /* Step 2a. This is the canonical order for components (remember, this 
+  /* Step 2a. This is the canonical order for components (remember, this
      only ran if we didn't have components in the first place), so we assign
      tags now. */
 
   pd_tag_t tag = 'A';
   pd_idx_t i;
 
-  for(i=0;i<pd->ncomps;i++,tag++) { 
+  for(i=0;i<pd->ncomps;i++,tag++) {
     pd->comp[i].tag = tag; }
 
   /* Step 3. Build a translation table for edge reordering and update the
@@ -1192,30 +1192,30 @@ void pd_regenerate_comps(pd_code_t *pd)
   pd_idx_t new_edge_num[pd->MAXEDGES];
 
   pd_idx_t comp;
-  
+
   for(i=0,comp=0;comp<pd->ncomps;comp++) {
-    
+
     for(edge=0;edge<pd->comp[comp].nedges;edge++,i++) {
-      
+
       old_edge_num[i] = pd->comp[comp].edge[edge];
       new_edge_num[pd->comp[comp].edge[edge]] = i;
 
       pd->comp[comp].edge[edge] = i; /* This SHOULD be the edge here. */
-    
+
     }
-    
+
   }
-  
+
   /* Step 4. Rearrange the edges buffer accordingly. */
-  
+
   pd_edge_t new_edges[pd->MAXEDGES];
-  
+
   for(edge=0;edge<pd->nedges;edge++) {
-    
+
     new_edges[edge] = pd->edge[old_edge_num[edge]];
-    
+
   }
-  
+
   for(edge=0;edge<pd->nedges;edge++) {
 
     pd->edge[edge] = new_edges[edge];
@@ -1227,11 +1227,11 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   pd_pos_t j;
 
-  for(i=0;i<pd->ncross;i++) { 
+  for(i=0;i<pd->ncross;i++) {
 
     for(j=0;j<4;j++) {
 
-      pd->cross[i].edge[j] = 
+      pd->cross[i].edge[j] =
 	new_edge_num[pd->cross[i].edge[j]];
 
     }
@@ -1241,7 +1241,7 @@ void pd_regenerate_comps(pd_code_t *pd)
   /* Step 6. Resort the crossings. */
 
   pd_regenerate_crossings(pd);
-  
+
 }
 
 /*
@@ -1267,12 +1267,12 @@ void base64encode(unsigned char data[24],char *encoded) {
   int data_idx,encoded_idx;
 
   for(data_idx=0,encoded_idx=0;data_idx<24;data_idx+=3,encoded_idx+=4) {
-    
+
     encodeblock(&(data[data_idx]),&(encoded[encoded_idx]),3);
-    
+
   }
 
-} 
+}
 
 void pd_regenerate_hash(pd_code_t *pd)
 
@@ -1280,8 +1280,8 @@ void pd_regenerate_hash(pd_code_t *pd)
 /* The idea is that the hash value should not depend on the numbering of faces, crossings, etc */
 /* and that it should be computable from the pd_code (that is, it cannot depend on crossing sign info */
 
-/* So we start with a string of consecutive unsigned chars: 
-		     
+/* So we start with a string of consecutive unsigned chars:
+
    nverts
    nedges
    nfaces
@@ -1295,8 +1295,8 @@ void pd_regenerate_hash(pd_code_t *pd)
    ...
    edges in comp n (shortest component)
 
-   and then base64encode to make it printable. 
-   
+   and then base64encode to make it printable.
+
 */
 
 {
@@ -1304,7 +1304,7 @@ void pd_regenerate_hash(pd_code_t *pd)
 
   unsigned char data[24];
   int i,face,comp;
-  
+
   data[0] = (unsigned char)(pd->ncross);
   data[1] = (unsigned char)(pd->nedges);
   data[2] = (unsigned char)(pd->nfaces);
@@ -1316,48 +1316,48 @@ void pd_regenerate_hash(pd_code_t *pd)
   }
 
   if(i < 24) { data[i++] = (unsigned char)(pd->ncomps); }
-  
+
   for(comp=0;comp<pd->ncomps && i < 24;i++,comp++) {
-    
+
     data[i] = (unsigned char)(pd->comp[comp].nedges);
-    
+
   }
-  
+
   for(;i < 24;i++) { data[i] = 0; } /* Pad any remaining space with zeros. */
-  
+
   base64encode(data,pd->hash);
 
   pd->hash[31] = 0; /* Make sure that we end the string with a zero. */
-  
+
 }
 
 
 void pdint_next_edge_on_face(pd_code_t *pd,pd_idx_t ed,pd_or_t or,
-			     pd_idx_t *next_edge,pd_or_t *next_or) 
-  
+			     pd_idx_t *next_edge,pd_or_t *next_or)
+
 /* Given an edge and an orientation (or), if or = +1, travel to the head of the edge,
    turn left, and record the next edge arrived at (with orientation), if or = -1, travel
    to the tail of the edge, turn left, and record next edge (with orientation). */
-  
+
 {
   assert(pd != NULL && next_edge != NULL && next_or != NULL);
   assert(ed < pd->nedges);
   assert(or == PD_POS_ORIENTATION || or == PD_NEG_ORIENTATION);
 
   pd_idx_t cross, this_pos, next_pos;
-  
+
   if (or == PD_POS_ORIENTATION) {
-    
+
     cross    = pd->edge[ed].head;
     this_pos = pd->edge[ed].headpos;
-    
+
   } else { /* or == PD_NEG_ORIENTATION */
-    
+
     cross    = pd->edge[ed].tail;
     this_pos = pd->edge[ed].tailpos;
-    
-  } 
-  
+
+  }
+
   next_pos = (this_pos + 3) % 4; /* Turn LEFT (counterclockwise) */
   (*next_edge) = pd->cross[cross].edge[next_pos];
 
@@ -1379,31 +1379,31 @@ void pdint_next_edge_on_face(pd_code_t *pd,pd_idx_t ed,pd_or_t or,
 
     assert(nxt->headpos == next_pos || nxt->tailpos == next_pos);
 
-  }	   
-  
-  /* We need to determine the orientation of this (next) edge on the face. */
-    
-  if (nxt->head == cross && nxt->headpos == next_pos) {
-    
-    *next_or = PD_NEG_ORIENTATION; /* This is the _head_ of the next edge */
-    
-  } else { 
-    
-    *next_or = PD_POS_ORIENTATION; /* This was the _tail_ of the next edge */
-    
   }
-  
+
+  /* We need to determine the orientation of this (next) edge on the face. */
+
+  if (nxt->head == cross && nxt->headpos == next_pos) {
+
+    *next_or = PD_NEG_ORIENTATION; /* This is the _head_ of the next edge */
+
+  } else {
+
+    *next_or = PD_POS_ORIENTATION; /* This was the _tail_ of the next edge */
+
+  }
+
 }
 
 #define PD_UNSET_FACE -1
 
-/* Each edge should occur on two faces, with a 
+/* Each edge should occur on two faces, with a
    positive orientation on the "pos_face" and a
-   negative orientation on the "neg_face". We also 
+   negative orientation on the "neg_face". We also
    keep track of _where_ this edge is going to show
    up on the face. */
 
-typedef struct face_assignment_struct { 
+typedef struct face_assignment_struct {
 
   int pos_face;
   pd_idx_t pos_face_position;
@@ -1411,22 +1411,22 @@ typedef struct face_assignment_struct {
   int neg_face;
   pd_idx_t neg_face_position;
 
-} pdint_face_assignment; 
+} pdint_face_assignment;
 
 void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
 					pdint_face_assignment *face_assigned,
 					pd_idx_t *start_edge,pd_or_t *start_or,
 					bool *all_assigned)
 
-/* Search the array of face assignments for unset pos or neg faces, in the 
+/* Search the array of face assignments for unset pos or neg faces, in the
    order edge 0-pos_face, edge 1-pos_face, ..., edge n-pos_face,
          edge 0-neg_face, edge 1-neg_face, ..., edge n-neg_face.
-   When we find one, reset the start_edge/start_or values appropriately.	 
+   When we find one, reset the start_edge/start_or values appropriately.
 */
 
 {
 
-  /* First, the usual defensive asserts designed to make sure the 
+  /* First, the usual defensive asserts designed to make sure the
      input isn't garbage. */
 
   assert(face_assigned != NULL);
@@ -1442,11 +1442,11 @@ void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
 
   pd_idx_t edge;
 
-  if (*start_or == PD_POS_ORIENTATION) { 
+  if (*start_or == PD_POS_ORIENTATION) {
 
     for(edge=*start_edge+1;edge < pd->nedges;edge++) {
 
-      if (face_assigned[edge].pos_face == PD_UNSET_FACE) { 
+      if (face_assigned[edge].pos_face == PD_UNSET_FACE) {
 
 	*start_edge = edge; *start_or = PD_POS_ORIENTATION;
 	*all_assigned = false;
@@ -1456,12 +1456,12 @@ void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
 
     }
 
-    /* Now we're cruising the negative orientations from the 
+    /* Now we're cruising the negative orientations from the
        start. */
 
-    for(edge=0;edge < pd->nedges;edge++) { 
+    for(edge=0;edge < pd->nedges;edge++) {
 
-      if (face_assigned[edge].neg_face == PD_UNSET_FACE) { 
+      if (face_assigned[edge].neg_face == PD_UNSET_FACE) {
 
 	*start_edge = edge; *start_or = PD_NEG_ORIENTATION;
 	*all_assigned = false;
@@ -1469,7 +1469,7 @@ void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
 
       }
 
-    } 
+    }
 
     /* Now we've actually checked everything. */
 
@@ -1479,9 +1479,9 @@ void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
 
   } else if (*start_or == PD_NEG_ORIENTATION) { /* We started with a negative orientation */
 
-    for(edge = *start_edge+1;edge < pd->nedges;edge++) { 
+    for(edge = *start_edge+1;edge < pd->nedges;edge++) {
 
-      if (face_assigned[edge].neg_face == PD_UNSET_FACE) { 
+      if (face_assigned[edge].neg_face == PD_UNSET_FACE) {
 
 	*start_edge = edge; *start_or = PD_NEG_ORIENTATION;
 	*all_assigned = false;
@@ -1496,10 +1496,10 @@ void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
     *start_edge = 0; *start_or = PD_UNSET_ORIENTATION;
     *all_assigned = true;
     return;
-    
+
   }
-   
-  /* It should actually be impossible to get here, but it 
+
+  /* It should actually be impossible to get here, but it
      means that the input orientation was bogus. */
 
   fprintf(stderr,"pdint_next_face_unassigned_edge_or: Shouldn't get here.\n");
@@ -1507,17 +1507,17 @@ void pdint_next_face_unassigned_edge_or(pd_code_t *pd,
 
 }
 
-void pd_regenerate_faces(pd_code_t *pd) 
+void pd_regenerate_faces(pd_code_t *pd)
 
 /* Generates faces of the polyhedron corresponding to the
    crossing and edge data in pd.  Add that data to the
-   pd_code_t structure pd. 
+   pd_code_t structure pd.
 
    The basic idea here is that we're computing the orbits
    of pdint_next_edge_on_face. To do that, we need to keep track
    of the edges and orientations we've used already.
 
-   Again, this has to be done kind of carefully, because we 
+   Again, this has to be done kind of carefully, because we
    may or may not have allocated memory for the individual face
    records, and in any case don't know how much memory to allocate
    for each face until we're through the orbit. */
@@ -1527,15 +1527,15 @@ void pd_regenerate_faces(pd_code_t *pd)
   assert(pd->ncross > 0);
   assert(pd->nedges > 1);
 
-  /* Step 0. Look at the face information we've got, and if 
-     the buffers are assigned, free them. We don't need to 
-     worry about the pd->face buffer itself because it's 
+  /* Step 0. Look at the face information we've got, and if
+     the buffers are assigned, free them. We don't need to
+     worry about the pd->face buffer itself because it's
      allocated by pd_code_new. */
 
   assert(pd->face != NULL);
   pd_idx_t face;
 
-  for(face=0;face<pd->MAXFACES;face++) { 
+  for(face=0;face<pd->MAXFACES;face++) {
 
     if (pd->face[face].edge != NULL) { free(pd->face[face].edge); pd->face[face].edge = NULL; }
     if (pd->face[face].or != NULL) { free(pd->face[face].or); pd->face[face].or = NULL; }
@@ -1544,25 +1544,25 @@ void pd_regenerate_faces(pd_code_t *pd)
   }
 
   /* Step 1. Clean the buffer of face assignments, reflecting
-     that no edge has yet been assigned to any face, in either 
+     that no edge has yet been assigned to any face, in either
      the positive or negative orientation. */
 
   pdint_face_assignment *face_assigned;
   face_assigned = calloc(pd->nedges,sizeof(pdint_face_assignment));
   assert(face_assigned != NULL);
-  
+
   pd_idx_t edge;
 
-  for(edge=0;edge < pd->nedges;edge++) { 
+  for(edge=0;edge < pd->nedges;edge++) {
 
     face_assigned[edge].pos_face = PD_UNSET_FACE;
     face_assigned[edge].pos_face_position = pd->nedges+1; /* Set this to something impossible */
 
     face_assigned[edge].neg_face = PD_UNSET_FACE;
     face_assigned[edge].neg_face_position = pd->nedges+1;
-  
+
   }
-  
+
   /* Step 3. Start the main (face-counting) loop. */
 
   pd_idx_t start_edge;
@@ -1574,24 +1574,24 @@ void pd_regenerate_faces(pd_code_t *pd)
       pd->nfaces++,pdint_next_face_unassigned_edge_or(pd,face_assigned,
 						      &start_edge,&start_or,
 						      &all_assigned)) {
-      
-    assert(start_edge < pd->nedges && 
+
+    assert(start_edge < pd->nedges &&
 	   (start_or == PD_POS_ORIENTATION || start_or == PD_NEG_ORIENTATION));
-    
-    /* Now we have an unused edge/orientation pair to start 
+
+    /* Now we have an unused edge/orientation pair to start
        the next loop (around the face) on. */
-    
+
     pd_idx_t this_edge = start_edge;
     pd_or_t  this_or = start_or;
     pd_idx_t nedges = 0; /* Stores the number of edges in this face. */
-    
+
     do {
 
       /* Assign this edge/orientation pair to the current face. */
 
       assert(this_or == PD_POS_ORIENTATION || this_or == PD_NEG_ORIENTATION);
 
-      if (this_or == PD_POS_ORIENTATION) { 
+      if (this_or == PD_POS_ORIENTATION) {
 
 	face_assigned[this_edge].pos_face = pd->nfaces;
 	face_assigned[this_edge].pos_face_position = nedges;
@@ -1601,9 +1601,9 @@ void pd_regenerate_faces(pd_code_t *pd)
 	face_assigned[this_edge].neg_face = pd->nfaces;
 	face_assigned[this_edge].neg_face_position = nedges;
 
-      } 
+      }
 
-      if (nedges > pd->nedges) { 
+      if (nedges > pd->nedges) {
 
 	fprintf(stderr,
 		"pd_regenerate_faces: Face number %d appears to contain %d edges of %d edge diagram.\n"
@@ -1622,7 +1622,7 @@ void pd_regenerate_faces(pd_code_t *pd)
 
     /* Make sure the number of faces is sane. */
 
-    if (pd->nfaces >= pd->MAXFACES) { 
+    if (pd->nfaces >= pd->MAXFACES) {
 
       fprintf(stderr,
 	      "pd_regenerate_faces: Found %d faces on %d crossing diagram (maxfaces == %d).\n"
@@ -1641,11 +1641,11 @@ void pd_regenerate_faces(pd_code_t *pd)
 
   } /* End of loop over faces. */
 
-  /* Now that we've allocated space in the individual face records, we can take 
+  /* Now that we've allocated space in the individual face records, we can take
      another tour through the face_assigned array and put edge numbers and orientations
      in the face records as appropriate. */
 
-  for(edge=0;edge<pd->nedges;edge++) { 
+  for(edge=0;edge<pd->nedges;edge++) {
 
     assert(face_assigned[edge].pos_face < pd->nfaces);
     assert(face_assigned[edge].pos_face_position < pd->face[face_assigned[edge].pos_face].nedges);
@@ -1668,31 +1668,31 @@ void pd_regenerate_faces(pd_code_t *pd)
 
   /* Now for each face, make sure it is in canonical order. */
 
-  for(face=0;face<pd->nfaces;face++) { 
+  for(face=0;face<pd->nfaces;face++) {
 
     pd_canonorder_face(&(pd->face[face]),PD_POS_ORIENTATION);
-    
+
   }
-  
+
   /* Now sort the faces using pd_face_cmp. */
-  
+
   qsort(pd->face,pd->nfaces,sizeof(pd_face_t),pd_face_cmp);
 
   /* Finally, check to make sure the face count is correct. */
 
-  if (pd->nfaces != pd->ncross + 2) { 
+  if (pd->nfaces != pd->ncross + 2) {
 
     pd_error(SRCLOC,"pd->nfaces (%d) does not equal pd->ncross + 2 (%d) for pd %PD\n",
 	     pd,pd->nfaces,pd->ncross);
     exit(1);
 
   }
-  
+
 }
 
 void pd_regenerate(pd_code_t *pd)
 
-/* Starting with a valid list of crossings, regenerate 
+/* Starting with a valid list of crossings, regenerate
    everything else. */
 
 {
@@ -1716,7 +1716,7 @@ bool pd_cross_ok(pd_code_t *pd)
    and that the crossing sign has a legal value for an orientation. */
 {
   assert(pd != NULL);
-  if (pd->ncross == 0) { return true; } 
+  if (pd->ncross == 0) { return true; }
   /* The 0-crossing unknot diagram has nothing to check */
 
   int *edge_seen;
@@ -1730,7 +1730,7 @@ bool pd_cross_ok(pd_code_t *pd)
 
   for(cross=0;cross<pd->ncross;cross++) {
 
-    if (!(pd->cross[cross].sign == PD_POS_ORIENTATION || pd->cross[cross].sign == PD_NEG_ORIENTATION || pd->cross[cross].sign == PD_UNSET_ORIENTATION)) { 
+    if (!(pd->cross[cross].sign == PD_POS_ORIENTATION || pd->cross[cross].sign == PD_NEG_ORIENTATION || pd->cross[cross].sign == PD_UNSET_ORIENTATION)) {
 
       return pd_error(SRCLOC,"%CROSS contains illegal sign %d in pd %PD",pd,
 		      cross,pd->cross[cross].sign);
@@ -1747,7 +1747,7 @@ bool pd_cross_ok(pd_code_t *pd)
 			pd,
 			cross,edge,pd->nedges);
 
-      } 
+      }
 
       edge_seen[edge]++;
 
@@ -1779,47 +1779,47 @@ bool pd_cross_ok(pd_code_t *pd)
     }
 
   }
- 
+
   free(edge_seen);
   return true;
 
 }
 
-bool pd_edges_ok(pd_code_t *pd) 
+bool pd_edges_ok(pd_code_t *pd)
 
 {
   assert(pd != NULL);
 
   pd_idx_t edge;
-  
+
   for(edge=0;edge < pd->nedges;edge++) {
 
     pd_edge_t *e = &(pd->edge[edge]);
 
-    if (e->head >= pd->ncross || 
+    if (e->head >= pd->ncross ||
 	e->tail >= pd->ncross) {
 
-      if (pd->ncross != 0) { /* In which case this is XFAIL, because 
+      if (pd->ncross != 0) { /* In which case this is XFAIL, because
 				head and tail will be PD_UNSET_IDX */
 
 	return pd_error(SRCLOC,"%EDGE contains reference to illegal crossing in pd %PD\n",pd,edge);
 
-      } else if (e->head != PD_UNSET_IDX || e->tail != PD_UNSET_IDX) { 
+      } else if (e->head != PD_UNSET_IDX || e->tail != PD_UNSET_IDX) {
 
 	return pd_error(SRCLOC,"%EDGE in 0-crossing diagram has head or tail not PD_UNSET_IDX",pd,edge);
 
       }
 
-    } 
-    
+    }
+
     if (e->headpos >= 4 ||
 	e->tailpos >= 4) {
 
-      if (pd->ncross != 0) { 
+      if (pd->ncross != 0) {
 
 	return pd_error(SRCLOC,"%EDGE contains reference to illegal position in pd %PD\n",pd,edge);
 
-      } else if (e->headpos != PD_UNSET_POS || e->tailpos != PD_UNSET_POS) { 
+      } else if (e->headpos != PD_UNSET_POS || e->tailpos != PD_UNSET_POS) {
 
 	return pd_error(SRCLOC,"%EDGE in 0-crossing diagram has headpos or tailpos not PD_UNSET_POS",pd,edge);
 
@@ -1827,7 +1827,7 @@ bool pd_edges_ok(pd_code_t *pd)
 
     }
 
-    if (pd->ncross > 0) { /* The next checks really only make sense 
+    if (pd->ncross > 0) { /* The next checks really only make sense
 			     if the diagram HAS crossings. */
 
       pd_crossing_t *hc = &(pd->cross[e->head]), *tc = &(pd->cross[e->tail]);
@@ -1849,19 +1849,19 @@ bool pd_edges_ok(pd_code_t *pd)
       pd_pos_t nextpos = (e->headpos+2)%4;
       pd_pos_t prevpos = (e->tailpos+2)%4;
 
-      if (pd->edge[hc->edge[nextpos]].tail != e->head || 
-	  pd->edge[hc->edge[nextpos]].tailpos != nextpos) { 
+      if (pd->edge[hc->edge[nextpos]].tail != e->head ||
+	  pd->edge[hc->edge[nextpos]].tailpos != nextpos) {
 
 	return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n",pd,edge,hc->edge[nextpos]);
 
       }
-   
-      if (pd->edge[tc->edge[prevpos]].head != e->tail || 
-	  pd->edge[tc->edge[prevpos]].headpos != prevpos) { 
+
+      if (pd->edge[tc->edge[prevpos]].head != e->tail ||
+	  pd->edge[tc->edge[prevpos]].headpos != prevpos) {
 
 	return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n",pd,edge,tc->edge[prevpos]);
 
-      } 
+      }
 
     }
 
@@ -1871,9 +1871,9 @@ bool pd_edges_ok(pd_code_t *pd)
 
 }
 
-bool pd_comps_ok(pd_code_t *pd) 
+bool pd_comps_ok(pd_code_t *pd)
 
-/* Check that the edges are numbered correctly around the components 
+/* Check that the edges are numbered correctly around the components
    and that the edges are oriented head-to-tail, also checks that every
    edge is present in a component. */
 
@@ -1882,31 +1882,31 @@ bool pd_comps_ok(pd_code_t *pd)
   pd_idx_t correct_edgenum;
 
   assert(pd != NULL);
-  
+
   if (pd->ncomps > pd->MAXCOMPONENTS) {
 
     return pd_error(SRCLOC,"Number of components %d > pd->MAXCOMPONENTS %d in pd %PD",pd,pd->ncomps,pd->MAXCOMPONENTS);
 
   }
 
-  if (pd->ncross == 0) { 
+  if (pd->ncross == 0) {
 
-    if (pd->ncomps != 1) { 
+    if (pd->ncomps != 1) {
 
       return pd_error(SRCLOC,"Wrong number of components %d != 1 in 0-crossing diagram %PD",pd,pd->ncomps);
-      
+
     }
 
-    if (pd->comp[0].nedges != 1) { 
+    if (pd->comp[0].nedges != 1) {
 
        return pd_error(SRCLOC,"Wrong number of edges %d != 1 in component 0 of 0-crossing diagram %PD",pd,pd->comp[0].nedges);
-      
+
     }
 
-    if (pd->comp[0].edge[0] != 0) { 
+    if (pd->comp[0].edge[0] != 0) {
 
       return pd_error(SRCLOC,"Edge 0 in component 0 of 0-crossing pd %PD is %d != 0",pd,pd->comp[0].edge[0]);
-      
+
     }
 
     return true;
@@ -1922,7 +1922,7 @@ bool pd_comps_ok(pd_code_t *pd)
 	return pd_error(SRCLOC,"Edge %d in %COMP has incorrect number (should be %d) in pd %PD",
 			pd,edge,comp,correct_edgenum);
 
-      } 
+      }
 
       next_edge = (edge + 1) % pd->comp[comp].nedges;
 
@@ -1955,9 +1955,9 @@ bool pd_comps_ok(pd_code_t *pd)
   return true;
 
 }
- 
 
-bool pd_faces_ok(pd_code_t *pd) 
+
+bool pd_faces_ok(pd_code_t *pd)
 
 /* Checks face data */
 
@@ -1970,42 +1970,42 @@ bool pd_faces_ok(pd_code_t *pd)
 
   }
 
-  if (pd->ncross == 0) { 
+  if (pd->ncross == 0) {
 
-    if (pd->nfaces != 2) { 
-    
+    if (pd->nfaces != 2) {
+
       return pd_error(SRCLOC,"Wrong number of faces %d != 2 in 0-crossing diagram %PD",pd,pd->nfaces);
 
-    } 
+    }
 
-    if (pd->face[0].nedges != 1) { 
- 
+    if (pd->face[0].nedges != 1) {
+
       return pd_error(SRCLOC,"Wrong number of edges %d != 1 in face 0 of 0-crossing diagram %PD",pd,pd->face[0].nedges);
 
-    } 
+    }
 
-    if (pd->face[0].edge[0] != 0) { 
- 
+    if (pd->face[0].edge[0] != 0) {
+
       return pd_error(SRCLOC,"Illegal edge reference %d in face 0 of 0-crossing diagram %PD",pd,pd->face[0].edge[0]);
 
-    } 
+    }
 
-    if (pd->face[1].nedges != 1) { 
- 
+    if (pd->face[1].nedges != 1) {
+
       return pd_error(SRCLOC,"Wrong number of edges %d != 1 in face 1 of 0-crossing diagram %PD",pd,pd->face[1].nedges);
 
-    } 
+    }
 
-    if (pd->face[1].edge[0] != 0) { 
- 
+    if (pd->face[1].edge[0] != 0) {
+
       return pd_error(SRCLOC,"Illegal edge reference %d in face 0 of 0-crossing diagram %PD",pd,pd->face[1].edge[0]);
 
-    } 
-    
+    }
+
     return true;
-      
+
   }
-  
+
   pd_idx_t face, edge, nxt_edge;
   pd_edge_t this,next;
 
@@ -2015,7 +2015,7 @@ bool pd_faces_ok(pd_code_t *pd)
 
     for(edge=0,nxt_edge= 1 % f->nedges;
 	edge<f->nedges;
-	edge++,nxt_edge = (edge+1) % f->nedges) { 
+	edge++,nxt_edge = (edge+1) % f->nedges) {
 
       /* Check that f->edge entries are legal. */
 
@@ -2024,15 +2024,15 @@ bool pd_faces_ok(pd_code_t *pd)
 	return pd_error(SRCLOC,"%FACE contains illegal edge %FEDGE in pd %PD",pd,
 			face,face,edge);
 
-      } 
+      }
 
       if (f->edge[nxt_edge] >= pd->nedges) {
 
 	return pd_error(SRCLOC,"%FACE contains illegal edge %FEDGE in pd %PD",pd,
 			face,face,nxt_edge);
 
-      } 
-			
+      }
+
       /* Check that consecutive edges meet at vertex in left turn. */
 
       this = pd_oriented_edge(pd->edge[f->edge[edge]],f->or[edge]);
@@ -2057,14 +2057,14 @@ bool pd_faces_ok(pd_code_t *pd)
 
   /* Check that each face is rotated into canonical order */
 
-  for(face=0;face<pd->nfaces;face++) { 
+  for(face=0;face<pd->nfaces;face++) {
 
     pd_idx_t lowE = pd->face[face].edge[0];
     pd_idx_t i;
 
-    for(i=1;i<pd->face[face].nedges;i++) { 
+    for(i=1;i<pd->face[face].nedges;i++) {
 
-      if (pd->face[face].edge[i] < lowE) { 
+      if (pd->face[face].edge[i] < lowE) {
 
 	lowE = pd->face[face].edge[i];
 
@@ -2072,13 +2072,13 @@ bool pd_faces_ok(pd_code_t *pd)
 
     }
 
-    if (lowE != pd->face[face].edge[0]) { 
+    if (lowE != pd->face[face].edge[0]) {
 
       return pd_error(SRCLOC,"face %FACE is not in canonical order in %PD",pd,face);
 
     }
 
-  } 
+  }
 
   /* Check sort order according to pd_face_cmp */
 
@@ -2115,7 +2115,7 @@ pd_code_t *pd_copy(pd_code_t *pd)
   assert(pdA->MAXEDGES      == pd->MAXEDGES);
   assert(pdA->MAXCOMPONENTS == pd->MAXCOMPONENTS);
   assert(pdA->MAXFACES      == pd->MAXFACES);
-  
+
   pd_idx_t i, edge, cmp, face, cr;
 
   pdA->uid = pd->uid;
@@ -2128,12 +2128,12 @@ pd_code_t *pd_copy(pd_code_t *pd)
   for(i=0;i<PD_HASHSIZE;i++) { pdA->hash[i] = pd->hash[i]; }
   for(edge=0;edge<pd->MAXEDGES;edge++) { pdA->edge[edge] = pd->edge[edge]; };
 
-  for(cmp=0;cmp<pd->MAXCOMPONENTS;cmp++) { 
+  for(cmp=0;cmp<pd->MAXCOMPONENTS;cmp++) {
 
-    assert(   (pd->comp[cmp].nedges == 0 && pd->comp[cmp].edge == NULL) 
+    assert(   (pd->comp[cmp].nedges == 0 && pd->comp[cmp].edge == NULL)
 	   || (pd->comp[cmp].nedges != 0 && pd->comp[cmp].edge != NULL));
 
-    if (pd->comp[cmp].nedges != 0) { 
+    if (pd->comp[cmp].nedges != 0) {
 
       pdA->comp[cmp].nedges = pd->comp[cmp].nedges;
       pdA->comp[cmp].edge = calloc(pdA->comp[cmp].nedges,sizeof(pd_idx_t));
@@ -2142,43 +2142,43 @@ pd_code_t *pd_copy(pd_code_t *pd)
       for(edge=0;edge<pdA->comp[cmp].nedges;edge++) { pdA->comp[cmp].edge[edge] = pd->comp[cmp].edge[edge]; }
 
     }
-  
+
   }
 
-  for(cr=0;cr<pdA->MAXVERTS;cr++) { 
+  for(cr=0;cr<pdA->MAXVERTS;cr++) {
 
     pdA->cross[cr] = pd->cross[cr];
 
   }
 
-  for(face=0;face<pdA->MAXFACES;face++) { 
+  for(face=0;face<pdA->MAXFACES;face++) {
 
     assert((pd->face[face].nedges == 0 && (pd->face[face].edge == NULL && pd->face[face].or == NULL)) ||
 	   (pd->face[face].nedges != 0 && (pd->face[face].edge != NULL && pd->face[face].or != NULL)));
 
-    if (pd->face[face].nedges != 0) { 
+    if (pd->face[face].nedges != 0) {
 
       pdA->face[face].nedges = pd->face[face].nedges;
       pdA->face[face].edge   = calloc(pdA->face[face].nedges,sizeof(pd_idx_t));
       pdA->face[face].or     = calloc(pdA->face[face].nedges,sizeof(pd_or_t));
-      
+
       assert(pdA->face[face].edge != NULL && pdA->face[face].or != NULL);
-      
-      for(edge=0;edge<pdA->face[face].nedges;edge++) { 
+
+      for(edge=0;edge<pdA->face[face].nedges;edge++) {
 
 	pdA->face[face].edge[edge] = pd->face[face].edge[edge];
 	pdA->face[face].or[edge] = pd->face[face].or[edge];
 
       }
-      
+
     }
 
   }
-   
+
   return pdA;
 }
 
-void pd_write(FILE *of,pd_code_t *pd) 
+void pd_write(FILE *of,pd_code_t *pd)
 
 /* Writes a pd code (including all precomputed information) in human readable ASCII format. */
 /* It's true that this seems inefficient, but it's better to compress the resulting */
@@ -2197,7 +2197,7 @@ void pd_write(FILE *of,pd_code_t *pd)
    <nf lines, each in the format nedges edge edge ... edge giving face information counterclockwise>
 
 */
-   
+
 {
   /* First, we do a bit of sanity checking */
 
@@ -2209,16 +2209,16 @@ void pd_write(FILE *of,pd_code_t *pd)
     return;
 
   }
-  
+
   pd_idx_t cross,edge,face,comp;
   pd_pos_t  pos;
 
   fprintf(of,"pd %s %lu\n",pd->hash,(unsigned long int)(pd->uid));
-  
+
   /* Crossing data */
-  
+
   fprintf(of,"nv %u\n",(unsigned int)(pd->ncross));
-  
+
   for(cross=0;cross<pd->ncross;cross++) {
 
     for(pos=0;pos<4;pos++) {
@@ -2227,10 +2227,10 @@ void pd_write(FILE *of,pd_code_t *pd)
 
     }
 
-    if (pd->cross[cross].sign != PD_UNSET_ORIENTATION) { 
+    if (pd->cross[cross].sign != PD_UNSET_ORIENTATION) {
 
       fprintf(of,"%c",pd_print_or(pd->cross[cross].sign));
-    
+
     }
 
     fprintf(of,"\n");
@@ -2240,7 +2240,7 @@ void pd_write(FILE *of,pd_code_t *pd)
   /* Edge data */
 
   fprintf(of,"ne %u\n",(unsigned int)(pd->nedges));
-  
+
   for(edge=0;edge<pd->nedges;edge++) {
 
     fprintf(of,"%u,%u -> %u,%u \n",
@@ -2265,7 +2265,7 @@ void pd_write(FILE *of,pd_code_t *pd)
 
     fprintf(of,"tag %c",(char)(pd->comp[comp].tag));
     fprintf(of,"\n");
-    
+
   }
 
   /* Face data */
@@ -2279,7 +2279,7 @@ void pd_write(FILE *of,pd_code_t *pd)
     for(edge=0;edge<pd->face[face].nedges;edge++) {
 
       if (pd->face[face].or[edge] == PD_POS_ORIENTATION) {
-	
+
 	fprintf(of,"+ ");
 
       } else {
@@ -2296,10 +2296,10 @@ void pd_write(FILE *of,pd_code_t *pd)
 
   }
 
-}  
+}
 
 void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
-/* Writes a c procedure which recreates the pd code pd. 
+/* Writes a c procedure which recreates the pd code pd.
    The procedure will be called pd_create_(pdname) */
 {
   fprintf(outfile,"pd_code_t *pd_create_%s() { \n\n",pdname);
@@ -2325,24 +2325,24 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
   fprintf(outfile,"\n/* Crossing data. */\n\n");
 
   /* Now rebuild the crossing buffer. */
-  
-  for(i=0;i<pd->ncross;i++) { 
 
-    for(j=0;j<4;j++) { 
+  for(i=0;i<pd->ncross;i++) {
+
+    for(j=0;j<4;j++) {
 
       fprintf(outfile,"pd->cross[%d].edge[%d] = %d;\n",i,j,pd->cross[i].edge[j]);
 
     }
-    
+
     fprintf(outfile,"pd->cross[%d].sign = %d;\n\n",i,pd->cross[i].sign);
-   
+
   }
 
   /* The edge buffer... */
 
   fprintf(outfile,"\n/* Edge data */\n\n");
 
-  for(i=0;i<pd->nedges;i++) { 
+  for(i=0;i<pd->nedges;i++) {
 
     fprintf(outfile,
 	    "pd->edge[%d].head = %d;\n"
@@ -2357,26 +2357,26 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
   /* Component data */
 
   fprintf(outfile,"\n/* Component Data */\n\n");
-  
+
   for(i=0;i<pd->ncomps;i++) {
 
     fprintf(outfile,
 	    "pd->comp[%d].nedges = %d;\n"
 	    "pd->comp[%d].tag = '%c';\n\n",
 	    i,pd->comp[i].nedges,i,pd->comp[i].tag);
-    
+
     fprintf(outfile,
 	    "pd->comp[%d].edge = calloc(pd->comp[%d].nedges,sizeof(pd_idx_t));\n"
 	    "assert(pd->comp[%d].edge != NULL);\n\n",
 	    i,i,i);
 
-    for(j=0;j<pd->comp[i].nedges;j++) { 
+    for(j=0;j<pd->comp[i].nedges;j++) {
 
       fprintf(outfile,
 	      "pd->comp[%d].edge[%d] = %d;\n",i,j,pd->comp[i].edge[j]);
 
     }
-    
+
     fprintf(outfile,"\n");
 
   }
@@ -2385,7 +2385,7 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
 
   fprintf(outfile,"\n/* Face data */\n\n");
 
-  for(i=0;i<pd->nfaces;i++) { 
+  for(i=0;i<pd->nfaces;i++) {
 
     fprintf(outfile,
 	    "pd->face[%d].nedges = %d;\n"
@@ -2395,7 +2395,7 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
 	    "assert(pd->face[%d].or != NULL);\n\n",
 	    i,pd->face[i].nedges,i,i,i,i,i,i);
 
-    for(j=0;j<pd->face[i].nedges;j++) { 
+    for(j=0;j<pd->face[i].nedges;j++) {
 
       fprintf(outfile,
 	      "pd->face[%d].edge[%d] = %d;\n"
@@ -2414,17 +2414,17 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
 	  "}\n\n");
 
 }
-  
-    
-	    
-	    
-    
-
-  
-  
 
 
-pd_code_t *pd_read(FILE *infile) 
+
+
+
+
+
+
+
+
+pd_code_t *pd_read_err(FILE *infile, int *err)
 
 /* Reads an (ASCII) pd code written by pd_write. Return a pointer if we succeed, NULL if we fail. */
 
@@ -2446,7 +2446,7 @@ pd_code_t *pd_read(FILE *infile)
 
   char pd_line[4096];
 
-  if (fgets(pd_line,4096,infile) == NULL) { 
+  if (fgets(pd_line,4096,infile) == NULL) {
 
     pd_error(SRCLOC,"infile is already at EOF-- can't pd_read from it\n",NULL);
     return NULL;
@@ -2462,12 +2462,12 @@ pd_code_t *pd_read(FILE *infile)
 
   int sscanf_result = sscanf(pd_line,hash_template,hash,&input_temp);
 
-  if (sscanf_result != 2) { 
+  if (sscanf_result != 2) {
 
     /* Check for an incorrect hash. */
 
     char bogus_hash[4096];
-    if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 2) { 
+    if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 2) {
 
       pd_error(SRCLOC,
 	       "first line of pdcode file\n"
@@ -2483,8 +2483,8 @@ pd_code_t *pd_read(FILE *infile)
 	       "\n"
 	       "pd\n",NULL,pd_line,bogus_hash,PD_HASHSIZE);
       return NULL;
-   
-    } else if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 1) { 
+
+    } else if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 1) {
 
       pd_error(SRCLOC,
 	       "first line of pdcode file appears to be in format\n"
@@ -2494,12 +2494,12 @@ pd_code_t *pd_read(FILE *infile)
 
     }
 
-    /* Well, it looks like we didn't even TRY to provide a hash and uid. */    
+    /* Well, it looks like we didn't even TRY to provide a hash and uid. */
     /* In this case, we should match "(whitespace)pd(whitespace)" */
-    
+
     char pd_string[32];
 
-    if (sscanf(pd_line," %32s ",pd_string) != 1) { 
+    if (sscanf(pd_line," %32s ",pd_string) != 1) {
 
       pd_error(SRCLOC,
 	       "first line of pdcode file is neither in format\n"
@@ -2509,9 +2509,9 @@ pd_code_t *pd_read(FILE *infile)
       return NULL;
 
     }
-    
-    if (strcmp(pd_string,"pd") != 0) { 
-      
+
+    if (strcmp(pd_string,"pd") != 0) {
+
       pd_error(SRCLOC,
 	       "first line of pdcode file contains\n"
 	       "%s\n"
@@ -2520,10 +2520,10 @@ pd_code_t *pd_read(FILE *infile)
 	       "nor\n"
 	       "pd\n",NULL,pd_string);
       return NULL;
-      
+
     }
-  
-    /* We DO actually match this. This means that we should set the 
+
+    /* We DO actually match this. This means that we should set the
        hash and the uid ourselves. */
 
     uid = PD_UNSET_UID;
@@ -2538,23 +2538,23 @@ pd_code_t *pd_read(FILE *infile)
   /* nv   <nverts> */
 
   int cross,edge,comp,pos,face;
-  if (fscanf(infile," nv %lu ",&input_temp) != 1) { 
+  if (fscanf(infile," nv %lu ",&input_temp) != 1) {
 
     pd_error(SRCLOC,
 	     "second line of pdcode file should be in format\n"
 	     "nv <nverts>\n"
 	     "where <nverts> == number of crossings in pd_code\n",NULL);
 
-    return NULL; 
+    return NULL;
 
   }
 
-  /* We now know the number of crossings to allocate space for, 
-     and we can call pd_new. We make sure that we have space for 
+  /* We now know the number of crossings to allocate space for,
+     and we can call pd_new. We make sure that we have space for
      at least two more crossings than we see now (to prevent zero
      crossing diagrams from crashing everything). */
 
-  if ((pd_idx_t)(input_temp) == 0) { 
+  if ((pd_idx_t)(input_temp) == 0) {
 
     return pd_build_unknot(0);
 
@@ -2585,11 +2585,11 @@ pd_code_t *pd_read(FILE *infile)
 
     for(pos=0;pos<4;pos++) {
 
-      if(fscanf(infile," %lu ",&input_temp) != 1) { 
+      if(fscanf(infile," %lu ",&input_temp) != 1) {
 
 	pd_error(SRCLOC,"error on crossing %d (of %d), in pd (so far) %PD",pd,cross,pd->ncross);
-	pd_code_free(&pd); 
-	return NULL; 
+	pd_code_free(&pd);
+	return NULL;
 
       }
 
@@ -2599,11 +2599,11 @@ pd_code_t *pd_read(FILE *infile)
 
     int peek;
     peek = fgetc(infile);
-    if (peek == '+') { 
+    if (peek == '+') {
 
       pd->cross[cross].sign = PD_POS_ORIENTATION;
 
-    } else if (peek == '-') { 
+    } else if (peek == '-') {
 
       pd->cross[cross].sign = PD_NEG_ORIENTATION;
 
@@ -2618,14 +2618,14 @@ pd_code_t *pd_read(FILE *infile)
 
   /* ne   <nedges> */
 
-  if (fscanf(infile," ne %lu ",&input_temp) != 1) { 
+  if (fscanf(infile," ne %lu ",&input_temp) != 1) {
 
     pd_error(SRCLOC,
 	     "after crossing lines, should have\n"
 	     "ne <nedges>\n"
 	     "but this file does not\n",pd);
-    pd_code_free(&pd); 
-    return NULL; 
+    pd_code_free(&pd);
+    return NULL;
 
   }
   pd->nedges = (pd_idx_t)(input_temp);
@@ -2646,13 +2646,13 @@ pd_code_t *pd_read(FILE *infile)
   for(edge=0;edge<pd->nedges;edge++) {
 
     if(fscanf(infile," %lu,%lu -> %lu,%lu ",
-	      &input_temp,&input_temp2,&input_temp3,&input_temp4) != 4) { 
+	      &input_temp,&input_temp2,&input_temp3,&input_temp4) != 4) {
 
       pd_error(SRCLOC,
 	       "edge %d is not in the format\n"
 	       "<crossing>,<pos> -> <crossing>,<pos>\n"
 	       "where <crossing> and <pos> are positive integers\n",pd,edge);
-      pd_code_free(&pd); return NULL; 
+      pd_code_free(&pd); return NULL;
 
     }
 
@@ -2666,14 +2666,14 @@ pd_code_t *pd_read(FILE *infile)
 
   /* nc   <ncomps> */
 
-  if (fscanf(infile,"nc %lu ",&input_temp) != 1) { 
+  if (fscanf(infile,"nc %lu ",&input_temp) != 1) {
 
     pd_error(SRCLOC,
 	     "after edge lines, pdcode file should have a line\n"
 	     "nc <ncomps>\n"
 	     "where <ncomps> is a positive integer\n"
 	     "but this one doesn't",pd);
-    pd_code_free(&pd); return NULL; 
+    pd_code_free(&pd); return NULL;
 
   }
   pd->ncomps = (pd_idx_t)(input_temp);
@@ -2694,19 +2694,19 @@ pd_code_t *pd_read(FILE *infile)
   pd_tag_t next_tag = 'A';
 
   for(comp=0;comp<pd->ncomps;comp++) {
-     
+
     if (fscanf(infile," %lu : ",&input_temp) != 1) {
- 
+
       pd_error(SRCLOC,
 	       "component %d should start with\n"
 	       "<nedges> : \n"
 	       "where <nedges> is a positive integer\n"
 	       "but this file doesn't\n",pd,comp);
-      pd_code_free(&pd); 
-      return false; 
+      pd_code_free(&pd);
+      return false;
 
     }
-    
+
     pd->comp[comp].nedges = (pd_idx_t)(input_temp);
 
     /* We haven't allocated space in the component. */
@@ -2726,16 +2726,16 @@ pd_code_t *pd_read(FILE *infile)
 
     for(edge=0;edge<pd->comp[comp].nedges;edge++) {
 
-      if(fscanf(infile," %lu ",&input_temp) != 1) { 
+      if(fscanf(infile," %lu ",&input_temp) != 1) {
 
 	pd_error(SRCLOC,"edge %d of component %d should be a positive integer\n"
 		 "but isn't in this file\n",pd,edge,comp);
-	pd_code_free(&pd); return NULL; 
+	pd_code_free(&pd); return NULL;
 
       }
 
       pd->comp[comp].edge[edge] = (pd_idx_t)(input_temp);
-      
+
 
     }
 
@@ -2743,13 +2743,13 @@ pd_code_t *pd_read(FILE *infile)
     /* Skip whitespace until we find a character... */
 
     char testchar;
-    fscanf(infile," %c",&testchar); 
+    fscanf(infile," %c",&testchar);
 
-    if (testchar == 't') { /* for tag */ 
+    if (testchar == 't') { /* for tag */
 
       ungetc((int)(testchar),infile);
-      if (fscanf(infile," tag %c ",&(pd->comp[comp].tag)) != 1) { 
-	
+      if (fscanf(infile," tag %c ",&(pd->comp[comp].tag)) != 1) {
+
 	pd_error(SRCLOC,
 		 "component %d of pd_code has extra characters after %d edges\n"
 		 "which start with t (so we're assuming a tag) but they don't match\n"
@@ -2759,7 +2759,7 @@ pd_code_t *pd_read(FILE *infile)
 	pd_code_free(&pd);
 	return NULL;
       }
-      
+
     } else {
 
       ungetc((int)(testchar),infile);
@@ -2770,15 +2770,15 @@ pd_code_t *pd_read(FILE *infile)
   }
 
   /*nf   <nfaces> */
- 
-  if (fscanf(infile," nf %lu ",&input_temp) != 1) { 
-    
+
+  if (fscanf(infile," nf %lu ",&input_temp) != 1) {
+
     pd_error(SRCLOC,
 	     "after component data, pdfile should contain\n"
 	     "nf <nfaces>\n"
 	     "where <nfaces> is a positive integer\n"
 	     "but this one doesn't\n",pd);
-    pd_code_free(&pd); return NULL; 
+    pd_code_free(&pd); return NULL;
 
   }
   pd->nfaces = (pd_idx_t)(input_temp);
@@ -2797,9 +2797,9 @@ pd_code_t *pd_read(FILE *infile)
      ... edge giving face info counterclockwise> */
 
   for(face=0;face<pd->nfaces;face++) {
-    
-    if (fscanf(infile," %lu : ",&input_temp) != 1) { 
-      
+
+    if (fscanf(infile," %lu : ",&input_temp) != 1) {
+
       pd_error(SRCLOC,
 	       "face record %d (of %d) is expected to begin\n"
 	       "<nedges> : \n"
@@ -2807,8 +2807,8 @@ pd_code_t *pd_read(FILE *infile)
 	       "but this one doesn't in %PD\n",pd,
 	       face,pd->nfaces);
 
-      pd_code_free(&pd); 
-      return NULL; 
+      pd_code_free(&pd);
+      return NULL;
 
     }
 
@@ -2842,7 +2842,7 @@ pd_code_t *pd_read(FILE *infile)
 
       }
 
-      if (fscanf(infile," %lu ",&input_temp) != 1) { 
+      if (fscanf(infile," %lu ",&input_temp) != 1) {
 
 	pd_error(SRCLOC,
 		 "edge %d of face %d in pdcode file\n"
@@ -2851,7 +2851,7 @@ pd_code_t *pd_read(FILE *infile)
 		 "where <edge> is a positive integer\n",
 		 pd,edge,face);
 
-	pd_code_free(&pd); return NULL; 
+	pd_code_free(&pd); return NULL;
       }
 
       pd->face[face].edge[edge] = (pd_idx_t)(input_temp);
@@ -2863,18 +2863,21 @@ pd_code_t *pd_read(FILE *infile)
 
   pd_regenerate_crossings(pd); /* If the crossings were not in canonical order, fix it. */
 
-  assert(pd_ok(pd));
+  pd_err_check(pd_ok(pd), err, PD_NOT_OK, pd);
   if (strstr(pd->hash,"unset") != NULL) { pd_regenerate_hash(pd); }
 
   return pd;
-  
+
+}
+pd_code_t *pd_read(FILE *infile) {
+    return pd_read_err(infile, NULL);
 }
 
-pd_code_t *pd_read_KnotTheory(FILE *infile) 
+pd_code_t *pd_read_KnotTheory(FILE *infile)
 
-/* 
+/*
 
-Reads an (ASCII) pd code written by Mathematica. Return a pointer if we succeed, NULL if we fail. 
+Reads an (ASCII) pd code written by Mathematica. Return a pointer if we succeed, NULL if we fail.
 These files will be single-line files which look like:
 
 PD[X[1, 6, 2, 7], X[3, 8, 4, 9], X[5, 10, 6, 1], X[7, 2, 8, 3], X[9, 4, 10, 5]]
@@ -2893,7 +2896,7 @@ the direction of the l,j strand is determined by the ordering of the edge number
 l and j. We know that each component is ordered consecutively by edges, but there
 is no particular ordering of the components in one of these codes.
 
-We are going to use a large buffer to store the incoming crossings, then discard the 
+We are going to use a large buffer to store the incoming crossings, then discard the
 ones we don't need.
 
 */
@@ -2905,10 +2908,10 @@ ones we don't need.
   assert(crbuf != NULL);
 
   if (fscanf(infile," PD [ X[ %d, %d, %d, %d ]",
-	     &(crbuf[0].edge[0]), 
-	     &(crbuf[0].edge[1]), 
-	     &(crbuf[0].edge[2]), 
-	     &(crbuf[0].edge[3])) != 4) { 
+	     &(crbuf[0].edge[0]),
+	     &(crbuf[0].edge[1]),
+	     &(crbuf[0].edge[2]),
+	     &(crbuf[0].edge[3])) != 4) {
 
     printf("pd_read_KnotTheory: Can't read first crossing from KnotTheory format PD code file");
     free(crbuf);
@@ -2921,29 +2924,29 @@ ones we don't need.
   for(;fgetc(infile) == ',';crbuf_used++) {
 
     if (fscanf(infile," X[ %d, %d, %d, %d ]",
-	       &(crbuf[crbuf_used].edge[0]), 
-	       &(crbuf[crbuf_used].edge[1]), 
-	       &(crbuf[crbuf_used].edge[2]), 
+	       &(crbuf[crbuf_used].edge[0]),
+	       &(crbuf[crbuf_used].edge[1]),
+	       &(crbuf[crbuf_used].edge[2]),
 	       &(crbuf[crbuf_used].edge[3])) != 4) {
 
       printf("pd_read_KnotTheory: Couldn't read crossing %d\n",crbuf_used);
-      
+
       free(crbuf);
       return NULL;
-      
+
     }
-   
-    if (crbuf_used == crbuf_size-10) { 
+
+    if (crbuf_used == crbuf_size-10) {
 
       printf("pd_read_KnotTheory: Can't read a single PD code with more than %d crossings.\n",crbuf_size-10);
       free(crbuf);
       return NULL;
 
     }
-  
+
   }
 
-  /* We have now read all the crossings and won't bother with the file anymore. Our job is 
+  /* We have now read all the crossings and won't bother with the file anymore. Our job is
      to extract the information needed to allocate and fill a pd_code_t from this buffer,
      then free it. The first task is to allocate space for the code. */
 
@@ -2956,20 +2959,20 @@ ones we don't need.
 
     pd_idx_t j;
     for(j=0;j<4;j++) { pd->cross[cr].edge[j] = crbuf[cr].edge[j]-1; }
-   
-    /* Determining sign is a lot trickier. Recall that the 
-       convention used to determine sign is this: 
-       
+
+    /* Determining sign is a lot trickier. Recall that the
+       convention used to determine sign is this:
+
             ^
             |
        ----------->
             |
             |
 
-     positive crossing 
+     positive crossing
      (upper tangent vector) x (lower tangent vector) points OUT of screen.
      This is true when the edges in positions 1 and 3 are in the order 3 -> 1.
-	    
+
             ^
             |
        -----|----->
@@ -2979,19 +2982,19 @@ ones we don't need.
      negative crossing
      (upper tangent vector) x (lower tangent vector) points INTO screen.
      This is true when the edges in positions 1 and 3 are in the order 1 -> 3.
-     
+
      The problem (and it's a large one) is that the edge numbers wrap around
-     at the end of the component. For a 2 edge component, this is genuinely 
+     at the end of the component. For a 2 edge component, this is genuinely
      ambiguous, for all others, we can use the rule:
 
     */
-    
-    if (pd->cross[cr].edge[3] == pd->cross[cr].edge[1] + 1 
+
+    if (pd->cross[cr].edge[3] == pd->cross[cr].edge[1] + 1
 	|| pd->cross[cr].edge[3] < pd->cross[cr].edge[1]-1) {
 
       pd->cross[cr].sign = PD_NEG_ORIENTATION;
 
-    } else { 
+    } else {
 
       pd->cross[cr].sign = PD_POS_ORIENTATION;
 
@@ -3011,8 +3014,8 @@ ones we don't need.
   free(crbuf);
 
   /* We now make a final check, then terminate... */
-  
-  if (!pd_ok(pd)) { 
+
+  if (!pd_ok(pd)) {
 
     printf("pd_read_KnotTheory: Regenerated PD does not pass pd_ok. Suspect data is corrupt.\n");
     return NULL;
@@ -3020,14 +3023,14 @@ ones we don't need.
   }
 
   return pd;
-  
+
 }
 
 
 
 /* Pd human output */
 
-char pd_print_or(pd_or_t or) 
+char pd_print_or(pd_or_t or)
 /* Returns a single-character version of or: +, -, U (for unset), or ? (anything else) */
 {
   if (or == PD_POS_ORIENTATION) { return '+'; }
@@ -3036,9 +3039,9 @@ char pd_print_or(pd_or_t or)
   else return '?';
 }
 
-char *pd_print_idx(pd_idx_t idx) 
-/* Returns the index, either sprintf'd to an unsigned type, 
-   or the string "PD_UNSET_IDX" if this is equal to PD_UNSET_IDX. 
+char *pd_print_idx(pd_idx_t idx)
+/* Returns the index, either sprintf'd to an unsigned type,
+   or the string "PD_UNSET_IDX" if this is equal to PD_UNSET_IDX.
    It's the user's responsibility to dispose of the char buffer,
    unfortunately. */
 {
@@ -3046,7 +3049,7 @@ char *pd_print_idx(pd_idx_t idx)
   out = calloc(64,sizeof(char));
   assert(out != NULL);
 
-  if (idx != PD_UNSET_IDX) {   
+  if (idx != PD_UNSET_IDX) {
     sprintf(out,"%u",(unsigned int)(idx));
   } else {
     sprintf(out,"PD_UNSET_IDX");
@@ -3054,9 +3057,9 @@ char *pd_print_idx(pd_idx_t idx)
   return out;
 }
 
-char *pd_print_pos(pd_idx_t pos) 
-/* Returns the index, either sprintf'd to an unsigned type, 
-   or the string "PD_UNSET_POS" if this is equal to PD_UNSET_POS. 
+char *pd_print_pos(pd_idx_t pos)
+/* Returns the index, either sprintf'd to an unsigned type,
+   or the string "PD_UNSET_POS" if this is equal to PD_UNSET_POS.
    It's the user's responsibility to dispose of the char buffer,
    unfortunately. */
 {
@@ -3064,7 +3067,7 @@ char *pd_print_pos(pd_idx_t pos)
   out = calloc(32,sizeof(char));
   assert(out != NULL);
 
-  if (pos != PD_UNSET_POS) {   
+  if (pos != PD_UNSET_POS) {
     sprintf(out,"%1u",(unsigned int)(pos));
   } else {
     sprintf(out,"PD_UNSET_POS");
@@ -3082,18 +3085,18 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
    Tag        pd_idx_t           output
 
-   %FACE      face number        fnum (e1 (or1) -> e2 (or2) -> ... -> e1 (or1))        
+   %FACE      face number        fnum (e1 (or1) -> e2 (or2) -> ... -> e1 (or1))
    %EDGE      edge number        enum (tail (tailpos) -> head (headpos) )
    %CROSS     cross number       cnum (e0 e1 e2 e3)
    %COMP      comp number        compnum (e1 -> e2 -> e3 -> ..... -> e1 (or1))
    %PD        (no argument)      (\n\n output of pd_write \n\n)
 
-   We also have conversions for pointers. 
+   We also have conversions for pointers.
 
    %OR        *pd_or_t           +, -, U (unset), or ? (anything else)
    %MULTIDX   *pd_multidx_t      multidx (i[0] i[1] ... i[n-1])
    %COMPGRP   *pd_compgrp_t      compgrp (comp[0] .. comp[n-1])
- 
+
    %EDGEMAP   *pd_edgemap_t      edgemap (+/- map[0] +/- map[1] ... +/- map[n-1])
    %CROSSMAP  *pd_crossmap_t     crossmap +/- ( permutation )
    %FACEMAP   *pd_facemap_t      facemap +/- ( permutation )
@@ -3103,7 +3106,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
    We ignore any other format conversions present in fmt,
    passing them unchanged into the output stream. The intention
-   is that these would have already been processed in fmt (using 
+   is that these would have already been processed in fmt (using
    sprintf) before calling pd_vfprintf.
 
 */
@@ -3118,15 +3121,15 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       fmtptr != NULL;
       fmtptr = nxtconv, nxtconv = strchr(fmtptr,'%')) {
 
-    /* Start by copying the characters between fmtptr and 
+    /* Start by copying the characters between fmtptr and
        nxtconv into outbuf. */
-    
+
     if (nxtconv == NULL) { /* No more conversions remain */
 
       fprintf(stream,"%s",fmtptr);
       break;
 
-    } 
+    }
 
     *nxtconv = 0;
     fprintf(stream,"%s",fmtptr);
@@ -3147,14 +3150,14 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
     } else if (!strncmp(nxtconv,"%FACE",5)) { /* %FACE conversion */
 
-      if (pd != NULL) { 
+      if (pd != NULL) {
 
 	pd_idx_t face = (pd_idx_t) va_arg(ap,int);
 	pd_idx_t edge;
-	
+
 	fprintf(stream,"face %d (",face);
 	for(edge=0;edge<pd->face[face].nedges-1 && edge<pd->MAXEDGES;edge++) {
-	  
+
 	  char *edge_idx = pd_print_idx(pd->face[face].edge[edge]);
 	  fprintf(stream," (%c) %s ->",
 		  pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
@@ -3202,16 +3205,16 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
     } else if (!strncmp(nxtconv,"%EDGE",5)) { /* %EDGE conversion */
 
-      if (pd != NULL) { 
+      if (pd != NULL) {
 
 	pd_idx_t edge = (pd_idx_t) va_arg(ap,int);
 
 	char *ed = pd_print_idx(edge);
-	char *head, *headpos, *tail, *tailpos; 
+	char *head, *headpos, *tail, *tailpos;
 	tail = pd_print_idx(pd->edge[edge].tail);
 	tailpos = pd_print_pos(pd->edge[edge].tailpos);
 	head = pd_print_idx(pd->edge[edge].head);
-	headpos = pd_print_pos(pd->edge[edge].headpos);	
+	headpos = pd_print_pos(pd->edge[edge].headpos);
 
 	fprintf(stream,"edge %s (%s,%s -> %s,%s)",ed,
 		tail,tailpos,head,headpos);
@@ -3230,28 +3233,28 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
     } else if (!strncmp(nxtconv,"%COMP",5)) { /* %COMP conversion */
 
       if (pd != NULL) {
-	
+
 	pd_idx_t comp = (pd_idx_t) va_arg(ap,int);
 	pd_idx_t edge;
-	
+
 	fprintf(stream,"comp %d (",comp);
 	for(edge=0;edge<pd->comp[comp].nedges-1 && edge<pd->MAXEDGES;edge++) {
-	  
-	  char *ed; 
+
+	  char *ed;
 	  ed = pd_print_idx(pd->comp[comp].edge[edge]);
 	  fprintf(stream," %s ->",ed);
 	  free(ed);
 
 	}
-	
-	char *ed; 
+
+	char *ed;
 	ed = pd_print_idx(pd->comp[comp].edge[edge]);
 	fprintf(stream," %s ) ",ed);
 	free(ed);
-	
+
 	nxtconv += 5;
 
-      } else { 
+      } else {
 
 	fprintf(stderr,"pd_printf: Can't print %%COMP primitive without a pd.\n");
 	exit(1);
@@ -3261,14 +3264,14 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
     } else if (!strncmp(nxtconv,"%CROSSPTR",9)) { /* %CROSSPTR conversion */
 
       pd_crossing_t *cross = (pd_crossing_t *) va_arg(ap,void *);
-      
+
       fprintf(stream,"cross (%d %d %d %d) %c",
-	      cross->edge[0],	      
+	      cross->edge[0],
 	      cross->edge[1],
 	      cross->edge[2],
 	      cross->edge[3],
 	      pd_print_or(cross->sign));
-	
+
 	nxtconv += 8;
 
     }  else if (!strncmp(nxtconv,"%CROSSMAP",9)) { /* Crossing map */
@@ -3281,10 +3284,10 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       free(printed);
 
       nxtconv += 9;
-      
+
     } else if (!strncmp(nxtconv,"%CROSS",6)) { /* %CROSS conversion */
 
-      if (pd != NULL) { 
+      if (pd != NULL) {
 
 	pd_idx_t cross = (pd_idx_t) va_arg(ap,int);
 
@@ -3292,13 +3295,13 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	cr = pd_print_idx(cross);
 	int i;
 	for(i=0;i<4;i++) { e[i] = pd_print_idx(pd->cross[cross].edge[i]); }
-	
+
 	fprintf(stream,"cross %s (%s %s %s %s) %c",cr,e[0],e[1],e[2],e[3],
 		pd_print_or(pd->cross[cross].sign));
 
 	for(i=0;i<4;i++) { free(e[i]); }
 	free(cr);
-	
+
 	nxtconv += 6;
 
       } else {
@@ -3307,7 +3310,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	exit(1);
 
       }
-	
+
     } else if (!strncmp(nxtconv,"%PD",3)) { /* %PD conversion */
 
       if (pd != NULL) {
@@ -3318,7 +3321,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
 	nxtconv += 3;
 
-      } else { 
+      } else {
 
 	fprintf(stderr,"pd_printf: Can't print %%PD primitive without a pd.\n");
 	exit(1);
@@ -3331,10 +3334,10 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
 	pd_idx_t face = (pd_idx_t) va_arg(ap,int);
 	pd_idx_t edge = (pd_idx_t) va_arg(ap,int);
-	
+
 	fprintf(stream,"%d (%c)",pd->face[face].edge[edge],
 		pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-');
-	
+
 	nxtconv += 6;
 
       } else {
@@ -3348,9 +3351,9 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       pd_idx_t i;
       pd_multidx_t *idx = (pd_multidx_t *) va_arg(ap,void *);
-      
+
       fprintf(stream,"multidx ( ");
-      for(i=0;i<idx->nobj;i++) { 
+      for(i=0;i<idx->nobj;i++) {
 
 	char *objp;
 	objp = idx->ops.print(idx->obj[i]);
@@ -3358,7 +3361,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	free(objp);
 
       }
-      
+
       fprintf(stream,")");
 
       nxtconv += 8;
@@ -3415,11 +3418,11 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       for(i=0;i<perm->n;i++) { fprintf(stream,"%d ",perm->map[i]); }
       fprintf(stream,") idx %d",perm->pc_idx);
-	
+
       char *pform;
       pform = pd_print_perm(perm);
 
-      if (pform != NULL) { 
+      if (pform != NULL) {
 
 	fprintf(stream," %s",pform);
 	free(pform);
@@ -3443,7 +3446,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
     } else { /* A standard or unrecognized format conversion */
 
       char *adv;
-      for(adv=nxtconv;!isspace(*adv) && *adv != 0;adv++); 
+      for(adv=nxtconv;!isspace(*adv) && *adv != 0;adv++);
       /* Advance the pointer to the next whitespace or end of string. */
       *adv = 0; /* Terminate the string there */
 
@@ -3456,32 +3459,32 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
   }
 
   free(fmt);
-  
+
 }
-      
+
 bool pd_error(char *file, int line, char *fmt, pd_code_t *pd, ...)
 
 {
   va_list ap;
-  
+
   if (PD_VERBOSE < 10) { return false; }
-  
+
   fprintf(stderr,"%s (%d): pd_error \n",file,line);
-  
+
   va_start(ap,pd);
   pd_vfprintf(stderr,fmt,pd,ap);
   va_end(ap);
-  
+
   exit(1);
 }
 
-void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr) 
+void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr)
 
 /* Checks to see if cr is a legitimate crossing number for pd. */
 
 {
 
-  if (cr >= pd->ncross) { 
+  if (cr >= pd->ncross) {
 
     pd_error(file,line,"pd_code %PD has %d crossings, and variable attempted to reference crossing %d.",pd,pd->ncross,cr);
 
@@ -3489,13 +3492,13 @@ void pd_check_cr(char *file, int line, pd_code_t *pd, pd_idx_t cr)
 
 }
 
-void pd_check_edge(char *file, int line, pd_code_t *pd, pd_idx_t edge) 
+void pd_check_edge(char *file, int line, pd_code_t *pd, pd_idx_t edge)
 
 /* Checks to see if cr is a legitimate crossing number for pd. */
 
 {
 
-  if (edge >= pd->nedges) { 
+  if (edge >= pd->nedges) {
 
     pd_error(file,line,"pd_code %PD has %d edges, and variable attempted to reference edge %d.",pd,pd->nedges,edge);
 
@@ -3503,13 +3506,13 @@ void pd_check_edge(char *file, int line, pd_code_t *pd, pd_idx_t edge)
 
 }
 
-void pd_check_cmp(char *file, int line, pd_code_t *pd, pd_idx_t cmp) 
+void pd_check_cmp(char *file, int line, pd_code_t *pd, pd_idx_t cmp)
 
 /* Checks to see if cmp is a legitimate component number for pd. */
 
 {
 
-  if (cmp >= pd->ncomps) { 
+  if (cmp >= pd->ncomps) {
 
     pd_error(file,line,"pd_code %PD has %d components, and variable attempted to reference component %d.",pd,pd->ncomps,cmp);
 
@@ -3517,13 +3520,13 @@ void pd_check_cmp(char *file, int line, pd_code_t *pd, pd_idx_t cmp)
 
 }
 
-void pd_check_face(char *file, int line, pd_code_t *pd, pd_idx_t face) 
+void pd_check_face(char *file, int line, pd_code_t *pd, pd_idx_t face)
 
 /* Checks to see if face is a legitimate face number for pd. */
 
 {
 
-  if (face >= pd->nfaces) { 
+  if (face >= pd->nfaces) {
 
     pd_error(file,line,"pd_code %PD has %d faces, and variable attempted to reference face %d.",pd,pd->nfaces,face);
 
@@ -3534,8 +3537,8 @@ void pd_check_face(char *file, int line, pd_code_t *pd, pd_idx_t face)
 void pd_check_notnull(char *file, int line, char *varname, void *ptr)
 {
 
-  if (ptr == NULL) { 
-    
+  if (ptr == NULL) {
+
     pd_error(file,line,"output variable %s is a NULL pointer",NULL,varname);
 
   }
@@ -3558,7 +3561,7 @@ bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB)
   if(nA != nB) {
     return false;
   }
-  
+
   // Allocate the memory for the two pd code structs.
   pd_code_t *pdA = pd_code_new(nA);
   assert(pdA != NULL);
@@ -3577,12 +3580,12 @@ bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB)
   int iA;
   int iB;
   int j = 0;
-    
+
   for(iA=0;iA<nA;iA++) {
     pdA->cross[iA] = pd_build_cross((int)pdcodeA[j]-65,(int)pdcodeA[j+1]-65,
 				    (int)pdcodeA[j+2]-65,(int)pdcodeA[j+3]-65);
     //printf("%d,%d,%d,%d \n",(int)pdcodeA[j],(int)pdcodeA[j+1],(int)pdcodeA[j+2],(int)pdcodeA[j+3]);
-    j=j+4;    
+    j=j+4;
   }
 
   j=0;

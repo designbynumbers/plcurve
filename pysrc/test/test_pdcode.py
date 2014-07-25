@@ -149,7 +149,7 @@ class TestPDCode(unittest.TestCase):
         print pd_after.crossings
         print pd_after.edges
         print pd_after.components
-        pd_result = pd_before.R1_loopdeletion(2)
+        pd_result = pd_before.R1_loop_deletion(2)
         self.assertEqual(pd_result, pd_after)
 
     def test_r2_move(self):
@@ -181,20 +181,24 @@ class TestPDCode(unittest.TestCase):
             pd_fnames = ("data/r2_test%s_before.pdstor"%case,
                          "data/r2_test%s_after.pdstor"%case)
 
-            files = tuple(open(fname) for fname in pd_fnames)
-            f_before, f_after = files
+            try:
+                files = tuple(open(fname) for fname in pd_fnames)
+                f_before, f_after = files
 
-            pd_before = PlanarDiagram.read(f_before, read_header=True)
-            self.assertIsNotNone(pd_before)
-            #pd_before.regenerate()
-            f_before.close()
+                pd_before = PlanarDiagram.read(f_before, read_header=True)
+                self.assertIsNotNone(pd_before)
+                #pd_before.regenerate()
+                f_before.close()
 
-            pds_after = tuple(PlanarDiagram.read_all(f_after, read_header=True))
-            self.assertIsNotNone(pds_after)
-            for pdcode in pds_after:
-                pass
-                #pdcode.regenerate()
-            f_after.close()
+                pds_after = tuple(PlanarDiagram.read_all(f_after, read_header=True))
+                self.assertIsNotNone(pds_after)
+                for pdcode in pds_after:
+                    #pdcode.regenerate()
+                    pass
+                f_after.close()
+            except Exception as e:
+                print "Error: %s"%e
+                continue
 
             face = pd_before.faces[case_faces[case]]
             edge = face[0]
