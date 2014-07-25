@@ -153,38 +153,59 @@ class TestPDCode(unittest.TestCase):
         self.assertEqual(pd_result, pd_after)
 
     def test_r2_move(self):
-        pd_fnames = ("data/r2_testB_before.pdstor", "data/r2_testB_after.pdstor")
+        case_faces = {
+            "A": 6,
+            "B": 6,
+            "C": 2,
+            "D": 10,
+            "E": 1,
+            "F": 4,
+            "G": 9,
+            "H": 8,
+            "I": 8,
+            "J": 12,
+            "K": 5,
+            "L": 5,
+            "M": 8,
+            "N": 5,
+            "O": 10,
+            "P": 10,
+            "R": 3,
+            "S": 7,
+        }
+        failed_cases = "JMP"
+        working_cases = "ABCDEFGHIKLNO"
+        for case in working_cases + failed_cases:
+            print
+            print "Case %s:"%case
+            pd_fnames = ("data/r2_test%s_before.pdstor"%case,
+                         "data/r2_test%s_after.pdstor"%case)
 
-        files = tuple(open(fname) for fname in pd_fnames)
-        f_before, f_after = files
+            files = tuple(open(fname) for fname in pd_fnames)
+            f_before, f_after = files
 
-        pd_before = PlanarDiagram.read(f_before, read_header=True)
-        self.assertIsNotNone(pd_before)
-        pd_before.regenerate()
-        f_before.close()
+            pd_before = PlanarDiagram.read(f_before, read_header=True)
+            self.assertIsNotNone(pd_before)
+            #pd_before.regenerate()
+            f_before.close()
 
-        pds_after = tuple(PlanarDiagram.read_all(f_after, read_header=True))
-        self.assertIsNotNone(pds_after)
-        for pdcode in pds_after:
-            print pdcode
-            pass
-            #pdcode.regenerate()
-        f_after.close()
-        print
+            pds_after = tuple(PlanarDiagram.read_all(f_after, read_header=True))
+            self.assertIsNotNone(pds_after)
+            for pdcode in pds_after:
+                pass
+                #pdcode.regenerate()
+            f_after.close()
 
-        print pd_before.faces
-        print pd_before.crossings
-        #print pd_before.edges
-        #print pd_before.components
-        print pds_after[0].faces
-        #print pd_after.crossings
-        #print pd_after.edges
-        #print pd_after.components
-        pd_results = pd_before.R2_bigon_elimination(3,4)
-        self.assertEqual(len(pd_results), len(pds_after))
-        for result, check in zip(pd_results, pds_after):
-            result.regenerate()
-            self.assertEqual(result, check)
+            face = pd_before.faces[case_faces[case]]
+            edge = face[0]
+            print face
+            print edge.head, edge.tail
+            pd_results = pd_before.R2_bigon_elimination(edge.head,edge.tail)
+            self.assertEqual(len(pd_results), len(pds_after))
+            for result, check in zip(pd_results, pds_after):
+                print result
+                #result.regenerate()
+                self.assertEqual(result, check)
 
 
 if __name__=="__main__":
