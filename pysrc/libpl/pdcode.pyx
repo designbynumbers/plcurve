@@ -589,18 +589,30 @@ cdef class PlanarDiagram:
         """Number of components in this PlanarDiagram"""
         def __get__(self):
             return self.p.ncomps
+        def __set__(self, n):
+            self.p.ncomps = n
+            self.regenerate_py_os()
     property nedges:
         """Number of edges in this PlanarDiagram"""
         def __get__(self):
             return self.p.nedges
+        def __set__(self, n):
+            self.p.nedges = n
+            self.regenerate_py_os()
     property ncross:
         """Number of crossings in this PlanarDiagram"""
         def __get__(self):
             return self.p.ncross
+        def __set__(self, n):
+            self.p.ncross = n
+            self.regenerate_py_os()
     property nfaces:
         """Number of faces in this PlanarDiagram"""
         def __get__(self):
             return self.p.nfaces
+        def __set__(self, n):
+            self.p.nfaces = n
+            self.regenerate_py_os()
 
     property hash:
         def __get__(self):
@@ -675,13 +687,19 @@ cdef class PlanarDiagram:
         pd_write(PyFile_AsFile(f), self.p)
 
     @classmethod
-    def read(cls, f):
+    def read(cls, f, read_header=False):
         """read(file f) -> PlanarDiagram
 
         Read the next pdcode from a file object.
 
         :return: A new :py:class:`PlanarDiagram`, or ``None`` on failure.
         """
+        if read_header == True:
+            # Actually parse header and check validity
+            f.readline()
+            f.readline()
+            f.readline()
+
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd_read(PyFile_AsFile(f))
         if newobj.p is NULL:
@@ -690,12 +708,18 @@ cdef class PlanarDiagram:
         return newobj
 
     @classmethod
-    def read_all(cls, f):
+    def read_all(cls, f, read_header=False):
         """read_all(file f) -> PlanarDiagram
 
         Returns a generator that iterates through the pdcodes stored
         in ``f``.
         """
+        if read_header == True:
+            # Actually parse header and check validity
+            f.readline()
+            f.readline()
+            f.readline()
+
         new_pd = cls.read(f)
         while new_pd is not None:
             yield new_pd
@@ -863,8 +887,9 @@ cdef class PlanarDiagram:
         cdef pd_idx_t *cr = [cr1, cr2]
         cdef pd_idx_t nout
         cdef pd_code_t **out_pds
-
+        print "about to R2"
         pd_R2_bigon_elimination(self.p, cr, &nout, &out_pds)
+        print "done R2"
         return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
 
     # Validity checks

@@ -123,5 +123,69 @@ class TestPDCode(unittest.TestCase):
         for n in range(1, 7):
             self.check_unknot_wye_abcsum(n)
 
+    def test_r1_move(self):
+        pd_fnames = ("data/r1_testB_before.pdstor", "data/r1_testB_after.pdstor")
+
+        files = tuple(open(fname) for fname in pd_fnames)
+        for f in files:
+            f.readline()
+            f.readline()
+            f.readline()
+        f_before, f_after = files
+        pd_before = PlanarDiagram.read(f_before)
+        self.assertIsNotNone(pd_before)
+        pd_before.regenerate()
+        f_before.close()
+        pd_after = PlanarDiagram.read(f_after)
+        self.assertIsNotNone(pd_after)
+        pd_after.regenerate()
+        f_after.close()
+
+        print pd_before.faces
+        print pd_before.crossings
+        print pd_before.edges
+        print pd_before.components
+        print pd_after.faces
+        print pd_after.crossings
+        print pd_after.edges
+        print pd_after.components
+        pd_result = pd_before.R1_loopdeletion(2)
+        self.assertEqual(pd_result, pd_after)
+
+    def test_r2_move(self):
+        pd_fnames = ("data/r2_testB_before.pdstor", "data/r2_testB_after.pdstor")
+
+        files = tuple(open(fname) for fname in pd_fnames)
+        f_before, f_after = files
+
+        pd_before = PlanarDiagram.read(f_before, read_header=True)
+        self.assertIsNotNone(pd_before)
+        pd_before.regenerate()
+        f_before.close()
+
+        pds_after = tuple(PlanarDiagram.read_all(f_after, read_header=True))
+        self.assertIsNotNone(pds_after)
+        for pdcode in pds_after:
+            print pdcode
+            pass
+            #pdcode.regenerate()
+        f_after.close()
+        print
+
+        print pd_before.faces
+        print pd_before.crossings
+        #print pd_before.edges
+        #print pd_before.components
+        print pds_after[0].faces
+        #print pd_after.crossings
+        #print pd_after.edges
+        #print pd_after.components
+        pd_results = pd_before.R2_bigon_elimination(3,4)
+        self.assertEqual(len(pd_results), len(pds_after))
+        for result, check in zip(pd_results, pds_after):
+            result.regenerate()
+            self.assertEqual(result, check)
+
+
 if __name__=="__main__":
     unittest.main()
