@@ -173,7 +173,7 @@ class TestPDCode(unittest.TestCase):
             "R": 3,
             "S": 7,
         }
-        failed_cases = "JMP"
+        failed_cases = "J"
         working_cases = "ABCDEFGHIKLNO"
         for case in working_cases + failed_cases:
             print
@@ -210,6 +210,56 @@ class TestPDCode(unittest.TestCase):
                 print result
                 #result.regenerate()
                 self.assertEqual(result, check)
+
+    def test_neighbors(self):
+        case_faces = {
+            "A": 6,
+            "B": 6,
+            "C": 2,
+            "D": 10,
+            "E": 1,
+            "F": 4,
+            "G": 9,
+            "H": 8,
+            "I": 8,
+            "J": 12,
+            "K": 5,
+            "L": 5,
+            "M": 8,
+            "N": 5,
+            "O": 10,
+            "P": 10,
+            "R": 3,
+            "S": 7,
+        }
+        failed_cases = "J"
+        working_cases = "ABCDEFGHIKLNO"
+        for case in working_cases + failed_cases:
+            print
+            print "Neighbors Case %s:"%case
+            pd_fnames = ("data/r2_test%s_before.pdstor"%case,
+                         "data/r2_test%s_after.pdstor"%case)
+
+            try:
+                files = tuple(open(fname) for fname in pd_fnames)
+                f_before, f_after = files
+
+                pd_before = PlanarDiagram.read(f_before, read_header=True)
+                self.assertIsNotNone(pd_before)
+                #pd_before.regenerate()
+                f_before.close()
+
+                pds_after = tuple(PlanarDiagram.read_all(f_after, read_header=True))
+                self.assertIsNotNone(pds_after)
+                for pdcode in pds_after:
+                    #pdcode.regenerate()
+                    pass
+                f_after.close()
+            except Exception as e:
+                print "Error: %s"%e
+                continue
+
+            print list(pd_before.neighbors())
 
 
 if __name__=="__main__":

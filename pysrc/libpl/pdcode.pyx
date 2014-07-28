@@ -325,6 +325,9 @@ cdef class Face(_Disownable):
                                      self.p, sizeof(pd_face_t))
         self.parent = None
 
+    def get_vertices(self):
+        return tuple(self.parent.crossings[vert] for vert in self.vertices)
+
     def __str__(self):
         return "Face(%s)"%("->".join(str(e) for e in self.edges))
     def __repr__(self):
@@ -416,6 +419,19 @@ cdef class Crossing(_Disownable):
             return self.p.sign
         def __set__(self, pd_or_t sign):
             self.p.sign = sign
+    property faces:
+        """A tuple of the indices of the faces around this vertex, in clockwise order.
+        """
+        def __get__(self):
+            ret = [0]*4
+            for i, edge in enumerate(self):
+                (pos_face,_),(neg_face,_) = edge.face_index_pos()
+                if edge.tail == self.index and edge.tailpos == i:
+                    # Edge departed from this crossing
+                    ret[i] = pos_face
+                else:
+                    ret[i] = neg_face
+            return tuple(ret)
 
     def __cinit__(self):
         pass
@@ -434,6 +450,17 @@ cdef class Crossing(_Disownable):
         return 4
     def __cmp__(self, Crossing cross):
         return sgn(pd_cross_cmp(self.p, cross.p))
+    def __getitem__(self, i):
+        if self.parent is None:
+            raise NoParentException("This Crossing is not owned by any PlanarDiagram.")
+
+        if isinstance(i, slice):
+            return tuple(self.p.edge[j] for j in range(*i.indices(4)))
+        else:
+            i = -i if i < 0 else i
+            if i >= 4:
+                raise IndexError("Index is out of bounds")
+            return self.parent.edges[self.p.edge[i]]
 
     cdef PlanarDiagram parent_x(self):
         if self.parent is None:
@@ -511,6 +538,14 @@ cdef class Crossing(_Disownable):
         cdef pd_idx_t incp,outp
         pd_understrand_pos(self.parent_x().p, self.index, &incp, &outp)
         return incp, outp
+
+    def get_faces(self):
+        """get_faces() -> tuple of Faces
+
+        Return the faces on which this crossing is a vertex, in
+        clockwise order.
+        """
+        return tuple(self.parent.faces[i] for i in self.faces)
 
     def __str__(self):
         cdef int i
@@ -901,9 +936,7 @@ cdef class PlanarDiagram:
         cdef pd_idx_t *cr = [cr1, cr2]
         cdef pd_idx_t nout
         cdef pd_code_t **out_pds
-        print "about to R2"
         pd_R2_bigon_elimination(self.p, cr, &nout, &out_pds)
-        print "done R2"
         return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
 
     # Validity checks
@@ -959,7 +992,7 @@ cdef class PlanarDiagram:
         return pdstr
 
     def get_R1_loops(self):
-        """get_r1_loops() -> generator of Faces
+        """get_R1_loops() -> generator of Faces
 
         Returns a generator of loops which are viable candidates
         for Reidemeister 1 moves.
@@ -969,12 +1002,15 @@ cdef class PlanarDiagram:
                 yield face
 
     def get_R2_bigons(self):
-        """get_r2_bigons() -> generator of Faces
+        """get_R2_bigons() -> generator of Faces
 
         Returns a generator of bigons which are viable candidates
         for Reidemeister 2 moves.
         """
-        return tuple()
+        for face in self.faces:
+            verts = face.get_vertices()
+            if len(verts) == 2 and verts[0].sign != verts[1].sign:
+                yield face
 
     def neighbors(self):
         """neighbors() -> generator of tuples of PlanarDiagrams
@@ -989,12 +1025,6 @@ cdef class PlanarDiagram:
             yield (self.R1_loop_deletion(loop.vertices[0]),)
         for bigon in self.get_R2_bigons():
             yield self.R2_bigon_elimination(*bigon.vertices)
-        """pseudocode
-        for edgeloop in self.find_r1_loops():
-            yield self.r1_loopdeletion(edgeloop)
-        for bigon in self.find_r2_bigons():
-            yield self.r2_bigon_elemination(bigon)
-        """
 
     cdef regenerate_py_os(self):
         cdef int i
