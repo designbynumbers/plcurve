@@ -65,9 +65,10 @@ class PDDatabase(object):
         f.close()
 
     def __init__(self, crossings_list=[3,4,5,6], dirloc=DEFAULT_PATH,
-                 amortize=True, debug=False):
+                 amortize=True, debug=False, callbacks=None):
         self.amortize = amortize
         pd_files = (self._db_file(ncrs, dirloc) for ncrs in crossings_list)
+        self.callbacks = [] if callbacks is None else callbacks
         self.pd_dict = {}
         self.all_pds = {}
         for f in pd_files:
@@ -218,7 +219,11 @@ class PDDatabase(object):
                     "??" if num_pds is None else 100.0*pd_id/num_pds)
             for crs_pd, crs_sgn in self.crossing_combinations(pd, self.amortize):
                 for cmp_pd, cmp_sgn in self.component_combinations(crs_pd, self.amortize):
-                    self.add_pd(cmp_pd.homfly(), self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn))
+                    for cb in self.callbacks:
+                        homfly = cmp_pd.homfly()
+                        pduid = self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn)
+                        cb(cmp_pd, homfly, pduid)
+                    self.add_pd(homfly, pduid)
                     del cmp_pd
                 del crs_pd
             del pd

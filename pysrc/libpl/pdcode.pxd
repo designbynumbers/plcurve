@@ -11,6 +11,7 @@ cdef extern from "plcTopology.h":
         PD_UNSET_ORIENTATION = 2
     cdef enum:
         PD_NOT_OK = 1
+    cdef extern int PD_VERBOSE
 
     ctypedef bint bool
 
