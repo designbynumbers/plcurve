@@ -8,8 +8,8 @@ import random
 #from cython.view cimport array
 cimport cython
 
-PD_VERBOSE = 10
-PD_LIVE_ON_ERROR = 1
+PD_VERBOSE = 0
+#PD_LIVE_ON_ERROR = 1
 
 cdef class Edge
 cdef class Crossing
