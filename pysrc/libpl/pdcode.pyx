@@ -3,9 +3,13 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libc.string cimport memcpy
 import sys
 from cython.operator cimport dereference as deref
+import random
 
 #from cython.view cimport array
 cimport cython
+
+PD_VERBOSE = 10
+PD_LIVE_ON_ERROR = 1
 
 cdef class Edge
 cdef class Crossing
@@ -599,6 +603,8 @@ cdef class _VirtualEdgeArray:
 cdef PlanarDiagram PlanarDiagram_wrap(pd_code_t *pd):
     """Wraps a pd_code_t* in a PlanarDiagram"""
     cdef PlanarDiagram newobj = PlanarDiagram.__new__(PlanarDiagram)
+    if pd is NULL:
+        return None
     newobj.p = pd
     newobj.regenerate_py_os()
     return newobj
@@ -923,7 +929,10 @@ cdef class PlanarDiagram:
         Performs an (in-place) Reidemeister 1 loop deletion which
         removes the input crossing.
         """
-        return PlanarDiagram_wrap(pd_R1_loopdeletion(self.p, cr))
+        ret = PlanarDiagram_wrap(pd_R1_loopdeletion(self.p, cr))
+        if ret is None:
+            raise Exception("Error in R1 loopdeletion")
+        return ret
 
     def R2_bigon_elimination(self, pd_idx_t cr1, pd_idx_t cr2):
         """R2_bigon_elimination(crossing_or_index, crossing_or_index)
@@ -937,6 +946,8 @@ cdef class PlanarDiagram:
         cdef pd_idx_t nout
         cdef pd_code_t **out_pds
         pd_R2_bigon_elimination(self.p, cr, &nout, &out_pds)
+        if nout == 0:
+            raise Exception("Error on R2 bigonelimination")
         return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
 
     # Validity checks
@@ -1026,6 +1037,39 @@ cdef class PlanarDiagram:
         for bigon in self.get_R2_bigons():
             yield self.R2_bigon_elimination(*bigon.vertices)
 
+    def simplify(self, seed=None):
+        """simplify(seed=None) -> PlanarDiagram
+
+        Returns an isomorphic PlanarDiagram whose crossing number
+        software knows not how to decrease (i.e. this would
+        **ideally** return a diagram of this knot with minimal number
+        of crossings).
+
+        If ``seed`` is not ``None``, pick a random move instead of
+        using any order (using the integer seed provided).
+        """
+        if seed:
+            return self._simplify_helper(random.Random(seed))
+        else:
+            return self._simplify_helper(None)
+
+    def _simplify_helper(self, pyrng):
+        if pyrng is None:
+            try:
+                if self.ncross == 0:
+                    return (self,)
+                if self.ncross == 1:
+                    return (PlanarDiagram.unknot(0),)
+                neighbor = self.neighbors().next()
+                assert len(neighbor) > 0
+                return sum((dia._simplify_helper(pyrng) for dia in neighbor),())
+
+            except StopIteration:
+                return (self,)
+
+    def ccode(self):
+        return pdcode_to_ccode(self.p)
+
     cdef regenerate_py_os(self):
         cdef int i
         cdef Edge e
@@ -1077,6 +1121,9 @@ cdef class PlanarDiagram:
                 (self.p.ncross,),
                 self.__getstate__())
 
+    def __hash__(self):
+        return hash(self.__getstate__())
+
     def __getstate__(self):
         cdef pd_crossing_t* x
         cdef pd_edge_t* e
@@ -1090,7 +1137,7 @@ cdef class PlanarDiagram:
             e = &(self.p.edge[i])
             edges.append((e.head, e.headpos,
                           e.tail, e.tailpos))
-        return (cross, edges)
+        return (tuple(cross), tuple(edges))
 
     def __setstate__(self, state):
         cdef pd_crossing_t* x

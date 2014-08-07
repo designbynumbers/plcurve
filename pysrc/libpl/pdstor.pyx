@@ -58,34 +58,23 @@ class ClassifyDatabase(object):
     def load_thistlethwaite(self, names_fname, table_fname):
         self._load_names_and_table(names_fname, table_fname, self.LINK)
 
-class PDDatabase(object):
-    def save(self, fname):
-        f = open(fname, "wb")
-        cPickle.dump(self, f, cPickle.HIGHEST_PROTOCOL)
-        f.close()
-
-    def __init__(self, crossings_list=[3,4,5,6], dirloc=DEFAULT_PATH,
-                 amortize=True, debug=False, callbacks=None):
+class PDStoreExpander(object):
+    def __init__(self, dirloc=DEFAULT_PATH,
+                 amortize=True, debug=False):
         self.amortize = amortize
-        pd_files = (self._db_file(ncrs, dirloc) for ncrs in crossings_list)
-        self.callbacks = [] if callbacks is None else callbacks
-        self.pd_dict = {}
-        self.all_pds = {}
+        self.dirloc = dirloc
+
+    def open(self, crossings_list, debug=False):
+        pd_files = (self._db_file(x, self.dirloc) for x in crossings_list)
+        iters = []
         for f in pd_files:
             _,npds,_ = self.parse_header(f, debug=debug)
-            self.read_pdstor(f, debug=debug, num_pds=int(npds))
-            f.close()
+            iters.append(self.read_pdstor(f, debug=debug, num_pds=int(npds)))
+        return chain(*iters)
 
     @staticmethod
     def _db_file(cross_count, dirloc):
         return file(os.path.join(dirloc,"%d.pdstor"%cross_count))
-
-    @staticmethod
-    def load(fname):
-        f = open(fname, "rb")
-        ret = cPickle.load(f)
-        f.close()
-        return ret
 
     @staticmethod
     def uid(pd, pos_in_stor, crs_sgn, cmp_sgn):
@@ -116,8 +105,8 @@ class PDDatabase(object):
     @staticmethod
     def crossing_sign_mask(pdc, signature):
         new_pd = pdc.copy()
-        for crs in compress(new_pd.crossings, signature):
-            crs.sign = (crs.sign+1)%2
+        for crs, sign in zip(new_pd.crossings, signature):
+            crs.sign = sign
         return new_pd
 
     @staticmethod
@@ -162,7 +151,6 @@ class PDDatabase(object):
         f = self._db_file(cross_count, dirloc)
         self.parse_header(f)
         self.read_pdstor(f)
-        f.close()
 
     def add_db(self, other_db):
         for homfly, pds in other_db.pd_dict.iteritems():
@@ -203,15 +191,9 @@ class PDDatabase(object):
             return None # actually throw an error here too
         return (claimed,actual,nhashes)
 
-    def add_pd(self, homfly, pduid):
-        if homfly in self.pd_dict:
-            self.pd_dict[homfly].add(pduid)
-        else:
-            self.pd_dict[homfly] = set([pduid])
-
     def read_pdstor(self, f, debug=False, num_pds=None):
         # Read in the pd codes one-by-one.
-        if debug: print "Reading file %s"%f.name
+        if debug: print "Reading file %s"%f.names
         for pd_id, pd in enumerate(self._pds_in_file(f)):
             if debug: print "> Reading %s of %s (%0.1f%%)"%(
                     pd_id+1,
@@ -219,14 +201,43 @@ class PDDatabase(object):
                     "??" if num_pds is None else 100.0*pd_id/num_pds)
             for crs_pd, crs_sgn in self.crossing_combinations(pd, self.amortize):
                 for cmp_pd, cmp_sgn in self.component_combinations(crs_pd, self.amortize):
-                    for cb in self.callbacks:
-                        homfly = cmp_pd.homfly()
-                        pduid = self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn)
-                        cb(cmp_pd, homfly, pduid)
-                    self.add_pd(homfly, pduid)
-                    del cmp_pd
-                del crs_pd
-            del pd
+                    homfly = cmp_pd.homfly()
+                    pduid = self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn)
+                    yield (cmp_pd, homfly, pduid)
+        f.close()
+
+class PDDatabase(PDStoreExpander):
+    def save(self, fname):
+        f = open(fname, "wb")
+        cPickle.dump(self, f, cPickle.HIGHEST_PROTOCOL)
+        f.close()
+
+    def __init__(self, crossings_list=[3,4,5], dirloc=DEFAULT_PATH,
+                 amortize=True, debug=False, callbacks=None):
+        super(PDDatabase,self).__init__(dirloc=dirloc,
+                                        amortize=amortize,
+                                        debug=debug)
+        self.callbacks = [] if callbacks is None else callbacks
+        self.pd_dict = {}
+        self.all_pds = {}
+        for pd, homfly, uid in self.open(crossings_list):
+            self.add_pd(homfly, uid)
+            for cb in self.callbacks:
+                cb(pd, homfly, uid)
+
+    @staticmethod
+    def load(fname):
+        f = open(fname, "rb")
+        ret = cPickle.load(f)
+        f.close()
+        return ret
+
+    def add_pd(self, homfly, pduid):
+        if homfly in self.pd_dict:
+            self.pd_dict[homfly].add(pduid)
+        else:
+            self.pd_dict[homfly] = set([pduid])
+
 
     def subdb(self, select):
         """Returns a new database which only contains diagrams held in

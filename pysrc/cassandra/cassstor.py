@@ -4,7 +4,7 @@ import cPickle
 
 DEFAULT_PATH="../../data/pdstors"
 class CassandraDatabase(PDDatabase):
-    def __init__(self, crossings_list=[3,4,5,6], dirloc=DEFAULT_PATH, debug=False):
+    def __init__(self, crossings_list=[3,4], dirloc=DEFAULT_PATH, debug=False):
         self.cluster = Cluster(['23.23.133.228'])
         self.session = self.cluster.connect("diagrams")
         self.queries = {}
@@ -20,6 +20,7 @@ class CassandraDatabase(PDDatabase):
 
     def insert(self, pd, homfly, uid):
         print homfly
-        return
-        self.session.execute(self.queries[pd.ncross],
-                             (str(uid), homfly, cPickle.dumps(pd,2), pd.hash))
+        self.futures.append(
+            self.session.execute_async(self.queries[pd.ncross],
+                                       (str(uid), homfly, cPickle.dumps(pd,2), pd.hash))
+        )

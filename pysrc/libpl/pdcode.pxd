@@ -12,6 +12,7 @@ cdef extern from "plcTopology.h":
     cdef enum:
         PD_NOT_OK = 1
     cdef extern int PD_VERBOSE
+    cdef extern int PD_LIVE_ON_ERROR
 
     ctypedef bint bool
 
@@ -163,4 +164,5 @@ cdef extern from "plcTopology.h":
     pd_code_t *pd_build_unknot(pd_idx_t n)
     pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c)
 
-    char *pd_homfly( pd_code_t *pdC)
+    char *pd_homfly(pd_code_t *pdC)
+    char *pdcode_to_ccode(pd_code_t *pdC)
