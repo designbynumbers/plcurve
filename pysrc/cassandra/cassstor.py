@@ -3,11 +3,14 @@ from cassandra.cluster import Cluster
 import cPickle
 
 DEFAULT_PATH="../../data/pdstors"
-class CassandraDatabase(PDDatabase):
-    def __init__(self, crossings_list=[3,4], dirloc=DEFAULT_PATH, debug=False):
-        self.cluster = Cluster(['23.23.133.228'])
+class CassandraDatabase(PDStoreExpander):
+    def __init__(self, hosts=['localhost'], dirloc=DEFAULT_PATH, debug=False):
+        if isinstance(hosts, basestring):
+            hosts = [hosts]
+        self.cluster = Cluster(hosts)
         self.session = self.cluster.connect("diagrams")
         self.queries = {}
+        self.futures = []
         for ncross in crossings_list:
             self.queries[ncross] = self.session.prepare("""INSERT INTO cross%s
             (pdcode, homfly, pythonobject, topohash) VALUES
