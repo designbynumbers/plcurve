@@ -663,11 +663,11 @@ pd_edgemap_t **pd_build_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_t *comp_p
 
       }
 
-      /* Recompute the pc_idx for the component. */
-
-      pd_regenerate_pcidx(edgemaps[i]->perm);
-
     } /* We should have built an entire permutation of all nedges edges of the pd_code. */
+
+    /* Recompute the pc_idx, now that we've got the whole permutation in place. */
+
+    pd_regenerate_pcidx(edgemaps[i]->perm);
 
   }
 
