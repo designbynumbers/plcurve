@@ -203,10 +203,10 @@ void           pd_stareq_facemap(pd_facemap_t *facemapA,pd_facemap_t *facemapB);
 
 typedef struct pd_iso_struct {
 
-  pd_perm_t     *compperm;
-  pd_edgemap_t  *edgemap;
-  pd_crossmap_t *crossmap;
-  pd_facemap_t  *facemap;
+  pd_perm_t     *compperm;   /* The maps use the convention: compperm->map[i] = index of image of (component i in pdA) in pdB. */
+  pd_edgemap_t  *edgemap;    /* edgemap->perm->map[i] = index of image of (edge i in pdA) in pdB */ 
+  pd_crossmap_t *crossmap;   /* crossmap->perm->map[i] = index of image of (crossing i in pdA) in pdB */
+  pd_facemap_t  *facemap;    /* facemap->perm->map[i] = index of image of (face i in pdA) in pdB */
 
 } pd_iso_t;
 
@@ -244,6 +244,49 @@ unsigned int pd_iso_period(pd_iso_t *A); /* computes period of A in isoutation g
    we don't have to store the isomorphisms. (This also appears in plcTopology.h.) */
 
 bool      pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
+
+/* We also have another object: the pd_ambient_isotopy.
+   The ambient isotopy is an isomorphism, but requires
+   several additional conditions to hold:
+
+   1. components are only mapped to components with the same tag
  
+   2. all component orientations are reversed and the orientation 
+      of the plane is reversed, or none of the component orientations
+      are reversed and the orientation of the plane is not reversed.
+
+   Taken together, conditions 1 and 2 reduce the search space to 
+   a unique component permutation, and restricts the space of edgemaps
+   as well. 
+
+   3. every crossing is mapped to a crossing with the same sign. 
+      (this includes crossings with sign "PD_UNSET_ORIENTATION")
+
+   Since the existence of an ambient isotopy is considerably faster to
+   compute than the existence of an isomorphism, we use a different
+   codebase to do the computation. 
+
+   However, we use the same data type.
+*/
+
+bool pd_is_diagram_isotopy(pd_iso_t *A,pd_code_t *pdA,pd_code_t *pdB);
+/* Checks to see whether a given pd_iso is actually an diagram isotopy. */
+
+bool pd_diagram_isotopy_ok(pd_iso_t *A, pd_code_t *pdA,pd_code_t *pdB);
+/* Checks to see whether A passes pd_iso_ok and pd_is_diagram_isotopy. */
+
+pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos);
+/* Returns a buffer of 0, 1, or 2 diagram isotopies between pdA and pdB. */
+
+bool pd_diagram_isotopic(pd_code_t *A, pd_code_t *B);
+/* Detect whether two pd_codes correspond to diagrams of labelled, oriented
+   components related by an isotopy of the 2-sphere. Corresponding crossings
+   are required to have the same sign (positive, negative, or unset). 
+
+   This is the strictest kind of diagram equivalence; you can extract weaker forms
+   of combinatorial equivalence between diagrams (eg. unoriented equivalence
+   or unlabelled equivalence) using pd_isomorphic.
+*/
+
 #endif
 

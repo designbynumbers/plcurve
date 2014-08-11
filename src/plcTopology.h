@@ -462,8 +462,29 @@ extern "C" {
 
   pd_code_t *pd_read_KnotTheory(FILE *infile); /* Returns NULL if the file is corrupt */
 
+  bool pd_diagram_isotopic(pd_code_t *A, pd_code_t *B);
+  /* Detect whether two pd_codes correspond to diagrams of labelled, oriented
+     components related by an isotopy of the 2-sphere or an isotopy of the 2-sphere
+     composed with a reflection ("reshaping the diagram" or "turning the diagram inside out").
+
+     1. Corresponding crossings are required to have the same sign (positive, negative, or unset). 
+     2. Corresponding components are required to have the same tag.
+     3. Corresponding edges are required to have the same orientation. 
+
+     This is the strongest kind of diagram equivalence.
+  */
+
   bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
-  /* Test whether two pd codes are isomorphic. */
+  /* Detect whether two pd codes are correspond to the same polyhedral decomposition of the 
+     3-sphere (or are mirror images of each other). This is much weaker than being diagram-isotopic;
+  
+     1. Crossing signs are ignored.
+     2. Component tags are ignored.
+     3. The orientations of all edges in each component are either (all) preserved or (all) reversed.
+        However, some component orientations may be preserved while others are reversed. 
+
+     This is the weakest kind of diagram equivalence.
+  */
 
   bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB);
   /* This method will generate pd code objects and return the call

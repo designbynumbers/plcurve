@@ -58,6 +58,7 @@
 
 #include<pd_multidx.h>
 #include<pd_dihedral.h>
+#include<pd_cyclic.h>
 #include<pd_perm.h>
   
 #include<pd_isomorphisms.h>
@@ -969,6 +970,7 @@ pd_crossmap_t *pdint_build_oriented_crossmap(pd_code_t *pdA,pd_code_t *pdB,
 
 /* Try to generate a crossing map _with the given orientation_. Return crossmap or NULL. */
 
+
 {
   assert(pdA->ncross == pdB->ncross);
   pd_idx_t ncross = pdA->ncross;
@@ -1026,6 +1028,76 @@ pd_crossmap_t *pdint_build_oriented_crossmap(pd_code_t *pdA,pd_code_t *pdB,
 
 }
 
+pd_crossmap_t *pdint_build_oriented_signed_crossmap(pd_code_t *pdA,pd_code_t *pdB,
+						    pd_edgemap_t *edgemap,pd_or_t or)
+
+/* Try to generate a crossing map _with the given orientation_. Return crossmap or NULL. */
+
+
+{
+  assert(pdA->ncross == pdB->ncross);
+  pd_idx_t ncross = pdA->ncross;
+
+  pd_crossmap_t *crossmap;
+  crossmap = pd_new_crossmap(&ncross);
+
+  pd_idx_t cross;
+  pd_crossing_t mapcross;
+
+  /* Now we can try to generate the crmap with this orientation. */
+
+  crossmap->or = or;
+
+  for(cross=0;cross<ncross;cross++) {
+
+    /* Step 0. Build the crossing which this would map to. */
+
+    pd_pos_t pos;
+    
+    for(pos=0;pos<4;pos++) {
+
+      mapcross.edge[pos] = edgemap->perm->map[pdA->cross[cross].edge[pos]];
+
+    }
+
+    pd_canonorder_cross(&mapcross,or);
+
+    /* Step 1. Search for that crossing in pdB's crossing list */
+
+    pd_crossing_t *bptr;
+    bptr = bsearch(&mapcross,pdB->cross,pdB->ncross,sizeof(pd_crossing_t),pd_cross_cmp);
+
+    /* Step 2. If found, translate to index, continue, if not found, return (and we'll try the other orientation). */
+
+    if (bptr == NULL) {
+
+      pd_free_crossmap(&crossmap);
+      return NULL;
+
+    }
+
+    crossmap->perm->map[cross] = (pd_idx_t)(bptr - pdB->cross);
+    /* Pointer arithmetic reveals the position of the
+       crossing in the pdB->cross array. */
+
+    if (pdA->cross[cross].sign != pdB->cross[crossmap->perm->map[cross]].sign) { 
+
+      pd_free_crossmap(&crossmap);
+      return NULL;
+
+    }
+  
+  }
+
+  /* We have now generated the map for the permutation, but not 
+     identified it with a precomputed perm. We try: */
+
+  pd_regenerate_pcidx(crossmap->perm);
+
+  return crossmap;
+
+}
+
 
 pd_crossmap_t **pd_build_crossmaps(pd_code_t *pdA,pd_code_t *pdB,
 				   pd_edgemap_t *emap,unsigned int *ncrmaps)
@@ -1062,6 +1134,46 @@ pd_crossmap_t **pd_build_crossmaps(pd_code_t *pdA,pd_code_t *pdB,
   cross_buf[0] = pdint_build_oriented_crossmap(pdA,pdB,emap,PD_POS_ORIENTATION);
   if (cross_buf[0] != NULL) { (*ncrmaps)++; }
   cross_buf[*ncrmaps] = pdint_build_oriented_crossmap(pdA,pdB,emap,PD_NEG_ORIENTATION);
+  if (cross_buf[*ncrmaps] != NULL) { (*ncrmaps)++; }
+
+  return cross_buf;
+}
+
+pd_crossmap_t **pd_build_signed_crossmaps(pd_code_t *pdA,pd_code_t *pdB,
+					  pd_edgemap_t *emap,unsigned int *ncrmaps)
+
+/* 
+   This is where the rubber meets the road. IF POSSIBLE, use the
+   edgemap to build a map from the crossings of pdA to the crossings
+   of pdB. The crossings in pdA and pdB should be sorted, so we can
+   use the gcc searching functions to look for matching crossings.
+
+   If the map reverses orientation in the plane (globally), it will be
+   reflected in the cyclic ordering of the edges at each crossing,
+   which will switch from clockwise to counterclockwise.
+
+   A buffer to crossing maps generated (if 1 or 2) and NULL
+   otherwise. Returns number of crmaps generated in ncrmaps. If there
+   are no crossings, we return a buffer consisting of a single NULL
+   pointer.
+
+*/
+
+{
+  pd_crossmap_t **cross_buf;
+  cross_buf = calloc(2,sizeof(pd_crossmap_t *)); assert(cross_buf != NULL);
+  *ncrmaps = 0;
+
+  if (pdA->ncross == 0 && pdB->ncross == 0) { 
+
+    *ncrmaps = 1;
+    return cross_buf;
+
+  }
+
+  cross_buf[0] = pdint_build_oriented_signed_crossmap(pdA,pdB,emap,PD_POS_ORIENTATION);
+  if (cross_buf[0] != NULL) { (*ncrmaps)++; }
+  cross_buf[*ncrmaps] = pdint_build_oriented_signed_crossmap(pdA,pdB,emap,PD_NEG_ORIENTATION);
   if (cross_buf[*ncrmaps] != NULL) { (*ncrmaps)++; }
 
   return cross_buf;
@@ -2171,3 +2283,387 @@ bool      pd_isos_unique(unsigned int nisos,pd_iso_t **iso_buf)
   return true;
 
 }
+
+bool pd_is_diagram_isotopy(pd_iso_t *A, pd_code_t *pdA, pd_code_t *pdB)
+/* Checks whether a given pd_isomorphism qualifies as an diagram isotopy. */
+{
+  pd_idx_t i;
+
+  /* Check whether component tags match */
+
+  for(i=0;i<A->compperm->n;i++) { 
+
+    if (pdA->comp[i].tag != pdB->comp[A->compperm->map[i]].tag) { 
+
+      return false; 
+
+    }
+
+  }
+
+  /* Check whether we're flipping plane or not. */
+
+  assert(A->crossmap->or == A->facemap->or); 
+  pd_or_t plane_or = A->crossmap->or;
+
+  /* All the edge orientations should agree (and agree with plane_or). */
+
+  for(i=0;i<A->edgemap->perm->n;i++) { 
+
+    if (A->edgemap->or[i] != plane_or) { 
+
+      return false; 
+
+    }
+
+  }
+
+  /* Finally, all the crossing signs should match. */
+
+  for(i=0;i<A->crossmap->perm->n;i++) { 
+
+    if (pdA->cross[i].sign != pdB->cross[A->crossmap->perm->map[i]].sign) {
+
+      return false;
+
+    }
+
+  }
+
+  /* We can now return true. */
+
+  return true;
+
+}
+  
+
+bool pd_diagram_isotopy_ok(pd_iso_t *A, pd_code_t *pdA,pd_code_t *pdB)
+/* Checks to see whether A passes pd_iso_ok and pd_is_diagram_isotopy. */
+{
+
+  if (!pd_iso_ok(A)) { 
+
+    return pd_error(SRCLOC,"pd_iso_t %ISO doesn't pass pd_iso_ok, so it can't pass pd_diagram_isotopy_ok.\n",pdA,A);
+
+  }
+
+  if (!pd_is_diagram_isotopy(A,pdA,pdB)) { 
+
+    pd_error(SRCLOC,"pd_iso_t %ISO isn't an diagram isotopy between %PD (pdA) and ",pdA,A);
+    return pd_error(SRCLOC,"pdB (%PD) ",pdB);
+
+  }
+
+  return true;
+
+}
+
+pd_edgemap_t **pd_build_oriented_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_t *comp_perm,unsigned int *nedgemaps)
+
+/* Given a component permutation, we can build the set of edgemaps
+   which consistently preserve orientation from components of pdA to
+   components of pdB by iterating over a multi-index composed of
+   CYCLIC groups. */
+
+{
+  assert(comp_perm != NULL);
+  assert(nedgemaps != NULL);
+  assert(pdA != NULL);
+  assert(pdB != NULL);
+
+  assert(pdA->ncomps == pdB->ncomps && pdB->ncomps == comp_perm->n);
+  pd_idx_t ncomps = pdA->ncomps;
+
+  assert(pdA->nedges == pdB->nedges);
+  pd_idx_t nedges = pdA->nedges;
+
+  /* 0. Set up a multi-idx with cyclic groups to iterate over. */
+
+  pd_multidx_t *idx;
+  pd_idx_t*     *compsizes;
+  pd_idx_t      comp;
+  
+  compsizes = calloc(ncomps,sizeof(pd_idx_t *));
+  assert(compsizes != NULL);
+
+  for(comp=0;comp<ncomps;comp++) {
+
+    compsizes[comp] = &(pdA->comp[comp].nedges);
+  
+  }
+
+  idx = pd_new_multidx(ncomps,(void **)(compsizes),cyclic_ops);
+
+  /* 1. Allocate the output edgemaps. */
+  
+  pd_edgemap_t **edgemaps;
+  unsigned int i;
+
+  *nedgemaps = pd_multidx_nvals(idx);
+
+  edgemaps = calloc(*nedgemaps,sizeof(pd_edgemap_t *)); assert(edgemaps != NULL);
+  
+  for(i=0;i<*nedgemaps;i++) {
+
+    edgemaps[i] = pd_new_edgemap(&nedges);
+
+  }
+
+  /* 2. Loop over the multi-idx and actually generate the edgemaps. */
+  
+  for(i=0;i<*nedgemaps;i++,pd_increment_multidx(idx)) {
+
+    for(comp=0;comp<idx->nobj;comp++) { 
+
+      pd_cyclic_t *this_cyclic = (pd_cyclic_t *)(idx->obj[comp]);
+      pd_idx_t     edge;
+
+      /* Map the edge #s in component comp to the cyclic-group images
+	 of these edge numbers in the target component given by comp_perm. */
+
+      assert(pdA->comp[comp].nedges == pdB->comp[comp_perm->map[comp]].nedges);
+      pd_idx_t this_comp_edges = pdA->comp[comp].nedges;
+
+      for(edge=0;edge<this_comp_edges;edge++) {
+	
+	pd_idx_t edgefrom = pdA->comp[comp].edge[edge];
+	pd_idx_t edgeto   = pdB->comp[comp_perm->map[comp]].edge[this_cyclic->map[edge]];
+	
+	edgemaps[i]->perm->map[edgefrom] = edgeto;
+	edgemaps[i]->or[edgefrom] = PD_POS_ORIENTATION;	
+     
+      } 
+      
+    }
+
+    /* We should have built an entire permutation of all nedges edges of the pd_code. */
+    /* Recompute the pc_idx, now that we've got the whole permutation in place. */
+
+    pd_regenerate_pcidx(edgemaps[i]->perm);
+    
+  }
+
+  pd_free_multidx(&idx);
+  free(compsizes);
+
+  return edgemaps;
+
+}
+
+pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
+/* Returns a buffer of 0, 1, or 2 diagram isotopies between pdA and pdB. */
+{
+  /* For the pdcodes to even have a chance of being
+     isomorphic, the hash codes, # crossings, # edges, #
+     faces, edge # vector (over components), and edge #
+     vect (over faces) must all match. We check these
+     first, hoping to fail out early (and fast). */
+
+  *nisos = 0;
+
+  pd_idx_t i;  
+  for(i=0;i<PD_HASHSIZE;i++) { if (pdA->hash[i] != pdB->hash[i]) { return NULL; } }
+
+  pd_idx_t ncross,nedges,ncomps,nfaces;
+
+  if (pdA->ncross != pdB->ncross) { return NULL; } else {ncross = pdA->ncross;}
+  if (pdA->nedges != pdB->nedges) { return NULL; } else {nedges = pdA->nedges;}
+  if (pdA->ncomps != pdB->ncomps) { return NULL; } else {ncomps = pdA->ncomps;}
+  if (pdA->nfaces != pdB->nfaces) { return NULL; } else {nfaces = pdA->nfaces;}
+  
+  pd_idx_t comp,face;
+
+  /* Remember that # of edges is a primary sort criterion
+     for both comps and faces, and that these buffers are
+     maintained in sorted order if pdA and pdB pass
+     pd_ok. So it's safe to just compare the buffers
+     element-for-element in their existing order. */
+
+  for(comp=0;comp<ncomps;comp++) { if (pdA->comp[comp].nedges != pdB->comp[comp].nedges) return NULL; }
+  for(face=0;face<nfaces;face++) { if (pdA->face[face].nedges != pdB->face[face].nedges) return NULL; }
+
+  /* We could put in weirder topological comparisons here
+     like "number of edges in faces adjacent to face i" or
+     "number of edges in faces adjacent to component j" if
+     we liked. There's a danger of losing isomorphisms
+     here if those have bugs, so there's some risk to
+     implementing this.  */
+
+  /* At this point, there may BE isomorphisms and we'll
+     have to check all the possibilities before ruling
+     anything out. So we start by allocating a container
+     to hold the isomorphisms */
+
+  pd_container_t *isos; 
+  isos = pd_new_container((pd_contidx_t)(1000)); /* A colossal overestimate, but only 8K of memory */
+
+  /* The next step is to generate component permutations. */
+  /* Since we are trying to generate diagram isotopies here, 
+     there are basically 0 or 2 possibilities. We're going to 
+     build them in-place using a slow (n^2) algorithm in the 
+     number of components. */
+
+  pd_perm_t *comp_perm;
+  pd_idx_t j;  
+  comp_perm = pd_new_perm(&pdA->ncomps);
+
+  for(i=0;i<pdA->ncomps;i++) { 
+
+    /* We now search for the component in B with a matching tag. */
+
+    bool tag_found = false;
+
+    for(j=0;j<pdB->ncomps && !tag_found;j++) { 
+
+      if (pdB->comp[j].tag == pdA->comp[i].tag) {  /* We send this comp i of A to comp j of B. */
+
+	comp_perm->map[i] = j;
+
+      }
+
+    }
+
+    if (!tag_found) { /* Something weird has happened. */
+
+      pd_error(SRCLOC,"couldn't find tag from %COMP of pdA = %PD in",pdA,i);
+      pd_error(SRCLOC,"pdB = %PD\n",pdB);
+      exit(1);
+
+    }
+
+  }
+
+  /* We SHOULD have assembled a permutation of components. */
+
+  if (!pd_perm_ok(comp_perm)) { 
+
+    pd_error(SRCLOC,"matching tags in pd_diagram_isotopic yielded component permutation %PERM, which is not ok\n",pdA,comp_perm);
+    exit(1);
+
+  }
+
+  /* Now, it's entirely possible that the two pd codes have the same number of components,
+     and even a valid tagset, but that the permutation is impossible for some easy reason,
+     like the number of edges between the different components doesn't match. We check for 
+     that now, noting that we'll have to fail out cleanly (without losing memory) if things
+     don't pan out. */
+
+  for(i=0;i<pdA->ncomps;i++) { 
+
+    if (pdA->comp[i].nedges != pdB->comp[comp_perm->map[i]].nedges) { 
+
+      pd_free_perm((void **)(&comp_perm));
+      *nisos = 0;
+      return NULL;
+
+    }
+
+  }
+
+  /* If we've passed this point, we can go ahead and try to generate edgemaps. */
+
+  pd_edgemap_t **edgemaps;
+  unsigned int  nedgemaps,edgemap;
+
+  edgemaps = pd_build_oriented_edgemaps(pdA,pdB,comp_perm,&nedgemaps);
+  assert(pd_edgemaps_ok(nedgemaps,edgemaps));
+
+  for(edgemap=0;edgemap < nedgemaps;edgemap++) { 
+
+    pd_crossmap_t **crossmaps;
+    pd_facemap_t  **facemaps;
+    unsigned int   ncrossmaps,nfacemaps,map,nmaps;
+    
+    crossmaps = pd_build_signed_crossmaps(pdA,pdB,edgemaps[edgemap],&ncrossmaps);
+
+    if (ncrossmaps > 0) { /* We may not actually be able to construct any crossing maps
+			     which map crossing signs correctly. In this case, there's 
+			     no need to try to extend things to face maps. */
+
+      facemaps  = pd_build_facemaps(pdA,pdB,edgemaps[edgemap],&nfacemaps);
+      nmaps = ncrossmaps; /* There may be two acceptable facemaps, but only one crossing map. */
+
+      if (ncrossmaps == nfacemaps) {
+
+	for(map=0;map<nmaps;map++) { /* We have actually generated an isomorphism! */
+	
+	  pd_iso_t *new_iso;
+	  new_iso = calloc(1,sizeof(pd_iso_t)); assert(new_iso != NULL); 
+	  
+	  new_iso->compperm = pd_copy_perm(comp_perm);
+	  new_iso->edgemap  = pd_copy_edgemap(edgemaps[edgemap]);
+	  new_iso->crossmap = pd_copy_crossmap(crossmaps[map]);
+	  new_iso->facemap  = pd_copy_facemap(facemaps[map]);
+	  
+	  assert(pd_iso_consistent(pdA,pdB,new_iso)); /* Check ok-ness as we generate */
+      
+	  pd_addto_container(isos,new_iso);
+
+	}
+	
+      } else {
+
+	assert(ncrossmaps == 1 && nfacemaps == 2); 
+
+	pd_iso_t *new_iso;
+	new_iso = calloc(1,sizeof(pd_iso_t)); assert(new_iso != NULL); 
+	
+	new_iso->compperm = pd_copy_perm(comp_perm);
+	new_iso->edgemap  = pd_copy_edgemap(edgemaps[edgemap]);
+	new_iso->crossmap = pd_copy_crossmap(crossmaps[0]);
+
+	if (crossmaps[0]->or == PD_POS_ORIENTATION) { 
+
+	  new_iso->facemap  = pd_copy_facemap(facemaps[0]);
+
+	} else { 
+
+	  new_iso->facemap = pd_copy_facemap(facemaps[1]);
+
+	}
+	
+	assert(pd_iso_consistent(pdA,pdB,new_iso)); /* Check ok-ness as we generate */
+	pd_addto_container(isos,new_iso);
+
+      }
+
+      pd_free_facemaps(nfacemaps,&facemaps);
+	  
+    } /* ends "if (ncrossmaps > 0) { " case where we actually tried to generate facemaps */
+    
+    pd_free_crossmaps(ncrossmaps,&crossmaps);
+      
+  } /* End of edgemap loop */
+
+  pd_free_edgemaps(nedgemaps,&edgemaps);
+    
+  /* Now we need to move the data from the container into a simple array */
+
+  pd_iso_t **isobuf;
+  
+  *nisos = pd_container_nelts(isos);
+  
+  if (*nisos != 0) { /* This is not guaranteed, since pdA and pdB may not BE isomorphic. */
+
+    isobuf = calloc(*nisos,sizeof(pd_iso_t *)); assert(isobuf != NULL);
+
+    unsigned int i;
+    for(i=0;i<*nisos;i++) { isobuf[i] = (pd_iso_t *)(pd_pop_container(isos)); }
+    /* Transfer the isos (and their associated memory) to isobuf. */ 
+
+    assert(pd_isos_unique(*nisos,isobuf));
+
+  } else {
+
+    isobuf = NULL;
+
+  }
+  
+  /* When we're done this loop, there should be nothing in the container. */
+  assert(pd_container_nelts(isos) == 0);
+  pd_free_container(&isos,pd_free_fake); /* pd_free_fake should never be called. */
+  pd_free_perm((void **)(&comp_perm));
+
+  return isobuf;    
+}
+

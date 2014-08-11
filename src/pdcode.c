@@ -57,6 +57,7 @@ int PD_VERBOSE;
 //#include<python2.7/Python.h>
 #include<pd_multidx.h>
 #include<pd_dihedral.h>
+#include<pd_cyclic.h>
 #include<pd_perm.h>
 #include<pd_orientation.h>
 
@@ -3096,6 +3097,10 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
    %OR        *pd_or_t           +, -, U (unset), or ? (anything else)
    %MULTIDX   *pd_multidx_t      multidx (i[0] i[1] ... i[n-1])
    %COMPGRP   *pd_compgrp_t      compgrp (comp[0] .. comp[n-1])
+   %ISO       *pd_iso_t          <a representation of the isomorphism type>
+   %PERM      *pd_perm_t         <a representation of the permutation type>
+   %DIHEDRAL  *pd_dihedral_t     <a representation of an element of the dihedral group>
+   %CYCLIC    *pd_cyclic_t       <a representation of an element of the cyclic group>
 
    %EDGEMAP   *pd_edgemap_t      edgemap (+/- map[0] +/- map[1] ... +/- map[n-1])
    %CROSSMAP  *pd_crossmap_t     crossmap +/- ( permutation )
@@ -3408,6 +3413,18 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       free(dprint);
 
       nxtconv += 9;
+
+    } else if (!strncmp(nxtconv,"%CYCLIC",7)) { /* Cyclic group element */
+
+      pd_cyclic_t *c = (pd_cyclic_t *) va_arg(ap,void *);
+
+      fprintf(stream,"cyclic ");
+
+      char *cprint = pd_print_cyclic(c);
+      fprintf(stream,"%s",cprint);
+      free(cprint);
+
+      nxtconv += 7;
 
     } else if (!strncmp(nxtconv,"%PERM",5)) { /* Permutation group elt */
 
