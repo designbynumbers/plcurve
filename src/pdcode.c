@@ -1872,11 +1872,22 @@ bool pd_edges_ok(pd_code_t *pd)
 
 }
 
+int pd_tag_cmp(const void *A,const void *B) {
+  
+  pd_tag_t *tagA = (pd_tag_t *)(A);
+  pd_tag_t *tagB = (pd_tag_t *)(B);
+
+  return (int)(*tagA - *tagB);
+
+}
+
 bool pd_comps_ok(pd_code_t *pd)
 
 /* Check that the edges are numbered correctly around the components
    and that the edges are oriented head-to-tail, also checks that every
-   edge is present in a component. */
+   edge is present in a component. Last, checks that tags are assigned
+   to every component in A..Z (and forward) and that the tag set is consecutive
+   and contains unique elements only. */
 
 {
   pd_idx_t comp, edge, next_edge;
@@ -1952,6 +1963,73 @@ bool pd_comps_ok(pd_code_t *pd)
 		    correct_edgenum,pd->nedges);
 
   }
+
+  pd_tag_t *tagset;
+  tagset = calloc(pd->ncomps,sizeof(pd_tag_t));
+  assert(tagset != NULL);
+  pd_idx_t i,j;
+
+  for(i=0;i<pd->ncomps;i++) { 
+
+    tagset[i] = pd->comp[i].tag;
+
+  }
+
+  qsort(tagset,pd->ncomps,sizeof(pd_tag_t),pd_tag_cmp);
+
+  for(i=1;i<pd->ncomps;i++) { 
+
+    if (tagset[i] == tagset[i-1]) { 
+
+      pd_idx_t compA, compB;
+      bool Afound = false, Bfound = false;
+
+      for(compA=0;compA<pd->ncomps && !Afound;compA++) { 
+
+	if (pd->comp[compA].tag == tagset[i]) { 
+
+	  Afound = true;
+
+	}
+
+      }
+
+      for(compB=compA+1;compB<pd->ncomps && !Bfound;compB++) { 
+
+	if (pd->comp[compB].tag == tagset[i]) { 
+
+	  Bfound = true;
+
+	}
+
+      }
+
+      return pd_error(SRCLOC,"components %COMP and %COMP of %PD have duplicate tags",pd,compA,compB);
+
+    }
+
+    if (tagset[i] < 'A') { 
+
+      pd_idx_t compA;
+      bool Afound = false;
+
+      for(compA=0;compA<pd->ncomps && !Afound;compA++) { 
+
+	if (pd->comp[compA].tag == tagset[i]) { 
+
+	  Afound = true;
+
+	}
+
+      }
+
+      return pd_error(SRCLOC,"component %COMP has illegal tag (< 'A')",pd,compA);
+      
+    }
+
+  }
+
+  free(tagset);
 
   return true;
 
@@ -2141,6 +2219,8 @@ pd_code_t *pd_copy(pd_code_t *pd)
       assert(pdA->comp[cmp].edge != NULL);
 
       for(edge=0;edge<pdA->comp[cmp].nedges;edge++) { pdA->comp[cmp].edge[edge] = pd->comp[cmp].edge[edge]; }
+
+      pdA->comp[cmp].tag = pd->comp[cmp].tag;
 
     }
 
@@ -3089,7 +3169,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
    %FACE      face number        fnum (e1 (or1) -> e2 (or2) -> ... -> e1 (or1))
    %EDGE      edge number        enum (tail (tailpos) -> head (headpos) )
    %CROSS     cross number       cnum (e0 e1 e2 e3)
-   %COMP      comp number        compnum (e1 -> e2 -> e3 -> ..... -> e1 (or1))
+   %COMP      comp number        compnum (e1 -> e2 -> e3 -> ..... -> e1 (or1)) tag (tag)
    %PD        (no argument)      (\n\n output of pd_write \n\n)
 
    We also have conversions for pointers.
@@ -3256,6 +3336,8 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	ed = pd_print_idx(pd->comp[comp].edge[edge]);
 	fprintf(stream," %s ) ",ed);
 	free(ed);
+
+	fprintf(stream," tag %c",pd->comp[comp].tag);
 
 	nxtconv += 5;
 

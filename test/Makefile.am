@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_2crossing \
+check_PROGRAMS = test_diagram_isotopic \
+		 test_2crossing \
 		 test_crossingops \
 	         test_operations \
 	         test_orientation \
@@ -44,7 +45,8 @@ check_PROGRAMS = test_2crossing \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_2crossing \
+TESTS = test_diagram_isotopic \
+	test_2crossing \
 	test_crossingops \
 	test_operations \
 	test_orientation \
@@ -66,7 +68,8 @@ TESTS = test_2crossing \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_2crossing \
+check_PROGRAMS = test_diagram_isotopic \
+		 test_2crossing \
 		 test_crossingops \
 	         test_operations \
 		 test_homfly \
@@ -106,6 +109,11 @@ test_homfly_SOURCES = test_homfly.c
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_homfly_LDFLAGS = -static
 test_homfly_CFLAGS = -I$(top_srcdir)/src
+
+test_diagram_isotopic_SOURCES = test_diagram_isotopic.c 
+test_diagram_isotopic_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_diagram_isotopic_LDFLAGS = -static
+test_diagram_isotopic_CFLAGS = -I$(top_srcdir)/src
 
 test_2crossing_SOURCES = test_2crossing.c 
 test_2crossing_LDADD = -L$(top_builddir)/src -lplCurveStatic

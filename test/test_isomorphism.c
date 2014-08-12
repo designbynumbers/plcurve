@@ -11,7 +11,7 @@
 
 #ifdef HAVE_STDIO_H
    #include<stdio.h>
-#endif 
+#endif  
 
 #ifdef HAVE_STRING_H
    #include<string.h>

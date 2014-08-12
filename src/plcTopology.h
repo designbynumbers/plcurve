@@ -142,11 +142,13 @@ extern "C" {
 
     pd_tag_t tag;    /* This tag keeps track of the identity
 			of a component as we do crossing moves.
-			It is a character, usually "A..Z" followed
-			by lower case "a..z". It is independent
-			of the position of the component in the component
-			array because the component array gets resorted
-			to be in canonical order. */
+			It is a character from the set "A..Z"
+			and proceeding in ASCII order from there.
+
+			The set of tags for an n component link
+			must be consecutive, unique elements from 
+			this list, starting at 'A'*/ 
+			
   } pd_component_t;
 
   typedef struct pd_face_struct {
@@ -496,6 +498,10 @@ extern "C" {
 
   void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp, pd_or_t or);
   /* Reverse the orientation of component cmp iff or == PD_NEG_ORIENTATION */
+
+  void pd_renumber_component(pd_code_t *pd, pd_idx_t cmp,pd_idx_t ofs); 
+  /* Changes the numbering of edges in a component by adding "ofs" cyclically
+     to each edge number. */
 
   pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr);
   /* Performs a loop deletion Reidemeister 1 move at the crossing cr.

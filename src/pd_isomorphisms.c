@@ -2518,6 +2518,7 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
       if (pdB->comp[j].tag == pdA->comp[i].tag) {  /* We send this comp i of A to comp j of B. */
 
 	comp_perm->map[i] = j;
+	tag_found = true;
 
       }
 
@@ -2622,7 +2623,7 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
 
 	}
 	
-	assert(pd_iso_consistent(pdA,pdB,new_iso)); /* Check ok-ness as we generate */
+	assert(pd_diagram_isotopy_ok(new_iso,pdA,pdB)); /* Check ok-ness as we generate */
 	pd_addto_container(isos,new_iso);
 
       }
@@ -2667,3 +2668,25 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
   return isobuf;    
 }
 
+bool pd_diagram_isotopic(pd_code_t *pdA,pd_code_t *pdB) 
+
+/* This is basically just a wrapper for pd_build_diagram_isotopies. */
+
+{
+  pd_iso_t **iso_buf;
+  unsigned int nisos;
+
+  iso_buf = pd_build_diagram_isotopies(pdA,pdB,&nisos);
+
+  assert((nisos == 0 && iso_buf == NULL) || (nisos != 0 && iso_buf != NULL));
+
+  if (iso_buf != NULL) { 
+
+    pd_free_isos(&nisos,&iso_buf);
+    return true;
+
+  } 
+
+  return false;
+  
+}

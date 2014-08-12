@@ -154,3 +154,75 @@ void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp,pd_or_t or)
   }
 
 }
+
+
+void pd_renumber_component(pd_code_t *pd, pd_idx_t cmp,pd_idx_t ofs) 
+/* Changes the numbering of edges in a component by adding "ofs" cyclically
+   to each edge number. */
+{
+  pd_check_notnull(SRCLOC,"pd",pd);
+  pd_check_cmp(SRCLOC,pd,cmp);
+
+  if (ofs != 0) {
+
+    /* Several things need to happen in a proper component renumbering:
+
+     1) Renumber the edges involved (because they are supposed
+        to be consecutive and increasing along the component).
+	Update the edge buffer and the crossings with the new
+	edge numbering scheme.
+	
+     2) Regenerate faces (to make sure the +/- data is correct 
+        when the edge is referred to on the face).
+	
+    */
+
+    /* Step 1. Build and apply the transformation of edges. */
+
+    /* We build this as an "edgemap", and use "pd_apply_edgemap"
+       in order to make use of some of the self-checking code 
+       for edgemaps. */
+    
+    pd_edgemap_t *emap = pd_new_edgemap(&pd->nedges);
+    pd_idx_t e;
+    
+    /* First, set the edgemap to the identity. This will be the base for
+       edges not affected by this transformation. */
+    
+    for(e=0;e<pd->nedges;e++) { 
+
+      emap->or[e] = PD_POS_ORIENTATION;
+      emap->perm->map[e] = e;
+
+    }
+
+    /* Now renumber the edges of THIS COMPONENT ONLY. */
+    
+    pd_idx_t cmp_edges = pd->comp[cmp].nedges;
+    pd_idx_t first_edge;
+    first_edge = pd->comp[cmp].edge[0];
+    
+    pd_idx_t new_e;
+
+    for(e=0;e<cmp_edges;e++) { 
+
+      new_e = (e + ofs) % cmp_edges;
+      emap->or[pd->comp[cmp].edge[e]] = PD_POS_ORIENTATION;
+      emap->perm->map[pd->comp[cmp].edge[e]] = pd->comp[cmp].edge[new_e];
+
+    }
+    
+    /* In case n is small, we need this to pass selftest. */
+    pd_regenerate_pcidx(emap->perm);
+    assert(pd_edgemap_ok(emap));
+    
+    pd_apply_edgemap(pd,emap);
+    pd_free_edgemap(&emap);
+    
+    /* Step 3. Regenerate faces. */
+
+    pd_regenerate_faces(pd); 
+  
+  }
+
+}
