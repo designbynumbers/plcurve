@@ -146,8 +146,8 @@ extern "C" {
 			and proceeding in ASCII order from there.
 
 			The set of tags for an n component link
-			must be consecutive, unique elements from 
-			this list, starting at 'A'*/ 
+			must be unique elements with ASCII codes
+			>= 'A'.*/ 
 			
   } pd_component_t;
 
