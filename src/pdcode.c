@@ -2277,6 +2277,8 @@ void pd_write(FILE *of,pd_code_t *pd)
    nf   <nfaces>
    <nf lines, each in the format nedges edge edge ... edge giving face information counterclockwise>
 
+   (nts: Add ordering information!)
+
 */
 
 {
@@ -3049,6 +3051,7 @@ ones we don't need.
        ----------->
             |
             |
+	    0
 
      positive crossing
      (upper tangent vector) x (lower tangent vector) points OUT of screen.
@@ -3056,7 +3059,7 @@ ones we don't need.
 
             ^
             |
-       -----|----->
+      0-----|----->
             |
             |
 
@@ -3064,19 +3067,35 @@ ones we don't need.
      (upper tangent vector) x (lower tangent vector) points INTO screen.
      This is true when the edges in positions 1 and 3 are in the order 1 -> 3.
 
-     The problem (and it's a large one) is that the edge numbers wrap around
-     at the end of the component. For a 2 edge component, this is genuinely
-     ambiguous, for all others, we can use the rule:
+     The problem (and it's a large one) is that the edge numbers wrap
+     around at the end of the component. 
+
+     So if pd->cross[cr].edge[3] and pd->cross[cr].edge[1] differ by
+     1, we know which way the strand is going -- it's going in the
+     "up" direction.
+
+     If they differ by more than one, the strand indices are wrapping
+     around, and the strand goes in the "down" direction.
+
+     For a 2 edge component, this is genuinely ambiguous, for all
+     others, we can use the rule:
 
     */
 
-    if (pd->cross[cr].edge[3] == pd->cross[cr].edge[1] + 1
-	|| pd->cross[cr].edge[3] < pd->cross[cr].edge[1]-1) {
+    if (pd->cross[cr].edge[3] - pd->cross[cr].edge[1] == 1) { // 1 -> 3
 
       pd->cross[cr].sign = PD_NEG_ORIENTATION;
 
-    } else {
+    } else if (pd->cross[cr].edge[1] - pd->cross[cr].edge[3] == 1) { // 3 -> 1
 
+      pd->cross[cr].sign = PD_POS_ORIENTATION;
+
+    } else if (pd->cross[cr].edge[1] > pd->cross[cr].edge[3]) { // 1 -> 3, wrapping
+
+      pd->cross[cr].sign = PD_NEG_ORIENTATION;
+
+    } else { // 3 -> 1, wrapping
+      
       pd->cross[cr].sign = PD_POS_ORIENTATION;
 
     }
