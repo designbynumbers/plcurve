@@ -73,7 +73,7 @@ pd->cross[1].edge[0] = 0;
 pd->cross[1].edge[1] = 11;
 pd->cross[1].edge[2] = 15;
 pd->cross[1].edge[3] = 10;
-pd->cross[1].sign = 0;
+pd->cross[1].sign = 1;
 
 pd->cross[2].edge[0] = 1;
 pd->cross[2].edge[1] = 9;
@@ -386,6 +386,7 @@ assert(pd_ok(pd));
 return pd;
 
 }
+
 
 bool test_bad_homfly() {
 
