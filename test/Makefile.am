@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_diagram_isotopic \
+check_PROGRAMS = test_bad_homfly \
+		 test_diagram_isotopic \
 		 test_2crossing \
 		 test_crossingops \
 	         test_operations \
@@ -45,7 +46,8 @@ check_PROGRAMS = test_diagram_isotopic \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_diagram_isotopic \
+TESTS = test_bad_homfly \
+	test_diagram_isotopic \
 	test_2crossing \
 	test_crossingops \
 	test_operations \
@@ -68,7 +70,8 @@ TESTS = test_diagram_isotopic \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_diagram_isotopic \
+check_PROGRAMS = test_bad_homfly \
+		 test_diagram_isotopic \
 		 test_2crossing \
 		 test_crossingops \
 	         test_operations \
@@ -88,7 +91,9 @@ check_PROGRAMS = test_diagram_isotopic \
                  hopf_test \
 		 ccode_test
 
-TESTS = test_2crossing \
+TESTS = test_bad_homfly \
+	test_diagram_isotopic \
+	test_2crossing \
 	test_crossingops \
 	test_operations \
 	test_homfly \
@@ -109,6 +114,11 @@ test_homfly_SOURCES = test_homfly.c
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_homfly_LDFLAGS = -static
 test_homfly_CFLAGS = -I$(top_srcdir)/src
+
+test_bad_homfly_SOURCES = test_bad_homfly.c 
+test_bad_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_bad_homfly_LDFLAGS = -static
+test_bad_homfly_CFLAGS = -I$(top_srcdir)/src
 
 test_diagram_isotopic_SOURCES = test_diagram_isotopic.c 
 test_diagram_isotopic_LDADD = -L$(top_builddir)/src -lplCurveStatic
