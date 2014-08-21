@@ -16,6 +16,8 @@ class ClassifyDatabase(object):
     LINK=1
     def __init__(self):
         self.cls_dict = dict()
+        self.by_type = dict()
+        self.by_ncross = dict()
 
     @classmethod
     def _iter_name_and_pd(self, names, table):
@@ -28,6 +30,8 @@ class ClassifyDatabase(object):
             pd = PlanarDiagram.read_knot_theory(table)
 
     def _load_names_and_table(self, names_fname, table_fname, filetype):
+        names_f = None
+        table_f = None
         try:
             names_f = open(names_fname)
             table_f = open(table_fname)
@@ -42,9 +46,9 @@ class ClassifyDatabase(object):
             for i, (name, pd) in enumerate(self._iter_name_and_pd(names_f, table_f)):
                 homfly = pd.homfly()
                 if homfly in self.cls_dict:
-                    self.cls_dict[homfly].append((name, (filetype, i)))
+                    self.cls_dict[homfly].append((name, (filetype, i), pd))
                 else:
-                    self.cls_dict[homfly] = [(name, (filetype, i)),]
+                    self.cls_dict[homfly] = [(name, (filetype, i), pd),]
                 if i >= count-1:
                     break
         finally:
