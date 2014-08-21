@@ -1070,6 +1070,30 @@ cdef class PlanarDiagram:
     def ccode(self):
         return pdcode_to_ccode(self.p)
 
+    def pdcode(self):
+        cdef list pdcode = []
+        cdef list x_temp
+        cdef pd_idx_t o_in, o_out, u_in, u_out
+        for x in self.crossings:
+            x_temp = [-1,-1,-1,-1]
+            o_in, o_out = x.overstrand_indices()
+            o_ipos, o_opos = x.overstrand_pos()
+            u_in, u_out = x.understrand_indices()
+            u_ipos, u_opos = x.understrand_pos()
+
+            x_temp[0] = u_in
+            x_temp[2] = u_out
+
+            if (u_ipos + 1) % 4 == o_ipos:
+                x_temp[1] = o_in
+                x_temp[3] = o_out
+            else:
+                x_temp[3] = o_in
+                x_temp[1] = o_out
+
+            pdcode.append(x_temp)
+        return pdcode
+
     cdef regenerate_py_os(self):
         cdef int i
         cdef Edge e
