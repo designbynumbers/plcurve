@@ -80,7 +80,6 @@ extern "C" {
 #define PD_NEG_ORIENTATION 0
 #define PD_UNSET_ORIENTATION 2
 
-
   typedef unsigned int      pd_idx_t ;  /* pd "index" type */
   typedef unsigned char     pd_or_t;    /* pd "orientation" type */
   typedef unsigned int      pd_pos_t;   /* pd "position" type */
@@ -295,6 +294,9 @@ extern "C" {
   void       pd_code_eltfree(void **PD);  /* Used when we make a pd_container of pd codes */
 
   /* Utility Functions For Dealing With PD-code primitives */
+
+  int       pd_idx_cmp(const void *A, const void *B);
+  /* The usual comparison function for sorting and searching */
 
   char pd_print_or(pd_or_t or);
   /* Returns a one-character printed form for "or": +, -, U (unset), or ? (anything else) */
@@ -642,11 +644,17 @@ extern "C" {
           +-------------+  f[nfaces-2]
      f[2]   |  ....   |
 
-     Equivalently, a tangle is a cycle in the dual graph of the diagram.
+     Equivalently, a tangle is an embedded cycle in the dual graph of the diagram.
 
-     The edges must join each other in a collection of nstrands = nedges/2
-     "strands", which pass through the tangle. The edges have boundary
-     orientations on the tangle, which record whether they are heading
+     The edges which enter or leave the tangle can be joined
+     (pairwise) by chains of edges inside the tangle. Each such chain
+     of edges is called a "strand" of the tangle. Note that the union
+     of the edges in the strands is NOT always the complete collection
+     of edges inside the tangle because there may be entire components
+     contained within the tangle which don't cross the boundary.
+
+     Each edge which crosses the boundary of the tangle has a boundary
+     orientation on the tangle, which records whether it is heading
      into or out of the tangle.
 
   */
@@ -655,17 +663,16 @@ extern "C" {
 
   typedef struct tangle_strand_struct {
 
-    pd_idx_t start_edge;
-    pd_idx_t end_edge;
-    pd_idx_t nedges;
-
-    pd_idx_t comp;
+    pd_idx_t start_edge;  /* Edge number (in pd) where the strand enters the tangle. */
+    pd_idx_t end_edge;    /* Edge number (in pd) where the strand exits the tangle. */
+    pd_idx_t nedges;      /* Number of edges in tangle (counting start, end) */
+    pd_idx_t comp;        /* Component (in pd) containing this strand. */
 
   } pd_tangle_strand_t;
 
   typedef struct pd_tangle_struct {
 
-    pd_idx_t nedges;
+    pd_idx_t nedges;   /* Should always be even. */
     pd_idx_t nstrands; /* Always equal to nedges/2 */
 
     pd_idx_t *edge;
@@ -688,7 +695,9 @@ extern "C" {
   void *pd_tangle_free(pd_tangle_t **t);
 
   void pd_regenerate_tangle(pd_code_t *pd,pd_tangle_t *t);
-  /* Recreates tangle data from edges and faces */
+  /* The usual procedure for generating a tangle is to specify the loop of 
+     edges and faces and call "pd_regenerate_tangle" in order to reconstruct
+     the remaining data. */
 
   pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
 			     pd_idx_t ncross_edges, pd_idx_t cross_edges[]);

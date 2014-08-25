@@ -1967,7 +1967,7 @@ bool pd_comps_ok(pd_code_t *pd)
   pd_tag_t *tagset;
   tagset = calloc(pd->ncomps,sizeof(pd_tag_t));
   assert(tagset != NULL);
-  pd_idx_t i,j;
+  pd_idx_t i;
 
   for(i=0;i<pd->ncomps;i++) { 
 

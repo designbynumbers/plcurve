@@ -62,7 +62,10 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	polynomials.h \
 	polynomials.c \
 	pd_operations.c \
-	pd_crossingmoves.c 
+	pd_crossingmoves.c \
+	pd_sortedbuf.h \
+	pd_sortedbuf.c \
+	pd_tangles.c 
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -116,7 +119,10 @@ libplCurve_la_SOURCES = plCurve.c \
 	polynomials.h \
 	polynomials.c \
 	pd_operations.c \
-	pd_crossingmoves.c 
+	pd_crossingmoves.c \
+	pd_sortedbuf.h \
+	pd_sortedbuf.c \
+	pd_tangles.c 
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

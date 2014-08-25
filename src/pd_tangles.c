@@ -57,8 +57,8 @@
 #include<pd_dihedral.h>
 #include<pd_perm.h>
 #include<pd_orientation.h>
-
 #include<pd_isomorphisms.h>
+#include<pd_sortedbuf.h>
 
 bool pd_xor(bool a, bool b) {
 
@@ -89,8 +89,8 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
   tangle information.
 */
 {
-  pd_check_notnull(SRCLOC,pd,"input pd code");
-  pd_check_notnull(SRCLOC,t,"input tangle");
+  pd_check_notnull(SRCLOC,"input pd code",pd);
+  pd_check_notnull(SRCLOC,"input tangle",t);
   
   if (t->nedges == PD_UNSET_IDX) { 
 
@@ -109,15 +109,15 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
   if (t->nstrands != t->nedges/2) { 
 
     pd_error(SRCLOC,"t->nstrands = %d is not equal to t->nedges = %d / 2 == %d.\n",
-	     t->nstrands,t->nedges,t->nedges/2);
+	     pd,t->nstrands,t->nedges,t->nedges/2);
     return false;
 
   }
 
-  pd_check_notnull(SRCLOC,t->edge,"t->edge");
-  pd_check_notnull(SRCLOC,t->face,"t->face");
+  pd_check_notnull(SRCLOC,"t->edge",t->edge);
+  pd_check_notnull(SRCLOC,"t->face",t->face);
 
-  pd_idx_t *pos_face,*pfp,*neg_face,*nfp;
+  pd_idx_t *pos_face,pfp,*neg_face,nfp;
   pd_idx_t i,j;
 
   pos_face = calloc(t->nedges,sizeof(pd_idx_t));
@@ -147,7 +147,7 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
     if (!pd_xor(pos_face[i] == t->face[(i+1)%t->nedges],neg_face[i] == t->face[(i+1)%t->nedges])) { 
 
-      pd_printf("edge t->e[%d] = %EDGE is not on face t->face[%d] %FACE exactly once: tangle test fails\n",pd,i,t->edge[i],(i+1)%(t->nedges),t->f[(i+1)%t->nedges]);
+      pd_printf("edge t->e[%d] = %EDGE is not on face t->face[%d] %FACE exactly once: tangle test fails\n",pd,i,t->edge[i],(i+1)%(t->nedges),t->face[(i+1)%t->nedges]);
       return false; 
 
     }
@@ -156,12 +156,12 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
   /* We now check edge_bdy_or */
 
-  pd_check_notnull(SRCLOC,t->edge_bdy_or,"t->edge_bdy_or");
+  pd_check_notnull(SRCLOC,"t->edge_bdy_or",t->edge_bdy_or);
   pd_idx_t in_count = 0, out_count = 0;
 
   for(i=0;i<t->nedges;i++) { 
    
-    if (edge_bdy_or[i] == in) { 
+    if (t->edge_bdy_or[i] == in) { 
       
       if (in_count >= t->nstrands) { 
 
@@ -172,7 +172,7 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
       in_count++; 
 
-    } else if (edge_bdy_or[i] == out) {
+    } else if (t->edge_bdy_or[i] == out) {
 
       if (out_count >= t->nstrands) { 
 
@@ -201,7 +201,7 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
     pd_check_edge(SRCLOC,pd,t->strand[i].start_edge);
     pd_check_edge(SRCLOC,pd,t->strand[i].end_edge);
-    pd_check_comp(SRCLOC,pd,t->strand[i].comp);
+    pd_check_cmp(SRCLOC,pd,t->strand[i].comp);
 
     if (t->strand[i].nedges == PD_UNSET_IDX) { 
 
@@ -211,7 +211,7 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
     }
 
-    if (t->strand[i].nedges > pd->comps[t->strand[i].comp].nedges) {
+    if (t->strand[i].nedges > pd->comp[t->strand[i].comp].nedges) {
 
       pd_error(SRCLOC,"strand[%d] of tangle claims to have %d edges on component %COMP, which only has %d edges\n",
 	       pd,i,t->strand[i].nedges,t->strand[i].comp,pd->comp[t->strand[i].comp].nedges);
@@ -299,8 +299,8 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
      to valid crossing and edge numbers, and we do this in the spirit of checking
      for data corruption wherever it might crop up. */
      
-  pd_check_notnull(SRCLOC,t->interior_cross,"t->interior_cross");
-  pd_check_notnull(SRCLOC,t->interior_edge,"t->interior_edge");
+  pd_check_notnull(SRCLOC,"t->interior_cross",t->interior_cross);
+  pd_check_notnull(SRCLOC,"t->interior_edge",t->interior_edge);
 
   if (t->ninterior_cross == PD_UNSET_IDX) { 
 
@@ -340,7 +340,7 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
     
   }
 
-  for(i=0;i<t->ninterior_edge;i++) { 
+  for(i=0;i<t->ninterior_edges;i++) { 
 
     pd_check_cr(SRCLOC,pd,t->interior_edge[i]);
 
@@ -351,210 +351,341 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
   return true;
    
 }
+
+void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,pd_idx_t edge,pd_idx_t depth);
+/* The actual code is deferred to the end of the function below for 
+   clarity. */
+
 	       
-void pd_regenerate_tangle() 
+void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t) 
+
+/* The main purpose of this code is to fill in the "interior" data of
+   a tangle from the boundary data. (If the boundary data isn't
+   specified correctly, there's nothing we can do, because we won't
+   know what part of the pd code is supposed to be the tangle in the
+   first place). */
+
 
 {
- pd_idx_t in_count = 0, out_count = 0;
+  pd_idx_t i,j;
 
-  for(i=0;i<4;i++) { 
-    if (edge_bdy_or[i] == in) { 
-      
-      if (in_count >= 2) { 
-	pd_error(SRCLOC,"edges e[0] = %EDGE, e[1] = %EDGE, e[2] = %EDGE, e[3] = %EDGE have incorrect orientations to be part of tangle\n",
-		 pd,e[0],e[1],e[2],e[3]);
-	exit(1);
-      }
+  /* First, we check that the list of edges and faces are ok. */
 
-      in_edges[in_count] = i;
-      in_count++; 
+  if (t->nedges == 0 || t->nedges > pd->nedges) { 
 
-    } else {
+    pd_error(SRCLOC,"value for # of tangle edges (%d) doesn't "
+	     "make sense for %d edge PD code",pd,t->nedges);
+    exit(1);
 
-      if (out_count >= 2) { 
-	pd_error(SRCLOC,"edges e[0] = %EDGE, e[1] = %EDGE, e[2] = %EDGE, e[3] = %EDGE have incorrect orientations to be part of tangle\n",
-		 pd,e[0],e[1],e[2],e[3]);
-	exit(1);
-      }
-
-      out_edges[out_count] = i;
-      out_count++; 
-    } 
   }
 
-}
+  for(i=0;i<t->nedges;i++) { 
 
- void pd_tangle_bdy_orientation(pd_code_t *pd, pd_idx_t e[4], pd_idx_t f[4],
-				pd_boundary_or_t edge_bdy_or[4],
-				pd_idx_t in_edges[2], pd_idx_t out_edges[2])
+    pd_check_edge(SRCLOC,pd,t->edge[i]);
 
-  /* We are now going to start by deducing "innie/outie" orientations
-     for each of the four boundary edges of the tangle. */
-{
-  pd_idx_t i;
+  }
 
-  for(i=0;i<4;i++) { 
-    pdx_idx_t pos_face,pfp,neg_face,nfp;
-    pd_face_and_pos(pd,e[i],&pos_face,&pfp,&neg_face,&nfp);
-    if (pos_face == f[i]) { 
-      edge_bdy_or[i] = in;
-    } else if (neg_face == f[i]) { 
-      edge_bdy_or[i] = out;
-    } else {
-      pd_error(SRCLOC,"edge e[%d] = %EDGE in tangle is not on face f[%d] = %FACE in pd\n",
-	       pd,i,e[i],i,f[i]);
+  for(i=0;i<t->nedges;i++) { 
+
+    pd_check_face(SRCLOC,pd,t->face[i]);
+
+  }
+
+  /* We now check that the edges are, in fact, on the corresponding
+     faces. */
+
+  for(i=0;i<t->nedges;i++) { 
+
+    bool found_edge = false;
+
+    for(j=0;j<pd->face[t->face[i]].nedges;j++) { 
+
+      if (pd->face[t->face[i]].edge[j] == t->edge[i]) { found_edge = true; }
+
+    }
+
+    if (!found_edge) { 
+
+      pd_error(SRCLOC,"edge %EDGE and face %FACE are paired on tangle, but this edge is not on this face in %PD",pd,t->edge[i],t->face[i]);
       exit(1);
+
     }
+
   }
 
+  /* Ok, if we've survived this far, we can hope to reconstruct orientations and 
+     interior crosing/edge data. We'll start with the innie/outie data. There are
+     basically two cases here:
+
+                           +                           
+			   |                           
+                           |                           
+     +--------<---------------------<-----------------+
+     |                     |                          |
+     |                     |  f[i]                    ^
+     V                     |                          |
+     |           +---------+                          |
+     |           |                                    |
+     |           |                                    |
+     +----*---edge e[i]--->*-----face boundary-->-----+
+                 |                                     
+		 |                                     
+		 +                                     
+		 
+       (orientation of e[i] is positive along f[i]: OUT)
+
+     and the other case, 
  
-}
-
-    
-void pd_tangle_contents(pd_code_t *pd, pd_idx_t e[4], pd_idx_t f[4],
-			pd_idx_t *ncross,pd_idx_t **tangle_cross,  
-			pd_idx_t *nedges,pd_idx_t **tangle_edge)
-    
-{
-  assert(pd_tangle_ok(pd,e,f));
-  
-  pd_boundary_or_t edge_bdy_or[4];
-  pd_idx_t in_edges[2], out_edges[2];
-
-  pd_tangle_bdy_orientation(pd,e,f,edge_bdy_or,
-			    in_edges,out_edges);
-
-  /* Now we need to construct the two strands of the tangle. We'll call these
-     strand[0] and strand[1] and observe that each has a start_edge and an end_edge. */
-
-
-
-  /* The first thing we do is make a pass along each component 
-     until we find an end edge. */
-
-  bool found_end;
-
-  for(i=0;i<2;i++) { 
-    
-    strand[i].start_edge = in_edges[i];
-    strand[i].num_edges = 1;
-
-    for(j=pd_next_edge(pd,strand[i].start_edge),found_end = false;
-	j != strand[i].start_edge;
-	j=pd_next_edge(pd,j),
-	strand[i].num_edges++) {
-
-      if (j == out_edges[0] || j == out_edges[1]) { 
-
-	strand[i].end_edge = j;
-        found_end = true;
-
-      }
-    
-    }
-
-    if (!found_end) { pd_error(SRCLOC,"couldn't find either out edge %EDGE or %EDGE along component containing in edge %EDGE in %PD",
-			       pd,out_edges[0],out_edges[1],in_edges[i]); exit(1); }
-    
-  }
-
-  /* Now that we have isolated both strands of the tangle, we need to fill 
-     in the remainder of the tangle. Roughly, the problem is this: we have
-     counted the edges in each strand of the tangle. But other components 
-     might cross the these strands (in which case, the entire component 
-     has to be added to the tangle's total). */
-  
-  pd_idx_t pos;
-  for(i=0;i<2;i++) { pd_component_and_pos(pd,strand[i].start_edge,&(strand[i].comp),&pos); }
-
-  /* So now we're going to rewalk each strand, from start to end, marking components for 
-     inclusion in the tangle. */
-
-  bool *component_in_tangle = calloc(pd->ncomps,sizeof(bool));
-  assert(component_in_tangle != NULL); for(i=0;i<pd->ncomps;i++) { component_in_tangle = false; }
-
-  for(i=0;i<2;i++) { 
-
-    for(j=strand[i].start_edge;
-	j != strand[i].end_edge;
-	j = pd_next_edge(pd,j)) { 
-
-      /* At each crossing in the tangle, look at the OTHER strand through the crossing, and 
-	 add that component (if it's not either of the strand components) */
-
-      pd_idx_t comp, pos;
-      pd_component_and_pos(pd,pd->cross[pd->edge[j].head].edge[(pd->edge[j].headpos+1)%4],&comp,&pos);
-      if (comp != strand[i].comp && comp != strand[1-i].comp) { component_in_tangle[comp] = true; }
-
-    }
-    
-  }
-      
-  /* We now have a list of components which are entirely contained in
-     the tangle.  Our job is to figure out a list of edges in the
-     tangle and a list of crossings, then allocate space for them
-     and copy them into the output buffers. 
+                           +                           
+			   |                           
+			   |                           
+     +--------<---------------------<-----------------+
+     |                     |                          |
+     |                     |  f[i]                    ^
+     V                     |                          |
+     |           +---------+                          |
+     |           |                                    |
+     |           |                                    |
+     +----*<--edge e[i]---*-----face boundary-->-----+
+                 |                                     
+		 |                                     
+		 +                    
+		 
+       (orientation of e[i] is negative along f[i]: IN)
+       
   */
 
-  bool *edge_in_tangle = calloc(pd->nedges,sizeof(bool));
-  assert(edge_in_tangle != NULL); for(i=0;i<pd->nedges;i++) { edge_in_tangle = false; }
+  for(i=0;i<t->nedges;i++) { 
 
-  bool *crossing_in_tangle = calloc(pd->ncross,sizeof(bool));
-  assert(crossing_in_tangle != NULL); for(i=0;i<pd->ncross;i++) { crossing_in_tangle = false; }
-  
-  /* We first walk the strands again, adding crossings and edges as we go. */
+    pd_idx_t pos_face,pfp,neg_face,nfp;
+    pd_face_and_pos(pd,t->edge[i],&pos_face,&pfp,&neg_face,&nfp);
 
-  for(i=0;i<2;i++) { 
-
-    for(j=strand[i].start_edge;
-	j != strand[i].end_edge;
-	j = pd_next_edge(pd,j)) { 
-
-      edge_in_tangle[j] = true;
-      crossing_in_tangle[pd->edge[j].head] = true;
-
+    if (pos_face == t->face[i]) { 
+      t->edge_bdy_or[i] = in;
+    } else if (neg_face == t->face[i]) { 
+      t->edge_bdy_or[i] = out;
+    } else {
+      pd_error(SRCLOC,"edge e[%d] = %EDGE in tangle is "
+	       "not on face f[%d] = %FACE in pd\n",
+	       pd,i,t->edge[i],i,t->face[i]);
+      exit(1);
     }
-    
+
   }
-     
-  for(i=0;i<4;i++) { edge_in_tangle[e[i]] = true; }
 
-  /* Now we walk the list of components adding entire components as we go. */
+  /* We now have the inward and outward orientations set. We now go ahead 
+     and construct the strands of the tangle. */
 
-  for(i=0;i<pd->ncomps;i++) { 
+  assert(t->strand != NULL);  // We're assuming that the buffer of strands
+                              // was allocated on creation of the tangle.
 
-    if (component_in_tangle[i]) { 
+  pd_idx_t s;
 
-      for(j=0;j<pd->comp[i].nedges;j++) { 
+  for(i=0,s=0;i<t->nedges;i++) { 
 
-	edge_in_tangle[j] = true;
-	crossing_in_tangle[pd->edge[j].head] = true;
+    if (t->edge_bdy_or[i] == in) { /* This is the start of a strand! */
+
+      pd_idx_t pos;
+      t->strand[s].nedges = 1;
+      pd_component_and_pos(pd,t->edge[i],&(t->strand[s].comp),&pos);
+
+      pd_idx_t j;
+      bool found_end;
+
+      for(j=pd_next_edge(pd,t->strand[s].start_edge),found_end = false;
+	  !found_end && j != t->strand[s].start_edge; // failsafe
+	  j=pd_next_edge(pd,j),
+	    t->strand[s].nedges++) {
+
+	/* Now we have to search the list of edges of the tangle 
+	   to try to find this particular edge j. */
+
+	pd_idx_t bdypos;
+
+	if (pd_buf_contains(t->edge,t->nedges,j,&bdypos)) { 
+
+	  if (!(t->edge_bdy_or[bdypos] == out)) { /* Just to be safe */
+	    
+	    pd_error(SRCLOC,"tangle strand which started (in) with %EDGE "
+		     "has encountered tangle edge %d (%EDGE) with boundary "
+		     "orientation not 'out' \n",pd,
+		     t->strand[s].start_edge,bdypos,t->edge[bdypos]);
+	    exit(1);
+
+	  }
+
+	  found_end = true;
+	  t->strand[s].end_edge = j;
+
+	}
 
       }
 
+      if (!found_end) { 
+
+	pd_error(SRCLOC,
+		 "component %COMP of pd appears "
+		 "to enter tangle at least once (at tangle edge %EDGE), "
+		 " but never leave it",
+		 pd,t->strand[s].comp,t->strand[s].start_edge);
+
+	exit(1); 
+
+      }
+
+      /* If we've survived to here, we completed the strand. */ 
+
+      s++;
+
     }
 
   }
 
-  /* Finally, we count the crossings and edges that we've found and copy them 
-     to output buffers. */
+  /* 
+     We've now built all the strands. It's going to be relatively easy
+     to detect interior crossings and edges by a variant of the
+     "contagion via crossings" algorithm that we used for the
+     Reidemeister II code.
 
-  for(i=0,*ncross=0;i<pd->ncross;i++) { if (crossing_in_tangle[i]) { (*ncross)++; } }
-  for(i=0,*nedges=0;i<pd->nedges;i++) { if (edge_in_tangle[i]) { (*nedges)++; } }
+     The basic idea is that we'll start at a single (inward) strand, and 
+     march along. At each (interior) crossing, we'll recurse, exploring 
+     the forward direction along each edge leaving the crossing. 
 
-  (*tangle_cross) = calloc(*ncross,sizeof(pd_idx_t)); assert(tangle_cross != NULL);
-  for(j=0,i=0;i<pd->ncross && j < *ncross;i++) { if (crossing_in_tangle[i]) { (*tangle_cross)[j++] = i; } }
+     The recursion stops if we encounter a crossing we've already
+     seen.  We will seed from each inward edge. The danger of the
+     thing is that it's slow: we're going to have to maintain the list
+     of interior crossings and edges in sorted order and do in-order
+     inserts into the lists in order to keep the searching from
+     consuming too much time.
+  */
 
-  (*tangle_edge) = calloc(*nedges,sizeof(pd_idx_t)); assert(tangle_edge != NULL);
-  for(j=0,i=0;i<pd->nedges && j < *nedge;i++) { if (edge_in_tangle[i]) { (*tangle_edge)[j++] = i; } }
+  t->ninterior_cross = 0;
+  t->ninterior_edges = 0;
+  
+  if (t->interior_cross != NULL) { 
 
-  /* Last, we do some housekeeping */
+    free(t->interior_cross);
+    t->interior_cross = NULL;
 
-  free(component_in_tangle);
-  free(crossing_in_tangle);
-  free(edge_in_tangle);
+  }
+
+  if (t->interior_edge != NULL) { 
+
+    free(t->interior_edge);
+    t->interior_edge = NULL;
+
+  }
+
+  for(i=0;i<t->nedges;i++) { 
+
+    if (t->edge_bdy_or[i] == in) { 
+
+      tangle_contents_worker(pd,t,t->edge[i],0);
+
+    }
+
+  }
+
+  /* If we got here, we've set the interior stuff (hopefully correctly!). */
+
+  assert(pd_tangle_ok(pd,t));
 
 }
+
+void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,pd_idx_t edge,pd_idx_t depth)
+/* 
+   We are given an edge which is either inside the tangle or incident
+   to the boundary of the tangle. 
+
+   If the edge is leading out of the tangle, we simply return. 
+
+   Otherwise, we proceed to the next crossing and try to add it to the 
+   list of interior crossings. 
+
+          If it's already listed, we return;
+
+	  Otherwise, we add it and recurse along outward edges.
+
+*/
+{
+  pd_idx_t tangle_bdy_pos;
+
+  /* First, make sure the failsafe is working. */
+
+  if (depth > pd->nedges) { 
+
+    pd_error(SRCLOC,
+	     "attempting to compute contents of tangle recursively\n"
+	     "reached %d levels of recursion in a %d edge pd code\n"
+	     "something is wrong (bug in tangle_contents_worker?)\n\n"
+	     "pd is %PD\n",
+	     pd,depth,pd->nedges);
+    exit(1);
+
+  }
+
+  /* Now see if we're exiting the tangle here. */
+
+  if (pd_buf_contains(t->edge,t->nedges,edge,&tangle_bdy_pos)) { 
+
+    if (t->edge_bdy_or[tangle_bdy_pos] == out) { 
+
+      return;
+
+    }
+
+  } else { /* We're _in_ the tangle, so add this edge to the interior edges. */
+
+    t->interior_edge = pd_sortedbuf_insert(t->interior_edge,&(t->ninterior_edges),edge);
+    
+  }
+    
+
+  /* Ok, we're entering or in the tangle. We first set the crossing, 
+     and see if we've already seen it. */
+
+  pd_idx_t cr = pd->edge[edge].head;
+
+  if (pd_sortedbuf_contains(t->interior_cross,t->ninterior_cross,cr)) { 
+
+    return;
+
+  }
+
+  /* Now we'll need to figure out the outgoing edges and recurse on them. 
+     The first recursion target is easy-- it's just the next edge. */
+
+  tangle_contents_worker(pd,t,pd_next_edge(pd,edge),depth+1);
+
+  /* The second recursion target is more challenging. First, we obtain
+     the edge numbers of the "transverse" edges to our guy at cr. */
+
+  pd_idx_t transverse_edge[2];
+
+  transverse_edge[0] = pd->cross[cr].edge[(pd->edge[edge].headpos+1)%4];
+  transverse_edge[1] = pd->cross[cr].edge[(pd->edge[edge].headpos+3)%4];
+    
+  if (pd->edge[transverse_edge[0]].tail == cr) { 
+
+    tangle_contents_worker(pd,t,transverse_edge[0],depth+1);
+
+  } else if (pd->edge[transverse_edge[1]].tail == cr) {
+
+    tangle_contents_worker(pd,t,transverse_edge[1],depth+1);
+
+  } else {
+
+    pd_error(SRCLOC,
+	     "something unexpected has happened. Edges %EDGE and %EDGE\n"
+	     "are supposed to be head-to-tail and meet at crossing %CROSS\n"
+	     "but neither seems to be leaving this crossing. Quitting.\n",
+	     pd,transverse_edge[0],transverse_edge[1],cr);
+    exit(1);
+
+  }
+  
+}
+
 
 pd_code_t *pd_flype(pd_code_t *pd,pd_idx_t e[4], pd_idx_t f[4])
 
@@ -590,9 +721,12 @@ pd_code_t *pd_flype(pd_code_t *pd,pd_idx_t e[4], pd_idx_t f[4])
   */
 
 {
-  pd_idx_t i,j;
+  pd_idx_t i;
   assert(pd != NULL);
   for(i=0;i<4;i++) { pd_check_edge(SRCLOC,pd,e[i]); pd_check_face(SRCLOC,pd,f[i]); }
+
+  return NULL;
+}
 
   /* A flype operates on a tangle in the form
 
@@ -615,49 +749,6 @@ pd_code_t *pd_flype(pd_code_t *pd,pd_idx_t e[4], pd_idx_t f[4])
 
   */
   
-  pd_idx_t ntangle_cross, *tangle_cross;
-  pd_idx_t ntangle_edge, *tangle_edge;
-
-  pd_tangle_contents(pd,e,f,
-		     &ntangle_cross,&tangle_cross,
-		     &ntangle_edge,&tangle_edge);
-
-  /* We'll need access to the orientation data, too. */
-
-  pd_boundary_or_t edge_bdy_or[4];
-  pd_idx_t in_edges[2], out_edges[2];
-
-  pd_tangle_bdy_orientation(pd,e,f,edge_bdy_or,
-			    in_edges,out_edges);
-
-  /* We can find the crossing cr by taking the end of the 
-     edge e[0] inside the tangle. */
-
-  if (edge_bdy_or[0] == in) { cr = pd->edge[e[0]].head; }
-  else { cr = pd->edge[e[0]].tail; }
-
-  /* But it's wise to check that this agrees with the same
-     test done on e[1]. */
-
-  if (edge_bdy_or[1] == in) { 
-    assert(cr == pd->edge[e[1]].head); 
-  } else { 
-    assert(cr == pd->edge[e[1]].tail); 
-  }
-      
-  /* We also should check that this crossing is listed in-tangle. */    
-
-  bool found_in_tangle = false;
-  for(j=0;j<ntangle_cross;j++) { if (tangle_cross[j] == cr) { found_in_tangle = true; } }
-
-  if (!found_in_tangle) { 
-    
-    pd_error(SRCLOC,"edges e[0] = %EDGE and e[1] = %EDGE share crossing %CROSS, but this isn't listed in-tangle\n"
-	     "in %PD.\n",
-	     pd,e[0],e[1],cr);
-    exit(1);
-
-  }
 
   /* Ok, that's all the self-checking that we can do... 
      We have now identified the crossing, and are ready to do the actual sewing. 
