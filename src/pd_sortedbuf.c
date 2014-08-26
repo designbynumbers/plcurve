@@ -64,6 +64,35 @@ pd_idx_t *pd_sortedbuf_insert(pd_idx_t *buf,pd_idx_t *nelems,pd_idx_t insert)
 /* Inserts "insert" into the buffer, maintaining sort order, 
    and making the buffer bigger if needed. */
 {
+  /* First, we deal with the special case where the buffer doesn't exist yet */
+  /* And lock out various weird variants of this. */
+
+  if (buf == NULL) {
+
+    if (*nelems == 0) { /* This is legit: no inserts have happened yet */
+
+      pd_idx_t *newbuf = malloc(1*sizeof(pd_idx_t));
+      assert(newbuf != NULL);
+      *nelems = 1;
+      newbuf[0] = insert;
+      return newbuf;
+      
+    } else { /* Weird. We can't have > 0 elements without a buffer to put them in. */
+
+      pd_error(SRCLOC,"called with buffer that claims to contain %d elements, but is a NULL pointer",NULL,*nelems);
+      exit(1);
+
+    }
+
+  }
+
+  if (*nelems == 0 && buf != NULL) { 
+
+    pd_error(SRCLOC,"called with non-null buffer, but element count 0\n",NULL);
+    exit(1);
+
+  }
+  
   pd_idx_t *pos = bsearch(&insert,buf,(size_t)(*nelems),sizeof(pd_idx_t),pd_idx_cmp);
 
   if (pos != NULL) { /* This is already IN the array. */
@@ -81,6 +110,7 @@ pd_idx_t *pd_sortedbuf_insert(pd_idx_t *buf,pd_idx_t *nelems,pd_idx_t insert)
 
     newbuf[0] = insert; 
     memcpy(&(newbuf[1]),buf,(size_t)(*nelems * sizeof(pd_idx_t)));
+    (*nelems) = (*nelems) + 1;
     return newbuf;
 
   } 
@@ -89,7 +119,7 @@ pd_idx_t *pd_sortedbuf_insert(pd_idx_t *buf,pd_idx_t *nelems,pd_idx_t insert)
   
   for(i=1,j=1;i<*nelems;i++,j++) { 
 
-    if (newbuf[i-1] < insert && insert < newbuf[i]) { 
+    if (buf[i-1] < insert && insert < buf[i]) { 
       
       newbuf[j] = insert;
       j++; 
@@ -97,6 +127,12 @@ pd_idx_t *pd_sortedbuf_insert(pd_idx_t *buf,pd_idx_t *nelems,pd_idx_t insert)
     }
     
     newbuf[j] = buf[i];
+
+  }
+
+  if (i == j) { /* This is an end insert */
+
+    newbuf[j] = insert;
 
   }
 

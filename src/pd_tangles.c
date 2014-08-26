@@ -66,6 +66,105 @@ bool pd_xor(bool a, bool b) {
 
 }
 
+pd_tangle_t *pd_tangle_new(pd_idx_t nedges) 
+/* Creates space for a new tangle, including strands and orientations. */
+{
+
+  if (nedges == 0) { 
+
+    pd_error(SRCLOC,"can't allocate tangle with 0 edges\n",NULL);
+    exit(1);
+
+  }
+
+  if (nedges % 2 == 1) { 
+
+    pd_error(SRCLOC,"can't allocate a tangle with an odd number "
+	     "of boundary edges %d\n",NULL,nedges);
+    exit(1);
+
+  }
+
+  pd_tangle_t *t = calloc(1,sizeof(pd_tangle_t));
+  assert(t != NULL);
+
+  t->nedges = nedges;
+  t->nstrands = nedges/2;
+
+  t->edge = calloc(t->nedges,sizeof(pd_idx_t));
+  assert(t->edge != NULL);
+
+  t->face = calloc(t->nedges,sizeof(pd_idx_t));
+  assert(t->face != NULL);
+
+  t->edge_bdy_or = calloc(t->nedges,sizeof(pd_boundary_or_t));
+  assert(t->edge_bdy_or != NULL);
+
+  t->strand = calloc(t->nstrands,sizeof(pd_tangle_strand_t));
+  assert(t->strand != NULL);
+
+  t->ninterior_cross = 0;
+  t->interior_cross = NULL;
+  
+  t->ninterior_edges = 0;
+  t->interior_edge = NULL;
+
+  return t;
+
+}
+
+void pd_tangle_free(pd_tangle_t **T)
+/* Carefully frees all memory associate with a tangle */
+{
+  if ((*T) == NULL) { return; } 
+  pd_tangle_t *t = (*T);
+  
+  t->nedges = 0;
+  t->nstrands = 0;
+
+  if (t->edge != NULL) { 
+  
+    free(t->edge);
+    t->edge = NULL;
+
+  }
+
+  if (t->face != NULL) { 
+
+    free(t->face);
+    t->face = NULL;
+
+  }
+  
+  if (t->edge_bdy_or != NULL) { 
+
+    free(t->edge_bdy_or);
+    t->edge_bdy_or = NULL;
+
+  }
+
+  t->ninterior_cross = 0;
+
+  if (t->interior_cross != NULL) {
+
+    free(t->interior_cross);
+    t->interior_cross = NULL;
+
+  }
+
+  t->ninterior_edges = 0;
+
+  if (t->interior_edge != NULL) {
+
+    free(t->interior_edge);
+    t->interior_edge = NULL;
+
+  }
+
+  free(t);
+
+}
+  
 bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t) 
 /* 
    Checks to see that the edge and face data in t
@@ -222,12 +321,14 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
   }
 
   /* We're now going to try to test-walk each strand to verify that the
-     number of edges and the start and end data is ok. */
+     number of edges and the start and end data is ok. Remember that the 
+     start and end edge DO count in the total count of edges in a strand,
+     so we should start with the number of found edges (j) equal to 1.*/
 
   for(i=0;i<t->nstrands;i++) { 
 
     pd_idx_t edge;
-    for(edge = t->strand[i].start_edge, j=0; 
+    for(edge = t->strand[i].start_edge, j=1; 
 	edge != t->strand[i].end_edge && j != t->strand[i].nedges;
 	j++,edge = pd_next_edge(pd,edge)) { }
 
@@ -296,8 +397,9 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
      code. 
 
      We can check that they are allocated, however, and in fact that they refer 
-     to valid crossing and edge numbers, and we do this in the spirit of checking
-     for data corruption wherever it might crop up. */
+     to valid crossing and edge numbers, and that they are ordered and unique, 
+     and we do this in the spirit of checking for data corruption wherever it 
+     might crop up. */
      
   pd_check_notnull(SRCLOC,"t->interior_cross",t->interior_cross);
   pd_check_notnull(SRCLOC,"t->interior_edge",t->interior_edge);
@@ -342,10 +444,56 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
   for(i=0;i<t->ninterior_edges;i++) { 
 
-    pd_check_cr(SRCLOC,pd,t->interior_edge[i]);
+    pd_check_edge(SRCLOC,pd,t->interior_edge[i]);
 
   }
 
+  /* Now we check ordering. */
+
+  for(i=1;i<t->ninterior_cross;i++) { 
+
+    if (t->interior_cross[i-1] > t->interior_cross[i]) { 
+
+      pd_error(SRCLOC,"list of interior crossings in %TANGLE "
+	       "is not in order",pd,t);
+
+    } 
+
+  }
+
+  for(i=1;i<t->ninterior_cross;i++) { 
+
+    if (t->interior_cross[i-1] == t->interior_cross[i]) { 
+
+      pd_error(SRCLOC,"list of interior crossings in %TANGLE "
+	       "contains duplicate element at positions %d-%d",pd,t,i-1,i);
+
+    } 
+
+  }
+
+  for(i=1;i<t->ninterior_edges;i++) { 
+
+    if (t->interior_edge[i-1] > t->interior_edge[i]) { 
+
+      pd_error(SRCLOC,"list of interior crossings in %TANGLE "
+	       "is not in order",pd,t);
+
+    }
+
+  }
+
+  for(i=1;i<t->ninterior_edges;i++) { 
+
+    if (t->interior_edge[i-1] == t->interior_edge[i]) { 
+
+      pd_error(SRCLOC,"list of interior crossings in %TANGLE "
+	       "contains duplicate element at positions %d-%d",pd,t,i-1,i);
+
+    }
+
+  }
+    
   /* We've checked everything that we can! */
 
   return true;
@@ -487,6 +635,7 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 
       pd_idx_t pos;
       t->strand[s].nedges = 1;
+      t->strand[s].start_edge = t->edge[i];
       pd_component_and_pos(pd,t->edge[i],&(t->strand[s].comp),&pos);
 
       pd_idx_t j;
@@ -651,6 +800,10 @@ void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,pd_idx_t edge,pd_idx_t 
     return;
 
   }
+
+  /* If we haven't seen it, we need to add the crossing to the list of interior crossings. */
+
+  t->interior_cross = pd_sortedbuf_insert(t->interior_cross,&(t->ninterior_cross),cr);
 
   /* Now we'll need to figure out the outgoing edges and recurse on them. 
      The first recursion target is easy-- it's just the next edge. */

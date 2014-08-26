@@ -665,7 +665,7 @@ extern "C" {
 
     pd_idx_t start_edge;  /* Edge number (in pd) where the strand enters the tangle. */
     pd_idx_t end_edge;    /* Edge number (in pd) where the strand exits the tangle. */
-    pd_idx_t nedges;      /* Number of edges in tangle (counting start, end) */
+    pd_idx_t nedges;      /* Number of edges incident to tangle (counting start, end) */
     pd_idx_t comp;        /* Component (in pd) containing this strand. */
 
   } pd_tangle_strand_t;
@@ -692,7 +692,7 @@ extern "C" {
   bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t);
 
   pd_tangle_t *pd_tangle_new(pd_idx_t nedges);
-  void *pd_tangle_free(pd_tangle_t **t);
+  void pd_tangle_free(pd_tangle_t **t);
 
   void pd_regenerate_tangle(pd_code_t *pd,pd_tangle_t *t);
   /* The usual procedure for generating a tangle is to specify the loop of 

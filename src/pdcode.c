@@ -3157,6 +3157,26 @@ char *pd_print_idx(pd_idx_t idx)
   return out;
 }
 
+char *pd_print_boundary_or(pd_boundary_or_t or)
+/* Returns a character string containing "in", "out", or "?".
+   It's the user's responsibility to dispose of the buffer. */
+{
+  char *outbuf;
+  outbuf = calloc(32,sizeof(char));
+  assert(outbuf != NULL);
+
+  if (or == in) { 
+    sprintf(outbuf," in");
+  } else if (or == out) { 
+    sprintf(outbuf,"out");
+  } else {
+    sprintf(outbuf,"  ?");
+  }
+
+  return outbuf;
+}
+  
+
 char *pd_print_pos(pd_idx_t pos)
 /* Returns the index, either sprintf'd to an unsigned type,
    or the string "PD_UNSET_POS" if this is equal to PD_UNSET_POS.
@@ -3366,6 +3386,83 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	exit(1);
 
       }
+
+    } else if (!strncmp(nxtconv,"%TANGLE",7)) { /* %TANGLE conversion */
+
+      pd_tangle_t *t = (pd_tangle_t *) va_arg(ap,void *);
+      pd_idx_t edge,face;
+
+      fprintf(stream,"tangle (\n\tedge loop: ");
+      for(edge=0;edge<t->nedges;edge++) {
+
+	char *ed,*bdo;
+	ed = pd_print_idx(t->edge[edge]);
+	bdo = pd_print_boundary_or(t->edge_bdy_or[edge]);
+	fprintf(stream," %s (%s) ->",ed,bdo);
+	free(ed);
+	free(bdo);
+	  
+      }
+
+      fprintf(stream,"\n\tface loop: ");
+      for(face=0;face<t->nedges;face++) {
+
+	char *ed;
+	ed = pd_print_idx(t->face[face]);
+	fprintf(stream," %s ->",ed);
+	free(ed);
+	  
+      }
+      
+      pd_idx_t strand;
+      for(strand=0;strand<t->nstrands;strand++) {
+
+	char *se,*ee,*ne,*cp;
+
+	se = pd_print_idx(t->strand[strand].start_edge);
+	ee = pd_print_idx(t->strand[strand].end_edge);
+	ne = pd_print_idx(t->strand[strand].nedges);
+	cp = pd_print_idx(t->strand[strand].comp);
+
+	fprintf(stream,"\n\tstrand: edge %s -> edge %s (%s edges, comp %s)",se,ee,ne,cp);
+
+	free(se); free(ee); free(ne); free(cp);
+
+      }
+
+      char *nic; 
+      nic = pd_print_idx(t->ninterior_cross);
+      fprintf(stream,"\n\t%s interior cross: ",nic);
+      free(nic);
+
+      pd_idx_t cr;
+      for(cr=0;cr<t->ninterior_cross;cr++) { 
+
+	char *ic;
+	ic = pd_print_idx(t->interior_cross[cr]);
+
+	fprintf(stream,"%s ",ic);
+	free(ic);
+
+      }
+
+      char *nie;
+      nie = pd_print_idx(t->ninterior_edges);
+      fprintf(stream,"\n\t%s interior edges: ",nie);
+      free(nie);
+      
+      for(edge=0;edge<t->ninterior_edges;edge++) { 
+
+	char *ie;
+	ie = pd_print_idx(t->interior_edge[edge]);
+
+	fprintf(stream,"%s ",ie);
+	free(ie);
+
+      }
+      
+      fprintf(stream,")\n");
+      nxtconv += 7;
 
     } else if (!strncmp(nxtconv,"%CROSSPTR",9)) { /* %CROSSPTR conversion */
 
