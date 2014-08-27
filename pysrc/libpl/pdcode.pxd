@@ -132,6 +132,7 @@ cdef extern from "plcTopology.h":
 
     pd_code_t *pd_read_KnotTheory(FILE *infile)
 
+    bool pd_diagram_isotopic(pd_code_t *pdA,pd_code_t *pdB)
     bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB)
     bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB)
 

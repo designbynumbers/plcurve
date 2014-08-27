@@ -698,19 +698,27 @@ cdef class PlanarDiagram:
 
     def __richcmp__(PlanarDiagram self, PlanarDiagram other_pd, int op):
         if op == 2:
-            return pd_isomorphic(self.p, other_pd.p)
+            return pd_diagram_isotopic(self.p, other_pd.p)
         elif op == 3:
-            return not pd_isomorphic(self.p, other_pd.p)
+            return not pd_diagram_isotopic(self.p, other_pd.p)
         else:
             raise NotImplementedError(
                 "PlanarDiagrams do not support relative comparisons.")
 
+    def isotopic(self, PlanarDiagram other_pd):
+        """isotopic(PlanarDiagram other_pd) -> bool
+
+        Returns whether or not this pdcode is diagram-isotopic to the
+        input pdcode ``other_pd``. This is equivalent to ``pd ==
+        other`` or ``not pd != other``.
+        """
+        return pd_diagram_isotopic(self.p, other_pd.p)
+
     def isomorphic(self, PlanarDiagram other_pd):
         """isomorphic(PlanarDiagram other_pd) -> bool
 
-        Returns whether or not this pdcode is isomorphic to the input
-        pdcode ``other_pd``. This is equivalent to ``pd == other`` or
-        ``not pd != other``.
+        Returns whether or not this pdcode shadow is isomorphic to the
+        input pdcode ``other_pd``.
         """
         return pd_isomorphic(self.p, other_pd.p)
 

@@ -1,6 +1,6 @@
 if BUILD_PYTHON
 
-PY_FILES = __init__.py
+PY_FILES = __init__.py data.py
 PYX_FILES = plcurve.pyx pdcode.pyx tsmcmc.pyx pdstor.pyx
 PXD_FILES = plcurve.pxd pdcode.pxd plCurve_h.pxd tsmcmc.pxd gsl_rng.pxd
 
@@ -19,7 +19,7 @@ clean-local:
 	popd
 	rm -r built_doc 2> /dev/null || true
 
-install-exec-local:
+install-exec-local: data
 	$(PYTHON) $(SETUP_PY) install --prefix=$(prefix)
 
 check-local:
@@ -32,5 +32,7 @@ libpl:
 	mkdir -p libpl
 $(CPY_FILES): %: $(srcdir)/libpl/%
 	rsync -up $< libpl/$@
+data:
+	rsync -aup $(srcdir)/libpl/data libpl
 
 endif

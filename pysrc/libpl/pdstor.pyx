@@ -5,8 +5,10 @@ import pprint
 pp = pprint.PrettyPrinter(indent=2)
 import os
 import cPickle
+import libpl.data
 
 DEFAULT_PATH=os.path.join("data","pdstors")
+SOURCE_DIR=libpl.data.dir
 
 def bin_list_to_int(blist):
     return sum((i*2)**n for i,n in enumerate(reversed(blist)))
@@ -57,10 +59,41 @@ class ClassifyDatabase(object):
             if table_f:
                 table_f.close()
 
+    def load(self):
+        self.load_rolfsen(
+            os.path.join(SOURCE_DIR,"rolfsennames.txt"),
+            os.path.join(SOURCE_DIR,"rolfsentable.txt"))
+        self.load_thistlethwaite(
+            os.path.join(SOURCE_DIR,"thistlethwaitenames.txt"),
+            os.path.join(SOURCE_DIR,"thistlethwaitetable.txt"))
+
     def load_rolfsen(self, names_fname, table_fname):
         self._load_names_and_table(names_fname, table_fname, self.KNOT)
     def load_thistlethwaite(self, names_fname, table_fname):
         self._load_names_and_table(names_fname, table_fname, self.LINK)
+
+    def classify(self, pd):
+        mpd = pd.copy() # mirrored
+        for x in mpd.crossings:
+            x.sign = (x.sign+1)%2
+        homfly, ncross, ncomps = pd.homfly(), pd.ncross, pd.ncomps
+        mhomfly = mpd.homfly()
+        if homfly == "1":
+            return ["Unknot[]",], ["Unknot[]",]
+
+        filtered, mfiltered = [], []
+        if homfly in self.cls_dict:
+            for match_name, _, match_pd in self.cls_dict[homfly]:
+                if match_pd.ncross == ncross and match_pd.ncomps == ncomps:
+                    assert match_pd == pd
+                    filtered.append(match_name)
+        if mhomfly in self.cls_dict:
+            for match_name, _, match_pd in self.cls_dict[mhomfly]:
+                if match_pd.ncross == ncross and match_pd.ncomps == ncomps:
+                    assert match_pd == mpd
+                    mfiltered.append(match_name)
+        return filtered,mfiltered
+
 
 class PDStoreExpander(object):
     def __init__(self, dirloc=DEFAULT_PATH,
