@@ -518,40 +518,40 @@ bool tangle_testA() {
 /*  /              (5)             / \               (3)              \       */
 /* /                              14  10                                \      */
 /* \                 +-------------+---+----<-----------+-+            /      */
-/*  \   _____^____7__|_            v(12)v        ____2___v_|__         /       */
+/*  \   _____<____7__|_            v(12)v        ____2___v_|__         /       */
 /*   \ /        (11) | \            \ /        / (10)     |  \       /        */
 /*    \              |  \            \__15_^_________16_^_|___\ ____/         */
 /*   /7\____^____12__|__ \  __^_11__/9       /2           |   3\              */
 /*  /                |   6\                 ^             |     \             */
 /*  \                v     ^      (0)      1              |     /             */
 /*   \        (4)    |      6             /           (2) |    /              */
-/*    \             _|______ \ ___^__18_______^__         ^   /               */
+/*    \             _|______ \ ___<__18__________         ^   /               */
 /*     \          19 |       5\         /1       \        |  3     (1)        */
 /*      8         /  |         ^  (7)  ^          \       | /                 */
 /*       \       /   |          \     0            \      |/                  */
 /*        \     /    |           5   /             21     |                   */
-/*         ^   ^     | (9)        \ /                \    |                   */
+/*         v   v     | (9)        \ /                \    |                   */
 /*          \ /      |             \        (6)       \ / |                   */
 /*           /       |            /0\                  /  |<--tangle          */
 /*          /8\      |           /   \                /4\ |                   */
 /*         /   \     |          /     ^              /   \|                   */
-/*        /     \____|___^_9___/      \_________4___/     |                   */
+/*        /     \____|___>_9___/      \_________4___/     |                   */
 /*       /           |                                    |\                  */
 /*      /            |          (8)                       | \                 */
 /*      \            +-------------------->---------------+ /                 */
 /*       \                                                 /                  */
-/*        \_____________________20_______^________________/                   */
+/*        \_____________________20_______>________________/                   */
 
 pd_idx_t nedges = 10;
 pd_idx_t tangle_faces[10] = {8,1,2,10,3,12,5,11,4,9};
 pd_idx_t tangle_edges[10] = {20,3,16,2,10,14,7,12,19,9};
-pd_boundary_or_t edge_bdy_or[10] = {in,in,out,out,in,in,out,out,in,out};
+pd_boundary_or_t edge_bdy_or[10] = {in,in,out,out,in,in,out,out,out,in};
 
 pd_idx_t ninterior_cross = 7;
 pd_idx_t interior_cross[7] = {0,1,2,4,5,6,9};
 
-pd_idx_t ninterior_edges = 7;
-pd_idx_t interior_edge[7] = {0,1,5,6,18,11,15};
+pd_idx_t ninterior_edges = 9;
+pd_idx_t interior_edge[9] = {0,1,4,5,6,11,15,18,21};
 
 
   printf("---------------------------------------\n"
@@ -604,7 +604,7 @@ pd_idx_t interior_edge[7] = {0,1,5,6,18,11,15};
 
       printf("fail (list of boundary orientations for tangles doesn't match expected at pos %d)\n",i);
 
-      printf("found:");
+      printf("found:   ");
 
       for(j=0;j<t->nedges;j++) {
 
@@ -653,7 +653,7 @@ pd_idx_t interior_edge[7] = {0,1,5,6,18,11,15};
 
         printf("fail (list of interior crossings doesn't match expected at pos %d)\n",i);
 
-        printf("found:");
+        printf("found:   ");
 
         for(j=0;j<t->ninterior_cross;j++) {
 
@@ -701,7 +701,7 @@ pd_idx_t interior_edge[7] = {0,1,5,6,18,11,15};
 
         printf("fail (list of interior edges doesn't match expected at pos %d)\n",i);
 
-        printf("found:");
+        printf("found:    ");
 
         for(j=0;j<t->ninterior_edges;j++) {
 

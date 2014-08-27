@@ -120,7 +120,6 @@ void pd_tangle_free(pd_tangle_t **T)
   pd_tangle_t *t = (*T);
   
   t->nedges = 0;
-  t->nstrands = 0;
 
   if (t->edge != NULL) { 
   
@@ -140,6 +139,15 @@ void pd_tangle_free(pd_tangle_t **T)
 
     free(t->edge_bdy_or);
     t->edge_bdy_or = NULL;
+
+  }
+
+  t->nstrands = 0;
+
+  if (t->strand != NULL) { 
+
+    free(t->strand);
+    t->strand = NULL;
 
   }
 
@@ -252,6 +260,9 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
     }
  
   }
+
+  free(pos_face); pos_face = NULL;
+  free(neg_face); neg_face = NULL;
 
   /* We now check edge_bdy_or */
 

@@ -111,6 +111,7 @@ pd_idx_t *pd_sortedbuf_insert(pd_idx_t *buf,pd_idx_t *nelems,pd_idx_t insert)
     newbuf[0] = insert; 
     memcpy(&(newbuf[1]),buf,(size_t)(*nelems * sizeof(pd_idx_t)));
     (*nelems) = (*nelems) + 1;
+    free(buf);
     return newbuf;
 
   } 
