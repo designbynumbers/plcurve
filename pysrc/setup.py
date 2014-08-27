@@ -20,6 +20,6 @@ extensions = [
 setup(
     name = "libpl",
     packages = ["libpl"],
-    package_data={"libpl": ["*.pxd", "data/*.txt"]},
+    package_data={"libpl": ["*.pxd", "data/*.txt", "util/*.py"]},
     ext_modules = cythonize(extensions),
 )

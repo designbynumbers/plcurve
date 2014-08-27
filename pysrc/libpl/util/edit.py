@@ -1,0 +1,17 @@
+import spherogram
+from .. import pdcode as pdc
+import Tkinter
+
+def pd_edit(pd):
+    """pd_edit(pd) -> new PlanarDiagram
+
+    Open a plink editor for the input planar diagram object. On
+    completion, returns a new PlanarDiagram object.
+    """
+    editor = spherogram.Link(pd.pdcode()).view()
+    Tkinter.mainloop()
+    return pdc.PlanarDiagram.from_pdcode(editor.PD_code())
+
+if __name__ == "__main__":
+    tref = pdc.PlanarDiagram.torus_knot(2,3)
+    print repr(pd_edit(tref))

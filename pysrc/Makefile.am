@@ -7,7 +7,7 @@ PXD_FILES = plcurve.pxd pdcode.pxd plCurve_h.pxd tsmcmc.pxd gsl_rng.pxd
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
-all-local: $(CPY_FILES)
+all-local: $(CPY_FILES) util
 	$(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src -L$(abs_top_builddir)/src/.libs
 
 PYLIBS = tsmcmc.so pdcode.so plcurve.so
@@ -34,5 +34,7 @@ $(CPY_FILES): %: $(srcdir)/libpl/%
 	rsync -up $< libpl/$@
 data:
 	rsync -aup $(srcdir)/libpl/data libpl
+util:
+	rsync -aup $(srcdir)/libpl/util libpl
 
 endif

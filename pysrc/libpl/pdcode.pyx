@@ -1099,8 +1099,37 @@ cdef class PlanarDiagram:
                 x_temp[3] = o_in
                 x_temp[1] = o_out
 
-            pdcode.append(x_temp)
+            pdcode.append(tuple(x_temp))
         return pdcode
+
+    @classmethod
+    def from_pdcode(cls, pdcode):
+        cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+        cdef pd_code_t* pd
+        cdef pd_idx_t ncross = len(pdcode)
+        cdef pd_idx_t off = min([min(x) for x in pdcode])
+        pd = pd_code_new(ncross+2)
+        newobj.p = pd
+        pd.ncross = ncross
+        pd.nedges = ncross*2
+        pd.nfaces = ncross+2
+
+        # run through the crossings in the pdcode list
+        for i,x in enumerate(pdcode):
+            for pos in (0,1,2,3):
+                pd.cross[i].edge[pos] = x[pos] - off
+            if x[3] - x[1] == 1:
+                pd.cross[i].sign = PD_NEG_ORIENTATION
+            elif x[1] - x[3] == 1:
+                pd.cross[i].sign = PD_POS_ORIENTATION
+            elif x[1] > x[3]:
+                pd.cross[i].sign = PD_NEG_ORIENTATION
+            else:
+                pd.cross[i].sign = PD_POS_ORIENTATION
+
+        pd_regenerate(pd)
+        newobj.regenerate_py_os()
+        return newobj
 
     cdef regenerate_py_os(self):
         cdef int i
