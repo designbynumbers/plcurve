@@ -8,7 +8,7 @@ CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
 all-local: $(CPY_FILES) util
-	$(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src -L$(abs_top_builddir)/src/.libs
+	$(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src -L"$(abs_top_builddir)"/src/.libs
 
 PYLIBS = tsmcmc.so pdcode.so plcurve.so
 
@@ -26,7 +26,7 @@ check-local:
 	pushd $(srcdir)/test ; $(PYTHON) suite.py ; popd
 
 html-local: install
-	pushd $(srcdir)/doc ; make html BUILDDIR=$(abs_builddir)/built_doc ; popd
+	pushd $(srcdir)/doc ; make html BUILDDIR="$(abs_builddir)"/built_doc ; popd
 
 libpl:
 	mkdir -p libpl

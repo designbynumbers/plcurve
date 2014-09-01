@@ -1114,18 +1114,36 @@ cdef class PlanarDiagram:
         pd.nedges = ncross*2
         pd.nfaces = ncross+2
 
+        # tail dictionary for consistency checking
+        tails = dict()
+
         # run through the crossings in the pdcode list
         for i,x in enumerate(pdcode):
             for pos in (0,1,2,3):
                 pd.cross[i].edge[pos] = x[pos] - off
+            tails[x[2]] = i
             if x[3] - x[1] == 1:
-                pd.cross[i].sign = PD_NEG_ORIENTATION
+                if x[3] not in tails:
+                    tails[x[3]] = i
+                    pd.cross[i].sign = PD_NEG_ORIENTATION
+                else:
+                    tails[x[1]] = i
+                    pd.cross[i].sign = PD_POS_ORIENTATION
             elif x[1] - x[3] == 1:
-                pd.cross[i].sign = PD_POS_ORIENTATION
+                if x[1] not in tails:
+                    tails[x[1]] = i
+                    pd.cross[i].sign = PD_POS_ORIENTATION
+                else:
+                    tails[x[3]] = i
+                    pd.cross[i].sign = PD_NEG_ORIENTATION
             elif x[1] > x[3]:
+                tails[x[3]] = i
                 pd.cross[i].sign = PD_NEG_ORIENTATION
-            else:
+            elif x[3] < x[1]:
+                tails[x[1]] = i
                 pd.cross[i].sign = PD_POS_ORIENTATION
+            else:
+                raise Exception("Error in pdcode or pdcode reader")
 
         pd_regenerate(pd)
         newobj.regenerate_py_os()
