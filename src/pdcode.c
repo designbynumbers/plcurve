@@ -3077,10 +3077,18 @@ ones we don't need.
      If they differ by more than one, the strand indices are wrapping
      around, and the strand goes in the "down" direction.
 
-     For a 2 edge component, this is genuinely ambiguous, for all
-     others, we can use the rule:
+     For a 2 edge component, we're going to need a better algorithm:
 
-    */
+        If the two-edge component lies OVER the remainder of the link,
+	its' orientation is genuinely unspecified by the KnotTheory 
+	data. In this case, we can assign either orientation to the 
+	component, but must do so consistently.
+
+	If the two-edge component is Hopf-linked to the rest of the link,
+	it's orientation IS specified, but only by the crossing where it
+	goes UNDER.
+
+    */  
 
     if (pd->cross[cr].edge[3] - pd->cross[cr].edge[1] == 1) { // 1 -> 3
 
@@ -3105,6 +3113,304 @@ ones we don't need.
   pd->ncross = crbuf_used;
   pd->nedges = 2*crbuf_used;
   pd->nfaces = crbuf_used + 2;
+
+  /* We now search for two-edge components in the list. Unfortunately,
+     none of the existing "regenerate" codes are going to do the trick here,
+     because they all resort the crossings, losing the information we'll
+     need to correct our past errors (if any). 
+  */
+
+  pd_idx_t crA, crB;
+
+  for(crA=0;crA<pd->ncross-1;crA++) { 
+
+    for(crB=crA+1;crB<pd->ncross;crB++) { 
+
+
+      /*       +----------------+        
+	       |                |        
+	       |0               |2        
+	   1   |    3        3  |   1     
+	+-------------->---------------+
+	 crA   |                |   crB     
+	       |2               |0        
+	       |                |        
+	       +------->--------+        
+
+      */
+
+      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[0] && 
+	  pd->cross[crB].edge[0] == pd->cross[crA].edge[2] &&
+	  pd->cross[crB].edge[3] == pd->cross[crA].edge[3]) {
+
+	pd->cross[crB].sign = PD_POS_ORIENTATION;
+	pd->cross[crA].sign = PD_NEG_ORIENTATION;
+
+      }
+
+      
+      /*       +----------------+        
+	       |                |        
+	       |2               |0        
+	   3   |    1        1  |   3     
+	+-------------->---------------+
+	 crA   |                |   crB     
+	       |0               |2        
+	       |                |        
+	       +-------<--------+        
+
+      */
+
+      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[0] && 
+	  pd->cross[crB].edge[0] == pd->cross[crA].edge[2] &&
+	  pd->cross[crB].edge[1] == pd->cross[crA].edge[1]) {
+
+	pd->cross[crB].sign = PD_NEG_ORIENTATION;
+	pd->cross[crA].sign = PD_POS_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |3               |3        
+	   0   |    2        0  |   2     
+	+------|------->--------|------+
+	 crA   |                |   crB     
+	       |1               |1        
+	       |                |        
+	       +-------<--------+       
+
+	   taken as default, instead of
+
+	       +----------------+        
+	       |                |        
+	       |3               |3        
+	   0   |    2        0  |   2     
+	+------|------->--------|------+
+	 crA   |                |   crB     
+	       |1               |1        
+	       |                |        
+	       +------->--------+       
+	       
+	   which has the same pd code.
+      */
+
+      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[1] && 
+	  pd->cross[crB].edge[1] == pd->cross[crA].edge[3] &&
+	  pd->cross[crB].edge[0] == pd->cross[crA].edge[2]) {
+
+	pd->cross[crB].sign = PD_POS_ORIENTATION;
+	pd->cross[crA].sign = PD_NEG_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |1               |1        
+	   2   |    0        2  |   0     
+	+------|-------<--------|------+
+	 crA   |                |   crB     
+	       |3               |3        
+	       |                |        
+	       +-------<--------+       
+
+	   taken as default, instead of
+
+	       +----------------+        
+	       |                |        
+	       |1               |1        
+	   2   |    0        2  |   0     
+	+------|-------<--------|------+
+	 crA   |                |   crB     
+	       |3               |3        
+	       |                |        
+	       +------->--------+       
+	       
+	   which has the same pd code.
+      */
+
+      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[1] && 
+	  pd->cross[crB].edge[1] == pd->cross[crA].edge[3] &&
+	  pd->cross[crB].edge[2] == pd->cross[crA].edge[0]) {
+
+	pd->cross[crB].sign = PD_NEG_ORIENTATION;
+	pd->cross[crA].sign = PD_POS_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |3               |2        
+	   0   |    2        3  |   1     
+	+------|------->---------------+
+	 crA   |                |   crB     
+	       |1               |0        
+	       |                |        
+	       +------->--------+        
+
+      */
+
+      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[3] && 
+	  pd->cross[crB].edge[0] == pd->cross[crA].edge[1] &&
+	  pd->cross[crB].edge[3] == pd->cross[crA].edge[2]) {
+
+	pd->cross[crB].sign = PD_POS_ORIENTATION;
+	pd->cross[crA].sign = PD_POS_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |1               |2        
+	   2   |    0        3  |   1     
+	+------|-------<---------------+
+	 crA   |                |   crB     
+	       |3               |0        
+	       |                |        
+	       +------->--------+        
+
+      */
+
+      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[1] && 
+	  pd->cross[crB].edge[0] == pd->cross[crA].edge[3] &&
+	  pd->cross[crB].edge[3] == pd->cross[crA].edge[0]) {
+
+	pd->cross[crB].sign = PD_NEG_ORIENTATION;
+	pd->cross[crA].sign = PD_NEG_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |1               |0        
+	   2   |    0        1  |   3     
+	+------|-------<---------------+
+	 crA   |                |   crB     
+	       |3               |2        
+	       |                |        
+	       +-------<--------+        
+
+      */
+
+      if (pd->cross[crB].edge[0] == pd->cross[crA].edge[1] && 
+	  pd->cross[crB].edge[3] == pd->cross[crA].edge[2] &&
+	  pd->cross[crB].edge[1] == pd->cross[crA].edge[0]) {
+
+	pd->cross[crB].sign = PD_POS_ORIENTATION;
+	pd->cross[crA].sign = PD_POS_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |3               |0        
+	   0   |    2        1  |   3     
+	+------|------->---------------+
+	 crA   |                |   crB     
+	       |1               |2        
+	       |                |        
+	       +-------<--------+        
+
+      */
+
+      if (pd->cross[crB].edge[0] == pd->cross[crA].edge[3] && 
+	  pd->cross[crB].edge[2] == pd->cross[crA].edge[1] &&
+	  pd->cross[crB].edge[1] == pd->cross[crA].edge[2]) {
+
+	pd->cross[crB].sign = PD_NEG_ORIENTATION;
+	pd->cross[crA].sign = PD_NEG_ORIENTATION;
+	
+      }
+
+
+      /*       +----------------+        
+	       |                |        
+	       |0               |3        
+	   1   |    3        0  |   2     
+	+-------------->--------|------+
+	 crA   |                |   crB     
+	       |2               |1        
+	       |                |        
+	       +------->--------+        
+
+      */
+
+      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[0] && 
+	  pd->cross[crB].edge[1] == pd->cross[crA].edge[2] &&
+	  pd->cross[crB].edge[0] == pd->cross[crA].edge[3]) {
+
+	pd->cross[crB].sign = PD_NEG_ORIENTATION;
+	pd->cross[crA].sign = PD_NEG_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |0               |1        
+	   1   |    3        2  |   0     
+	+--------------<--------|------+
+	 crA   |                |   crB     
+	       |2               |3        
+	       |                |        
+	       +------->--------+        
+
+      */
+
+      if (pd->cross[crB].edge[1] == pd->cross[crA].edge[0] && 
+	  pd->cross[crB].edge[3] == pd->cross[crA].edge[2] &&
+	  pd->cross[crB].edge[2] == pd->cross[crA].edge[3]) {
+
+	pd->cross[crB].sign = PD_POS_ORIENTATION;
+	pd->cross[crA].sign = PD_POS_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |0               |1        
+	   1   |    3        2  |   0     
+	+--------------<--------|------+
+	 crA   |                |   crB     
+	       |2               |3        
+	       |                |        
+	       +-------<--------+        
+
+      */
+
+      if (pd->cross[crB].edge[1] == pd->cross[crA].edge[0] && 
+	  pd->cross[crB].edge[3] == pd->cross[crA].edge[2] &&
+	  pd->cross[crB].edge[2] == pd->cross[crA].edge[3]) {
+
+	pd->cross[crB].sign = PD_NEG_ORIENTATION;
+	pd->cross[crA].sign = PD_NEG_ORIENTATION;
+	
+      }
+
+      /*       +----------------+        
+	       |                |        
+	       |0               |3        
+	   1   |    3        0  |   2     
+	+-------------->--------|------+
+	 crA   |                |   crB     
+	       |2               |1        
+	       |                |        
+	       +-------<--------+        
+
+      */
+
+      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[0] && 
+	  pd->cross[crB].edge[1] == pd->cross[crA].edge[2] &&
+	  pd->cross[crB].edge[0] == pd->cross[crA].edge[3]) {
+
+	pd->cross[crB].sign = PD_POS_ORIENTATION;
+	pd->cross[crA].sign = PD_POS_ORIENTATION;
+	
+      }
+
+    }
+
+  }
+
 
   /* We can now detect everything else by regenerating... */
 

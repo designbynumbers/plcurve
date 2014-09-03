@@ -330,13 +330,13 @@ int main() {{
 
     printf("=======================================================\n");
     printf("test_tangle_regenerate_auto:  PASS.\n");
-    exit(1);
+    exit(0);
 
   }} else {{
 
     printf("=====================================================\n");
     printf("test_tangle_regenerate_auto:  FAIL.\n");
-    exit(0);
+    exit(1);
 
   }}
 
