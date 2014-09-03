@@ -2188,12 +2188,12 @@ pd_code_t *pd_copy(pd_code_t *pd)
 /* Make a new-memory copy of pd. This can require some care, for instance if the face and comp arrays aren't allocated yet. */
 {
   pd_code_t *pdA;
-  pdA = pd_code_new(pd->MAXVERTS);
+  pdA = pd_code_new(pd->ncross);
 
-  assert(pdA->MAXVERTS      == pd->MAXVERTS);
-  assert(pdA->MAXEDGES      == pd->MAXEDGES);
-  assert(pdA->MAXCOMPONENTS == pd->MAXCOMPONENTS);
-  assert(pdA->MAXFACES      == pd->MAXFACES);
+  assert(pdA->MAXVERTS      >= pd->ncross);
+  assert(pdA->MAXEDGES      >= pd->nedges);
+  assert(pdA->MAXCOMPONENTS >= pd->ncomps);
+  assert(pdA->MAXFACES      >= pd->nfaces);
 
   pd_idx_t i, edge, cmp, face, cr;
 
@@ -2205,9 +2205,9 @@ pd_code_t *pd_copy(pd_code_t *pd)
   pdA->nfaces = pd->nfaces;
 
   for(i=0;i<PD_HASHSIZE;i++) { pdA->hash[i] = pd->hash[i]; }
-  for(edge=0;edge<pd->MAXEDGES;edge++) { pdA->edge[edge] = pd->edge[edge]; };
+  for(edge=0;edge<pd->nedges;edge++) { pdA->edge[edge] = pd->edge[edge]; };
 
-  for(cmp=0;cmp<pd->MAXCOMPONENTS;cmp++) {
+  for(cmp=0;cmp<pd->ncomps;cmp++) {
 
     assert(   (pd->comp[cmp].nedges == 0 && pd->comp[cmp].edge == NULL)
 	   || (pd->comp[cmp].nedges != 0 && pd->comp[cmp].edge != NULL));
@@ -2226,13 +2226,13 @@ pd_code_t *pd_copy(pd_code_t *pd)
 
   }
 
-  for(cr=0;cr<pdA->MAXVERTS;cr++) {
+  for(cr=0;cr<pdA->ncross;cr++) {
 
     pdA->cross[cr] = pd->cross[cr];
 
   }
 
-  for(face=0;face<pdA->MAXFACES;face++) {
+  for(face=0;face<pdA->nfaces;face++) {
 
     assert((pd->face[face].nedges == 0 && (pd->face[face].edge == NULL && pd->face[face].or == NULL)) ||
 	   (pd->face[face].nedges != 0 && (pd->face[face].edge != NULL && pd->face[face].or != NULL)));
