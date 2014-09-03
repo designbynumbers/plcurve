@@ -2187,6 +2187,12 @@ bool pd_ok(pd_code_t *pd) {
 pd_code_t *pd_copy(pd_code_t *pd)
 /* Make a new-memory copy of pd. This can require some care, for instance if the face and comp arrays aren't allocated yet. */
 {
+  if (pd->ncross == 0) { 
+
+    return pd_build_unknot(0);
+
+  }
+
   pd_code_t *pdA;
   pdA = pd_code_new(pd->ncross);
 
