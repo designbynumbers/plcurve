@@ -1,14 +1,18 @@
 import spherogram
+from plink import LinkEditor
 from .. import pdcode as pdc
 import Tkinter
 
-def pd_edit(pd):
+def pd_edit(pd=None):
     """pd_edit(pd) -> new PlanarDiagram
 
     Open a plink editor for the input planar diagram object. On
     completion, returns a new PlanarDiagram object.
     """
-    editor = spherogram.Link(pd.pdcode()).view()
+    if pd is not None:
+        editor = spherogram.Link(pd.pdcode()).view()
+    else:
+        editor = LinkEditor()
     Tkinter.mainloop()
     return pdc.PlanarDiagram.from_pdcode(editor.PD_code())
 

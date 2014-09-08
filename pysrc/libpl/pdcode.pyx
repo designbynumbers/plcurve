@@ -739,7 +739,10 @@ cdef class PlanarDiagram:
             raise Exception("Initialization for this PlanarDiagram is incomplete.")
 
     def _bounds(self):
+        print "MAXVERTS=%s" % self.p.MAXVERTS
         print "MAXEDGES=%s" % self.p.MAXEDGES
+        print "MAXCOMPONENTS=%s" % self.p.MAXCOMPONENTS
+        print "MAXFACES=%s" % self.p.MAXFACES
 
     def write(self, f):
         """write(file f)
