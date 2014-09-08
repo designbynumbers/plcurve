@@ -674,7 +674,7 @@ cdef class HOMFLYPolynomial:
 
     def __cinit__(self):
         self.terms = None
-    def __init__(self, str latex):
+    def __init__(self, str latex, bool sort=True):
         """Create a new HOMFLY polynomial from a LaTeX representation"""
         cdef object coeff, a_part, z_part, term
         # let's do this pythonically now and then improve it later
@@ -700,10 +700,16 @@ cdef class HOMFLYPolynomial:
                                      int(a_part),
                                      int(z_part)))
 
-        self.terms = tuple(result)
+        if sort:
+            self.terms = tuple(sorted(result))
+        else:
+            self.terms = tuple(result)
 
     def __getitem__(self, x):
-        return self.terms[x]
+        try:
+            return self.terms[x]
+        except IndexError:
+            raise
 
     def __invert__(HOMFLYPolynomial self):
         cdef HOMFLYPolynomial newpoly = HOMFLYPolynomial.__new__(HOMFLYPolynomial)
@@ -732,6 +738,8 @@ cdef class HOMFLYPolynomial:
         cdef HOMFLYTerm A,B
         if op == 2:
             return not (False in (A.equals(B) for A,B in zip(x.terms, y.terms)))
+        elif op == 3:
+            return False in (A.equals(B) for A,B in zip(x.terms, y.terms))
         else:
             raise NotImplementedError(
                 "Only equality checking implemented for HPs")
