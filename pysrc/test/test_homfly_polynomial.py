@@ -24,6 +24,8 @@ class TestHOMFLYPolynomial(unittest.TestCase):
         self.assertTrue(P_one == P_noone)
         self.assertTrue(P_one == P_minus)
 
+        # TODO: Write more tests
+
     def test_getitem(self):
         P_trivial = HOMFLYPolynomial("-a^{1}z^{-1} - a^{-1}z^{-1}")
         A = P_trivial[0]
@@ -46,6 +48,17 @@ class TestHOMFLYPolynomial(unittest.TestCase):
         Psquared = HOMFLYPolynomial("a^{2}z^{-2} + 2z^{-2} + a^{-2}z^{-2}")
 
         self.assertTrue(P*P == Psquared)
+
+    def test_richcmp(self):
+        A = HOMFLYPolynomial("-a^{-4} - 2a^{-2}z^{1} + a^{-2}z^{2}")
+        B = HOMFLYPolynomial("-a^{-4} - 2a^{-2}z^{1} + a^{-2}z^{2}")
+        C = HOMFLYPolynomial("-a^{-4} - 2a^{-2}z^{1}")
+
+        self.assertTrue(A == A)
+        self.assertTrue(A == B)
+        self.assertTrue(C == C)
+        self.assertFalse(A == C)
+        self.assertFalse(C == A)
 
 if __name__=="__main__":
     unittest.main()

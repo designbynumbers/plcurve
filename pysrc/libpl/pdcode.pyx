@@ -699,6 +699,7 @@ cdef class HOMFLYPolynomial:
             result.append(HOMFLYTerm(int(coeff),
                                      int(a_part),
                                      int(z_part)))
+        # TODO: Raise error on parse failure or inappropriate latex rep
 
         if sort:
             self.terms = tuple(sorted(result))
@@ -710,6 +711,8 @@ cdef class HOMFLYPolynomial:
             return self.terms[x]
         except IndexError:
             raise
+    def __len__(self):
+        return len(self.terms)
 
     def __invert__(HOMFLYPolynomial self):
         cdef HOMFLYPolynomial newpoly = HOMFLYPolynomial.__new__(HOMFLYPolynomial)
@@ -737,8 +740,12 @@ cdef class HOMFLYPolynomial:
     def __richcmp__(HOMFLYPolynomial x, HOMFLYPolynomial y, int op):
         cdef HOMFLYTerm A,B
         if op == 2:
+            if len(x.terms) != len(y.terms):
+                return False
             return not (False in (A.equals(B) for A,B in zip(x.terms, y.terms)))
         elif op == 3:
+            if len(x.terms) != len(y.terms):
+                return True
             return False in (A.equals(B) for A,B in zip(x.terms, y.terms))
         else:
             raise NotImplementedError(
