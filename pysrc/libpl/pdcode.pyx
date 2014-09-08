@@ -728,6 +728,8 @@ cdef class PlanarDiagram:
         Returns a memory deepcopy of this PlanarDiagram
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(self.__class__)
+        print "copying %s" % repr(self)
+        print "old maxedges = %s" % (self.p.MAXEDGES)
         newobj.p = pd_copy(self.p)
         newobj.regenerate_py_os()
         return newobj
@@ -735,6 +737,9 @@ cdef class PlanarDiagram:
     def assert_nonnull(self):
         if self.p is NULL:
             raise Exception("Initialization for this PlanarDiagram is incomplete.")
+
+    def _bounds(self):
+        print "MAXEDGES=%s" % self.p.MAXEDGES
 
     def write(self, f):
         """write(file f)
@@ -1065,7 +1070,7 @@ cdef class PlanarDiagram:
         if pyrng is None:
             try:
                 if self.ncross == 0:
-                    return (PlanarDiagram.copy(self),)
+                    return (self.copy(),)
                 if self.ncross == 1:
                     return (PlanarDiagram.unknot(0),)
                 neighbor = self.neighbors().next()
@@ -1073,7 +1078,7 @@ cdef class PlanarDiagram:
                 return sum((dia._simplify_helper(pyrng) for dia in neighbor),())
 
             except StopIteration:
-                return (PlanarDiagram.copy(self),)
+                return (self.copy(),)
 
     def ccode(self):
         return pdcode_to_ccode(self.p)
