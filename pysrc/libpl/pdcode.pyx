@@ -1065,7 +1065,7 @@ cdef class PlanarDiagram:
         if pyrng is None:
             try:
                 if self.ncross == 0:
-                    return (self,)
+                    return (PlanarDiagram.copy(self),)
                 if self.ncross == 1:
                     return (PlanarDiagram.unknot(0),)
                 neighbor = self.neighbors().next()
@@ -1073,7 +1073,7 @@ cdef class PlanarDiagram:
                 return sum((dia._simplify_helper(pyrng) for dia in neighbor),())
 
             except StopIteration:
-                return (self,)
+                return (PlanarDiagram.copy(self),)
 
     def ccode(self):
         return pdcode_to_ccode(self.p)
@@ -1250,3 +1250,12 @@ cdef class PlanarDiagram:
         if self.p is not NULL:
             pd_code_free(&self.p)
             self.p = NULL
+
+cdef api pd_code_t *Cy_pd_simplify(pd_code_t *pd, int *ndias):
+    cdef PlanarDiagram py_pd = PlanarDiagram_wrap(pd)
+    cdef tuple simp_dias = py_pd.simplify()
+    cdef PlanarDiagram simp = simp_dias[0]
+    cdef pd_code_t *ret = simp.p
+    ndias[0] = len(simp_dias)
+    simp.p = NULL # It's in our hands now
+    return ret
