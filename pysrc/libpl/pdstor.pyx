@@ -1,4 +1,4 @@
-from libpl.pdcode import PlanarDiagram
+from libpl.pdcode import PlanarDiagram, HOMFLYPolynomial
 from itertools import combinations, chain, compress, product
 from cpython cimport bool
 import pprint
@@ -20,82 +20,9 @@ SOURCE_DIR=libpl.data.dir
 def bin_list_to_int(blist):
     return sum((i*2)**n for i,n in enumerate(reversed(blist)))
 
-# Homfly polynomial format:
-# (welcome to improve this format and associated functions)
-# Tuple of tuples; element of interior tuple is format
-#   (coeff, power a, power z)
-# Ordering of interior tuples is:
-# Smallest coeff on a comes first, then smallest coeff on z.
-
-_latex_term_regex = re.compile("(-?[0-9]*)(a\\^\\{-?[0-9]+\\})?(z\\^\\{-?[0-9]+\\})?")
-_latex_coef_regex = re.compile("[az]\\^\\{(-?[0-9]+)\\}")
-
 # Some constant, common HOMFLY polynomials
-Punk = ((1, 0, 0),)                  # HOMFLY of trivial knot
-Ptlink = ((-1, -1, -1), (-1, 1, -1)) # HOMFLY of trivial split link
-
-# it might be better to work from the raw lmpoly str. but let's do this now
-cdef tuple _str_to_homfly(str latex):
-    """Change a latex-type homfly polynomial into our tuple format"""
-    cdef object coeff, a_part, z_part, term
-    # let's do this pythonically now and then improve it later
-    cdef list result = []
-    # change '- x' into '+ -x' for consistency
-    latex = latex.replace("- ", "+ -")
-    for term in latex.split(" + "):
-        coeff, a_part, z_part = _latex_term_regex.match(term).groups()
-        if coeff == "-":
-            coeff = -1
-        elif coeff == "":
-            coeff = 1
-        if a_part:
-            a_part = _latex_coef_regex.match(a_part).group(1)
-        else:
-            a_part = 0
-        if z_part:
-            z_part = _latex_coef_regex.match(z_part).group(1)
-        else:
-            z_part = 0
-
-        result.append((int(coeff),
-                       int(a_part),
-                       int(z_part)))
-
-    return tuple(result)
-
-cdef tuple _homfly_prod(tuple P_1, tuple P_2):
-    """Multiply two homfly polynomials; use the same ordering
-
-    Input is presupposed to have proper term ordering (actually TODO)"""
-    cdef dict found_terms = dict() # terms we already have so just add to
-    cdef list result = []
-    cdef int C_1, a_1, z_1
-    cdef int C_2, a_2, z_2
-    cdef tuple A
-    cdef int old_C
-
-    for C_1, a_1, z_1 in P_1:
-        for C_2, a_2, z_2 in P_2:
-            A = (a_1 + a_2, z_1 + z_2)
-            if A in found_terms:
-                old_C = result[found_terms[A]][0]
-                result[found_terms[A]] = (old_C + C_1 * C_2, A[0], A[1])
-            else:
-                found_terms[A] = len(result)
-                result.append((C_1 * C_2, A[0], A[1]))
-    return tuple(sorted(sorted(result,key=itemgetter(2)), key=itemgetter(1)))
-
-cdef tuple _homfly_inva(tuple P):
-    """Substitute a**-1 for a; i.e. flip all a powers"""
-    cdef list res = []
-    for C,a,z in P:
-        res.append((C,-a,z))
-    return tuple(sorted(res, key=itemgetter(1)))
-
-def hfly(str latex):
-    return _str_to_homfly(latex)
-def hfly_prd(tuple hA, tuple hB):
-    return _homfly_prod(hA, hB)
+Punk = HOMFLYPolynomial("1")
+Ptlink = HOMFLYPolynomial("-a^{1}z^{-1} + -a^{-1}z^{-1}")
 
 class ClassifyDatabase(object):
     KNOT=0
@@ -165,7 +92,7 @@ class ClassifyDatabase(object):
                 raise Exception("Two files differ in number of rows")
             for i, (name, pd_undir) in enumerate(self._iter_name_and_pd(names_f, table_f)):
                 for pd,_ in self.component_combinations(pd_undir):
-                    homfly = _str_to_homfly(pd.homfly())
+                    homfly = pd.homfly()
                     if homfly in self.cls_dict:
                         self.cls_dict[homfly].append((name, (filetype, i), pd))
                     else:
@@ -228,20 +155,20 @@ class ClassifyDatabase(object):
             n_sl = n_cs + 2 # As split link
 
             # HOMFLY of mirrored diagrams
-            Pastar = _homfly_inva(Pa)
-            Pbstar = _homfly_inva(Pb)
+            Pastar = ~Pa
+            Pbstar = ~Pb
 
             # Knot connected sum
-            Pab     = _homfly_prod(Pa, Pb)
-            Pabstar = _homfly_prod(Pa, Pbstar)
+            Pab     = (Pa * Pb)
+            Pabstar = (Pa * Pbstar)
             self.prod_dict[Pab]     = (1, Pa, Pb)
             self.prod_dict[Pabstar] = (1, Pa, Pbstar)
             self.prod_nx[Pab]     = n_cs
             self.prod_nx[Pabstar] = n_cs
 
             # Split links
-            Pabsplit     = _homfly_prod(Ptlink, Pab)
-            Pabstarsplit = _homfly_prod(Ptlink, Pabstar)
+            Pabsplit     = (Ptlink * Pab)
+            Pabstarsplit = (Ptlink * Pabstar)
             self.prod_dict[Pabsplit]     = (2, Pa, Pb)
             self.prod_dict[Pabstarsplit] = (2, Pa, Pbstar)
             self.prod_nx[Pabsplit]     = n_sl
@@ -252,12 +179,12 @@ class ClassifyDatabase(object):
             # WARNING: lmpoly is not returning the correct homfly for this
         for P in self.trim_dict.iterkeys():
             # Split link with unknot
-            Psplit = _homfly_prod(Ptlink, P)
+            Psplit = (Ptlink * P)
             self.prod_dict[Psplit] = (2, P, Punk)
             self.prod_nx[Psplit]   = self.trim_nx[Pa] + 2
 
     def classify_prime_homfly(self, homfly, ncross=1000):
-        mhomfly = _homfly_inva(homfly)
+        mhomfly = ~homfly
         if homfly == Punk:
             return (False, {0: [Result(0, 1, "Unknot[]", (0,-1), PlanarDiagram.unknot(0))]})
         if homfly in self.trim_dict and self.trim_nx[homfly] <= ncross:
@@ -273,8 +200,7 @@ class ClassifyDatabase(object):
         return self.classify_homfly(pd.homfly(), ncross=pd.ncross)
 
     def classify_homfly(self, homfly, ncross=1000):
-        homfly = _str_to_homfly(homfly)
-        mhomfly = _homfly_inva(homfly)
+        mhomfly = ~homfly
 
         p_res = (None, dict())
         c_res, c_mres = [], []

@@ -648,7 +648,7 @@ cdef class HOMFLYTerm:
         return self.alpha*1000+self.zeta
 
     def __str__(self):
-        cdef str cterm = "-" if self.C == -1 else ("" if self.C == 1 else self.C)
+        cdef str cterm = "-" if self.C == -1 else ("" if self.C == 1 else str(self.C))
         if self.alpha and self.zeta:
             return "%sa^{%s}z^{%s}"%(cterm, self.alpha, self.zeta)
         elif self.alpha:
