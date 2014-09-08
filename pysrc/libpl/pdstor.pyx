@@ -6,12 +6,96 @@ pp = pprint.PrettyPrinter(indent=2)
 import os
 import cPickle
 import libpl.data
+import re
+from itertools import combinations_with_replacement as combs
+from collections import namedtuple
+from operator import itemgetter
+
+Result = namedtuple('Result',
+                    'ncross ncomps ktname filepos pdcode')
 
 DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
 
 def bin_list_to_int(blist):
     return sum((i*2)**n for i,n in enumerate(reversed(blist)))
+
+# Homfly polynomial format:
+# (welcome to improve this format and associated functions)
+# Tuple of tuples; element of interior tuple is format
+#   (coeff, power a, power z)
+# Ordering of interior tuples is:
+# Smallest coeff on a comes first, then smallest coeff on z.
+
+_latex_term_regex = re.compile("(-?[0-9]*)(a\\^\\{-?[0-9]+\\})?(z\\^\\{-?[0-9]+\\})?")
+_latex_coef_regex = re.compile("[az]\\^\\{(-?[0-9]+)\\}")
+
+# Some constant, common HOMFLY polynomials
+Punk = ((1, 0, 0),)                  # HOMFLY of trivial knot
+Ptlink = ((-1, -1, -1), (-1, 1, -1)) # HOMFLY of trivial split link
+
+# it might be better to work from the raw lmpoly str. but let's do this now
+cdef tuple _str_to_homfly(str latex):
+    """Change a latex-type homfly polynomial into our tuple format"""
+    cdef object coeff, a_part, z_part, term
+    # let's do this pythonically now and then improve it later
+    cdef list result = []
+    # change '- x' into '+ -x' for consistency
+    latex = latex.replace("- ", "+ -")
+    for term in latex.split(" + "):
+        coeff, a_part, z_part = _latex_term_regex.match(term).groups()
+        if coeff == "-":
+            coeff = -1
+        elif coeff == "":
+            coeff = 1
+        if a_part:
+            a_part = _latex_coef_regex.match(a_part).group(1)
+        else:
+            a_part = 0
+        if z_part:
+            z_part = _latex_coef_regex.match(z_part).group(1)
+        else:
+            z_part = 0
+
+        result.append((int(coeff),
+                       int(a_part),
+                       int(z_part)))
+
+    return tuple(result)
+
+cdef tuple _homfly_prod(tuple P_1, tuple P_2):
+    """Multiply two homfly polynomials; use the same ordering
+
+    Input is presupposed to have proper term ordering (actually TODO)"""
+    cdef dict found_terms = dict() # terms we already have so just add to
+    cdef list result = []
+    cdef int C_1, a_1, z_1
+    cdef int C_2, a_2, z_2
+    cdef tuple A
+    cdef int old_C
+
+    for C_1, a_1, z_1 in P_1:
+        for C_2, a_2, z_2 in P_2:
+            A = (a_1 + a_2, z_1 + z_2)
+            if A in found_terms:
+                old_C = result[found_terms[A]][0]
+                result[found_terms[A]] = (old_C + C_1 * C_2, A[0], A[1])
+            else:
+                found_terms[A] = len(result)
+                result.append((C_1 * C_2, A[0], A[1]))
+    return tuple(sorted(sorted(result,key=itemgetter(2)), key=itemgetter(1)))
+
+cdef tuple _homfly_inva(tuple P):
+    """Substitute a**-1 for a; i.e. flip all a powers"""
+    cdef list res = []
+    for C,a,z in P:
+        res.append((C,-a,z))
+    return tuple(sorted(res, key=itemgetter(1)))
+
+def hfly(str latex):
+    return _str_to_homfly(latex)
+def hfly_prd(tuple hA, tuple hB):
+    return _homfly_prod(hA, hB)
 
 class ClassifyDatabase(object):
     KNOT=0
@@ -20,6 +104,11 @@ class ClassifyDatabase(object):
         self.cls_dict = dict()
         self.by_type = dict()
         self.by_ncross = dict()
+        self.prod_max_x = 0
+        self.prod_dict = dict()
+        self.prod_nx = dict()
+        self.trim_dict = dict()
+        self.trim_nx = dict()
 
     @classmethod
     def _iter_name_and_pd(self, names, table):
@@ -30,6 +119,35 @@ class ClassifyDatabase(object):
             del pd
             name = names.readline().strip()
             pd = PlanarDiagram.read_knot_theory(table)
+
+    @staticmethod
+    def component_sign_mask(pdc, signature):
+        new_pd = pdc.copy()
+        for comp in compress(range(len(new_pd.components)), signature):
+            new_pd.reorient_component(comp, 0)
+        return new_pd
+
+    comb_table = dict()
+    @classmethod
+    def _bin_strings(cls, n, amortize=True):
+        if amortize: # performance > memory
+            if n not in cls.comb_table:
+                cls.comb_table[n] = tuple(
+                    product([0,1], repeat=n))
+            return cls.comb_table[n]
+        else:
+            return product([0,1], repeat=n)
+
+    @classmethod
+    def component_combinations(cls, pdc, amortize=True):
+        """component_combinations(PlanarDiagram) -> generator(new
+        PlanarDiagrams, masks)
+
+        Generate all possible component direction permutations.
+        """
+        for comp_set in cls._bin_strings(len(pdc.components), amortize):
+            yield cls.component_sign_mask(pdc, comp_set), comp_set
+
 
     def _load_names_and_table(self, names_fname, table_fname, filetype):
         names_f = None
@@ -45,14 +163,15 @@ class ClassifyDatabase(object):
             count = int(names_count)
             if count != int(table_count):
                 raise Exception("Two files differ in number of rows")
-            for i, (name, pd) in enumerate(self._iter_name_and_pd(names_f, table_f)):
-                homfly = pd.homfly()
-                if homfly in self.cls_dict:
-                    self.cls_dict[homfly].append((name, (filetype, i), pd))
-                else:
-                    self.cls_dict[homfly] = [(name, (filetype, i), pd),]
-                if i >= count-1:
-                    break
+            for i, (name, pd_undir) in enumerate(self._iter_name_and_pd(names_f, table_f)):
+                for pd,_ in self.component_combinations(pd_undir):
+                    homfly = _str_to_homfly(pd.homfly())
+                    if homfly in self.cls_dict:
+                        self.cls_dict[homfly].append((name, (filetype, i), pd))
+                    else:
+                        self.cls_dict[homfly] = [(name, (filetype, i), pd),]
+                    if i >= count-1:
+                        break
         finally:
             if names_f:
                 names_f.close()
@@ -72,27 +191,111 @@ class ClassifyDatabase(object):
     def load_thistlethwaite(self, names_fname, table_fname):
         self._load_names_and_table(names_fname, table_fname, self.LINK)
 
-    def classify(self, pd):
-        mpd = pd.copy() # mirrored
-        for x in mpd.crossings:
-            x.sign = (x.sign+1)%2
-        homfly, ncross, ncomps = pd.homfly(), pd.ncross, pd.ncomps
-        mhomfly = mpd.homfly()
-        if homfly == "1":
-            return ["Unknot[]",], ["Unknot[]",]
+    def calculate_composites(self, max_n_cross):
+        """Use facts about HOMFLY polynomials to populate a new search table
+        which lists HOMFLYs for composite knots and split links
 
-        filtered, mfiltered = [], []
-        if homfly in self.cls_dict:
-            for match_name, _, match_pd in self.cls_dict[homfly]:
-                if match_pd.ncross == ncross and match_pd.ncomps == ncomps:
-                    assert match_pd == pd
-                    filtered.append(match_name)
-        if mhomfly in self.cls_dict:
-            for match_name, _, match_pd in self.cls_dict[mhomfly]:
-                if match_pd.ncross == ncross and match_pd.ncomps == ncomps:
-                    assert match_pd == mpd
-                    mfiltered.append(match_name)
-        return filtered,mfiltered
+        max_n_cross: Max number of crossings of the composite knots in the table
+        (warning: if this is too large, memory WILL be devoured without compassion)
+        """
+        self.prod_max_x = max_n_cross
+
+        # prepare trim_dict of crossing-limited entries
+        self.trim_dict = dict()
+        self.trim_nx = dict()
+        for P, bucket in self.cls_dict.iteritems():
+            nbuk = dict()
+            minx = max_n_cross
+            for res in bucket:
+                nx = res[2].ncross
+                if nx > max_n_cross:
+                    continue
+
+                minx = min(minx, nx)
+                nres = Result(nx, res[2].ncomps, res[0], res[1], res[2])
+                if nx in nbuk:
+                    nbuk[nx].append(nres)
+                else:
+                    nbuk[nx] = [nres]
+            if nbuk:
+                self.trim_dict[P] = nbuk
+                self.trim_nx[P] = minx
+
+        self.prod_dict = dict()
+        for Pa, Pb in combs(self.trim_dict.iterkeys(), 2):
+            # Smallest number of crossings which this prod can represent:
+            n_cs = self.trim_nx[Pa] + self.trim_nx[Pb] # As connected sum
+            n_sl = n_cs + 2 # As split link
+
+            # HOMFLY of mirrored diagrams
+            Pastar = _homfly_inva(Pa)
+            Pbstar = _homfly_inva(Pb)
+
+            # Knot connected sum
+            Pab     = _homfly_prod(Pa, Pb)
+            Pabstar = _homfly_prod(Pa, Pbstar)
+            self.prod_dict[Pab]     = (1, Pa, Pb)
+            self.prod_dict[Pabstar] = (1, Pa, Pbstar)
+            self.prod_nx[Pab]     = n_cs
+            self.prod_nx[Pabstar] = n_cs
+
+            # Split links
+            Pabsplit     = _homfly_prod(Ptlink, Pab)
+            Pabstarsplit = _homfly_prod(Ptlink, Pabstar)
+            self.prod_dict[Pabsplit]     = (2, Pa, Pb)
+            self.prod_dict[Pabstarsplit] = (2, Pa, Pbstar)
+            self.prod_nx[Pabsplit]     = n_sl
+            self.prod_nx[Pabstarsplit] = n_sl
+
+            self.prod_dict[Ptlink] = (2, Punk, Punk) # Trivial split link
+            self.prod_nx[Ptlink] = 2
+            # WARNING: lmpoly is not returning the correct homfly for this
+        for P in self.trim_dict.iterkeys():
+            # Split link with unknot
+            Psplit = _homfly_prod(Ptlink, P)
+            self.prod_dict[Psplit] = (2, P, Punk)
+            self.prod_nx[Psplit]   = self.trim_nx[Pa] + 2
+
+    def classify_prime_homfly(self, homfly, ncross=1000):
+        mhomfly = _homfly_inva(homfly)
+        if homfly == Punk:
+            return (False, {0: [Result(0, 1, "Unknot[]", (0,-1), PlanarDiagram.unknot(0))]})
+        if homfly in self.trim_dict and self.trim_nx[homfly] <= ncross:
+            return (False, {nx: h for nx, h in self.trim_dict[homfly].iteritems()
+                            if nx <= ncross})
+        elif mhomfly in self.trim_dict and self.trim_nx[mhomfly] <= ncross:
+            return (True, {nx: h for nx, h in self.trim_dict[mhomfly].iteritems()
+                           if nx <= ncross})
+
+        return (None, dict())
+
+    def classify(self, pd):
+        return self.classify_homfly(pd.homfly(), ncross=pd.ncross)
+
+    def classify_homfly(self, homfly, ncross=1000):
+        homfly = _str_to_homfly(homfly)
+        mhomfly = _homfly_inva(homfly)
+
+        p_res = (None, dict())
+        c_res, c_mres = [], []
+
+        # Search for prime matches
+        p_res = self.classify_prime_homfly(homfly, ncross)
+        #p_mres = self.classify_prime_homfly(mhomfly, ncross)
+
+        # Search for composite and split matches
+        if homfly in self.prod_dict and self.prod_nx[homfly] <= ncross:
+            sumkind, Pa, Pb = self.prod_dict[homfly]
+            c_res = (sumkind,
+                     self.classify_prime_homfly(Pa, ncross),
+                     self.classify_prime_homfly(Pb, ncross))
+        if mhomfly in self.prod_dict and self.prod_nx[mhomfly] <= ncross:
+            sumkind, Pa, Pb = self.prod_dict[mhomfly]
+            c_mres = (sumkind,
+                     self.classify_prime_homfly(Pa, ncross),
+                     self.classify_prime_homfly(Pb, ncross))
+
+        return p_res, c_res, c_mres
 
 
 class PDStoreExpander(object):
