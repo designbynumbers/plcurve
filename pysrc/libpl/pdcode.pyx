@@ -1153,11 +1153,14 @@ cdef class PlanarDiagram:
         Check that all data contained in this PD code is sane."""
         return pd_ok(self.p)
 
-    def homfly(self):
-        """homfly() -> HOMFLYPolynomial
+    def homfly(self, as_string=False):
+        """homfly([as_string=False]) -> HOMFLYPolynomial
 
-        Compute the HOMFLY polynomial for this diagram (returned as string)."""
-        return HOMFLYPolynomial(pd_homfly(self.p))
+        Compute the HOMFLY polynomial for this diagram."""
+        if as_string:
+            return pd_homfly(self.p)
+        else:
+            return HOMFLYPolynomial(pd_homfly(self.p))
 
     def unique_code(self):
         """unique_code() -> str
