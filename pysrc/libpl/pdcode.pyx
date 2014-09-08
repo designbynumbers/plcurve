@@ -1147,10 +1147,11 @@ cdef class PlanarDiagram:
             elif x[1] > x[3]:
                 tails[x[3]] = i
                 pd.cross[i].sign = PD_NEG_ORIENTATION
-            elif x[3] < x[1]:
+            elif x[3] > x[1]:
                 tails[x[1]] = i
                 pd.cross[i].sign = PD_POS_ORIENTATION
             else:
+                print x
                 raise Exception("Error in pdcode or pdcode reader")
 
         pd_regenerate(pd)
