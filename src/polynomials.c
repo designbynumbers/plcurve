@@ -1,7 +1,7 @@
 /*************
 
-    polynomials.c : Procedures to convert the output of pllmpoly to 
-    a standard polynomial form and manipulate such outputs. 
+    polynomials.c : Procedures to convert the output of pllmpoly to
+    a standard polynomial form and manipulate such outputs.
 
 ***************/
 
@@ -10,7 +10,7 @@
 
 void homfly_polynomial_free(homfly_polynomial_t **homfly)
 {
-  if (homfly != NULL) { 
+  if (homfly != NULL) {
 
     if (*homfly != NULL) {
 
@@ -25,11 +25,11 @@ void homfly_polynomial_free(homfly_polynomial_t **homfly)
       free(*homfly);
       *homfly = NULL;
 
-    } 
+    }
 
   }
 
-}    
+}
 
 int monomial_cmp(const void *A,const void *B)
 {
@@ -37,11 +37,11 @@ int monomial_cmp(const void *A,const void *B)
   a = (monomial_t *)(A);
   b = (monomial_t *)(B);
 
-  if (a->l != b->l) { 
+  if (a->l != b->l) {
 
     return a->l - b->l;
 
-  } 
+  }
 
   if (a->m != b->m) {
 
@@ -52,21 +52,21 @@ int monomial_cmp(const void *A,const void *B)
   return a->coeff - b->coeff;
 
 }
- 
 
-int initiallpower(char start[]) 
+
+int initiallpower(char start[])
 
 /* Reads forward in the string, counting blocks of stuff separated by whitespace until you get to a [ character. */
 
 {
   int pwr=0;
   int i;
-  
-  for(i=0;start[i] != '[' && start[i] != 0;i++) { 
-    
+
+  for(i=0;start[i] != '[' && start[i] != 0;i++) {
+
     if (isspace(start[i])) {for(;isspace(start[i]) && start[i] != 0;i++);} /* Skip whitespace */
-    if (start[i] != '[' && start[i] != 0) { 
-      for(;!isspace(start[i]) && start[i] != 0;i++) {} 
+    if (start[i] != '[' && start[i] != 0) {
+      for(;!isspace(start[i]) && start[i] != 0;i++) {}
       pwr--;} /* Skip number, count it. */
     i--;
 
@@ -76,7 +76,7 @@ int initiallpower(char start[])
 
 homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
 
-/* We convert a polynomial in lmpoly's rather odd format 
+/* We convert a polynomial in lmpoly's rather odd format
 
    [-1 0 -2 0 [0]]N[0]N1 0 [0]N
 
@@ -87,20 +87,20 @@ homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
    2) Rows with a common power of m are delimited by N's.
    3) Inside a row, the 0 power of n has the coefficient in brackets.
 
-   This gives rise to the following algorithm. 
+   This gives rise to the following algorithm.
 
-   a) Copy the string to a new buffer. 
-   b) Count N's until we find something enclosed by [ [ ] ]. 
+   a) Copy the string to a new buffer.
+   b) Count N's until we find something enclosed by [ [ ] ].
       This gives you the initial power of m.
    c) Delete the extra brackets from the copy.
    d) Now scan forward across the polynomial:
 
-         Every time you hit an N, increment the power of m. 
-	 Then scan forward to find the current power of l, 
+         Every time you hit an N, increment the power of m.
+	 Then scan forward to find the current power of l,
 	 which is - the number of spaces until the next [.
-	 
+
    e) Every time you read a number, add it to the polynomial and increment the l power.
-   
+
 */
 
 {
@@ -114,7 +114,7 @@ homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
   strcpy(lmoutput,lmout);
 
   /* Step b */
- 
+
   int i;
   int depth = 0;
   int start = 0,end = 0;
@@ -132,11 +132,11 @@ homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
 
     }
 
-    if (lmoutput[i] == ']') { 
+    if (lmoutput[i] == ']') {
 
-      depth--; 
+      depth--;
 
-      if (itflag && depth == 0) { 
+      if (itflag && depth == 0) {
 
 	end = i+1;
 	break;  /* Break the enclosing for loop. */
@@ -145,19 +145,20 @@ homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
 
     }
 
-    if (lmoutput[i] == 'N') { 
+    if (lmoutput[i] == 'N') {
 
       initialmpower--;
 
     }
 
   }
-
-  lmoutput[start] = ' ';
-  lmoutput[end] = ' ';
+  if (itflag) {
+      lmoutput[start] = ' ';
+      lmoutput[end] = ' ';
+  }
 
   /* We now have the initialmpower set up. */
-  /* We need to count the actual number of monomials in the strings. This 
+  /* We need to count the actual number of monomials in the strings. This
      is certainly overestimated the number of spaces in the initial string. */
 
   int mono_count = 0;
@@ -170,7 +171,7 @@ homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
 
   homfly->nmonomials = 0;
   homfly->mono = (monomial_t *)(calloc(mono_count,sizeof(monomial_t)));
-  
+
   /* Now we're actually ready to read out some monomials. */
 
   int mpower;
@@ -184,7 +185,7 @@ homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
       lpower=initiallpower(&(lmoutput[i])); mpower++;
       i--; /* Return a step (we'll advance again in the loop increment) */
 
-    } else if (isspace(lmoutput[i]) || lmoutput[i] == ']' || lmoutput[i] == '[') { 
+    } else if (isspace(lmoutput[i]) || lmoutput[i] == ']' || lmoutput[i] == '[') {
 
     } else { /* We're at the lmoutput character of a coeff */
 
@@ -207,14 +208,14 @@ homfly_polynomial_t *lmpoly_to_polynomial(char *lmout)
       if (homfly->mono[mono_count].coeff != 0.0) {
 
 	/* And fill in the m and l powers */
-	
+
 	homfly->mono[mono_count].m = mpower;
 	homfly->mono[mono_count].l = lpower;
-	
+
 	mono_count++;
 
       }
-      
+
       /* Finally, increment the l power */
 
       lpower++;
@@ -239,25 +240,25 @@ char *poly_to_mathematica(homfly_polynomial_t *homfly)
 
   char *output;
   output = calloc(128*(homfly->nmonomials) + 1,sizeof(char));
-  
+
   int i;
   for(i=0;i<(homfly->nmonomials);i++) {
 
     char buffer[256];
-    
+
     if (i > 0) { sprintf(buffer," + "); strcat(output,buffer); }
 
     sprintf(buffer,"(%d)",homfly->mono[i].coeff); strcat(output,buffer);
 
-    if (homfly->mono[i].l != 0) { 
+    if (homfly->mono[i].l != 0) {
       sprintf(buffer,"*a^(%d)",homfly->mono[i].l); strcat(output,buffer);
     }
 
-    if (homfly->mono[i].m != 0) { 
+    if (homfly->mono[i].m != 0) {
       sprintf(buffer,"*z^(%d)",homfly->mono[i].m); strcat(output,buffer);
     }
-    
-    
+
+
   }
 
   return output;
@@ -268,13 +269,13 @@ char *poly_to_latex(homfly_polynomial_t *homfly)
 
   char *output;
   output = calloc(128*(homfly->nmonomials) + 1,sizeof(char));
-  
+
   int i;
   for(i=0;i<homfly->nmonomials;i++) {
 
     char buffer[256];
-    
-    if (i > 0) { 
+
+    if (i > 0) {
 
       if ((int)(homfly->mono[i].coeff) > 0) { sprintf(buffer," + "); strcat(output,buffer); }
       else { sprintf(buffer," - "); strcat(output,buffer); }
@@ -286,19 +287,19 @@ char *poly_to_latex(homfly_polynomial_t *homfly)
     }
 
     if (abs((int)(homfly->mono[i].coeff)) != 1 || (homfly->mono[i].l == 0 && homfly->mono[i].m == 0)) {
-      
+
       sprintf(buffer,"%d",abs((int)(homfly->mono[i].coeff))); strcat(output,buffer);
 
     }
 
-    if (homfly->mono[i].l != 0) { 
+    if (homfly->mono[i].l != 0) {
       sprintf(buffer,"a^{%d}",homfly->mono[i].l); strcat(output,buffer);
     }
 
-    if (homfly->mono[i].m != 0) { 
+    if (homfly->mono[i].m != 0) {
       sprintf(buffer,"z^{%d}",homfly->mono[i].m); strcat(output,buffer);
     }
-    
+
   }
 
   return output;
@@ -308,7 +309,7 @@ char *lmpoly_to_mathematica(char *lmpoly_output)
 {
   homfly_polynomial_t *homfly;
   char *output;
-  
+
   homfly = lmpoly_to_polynomial(lmpoly_output);
   output = poly_to_mathematica(homfly);
   homfly_polynomial_free(&homfly);
@@ -320,7 +321,7 @@ char *lmpoly_to_latex(char *lmpoly_output)
 {
   homfly_polynomial_t *homfly;
   char *output;
-  
+
   homfly = lmpoly_to_polynomial(lmpoly_output);
   output = poly_to_latex(homfly);
   homfly_polynomial_free(&homfly);
@@ -328,7 +329,7 @@ char *lmpoly_to_latex(char *lmpoly_output)
   return output;
 }
 
-homfly_polynomial_t *product_polynomial(homfly_polynomial_t *pA, homfly_polynomial_t *pB) 
+homfly_polynomial_t *product_polynomial(homfly_polynomial_t *pA, homfly_polynomial_t *pB)
 
 /* Compute the product of two polynomials. */
 
@@ -447,7 +448,7 @@ void write_lmpoly_lcoeff(char *buf,int coeff,int l)
   char writebuf[256];
 
   if (l == 0) {
-    
+
     sprintf(writebuf,"[%d] ",coeff); strcat(buf,writebuf);
 
   } else {
@@ -457,11 +458,11 @@ void write_lmpoly_lcoeff(char *buf,int coeff,int l)
   }
 
 }
-    
+
 
 void write_lmpoly_mline(char *buf,monomial_t *mline,int nmonos)
-  
-/* Writes the line of coefficients to the buffer buf, surrounding 
+
+/* Writes the line of coefficients to the buffer buf, surrounding
    the entire line with brackets if m == 0, the l == 0 coefficient
    with a bracket, and terminating the line with an N. */
 
@@ -485,7 +486,7 @@ void write_lmpoly_mline(char *buf,monomial_t *mline,int nmonos)
   if (mline[0].l > 0) {
 
     int i; for(i=nmonos;i>0;i--) { mline[i] = mline[i-1]; }
-    
+
     mline[0].coeff = 0;
     mline[0].m = mline[1].m;
     mline[0].l = 0;
@@ -518,10 +519,10 @@ void write_lmpoly_mline(char *buf,monomial_t *mline,int nmonos)
     for(;lpow<mline[i].l;lpow++) { write_lmpoly_lcoeff(buf,0,lpow); }
 
     /* Now actually write the coefficient */
-    
+
     write_lmpoly_lcoeff(buf,(int)(mline[i].coeff),(int)(mline[i].l));
 
-  }    
+  }
 
   /* This is a total hack, but we just wrote an extra space to buf. Kill it. */
   buf[strlen(buf)-1] = 0;
@@ -531,7 +532,7 @@ void write_lmpoly_mline(char *buf,monomial_t *mline,int nmonos)
     sprintf(writebuf,"]"); strcat(buf,writebuf);
 
   }
-  
+
   sprintf(writebuf,"N"); strcat(buf,writebuf);
 
 }
@@ -547,12 +548,12 @@ char *polynomial_to_lmpoly(monomial_t *poly,int nmonos)
   sortPoly = calloc(nmonos+1,sizeof(monomial_t));
   assert(sortPoly != NULL);
   for(i=0;i<nmonos;i++) { sortPoly[i] = poly[i]; }
-  
+
 
   qsort(sortPoly,nmonos,sizeof(monomial_t),lmpoly_cmp);
 
   /* We now have a buffer in the sortpoly format. The size of the output string is funny;
-     it actually depends on the l and m power values. We can estimate it by computing the 
+     it actually depends on the l and m power values. We can estimate it by computing the
      span in m and the span in l. */
 
   char *outbuf;
@@ -562,12 +563,12 @@ char *polynomial_to_lmpoly(monomial_t *poly,int nmonos)
   monomial_t *mline;
   int lsize;
   char writebuf[256];
-  
+
   mline = calloc(nmonos+1,sizeof(monomial_t));
   assert(mline != NULL);
   lsize = 1;
   mline[0] = sortPoly[0];
-  
+
   for(i=1;i<nmonos;i++) {
 
     if (mline[lsize-1].m == sortPoly[i].m) { /* Part of the same line, push onto it. */
@@ -621,19 +622,19 @@ char *lmpoly_check(char *lmpoly_output)
   homfly = lmpoly_to_polynomial(lmpoly_output);
   cvtback = polynomial_to_lmpoly(homfly->mono,homfly->nmonomials);
   homfly_polynomial_free(&homfly);
-  
+
   return cvtback;
 }
 
 
-  
-homfly_polynomial_t *KnotTheory_to_polynomial(char *knottheoryform) 
+
+homfly_polynomial_t *KnotTheory_to_polynomial(char *knottheoryform)
 
 /* Convert a polynomial in our output form from Mathematica, eg:
 
    1 a^0 z^0 + -1 a^2 z^0 + 2 a^4 z^0 + -1 a^6 z^0 + 1 a^0 z^2 + -2 a^2 z^2 + 2 a^4 z^2 + -1 a^2 z^4
 
-   to a homfly polynomial data structure. 
+   to a homfly polynomial data structure.
 */
 
 {
@@ -643,7 +644,7 @@ homfly_polynomial_t *KnotTheory_to_polynomial(char *knottheoryform)
   char *pos = knottheoryform;
 
   for(;*pos != 0;pos++) {
-    
+
     if (*pos == '+') { nterms++; }
 
   }
@@ -653,27 +654,27 @@ homfly_polynomial_t *KnotTheory_to_polynomial(char *knottheoryform)
   homfly->mono = calloc(nterms,sizeof(monomial_t));
   assert(homfly->mono != NULL);
   homfly->nmonomials = nterms;
-  
+
   /* Now we tokenize on the pluses */
 
   char *monostring;
   int i;
-  for(monostring = strtok(knottheoryform,"+"),i=0;i<nterms;i++,monostring = strtok(NULL,"+")) { 
+  for(monostring = strtok(knottheoryform,"+"),i=0;i<nterms;i++,monostring = strtok(NULL,"+")) {
 
     if (monostring == NULL) {
 
       pd_error( SRCLOC ,"ran out of monomials early: expected %d, got as far as %d\n",
 		NULL, nterms, i);
       return NULL;
-    
+
     }
 
     if (sscanf(monostring," %d a^%d z^%d ",
-	       &(homfly->mono[i].coeff),&(homfly->mono[i].l), &(homfly->mono[i].m)) != 3) { 
-      
+	       &(homfly->mono[i].coeff),&(homfly->mono[i].l), &(homfly->mono[i].m)) != 3) {
+
       pd_error( SRCLOC ,"failed to decode monomial %s", NULL, monostring);
       return NULL;
-	
+
     }
 
   }
@@ -688,19 +689,19 @@ homfly_polynomial_t *KnotTheory_to_polynomial(char *knottheoryform)
 
 }
 
-bool  polynomials_eq(homfly_polynomial_t *a, homfly_polynomial_t *b) 
+bool  polynomials_eq(homfly_polynomial_t *a, homfly_polynomial_t *b)
 /* Compare two polynomials. */
 {
   if (a->nmonomials != b->nmonomials) { return false; }
 
   qsort(a->mono,a->nmonomials,sizeof(monomial_t),monomial_cmp);
   qsort(b->mono,b->nmonomials,sizeof(monomial_t),monomial_cmp);
-  
+
   pd_idx_t i;
 
   for(i=0;i<a->nmonomials;i++) {
 
-    if (monomial_cmp(&(a->mono[i]),&(b->mono[i])) != 0) { 
+    if (monomial_cmp(&(a->mono[i]),&(b->mono[i])) != 0) {
 
       return false;
 
