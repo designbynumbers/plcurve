@@ -4,6 +4,8 @@ from libc.string cimport memcpy
 import sys
 from cython.operator cimport dereference as deref
 import random
+import re
+from operator import itemgetter
 
 #from cython.view cimport array
 cimport cython
@@ -600,6 +602,149 @@ cdef class _VirtualEdgeArray:
     """Discreetly wraps an edge array so that Python code can mutate C data."""
     pass
 
+_latex_term_regex = re.compile("(-?[0-9]*)(a\\^\\{-?[0-9]+\\})?(z\\^\\{-?[0-9]+\\})?")
+_latex_coef_regex = re.compile("[az]\\^\\{(-?[0-9]+)\\}")
+
+cdef class HOMFLYTerm:
+    cdef int C, alpha, zeta
+    def __cinit__(self, int C, int alpha, int zeta):
+        self.C = C
+        self.alpha = alpha
+        self.zeta = zeta
+
+    def __invert__(self):
+        return HOMFLYTerm(
+            self.C,
+            -self.alpha,
+            self.zeta)
+    def __mul__(HOMFLYTerm x, HOMFLYTerm y):
+        return HOMFLYTerm(
+            x.C * y.C,
+            x.alpha + y.alpha,
+            x.zeta + y.zeta)
+
+    def __add__(HOMFLYTerm x, HOMFLYTerm y):
+        if x.alpha != y.alpha or x.zeta != y.zeta:
+            raise Exception("Terms do not match for summation")
+        return HOMFLYTerm(
+            x.C + y.C,
+            x.alpha, x.zeta)
+
+    def __cmp__(HOMFLYTerm x, HOMFLYTerm y):
+        if x.alpha < y.alpha:
+            return -1
+        elif x.alpha == y.alpha:
+            if x.zeta < y.zeta:
+                return -1
+            elif x.zeta == y.zeta:
+                return 0
+            else:
+                return 1
+        else:
+            return 1
+    cpdef bool equals(HOMFLYTerm x, HOMFLYTerm y):
+        return x.alpha == y.alpha and x.zeta == y.zeta and x.C == y.C
+    def __hash__(self):
+        return self.alpha*1000+self.zeta
+
+    def __str__(self):
+        cdef str cterm = "-" if self.C == -1 else ("" if self.C == 1 else self.C)
+        if self.alpha and self.zeta:
+            return "%sa^{%s}z^{%s}"%(cterm, self.alpha, self.zeta)
+        elif self.alpha:
+            return "%sa^{%s}"%(cterm, self.alpha)
+        elif self.zeta:
+            return "%sz^{%s}"%(cterm, self.zeta)
+        else:
+            return "%s"%self.C
+    def __repr__(self):
+        cdef str cterm = "-" if self.C == -1 else ("" if self.C == 1 else str(self.C))
+        if self.alpha and self.zeta:
+            return "%sa^{%s}z^{%s}"%(cterm, self.alpha, self.zeta)
+        elif self.alpha:
+            return "%sa^{%s}"%(cterm, self.alpha)
+        elif self.zeta:
+            return "%sz^{%s}"%(cterm, self.zeta)
+        else:
+            return "%s"%self.C
+
+cdef class HOMFLYPolynomial:
+    """An [immutable] HOMFLY polynomial object."""
+    cdef tuple terms
+
+    def __cinit__(self):
+        self.terms = None
+    def __init__(self, str latex):
+        """Create a new HOMFLY polynomial from a LaTeX representation"""
+        cdef object coeff, a_part, z_part, term
+        # let's do this pythonically now and then improve it later
+        cdef list result = []
+        # change '- x' into '+ -x' for consistency
+        latex = latex.replace("- ", "+ -")
+        for term in latex.split(" + "):
+            coeff, a_part, z_part = _latex_term_regex.match(term).groups()
+            if coeff == "-":
+                coeff = -1
+            elif coeff == "":
+                coeff = 1
+            if a_part:
+                a_part = _latex_coef_regex.match(a_part).group(1)
+            else:
+                a_part = 0
+            if z_part:
+                z_part = _latex_coef_regex.match(z_part).group(1)
+            else:
+                z_part = 0
+
+            result.append(HOMFLYTerm(int(coeff),
+                                     int(a_part),
+                                     int(z_part)))
+
+        self.terms = tuple(result)
+
+    def __getitem__(self, x):
+        return self.terms[x]
+
+    def __invert__(HOMFLYPolynomial self):
+        cdef HOMFLYPolynomial newpoly = HOMFLYPolynomial.__new__(HOMFLYPolynomial)
+        newpoly.terms = tuple(sorted((~A for A in self.terms)))
+        return newpoly
+    def __mul__(HOMFLYPolynomial x, HOMFLYPolynomial y):
+        cdef list newterms = list()
+        cdef HOMFLYPolynomial newpoly = HOMFLYPolynomial.__new__(HOMFLYPolynomial)
+        cdef HOMFLYTerm A,B,C
+        cdef dict found = dict()
+
+        # There is room to replace this loop & sort with an O(n^2) solution
+        for A in x.terms:
+            for B in y.terms:
+                C = A*B
+                n = (C.alpha, C.zeta)
+                if n in found:
+                    newterms[found[n]] = newterms[found[n]] + C
+                else:
+                    found[n] = len(newterms)
+                    newterms.append(C)
+
+        newpoly.terms = tuple(sorted(newterms))
+        return newpoly
+    def __richcmp__(HOMFLYPolynomial x, HOMFLYPolynomial y, int op):
+        cdef HOMFLYTerm A,B
+        if op == 2:
+            return not (False in (A.equals(B) for A,B in zip(x.terms, y.terms)))
+        else:
+            raise NotImplementedError(
+                "Only equality checking implemented for HPs")
+
+
+    def __hash__(self):
+        return hash(self.terms)
+    def __str__(self):
+        return " + ".join(str(t) for t in self.terms)
+    def __repr__(self):
+        return " + ".join(repr(t) for t in self.terms)
+
+
 cdef PlanarDiagram PlanarDiagram_wrap(pd_code_t *pd):
     """Wraps a pd_code_t* in a PlanarDiagram"""
     cdef PlanarDiagram newobj = PlanarDiagram.__new__(PlanarDiagram)
@@ -728,8 +873,6 @@ cdef class PlanarDiagram:
         Returns a memory deepcopy of this PlanarDiagram
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(self.__class__)
-        print "copying %s" % repr(self)
-        print "old maxedges = %s" % (self.p.MAXEDGES)
         newobj.p = pd_copy(self.p)
         newobj.regenerate_py_os()
         return newobj
@@ -996,10 +1139,10 @@ cdef class PlanarDiagram:
         return pd_ok(self.p)
 
     def homfly(self):
-        """homfly() -> str
+        """homfly() -> HOMFLYPolynomial
 
         Compute the HOMFLY polynomial for this diagram (returned as string)."""
-        return pd_homfly(self.p)
+        return HOMFLYPolynomial(pd_homfly(self.p))
 
     def unique_code(self):
         """unique_code() -> str
