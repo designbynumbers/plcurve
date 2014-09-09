@@ -957,4 +957,163 @@ pd_code_t *pd_flype(pd_code_t *pd,pd_idx_t e[4], pd_idx_t f[4])
     
   */
 
+/*************************************************************************
+   Tangle Slide Code. This is broken into several subprocedures so that 
+   we can write unit tests for the individual pieces. 
+**********************************************************************/
+
+pdint_isolate_adjacent_strand(pd_code_t *pd, pd_idx_t ncross_edges, pd_idx_t cross_edges[],
+			      pd_idx_t *start_cross, pd_idx_t *end_cross,
+			      pd_idx_t *nadj_cross,  pd_idx_t **adj_cross, 
+			      pd_idx_t *nadj_edges,  pd_idx_t **adj_edges)
+{  
+ /* Step 1. Identify start and end crossings of the 
+      strand and make a list of the "middle" crossings.
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+ end_cross   | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |   +----start_cross   	    
+       |     | 	    	    	 |   | 	     
+       |     +-------------------+   |	     
+       |       	 |   |       | 	     |	     
+       +----------------<------------+	      
+       	       	 |   | 	     |		       	 
+     cross_edges[0]          cross_edges[ncross_edges-1]
+
+   */
+
+
+}
+
+
   
+ pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
+		       	     pd_idx_t ncross_edges, pd_idx_t cross_edges[])
+ /*
+   The tangle slide operation moves an adjacent strand of the diagram
+   above (or below) a tangle to the other side of the tangle. The input
+   is specified by giving an list of edges that the adjacent
+   strand crosses in counterclockwise order around the tangle.
+   The caller does not need to explicitly specify the edges in 
+   the adjacent strand. 
+			    
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+       	     | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |   +-------   	    
+       |     | 	    	    	 |   | 	     
+       |     +-------------------+   |	     
+       |       	 |   |       | 	     |	     
+       +-----------------------------+	      
+       	       	 |   | 	     |		       	 
+     cross_edges[0]          cross_edges[ncross_edges-1]
+  	 	       	       	       	  
+                      ||
+                      vv  	
+      	       	  
+  	       	  |        |
+       +-----------------------------+
+       |      	  |  	   |	     |
+       |     +------------------+    |
+       |     |	 	    	|    |
+       |     |     Tangle      	|    |
+    ---+     | 	                |    +------
+             | 	       	    	|     	     
+             +------------------+    	     
+               	 |   |       | 	     	     
+                 |   |       |       	      
+    		 |   |	     |		       	 
+  		 
+    In the output pd code, the adjacent strand will cross the 
+    complement of these edges. 
+
+ */    	       	 
+ {
+   /* Step 1. Identify start and end crossings of the 
+      strand and make a list of the "middle" crossings.
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+ end_cross   | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |   +----start_cross   	    
+       |     | 	    	    	 |   | 	     
+       |     +-------------------+   |	     
+       |       	 |   |       | 	     |	     
+       +----------------<------------+	      
+       	       	 |   | 	     |		       	 
+     cross_edges[0]          cross_edges[ncross_edges-1]
+
+   */
+
+   pd_idx_t start_cross, end_cross, *adj_cross;
+   pd_idx_t nadj_cross;
+   pd_idx_t *adj_edges, nadj_edges;
+
+   pdint_isolate_adjacent_strand(pd,t,ncross_edges,cross_edges,
+				 &start_cross, &end_cross,
+				 &nadj_cross,&adj_cross,
+				 &nadj_edges,&adj_edges);
+
+   if (nadj_cross == 0) { /* Failure. */
+
+     pd_error(SRCLOC,"couldn't find common tangle-adjacent "
+	      "strand touching edges %d -- %d of tangle %TANGLE in %PD",
+	      pd,cross_edges[0],cross_edges[ncross_edges-1],t,pd);
+
+     exit(1);
+
+   }
+
+   /* Step 2. Delete the middle crossings and edges,
+      joining previous cross edges to their outputs.
+      (Renumber the tangle data appropriately?)
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+ endCross    | 	    Tangle     	 |      	       	  
+    -<-+     | 	       	       	 |   +-<---startCross   	    
+             | 	    	    	 |    	     
+             +-------------------+   	     
+              	 |   |       | 	     	     
+                 |   |       |     	      
+       	       	 |   | 	     |		       	 
+     cross_edges[0]          cross_edges[ncross_edges-1]
+
+   */
+
+
+
+    /* Step 3. Split the complementary edges on the other
+       side of the tangle, adding new crossings. String
+       these crossings together with edges coming from 
+       startCross to endCross.
+
+       +---------------<-------------+
+       |	  |  	   |         |
+       |     +-------------------+   |		  
+       |     |		    	 |   |		  
+       |     | 	    Tangle     	 |   |   	       	  
+    --<+     | 	       	       	 |   +-<--startCross   	    
+  endCross   | 	    	    	 |    	     
+             +-------------------+   	     
+              	 |   |       | 	     	     
+                 |   |       |     	      
+       	       	 |   | 	     |		       	 
+     cross_edges[0]          cross_edges[ncross_edges-1]
+
+   */
+
+   return NULL;
+
+ }
+
+

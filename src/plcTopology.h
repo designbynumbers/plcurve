@@ -699,31 +699,50 @@ extern "C" {
      edges and faces and call "pd_regenerate_tangle" in order to reconstruct
      the remaining data. */
 
-  pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
-			     pd_idx_t ncross_edges, pd_idx_t cross_edges[]);
+ pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
+			    pd_idx_t ncross_edges, pd_idx_t cross_edges[]);
+ /*
+   The tangle slide operation moves an adjacent strand of the diagram
+   above (or below) a tangle to the other side of the tangle. The input
+   is specified by giving an list of edges that the adjacent
+   strand crosses in counterclockwise order around the tangle.
+   The caller does not need to explicitly specify the edges in 
+   the adjacent strand. 
+			    
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+       	     | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |   +-------   	    
+       |     | 	    	    	 |   | 	     
+       |     +-------------------+   |	     
+       |       	 |   |       | 	     |	     
+       +-----------------------------+	      
+       	       	 |   | 	     |		       	 
+     cross_edges[0]          cross_edges[ncross_edges-1]
+  	 	       	       	       	  
+                      ||
+                      vv  	
+      	       	  
+  	       	  |        |
+       +-----------------------------+
+       |      	  |  	   |	     |
+       |     +------------------+    |
+       |     |	 	    	|    |
+       |     |     Tangle      	|    |
+    ---+     | 	                |    +------
+             | 	       	    	|     	     
+             +------------------+    	     
+               	 |   |       | 	     	     
+                 |   |       |       	      
+    		 |   |	     |		       	 
+  		 
+    In the output pd code, the adjacent strand will cross the 
+    complement of these edges. 
 
-  /*
-     A "clump slide" moves a connect summand K of a pd_code_t across an edge.
-     The user is required to specify three edges along a component of pd in order
-     to define the desired slide, as below.
+ */    	       	 
 
-                 f[0]         |                 |
-	      +--------+      |                 |   +---------+
-              |        |      |                 |   |         |
-      --e[0]--+    K   +-e[1]---e[2]---  >  --------+    K    +------
-              |        |      |                 |   |         |
-	      +--------+      |                 |   +---------+
-                 f[1]         |                 |
-
-      Notes: We don't know the orientation of the component, so it might be the
-      case that e[0], e[1], and e[2] are positively or negatively orientated
-      with respect to the component orientation.
-
-      Also, the "clump" K may include additional components. However, there
-      must be a pair of faces f[0] and f[1] which share e[0] and e[1] to isolate
-      the "clump".
-
-  */
 
   pd_code_t *pd_tangle_flype(pd_code_t *pd,pd_tangle_t *t);
 
