@@ -62,11 +62,11 @@
 
 /* globals */
 
-typedef struct state_struct { 
+typedef struct state_struct {
 
   int readpos;
-  int writepos; 
-  
+  int writepos;
+
   long plybuf[XCNTSQ], *poly[XCNT], notbeg, count[XCNT], b[XCNT+1];
   unsigned char sign[XCNT], donlnk[XCNT+1], t[XCNT+2], crsbuf[XCNT+1][8];
   unsigned char buf[XCSQTR], cbuf[10242], clist[XCNT+2], stc[XCNT*2];
@@ -107,7 +107,7 @@ int strread(char *str,void *buffer,size_t size,lmpoly_state_t *state)
     if (str[(state->readpos)] != 0) {
 
       ((char *) buffer)[cread++] = str[(state->readpos)++];
-      
+
     }
 
   }
@@ -162,7 +162,7 @@ char *plc_lmpoly(char *code, int timeout)
  assert(state != NULL);
 
  start = clock();
- 
+
  if (code == NULL) { free(state); return NULL; }
 
  /* It's possible that we'll be fed a code with only one crossing */
@@ -191,7 +191,7 @@ char *plc_lmpoly(char *code, int timeout)
  }
 
 /* Now back to your regularly scheduled programming. */
- 
+
  outpoly = calloc(MAXPOLY,sizeof(char)); // Space for a large polynomial
  (state->readpos) = 0;  // Reset the globals
  (state->writepos) = 0;
@@ -251,7 +251,7 @@ char *plc_lmpoly(char *code, int timeout)
  *(state->count)= (state->restrt)= i= j= kstrt= nopro= 0;
  stats= -1;
 
- /* This code appears to detect "restarts" and "stats", neither of which 
+ /* This code appears to detect "restarts" and "stats", neither of which
     we are currently implementing. */
 
  /* if (*argv[1]=='-'){
@@ -281,7 +281,7 @@ NEWFIL:
 
  /* We comment out some "stats" code, since we won't display stats anyway. */
 
- /* if (stats>0){     // remove stats info for previous knot file 
+ /* if (stats>0){     // remove stats info for previous knot file
   i= strlen(*argv);
   c= (unsigned char *) *argv+i-1;
   if (i>11) i=11;
@@ -298,7 +298,7 @@ NEWFIL:
 
  /* We also comment out some "restart" code since we aren't restarting */
 
- /*if ((state->restrt)!=0){           // if I am restarting an old calculation 
+ /*if ((state->restrt)!=0){           // if I am restarting an old calculation
   if ((in=open("lmpoly.(state->restrt)",0))== -1){
    write (1,"couldn't find restart file\n",27);
    exit (0);
@@ -360,19 +360,19 @@ NEWFIL:
    write (stats,"\n",1);
   }
   (state->restrt)=0;
-  goto STEP1; // restart file has set up all NEWNOT data already 
+  goto STEP1; // restart file has set up all NEWNOT data already
  }
  */
 
  c = (state->cbuf);
 
- /* This code fragment copies the input file into a character buffer, 
-    appending the EOF character to the end of the string. Instead, we 
-    copy our input "code" buffer into the (state->cbuf) array. 
+ /* This code fragment copies the input file into a character buffer,
+    appending the EOF character to the end of the string. Instead, we
+    copy our input "code" buffer into the (state->cbuf) array.
 
     Original code:
 
-    c[read(in,c,10240)]= EOFCHR; 
+    c[read(in,c,10240)]= EOFCHR;
 
  */
 
@@ -427,29 +427,29 @@ NEWNOT:
    while (--i!=0 && *lp1==0 && *(sp++)==0) ++lp1;
   }
   if (i!=0){
-    
-    /* Original code: 
-       
+
+    /* Original code:
+
        if ((out= open("lmknot.out",1))<0) out=open("temp.out",1);
-       
+
        lseek (out,(long) 0,2);
        write (out,nbuf,strlen(nbuf));
        write (out,"\n",1); */
 
     /* write out polynomial for knot just completed */
-    
-    /* These lines would copy the first line of the crossing code into 
+
+    /* These lines would copy the first line of the crossing code into
        the output. We don't need this, so we forget it */
- 
+
     /*strwrite(outpoly,(char *)(nbuf),strlen((char *)(nbuf)));
       strwrite(outpoly," ",1); */
- 
+
     /*
     if (count[2]<0) write (out,"program error: knot became inconsistent\n",40);
     if (count[1]!=0) write (out,"coefficient overflow error: output BAD\n",39);
     */
 
-    if ((state->count)[2]<0) { 
+    if ((state->count)[2]<0) {
 
       printf("lmpoly: knot became inconsistent.\n");
       exit(1);
@@ -462,66 +462,66 @@ NEWNOT:
       exit(1);
 
     }
-      
+
     len=m= -1;
-    while (m++!=k){
-      if ((state->lowx)== (i=0)) strwrite (outpoly,"[",1,state);
-    n= XCNT-m-1;
-    j= n*2;
-    while (j!=n && (state->poly)[m][j]==0 && (state->bilion)[m][j]==0) --j;
-    while (i!=n && (state->poly)[m][i]==0 && (state->bilion)[m][i]==0) ++i;
-    if (len==0 || (state->lowx)>=0 || i!=j || (state->poly)[m][i]!=0 || (state->bilion)[m][i]!=0){
-      while (i<=j){
-	if (i==n) strwrite (outpoly,"[",1,state);
-	h=0;
-	lngi= (state->poly)[m][i];
-	if (lngi>=cmpval || lngi<= -cmpval){
-	  h= lngi/cmpval;
-	  lngi-= h* cmpval;
-	}
-	h+= (state->bilion)[m][i];
-	if (h*lngi <0){   /* (state->bilion) and poly are different signs */
-	  if (h<0){
-	    lngi-= cmpval;
-	    ++h;
-	  }
-	  else {
-	    lngi+= cmpval;
-	    --h;
-	  }
-	}
-	if (h!=0){
-	  if (lngi<0) lngi= -lngi;
-	  strwrite (outpoly,(char *)(state->t),ntc((long) h,(char *)(state->t),state),state);
-	  len= ntc(lngi,(char *)(state->t),state);
-	  if (cmpval==10000) len2= 4-len;
-	  else len2= 9-len;
-	  strwrite (outpoly,"00000000",len2,state);
-	  strwrite (outpoly,(char *)(state->t),len,state);
-	}
-	else strwrite (outpoly,(char *)(state->t),ntc(lngi,(char *)(state->t),state),state);
-	if (i++ ==n) strwrite (outpoly,"]",1,state);
-	if (i<=j) strwrite (outpoly," ",1,state);
-      }
-      if ((state->lowx)== (len=0)) strwrite (outpoly,"]",1,state);
-      strwrite (outpoly,"N",1,state);
-    }
-    ++(state->lowx);
+    while (m++<k || (state->lowx) <= 0){
+        if ((state->lowx)== (i=0)) strwrite (outpoly,"[",1,state);
+        n= XCNT-m-1;
+        j= n*2;
+        while (j!=n && (state->poly)[m][j]==0 && (state->bilion)[m][j]==0) --j;
+        while (i!=n && (state->poly)[m][i]==0 && (state->bilion)[m][i]==0) ++i;
+        if (len==0 || (state->lowx)>=0 || i!=j || (state->poly)[m][i]!=0 || (state->bilion)[m][i]!=0){
+            while (i<=j){
+                if (i==n) strwrite (outpoly,"[",1,state);
+                h=0;
+                lngi= (state->poly)[m][i];
+                if (lngi>=cmpval || lngi<= -cmpval){
+                    h= lngi/cmpval;
+                    lngi-= h* cmpval;
+                }
+                h+= (state->bilion)[m][i];
+                if (h*lngi <0){   /* (state->bilion) and poly are different signs */
+                    if (h<0){
+                        lngi-= cmpval;
+                        ++h;
+                    }
+                    else {
+                        lngi+= cmpval;
+                        --h;
+                    }
+                }
+                if (h!=0){
+                    if (lngi<0) lngi= -lngi;
+                    strwrite (outpoly,(char *)(state->t),ntc((long) h,(char *)(state->t),state),state);
+                    len= ntc(lngi,(char *)(state->t),state);
+                    if (cmpval==10000) len2= 4-len;
+                    else len2= 9-len;
+                    strwrite (outpoly,"00000000",len2,state);
+                    strwrite (outpoly,(char *)(state->t),len,state);
+                }
+                else strwrite (outpoly,(char *)(state->t),ntc(lngi,(char *)(state->t),state),state);
+                if (i++ ==n) strwrite (outpoly,"]",1,state);
+                if (i<=j) strwrite (outpoly," ",1,state);
+            }
+            if ((state->lowx)== (len=0)) strwrite (outpoly,"]",1,state);
+            strwrite (outpoly,"N",1,state);
+        }
+        ++(state->lowx);
     }
   }
   strwrite (outpoly," ",1,state);
   /* close(out); */ /* We are done writing the polynomial, so return */
   free(state);
-  return outpoly;  
+  return outpoly;
  }
  i= XCNT;
  while (i!=0) (state->count)[--i]=0; /* Erase the (state->count) buffer */
  c=s;
  *nbuf=0;                   /* Erase the nbuf string? */
  if (*c!='1' || (*(c+1)!='+' && *(c+1)!='-')){
-  /* Copy first line of 's' into nbuf */ 
+  /* Copy first line of 's' into nbuf */
   p= nbuf;
-  while (*c!='\n' && *c!= EOFCHR) *(p++)= *(c++); 
+  while (*c!='\n' && *c!= EOFCHR) *(p++)= *(c++);
   *p= 0;
   /* if (*c != EOFCHR && stats>0){ */
 /*    lseek (stats,(long) 0,0); */
@@ -1178,7 +1178,7 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
 /*      write (stats,"                                            ",44-k); */
 /*      write (stats,"\n",1); */
 /*     } */
-   } 
+   }
   }
   else (state->numcrs)=0;
  }
@@ -1291,10 +1291,10 @@ FOURX: /* found twisted 3 link -- "squish" twist before making polynomial */
   xpow^=512;
   ++(state->count)[(state->numcrs)-1];
  }
- // This point must be reached fairly often, so we're going to put in the timeout code here. 
+ // This point must be reached fairly often, so we're going to put in the timeout code here.
  end = clock();
  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
- if (timeout > 0 && cpu_time_used > timeout) { 
+ if (timeout > 0 && cpu_time_used > timeout) {
    free(outpoly);
    free(state);
    return NULL;
@@ -2140,7 +2140,7 @@ int tstcir(short h,short *bstlst,short *dspair,short *skflag,lmpoly_state_t *sta
       if ((state->crsbuf)[i2][(i3+i1)&6]== p[4]){
 	//if ((p[5]^i3&2) !=0) lngsum= -1 -lngsum;
 	/* According to wikipedia, the & should come first, so this is */
-	if ((p[5]^(i3&2)) !=0) lngsum= -1 -lngsum; 
+	if ((p[5]^(i3&2)) !=0) lngsum= -1 -lngsum;
        else lngsum= -10 -lngsum;
       }
       i2= p[i1];
@@ -2326,4 +2326,3 @@ int skinny(int twist,short lencir,short lngpos,lmpoly_state_t *state)
  if (twist!=0) squish(vnum,state); /* if I untwisted vertex, now eliminate it */
  return(1);
 }
-
