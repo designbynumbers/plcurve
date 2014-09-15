@@ -140,8 +140,6 @@ cdef extern from "plcTopology.h":
 
     void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp, pd_or_t ori)
 
-    pd_code_t *pd_simplify(pd_code_t *pd)
-
     void pd_printf(char *fmt,pd_code_t *pd, ... )
     bool pd_error(char *file, int line, char *fmt, pd_code_t *pd, ...)
 

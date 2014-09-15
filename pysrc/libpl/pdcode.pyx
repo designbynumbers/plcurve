@@ -1438,7 +1438,7 @@ cdef class PlanarDiagram:
             pd_code_free(&self.p)
             self.p = NULL
 
-cdef api pd_code_t *Cy_pd_simplify(pd_code_t *pd, int *ndias):
+cdef api pd_code_t *pd_simplify(pd_code_t *pd, int *ndias):
     cdef PlanarDiagram py_pd = PlanarDiagram_wrap(pd)
     cdef tuple simp_dias = py_pd.simplify()
     cdef PlanarDiagram simp = simp_dias[0]
