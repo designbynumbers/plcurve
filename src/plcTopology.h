@@ -295,7 +295,7 @@ extern "C" {
 
   /* Utility Functions For Dealing With PD-code primitives */
 
-  int       pd_idx_cmp(const void *A, const void *B);
+  int  pd_idx_cmp(const void *A, const void *B);
   /* The usual comparison function for sorting and searching */
 
   char pd_print_or(pd_or_t or);
@@ -516,6 +516,10 @@ extern "C" {
   /* This method will generate pd code objects and return the call
      to pd_isomorphic. The purpose is to call this from Python via
      SWIG. */
+
+  bool pd_is_alternating(pd_code_t *pd);
+  /* Tests whether the pd code is alternating. Assumes that all the crossing 
+     information is set. If some crossings aren't set, it will return a pd_error. */
 
   pd_code_t *pd_copy(pd_code_t *pd);
   /* Make a new-memory copy of pd */

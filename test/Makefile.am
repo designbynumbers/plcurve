@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_tangle_regenerate_auto \
+check_PROGRAMS = test_readkt \
+		 test_tangle_regenerate_auto \
 		 test_bad_homfly \
 		 test_diagram_isotopic \
 		 test_2crossing \
@@ -47,7 +48,8 @@ check_PROGRAMS = test_tangle_regenerate_auto \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_tangle_regenerate_auto \
+TESTS = test_readkt \
+	test_tangle_regenerate_auto \
 	test_bad_homfly \
 	test_diagram_isotopic \
 	test_2crossing \
@@ -72,7 +74,8 @@ TESTS = test_tangle_regenerate_auto \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_tangle_regenerate_auto \
+check_PROGRAMS = test_readkt \
+	         test_tangle_regenerate_auto \
 		 test_bad_homfly \
 		 test_diagram_isotopic \
 		 test_2crossing \
@@ -94,7 +97,8 @@ check_PROGRAMS = test_tangle_regenerate_auto \
                  hopf_test \
 		 ccode_test
 
-TESTS = test_tangle_regenerate_auto \
+TESTS = test_readkt \
+	test_tangle_regenerate_auto \
 	test_bad_homfly \
 	test_diagram_isotopic \
 	test_2crossing \
@@ -118,6 +122,11 @@ test_homfly_SOURCES = test_homfly.c
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_homfly_LDFLAGS = -static
 test_homfly_CFLAGS = -I$(top_srcdir)/src
+
+test_readkt_SOURCES = test_readkt.c 
+test_readkt_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_readkt_LDFLAGS = -static
+test_readkt_CFLAGS = -I$(top_srcdir)/src
 
 test_tangle_regenerate_auto_SOURCES = test_tangle_regenerate_auto.c 
 test_tangle_regenerate_auto_LDADD = -L$(top_builddir)/src -lplCurveStatic
