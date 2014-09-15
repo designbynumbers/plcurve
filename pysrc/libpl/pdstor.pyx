@@ -9,10 +9,10 @@ import libpl.data
 import re
 from itertools import combinations_with_replacement as combs
 from collections import namedtuple
-from operator import itemgetter
+from operator import itemgetter, mul
 
 Result = namedtuple('Result',
-                    'ncross ncomps ktname filepos pdcode')
+                    'ncross ncomps ktname filepos pdcode compmask')
 
 DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
@@ -48,9 +48,10 @@ class ClassifyDatabase(object):
             pd = PlanarDiagram.read_knot_theory(table)
 
     @staticmethod
-    def component_sign_mask(pdc, signature):
+    def component_sign_mask(pdc, signature, fix_first=True):
         new_pd = pdc.copy()
-        for comp in compress(range(len(new_pd.components)), signature):
+        start = 1 if fix_first else 0
+        for comp in compress(range(start, len(new_pd.components)), signature):
             new_pd.reorient_component(comp, 0)
         return new_pd
 
@@ -66,14 +67,15 @@ class ClassifyDatabase(object):
             return product([0,1], repeat=n)
 
     @classmethod
-    def component_combinations(cls, pdc, amortize=True):
+    def component_combinations(cls, pdc, amortize=True, fix_first=True):
         """component_combinations(PlanarDiagram) -> generator(new
         PlanarDiagrams, masks)
 
         Generate all possible component direction permutations.
         """
-        for comp_set in cls._bin_strings(len(pdc.components), amortize):
-            yield cls.component_sign_mask(pdc, comp_set), comp_set
+        mask_len = len(pdc.components) - 1 if fix_first else len(pdc.components)
+        for comp_set in cls._bin_strings(mask_len, amortize):
+            yield cls.component_sign_mask(pdc, comp_set, fix_first=fix_first), comp_set
 
 
     def _load_names_and_table(self, names_fname, table_fname, filetype):
@@ -91,12 +93,13 @@ class ClassifyDatabase(object):
             if count != int(table_count):
                 raise Exception("Two files differ in number of rows")
             for i, (name, pd_undir) in enumerate(self._iter_name_and_pd(names_f, table_f)):
-                for pd,_ in self.component_combinations(pd_undir):
+                for pd,mask in self.component_combinations(pd_undir):
                     homfly = pd.homfly()
+                    result = Result(pd.ncross, pd.ncomps, name, (filetype, i), pd, mask)
                     if homfly in self.cls_dict:
-                        self.cls_dict[homfly].append((name, (filetype, i), pd))
+                        self.cls_dict[homfly].append(result)#(name, (filetype, i), pd))
                     else:
-                        self.cls_dict[homfly] = [(name, (filetype, i), pd),]
+                        self.cls_dict[homfly] = [result]#(name, (filetype, i), pd),]
                     if i >= count-1:
                         break
         finally:
@@ -127,74 +130,90 @@ class ClassifyDatabase(object):
         """
         self.prod_max_x = max_n_cross
 
-        # prepare trim_dict of crossing-limited entries
-        self.trim_dict = dict()
-        self.trim_nx = dict()
+        # prepare trim_by_nx as list of buckets of crossing-limited entries
+        self.trim_by_nx = [[] for _ in range(1 + max_n_cross)]
+        self.trim_by_nx[0] = [Punk]
+
         for P, bucket in self.cls_dict.iteritems():
-            nbuk = dict()
-            minx = max_n_cross
+            minx = max_n_cross + 1
             for res in bucket:
-                nx = res[2].ncross
+                nx = res.ncross#[2].ncross
+
                 if nx > max_n_cross:
                     continue
 
                 minx = min(minx, nx)
-                nres = Result(nx, res[2].ncomps, res[0], res[1], res[2])
-                if nx in nbuk:
-                    nbuk[nx].append(nres)
-                else:
-                    nbuk[nx] = [nres]
-            if nbuk:
-                self.trim_dict[P] = nbuk
-                self.trim_nx[P] = minx
+            if minx <= max_n_cross:
+                self.trim_by_nx[minx].append(P)
 
         self.prod_dict = dict()
-        for Pa, Pb in combs(self.trim_dict.iterkeys(), 2):
-            # Smallest number of crossings which this prod can represent:
-            n_cs = self.trim_nx[Pa] + self.trim_nx[Pb] # As connected sum
-            n_sl = n_cs + 2 # As split link
 
-            # HOMFLY of mirrored diagrams
-            Pastar = ~Pa
-            Pbstar = ~Pb
+        unknot_polys = (Punk,) * (max_n_cross//2+1)
+        tlink_pows = [Ptlink**(n_unions) for n_unions in range(max_n_cross//2+1)]
+        # Trivial split links
+        for k in range(1, max_n_cross//2+1):
+            self.prod_dict[tlink_pows[k]] = (k, 2*k, unknot_polys[:k+1])
 
-            # Knot connected sum
-            Pab     = (Pa * Pb)
-            Pabstar = (Pa * Pbstar)
-            self.prod_dict[Pab]     = (1, Pa, Pb)
-            self.prod_dict[Pabstar] = (1, Pa, Pbstar)
-            self.prod_nx[Pab]     = n_cs
-            self.prod_nx[Pabstar] = n_cs
+        # Explode trim_by_nx into pairs (nx, poly)
+        nx_poly_pairs = []
+        for nx, bucket in zip(range(2, len(self.trim_by_nx)), self.trim_by_nx[2:]):
+            for poly in bucket:
+                nx_poly_pairs.append((nx, poly))
 
-            # Split links
-            Pabsplit     = (Ptlink * Pab)
-            Pabstarsplit = (Ptlink * Pabstar)
-            self.prod_dict[Pabsplit]     = (2, Pa, Pb)
-            self.prod_dict[Pabstarsplit] = (2, Pa, Pbstar)
-            self.prod_nx[Pabsplit]     = n_sl
-            self.prod_nx[Pabstarsplit] = n_sl
+        # Nontrivial connect sums and split links
+        for k in range(1, max_n_cross//2 + 1):
+            for k_fold_comb in combs(nx_poly_pairs, k):
+                # Smallest number of crossings a connect sum yields
+                n_cs = sum((n for n,_ in k_fold_comb))
+                if n_cs > max_n_cross:
+                    continue # Too many crossings, move on
 
-            self.prod_dict[Ptlink] = (2, Punk, Punk) # Trivial split link
-            self.prod_nx[Ptlink] = 2
-            # WARNING: lmpoly is not returning the correct homfly for this
-        for P in self.trim_dict.iterkeys():
-            # Split link with unknot
-            Psplit = (Ptlink * P)
-            self.prod_dict[Psplit] = (2, P, Punk)
-            self.prod_nx[Psplit]   = self.trim_nx[Pa] + 2
+                # List of polynomials
+                print n_cs, k_fold_comb
+                P     = [p for _,p in k_fold_comb]
+                print P
+                Pstar = [~p for p in P]
+
+                P_cmp = [] # List of composite knot homflys & factors
+                for mask in product((False, True), repeat=k):
+                    chain = tuple(B if mirrored else A for
+                                  A,B,mirrored in zip(P,Pstar,mask))
+                    P_cmp.append( (reduce(mul, chain), chain) )
+
+                # Each split link adds 2 crossings, how many can we have?
+                assert(n_cs <= max_n_cross)
+                max_n_unions = (max_n_cross - n_cs) // 2
+
+                # All possible number of split links for these factors
+                min_n_trivlks = 1 if len(P) == 1 else 0
+                for n_unions in range(max_n_unions + 1):
+                    n_sl = n_unions*2+n_cs
+                    assert(n_sl <= max_n_cross)
+
+                    # For each mirror-masked homfly...
+                    for Q, factors in P_cmp:
+                        max_n_trivlks = (max_n_cross - n_sl) // 2
+                        # For each possible number of split-linked unknots
+                        for i in range(min_n_trivlks, max_n_trivlks+1):
+                            S = tlink_pows[i + n_unions]
+                            self.prod_dict[S * Q] = (n_unions+i, n_sl+(2*i),
+                                                     factors + unknot_polys[:i])
 
     def classify_prime_homfly(self, homfly, ncross=1000):
         mhomfly = ~homfly
         if homfly == Punk:
-            return (False, {0: [Result(0, 1, "Unknot[]", (0,-1), PlanarDiagram.unknot(0))]})
-        if homfly in self.trim_dict and self.trim_nx[homfly] <= ncross:
-            return (False, {nx: h for nx, h in self.trim_dict[homfly].iteritems()
-                            if nx <= ncross})
-        elif mhomfly in self.trim_dict and self.trim_nx[mhomfly] <= ncross:
-            return (True, {nx: h for nx, h in self.trim_dict[mhomfly].iteritems()
-                           if nx <= ncross})
+            return (False, [Result(0, 1, "Unknot[]", (0,-1), PlanarDiagram.unknot(0), ())])
+        if homfly in self.cls_dict:
+            result = (False, [result for result in self.cls_dict[homfly] if result.ncross <= ncross])
+            # TODO: Return mirrored and non-mirrored results if they both exist
+            if result[1]:
+                return result
+        if mhomfly in self.cls_dict:
+            result = (True, [result for result in self.cls_dict[mhomfly] if result.ncross <= ncross])
+            if result[1]:
+                return result
 
-        return (None, dict())
+        return (None, [])
 
     def classify(self, pd):
         return self.classify_homfly(pd.homfly(), ncross=pd.ncross)
@@ -202,27 +221,21 @@ class ClassifyDatabase(object):
     def classify_homfly(self, homfly, ncross=1000):
         mhomfly = ~homfly
 
-        p_res = (None, dict())
-        c_res, c_mres = [], []
+        p_res = (None, [])
+        c_res = (-1, tuple())
 
         # Search for prime matches
         p_res = self.classify_prime_homfly(homfly, ncross)
-        #p_mres = self.classify_prime_homfly(mhomfly, ncross)
 
         # Search for composite and split matches
-        if homfly in self.prod_dict and self.prod_nx[homfly] <= ncross:
-            sumkind, Pa, Pb = self.prod_dict[homfly]
-            c_res = (sumkind,
-                     self.classify_prime_homfly(Pa, ncross),
-                     self.classify_prime_homfly(Pb, ncross))
-        if mhomfly in self.prod_dict and self.prod_nx[mhomfly] <= ncross:
-            sumkind, Pa, Pb = self.prod_dict[mhomfly]
-            c_mres = (sumkind,
-                     self.classify_prime_homfly(Pa, ncross),
-                     self.classify_prime_homfly(Pb, ncross))
+        if homfly in self.prod_dict:
+            n_unions, min_nx, factors = self.prod_dict[homfly]
+            #sumkind, Pa, Pb = self.prod_dict[homfly]
+            if min_nx <= ncross:
+                c_res = (n_unions,
+                         tuple(self.classify_prime_homfly(P, ncross) for P in factors))
 
-        return p_res, c_res, c_mres
-
+        return p_res, c_res
 
 class PDStoreExpander(object):
     def __init__(self, dirloc=DEFAULT_PATH,

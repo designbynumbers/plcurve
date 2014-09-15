@@ -630,6 +630,11 @@ cdef class HOMFLYTerm:
             x.C + y.C,
             x.alpha, x.zeta)
 
+    def __nonzero__(self):
+        if self.C == 0:
+            return 0
+        else:
+            return 1
     def __cmp__(HOMFLYTerm x, HOMFLYTerm y):
         if x.alpha < y.alpha:
             return -1
@@ -696,9 +701,11 @@ cdef class HOMFLYPolynomial:
             else:
                 z_part = 0
 
-            result.append(HOMFLYTerm(int(coeff),
-                                     int(a_part),
-                                     int(z_part)))
+            term = HOMFLYTerm(int(coeff),
+                              int(a_part),
+                              int(z_part))
+            if term:
+                result.append(term)
         # TODO: Raise error on parse failure or inappropriate latex rep
 
         if sort:
@@ -729,6 +736,8 @@ cdef class HOMFLYPolynomial:
             for B in y.terms:
                 C = A*B
                 n = (C.alpha, C.zeta)
+                if not C:
+                    continue
                 if n in found:
                     newterms[found[n]] = newterms[found[n]] + C
                 else:
@@ -737,6 +746,14 @@ cdef class HOMFLYPolynomial:
 
         newpoly.terms = tuple(sorted(newterms))
         return newpoly
+    def __pow__(HOMFLYPolynomial self, int k, z):
+        if k == 0:
+            return HOMFLYPolynomial('1')
+        elif k < 0:
+            raise Exception("Power must be positive")
+        else:
+            return reduce(mul, [self]*k)
+
     def __richcmp__(HOMFLYPolynomial x, HOMFLYPolynomial y, int op):
         cdef HOMFLYTerm A,B
         if op == 2:
