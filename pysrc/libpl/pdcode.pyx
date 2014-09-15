@@ -5,12 +5,13 @@ import sys
 from cython.operator cimport dereference as deref
 import random
 import re
-from operator import itemgetter
+from operator import itemgetter, mul
+from itertools import islice, izip
 
 #from cython.view cimport array
 cimport cython
 
-PD_VERBOSE = 0
+PD_VERBOSE =0
 #PD_LIVE_ON_ERROR = 1
 
 cdef class Edge
@@ -195,6 +196,60 @@ cdef class Edge(_Disownable):
         if self.parent is None:
             raise NoParentException("Edge does not belong to a pdcode")
         pd_reorient_edge(self.parent.p, self.index, sign)
+
+    cpdef plug_head(self, Crossing x, pd_idx_t pos):
+        if self.parent is not None and self.parent.p != x.parent.p:
+            raise Exception("Cannot plug this edge into a different diagram")
+        elif self.parent is None:
+            raise Exception("Edge is not part of a PlanarDiagram")
+        x.edges[pos] = self.index
+        self.head = x.index
+        self.headpos = pos
+
+    cpdef plug_tail(self, Crossing x, pd_idx_t pos):
+        if self.parent is not None and self.parent.p != x.parent.p:
+            raise Exception("Cannot plug this edge into a different diagram")
+        elif self.parent is None:
+            raise Exception("Edge is not part of a PlanarDiagram")
+        x.edges[pos] = self.index
+        self.tail = x.index
+        self.tailpos = pos
+
+    cpdef swap_head(self, Edge other, pd_or_t head_or_tail):
+        cdef Crossing x
+        cdef pd_idx_t pos
+        if head_or_tail == PD_NEG_ORIENTATION:
+            # Plug into other's tail crossing
+            pos = self.headpos
+            x = self.next_crossing()
+            self.plug_head(other.prev_crossing(), other.tailpos)
+            other.plug_tail(x, pos)
+        elif head_or_tail == PD_POS_ORIENTATION:
+            # Plug into other's head crossing
+            pos = self.headpos
+            x = self.next_crossing()
+            self.plug_head(other.next_crossing(), other.headpos)
+            other.plug_head(x, pos)
+        else:
+            raise Exception("Invalid orientation describing head-or-tail")
+
+    cpdef swap_tail(self, Edge other, pd_or_t head_or_tail):
+        cdef Crossing x
+        cdef pd_idx_t pos
+        if head_or_tail == PD_NEG_ORIENTATION:
+            # Plug into other's tail crossing
+            pos = self.tailpos
+            x = self.prev_crossing()
+            self.plug_tail(other.prev_crossing(), other.tailpos)
+            other.plug_tail(x, pos)
+        elif head_or_tail == PD_POS_ORIENTATION:
+            # Plug into other's head crossing
+            pos = self.tailpos
+            x = self.prev_crossing()
+            self.plug_tail(other.next_crossing(), other.headpos)
+            other.plug_head(x, pos)
+        else:
+            raise Exception("Invalid orientation describing head-or-tail")
 
     def __str__(self):
         return "%d_%d->%d_%d"%(
@@ -1140,6 +1195,62 @@ cdef class PlanarDiagram:
         if nout == 0:
             raise Exception("Error on R2 bigonelimination")
         return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
+
+    def R3_strand_swap(self, pd_idx_t i_x,
+                       pd_idx_t i_a_1, pd_idx_t i_b_1,
+                       pd_idx_t i_a_2, pd_idx_t i_b_2):
+        cdef PlanarDiagram result = self.copy()
+        cdef Crossing x = result.crossings[i_x]
+        cdef Edge a_1 = result.edges[i_a_1]
+        cdef Edge a_2 = result.edges[i_a_2]
+        cdef Edge b_1 = result.edges[i_b_1]
+        cdef Edge b_2 = result.edges[i_b_2]
+        cdef Edge a_0, b_0
+        cdef bool a_1_in, b_1_in
+
+        a_1_in = a_1.head == x.index
+        b_1_in = b_1.head == x.index
+
+        if a_1_in:
+            a_0 = a_1.prev_edge()
+        else:
+            a_0 = a_1.next_edge()
+
+        if b_1_in:
+            b_0 = b_1.prev_edge()
+        else:
+            b_0 = b_1.next_edge()
+
+        if a_1_in and b_1_in:
+            b_1.swap_tail(a_2, PD_NEG_ORIENTATION)
+            b_0.swap_tail(b_1, PD_NEG_ORIENTATION)
+
+            a_1.swap_tail(b_2, PD_NEG_ORIENTATION)
+            a_0.swap_tail(a_1, PD_NEG_ORIENTATION)
+        elif a_1_in and not b_1_in:
+            b_1.next_crossing().sign = (b_1.next_crossing().sign+1) % 2
+            b_1.swap_head(a_2, PD_NEG_ORIENTATION)
+            b_0.swap_head(b_1, PD_POS_ORIENTATION)
+
+            a_1.prev_crossing().sign = (a_1.prev_crossing().sign+1) % 2
+            a_1.swap_tail(b_2, PD_POS_ORIENTATION)
+            a_0.swap_tail(a_1, PD_NEG_ORIENTATION)
+        elif not a_1_in and not b_1_in:
+            b_1.swap_head(a_2, PD_POS_ORIENTATION)
+            b_0.swap_head(b_1, PD_POS_ORIENTATION)
+
+            a_1.swap_head(b_2, PD_POS_ORIENTATION)
+            a_0.swap_head(a_1, PD_POS_ORIENTATION)
+        elif not a_1_in and b_1_in:
+            b_1.prev_crossing().sign = (b_1.prev_crossing().sign+1) % 2
+            b_1.swap_tail(a_2, PD_POS_ORIENTATION)
+            b_0.swap_tail(b_1, PD_NEG_ORIENTATION)
+
+            a_1.next_crossing().sign = (a_1.next_crossing().sign+1) % 2
+            a_1.swap_head(b_2, PD_NEG_ORIENTATION)
+            a_0.swap_head(a_1, PD_POS_ORIENTATION)
+
+        return result
 
     # Validity checks
     def crossings_ok(self):
