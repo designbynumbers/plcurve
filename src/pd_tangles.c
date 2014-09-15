@@ -962,10 +962,12 @@ pd_code_t *pd_flype(pd_code_t *pd,pd_idx_t e[4], pd_idx_t f[4])
    we can write unit tests for the individual pieces. 
 **********************************************************************/
 
-pdint_isolate_adjacent_strand(pd_code_t *pd, pd_idx_t ncross_edges, pd_idx_t cross_edges[],
-			      pd_idx_t *start_cross, pd_idx_t *end_cross,
-			      pd_idx_t *nadj_cross,  pd_idx_t **adj_cross, 
-			      pd_idx_t *nadj_edges,  pd_idx_t **adj_edges)
+void pdint_isolate_adjacent_strand(pd_code_t *pd, pd_tangle_t *t, 
+				   pd_idx_t ncross_edges, 
+				   pd_idx_t cross_edges[],
+				   pd_idx_t *start_cross, pd_idx_t *end_cross,
+				   pd_idx_t *nadj_cross,  pd_idx_t **adj_cross, 
+				   pd_idx_t *nadj_edges,  pd_idx_t **adj_edges)
 {  
  /* Step 1. Identify start and end crossings of the 
       strand and make a list of the "middle" crossings.

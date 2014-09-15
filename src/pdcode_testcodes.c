@@ -91,14 +91,20 @@ pd_code_t *pd_build_twist_knot(pd_idx_t n)
 
   }
 
+  /* We don't have edges yet, so we can't assign crossing signs. */
+    
+  pd_regenerate(pd);
+
+  /* Now we have an edge list and can assign crossing signs. It turns
+     out that this is trivial as all the crossings have positive sign. */
+
   pd_idx_t k;
   for(k=0;k<pd->ncross;k++) { 
 
     pd->cross[k].sign = PD_POS_ORIENTATION;
 
   }
-    
-  pd_regenerate(pd);
+
   assert(pd_ok(pd));
 
   return pd;
@@ -194,6 +200,12 @@ pd_code_t *pd_build_torus_knot(pd_idx_t p, pd_idx_t q)
   
   }
   
+  /* Regenerating should build edges for the first time.  It doesn't
+     make any sense to try to establish crossing signs until this
+     happens. */
+
+  pd_regenerate(pd);
+
   /* All crossings have positive sign. */
 
   for(i=0;i<pd->ncross;i++) { 
@@ -202,9 +214,6 @@ pd_code_t *pd_build_torus_knot(pd_idx_t p, pd_idx_t q)
 
   }
 
-  /* Regenerating should respect the orientation that we've established. */
-
-  pd_regenerate(pd);
   assert(pd_ok(pd));
 
   return pd;
@@ -295,15 +304,21 @@ pd_code_t *pd_build_simple_chain(pd_idx_t n)
 
   }
 
+  /* We now call regenerate to build edges and faces. */
+
+  pd_regenerate(pd);
+
+  /* Now that we have edges, it makes sense to assign
+     crossing orientations. */
+
   pd_idx_t k;
-  
   for(k=0;k<pd->ncross;k++) { 
 
     pd->cross[k].sign = PD_POS_ORIENTATION;
 
   }
 
-  pd_regenerate(pd);
+
   assert(pd_ok(pd));
 
   return pd;
@@ -468,15 +483,16 @@ case with n == 0 and n == 1 correctly.
     
   }
 
+  pd_regenerate(pd);  /* This will unset any crossing information, 
+			 because we don't have edges yet. */
+
   for(i=0;i<pd->ncross;i++) { 
 
     pd->cross[i].sign = PD_POS_ORIENTATION;
 
   }
 
-  pd_regenerate(pd);
   assert(pd_ok(pd));
-
   return pd;
 
 }
@@ -555,6 +571,12 @@ pd_code_t *pd_build_unknot_wye(pd_idx_t a, pd_idx_t b, pd_idx_t c)
   pdint_build_tendril(pd,a+1,2*a+2,b);
   pdint_build_tendril(pd,a+b+2,2*a+2*b+4,c);
 
+  /* Now build the edges and faces with regenerate. */
+  
+  pd_regenerate(pd);
+
+  /* Once we have these, it makes sense to assign crossing signs. */
+
   pd_idx_t k;
 
   for(k=0;k<pd->ncross;k++) { 
@@ -563,7 +585,6 @@ pd_code_t *pd_build_unknot_wye(pd_idx_t a, pd_idx_t b, pd_idx_t c)
 
   }
 
-  pd_regenerate(pd);
 
   assert(pd_ok(pd));
 

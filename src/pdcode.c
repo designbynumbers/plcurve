@@ -1699,8 +1699,58 @@ void pd_regenerate(pd_code_t *pd)
 {
   assert(pd != NULL);
 
-  pd_regenerate_crossings(pd);
-  pd_regenerate_edges(pd);
+  pd_regenerate_crossings(pd); /* This can always be run */
+
+  /* Now regenerating the edges will destroy crossing sign information. 
+     Therefore, we want to run it 
+
+     a) definitely, if all the crossings are set to
+        PD_UNSET_ORIENTATION.  
+
+     b) otherwise, only if the edges are actually corrupted or there
+        are no edges yet (in which case, the crossing information
+        doesn't mean anything either, so we should lose it).
+
+  */
+
+  bool crossing_signs_all_unset = true;
+  pd_idx_t i;
+
+  for(i=0;i<pd->ncross && crossing_signs_all_unset;i++) { 
+
+    if (pd->cross[i].sign != PD_UNSET_ORIENTATION) { 
+
+      crossing_signs_all_unset = false;
+
+    }
+
+  }
+
+  if (crossing_signs_all_unset) { 
+   
+    pd_regenerate_edges(pd);
+
+  } else {
+
+    pd_idx_t PD_VERBOSITY_STORE = PD_VERBOSE;
+    PD_VERBOSE = 0;
+
+    if (!pd_edges_ok(pd)) { 
+
+      for(i=0;i<pd->ncross;i++) { 
+
+	pd->cross[i].sign = PD_UNSET_ORIENTATION;
+
+      }
+
+      pd_regenerate_edges(pd);
+
+    }
+
+    PD_VERBOSE = PD_VERBOSITY_STORE;
+
+  }
+
   pd_regenerate_comps(pd);
   pd_regenerate_faces(pd);
   pd_regenerate_hash(pd);
@@ -1792,6 +1842,13 @@ bool pd_edges_ok(pd_code_t *pd)
   assert(pd != NULL);
 
   pd_idx_t edge;
+
+  if (pd->ncross != 0 && pd->nedges != pd->ncross*2) { 
+    /* We first check for the correct number of edges! */
+
+    return false;
+
+  }
 
   for(edge=0;edge < pd->nedges;edge++) {
 

@@ -420,7 +420,29 @@ extern "C" {
      comps, faces, and crossings */
 
   void pd_regenerate(pd_code_t *pd);
-  /* Regenerates everything from cross data. */
+  /* Regenerates everything from cross data. This needs to be 
+     used with some care if the crossings have signs. The crossing
+     signs depend on edge orientations, which are not uniquely specified
+     by crossing data.
+
+     Therefore, pd_regenerate will try to preserve an existing edge set
+     if it passes pd_edges_ok (and if it can, will preserve crossing sign
+     data attached to the crossings). 
+
+     If there is no edge set, or the edge set is inconsistent, pd_regenerate
+     will rebuild the edge set (if possible), but will discard the crossing
+     sign information as it has no way to transfer crossing sign information
+     without knowing the intended orientation of the edges. 
+
+     This means that if you're writing code to generate diagrams, you either
+     need to 
+
+     a) build the edges, too (but not the faces/components/hash)
+
+     or 
+
+     b) assign crossing SIGNS after the pd_regenerate call 
+  */
 
   /* pd sanity checking */
 

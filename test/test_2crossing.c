@@ -1,6 +1,6 @@
 /* 
 
-   test_pdcode.c : Unit tests for the code in pdcode.c
+   test_2crossing.c : Unit tests for the code in pdcode.c
 
 
 */
