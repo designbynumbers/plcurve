@@ -115,6 +115,7 @@ cdef extern from "plcTopology.h":
 
     # Regenerate pd code data
     void pd_regenerate_crossings(pd_code_t *pd)
+    void pd_regenerate_edges(pd_code_t *pd)
     void pd_regenerate_comps(pd_code_t *pd)
     void pd_regenerate_faces(pd_code_t *pd)
     void pd_regenerate_hash(pd_code_t *pd)

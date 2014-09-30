@@ -799,7 +799,8 @@ cdef class HOMFLYPolynomial:
                     found[n] = len(newterms)
                     newterms.append(C)
 
-        newpoly.terms = tuple(sorted(newterms))
+        # remove any 0-coefficient terms... can possibly do this inline
+        newpoly.terms = tuple(sorted(filter(None, newterms)))
         return newpoly
     def __pow__(HOMFLYPolynomial self, int k, z):
         if k == 0:
@@ -1414,10 +1415,15 @@ cdef class PlanarDiagram:
         # tail dictionary for consistency checking
         tails = dict()
 
-        # run through the crossings in the pdcode list
+        # Set crossings and fill in some edges
         for i,x in enumerate(pdcode):
             for pos in (0,1,2,3):
                 pd.cross[i].edge[pos] = x[pos] - off
+        pd_regenerate_edges(pd)
+
+        # Set signs on the crossings. It's important to do this
+        # after regenerate_edges() as that removes sign info
+        for i,x in enumerate(pdcode):
             tails[x[2]] = i
             if x[3] - x[1] == 1:
                 if x[3] not in tails:
