@@ -7,6 +7,8 @@ import random
 import re
 from operator import itemgetter, mul
 from itertools import islice, izip
+import os
+import libpl.data
 
 #from cython.view cimport array
 cimport cython
@@ -19,6 +21,9 @@ cdef class Crossing
 cdef class Face
 cdef class Component
 cdef class PlanarDiagram
+
+DEFAULT_PATH=os.path.join("data","pdstors")
+SOURCE_DIR=libpl.data.dir
 
 ctypedef fused Edge_or_idx:
     short
@@ -1314,6 +1319,64 @@ cdef class PlanarDiagram:
                      component in self.components)
         )
         return pdstr
+
+    @classmethod
+    def _kt_db_search(cls, search_key, names_f, table_f):
+        for line in names_f:
+            if search_key in line:
+                return cls.read_knot_theory(table_f)
+            table_f.readline() # burn the line
+        return None
+
+    KNOT_NAMES = os.path.join(SOURCE_DIR,"rolfsennames.txt")
+    KNOT_TABLE = os.path.join(SOURCE_DIR,"rolfsentable.txt")
+    @classmethod
+    def db_knot(cls, ncross, index, alternating=None):
+        """db_knot(ncross, index, [alternating=None]) -> new PlanarDiagram
+
+        Searches the Rolfsen table of knot types and returns a new
+        PlanarDiagram which is isotopic. Raises KeyError if the specified
+        knot is not found.
+
+        The variable ``alternating`` defaults to None. If the crossing
+        number is high enough that knots are distinguished by
+        'Alternating' or 'NonAlternating,' be sure to set
+        ``alternating`` to True or False respectively.
+
+        """
+        search_key = "Knot[%s, %s%s]"%(
+            ncross,
+            ("" if alternating is None else
+             "Alternating, " if alternating else
+             "NonAlternating, "),
+            index)
+        loaded_pd = None
+        with open(cls.KNOT_NAMES) as names_f, open(cls.KNOT_TABLE) as table_f:
+            loaded_pd = cls._kt_db_search(search_key, names_f, table_f)
+        if loaded_pd is None:
+            raise KeyError("%s not found in knots table"%search_key)
+        return loaded_pd
+
+
+    LINK_NAMES = os.path.join(SOURCE_DIR,"thistlethwaitenames.txt")
+    LINK_TABLE = os.path.join(SOURCE_DIR,"thistlethwaitetable.txt")
+    @classmethod
+    def db_link(cls, ncross, index, alternating=True):
+        """db_link(ncross, index, [alternating=True]) -> new PlanarDiagram
+
+        Searches the Thistlethwaite table of link types and returns a new
+        PlanarDiagram which is isotopic. Raises KeyError if the specified
+        link is not found."""
+        search_key = "Link[%s, %sAlternating, %s]"%(
+            ncross,
+            "" if alternating else "Non",
+            index)
+        loaded_pd = None
+        with open(cls.LINK_NAMES) as names_f, open(cls.LINK_TABLE) as table_f:
+            loaded_pd = cls._kt_db_search(search_key, names_f, table_f)
+        if loaded_pd is None:
+            raise KeyError("%s not found in links table"%search_key)
+        return loaded_pd
 
     def get_R1_loops(self):
         """get_R1_loops() -> generator of Faces
