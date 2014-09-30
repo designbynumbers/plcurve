@@ -1197,6 +1197,10 @@ cdef class PlanarDiagram:
             raise Exception("Error on R2 bigonelimination")
         return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
 
+    def _R3_strand_swap(self):
+        # Stub for wrapping C implementation of tangle slide
+        pass
+
     def R3_strand_swap(self, pd_idx_t i_x,
                        pd_idx_t i_a_1, pd_idx_t i_b_1,
                        pd_idx_t i_a_2, pd_idx_t i_b_2):
@@ -1252,6 +1256,9 @@ cdef class PlanarDiagram:
             a_0.swap_head(a_1, PD_POS_ORIENTATION)
 
         return result
+
+    def tangle_slide(self, tangle, crs_edges, strand):
+        pass
 
     # Validity checks
     def crossings_ok(self):
