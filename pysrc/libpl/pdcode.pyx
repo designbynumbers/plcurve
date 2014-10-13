@@ -13,7 +13,7 @@ import libpl.data
 #from cython.view cimport array
 cimport cython
 
-PD_VERBOSE =0
+PD_VERBOSE =10
 #PD_LIVE_ON_ERROR = 1
 
 cdef class Edge
@@ -260,7 +260,7 @@ cdef class Edge(_Disownable):
         return "%d_%d->%d_%d"%(
             self.p.tail, self.p.tailpos, self.p.head, self.p.headpos)
     def __repr__(self):
-        return "Edge(%d_%d->%d_%d)"%(
+        return "Edge(\"%d_%d\",\"%d_%d\")"%(
             self.p.tail, self.p.tailpos, self.p.head, self.p.headpos)
 
     def prev_crossing(self):
@@ -1206,6 +1206,18 @@ cdef class PlanarDiagram:
         # Stub for wrapping C implementation of tangle slide
         pass
 
+    def R3_nice_swap(self, Face f, Edge e):
+        fip = e.face_pos()
+        pos = fip[0][1] if f == fip[0][0] else fip[1][1]
+        a = f[(pos+1) %3]
+        b = f[(pos+2) %3]
+        x = a.next_crossing() if f.signs[(pos+1) %3] == 1 else a.prev_crossing()
+        y = b.prev_crossing() if f.signs[(pos+2) %3] == 1 else b.next_crossing()
+        a2 = a.next_edge() if f.signs[(pos+1) %3] == 1 else a.prev_edge()
+        b2 = b.prev_edge() if f.signs[(pos+2) %3] == 1 else b.next_edge()
+        return self.R3_strand_swap(x.index, a.index, b.index, a2.index, b2.index)
+
+
     def R3_strand_swap(self, pd_idx_t i_x,
                        pd_idx_t i_a_1, pd_idx_t i_b_1,
                        pd_idx_t i_a_2, pd_idx_t i_b_2):
@@ -1232,34 +1244,44 @@ cdef class PlanarDiagram:
             b_0 = b_1.next_edge()
 
         if a_1_in and b_1_in:
-            b_1.swap_tail(a_2, PD_NEG_ORIENTATION)
-            b_0.swap_tail(b_1, PD_NEG_ORIENTATION)
-
+            #print "in in"
+            a_0.swap_head(a_1, PD_POS_ORIENTATION)
             a_1.swap_tail(b_2, PD_NEG_ORIENTATION)
-            a_0.swap_tail(a_1, PD_NEG_ORIENTATION)
+            b_0.swap_head(b_1, PD_POS_ORIENTATION)
+            b_1.swap_tail(a_2, PD_NEG_ORIENTATION)
+
         elif a_1_in and not b_1_in:
+            #print "in out"
             b_1.next_crossing().sign = (b_1.next_crossing().sign+1) % 2
-            b_1.swap_head(a_2, PD_NEG_ORIENTATION)
-            b_0.swap_head(b_1, PD_POS_ORIENTATION)
-
             a_1.prev_crossing().sign = (a_1.prev_crossing().sign+1) % 2
-            a_1.swap_tail(b_2, PD_POS_ORIENTATION)
-            a_0.swap_tail(a_1, PD_NEG_ORIENTATION)
-        elif not a_1_in and not b_1_in:
-            b_1.swap_head(a_2, PD_POS_ORIENTATION)
-            b_0.swap_head(b_1, PD_POS_ORIENTATION)
 
-            a_1.swap_head(b_2, PD_POS_ORIENTATION)
-            a_0.swap_head(a_1, PD_POS_ORIENTATION)
-        elif not a_1_in and b_1_in:
-            b_1.prev_crossing().sign = (b_1.prev_crossing().sign+1) % 2
-            b_1.swap_tail(a_2, PD_POS_ORIENTATION)
             b_0.swap_tail(b_1, PD_NEG_ORIENTATION)
+            b_1.swap_head(a_2, PD_NEG_ORIENTATION)
+            b_1.swap_head(b_1, PD_NEG_ORIENTATION)
 
-            a_1.next_crossing().sign = (a_1.next_crossing().sign+1) % 2
-            a_1.swap_head(b_2, PD_NEG_ORIENTATION)
             a_0.swap_head(a_1, PD_POS_ORIENTATION)
+            a_1.swap_tail(b_2, PD_POS_ORIENTATION)
+            a_1.swap_tail(a_1, PD_POS_ORIENTATION)
+        elif not a_1_in and not b_1_in:
+            #print "out out"
+            a_0.swap_tail(a_1, PD_NEG_ORIENTATION)
+            a_1.swap_head(b_2, PD_POS_ORIENTATION)
+            b_0.swap_tail(b_1, PD_NEG_ORIENTATION)
+            b_1.swap_head(a_2, PD_POS_ORIENTATION)
+        elif not a_1_in and b_1_in:
+            #print "out in"
+            b_1.prev_crossing().sign = (b_1.prev_crossing().sign+1) % 2
+            a_1.next_crossing().sign = (a_1.next_crossing().sign+1) % 2
 
+            a_0.swap_tail(a_1, PD_NEG_ORIENTATION)
+            a_1.swap_head(b_2, PD_NEG_ORIENTATION)
+            a_1.swap_head(a_1, PD_NEG_ORIENTATION)
+
+            b_0.swap_head(b_1, PD_POS_ORIENTATION)
+            b_1.swap_tail(a_2, PD_POS_ORIENTATION)
+            b_1.swap_tail(b_1, PD_POS_ORIENTATION)
+
+        result.regenerate()
         return result
 
     def tangle_slide(self, tangle, crs_edges, strand):
@@ -1384,9 +1406,10 @@ cdef class PlanarDiagram:
         Returns a generator of loops which are viable candidates
         for Reidemeister 1 moves.
         """
-        for face in self.faces:
-            if len(face) == 1:
-                yield face
+        if self.ncross > 0:
+            for face in self.faces:
+                if len(face) == 1:
+                    yield face
 
     def get_R2_bigons(self):
         """get_R2_bigons() -> generator of Faces
@@ -1394,10 +1417,27 @@ cdef class PlanarDiagram:
         Returns a generator of bigons which are viable candidates
         for Reidemeister 2 moves.
         """
-        for face in self.faces:
-            verts = face.get_vertices()
-            if len(verts) == 2 and verts[0].sign != verts[1].sign:
-                yield face
+        if self.ncross > 0:
+            for face in self.faces:
+                verts = face.get_vertices()
+                if len(verts) == 2 and verts[0].sign != verts[1].sign:
+                    yield face
+
+    def get_R3_triangles(self):
+        """get_R3_triangles() -> generator of (Face, Edge) pairs
+
+        Returns a generator of trigons which are viable
+        candidates for Reidemeister 3 moves, with the strand
+        that would move."""
+        if self.ncross > 2:
+            for face in self.faces:
+                verts = set(face.vertices)
+                if len(face) == 3 and len(verts) == 3:
+                    for edge in face:
+                        if ((edge.index in edge.prev_crossing().overstrand_indices()) ==
+                            (edge.index in edge.next_crossing().overstrand_indices())):
+                            yield face, edge
+
 
     def neighbors(self):
         """neighbors() -> generator of tuples of PlanarDiagrams

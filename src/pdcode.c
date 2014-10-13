@@ -1701,11 +1701,11 @@ void pd_regenerate(pd_code_t *pd)
 
   pd_regenerate_crossings(pd); /* This can always be run */
 
-  /* Now regenerating the edges will destroy crossing sign information. 
-     Therefore, we want to run it 
+  /* Now regenerating the edges will destroy crossing sign information.
+     Therefore, we want to run it
 
      a) definitely, if all the crossings are set to
-        PD_UNSET_ORIENTATION.  
+        PD_UNSET_ORIENTATION.
 
      b) otherwise, only if the edges are actually corrupted or there
         are no edges yet (in which case, the crossing information
@@ -1716,9 +1716,9 @@ void pd_regenerate(pd_code_t *pd)
   bool crossing_signs_all_unset = true;
   pd_idx_t i;
 
-  for(i=0;i<pd->ncross && crossing_signs_all_unset;i++) { 
+  for(i=0;i<pd->ncross && crossing_signs_all_unset;i++) {
 
-    if (pd->cross[i].sign != PD_UNSET_ORIENTATION) { 
+    if (pd->cross[i].sign != PD_UNSET_ORIENTATION) {
 
       crossing_signs_all_unset = false;
 
@@ -1726,8 +1726,8 @@ void pd_regenerate(pd_code_t *pd)
 
   }
 
-  if (crossing_signs_all_unset) { 
-   
+  if (crossing_signs_all_unset) {
+
     pd_regenerate_edges(pd);
 
   } else {
@@ -1735,9 +1735,9 @@ void pd_regenerate(pd_code_t *pd)
     pd_idx_t PD_VERBOSITY_STORE = PD_VERBOSE;
     PD_VERBOSE = 0;
 
-    if (!pd_edges_ok(pd)) { 
+    if (!pd_edges_ok(pd)) {
 
-      for(i=0;i<pd->ncross;i++) { 
+      for(i=0;i<pd->ncross;i++) {
 
 	pd->cross[i].sign = PD_UNSET_ORIENTATION;
 
@@ -1843,7 +1843,7 @@ bool pd_edges_ok(pd_code_t *pd)
 
   pd_idx_t edge;
 
-  if (pd->ncross != 0 && pd->nedges != pd->ncross*2) { 
+  if (pd->ncross != 0 && pd->nedges != pd->ncross*2) {
     /* We first check for the correct number of edges! */
 
     return false;
@@ -1930,7 +1930,7 @@ bool pd_edges_ok(pd_code_t *pd)
 }
 
 int pd_tag_cmp(const void *A,const void *B) {
-  
+
   pd_tag_t *tagA = (pd_tag_t *)(A);
   pd_tag_t *tagB = (pd_tag_t *)(B);
 
@@ -2026,7 +2026,7 @@ bool pd_comps_ok(pd_code_t *pd)
   assert(tagset != NULL);
   pd_idx_t i;
 
-  for(i=0;i<pd->ncomps;i++) { 
+  for(i=0;i<pd->ncomps;i++) {
 
     tagset[i] = pd->comp[i].tag;
 
@@ -2034,16 +2034,16 @@ bool pd_comps_ok(pd_code_t *pd)
 
   qsort(tagset,pd->ncomps,sizeof(pd_tag_t),pd_tag_cmp);
 
-  for(i=1;i<pd->ncomps;i++) { 
+  for(i=1;i<pd->ncomps;i++) {
 
-    if (tagset[i] == tagset[i-1]) { 
+    if (tagset[i] == tagset[i-1]) {
 
       pd_idx_t compA, compB;
       bool Afound = false, Bfound = false;
 
-      for(compA=0;compA<pd->ncomps && !Afound;compA++) { 
+      for(compA=0;compA<pd->ncomps && !Afound;compA++) {
 
-	if (pd->comp[compA].tag == tagset[i]) { 
+	if (pd->comp[compA].tag == tagset[i]) {
 
 	  Afound = true;
 
@@ -2051,9 +2051,9 @@ bool pd_comps_ok(pd_code_t *pd)
 
       }
 
-      for(compB=compA+1;compB<pd->ncomps && !Bfound;compB++) { 
+      for(compB=compA+1;compB<pd->ncomps && !Bfound;compB++) {
 
-	if (pd->comp[compB].tag == tagset[i]) { 
+	if (pd->comp[compB].tag == tagset[i]) {
 
 	  Bfound = true;
 
@@ -2065,14 +2065,14 @@ bool pd_comps_ok(pd_code_t *pd)
 
     }
 
-    if (tagset[i] < 'A') { 
+    if (tagset[i] < 'A') {
 
       pd_idx_t compA;
       bool Afound = false;
 
-      for(compA=0;compA<pd->ncomps && !Afound;compA++) { 
+      for(compA=0;compA<pd->ncomps && !Afound;compA++) {
 
-	if (pd->comp[compA].tag == tagset[i]) { 
+	if (pd->comp[compA].tag == tagset[i]) {
 
 	  Afound = true;
 
@@ -2081,7 +2081,7 @@ bool pd_comps_ok(pd_code_t *pd)
       }
 
       return pd_error(SRCLOC,"component %COMP has illegal tag (< 'A')",pd,compA);
-      
+
     }
 
   }
@@ -2241,14 +2241,14 @@ bool pd_ok(pd_code_t *pd) {
 
 /* pd operations */
 
-bool pd_is_alternating(pd_code_t *pd) 
+bool pd_is_alternating(pd_code_t *pd)
 /* Checks to see if pd is an alternating link. Returns an error if some crossings are not set. */
 {
   pd_idx_t cr;
 
-  for(cr=0;cr<pd->ncross;cr++) { 
+  for(cr=0;cr<pd->ncross;cr++) {
 
-    if (pd->cross[cr].sign == PD_UNSET_ORIENTATION) { 
+    if (pd->cross[cr].sign == PD_UNSET_ORIENTATION) {
 
       pd_error(SRCLOC,"can't decide whether pd %PD is alternating since it has unset crossing signs",
 	       pd);
@@ -2263,7 +2263,7 @@ bool pd_is_alternating(pd_code_t *pd)
 
   for(comp=0;comp<pd->ncomps;comp++) {
 
-    for(compedge=0;compedge<pd->comp[comp].nedges;compedge++) { 
+    for(compedge=0;compedge<pd->comp[comp].nedges;compedge++) {
 
       pd_idx_t edge = pd->comp[comp].edge[compedge];
 
@@ -2280,7 +2280,7 @@ bool pd_is_alternating(pd_code_t *pd)
 	pd_understrand_pos(pd,pd->edge[edge].head,&incoming_under_pos,&outgoing_under_pos);
 	pd_overstrand_pos(pd,pd->edge[edge].head,&incoming_over_pos,&outgoing_over_pos);
 
-	if (incoming_under_pos == pd->edge[edge].headpos) { /* We go TO an UNDER */ 
+	if (incoming_under_pos == pd->edge[edge].headpos) { /* We go TO an UNDER */
 
 	  return false;
 
@@ -2300,7 +2300,7 @@ bool pd_is_alternating(pd_code_t *pd)
 	pd_understrand_pos(pd,pd->edge[edge].head,&incoming_under_pos,&outgoing_under_pos);
 	pd_overstrand_pos(pd,pd->edge[edge].head,&incoming_over_pos,&outgoing_over_pos);
 
-	if (incoming_over_pos == pd->edge[edge].headpos) { /* We go TO an OVER */ 
+	if (incoming_over_pos == pd->edge[edge].headpos) { /* We go TO an OVER */
 
 	  return false;
 
@@ -2337,7 +2337,7 @@ bool pd_is_alternating(pd_code_t *pd)
 pd_code_t *pd_copy(pd_code_t *pd)
 /* Make a new-memory copy of pd. This can require some care, for instance if the face and comp arrays aren't allocated yet. */
 {
-  if (pd->ncross == 0) { 
+  if (pd->ncross == 0) {
 
     return pd_build_unknot(0);
 
@@ -3199,10 +3199,10 @@ ones we don't need.
   for(cr=0;cr<crbuf_used;cr++) {
 
     pd_idx_t j;
-    for(j=0;j<4;j++) { 
+    for(j=0;j<4;j++) {
 
-      pd->cross[cr].edge[j] = crbuf[cr].edge[j]-1; 
-      
+      pd->cross[cr].edge[j] = crbuf[cr].edge[j]-1;
+
       if (j==0) { /* We're definitely going IN */
 
 	pd->edge[pd->cross[cr].edge[j]].head = cr;
@@ -3245,7 +3245,7 @@ ones we don't need.
      This is true when the edges in positions 1 and 3 are in the order 1 -> 3.
 
      The problem (and it's a large one) is that the edge numbers wrap
-     around at the end of the component. 
+     around at the end of the component.
 
      So if pd->cross[cr].edge[3] and pd->cross[cr].edge[1] differ by
      1, we know which way the strand is going -- it's going in the
@@ -3257,15 +3257,15 @@ ones we don't need.
      For a 2 edge component, we're going to need a better algorithm:
 
         If the two-edge component lies OVER the remainder of the link,
-	its' orientation is genuinely unspecified by the KnotTheory 
-	data. In this case, we can assign either orientation to the 
+	its' orientation is genuinely unspecified by the KnotTheory
+	data. In this case, we can assign either orientation to the
 	component, but must do so consistently.
 
 	If the two-edge component is Hopf-linked to the rest of the link,
 	it's orientation IS specified, but only by the crossing where it
 	goes UNDER.
 
-    */  
+    */
 
     if (pd->cross[cr].edge[3] - pd->cross[cr].edge[1] == 1) { // 1 -> 3
 
@@ -3298,7 +3298,7 @@ ones we don't need.
       pd->edge[pd->cross[cr].edge[3]].tailpos = 3;
 
     } else { // 3 -> 1, wrapping
-      
+
       pd->cross[cr].sign = PD_POS_ORIENTATION;
 
       pd->edge[pd->cross[cr].edge[3]].head = cr;
@@ -3319,29 +3319,29 @@ ones we don't need.
   /* We now search for two-edge components in the list. Unfortunately,
      none of the existing "regenerate" codes are going to do the trick here,
      because they all resort the crossings, losing the information we'll
-     need to correct our past errors (if any). 
+     need to correct our past errors (if any).
   */
 
   pd_idx_t crA, crB;
 
-  for(crA=0;crA<pd->ncross-1;crA++) { 
+  for(crA=0;crA<pd->ncross-1;crA++) {
 
-    for(crB=crA+1;crB<pd->ncross;crB++) { 
+    for(crB=crA+1;crB<pd->ncross;crB++) {
 
 
-      /*       +------<--e2-----+        
-	       |                |        
-	       |0               |2        
-	   1   |    3        3  |   1     
+      /*       +------<--e2-----+
+	       |                |
+	       |0               |2
+	   1   |    3        3  |   1
 	+-------------->---------------+
-	 crA   |                |   crB     
-	       |2               |0        
-	       |                |        
-	       +------->--e1----+        
+	 crA   |                |   crB
+	       |2               |0
+	       |                |
+	       +------->--e1----+
 
       */
 
-      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[0] && 
+      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[0] &&
 	  pd->cross[crB].edge[0] == pd->cross[crA].edge[2] &&
 	  pd->cross[crB].edge[3] == pd->cross[crA].edge[3]) {
 
@@ -3350,7 +3350,7 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[0]; 
+	e1 = pd->cross[crB].edge[0];
 	e2 = pd->cross[crB].edge[2];
 
 	if (pd->edge[e1].head != crB) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
@@ -3358,20 +3358,20 @@ ones we don't need.
 
       }
 
-      
-      /*       +------->-e2-----+        
-	       |                |        
-	       |2               |0        
-	   3   |    1        1  |   3     
+
+      /*       +------->-e2-----+
+	       |                |
+	       |2               |0
+	   3   |    1        1  |   3
 	+-------------->---------------+
-	 crA   |                |   crB     
-	       |0               |2        
-	       |                |        
-	       +-------<-e1-----+        
+	 crA   |                |   crB
+	       |0               |2
+	       |                |
+	       +-------<-e1-----+
 
       */
 
-      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[0] && 
+      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[0] &&
 	  pd->cross[crB].edge[0] == pd->cross[crA].edge[2] &&
 	  pd->cross[crB].edge[1] == pd->cross[crA].edge[1]) {
 
@@ -3380,40 +3380,40 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[2]; 
+	e1 = pd->cross[crB].edge[2];
 	e2 = pd->cross[crB].edge[0];
 
 	if (pd->edge[e1].head != crA) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crB) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
-      /*       +------->-e2-----+        
-	       |                |        
-	       |3               |3        
-	   0   |    2        0  |   2     
+      /*       +------->-e2-----+
+	       |                |
+	       |3               |3
+	   0   |    2        0  |   2
 	+------|------->--------|------+
-	 crA   |                |   crB     
-	       |1               |1        
-	       |                |        
-	       +-------<--e1----+       
+	 crA   |                |   crB
+	       |1               |1
+	       |                |
+	       +-------<--e1----+
 
 	   taken as default, instead of
 
-	       +----------------+        
-	       |                |        
-	       |3               |3        
-	   0   |    2        0  |   2     
+	       +----------------+
+	       |                |
+	       |3               |3
+	   0   |    2        0  |   2
 	+------|------->--------|------+
-	 crA   |                |   crB     
-	       |1               |1        
-	       |                |        
-	       +------->--------+       
-	       
+	 crA   |                |   crB
+	       |1               |1
+	       |                |
+	       +------->--------+
+
 	   which has the same pd code.
       */
 
-      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[1] && 
+      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[1] &&
 	  pd->cross[crB].edge[1] == pd->cross[crA].edge[3] &&
 	  pd->cross[crB].edge[0] == pd->cross[crA].edge[2]) {
 
@@ -3422,40 +3422,40 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[1]; 
+	e1 = pd->cross[crB].edge[1];
 	e2 = pd->cross[crB].edge[3];
 
 	if (pd->edge[e1].head != crA) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crB) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
-      /*       +-------->-e2----+        
-	       |                |        
-	       |1               |1        
-	   2   |    0        2  |   0     
+      /*       +-------->-e2----+
+	       |                |
+	       |1               |1
+	   2   |    0        2  |   0
 	+------|-------<--------|------+
-	 crA   |                |   crB     
-	       |3               |3        
-	       |                |        
-	       +-------<-e1-----+       
+	 crA   |                |   crB
+	       |3               |3
+	       |                |
+	       +-------<-e1-----+
 
 	   taken as default, instead of
 
-	       +----------------+        
-	       |                |        
-	       |1               |1        
-	   2   |    0        2  |   0     
+	       +----------------+
+	       |                |
+	       |1               |1
+	   2   |    0        2  |   0
 	+------|-------<--------|------+
-	 crA   |                |   crB     
-	       |3               |3        
-	       |                |        
-	       +------->--------+       
-	       
+	 crA   |                |   crB
+	       |3               |3
+	       |                |
+	       +------->--------+
+
 	   which has the same pd code.
       */
 
-      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[1] && 
+      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[1] &&
 	  pd->cross[crB].edge[1] == pd->cross[crA].edge[3] &&
 	  pd->cross[crB].edge[2] == pd->cross[crA].edge[0]) {
 
@@ -3464,27 +3464,27 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[3]; 
+	e1 = pd->cross[crB].edge[3];
 	e2 = pd->cross[crB].edge[1];
 
 	if (pd->edge[e1].head != crA) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crB) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
-      /*       +-------<---e2---+        
-	       |                |        
-	       |3               |2        
-	   0   |    2        3  |   1     
+      /*       +-------<---e2---+
+	       |                |
+	       |3               |2
+	   0   |    2        3  |   1
 	+------|------->---------------+
-	 crA   |                |   crB     
-	       |1               |0        
-	       |                |        
-	       +------->---e1---+        
+	 crA   |                |   crB
+	       |1               |0
+	       |                |
+	       +------->---e1---+
 
       */
 
-      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[3] && 
+      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[3] &&
 	  pd->cross[crB].edge[0] == pd->cross[crA].edge[1] &&
 	  pd->cross[crB].edge[3] == pd->cross[crA].edge[2]) {
 
@@ -3493,27 +3493,27 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[0]; 
+	e1 = pd->cross[crB].edge[0];
 	e2 = pd->cross[crB].edge[2];
 
 	if (pd->edge[e1].head != crB) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crA) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
-      /*       +------<---e2----+        
-	       |                |        
-	       |1               |2        
-	   2   |    0        3  |   1     
+      /*       +------<---e2----+
+	       |                |
+	       |1               |2
+	   2   |    0        3  |   1
 	+------|-------<---------------+
-	 crA   |                |   crB     
-	       |3               |0        
-	       |                |        
-	       +------->--e1----+        
+	 crA   |                |   crB
+	       |3               |0
+	       |                |
+	       +------->--e1----+
 
       */
 
-      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[1] && 
+      if (pd->cross[crB].edge[2] == pd->cross[crA].edge[1] &&
 	  pd->cross[crB].edge[0] == pd->cross[crA].edge[3] &&
 	  pd->cross[crB].edge[3] == pd->cross[crA].edge[0]) {
 
@@ -3522,27 +3522,27 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[0]; 
+	e1 = pd->cross[crB].edge[0];
 	e2 = pd->cross[crB].edge[2];
 
 	if (pd->edge[e1].head != crB) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crA) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
-      /*       +------->---e2---+        
-	       |                |        
-	       |1               |0        
-	   2   |    0        1  |   3     
+      /*       +------->---e2---+
+	       |                |
+	       |1               |0
+	   2   |    0        1  |   3
 	+------|-------<---------------+
-	 crA   |                |   crB     
-	       |3               |2        
-	       |                |        
-	       +-------<---e1---+        
+	 crA   |                |   crB
+	       |3               |2
+	       |                |
+	       +-------<---e1---+
 
       */
 
-      if (pd->cross[crB].edge[0] == pd->cross[crA].edge[1] && 
+      if (pd->cross[crB].edge[0] == pd->cross[crA].edge[1] &&
 	  pd->cross[crB].edge[3] == pd->cross[crA].edge[2] &&
 	  pd->cross[crB].edge[1] == pd->cross[crA].edge[0]) {
 
@@ -3551,27 +3551,27 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[2]; 
+	e1 = pd->cross[crB].edge[2];
 	e2 = pd->cross[crB].edge[0];
 
 	if (pd->edge[e1].head != crA) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crB) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
-      /*       +------>---e2----+        
-	       |                |        
-	       |3               |0        
-	   0   |    2        1  |   3     
+      /*       +------>---e2----+
+	       |                |
+	       |3               |0
+	   0   |    2        1  |   3
 	+------|------->---------------+
-	 crA   |                |   crB     
-	       |1               |2        
-	       |                |        
-	       +-------<--e1----+        
+	 crA   |                |   crB
+	       |1               |2
+	       |                |
+	       +-------<--e1----+
 
       */
 
-      if (pd->cross[crB].edge[0] == pd->cross[crA].edge[3] && 
+      if (pd->cross[crB].edge[0] == pd->cross[crA].edge[3] &&
 	  pd->cross[crB].edge[2] == pd->cross[crA].edge[1] &&
 	  pd->cross[crB].edge[1] == pd->cross[crA].edge[2]) {
 
@@ -3580,28 +3580,28 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[2]; 
+	e1 = pd->cross[crB].edge[2];
 	e2 = pd->cross[crB].edge[0];
 
 	if (pd->edge[e1].head != crA) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crB) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
 
-      /*       +------<-e2------+        
-	       |                |        
-	       |0               |3        
-	   1   |    3        0  |   2     
+      /*       +------<-e2------+
+	       |                |
+	       |0               |3
+	   1   |    3        0  |   2
 	+-------------->--------|------+
-	 crA   |                |   crB     
-	       |2               |1        
-	       |                |        
-	       +------->-e1-----+        
+	 crA   |                |   crB
+	       |2               |1
+	       |                |
+	       +------->-e1-----+
 
       */
 
-      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[0] && 
+      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[0] &&
 	  pd->cross[crB].edge[1] == pd->cross[crA].edge[2] &&
 	  pd->cross[crB].edge[0] == pd->cross[crA].edge[3]) {
 
@@ -3610,27 +3610,27 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[1]; 
+	e1 = pd->cross[crB].edge[1];
 	e2 = pd->cross[crB].edge[3];
 
 	if (pd->edge[e1].head != crB) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crA) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
-      /*       +-------<--e2----+        
-	       |                |        
-	       |0               |1        
-	   1   |    3        2  |   0     
+      /*       +-------<--e2----+
+	       |                |
+	       |0               |1
+	   1   |    3        2  |   0
 	+--------------<--------|------+
-	 crA   |                |   crB     
-	       |2               |3        
-	       |                |        
-	       +------->--e1----+        
+	 crA   |                |   crB
+	       |2               |3
+	       |                |
+	       +------->--e1----+
 
       */
 
-      if (pd->cross[crB].edge[1] == pd->cross[crA].edge[0] && 
+      if (pd->cross[crB].edge[1] == pd->cross[crA].edge[0] &&
 	  pd->cross[crB].edge[3] == pd->cross[crA].edge[2] &&
 	  pd->cross[crB].edge[2] == pd->cross[crA].edge[3]) {
 
@@ -3639,28 +3639,28 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[3]; 
+	e1 = pd->cross[crB].edge[3];
 	e2 = pd->cross[crB].edge[1];
 
 	if (pd->edge[e1].head != crB) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crA) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
-	
+
+
       }
 
-      /*       +------->--e2----+        
-	       |                |        
-	       |0               |1        
-	   1   |    3        2  |   0     
+      /*       +------->--e2----+
+	       |                |
+	       |0               |1
+	   1   |    3        2  |   0
 	+--------------<--------|------+
-	 crA   |                |   crB     
-	       |2               |3        
-	       |                |        
-	       +-------<--e1----+        
+	 crA   |                |   crB
+	       |2               |3
+	       |                |
+	       +-------<--e1----+
 
       */
 
-      if (pd->cross[crB].edge[1] == pd->cross[crA].edge[0] && 
+      if (pd->cross[crB].edge[1] == pd->cross[crA].edge[0] &&
 	  pd->cross[crB].edge[3] == pd->cross[crA].edge[2] &&
 	  pd->cross[crB].edge[2] == pd->cross[crA].edge[3]) {
 
@@ -3669,42 +3669,42 @@ ones we don't need.
 
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[3]; 
+	e1 = pd->cross[crB].edge[3];
 	e2 = pd->cross[crB].edge[1];
 
 	if (pd->edge[e1].head != crA) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crB) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
 
-	
+
       }
 
-      /*       +------->--e2----+        
-	       |                |        
-	       |0               |3        
-	   1   |    3        0  |   2     
+      /*       +------->--e2----+
+	       |                |
+	       |0               |3
+	   1   |    3        0  |   2
 	+-------------->--------|------+
-	 crA   |                |   crB     
-	       |2               |1        
-	       |                |        
-	       +-------<--e1----+        
+	 crA   |                |   crB
+	       |2               |1
+	       |                |
+	       +-------<--e1----+
 
       */
 
-      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[0] && 
+      if (pd->cross[crB].edge[3] == pd->cross[crA].edge[0] &&
 	  pd->cross[crB].edge[1] == pd->cross[crA].edge[2] &&
 	  pd->cross[crB].edge[0] == pd->cross[crA].edge[3]) {
 
 	pd->cross[crB].sign = PD_POS_ORIENTATION;
 	pd->cross[crA].sign = PD_POS_ORIENTATION;
-	
+
 	pd_idx_t e1, e2;
 
-	e1 = pd->cross[crB].edge[1]; 
+	e1 = pd->cross[crB].edge[1];
 	e2 = pd->cross[crB].edge[3];
 
 	if (pd->edge[e1].head != crA) { pd_reorient_edge(pd,e1,PD_NEG_ORIENTATION); }
 	if (pd->edge[e2].head != crB) { pd_reorient_edge(pd,e2,PD_NEG_ORIENTATION); }
-	
+
       }
 
     }
@@ -3718,9 +3718,9 @@ ones we don't need.
 
   /* We double check that we got crossing signs... */
 
-  for(cr=0;cr<pd->ncross;cr++) { 
+  for(cr=0;cr<pd->ncross;cr++) {
 
-    if (pd->cross[cr].sign == PD_UNSET_ORIENTATION) { 
+    if (pd->cross[cr].sign == PD_UNSET_ORIENTATION) {
 
       pd_error(SRCLOC,
 	       "read_KnotTheory unable to maintain crossing signs across pd_regenerate call\n"
@@ -3786,9 +3786,9 @@ char *pd_print_boundary_or(pd_boundary_or_t or)
   outbuf = calloc(32,sizeof(char));
   assert(outbuf != NULL);
 
-  if (or == in) { 
+  if (or == in) {
     sprintf(outbuf," in");
-  } else if (or == out) { 
+  } else if (or == out) {
     sprintf(outbuf,"out");
   } else {
     sprintf(outbuf,"  ?");
@@ -3796,7 +3796,7 @@ char *pd_print_boundary_or(pd_boundary_or_t or)
 
   return outbuf;
 }
-  
+
 
 char *pd_print_pos(pd_idx_t pos)
 /* Returns the index, either sprintf'd to an unsigned type,
@@ -4022,7 +4022,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	fprintf(stream," %s (%s) ->",ed,bdo);
 	free(ed);
 	free(bdo);
-	  
+
       }
 
       fprintf(stream,"\n\tface loop: ");
@@ -4032,9 +4032,9 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	ed = pd_print_idx(t->face[face]);
 	fprintf(stream," %s ->",ed);
 	free(ed);
-	  
+
       }
-      
+
       pd_idx_t strand;
       for(strand=0;strand<t->nstrands;strand++) {
 
@@ -4051,13 +4051,13 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       }
 
-      char *nic; 
+      char *nic;
       nic = pd_print_idx(t->ninterior_cross);
       fprintf(stream,"\n\t%s interior cross: ",nic);
       free(nic);
 
       pd_idx_t cr;
-      for(cr=0;cr<t->ninterior_cross;cr++) { 
+      for(cr=0;cr<t->ninterior_cross;cr++) {
 
 	char *ic;
 	ic = pd_print_idx(t->interior_cross[cr]);
@@ -4071,8 +4071,8 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       nie = pd_print_idx(t->ninterior_edges);
       fprintf(stream,"\n\t%s interior edges: ",nie);
       free(nie);
-      
-      for(edge=0;edge<t->ninterior_edges;edge++) { 
+
+      for(edge=0;edge<t->ninterior_edges;edge++) {
 
 	char *ie;
 	ie = pd_print_idx(t->interior_edge[edge]);
@@ -4081,7 +4081,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	free(ie);
 
       }
-      
+
       fprintf(stream,")\n");
       nxtconv += 7;
 
@@ -4307,9 +4307,12 @@ bool pd_error(char *file, int line, char *fmt, pd_code_t *pd, ...)
 
   fprintf(stderr,"%s (%d): pd_error \n",file,line);
 
+
   va_start(ap,pd);
   pd_vfprintf(stderr,fmt,pd,ap);
   va_end(ap);
+
+  if (PD_VERBOSE < 20) { return false; }
 
   exit(1);
 }

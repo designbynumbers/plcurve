@@ -392,7 +392,7 @@ class PDDatabase(PDStoreExpander):
         f.close()
 
     def __init__(self, crossings_list=[3,4,5], dirloc=DEFAULT_PATH,
-                 amortize=True, debug=False, callbacks=None):
+                 amortize=True, debug=False, callbacks=None, keep_pd=False):
         super(PDDatabase,self).__init__(dirloc=dirloc,
                                         amortize=amortize,
                                         debug=debug)
@@ -400,7 +400,10 @@ class PDDatabase(PDStoreExpander):
         self.pd_dict = {}
         self.all_pds = {}
         for pd, homfly, uid in self.open(crossings_list):
-            self.add_pd(homfly, uid)
+            if keep_pd:
+                self.add_pd(homfly, pd)
+            else:
+                self.add_pd(homfly, uid)
             for cb in self.callbacks:
                 cb(pd, homfly, uid)
 
