@@ -247,14 +247,14 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
     if (!pd_xor(pos_face[i] == t->face[i],neg_face[i] == t->face[i])) { 
     
-      pd_printf("edge t->edge[%d] = %EDGE is not on face t->face[%d] %FACE exactly once: tangle test fails\n",pd,i,t->edge[i],i,t->face[i]);
+      pd_printf("edge t->edge[%d] = %EDGE is not on face t->face[%d] %FACE exactly once: tangle test fails in %PD\n",pd,i,t->edge[i],i,t->face[i]);
       return false; 
 
     }
 
     if (!pd_xor(pos_face[i] == t->face[(i+1)%t->nedges],neg_face[i] == t->face[(i+1)%t->nedges])) { 
 
-      pd_printf("edge t->e[%d] = %EDGE is not on face t->face[%d] %FACE exactly once: tangle test fails\n",pd,i,t->edge[i],(i+1)%(t->nedges),t->face[(i+1)%t->nedges]);
+      pd_printf("edge t->e[%d] = %EDGE is not on face t->face[%d] %FACE exactly once: tangle test fails in %PD\n",pd,i,t->edge[i],(i+1)%(t->nedges),t->face[(i+1)%t->nedges]);
       return false; 
 
     }
@@ -305,12 +305,29 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
   }
 
   /* Ok, we've now checked that we have the right number of innies and outies. 
-     Let's check the strand data itself for each strand. */
+     Let's check the strand data itself for each strand. Remember that the start_edge
+     and end_edge are now POSITIONS ON THE TANGLE.*/
 
   for(i=0;i<t->nstrands;i++) { 
 
-    pd_check_edge(SRCLOC,pd,t->strand[i].start_edge);
-    pd_check_edge(SRCLOC,pd,t->strand[i].end_edge);
+    if (t->strand[i].start_edge >= t->nedges) { 
+      
+      pd_error(SRCLOC,"%TANGLE strand %d start edge has illegal index %d\n",pd,
+	       t,i,t->strand[i].start_edge);
+      exit(1);
+
+    }
+
+    if (t->strand[i].end_edge >= t->nedges) { 
+      
+      pd_error(SRCLOC,"%TANGLE strand %d end edge has illegal index %d\n",pd,
+	       t,i,t->strand[i].end_edge);
+      exit(1);
+
+    }
+
+    pd_check_edge(SRCLOC,pd,t->edge[t->strand[i].start_edge]);
+    pd_check_edge(SRCLOC,pd,t->edge[t->strand[i].end_edge]);
     pd_check_cmp(SRCLOC,pd,t->strand[i].comp);
 
     if (t->strand[i].nedges == PD_UNSET_IDX) { 
@@ -323,7 +340,8 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
     if (t->strand[i].nedges > pd->comp[t->strand[i].comp].nedges) {
 
-      pd_error(SRCLOC,"strand[%d] of tangle claims to have %d edges on component %COMP, which only has %d edges\n",
+      pd_error(SRCLOC,"strand[%d] of tangle claims to have %d edges on %COMP"
+	       "but comp only has %d edges\n",
 	       pd,i,t->strand[i].nedges,t->strand[i].comp,pd->comp[t->strand[i].comp].nedges);
       return false;
 
@@ -339,18 +357,18 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
   for(i=0;i<t->nstrands;i++) { 
 
     pd_idx_t edge;
-    for(edge = t->strand[i].start_edge, j=1; 
-	edge != t->strand[i].end_edge && j != t->strand[i].nedges;
+    for(edge = t->edge[t->strand[i].start_edge], j=1; 
+	edge != t->edge[t->strand[i].end_edge] && j != t->strand[i].nedges;
 	j++,edge = pd_next_edge(pd,edge)) { }
 
-    if (edge != t->strand[i].end_edge) { 
+    if (edge != t->edge[t->strand[i].end_edge]) { 
 
       pd_error(SRCLOC,
 	       "strand[%d] of tangle claims to have %d edges\n"
 	       "but counting %d edges from start edge %EDGE\n"
 	       "leaves us at %EDGE != the end_edge of %EDGE\n",
-	       pd,i,t->strand[i].nedges,j,t->strand[i].start_edge,
-	       edge,t->strand[i].end_edge);
+	       pd,i,t->strand[i].nedges,j,t->edge[t->strand[i].start_edge],
+	       edge,t->edge[t->strand[i].end_edge]);
 
       return false;
 
@@ -362,8 +380,8 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 	       "strand[%d] of tangle claims to have %d edges\n"
 	       "but counting edges from start_edge %EDGE\n"
 	       "finds the end_edge %EDGE after %d edges\n",
-	       pd,i,t->strand[i].nedges,t->strand[i].start_edge,
-	       t->strand[i].end_edge,j);
+	       pd,i,t->strand[i].nedges,t->edge[t->strand[i].start_edge],
+	       t->edge[t->strand[i].end_edge],j);
 
       return false;
 
@@ -376,26 +394,26 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
   for(i=0;i<t->nstrands;i++) { 
 
     pd_idx_t comp,pos;
-    pd_component_and_pos(pd,t->strand[i].start_edge,&comp,&pos);
+    pd_component_and_pos(pd,t->edge[t->strand[i].start_edge],&comp,&pos);
     
     if (t->strand[i].comp != comp) { 
 
       pd_error(SRCLOC,
 	       "tangle strand %d claims to be on component %COMP, but this\n"
 	       "component does not include start_edge %EDGE\n",pd,i,
-	       t->strand[i].comp,t->strand[i].start_edge);
+	       t->strand[i].comp,t->edge[t->strand[i].start_edge]);
       return false;
 
     }
 
-    pd_component_and_pos(pd,t->strand[i].end_edge,&comp,&pos);
+    pd_component_and_pos(pd,t->edge[t->strand[i].end_edge],&comp,&pos);
     
     if (t->strand[i].comp != comp) { 
 
       pd_error(SRCLOC,
 	       "tangle strand %d claims to be on component %COMP, but this\n"
 	       "component does not include end_edge %EDGE\n",pd,i,
-	       t->strand[i].comp,t->strand[i].end_edge);
+	       t->strand[i].comp,t->edge[t->strand[i].end_edge]);
       return false;
 
     }
@@ -410,10 +428,26 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
      We can check that they are allocated, however, and in fact that they refer 
      to valid crossing and edge numbers, and that they are ordered and unique, 
      and we do this in the spirit of checking for data corruption wherever it 
-     might crop up. */
+     might crop up. 
+
+     We need to be careful here-- if there are no interior edges (or crossings)
+     it is correct for the buffer to be NULL. */
      
-  pd_check_notnull(SRCLOC,"t->interior_cross",t->interior_cross);
-  pd_check_notnull(SRCLOC,"t->interior_edge",t->interior_edge);
+  if (t->ninterior_cross != 0) {
+    pd_check_notnull(SRCLOC,"t->interior_cross",t->interior_cross);
+  } else {
+    if (t->interior_cross != NULL) { 
+      pd_error(SRCLOC,"t->ninterior_cross is 0, but the buffer t->interior_cross is allocated\n",pd);
+    }
+  }
+
+  if (t->ninterior_edges != 0) { 
+    pd_check_notnull(SRCLOC,"t->interior_edge",t->interior_edge);
+  } else {
+    if (t->interior_edge != NULL) { 
+      pd_error(SRCLOC,"t->ninterior_edges is 0, but the buffer t->interior_edge is allocated\n",pd);
+    }
+  }
 
   if (t->ninterior_cross == PD_UNSET_IDX) { 
 
@@ -437,10 +471,10 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
 
   } 
 
-  if (t->ninterior_edges > pd->ncross) { 
+  if (t->ninterior_edges > pd->nedges) { 
 
-    pd_error(SRCLOC,"t->ninterior_edges = %d > # of crossings in entire pd code (%d)\n",pd,
-	     t->ninterior_edges,pd->ncross);
+    pd_error(SRCLOC,"t->ninterior_edges = %d > # of edges in entire pd code (%d)\n",pd,
+	     t->ninterior_edges,pd->nedges);
     return false;
 
   }
@@ -565,7 +599,7 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 
     if (!found_edge) { 
 
-      pd_error(SRCLOC,"edge %EDGE and face %FACE are paired on tangle, but this edge is not on this face in %PD",pd,t->edge[i],t->face[i]);
+      pd_error(SRCLOC,"%EDGE and %FACE are paired on tangle, but this edge is not on this face in %PD",pd,t->edge[i],t->face[i]);
       exit(1);
 
     }
@@ -646,23 +680,58 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 
       pd_idx_t pos;
       t->strand[s].nedges = 1;
-      t->strand[s].start_edge = t->edge[i];
+      t->strand[s].start_edge = i;  // Start and end are positions on TANGLE
       pd_component_and_pos(pd,t->edge[i],&(t->strand[s].comp),&pos);
 
       pd_idx_t j;
       bool found_end;
 
-      for(j=pd_next_edge(pd,t->strand[s].start_edge),found_end = false;
-	  !found_end && j != t->strand[s].start_edge; // failsafe
+      for(j=pd_next_edge(pd,t->edge[t->strand[s].start_edge]),found_end = false;
+	  !found_end && j != t->edge[t->strand[s].start_edge]; // failsafe
 	  j=pd_next_edge(pd,j),
 	    t->strand[s].nedges++) {
 
 	/* Now we have to search the list of edges of the tangle 
-	   to try to find this particular edge j. */
+	   to try to find this particular edge j. Keep in mind that j may 
+	   appear twice (in which case, we want the one with the OUT 
+	   orientation). */
 
-	pd_idx_t bdypos;
+	pd_idx_t si,nfound=0,tpos[2];
 
-	if (pd_buf_contains(t->edge,t->nedges,j,&bdypos)) { 
+	for(si=0;si<t->nedges;si++) { 
+	  if (t->edge[si] == j) { 
+	    if (nfound == 2) { 
+	      pd_error(SRCLOC,"found edge %d more than 2 times in edges of %TANGLE",pd,j,t);
+	    } else {
+	      tpos[nfound] = si;
+	      nfound++;
+	    }
+	  }
+	}
+
+	if (nfound!=0) { 
+	  
+	  /* First, we make sure that if nfound == 2, we have only one OUT */
+	  if (nfound == 2) { 
+	    
+	    if (t->edge_bdy_or[tpos[0]] == t->edge_bdy_or[tpos[1]]) { 
+	    
+	      pd_error(SRCLOC,"found %EDGE twice on boundary of %TANGLE, "
+		       "but with the same orientation %EDGE_BDY_OR both times",
+		       pd,t->edge[tpos[0]],t,t->edge_bdy_or[tpos[0]]);
+	      exit(1);
+
+	    } 
+
+	    if (t->edge_bdy_or[tpos[1]] == out) { /* Make sure the OUT instance is first */
+
+	      tpos[0] = tpos[1];
+
+	    }
+
+	  } 
+
+	  pd_idx_t bdypos = tpos[0];
 
 	  if (!(t->edge_bdy_or[bdypos] == out)) { /* Just to be safe */
 	    
@@ -675,7 +744,7 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 	  }
 
 	  found_end = true;
-	  t->strand[s].end_edge = j;
+	  t->strand[s].end_edge = bdypos;
 
 	}
 

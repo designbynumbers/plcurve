@@ -595,19 +595,35 @@ extern "C" {
 
      Tag        pd_idx_t           output
 
-     %FACE      face number        fnum (e1 (or1) -> e2 (or2) -> ... -> e1 (or1))
-     %EDGE      edge number        enum (tail (tailpos) -> head (headpos) )
-     %CROSS     cross number       cnum (e0 e1 e2 e3)
+     %FACE      face number        face fnum (e1 (or1) -> e2 (or2) -> ... -> e1 (or1))
+     %EDGE      edge number        edge enum (tail (tailpos) -> head (headpos) )
+     %CROSS     cross number       cross cnum (e0 e1 e2 e3) +/-/U
      %COMP      comp number        compnum (e1 -> e2 -> e3 -> ..... -> e1 (or1))
      %PD        (no argument)      (\n\n output of pd_write \n\n)
+     %FEDGE     face, edge         edge number (orientation on face) 
+                (2 pd_idx_ts)         
 
      We also have conversions for pointers.
 
-     %MULTIDX   *pd_multidx_t      multidx (i[0] i[1] ... i[n-1])
-     %COMPGRP   *pd_compgrp_t      compgrp (comp[0] .. comp[n-1])
-     %COMPMAP   *pd_compmap_t      compmap (0 -> (+/-) comp[0], ..., n-1 -> (+/-) comp[n-1])
-
-     The functions also convert %d specifications in the usual way.
+     %ORIENTATION *pd_orientation_t  multiorientation 
+     %OR          *pd_or_t           +, -, or U (unset)
+     %MULTIDX     *pd_multidx_t      multidx (i[0] i[1] ... i[n-1])
+     %COMPGRP     *pd_compgrp_t      compgrp (comp[0] .. comp[n-1])
+     %COMPMAP     *pd_compmap_t      compmap (0 -> (+/-) comp[0], ..., n-1 -> (+/-) comp[n-1])
+     %EDGEMAP     *pd_edgemap_t      edgemap (+/- e1 +/- e2 ... +/- en)
+     %TANGLE      *pd_tangle_t       tangle display format
+     %CROSSPTR    *pd_crossing_t     cross (e0 e1 e2 e3) (+/-/U)
+     %ISO         *pd_iso_t          iso cr (# cross) e (# edges) f (# faces) cmps (# comps)
+                                        compperm (permutation of components)
+				        (edgemap, as above)
+                                        (crossmap, as above)
+					(facemap, as above)
+     %DIHEDRAL    *pd_dihedral_t     rot (target of element 0) or ref (target of element 0)
+     %CYCLIC      *pd_cyclic_t       rot (target of element 0)
+     %PERM        *pd_perm_t         perm (map[0] ... map[n-1]) idx (precomputed perm index)
+     %BDY_OR      *pd_boundary_or_t  in/out/?
+     
+     The function also converts %d and %s specifications in the usual way.
 
      We ignore any other format conversions present in fmt,
      passing them unchanged into the output stream. The intention
@@ -689,8 +705,8 @@ extern "C" {
 
   typedef struct tangle_strand_struct {
 
-    pd_idx_t start_edge;  /* Edge number (in pd) where the strand enters the tangle. */
-    pd_idx_t end_edge;    /* Edge number (in pd) where the strand exits the tangle. */
+    pd_idx_t start_edge;  /* Edge number (in tangle) where the strand enters the tangle. */
+    pd_idx_t end_edge;    /* Edge number (in tangle) where the strand exits the tangle. */
     pd_idx_t nedges;      /* Number of edges incident to tangle (counting start, end) */
     pd_idx_t comp;        /* Component (in pd) containing this strand. */
 
@@ -709,9 +725,11 @@ extern "C" {
 
     pd_idx_t  ninterior_cross;   /* Crossings in the interior of the tangle. */
     pd_idx_t *interior_cross;    /* List of interior crossing indices */
+                                 /* NULL if there are no interior crossings */
 
     pd_idx_t  ninterior_edges;   /* Edges in the interior of the tangle. */
     pd_idx_t *interior_edge;     /* List of interior edge indices. */
+                                 /* NULL if there are no interior edges */
 
   } pd_tangle_t;
 

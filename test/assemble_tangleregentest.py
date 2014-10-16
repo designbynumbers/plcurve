@@ -2,12 +2,34 @@ import glob
 import subprocess
 import re
 import sys
+import os.path
 
 pdstor_files = glob.glob('*.pdstor')
 print ("Tangle Regeneration Test Assembly Script\n"
       "==========================\n"
       "Found pdstor files...\n")
 print "\n".join("\t"+str(x) for x in pdstor_files)
+print "Looking for corresponding .c files and moving to .doc..."
+for x in pdstor_files:
+    m = re.match('(.+).pdstor',x)
+    cname = m.group(1) + ".c"
+    docname = m.group(1) + ".doc"
+    if (os.path.isfile(cname)):
+        # We want to slurp this and remove the \r characters
+        cfile_object = open(cname,'r')
+        cfile_contents = cfile_object.read()
+        cfile_contents = cfile_contents.replace('\r','')
+        cfile_object.close()
+
+        docfile_object = open(docname,'w')
+        docfile_object.write(cfile_contents)
+        docfile_object.close()
+        
+        print cname + " -> " + docname
+    else:
+        print "Couldn\'t match "+ x + "to " + cname;
+        sys.exit(1)
+        
 print "\nRunning carbonize...\n"
 for x in pdstor_files:
     try:

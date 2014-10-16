@@ -4038,16 +4038,18 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       pd_idx_t strand;
       for(strand=0;strand<t->nstrands;strand++) {
 
-	char *se,*ee,*ne,*cp;
+	char *se,*ee,*ne,*cp,*spe,*epe;
 
 	se = pd_print_idx(t->strand[strand].start_edge);
 	ee = pd_print_idx(t->strand[strand].end_edge);
 	ne = pd_print_idx(t->strand[strand].nedges);
 	cp = pd_print_idx(t->strand[strand].comp);
+	spe = pd_print_idx(t->edge[t->strand[strand].start_edge]);
+	epe = pd_print_idx(t->edge[t->strand[strand].end_edge]);
 
-	fprintf(stream,"\n\tstrand: edge %s -> edge %s (%s edges, comp %s)",se,ee,ne,cp);
+	fprintf(stream,"\n\tstrand: tangle edge %s (pd edge %s) -> tangle edge %s (pd edge %s) (%s edges, comp %s)",se,spe,ee,epe,ne,cp);
 
-	free(se); free(ee); free(ne); free(cp);
+	free(se); free(ee); free(ne); free(cp); free(spe); free(epe);
 
       }
 
@@ -4209,7 +4211,17 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
       nxtconv += 3;
 
+    } else if (!strncmp(nxtconv,"%BDY_OR",7)) { /* Boundary orientation */
 
+      pd_boundary_or_t *bdyor = (pd_boundary_or_t *) va_arg(ap,void *);
+      char *printed;
+
+      printed = pd_print_boundary_or(*bdyor);
+      fprintf(stream,"%s",printed);
+      free(printed);
+
+      nxtconv += 7;
+      
     } else if (!strncmp(nxtconv,"%ISO ",5)) { /* pd_code -> pd_code isomorphism */
 
       pd_iso_t *iso = (pd_iso_t *) va_arg(ap,void *);
