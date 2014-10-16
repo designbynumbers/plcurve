@@ -477,11 +477,20 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
 
   if (e[0] == e[2]) { 
 
-    pd_error(SRCLOC,
-	     "crossing %CROSS of %PD is not a valid location\n"
-	     "for loop deletion because it belongs to a one-crossing\n"
-	     "figure-8 diagram (or something is corrupted!).\n",pd,cr);
-    exit(1);
+    /* This is a one-crossing figure-8, or something very bad has happened. */
+
+    if (pd->ncomps == 1 && pd->ncross == 1 && pd->nedges == 2 && pd->nfaces == 3) { 
+
+      return pd_build_unknot(0);
+
+    } else {
+
+      pd_error(SRCLOC,
+	       "only two edges are incident to %CROSS of %PD, but the pd_code"
+	       "does not match the code for a 1-crossing figure-8.",pd,cr);
+      exit(1);
+
+    }
 
   }
   
