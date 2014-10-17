@@ -356,6 +356,9 @@ extern "C" {
 
      Return the position (index) of the edge on each face. */
 
+  bool pd_edge_on_face(pd_code_t *pd, pd_idx_t edge, pd_idx_t face);
+  /* Returns true if the edge is on the face (with either sign). */
+
   pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or);
   /* Returns original edge if or = PD_POS_EDGE_ORIENTATION,
      reversed edge if or = PD_NEG_EDGE_ORIENTATION */
@@ -743,49 +746,53 @@ extern "C" {
      edges and faces and call "pd_regenerate_tangle" in order to reconstruct
      the remaining data. */
 
- pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
-			    pd_idx_t ncross_edges, pd_idx_t cross_edges[]);
- /*
-   The tangle slide operation moves an adjacent strand of the diagram
-   above (or below) a tangle to the other side of the tangle. The input
-   is specified by giving an list of edges that the adjacent
-   strand crosses in counterclockwise order around the tangle.
-   The caller does not need to explicitly specify the edges in 
-   the adjacent strand. 
-			    
+  pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
+			     pd_idx_t n,
+			     pd_idx_t *overstrand_edges, 
+			     pd_idx_t *border_faces);
+
+ /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
+    corresponding faces bordering the tangle (f[0]...f[n-1], below),
+    slide the strand over the tangle to cross the remaining edges
+    of the tangle, as below. The edges e[0]..e[n-1] are supposed to 
+    occur in orientation order along their component.
+    
+
 		  |  	   |
 		  |  	   |
        	     +-------------------+		  
 	     |		    	 |		  
-       	     | 	    Tangle     	 |      	       	  
-    ---+     | 	       	       	 |   +-------   	    
-       |     | 	    	    	 |   | 	     
-       |     +-------------------+   |	     
-       |       	 |   |       | 	     |	     
-       +-----------------------------+	      
-       	       	 |   | 	     |		       	 
-     cross_edges[0]          cross_edges[ncross_edges-1]
-  	 	       	       	       	  
-                      ||
-                      vv  	
-      	       	  
-  	       	  |        |
-       +-----------------------------+
-       |      	  |  	   |	     |
-       |     +------------------+    |
-       |     |	 	    	|    |
-       |     |     Tangle      	|    |
-    ---+     | 	                |    +------
-             | 	       	    	|     	     
-             +------------------+    	     
-               	 |   |       | 	     	     
-                 |   |       |       	      
-    		 |   |	     |		       	 
-  		 
-    In the output pd code, the adjacent strand will cross the 
-    complement of these edges. 
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
 
- */    	       	 
+
+    becomes
+
+		  |    	   |
+       +------------------------------+
+       |	  |  	   |	      |
+       |     +-------------------+    |		  
+       |     |		    	 |    |		  
+       |     | 	    Tangle     	 |    | 	       	  
+    ---+     | 	       	       	 |    +---   	    
+             | 	    	       	 |      	     
+             +-------------------+     	     
+                 |   |       | 	       	     
+                 |   |       |         	      
+       	       	 |   | 	     |		   
+    			     
+    We handle correctly the case where the initial and/or final
+    edges of the strand are tangle edges themselves. We also note
+    that while we call the strand the "overstrand", we also handle
+    the case where the strand goes UNDER all of the tangle strands.
+     	       	       	    
+   */
+
 
 
   pd_code_t *pd_tangle_flype(pd_code_t *pd,pd_tangle_t *t);

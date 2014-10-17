@@ -1029,7 +1029,541 @@ pd_code_t *pd_flype(pd_code_t *pd,pd_idx_t e[4], pd_idx_t f[4])
 /*************************************************************************
    Tangle Slide Code. This is broken into several subprocedures so that 
    we can write unit tests for the individual pieces. 
-**********************************************************************/
+  **********************************************************************/
+
+
+pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
+			   pd_idx_t n,
+			   pd_idx_t *overstrand_edges, 
+			   pd_idx_t *border_faces) {
+
+ /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
+    corresponding faces bordering the tangle (f[0]...f[n-1], below),
+    slide the strand over the tangle to cross the remaining edges
+    of the tangle, as below. The edges e[0]..e[n-1] are supposed to 
+    occur in orientation order along their component.
+    
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
+
+
+    becomes
+
+		  |    	   |
+       +------------------------------+
+       |	  |  	   |	      |
+       |     +-------------------+    |		  
+       |     |		    	 |    |		  
+       |     | 	    Tangle     	 |    | 	       	  
+    ---+     | 	       	       	 |    +---   	    
+             | 	    	       	 |      	     
+             +-------------------+     	     
+                 |   |       | 	       	     
+                 |   |       |         	      
+       	       	 |   | 	     |		   
+    			     
+    We handle correctly the case where the initial and/or final
+    edges of the strand are tangle edges themselves. We also note
+    that while we call the strand the "overstrand", we also handle
+    the case where the strand goes UNDER all of the tangle strands.
+     	       	       	    
+   */
+
+
+  return NULL;
+
+}
+
+bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
+					 pd_idx_t n,
+					 pd_idx_t *overstrand_edges, 
+					 pd_idx_t *border_faces,
+					 pd_idx_t **tangle_edges)
+
+/* We make sure that the data is appropriate for a 
+   tangle slide. 
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
+             te[n-1]        te[0] 
+ 
+   We need to make several checks:
+
+   0) The indices in overstrand_edges and border_faces are
+      in-range edge and face indices for the pd code pd.
+
+   1) The border faces are actually border faces of the 
+      tangle, either in ccw or cw order.
+
+   2) The overstrand edges are incident to the appropriate 
+      faces, in order, and not interior to the tangle itself.
+
+   3) The crossings on the tangle edges have corresponding 
+      signs.
+
+   The procedure returns only if all this is true; otherwise we quit
+   with a call to pd_error. The output buffer tangle_edges (of 
+   size n-1) is allocated in this function and must be disposed of 
+   externally.
+
+*/
+{
+  pd_idx_t i;
+
+  /* 0. Check indices of everything. */
+
+  for(i=0;i<n;i++) { 
+
+    pd_check_edge(SRCLOC,pd,overstrand_edges[i]);
+    pd_check_face(SRCLOC,pd,border_faces[i]);
+
+  }  
+
+  /* 1. We start by looking for the sequence of faces occuring 
+     along the boundary of the tangle. Notice that the same face
+     may occur multiple times on the boundary of a tangle:
+		  
+	       +--+    f   +-----------+
+	       |  |        |  	       |
+       	     +-------------------+     |	  
+	     |	     	      	 |--+  |	  
+             | 	    Tangle     	 |  |  |	       	  
+         f   | 	       	       	 |--+  |     	    
+             | 	     	      	 |     |   	     
+             +-------------------+     |     
+                 |   |       | 	       |     
+                 |   |       |         |      
+       	         +---+ 	f    +---------+   
+                                  
+     and we can even have a sequence of faces occur more than
+     once   
+
+		     |	   |
+  +----------------+ |	   |
+  |   +----------+ | |	   |
+  |   |   +----+ | | |     |
+  |   |	  |    | | | |     |   	       	 
+  |   |	  |  +-------------------+      	  
+  |   |	  |  |	      	      	 |      	  
+  |   |   |  | 	    Tangle     	 |      	       	  
+  |f2 |f1 |f0| 	       	       	 |           	    
+  |   |   |  | 	      	      	 |         	     
+  |   |   |  +-------------------+           
+  |   |   |    | | | |       | 	             
+  |   |   +----+ | | |       |                 	 
+  |   +----------+ | |       |                     
+  +----------------+ |	     |   
+
+      
+  */
+
+  bool found_sequence = false;
+  pd_idx_t j;
+
+  /* First we look for the sequence in the forward orientation. */
+	      	       			      
+  for(i=0;i<t->nedges;i++) {  
+			      
+    if (t->face[i] == border_faces[0]) { 
+
+      /* This is a possible start-- we check for the 
+	 border_faces sequence in positive orientation. */
+
+      bool match_continues = true;
+
+      for (j=1;j<n && match_continues;j++) { 
+
+	match_continues = (t->face[(i+j)%t->nedges] == border_faces[j]);
+
+      }
+
+      if (match_continues) { found_sequence = true; }
+
+    }
+
+  }
+
+  /* We now look for the sequence in the backward orientation. */
+
+  for(i=0;i<t->nedges;i++) {  
+			      
+    if (t->face[i] == border_faces[n-1]) { 
+
+      /* This is a possible start-- we check for the 
+	 border_faces sequence in positive orientation. */
+
+      bool match_continues = true;
+
+      for (j=1;j<n && match_continues;j++) { 
+
+	match_continues = (t->face[(i+j)%t->nedges] == border_faces[n-1-j]);
+
+      }
+
+      if (match_continues) { found_sequence = true; }
+
+    }
+
+  }
+
+  if (!found_sequence) { 
+
+    if (n >= 4) { 
+
+      pd_error(SRCLOC,
+	       "couldn't find %d border_faces sequence %d %d %d ... %d on the border\n"
+	       "of %TANGLE.\n",pd,n,border_faces[0],border_faces[1],border_faces[2],border_faces[n-1],t);
+
+    } else { 
+
+      pd_error(SRCLOC,
+	       "couldn't find %d border_faces sequence %d ... %d on the border\n"
+	       "of %TANGLE.\n",pd,n,border_faces[0],border_faces[n-1],t);
+
+    }
+
+    return false;
+
+  }
+
+  /* 2. We now check to see whether the overstrand edges are actually on 
+     the faces in question.
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
+
+     Notice that however this goes, either the overstrand edges should
+     all occur positively or all negatively along the faces in question. 
+
+  */
+
+  pd_idx_t posface, pfp, negface, nfp;
+
+  pd_face_and_pos(pd,overstrand_edges[0],
+		  &posface, &pfp, &negface, &nfp);
+
+  if (posface == border_faces[0]) { /* We're go in the positive direction. */
+
+    pd_idx_t j;
+
+    for(j=1;j<n;j++) { 
+
+      pd_face_and_pos(pd,overstrand_edges[j],
+		      &posface, &pfp, &negface, &nfp);
+
+      if (posface != border_faces[j]) { 
+
+	pd_error(SRCLOC,
+		 "overstrand_edges[0] = %EDGE occurs on border_face[0] = %FACE positively, but\n"
+		 "overstrand_edges[%d] = %EDGE does not occur on border_face[%d] = %FACE positively\n"
+		 "meaning that overstrand and border_face aren't consistent.\n",
+		 pd,overstrand_edges[0],border_faces[0],j,overstrand_edges[j],border_faces[j]);
+
+	return false;
+
+      }
+
+    }
+
+  } else if (negface == border_faces[0]) { /* We're go in the negative direction. */
+
+    pd_idx_t j;
+
+    for(j=1;j<n;j++) { 
+
+      pd_face_and_pos(pd,overstrand_edges[j],
+		      &posface, &pfp, &negface, &nfp);
+
+      if (negface != border_faces[j]) { 
+
+	pd_error(SRCLOC,
+		 "overstrand_edges[0] = %EDGE occurs on border_face[0] = %FACE negatively, but\n"
+		 "overstrand_edges[%d] = %EDGE does not occur on border_face[%d] = %FACE negatively\n"
+		 "meaning that overstrand and border_face aren't consistent.\n",
+		 pd,overstrand_edges[0],border_faces[0],j,overstrand_edges[j],border_faces[j]);
+
+	return false;
+
+      }
+
+    }
+
+  } else { 
+
+    pd_error(SRCLOC,
+	     "overstrand_edges[0] = %EDGE does not occur on border_face[0] = %FACE\n"
+	     "meaning that overstrand and border_face aren't consistent.\n",
+	     pd,overstrand_edges[0],border_faces[0]);
+    
+  }
+
+  /* We now check that the overstrand edges are not interior to 
+     the tangle itself and that overstrand edges 1..n-1 are not 
+     border strands either. */
+
+  for(i=0;i<n;i++) { 
+
+    pd_idx_t j;
+
+    for(j=0;j<t->ninterior_edges;j++) { 
+
+      if (t->interior_edge[j] == overstrand_edges[i]) { 
+
+	pd_error(SRCLOC,"overstrand_edges[%d] == %EDGE is interior to %TANGLE\n",
+		 pd,i,overstrand_edges[i],t);
+	return false;
+
+      }
+
+    }
+
+  }
+
+  for(i=1;i<n-1;i++) { 
+
+    pd_idx_t j;
+
+    for(j=0;j<t->nedges;j++) { 
+
+      if (t->edge[j] == overstrand_edges[i]) { 
+
+	pd_error(SRCLOC,"overstrand_edges[%d] == %EDGE is an incident edge of %TANGLE\n",
+		 pd,i,overstrand_edges[i],t);
+	return false;
+
+      }
+
+    }
+
+  }
+
+  /* Now make sure that the overstrand edges are actually in orientation order. */
+
+  for(i=0;i<n-1;i++) { 
+
+    if (pd_next_edge(pd,overstrand_edges[i]) != overstrand_edges[i+1]) { 
+
+      pd_error(SRCLOC,"overstrand edges %d and %d (%EDGE and %EDGE) are not\n"
+	       "in orientation order along the their component in %PD",pd,
+	       i,i+1,overstrand_edges[i],overstrand_edges[i+1]);
+      return false;
+
+    }
+
+  }
+  
+  /* Finally, we're ready to check for tangle edges at each crossing. This is 
+     complicated by the fact that BOTH of the edges at the crossing may be tangle
+     edges, as in:
+
+       	+----------+
+       	|	   |	     +----e[0]
+       	|    +--------+	     |	      
+       	| e[n-1]      |------|----    
+	| +--|   T    |      | 	      
+	| |  |	      |------|----    
+	| |  +--------+	     | 	      
+	| |  	  | 	     |
+     	| +------------------+
+	+---------+
+
+     However, we know that only ONE of these two tangle edges should be incident
+     to the corresponding border face:
+
+     		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
+
+     So our strategy is to figure out which of the crossing edges is incident
+     to the correct face, then look for it in the tangle's edges.
+
+  */
+
+  pd_idx_t *te;
+  te = calloc(n-1,sizeof(pd_idx_t));
+  assert(te != NULL);
+
+  for(i=0;i<n-1;i++) {
+
+    pd_idx_t candidate_edges[2];
+    pd_idx_t oe = overstrand_edges[i];
+
+    candidate_edges[0] = pd->cross[pd->edge[oe].head].edge[(pd->edge[oe].headpos+1)%4];
+    candidate_edges[1] = pd->cross[pd->edge[oe].head].edge[(pd->edge[oe].headpos+3)%4];
+
+    if (pd_edge_on_face(pd,candidate_edges[0],border_faces[i]) && 
+	pd_edge_on_face(pd,candidate_edges[0],border_faces[i+1])) { 
+
+      te[i] = candidate_edges[0];
+
+    } else if (pd_edge_on_face(pd,candidate_edges[1],border_faces[i]) && 
+	       pd_edge_on_face(pd,candidate_edges[1],border_faces[i+1])) { 
+
+      te[i] = candidate_edges[1];
+
+    } else {
+
+      pd_error(SRCLOC,
+	       "at overstrand_edges[%d] == %EDGE, neither of the\n"
+	       "candidate edges %EDGE and %EDGE are incident to\n"
+	       "both border_faces[%d] == %FACE and border_faces[%d] == %FACE\n",
+	       pd,i,overstrand_edges[i],candidate_edges[0],candidate_edges[1],
+	       i,border_faces[i],i+1,border_faces[i+1]);
+
+      return false;
+
+    }
+
+    /* We now check that te[i] is indeed a tangle edge. */
+
+    pd_idx_t j;
+    bool found = false;
+
+    for(j=0;j<t->nedges && !found;j++) {
+
+      if (t->edge[j] == te[i]) { found = true; }
+
+    }
+
+    if (!found) { 
+
+      pd_error(SRCLOC,
+	       "at %CROSS joining overstrand_edges[%d] and [%d] (%EDGE and %EDGE),\n"
+	       "%EDGE is incident to both border faces %FACE and %FACE, but not \n"
+	       "part of %TANGLE\n",
+	       pd,pd->edge[overstrand_edges[i]].head,i,i+1,overstrand_edges[i],overstrand_edges[i+1],
+	       te[i],border_faces[i],border_faces[i+1],t);
+      return false;
+
+    }
+
+  }
+
+  /* Last, we check that the run of overstrand edges is actually over (or under) */
+  /* We start by seeing what the first crossing does, then loop to check the */
+  /* remaining crossings are the same. */
+
+  /* Since we know the overstrand_edges are in orientation order, if the overstrand
+     is going OVER, it is the incoming_edgenum in pd_overstrand:
+
+  void pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum);
+
+  */
+  
+  pd_idx_t incoming_e, outgoing_e;
+
+  pd_overstrand(pd,pd->edge[overstrand_edges[0]].head,&incoming_e,&outgoing_e);
+
+  if (incoming_e == overstrand_edges[0]) { /* We're supposed to be always OVER. */
+
+    pd_idx_t j;
+
+    for(j=1;j<n-1;j++) { 
+
+      pd_overstrand(pd,pd->edge[overstrand_edges[j]].head,&incoming_e,&outgoing_e);
+
+      if (incoming_e != overstrand_edges[j]) { 
+
+	pd_error(SRCLOC,
+		 "sequence of overstrand_edges in tangle starts with OVERcrossing at\n"
+		 "head of overstrand_edges[0] == %EDGE (%CROSS), but overstrand_edges[%d]\n"
+		 "== %EDGE goes UNDER at its head (%CROSS)\n",
+		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
+		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
+	return false;
+
+      }
+
+    }
+
+  } else { /* Presumably, we're going UNDER, but we check that the orientation isn't
+	      screwed up somehow just to be sure. */
+
+    pd_understrand(pd,pd->edge[overstrand_edges[0]].head,&incoming_e,&outgoing_e);
+
+    if (incoming_e == overstrand_edges[0]) { /* We're going UNDER. */
+
+      pd_idx_t j;
+
+      for(j=1;j<n-1;j++) { 
+	
+	pd_understrand(pd,pd->edge[overstrand_edges[j]].head,&incoming_e,&outgoing_e);
+
+	if (incoming_e != overstrand_edges[j]) { 
+
+	  pd_error(SRCLOC,
+		 "sequence of overstrand_edges in tangle starts with UNDERcrossing at\n"
+		 "head of overstrand_edges[0] == %EDGE (%CROSS), but overstrand_edge[%d]\n"
+		 "== %EDGE goes OVER at its head (%CROSS)\n",
+		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
+		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
+	  return false;
+
+	}
+
+      }
+
+    } else {
+
+      pd_idx_t ieo,oeo,ieu,oeu;
+
+      pd_overstrand(pd,pd->edge[overstrand_edges[0]].head,&ieo,&oeo);
+      pd_understrand(pd,pd->edge[overstrand_edges[0]].head,&ieu,&oeu);
+    
+      pd_error(SRCLOC,
+	       "orientation or other internal error: edge %EDGE is neither the\n"
+	       "incoming overstrand %d or incoming understrand %d at its head\n"
+	       "(%CROSS).\n",
+	       pd, overstrand_edges[0],ieo,ieu,pd->edge[overstrand_edges[0]].head);
+      
+      return false;
+
+    }
+
+  }
+
+  /* We've now checked everything. We assign the tangle_edges buffer address and quit. */
+
+  *tangle_edges = te;
+  return true;
+
+}
 
 void pdint_isolate_adjacent_strand(pd_code_t *pd, pd_tangle_t *t, 
 				   pd_idx_t ncross_edges, 
@@ -1061,50 +1595,7 @@ void pdint_isolate_adjacent_strand(pd_code_t *pd, pd_tangle_t *t,
 
 
   
- pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
-		       	     pd_idx_t ncross_edges, pd_idx_t cross_edges[])
- /*
-   The tangle slide operation moves an adjacent strand of the diagram
-   above (or below) a tangle to the other side of the tangle. The input
-   is specified by giving an list of edges that the adjacent
-   strand crosses in counterclockwise order around the tangle.
-   The caller does not need to explicitly specify the edges in 
-   the adjacent strand. 
-			    
-		  |  	   |
-		  |  	   |
-       	     +-------------------+		  
-	     |		    	 |		  
-       	     | 	    Tangle     	 |      	       	  
-    ---+     | 	       	       	 |   +-------   	    
-       |     | 	    	    	 |   | 	     
-       |     +-------------------+   |	     
-       |       	 |   |       | 	     |	     
-       +-----------------------------+	      
-       	       	 |   | 	     |		       	 
-     cross_edges[0]          cross_edges[ncross_edges-1]
-  	 	       	       	       	  
-                      ||
-                      vv  	
-      	       	  
-  	       	  |        |
-       +-----------------------------+
-       |      	  |  	   |	     |
-       |     +------------------+    |
-       |     |	 	    	|    |
-       |     |     Tangle      	|    |
-    ---+     | 	                |    +------
-             | 	       	    	|     	     
-             +------------------+    	     
-               	 |   |       | 	     	     
-                 |   |       |       	      
-    		 |   |	     |		       	 
-  		 
-    In the output pd code, the adjacent strand will cross the 
-    complement of these edges. 
 
- */    	       	 
- {
    /* Step 1. Identify start and end crossings of the 
       strand and make a list of the "middle" crossings.
 
@@ -1123,24 +1614,7 @@ void pdint_isolate_adjacent_strand(pd_code_t *pd, pd_tangle_t *t,
 
    */
 
-   pd_idx_t start_cross, end_cross, *adj_cross;
-   pd_idx_t nadj_cross;
-   pd_idx_t *adj_edges, nadj_edges;
-
-   pdint_isolate_adjacent_strand(pd,t,ncross_edges,cross_edges,
-				 &start_cross, &end_cross,
-				 &nadj_cross,&adj_cross,
-				 &nadj_edges,&adj_edges);
-
-   if (nadj_cross == 0) { /* Failure. */
-
-     pd_error(SRCLOC,"couldn't find common tangle-adjacent "
-	      "strand touching edges %d -- %d of tangle %TANGLE in %PD",
-	      pd,cross_edges[0],cross_edges[ncross_edges-1],t,pd);
-
-     exit(1);
-
-   }
+  
 
    /* Step 2. Delete the middle crossings and edges,
       joining previous cross edges to their outputs.
@@ -1183,8 +1657,6 @@ void pdint_isolate_adjacent_strand(pd_code_t *pd, pd_tangle_t *t,
 
    */
 
-   return NULL;
-
- }
+ 
 
 

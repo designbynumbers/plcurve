@@ -506,6 +506,30 @@ void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 
 }
 
+bool pd_edge_on_face(pd_code_t *pd, pd_idx_t edge, pd_idx_t face)
+  /* Returns true if the edge is on the face (with either sign). */
+{
+
+  pd_idx_t i;
+  bool found = false;
+
+  pd_check_edge(SRCLOC,pd,edge);
+  pd_check_face(SRCLOC,pd,face);
+
+  for(i=0;i<pd->face[face].nedges && !found;i++) { 
+
+    if (pd->face[face].edge[i] == edge) { 
+
+      found = true;
+
+    }
+
+  }
+
+  return found;
+
+}
+
 pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or)
 /* Returns original edge if or = PD_POS_ORIENTATION,
    reversed edge if or = PD_NEG_ORIENTATION */
