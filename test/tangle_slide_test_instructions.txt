@@ -1,0 +1,475 @@
+Instructions for pd_tangle_slide test cases.
+
+We're now working on a critical part of the code, which does a new
+operation to our diagrams: the tangle slide:
+
+pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
+			   pd_idx_t n,
+			   pd_idx_t *overstrand_edges, 
+			   pd_idx_t *border_faces) {
+
+ /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
+    corresponding faces bordering the tangle (f[0]...f[n-1], below),
+    slide the strand over the tangle to cross the remaining edges
+    of the tangle, as below. The edges e[0]..e[n-1] are supposed to 
+    occur in orientation order along their component.
+    
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
+
+
+    becomes
+
+		  |    	   |
+       +------------------------------+
+       |	  |  	   |	      |
+       |     +-------------------+    |		  
+       |     |		    	 |    |		  
+       |     | 	    Tangle     	 |    | 	       	  
+    ---+     | 	       	       	 |    +---   	    
+             | 	    	       	 |      	     
+             +-------------------+     	     
+                 |   |       | 	       	     
+                 |   |       |         	      
+       	       	 |   | 	     |		   
+    			     
+    We handle correctly the case where the initial and/or final
+    edges of the strand are tangle edges themselves. We also note
+    that while we call the strand the "overstrand", we also handle
+    the case where the strand goes UNDER all of the tangle strands.
+     	       	       	    
+   */
+
+We need to first check the piece of code which tests the input data
+and identifies the strands in the tangle crossed by the
+overstrand_edges.
+
+bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
+					 pd_idx_t n,
+					 pd_idx_t *overstrand_edges, 
+					 pd_idx_t *border_faces,
+					 pd_idx_t **tangle_edges)
+
+/* We make sure that the data is appropriate for a 
+   tangle slide. 
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
+             te[n-1]        te[0] 
+ 
+   We need to make several checks:
+
+   0) The indices in overstrand_edges and border_faces are
+      in-range edge and face indices for the pd code pd.
+
+   1) The border faces are actually border faces of the 
+      tangle, either in ccw or cw order.
+
+   2) The overstrand edges are incident to the appropriate 
+      faces, in order, and not interior to the tangle itself.
+
+   3) The crossings on the tangle edges have corresponding 
+      signs.
+
+   The procedure returns only if all this is true; otherwise we quit
+   with a call to pd_error. The output buffer tangle_edges (of 
+   size n-1) is allocated in this function and must be disposed of 
+   externally.
+
+*/
+
+The test files are again going to come in pairs. One file, called
+
+tangle_slide_input_testa.pdstor
+
+should contain the pd code, as always. The second, called
+
+tangle_slide_input_testa.c
+
+is going to contain a diagram with a marked tangle, and overstrand edges marked 
+with 0 (for 0verstrand) as below:
+
+/*                                                                            */
+/*                ___________       ____________                              */
+/*               /           \     /            \                             */
+/*              /             \   /              \                            */
+/*    (1)      /               \ /                \                           */
+/*            |                 \ 0      (0)      |                           */
+/*            |               /  \                |                           */
+/*            |     (3)      /    \               |                           */
+/*            |             /      3              |                           */
+/*            |            /        v     T       |                           */
+/*            |           /          \    |       0                           */
+/*            |           \    (5)    \   v       v                           */
+/*            |    +-------\----------/------+    |                           */
+/*            ^    |       ^         /       |    |                           */
+/*            2    |         7      /        |    |                           */
+/*            |    |          \    /         |    |                           */
+/*            |    |           \  /          |    |                           */
+/*            |    |            \ 3          |    |                           */
+/*            |    |             \           |    |                           */
+/*            |    |           /  \          |    |                           */
+/*            0    +----------/----\---------+   0                            */
+/*             0             4      ^           0                             */
+/*              0           v  (2)   6         0                              */
+/*               0         /          \       0                               */
+/*                0000000000000<_1000000000000                                */
+/*                       /2              1                                    */
+/*                       \        4)     \                                    */
+/*                        5              /                                    */
+/*                         \__>_________/                                     */
+
+following this will be the following data:
+
+pd_idx_t nedges = 4 ;
+pd_idx_t tangle_faces[4] = {0,5,3,2} ;
+pd_idx_t tangle_edges[4] = {3,7,4,6} ;
+
+These give the information for the tangle, just like we did before. After that,
+we'll have to specify the information for the "overstrand". This is given by 
+a number (of overstrand edges) and two arrays (of edges and corresponding faces).
+
+pd_idx_t noverstrand_edges = 3;
+pd_idx_t overstrand_edges[3] = {0,1,2};
+pd_idx_t border_faces[3] = {0,2,3};
+
+after that, we'll either have
+
+bool valid_ts_input = true;
+
+if we're testing a case where the input is ok, or 
+
+bool valid_ts_input = false;
+
+for a test where the input is not ok. If the input is ok,
+we expect to get tangle edges (denoted te[0], ... te[n-1] in 
+this picture:
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
+             te[n-1]        te[0] 
+ 
+so this should be followed by one more line giving the tangle
+edges.
+
+pd_idx_t tangle_slide_edges[2] = {6,4};
+
+If the input is NOT ok, we still have the tangle_slide_edges array, 
+but it only contains one entry, with "PD_UNSET_IDX" filling it.
+
+pd_idx_t tangle_slide_edges[1] = {PD_UNSET_IDX};
+
+Now we need a number of test cases, which explore both valid and 
+invalid input. Try to include comments after the valid/invalid 
+input reminding us what's supposed to be wrong: 
+
+ These should include things like:
+
+/*                                                                            */
+/*                ___________       ____________                              */
+/*               /           \     /            \                             */
+/*              /             \   /              \                            */
+/*    (1)      /               \ /                \                           */
+/*            |                 \ 0      (0)      |                           */
+/*            |               /  \                |                           */
+/*            |     (3)      /    \               |                           */
+/*            |             /      3              |                           */
+/*            |            /        v     T       |                           */
+/*            |           /          \    |       0                           */
+/*            |           \    (5)    \   v       v                           */
+/*            |    +-------\----------/------+    |                           */
+/*            ^    |       ^         /       |    |                           */
+/*            2    |         7      /        |    |                           */
+/*            |    |          \    /         |    |                           */
+/*            |    |           \  /          |    |                           */
+/*            |    |            \ 3          |    |                           */
+/*            |    |             \           |    |                           */
+/*            |    |           /  \          |    |                           */
+/*            0    +----------/----\---------+   0                            */
+/*             0             4      ^           0                             */
+/*              0           v  (2)   6         0                              */
+/*               0         /          \       0                               */
+/*                0000000000000<_1000000000000                                */
+/*                       /2              1                                    */
+/*                       \        4)     \                                    */
+/*                        5              /                                    */
+/*                         \__>_________/                                     */
+
+
+pd_idx_t nedges = 4 ;
+pd_idx_t tangle_faces[4] = {0,5,3,2} ;
+pd_idx_t tangle_edges[4] = {3,7,4,6} ;
+
+pd_idx_t noverstrand_edges = 3;
+pd_idx_t overstrand_edges[3] = {0,1,2};
+pd_idx_t border_faces[3] = {1,4,1};
+
+bool valid_ts_input = false; /* border faces don't border tangle */
+pd_idx_t tangle_slide_edges[1] = {PD_UNSET_IDX};
+
+
+/*                                                                            */
+/*                ___________       ____________                              */
+/*               /           \     /            \                             */
+/*              /             \   /              \                            */
+/*    (1)      /               \ /                \                           */
+/*            |                 \ 0      (0)      |                           */
+/*            |               /  \                |                           */
+/*            |     (3)      /    \               |                           */
+/*            |             /      3              |                           */
+/*            |            /        v     T       |                           */
+/*            |           /          \    |       0                           */
+/*            |           \    (5)    \   v       v                           */
+/*            |    +-------\----------/------+    |                           */
+/*            ^    |       ^         /       |    |                           */
+/*            2    |         7      /        |    |                           */
+/*            |    |          \    /         |    |                           */
+/*            |    |           \  /          |    |                           */
+/*            |    |            \ 3          |    |                           */
+/*            |    |             \           |    |                           */
+/*            |    |           /  \          |    |                           */
+/*            0    +----------/----\---------+   0                            */
+/*             0             4      ^           0                             */
+/*              0           v  (2)   6         0                              */
+/*               0         /          \       0                               */
+/*                0000000 / 000<_1000000000000                                */
+/*                       /2              1                                    */
+/*                       \        4)     \                                    */
+/*                        5              /                                    */
+/*                         \__>_________/                                     */
+
+
+pd_idx_t nedges = 4 ;
+pd_idx_t tangle_faces[4] = {0,5,3,2} ;
+pd_idx_t tangle_edges[4] = {3,7,4,6} ;
+
+pd_idx_t noverstrand_edges = 3;
+pd_idx_t overstrand_edges[3] = {0,1,2};
+pd_idx_t border_faces[3] = {0,2,3};
+
+bool valid_ts_input = false; /* crossings on overstrand edges don't match */
+pd_idx_t tangle_edges[1] = {PD_UNSET_IDX};
+
+/*                                                                            */
+/*                ___________       ____________                              */
+/*               /           \     /            \                             */
+/*              /             \   /              \                            */
+/*    (1)      /               \ /                \                           */
+/*            |                 \ 0      (0)      |                           */
+/*            |               /  \                |                           */
+/*            |     (3)      /    \               |                           */
+/*            |             /      3              |                           */
+/*            |            /        v     T       |                           */
+/*            |           /          \    |       0                           */
+/*            |           \    (5)    \   v       v                           */
+/*            |    +-------\----------/------+    |                           */
+/*            ^    |       ^         /       |    |                           */
+/*            2    |         7      /        |    |                           */
+/*            |    |          \    /         |    |                           */
+/*            |    |           \  /          |    |                           */
+/*            |    |            \ 3          |    |                           */
+/*            |    |             \           |    |                           */
+/*            |    |           /  \          |    |                           */
+/*            0    +----------/----\---------+   0                            */
+/*             0             4      ^           0                             */
+/*              0           v  (2)   6         0                              */
+/*               0         /          \       0                               */
+/*                0000000 / 000<_1000000000000                                */
+/*                       /2              1                                    */
+/*                       \        4)     \                                    */
+/*                        5              /                                    */
+/*                         \__>_________/                                     */
+
+
+pd_idx_t nedges = 4 ;
+pd_idx_t tangle_faces[4] = {0,5,3,2} ;
+pd_idx_t tangle_edges[4] = {3,7,4,6} ;
+
+pd_idx_t noverstrand_edges = 3;
+pd_idx_t overstrand_edges[3] = {0,1,2};
+pd_idx_t border_faces[3] = {0,2,3};
+
+bool valid_ts_input = false; /* crossings on overstrand edges don't match */
+pd_idx_t tangle_slide_edges[1] = {PD_UNSET_IDX};
+
+/*                                                                            */
+/*                ___________       ____________                              */
+/*               /           \     /            \                             */
+/*              /             \   /              \                            */
+/*    (1)      /               \ /                \                           */
+/*            |                 \ 0      (0)      |                           */
+/*            |               /  \                |                           */
+/*            |     (3)      /    \               |                           */
+/*            |             /      3              |                           */
+/*            |            /        v     T       |                           */
+/*            |           /          \    |       0                           */
+/*            |           \    (5)    \   v       v                           */
+/*            |    +-------\----------/------+    |                           */
+/*            ^    |       ^         /       |    |                           */
+/*            2    |         7      /        |    |                           */
+/*            |    |          \    /         |    |                           */
+/*            |    |           \  /          |    |                           */
+/*            |    |            \ 3          |    |                           */
+/*            |    |             \           |    |                           */
+/*            |    |           /  \          |    |                           */
+/*            0    +----------/----\---------+   0                            */
+/*             0             4      ^           0                             */
+/*              0           v  (2)   6         0                              */
+/*               0         /          \       0                               */
+/*                0000000 / 000<_10000 \ 00000                                */
+/*                       /2              1                                    */
+/*                       \        4)     \                                    */
+/*                        5              /                                    */
+/*                         \__>_________/                                     */
+
+
+pd_idx_t nedges = 4 ;
+pd_idx_t tangle_faces[4] = {0,5,3,2} ;
+pd_idx_t tangle_edges[4] = {3,7,4,6} ;
+
+pd_idx_t noverstrand_edges = 3;
+pd_idx_t overstrand_edges[3] = {0,1,2};
+pd_idx_t border_faces[3] = {0,2,3};
+
+bool valid_ts_input = true; /* overstrand goes under */
+pd_idx_t tangle_slide_edges[2] = {6,4};
+
+
+/*                                                                            */
+/*                ___________       ____________                              */
+/*               /           \     /            \                             */
+/*              /             \   /              \                            */
+/*    (1)      /               \ /                \                           */
+/*            |                 \ 0      (0)      |                           */
+/*            |               /  \                |                           */
+/*            |     (3)      /    \               |                           */
+/*            |             /      3              |                           */
+/*            |            /        v     T       |                           */
+/*            |           /          \    |       0                           */
+/*            |           \    (5)    \   v       v                           */
+/*            |    +-------\----------/------+    |                           */
+/*            ^    |       ^         /       |    |                           */
+/*            2    |         7      /        |    |                           */
+/*            |    |          \    /         |    |                           */
+/*            |    |           \  /          |    |                           */
+/*            |    |            \ 3          |    |                           */
+/*            |    |             \           |    |                           */
+/*            |    |           /  \          |    |                           */
+/*            \    +----------/----\---------+   /                            */
+/*             \             4      ^           /                             */
+/*              \           v  (2)   6         /                              */
+/*               \         0          0       /                               */
+/*                _______ 0 ___<_1____ 0 _____                                */
+/*                       02              1                                    */
+/*                       0        4)     0                                    */
+/*                        5              0                                    */
+/*                         000>0000000000                                     */
+				       
+				       
+pd_idx_t nedges = 4 ;		       
+pd_idx_t tangle_faces[4] = {0,5,3,2} ; 
+pd_idx_t tangle_edges[4] = {3,7,4,6} ; 
+				       
+pd_idx_t noverstrand_edges = 3;	       
+pd_idx_t overstrand_edges[3] = {4,5,6};
+pd_idx_t border_faces[3] = {2,4,2};
+
+bool valid_ts_input = false; /* face 4 doesn't border tangle */
+pd_idx_t tangle_slide_edges[1] = {PD_UNSET_IDX};
+
+as well as some foolish ones like
+
+/*                                                                            */
+/*                ___________       ____________                              */
+/*               /           \     /            \                             */
+/*              /             \   /              \                            */
+/*    (1)      /               \ /                \                           */
+/*            |                 \ 0      (0)      |                           */
+/*            |               /  \                |                           */
+/*            |     (3)      /    \               |                           */
+/*            |             /      3              |                           */
+/*            |            /        v     T       |                           */
+/*            |           /          \    |       0                           */
+/*            |           \    (5)    \   v       v                           */
+/*            |    +-------\----------/------+    |                           */
+/*            ^    |       ^         /       |    |                           */
+/*            2    |         7      /        |    |                           */
+/*            |    |          \    /         |    |                           */
+/*            |    |           \  /          |    |                           */
+/*            |    |            \ 3          |    |                           */
+/*            |    |             \           |    |                           */
+/*            |    |           /  \          |    |                           */
+/*            0    +----------/----\---------+   0                            */
+/*             0             4      ^           0                             */
+/*              0           v  (2)   6         0                              */
+/*               0         /          \       0                               */
+/*                0000000 / 000<_10000 \ 00000                                */
+/*                       /2              1                                    */
+/*                       \        4)     \                                    */
+/*                        5              /                                    */
+/*                         \__>_________/                                     */
+
+
+pd_idx_t nedges = 4 ;
+pd_idx_t tangle_faces[4] = {0,5,3,2} ;
+pd_idx_t tangle_edges[4] = {3,7,4,6} ;
+
+pd_idx_t noverstrand_edges = 3;
+pd_idx_t overstrand_edges[3] = {99,7,141};
+pd_idx_t border_faces[3] = {2,223,48};
+
+bool valid_ts_input = false; /* overstrand edge and face numbers make
+no sense  */
+pd_idx_t tangle_slide_edges[1] = {PD_UNSET_IDX};
+
+We should try to exercise all of the cases in this list of criteria
+for overstrand_edges and border_faces:
+
+   0) The indices in overstrand_edges and border_faces are
+      in-range edge and face indices for the pd code pd.
+
+   1) The border faces are actually border faces of the 
+      tangle, either in ccw or cw order.
+
+   2) The overstrand edges are incident to the appropriate 
+      faces, in order, and not interior to the tangle itself.
+
+   3) The crossings on the tangle edges have corresponding 
+      signs.
+
+as well as the usual weird cases like "there's only one overstrand
+edge and face", or "the overstrand edges and faces encircle the entire
+tangle". This test strategy is of course a bit scattershot, but
+hopefully it will pick up any really serious bugs (and the rest will
+be discovered by self-tests as we run the complete collections of
+crossings!).
+
+

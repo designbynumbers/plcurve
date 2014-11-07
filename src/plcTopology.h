@@ -591,7 +591,7 @@ extern "C" {
   /* Simplify the pd code using combinations of the moves above to
      reduce crossing number as far as possible. */
 
-  /* pd human output */
+  /******************** pd human output ***************/
 
   /* These are functions which implement a superset of printf in order
      to display human-readable output and error messages.
@@ -848,7 +848,8 @@ extern "C" {
 
   pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c); /* An unknot diagram designed for hash collisions */
 
-  /**************************** Interface with traditional plCurve types **********************************/
+
+  /******* Interface with traditional plCurve types ******/
 
   pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L);
 
