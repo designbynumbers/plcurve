@@ -59,6 +59,7 @@
 #include<pd_orientation.h>
 #include<pd_isomorphisms.h>
 #include<pd_sortedbuf.h>
+#include<pd_deletions.h>
 
 bool pd_xor(bool a, bool b) {
 
@@ -1050,7 +1051,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 					    pd_idx_t n,
 					    pd_idx_t *overstrand_edges, 
 					    pd_idx_t *border_faces,
-					    pd_idx_t **tangle_slide_edges)
+					    pd_idx_t **tangle_slide_edges,
+					    bool *overstrand_goes_over)
 
 /* We make sure that the data is appropriate for a 
    tangle slide. 
@@ -1087,6 +1089,9 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
    with a call to pd_error. The output buffer tangle_slide_edges (of 
    size n-1) is allocated in this function and must be disposed of 
    externally.
+
+   Also returns a flag in the boolean overstrand_goes_over to detect
+   whether the overstrand is going OVER or UNDER the tangle (true if over).
 
 */
 {
@@ -1455,6 +1460,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
   if (incoming_e == overstrand_edges[0]) { /* We're supposed to be always OVER. */
 
+    *overstrand_goes_OVER = true;
+
     pd_idx_t j;
 
     for(j=1;j<n-1;j++) { 
@@ -1481,6 +1488,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
     pd_understrand(pd,pd->edge[overstrand_edges[0]].head,&incoming_e,&outgoing_e);
 
     if (incoming_e == overstrand_edges[0]) { /* We're going UNDER. */
+
+      *overstrand_goes_OVER = false;
 
       pd_idx_t j;
 
@@ -1533,7 +1542,7 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
 		     pd_idx_t n,
 		     pd_idx_t *overstrand_edges, 
 		     pd_idx_t *border_faces,
-		     pd_idx_t **npieces,
+		     pd_idx_t *npieces,
 		     pd_code_t **pd_pieces)
 
  /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
@@ -1579,8 +1588,9 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
     This operation can disconnect the diagram, potentially into many
     pieces. We return the number of connected components of the
     diagram in "npieces" and the components themselves in
-    "pd_pieces". Both are allocated internally and are the caller's
-    responsibility to dispose of.
+    "pd_pieces". The buffer of pd_code_t pointers pd_pieces is
+    allocated internally and is the caller's responsibility to
+    dispose of.
      	       	       	    
    */
 {
@@ -1607,11 +1617,13 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
   */
 
   pd_idx_t *tangle_slide_edges;
+  bool overstrand_goes_OVER; /* True if overstrand goes OVER, false if not */
 
   if (!pdint_check_tslide_data_ok_and_find_te(pd,t,n,
 					      overstrand_edges, 
 					      border_faces,
-					      &tangle_slide_edges)) { 
+					      &tangle_slide_edges,
+					      &overstrand_goes_OVER)) { 
 
     pd_error(SRCLOC,"tangle slide input data is invalid");
     exit(1);
@@ -1798,7 +1810,7 @@ end_anchor   |                   |    +---start_anchor
 
   for(i=1;i<n-1;i++) { 
 
-    pd_delete_edge(pd_working,overstrand_edge[i]);
+    pd_edge_delete(pd_working,overstrand_edge[i]);
 
   }
 
@@ -1983,9 +1995,9 @@ end_anchor   | 	    Tangle     	 |
       pd_working->edge[edgechain_start].head = pd_working->edge[cur_edge_idx].head;
       pd_working->edge[edgechain_start].headpos = pd_working->edge[cur_edge_idx].headpos;
 
-      pd_delete_edge(pd_working,cur_edge_idx); 
+      pd_edge_delete(pd_working,cur_edge_idx); 
       
-      /* Now this call to pd_delete_edge set the crossing incident to
+      /* Now this call to pd_edge_delete set the crossing incident to
 	 cur_edge_idx at the head to have a PD_UNSET_IDX in the
 	 position where cur_edge_idx came in. We want to set this
 	 crossing to have the start of the edgechain coming in
@@ -2457,6 +2469,73 @@ end_anchor   | 	    Tangle     	 |
       pd_working->edge[new_edge].tail = pd->ncross+i-1;
       pd_working->edge[new_edge].tailpos = exit_pos;
 
+      /* We need to also update the crossing records to 
+	 indicate that they are connected to the new edge. */
+
+      pd_working->cross[pd->ncross+i].edge[pd_working->edge[new_edge].headpos] 
+	= new_edge;
+      pd_working->cross[pd->ncross+i-1].edge[pd_working->edge[new_edge].tailpos] 
+	= new_edge;
+
+      /* Probably the hardest part here is to figure out the correct sign for
+	 the crossing. We know whether the new strand is supposed to go over or
+	 under, so the quickest way to do this is "guess and check". */
+
+      pd_working->cross[pd->ncross+i-1].sign = PD_POS_ORIENTATION;
+      
+      pd_idx_t in_overstrand, out_overstrand;
+      pd_overstrand(pd_working,pd->ncross+i-1,&in_overstrand,&out_overstrand);
+
+      /* We now check and see if we got it wrong-- we were supposed to go under and
+	 went over, or we were supposed to go over and went under. */
+
+      if (overstrand_goes_UNDER && 
+	  (in_overstrand == new_edge || out_overstrand == new_edge)) {
+
+	pd_working->cross[pd->ncross+i-1].sign = PD_NEG_ORIENTATION;
+
+      } 
+
+      if (overstrand_goes_OVER && 
+	  (in_overstrand != new_edge && out_overstrand != new_edge)) { 
+
+	pd_working->cross[pd->ncross+i-1].sign = PD_NEG_ORIENTATION;
+
+      }
+
+      /* There's a sticky edge case here. If we're at the end of the
+	 new crossings, then we've already got another edge sewed to
+	 the end of the crossing at pd->ncross+i, and we can go ahead
+	 and assign a sign to the crossing now instead of waiting for
+	 next iteration of the loop. In fact, we have to, since we
+	 aren't going to get another loop iteration! */
+
+      if (i == ncomplementary_edges-1) { 
+
+	 pd_working->cross[pd->ncross+i].sign = PD_POS_ORIENTATION;
+      
+	 pd_idx_t in_overstrand, out_overstrand;
+	 pd_overstrand(pd_working,pd->ncross+i,&in_overstrand,&out_overstrand);
+
+	 /* We now check and see if we got it wrong-- we were supposed to go under and
+	    went over, or we were supposed to go over and went under. */
+
+	 if (overstrand_goes_UNDER && 
+	     (in_overstrand == new_edge || out_overstrand == new_edge)) {
+
+	   pd_working->cross[pd->ncross+i].sign = PD_NEG_ORIENTATION;
+
+	 } 
+
+	 if (overstrand_goes_OVER && 
+	     (in_overstrand != new_edge && out_overstrand != new_edge)) { 
+
+	   pd_working->cross[pd->ncross+i].sign = PD_NEG_ORIENTATION;
+
+	 }
+
+      }
+
       pd_working->nedges++;
 
     }
@@ -2467,19 +2546,307 @@ end_anchor   | 	    Tangle     	 |
      code, and edges giving orientations and so forth. However, there are several
      problems.
 
-     #1. There are "dead" crossings sprinkled throughout pd_working->cross, and 
-     "dead" edges sprinkled throughout pd_working->edges.
+     #1. There are "dead" crossings sprinkled throughout
+     pd_working->cross, and "dead" edges sprinkled throughout
+     pd_working->edges. We can recognize dead crossings by the fact
+     that all their incident edges are set to PD_UNSET_IDX.  We can
+     recognize dead edges by the fact that their head and tail are set
+     to PD_UNSET_IDX.
 
-     #2. The new crossings don't have sign information. 
+     #2. Neither edges nor crossings are ordered. 
 
-     #3. Neither edges nor crossings are ordered. 
-
-     #4. Components don't make sense-- some components may consist
+     #3. Components don't make sense-- some components may consist
      ONLY of dead edges and crossings, which others may simply have
      some dead edges and components.
 
-     #5. The diagram may be disconnected. 
+     #4. The diagram may be disconnected. 
 
-     #6. Faces need to be regenerated. */
+     #5. Faces need to be regenerated. */
+
+  /* Ok, so the first problem can be resolved with a compacting copy-
+     -edge update cycle, as we did in the other crossing moves. */
+
+  pd_idx_t *crossing_deletions;
+  pd_idx_t ndeletions;
+
+  crossing_deletions = calloc(pd_working->nverts,sizeof(pd_idx_t));
+  assert(crossing_deletions != NULL);
+  ndeletions = 0;
+
+  for(i=0;i<pd_working->nverts;i++) { 
+
+    if (pd_working->cross[i].edge[0] == PD_UNSET_IDX &&
+	pd_working->cross[i].edge[1] == PD_UNSET_IDX &&
+	pd_working->cross[i].edge[2] == PD_UNSET_IDX &&
+	pd_working->cross[i].edge[3] == PD_UNSET_IDX) { 
+
+      crossing_deletions[ndeletions++] = i;
+
+    }
+  
+  }
+  
+  pd_cross_t *compacted_cross;
+  pd_idx_t *index_in_compacted_cross;
+  pd_idx_t new_ncross;
+
+  pd_compacting_copy(pd_working->cross,sizeof(pd_cross_t),pd_working->nverts,
+		     ndeletions,crossing_deletions,
+		     &compacted_cross,
+		     &index_in_compacted_cross,
+		     &new_ncross);
+
+  /* We now swap in the new crossing data to the pdcode, and free the old memory. */
+
+  free(pd_working->cross);
+  pd_working->cross = compacted_cross;
+  pd_working->nverts = new_ncross;
+  pd_working->MAXVERTS = new_ncross;
+
+  /* Now we need to scan through the edge records, updating references to the
+     old crossings (remembering to skip any edge records which are about to be 
+     deleted). */
+
+  for(i=0;i<pd_working->nedges;i++) { 
+
+    if (pd_working->edge[i].head != PD_UNSET_IDX) { 
+
+      pd_working->edge[i].head = index_in_compacted_cross[pd_working->edge[i].head];
+
+    }
+
+    if (pd_working->edge[i].tail != PD_UNSET_IDX) { 
+
+      pd_working->edge[i].tail = index_in_compacted_cross[pd_working->edge[i].tail];
+
+    }
+
+  }
+
+  /* There aren't any other references to these crossings in the pd code, so 
+     we can go ahead and free the extra information from pd_compacting_copy. */
+
+  free(index_in_compacted_cross);
+  free(crossing_deletions);
+
+  /* We are now going to do basically the same thing for the edges-- scan through
+     and delete any edges which have been set to PD_UNSET_IDX, then update the 
+     crossing records in a corresponding way. */
+
+  pd_idx_t *edge_deletions;
+
+  edge_deletions = calloc(pd_working->nverts,sizeof(pd_idx_t));
+  assert(edge_deletions != NULL);
+  ndeletions = 0;
+
+  for(i=0;i<pd_working->nedges;i++) { 
+
+    if (pd_working->edge[i].head == PD_UNSET_IDX &&
+	pd_working->edge[i].tail == PD_UNSET_IDX) { 
+
+      edge_deletions[ndeletions++] = i;
+
+    }
+
+  }
+
+  pd_cross_t *compacted_edges;
+  pd_idx_t *index_in_compacted_edges;
+  pd_idx_t new_nedges;
+
+  pd_compacting_copy(pd_working->edge,sizeof(pd_edge_t),pd_working->nedges,
+		     ndeletions,edge_deletions,
+		     &compacted_edges,
+		     &index_in_compacted_edges,
+		     &new_nedges);
+
+  /* We now swap in the new edge data to the pdcode, and free the old memory. */
+
+  free(pd_working->edge);
+  pd_working->edge = compacted_edge;
+  pd_working->nedges = new_nedges;
+  pd_working->MAXVERTS = new_nedges;
+
+  /* Now we need to scan through the crossing records, updating references to the
+     old edge numbering. */
+
+  for(i=0;i<pd_working->ncross;i++) { 
+
+    for(j=0;j<4;j++) { 
+
+      pd_working->cross[i].edge[j] = index_in_compacted_edges[pd_working->cross[i].edge[j]];
+
+    }
+
+  }
+
+  /* We need to do the same thing with components, updating the edge
+     references.  Here, some of the edges will be PD_UNSET_IDX
+     (because these edges have been compacted out). The important
+     thing isn't that the components will be right after this update--
+     they won't-- but that we can hope to use this information to
+     transfer TAGS correctly to the new components when they are
+     generated. */
+
+  for(i=0;i<pd_working->ncomps;i++) { 
+
+    for(j=0;j<pd_working->comp[i].nedges;j++) { 
+
+      if (pd_working->comp[i].edge[j] != PD_UNSET_IDX) { 
+
+	pd_working->comp[i].edge[j] = index_in_compacted_edges[pd_working->comp[i].edge[j]];
+
+      }
+
+    }
+
+  }
+
+  /* There aren't any other references to these edges in the pd code,
+     so we can go ahead and free the extra information from
+     pd_compacting_copy. */
+
+  free(index_in_compacted_edge);
+  free(edge_deletions);
+  
+  /* Let's take stock of where we are: 
+
+     The crossing and edge buffers are now smaller (and filled, and
+     make sense). The components and faces don't make any sense. We'd
+     simply run pd_regenerate at this point, except for the fact that
+     we have to preserve component tags and orientations.
+
+     So we're going to do a very careful customized version of
+     pd_regenerate so that we can stop the process and transfer
+     component tags at the right moment. 
+
+     Basically, we need to preserve one edge from each of the (old)
+     components in order to seed the new components with tag and
+     orientation.  It's not a good idea to try to do this in every
+     circumstance (that is, by simply changing how pd_regenerate_comps
+     handles its work) because there are many instances when we
+     simply want a fully clean regenerate (for instance when we do a
+     component-destroying move like a crossing smoothing or connect
+     sum).
+
+     This makes the job of reassembling components considerably easier,
+     as if the component record contains any valid edge references (and it 
+     might *not*), we can use that as a starting point to assemble the 
+     component by looping around the pd code. We'll split the diagram 
+     afterwards, and finally generate faces for all of the child diagrams.
+
+  */
+  
+  for(i=0;i<pd_working->ncomps;i++) { 
+
+    /* Scan the component for an edge that still exists. */
+    for(j=0;j<pd_working->comp[i].nedges && pd_working->comp[i].edge[j] == PD_UNSET_IDX;j++);
+
+    if (j == pd_working->comp[i].nedges) { /* We didn't find ANY edges. */
+
+      pd_working->comp[i].nedges = 0; 
+      free(pd_working->comp[i].edge); /* This may get us in trouble later */
+      pd_working->comp[i].edge = NULL;
+
+    } else { /* We found an edge... copy it to position zero and loop. */
+
+      pd_working->comp[i].edge[0] = pd_working->comp[i].edge[j];
+
+      pd_idx_t next_edge;
+      pd_or_t  next_or;
+
+      pd_working->comp[i].nedges = 1;
+      pdint_next_comp_edge(pd_working,pd_working->comp[i].edge[0],
+			   &next_edge,&next_or)
+
+      for(;next_edge != pd_working->comp[i].edge[0] && pd_working->comp[i].nedges <= pd_working->MAXEDGES+1;
+	  pdint_next_comp_edge(pd_working,pd_working->comp[i].edge[pd_working->comp[i].nedges-1],
+			       &next_edge,&next_or)) {
+
+	/* Ordinarily, we'd reorient the edge. But in this case, we OUGHT to 
+	   have ensured that the edges are oriented correctly to start with. 
+	   Hence, we'll just check to make sure that the orientation is good
+	   and fail out otherwise, to avoid covering a bug earlier. */
+
+	if (next_or != PD_POS_ORIENTATION) { 
+
+	  pd_error(SRCLOC,"pd_tangle_slide: When rebuilding component %d after the\n"
+		   "slide, %EDGE appears in reverse orientation as the successor to\n"
+		   "%EDGE (in position %d along the component). Suspect something\n"
+		   "went wrong in the earlier (sewing) phase of the tangle slide\n",
+		   pd_working,i,next_edge,pd_working->comp[i].edge[pd_working->comp[i].nedges-1],
+		   pd_working->comp[i].nedges);
+
+	  exit(1);
+
+	}
+
+	pd_working->comp[i].edge[pd_working->comp[i].nedges] = next_edge;
+	pd_working->comp[i].nedges++;
+	
+      }
+      
+    }
+
+  }
+
+  /* Ok, at this point, we've reassembled the components. 
+     At this point, it seems wise to do a little self-checking:
+ 
+     1) make sure that every edge appears (once) in a component, and 
+     
+     2) check that edge indicies in the components are legitimate.
+
+     If we've made it this far, the components all have consistent 
+     orientations.
+  */
+
+  bool *edge_appears;
+  edge_appears = calloc(pd_working->nedges,sizeof(bool));
+  assert(edge_appears != NULL);
+  for(i=0;i<pd_working->nedges;i++) { edge_appears[i] = false; } /* redundant, but safe */
+    
+  for(i=0;i<pd_working->ncomps;i++) { 
+
+    for(j=0;j<pd_working->comp[i].nedges;j++) { 
+
+      if (edge_appears[pd_working->comp[i].edge[j]]) { 
+
+	pd_error(SRCLOC,"pd_tangle_slide: After component reassembly, %EDGE appears\n"
+		 "at least twice in the components of pd_working, once in component %COMP\n",
+		 pd_working, pd_working->comp[i].edge[j], i);
+	exit(1);
+
+      }
+
+    }
+
+  }
+
+  for(i=0;i<pd_working->nedges;i++) { 
+
+    if (!edge_appears[i]) { 
+
+      pd_error(SRCLOC,"pd_tangle_slide: After component reassembly, %EDGE does not\n"
+	       "appear anywhere in the list of components in %PD\n",
+	       pd_working,i);
+      exit(1);
+
+    }
+
+  }
+
+  /* Ok, we've checked that the list of components is as good as it's
+     going to get. The problem now is that the diagram actually may 
+     consist of a number of disconnected diagrams. There's no point 
+     in canonicalizing the edge numbering until we split the diagram 
+     into pieces. */
+  
+  *npieces = pd_split_diagram(pd_working,pd_pieces);
+
+  /* We're now actually done-- the pieces themselves have been canonicalized
+     after they were built. So quit! */
+
+  pd_code_free(&pd_working);
 
 }

@@ -77,7 +77,7 @@ void pd_compacting_copy(void *source, size_t obj_size, size_t nobj,
 			pd_idx_t *ntarget) /* Returns the size of the target buffer. */
 
 /* This primitive copies (in order) all the elements of source_buf EXCEPT those
-   in the buffer "deletions" to target buf. We allocate "target_buf" ourselves,
+   in the buffer "deletions" to target buf. We allocate "target_var" ourselves,
    and return in the target_idx a buffer of size nobj so that
 
    target_idx[index in source] = index of copy, if the object was copied
@@ -416,6 +416,8 @@ void pd_compact_components(pd_code_t *pd, pd_code_t *outpd,pd_idx_t *new_edge_id
 
 }
 
+
+  
 
 pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
 

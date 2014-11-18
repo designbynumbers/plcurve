@@ -1191,7 +1191,8 @@ void pd_regenerate_comps(pd_code_t *pd)
 
   }
 
-  /* We can now free the edge_assignment data, since we've assigned all edges to components. */
+  /* We can now free the edge_assignment data, since we've assigned
+     all edges to components. */
 
   free(edge_assigned);
   edge_assigned = NULL;
