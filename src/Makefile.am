@@ -65,7 +65,11 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	pd_crossingmoves.c \
 	pd_sortedbuf.h \
 	pd_sortedbuf.c \
-	pd_tangles.c 
+	pd_tangles.c \
+	pd_splitdiagram.h \
+	pd_splitdiagram.c \
+	pd_deletions.h \
+	pd_deletions.c
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -122,7 +126,11 @@ libplCurve_la_SOURCES = plCurve.c \
 	pd_crossingmoves.c \
 	pd_sortedbuf.h \
 	pd_sortedbuf.c \
-	pd_tangles.c 
+	pd_tangles.c \
+	pd_splitdiagram.h \
+	pd_splitdiagram.c \
+	pd_deletions.h \
+	pd_deletions.c
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

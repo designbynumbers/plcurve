@@ -60,6 +60,21 @@
 #include<pd_isomorphisms.h>
 #include<pd_sortedbuf.h>
 #include<pd_deletions.h>
+#include<pd_splitdiagram.h>
+
+void pd_compacting_copy(void *source, size_t obj_size, size_t nobj, 
+			pd_idx_t ndeletions, pd_idx_t *deletions,
+			void **target_var,
+			pd_idx_t **target_idx,
+			pd_idx_t *ntarget);
+
+/* This is an unexposed function (the code is in pd_crossingmoves.c) 
+   used for crossing operations. */
+
+void pdint_next_comp_edge(pd_code_t *pd,pd_idx_t edge,pd_idx_t *nxt,pd_or_t *nxt_or);
+
+/* This is another unexposed function (in pdcode.c) which finds the next edge on 
+   a component. */ 
 
 bool pd_xor(bool a, bool b) {
 
@@ -1052,7 +1067,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 					    pd_idx_t *overstrand_edges, 
 					    pd_idx_t *border_faces,
 					    pd_idx_t **tangle_slide_edges,
-					    bool *overstrand_goes_over)
+					    bool *overstrand_goes_OVER)
 
 /* We make sure that the data is appropriate for a 
    tangle slide. 
@@ -1106,6 +1121,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
   }  
 
+  *tangle_slide_edges = NULL; /* We're going to assume that we're gonna fail. */
+  
   /* 1. We start by looking for the sequence of faces occuring 
      along the boundary of the tangle. Notice that the same face
      may occur multiple times on the boundary of a tangle:
@@ -1200,12 +1217,14 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
       pd_error(SRCLOC,
 	       "couldn't find %d border_faces sequence %d %d %d ... %d on the border\n"
 	       "of %TANGLE.\n",pd,n,border_faces[0],border_faces[1],border_faces[2],border_faces[n-1],t);
+      return false;
 
     } else { 
 
       pd_error(SRCLOC,
 	       "couldn't find %d border_faces sequence %d ... %d on the border\n"
 	       "of %TANGLE.\n",pd,n,border_faces[0],border_faces[n-1],t);
+      return false;
 
     }
 
@@ -1290,6 +1309,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	     "overstrand_edges[0] = %EDGE does not occur on border_face[0] = %FACE\n"
 	     "meaning that overstrand and border_face aren't consistent.\n",
 	     pd,overstrand_edges[0],border_faces[0]);
+    return false;
     
   }
 
@@ -1413,6 +1433,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	       "both border_faces[%d] == %FACE and border_faces[%d] == %FACE\n",
 	       pd,i,overstrand_edges[i],candidate_edges[0],candidate_edges[1],
 	       i,border_faces[i],i+1,border_faces[i+1]);
+      free(te);
 
       return false;
 
@@ -1437,6 +1458,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	       "part of %TANGLE\n",
 	       pd,pd->edge[overstrand_edges[i]].head,i,i+1,overstrand_edges[i],overstrand_edges[i+1],
 	       te[i],border_faces[i],border_faces[i+1],t);
+
+      free(te);
       return false;
 
     }
@@ -1476,6 +1499,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 		 "== %EDGE goes UNDER at its head (%CROSS)\n",
 		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
 		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
+	free(te);
 	return false;
 
       }
@@ -1505,6 +1529,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 		 "== %EDGE goes OVER at its head (%CROSS)\n",
 		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
 		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
+	  free(te);
 	  return false;
 
 	}
@@ -1523,7 +1548,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	       "incoming overstrand %d or incoming understrand %d at its head\n"
 	       "(%CROSS).\n",
 	       pd, overstrand_edges[0],ieo,ieu,pd->edge[overstrand_edges[0]].head);
-      
+      free(te);
       return false;
 
     }
@@ -1625,7 +1650,7 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
 					      &tangle_slide_edges,
 					      &overstrand_goes_OVER)) { 
 
-    pd_error(SRCLOC,"tangle slide input data is invalid");
+    pd_error(SRCLOC,"tangle slide input data is invalid",pd);
     exit(1);
 
   }
@@ -1707,7 +1732,7 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
 	     "overstrand_edges[0] = %EDGE\n"
 	     "starts at %CROSS \n"
 	     "which is part of overstrand edges or interior to %TANGLE\n",
-	     pd,overstrand_edges[0],overstrand_edges[0].tail,t);
+	     pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].tail,t);
     exit(1);
 
   }
@@ -1721,7 +1746,7 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
 	     "overstrand_edges[n-1] = %EDGE\n"
 	     "ends at %CROSS \n"
 	     "which is part of overstrand edges or interior to %TANGLE\n",
-	     pd,overstrand_edges[n-1],overstrand_edges[n-1].tail,t);
+	     pd,overstrand_edges[n-1],pd->edge[overstrand_edges[n-1]].tail,t);
     exit(1);
 
   }
@@ -1806,11 +1831,9 @@ end_anchor   |                   |    +---start_anchor
                
   */
 
-  pd_idx_t i;
-
   for(i=1;i<n-1;i++) { 
 
-    pd_edge_delete(pd_working,overstrand_edge[i]);
+    pd_edge_delete(pd_working,overstrand_edges[i]);
 
   }
 
@@ -1957,11 +1980,11 @@ end_anchor   | 	    Tangle     	 |
 	   
     /* First, we check if this edge has already been deleted. */
 	   
-    if (pd_working->edge[tangle_slide_edges[i]] != pd_unset_edge()) { 
+    if (!pd_edge_deleted(pd_working,tangle_slide_edges[i])) { 
 	   
       pd_idx_t edgechain_start;
     	   
-      if (pd_tangle_bdy_or(t,tangle_slide_edges[i]) == out) { 
+      if (pd_tangle_bdy_or(pd_working,t,tangle_slide_edges[i]) == out) { 
 	
 	edgechain_start = tangle_slide_edges[i];
 
@@ -1978,12 +2001,12 @@ end_anchor   | 	    Tangle     	 |
       for(cur_edge_idx = edgechain_start, cur_edge = pd_working->edge[cur_edge_idx];
 	  /* Until we reach an edge whose head is not going to be deleted */
 	  pd_working->cross[cur_edge.head].edge[(cur_edge.headpos+1)%4] 
-	    != PD_WORKING_UNSET_IDX && 
+	    != PD_UNSET_IDX && 
 	    pd_working->cross[cur_edge.head].edge[(cur_edge.headpos+3)%4] 
-	    != PD_WORKING_UNSET_IDX;
+	    != PD_UNSET_IDX;
 	  /* Advance to the next edge in the chain */
 	  cur_edge_idx = pd_next_edge(pd_working,cur_edge_idx), 
-	    cur_edge = pd_working->edge[cur_edge]) { 
+	    cur_edge = pd_working->edge[cur_edge_idx]) { 
 
 	pd_edge_delete(pd_working,cur_edge_idx);
       
@@ -2287,18 +2310,18 @@ end_anchor   | 	    Tangle     	 |
     new_edge = pd_working->nedges;
 
     pd_working->cross[new_cross].edge[0] = new_edge;
-    pd_working->cross[new_cross].edge[1] = PD_UNSET_EDGE;
+    pd_working->cross[new_cross].edge[1] = PD_UNSET_IDX;
     pd_working->cross[new_cross].edge[2] = complementary_edges[i];
-    pd_working->cross[new_cross].edge[3] = PD_UNSET_EDGE;
+    pd_working->cross[new_cross].edge[3] = PD_UNSET_IDX;
 
-    if (complementary_bdy_or == in) { 
+    if (complementary_or[i] == in) { 
 
       pd_working->edge[new_edge].head = new_cross;
       pd_working->edge[new_edge].headpos = 0;
       pd_working->edge[new_edge].tail = pd_working->edge[complementary_edges[i]].head;
       pd_working->edge[new_edge].tailpos = pd_working->edge[complementary_edges[i]].headpos;
 
-    } else if (complementary_bdy_or == out) { 
+    } else if (complementary_or[i] == out) { 
 
       pd_working->edge[new_edge].head = pd_working->edge[complementary_edges[i]].head;
       pd_working->edge[new_edge].headpos = pd_working->edge[complementary_edges[i]].headpos;
@@ -2307,8 +2330,8 @@ end_anchor   | 	    Tangle     	 |
 
     } else { 
 
-      pd_error(SRCLOC,"complementary_bdy_or[%d] = %d is neither 'in' nor 'out'\n",pd_working,
-	       i,(int)(complementary_bdy_or[i]));
+      pd_error(SRCLOC,"complementary_or[%d] = %d is neither 'in' nor 'out'\n",pd_working,
+	       i,(int)(complementary_or[i]));
       exit(1);
 
     }
@@ -2354,8 +2377,8 @@ end_anchor   | 	    Tangle     	 |
     */
 
     pd_edge_t e0,enm1;
-    e0 = pd->working->edge[overstrand_edges[0]];
-    enm1 = pd->working->edge[overstrand_edges[n-1]];
+    e0 = pd_working->edge[overstrand_edges[0]];
+    enm1 = pd_working->edge[overstrand_edges[n-1]];
 
     /* Disconnect from the former head and tail crossings. */
     pd_working->cross[e0.head].edge[e0.headpos] = PD_UNSET_IDX;
@@ -2369,7 +2392,7 @@ end_anchor   | 	    Tangle     	 |
     pd_working->edge[overstrand_edges[0]].headpos = enm1.headpos;
 
     /* Delete the edge e[n-1] */
-    pd_working->edge[overstand_edges[n-1]] = pd_unset_edge(); 
+    pd_working->edge[overstrand_edges[n-1]] = pd_unset_edge(); 
 
   } else {
 
@@ -2411,8 +2434,8 @@ end_anchor   | 	    Tangle     	 |
     */	  
       	  
     pd_edge_t e0,enm1;
-    e0 = pd->working->edge[overstrand_edges[0]];
-    enm1 = pd->working->edge[overstrand_edges[n-1]];
+    e0 = pd_working->edge[overstrand_edges[0]];
+    enm1 = pd_working->edge[overstrand_edges[n-1]];
 
     /* We still start by disconnecting from the former head and tail crossings. */
     pd_working->cross[e0.head].edge[e0.headpos] = PD_UNSET_IDX;
@@ -2489,7 +2512,7 @@ end_anchor   | 	    Tangle     	 |
       /* We now check and see if we got it wrong-- we were supposed to go under and
 	 went over, or we were supposed to go over and went under. */
 
-      if (overstrand_goes_UNDER && 
+      if (!overstrand_goes_OVER && 
 	  (in_overstrand == new_edge || out_overstrand == new_edge)) {
 
 	pd_working->cross[pd->ncross+i-1].sign = PD_NEG_ORIENTATION;
@@ -2520,7 +2543,7 @@ end_anchor   | 	    Tangle     	 |
 	 /* We now check and see if we got it wrong-- we were supposed to go under and
 	    went over, or we were supposed to go over and went under. */
 
-	 if (overstrand_goes_UNDER && 
+	 if (!overstrand_goes_OVER && 
 	     (in_overstrand == new_edge || out_overstrand == new_edge)) {
 
 	   pd_working->cross[pd->ncross+i].sign = PD_NEG_ORIENTATION;
@@ -2569,11 +2592,11 @@ end_anchor   | 	    Tangle     	 |
   pd_idx_t *crossing_deletions;
   pd_idx_t ndeletions;
 
-  crossing_deletions = calloc(pd_working->nverts,sizeof(pd_idx_t));
+  crossing_deletions = calloc(pd_working->ncross,sizeof(pd_idx_t));
   assert(crossing_deletions != NULL);
   ndeletions = 0;
 
-  for(i=0;i<pd_working->nverts;i++) { 
+  for(i=0;i<pd_working->ncross;i++) { 
 
     if (pd_working->cross[i].edge[0] == PD_UNSET_IDX &&
 	pd_working->cross[i].edge[1] == PD_UNSET_IDX &&
@@ -2586,13 +2609,13 @@ end_anchor   | 	    Tangle     	 |
   
   }
   
-  pd_cross_t *compacted_cross;
+  pd_crossing_t *compacted_cross;
   pd_idx_t *index_in_compacted_cross;
   pd_idx_t new_ncross;
 
-  pd_compacting_copy(pd_working->cross,sizeof(pd_cross_t),pd_working->nverts,
+  pd_compacting_copy(pd_working->cross,sizeof(pd_crossing_t),pd_working->ncross,
 		     ndeletions,crossing_deletions,
-		     &compacted_cross,
+		     (void **)(&compacted_cross),
 		     &index_in_compacted_cross,
 		     &new_ncross);
 
@@ -2600,7 +2623,7 @@ end_anchor   | 	    Tangle     	 |
 
   free(pd_working->cross);
   pd_working->cross = compacted_cross;
-  pd_working->nverts = new_ncross;
+  pd_working->ncross = new_ncross;
   pd_working->MAXVERTS = new_ncross;
 
   /* Now we need to scan through the edge records, updating references to the
@@ -2635,7 +2658,7 @@ end_anchor   | 	    Tangle     	 |
 
   pd_idx_t *edge_deletions;
 
-  edge_deletions = calloc(pd_working->nverts,sizeof(pd_idx_t));
+  edge_deletions = calloc(pd_working->ncross,sizeof(pd_idx_t));
   assert(edge_deletions != NULL);
   ndeletions = 0;
 
@@ -2650,20 +2673,20 @@ end_anchor   | 	    Tangle     	 |
 
   }
 
-  pd_cross_t *compacted_edges;
+  pd_edge_t *compacted_edges;
   pd_idx_t *index_in_compacted_edges;
   pd_idx_t new_nedges;
 
   pd_compacting_copy(pd_working->edge,sizeof(pd_edge_t),pd_working->nedges,
 		     ndeletions,edge_deletions,
-		     &compacted_edges,
+		     (void **)(&compacted_edges),
 		     &index_in_compacted_edges,
 		     &new_nedges);
 
   /* We now swap in the new edge data to the pdcode, and free the old memory. */
 
   free(pd_working->edge);
-  pd_working->edge = compacted_edge;
+  pd_working->edge = compacted_edges;
   pd_working->nedges = new_nedges;
   pd_working->MAXVERTS = new_nedges;
 
@@ -2706,7 +2729,7 @@ end_anchor   | 	    Tangle     	 |
      so we can go ahead and free the extra information from
      pd_compacting_copy. */
 
-  free(index_in_compacted_edge);
+  free(index_in_compacted_edges);
   free(edge_deletions);
   
   /* Let's take stock of where we are: 
@@ -2757,7 +2780,7 @@ end_anchor   | 	    Tangle     	 |
 
       pd_working->comp[i].nedges = 1;
       pdint_next_comp_edge(pd_working,pd_working->comp[i].edge[0],
-			   &next_edge,&next_or)
+			   &next_edge,&next_or);
 
       for(;next_edge != pd_working->comp[i].edge[0] && pd_working->comp[i].nedges <= pd_working->MAXEDGES+1;
 	  pdint_next_comp_edge(pd_working,pd_working->comp[i].edge[pd_working->comp[i].nedges-1],
@@ -2848,5 +2871,28 @@ end_anchor   | 	    Tangle     	 |
      after they were built. So quit! */
 
   pd_code_free(&pd_working);
+
+}
+
+
+pd_boundary_or_t pd_tangle_bdy_or(pd_code_t *pd,pd_tangle_t *t, pd_idx_t pd_edge_num)
+/* Finds the boundary orientation of an edge on the tangle given the
+   index of the edge *in the pd*. (If you have the index of the edge
+   in the t->edge array, you can just look up the orientation in the
+   corresponding t->edge_bdy_or array directly.) */
+{
+  pd_check_edge(SRCLOC,pd,pd_edge_num);
+  pd_idx_t i;
+
+  for(i=0;i<t->nedges;i++) { 
+
+    if (t->edge[i] == pd_edge_num) { return t->edge_bdy_or[i]; }
+
+  }
+
+  pd_error(SRCLOC,"pd_tangle_bdy_or: Asked for boundary orientation of %EDGE\n"
+	   "in %TANGLE, but this edge is not a boundary edge of this tangle.\n",
+	   pd,pd_edge_num,t);
+  exit(1);
 
 }

@@ -746,10 +746,18 @@ extern "C" {
      edges and faces and call "pd_regenerate_tangle" in order to reconstruct
      the remaining data. */
 
-  pd_code_t *pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
-			     pd_idx_t n,
-			     pd_idx_t *overstrand_edges, 
-			     pd_idx_t *border_faces);
+  pd_boundary_or_t pd_tangle_bdy_or(pd_code_t *pd,pd_tangle_t *t, pd_idx_t pd_edge_num);
+  /* Finds the boundary orientation of an edge on the tangle given the
+     index of the edge *in the pd*. (If you have the index of the edge
+     in the t->edge array, you can just look up the orientation in the
+     corresponding t->edge_bdy_or array directly.) */
+
+  void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
+		       pd_idx_t n,
+		       pd_idx_t *overstrand_edges, 
+		       pd_idx_t *border_faces,
+		       pd_idx_t *npieces,
+		       pd_code_t **pd_pieces);
 
  /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
     corresponding faces bordering the tangle (f[0]...f[n-1], below),
@@ -790,6 +798,12 @@ extern "C" {
     edges of the strand are tangle edges themselves. We also note
     that while we call the strand the "overstrand", we also handle
     the case where the strand goes UNDER all of the tangle strands.
+
+    This operation can disconnect the diagram, potentially into many
+    pieces. We return the number of connected components of the
+    diagram in "npieces" and the components themselves in
+    "pd_pieces". The buffer of pd_code_t pointers pd_pieces is
+    allocated inter
      	       	       	    
    */
 

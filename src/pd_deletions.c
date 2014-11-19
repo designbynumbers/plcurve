@@ -60,6 +60,17 @@
 #include<pd_sortedbuf.h>
 #include<pd_deletions.h>
 
+bool pd_edge_deleted(pd_code_t *pd, pd_idx_t edge)
+/* Returns true if edge has been deleted (by calling edge_delete) */
+{
+
+  return (pd->edge[edge].head == PD_UNSET_IDX &&
+	  pd->edge[edge].tail == PD_UNSET_IDX &&
+	  pd->edge[edge].headpos == PD_UNSET_POS &&
+	  pd->edge[edge].tailpos == PD_UNSET_POS);
+}
+
+
 void pd_edge_delete(pd_code_t *pd, pd_idx_t edge)
 /* 'Delete' edge from pd. 
 
@@ -80,10 +91,10 @@ void pd_edge_delete(pd_code_t *pd, pd_idx_t edge)
 {
   pd_check_edge(SRCLOC,pd,edge);
 
-  pd->cross[pd->edges[edge].head].edge[pd->edges[edge].headpos] = PD_UNSET_IDX;
-  pd->cross[pd->edges[edge].tail].edge[pd->edges[edge].tailpos] = PD_UNSET_IDX;
-  pd->cross[pd->edges[edge].head].sign = PD_UNSET_ORIENTATION;
-  pd->cross[pd->edges[edge].tail].sign = PD_UNSET_ORIENTATION;
+  pd->cross[pd->edge[edge].head].edge[pd->edge[edge].headpos] = PD_UNSET_IDX;
+  pd->cross[pd->edge[edge].tail].edge[pd->edge[edge].tailpos] = PD_UNSET_IDX;
+  pd->cross[pd->edge[edge].head].sign = PD_UNSET_ORIENTATION;
+  pd->cross[pd->edge[edge].tail].sign = PD_UNSET_ORIENTATION;
   
   pd_idx_t i,j;
 

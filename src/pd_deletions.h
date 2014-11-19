@@ -11,6 +11,9 @@
 #ifndef __PD_DELETIONS_H__
 #define __PD_DELETIONS_H__ 1
 
+bool pd_edge_deleted(pd_code_t *pd, pd_idx_t edge); 
+/* Returns true if edge has been deleted (by calling edge_delete) */
+
 void pd_edge_delete(pd_code_t *pd, pd_idx_t edge);
 /* 'Delete' edge from pd. 
 

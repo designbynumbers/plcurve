@@ -149,10 +149,12 @@ bool pdint_check_tslide_data_ok_and_find_te_test{NAME}() {{
 
   }}
 
+  bool strand_goes_OVER;
+
   computed_ts_input = pdint_check_tslide_data_ok_and_find_te(pd,t,noverstrand_edges,
                                                              overstrand_edges,
                                                              border_faces,
-                                                             &computed_tangle_slide_edges);
+                                                             &computed_tangle_slide_edges,&strand_goes_OVER);
                                                              
   if (computed_ts_input != valid_ts_input) {{
 
@@ -318,7 +320,7 @@ prefixboilerplate = r"""
 
 #include<plcTopology.h>
 
-int PD_VERBOSE=50;
+int PD_VERBOSE=15;
 
 /* We need to include a prototype for the function we're testing, because
    it's not exposed in the header files. */
@@ -327,7 +329,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 					    pd_idx_t n,
 					    pd_idx_t *overstrand_edges, 
 					    pd_idx_t *border_faces,
-					    pd_idx_t **tangle_slide_edges);
+					    pd_idx_t **tangle_slide_edges,
+                        bool *overstrand_goes_OVER);
 """
 
 actualtest = r"""

@@ -61,6 +61,41 @@
 #include<pd_sortedbuf.h>
 #include<pd_splitdiagram.h>
 
+void pdint_split_worker(pd_code_t *pd,pd_idx_t *ncodes,
+			pd_idx_t *edge_code,pd_idx_t edge)
+/* Propagates the edge code of this edge to every edge incident to this one 
+   (if they don't have edge codes already). */
+{
+  pd_idx_t incident_edges[4];
+
+  incident_edges[0] = pd->cross[pd->edge[edge].head].
+    edge[(pd->edge[edge].headpos+1)%4];
+
+  incident_edges[1] = pd->cross[pd->edge[edge].head].
+    edge[(pd->edge[edge].headpos+3)%4];
+
+  incident_edges[2] = pd->cross[pd->edge[edge].tail].
+    edge[(pd->edge[edge].tailpos+1)%4];
+
+  incident_edges[3] = pd->cross[pd->edge[edge].tail].
+    edge[(pd->edge[edge].tailpos+3)%4];
+
+  pd_idx_t i;
+
+  for(i=0;i<4;i++) { 
+
+    if (edge_code[incident_edges[i]] == PD_UNSET_IDX) { 
+
+      edge_code[incident_edges[i]] = edge_code[edge];
+      pdint_split_worker(pd,ncodes,edge_code,incident_edges[i]);
+
+    }
+
+  }
+
+}
+  
+
 pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
 
 /* Splits a disconnected diagram with valid (though maybe disordered)
@@ -85,7 +120,7 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
      when edges interact than when components do. */
 
   pd_idx_t *edge_code;
-  pd_idx_t ncodes = 1;
+  pd_idx_t ncodes = 0;
 
   edge_code = calloc(pd->nedges,sizeof(pd_idx_t));
   assert(edge_code != NULL);
@@ -93,7 +128,17 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
   pd_idx_t i;
   for(i=0;i<pd->nedges;i++) { edge_code[i] = PD_UNSET_IDX; }
 
-  pdint_split_worker(pd,&ncodes,edge_code,0);
+  for(i=0;i<pd->nedges;i++) { 
+
+    if (edge_code[i] == PD_UNSET_IDX) { 
+
+      edge_code[i] = ncodes;
+      pdint_split_worker(pd,&ncodes,edge_code,i);
+      ncodes++; 
+
+    }
+
+  }
 
   /* We should now have assigned a code to each edge, and be ready 
      to partition the diagram. This is going to be kind of interesting.
@@ -117,7 +162,7 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
 
     pd_idx_t j;
     pd_idx_t nedges = 0;
-    pd_component_t ncomps = 0;
+    pd_idx_t ncomps = 0;
 
     for(j=0;j<pd->nedges;j++) { 
     
@@ -137,8 +182,8 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
 
     pd_children[i] = pd_code_new(nedges/2);
 
-    pd_children[i].ncomps = 0;
-    pd_children[i].comp = calloc(ncomps,sizeof(pd_component_t));
+    pd_children[i]->ncomps = 0;
+    pd_children[i]->comp = calloc(ncomps,sizeof(pd_component_t));
 
     for(j=0;j<pd->ncomps;j++) { 
 
@@ -167,7 +212,7 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
 
 	}
 
-	pd_children[i].ncomps++;
+	pd_children[i]->ncomps++;
 
       }
 
@@ -190,6 +235,8 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
     
     for(j=0;j<pd_children[i]->ncomps;j++) { 
 
+      pd_idx_t k;
+      
       for(k=0;k<pd_children[i]->comp[j].nedges;k++) { 
 
 	new_edge_num[pd_children[i]->comp[j].edge[k]] = edgenum;
@@ -213,7 +260,7 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
     assert(crossings_to_copy != NULL);
 
     pd_idx_t *new_crossing_num;
-    new_crossing_num = calloc(pd->nverts,sizeof(pd_idx_t));
+    new_crossing_num = calloc(pd->ncross,sizeof(pd_idx_t));
     assert(new_crossing_num != NULL);
     
     for(j=0;j<pd_children[i]->nedges;j++) { 
@@ -231,6 +278,8 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
       pd_children[i]->cross[j/4].sign = pd->cross[crossings_to_copy[j]].sign;
       new_crossing_num[crossings_to_copy[j]] = j/4;
       
+      pd_idx_t k;
+
       for(k=0;k<4;k++) { 
 
 	pd_children[i]->cross[j/4].edge[k] =    
@@ -281,18 +330,20 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
 
   for(i=0;i<ncodes;i++) { 
 
-    total_crossings += pd_children[i]->nverts;
+    total_crossings += pd_children[i]->ncross;
     total_edges += pd_children[i]->nedges;
-    total_components += pd_children[i]->ncomp;
+    total_components += pd_children[i]->ncomps;
 
   }
 
-  if (total_crossings != pd->nverts) { 
+  if (total_crossings != pd->ncross) { 
 
     pd_printf("pd_split_diagram: The number of crossings in the %d child diagrams\n"
 	      "of the pd %PD don't add up to the number of crossings (%d) in the pd\n"
 	      "The child diagrams are:\n\n",
-	      pd,ncodes,pd->nverts);
+	      pd,ncodes,pd->ncross);
+
+    pd_idx_t j;
 
     for(j=0;j<ncodes;j++) { pd_printf("diagram %d:\n %PD ",pd_children[i],i); }
 
@@ -307,6 +358,8 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
 	      "The child diagrams are:\n\n",
 	      pd,ncodes,pd->nedges);
 
+    pd_idx_t j;
+
     for(j=0;j<ncodes;j++) { pd_printf("diagram %d:\n %PD ",pd_children[i],i); }
 
     exit(1);
@@ -319,6 +372,8 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children)
 	      "of the pd %PD don't add up to the number of components (%d) in the pd\n"
 	      "The child diagrams are:\n\n",
 	      pd,ncodes,pd->ncomps);
+
+    pd_idx_t j;
 
     for(j=0;j<ncodes;j++) { pd_printf("diagram %d:\n %PD ",pd_children[i],i); }
 
