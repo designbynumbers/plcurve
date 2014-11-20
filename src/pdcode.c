@@ -2679,15 +2679,6 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
 
 }
 
-
-
-
-
-
-
-
-
-
 pd_code_t *pd_read_err(FILE *infile, int *err)
 
 /* Reads an (ASCII) pd code written by pd_write. Return a pointer if we succeed, NULL if we fail. */

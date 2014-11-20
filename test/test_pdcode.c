@@ -497,6 +497,135 @@ bool test_unknot() {
 
 }
 
+bool test_component_tag_0crossing() { 
+
+  printf("------------------------------------------------------\n"
+	 "tests to recover component tag from 0-crossing unknot \n"
+	 "------------------------------------------------------\n");
+
+  /* ---------- */
+
+  printf("building temp_file_name...");
+  char template[4096] = "/tmp/pdcodeXXXXXX";
+  int outfile_fd = mkstemp(template);
+
+  if (outfile_fd == -1) { 
+
+    printf("fail (couldn't open %s)\n",template);
+    return false;
+
+  }
+
+  FILE *outfile = fdopen(outfile_fd,"w");
+  
+  if (outfile == NULL) { 
+
+    printf("fail (couldn't convert filedescriptor %d to stream)\n",outfile_fd);
+    return false;
+
+  }
+
+  printf("done (%s)\n",template);
+  
+  /* ------------ */
+
+  printf("creating 0-crossing unknot...");
+  pd_code_t *pd = pd_build_unknot(0);
+
+  if (pd_ok(pd)) { 
+
+    printf("pass (passes pd_ok)\n");
+
+  } else { 
+
+    printf("FAIL (doesn't pass pd_ok)\n");
+    return false;
+
+  }
+
+  printf("assigning tag 'P' to component...");
+  pd->comp[0].tag = 'P';
+  printf("done\n");
+
+  printf("writing to file...");
+  pd_write(outfile,pd);
+  printf("pass (didn't crash)\n");
+
+  /* ------------ */
+
+  printf("closing file...");
+  fclose(outfile);
+  printf("done\n");
+  
+  printf("reopening file...");
+  FILE *infile = fopen(template,"r");
+  if (infile == NULL) { 
+    printf("fail (couldn't reopen %s)\n",template);
+    remove(template);
+    return false;
+  }
+  printf("pass\n");
+
+  /* ------------- */
+
+  printf("reading new_pd from file...");
+  pd_code_t *new_pd = pd_read(infile);
+  if (new_pd == NULL) { 
+    printf("fail (couldn't parse file)\n");
+    remove(template);
+    return false;
+  }
+
+  if (!pd_ok(new_pd)) { 
+    pd_printf("fail (input %PD doesn't pass pd_ok)\n",new_pd);
+    remove(template);
+    return false;
+  }
+
+  printf("pass (read %d cross, %d component pd)\n",new_pd->ncross,new_pd->ncomps);
+
+  /* ------------- */
+
+  printf("testing isomorphic to original...");
+
+  if (!pd_isomorphic(pd,new_pd)) { 
+    pd_printf("fail (read pd %PD \n is not isomorphic to original",new_pd);
+    pd_printf("%PD)",pd);
+    remove(template);
+    return false;
+  }
+
+  printf("pass\n");
+  
+  /* -------------- */
+
+  printf("testing component 0 tag is 'P'...");
+  if (new_pd->comp[0].tag == 'P') { 
+
+    printf("pass\n");
+
+  } else {
+
+    printf("FAIL (new component 0 tag is %c)\n",new_pd->comp[0].tag);
+    return false;
+
+  }
+
+  printf("housecleaning...");
+  fclose(infile);
+  remove(template);
+  pd_code_free(&new_pd);
+  printf("done\n");
+
+  printf("------------------------------------------------------\n"
+	 "recovering component tag from 0-crossing unknot: PASS \n"
+	 "------------------------------------------------------\n");
+  
+
+  return true;
+}
+  
+
 bool test_readwrite_pd(pd_code_t *pd,char *name) { 
 
   printf("----------------------------------------\n"
@@ -944,7 +1073,7 @@ int main() {
 	 "Unit tests for pdcode.c\n"
 	 "=======================================\n");
 
-  if (!test_rw_altforms() || !test_simple_chain() || !test_unknot() || !test_rw() || !test_twist() || !test_torus() ||  !test_unknotwye()) {
+  if (!test_component_tag_0crossing() || !test_rw_altforms() || !test_simple_chain() || !test_unknot() || !test_rw() || !test_twist() || !test_torus() ||  !test_unknotwye()) {
 
     printf("=====================================\n");
     printf("test_pdcode:  FAIL.\n");
