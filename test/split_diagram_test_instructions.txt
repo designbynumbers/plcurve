@@ -1,0 +1,82 @@
+Instructions for split_diagram_test_instructions.txt.
+
+We're now working on code which splits a pd_code_t containing a split
+diagram into its component parts. Such diagrams look something like:
+
+	     +----3----+	    +---+
+	     | 	       |       	    |	|
+       	     | 	       |       	    7  	|
+	     |0	       |1	    |	|3    
+	 +---|----0--------1--+	    +---|----+
+       	 |   | 	       |      |	   	|    |
+	 |   |	       4      |		B    6
+	 |   +---2------------+		|    |
+	 A    	       |2      	       	+----+
+       	 |     	       |       	       	   
+	 +-----5-------+		  
+       	       	       	       	       	  
+       	       	      	       	       	  
+The code, 
+
+pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children);
+
+should divide a split diagram of this type into a buffer of child
+diagrams, each of which is connected, so in this case, we'd get
+
+	     +----3----+	    
+	     | 	       |       	    
+      	     | 	       |       	       	 
+       	     |0	       |1      	     	      
+	 +---|----0--------1--+	              
+       	 |   | 	       |      |	   	      
+	 |   |	       4      |		      
+	 |   +---2------------+		      
+	 A    	       |2      	       	      
+       	 |     	       |       	       	   
+	 +-----5-------+		  
+					  
+					  
+and
+
+	     +---+
+	     |	 |
+       	     7   |
+	     |	 |3    
+	     +---|----+
+       	         |    |
+	   	 B    6
+	         |    |
+	         +----+
+ 
+The rules are that the child diagrams shouldn't appear in any
+particular order, but component tags need to be preserved. Some of the
+components of the original diagram may contain 0 edges, in which case
+the corresponding child diagram should contain a 0-crossing unknot.
+ 
+The test files are going to come in pairs. One file, called
+
+split_diagram_testa.pdstor
+
+should contain 1 pd code, for the original (disconnected) pd code. 
+The second, called
+
+split_diagram_testa_output.pdstor
+
+should contain all of the output pd codes, with correct component 
+tags. We aren't going to write tests for this function which are 
+expected to fail, so the "output" file should contain the correct
+answer.
+
+There's no .c documentation file or drawing associated with these
+tests. Note that the split_diagram_testa.pdstor is not going to 
+carbonize without the new --weak-checking option turned on, since
+it doesn't pass pd_ok by construction. The output file should
+carbonize in the ordinary way.
+
+Please let me know if you have any questions!
+
+--Jason.
+
+
+
+

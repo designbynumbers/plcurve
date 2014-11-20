@@ -2820,7 +2820,38 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
   if ((pd_idx_t)(input_temp) == 0) {
 
-    return pd_build_unknot(0);
+    /* If we're a zero-crossing unknot, there is one piece of 
+       information that can actually matter, which is the tag 
+       of the (single) component. We're going to discard the 
+       rest of the file, but first we'll run through and extract
+       the "tag" (if present). */
+
+    char rolling_buffer[4];
+    pd_tag_t tag = 'A';
+    
+    rolling_buffer[0] = (char)(getc(infile));
+    rolling_buffer[1] = (char)(getc(infile));
+    rolling_buffer[2] = (char)(getc(infile));
+    rolling_buffer[3] = 0;
+
+    for(;!feof(infile);) {
+
+      if (!strcmp(rolling_buffer,"tag")) { 
+
+	fscanf(infile," %c ",&tag); 
+
+      }
+
+      rolling_buffer[0] = rolling_buffer[1]; rolling_buffer[1] = rolling_buffer[2];
+      rolling_buffer[2] = (char)(getc(infile));
+
+    }
+
+    pd_code_t *outcode;
+    outcode = pd_build_unknot(0);
+    outcode->comp[0].tag = tag;
+      
+    return outcode;
 
   }
 
