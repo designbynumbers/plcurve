@@ -1,0 +1,4096 @@
+# 4 crossing pd with UID 0, crossings ++++ orientation +
+1+4b4a3a2b
+2+4c1d3d3c
+3+1c4d2d2c
+4+1b1a2a3b
+
+
+
+# 4 crossing pd with UID 0, crossings +++- orientation +
+1+4c4b3a2b
+2+4d1d3d3c
+3+1c4a2d2c
+4-3b1b1a2a
+
+
+
+# 4 crossing pd with UID 0, crossings ++-+ orientation +
+1+4b4a3b2b
+2+4c1d3a3d
+3-2c1c4d2d
+4+1b1a2a3c
+
+
+
+# 4 crossing pd with UID 0, crossings ++-- orientation +
+1+4c4b3b2b
+2+4d1d3a3d
+3-2c1c4a2d
+4-3c1b1a2a
+
+
+
+# 4 crossing pd with UID 0, crossings +-++ orientation +
+1+4b4a3a2c
+2-3c4c1d3d
+3+1c4d2a2d
+4+1b1a2b3b
+
+
+
+# 4 crossing pd with UID 0, crossings +-+- orientation +
+1+4c4b3a2c
+2-3c4d1d3d
+3+1c4a2a2d
+4-3b1b1a2b
+
+
+
+# 4 crossing pd with UID 0, crossings +--+ orientation +
+1+4b4a3b2c
+2-3d4c1d3a
+3-2d1c4d2a
+4+1b1a2b3c
+
+
+
+# 4 crossing pd with UID 0, crossings +--- orientation +
+1+4c4b3b2c
+2-3d4d1d3a
+3-2d1c4a2a
+4-3c1b1a2b
+
+
+
+# 4 crossing pd with UID 0, crossings -+++ orientation +
+1-2b4b4a3a
+2+4c1a3d3c
+3+1d4d2d2c
+4+1c1b2a3b
+
+
+
+# 4 crossing pd with UID 0, crossings -++- orientation +
+1-2b4c4b3a
+2+4d1a3d3c
+3+1d4a2d2c
+4-3b1c1b2a
+
+
+
+# 4 crossing pd with UID 0, crossings -+-+ orientation +
+1-2b4b4a3b
+2+4c1a3a3d
+3-2c1d4d2d
+4+1c1b2a3c
+
+
+
+# 4 crossing pd with UID 0, crossings -+-- orientation +
+1-2b4c4b3b
+2+4d1a3a3d
+3-2c1d4a2d
+4-3c1c1b2a
+
+
+
+# 4 crossing pd with UID 0, crossings --++ orientation +
+1-2c4b4a3a
+2-3c4c1a3d
+3+1d4d2a2d
+4+1c1b2b3b
+
+
+
+# 4 crossing pd with UID 0, crossings --+- orientation +
+1-2c4c4b3a
+2-3c4d1a3d
+3+1d4a2a2d
+4-3b1c1b2b
+
+
+
+# 4 crossing pd with UID 0, crossings ---+ orientation +
+1-2c4b4a3b
+2-3d4c1a3a
+3-2d1d4d2a
+4+1c1b2b3c
+
+
+
+# 4 crossing pd with UID 0, crossings ---- orientation +
+1-2c4c4b3b
+2-3d4d1a3a
+3-2d1d4a2a
+4-3c1c1b2b
+
+
+
+# 4 crossing pd with UID 0, crossings ++++ orientation -
+1+4b4a3a2b
+2+4c1d3d3c
+3+1c4d2d2c
+4+1b1a2a3b
+
+
+
+# 4 crossing pd with UID 0, crossings +++- orientation -
+1+4c4b3a2b
+2+4d1d3d3c
+3+1c4a2d2c
+4-3b1b1a2a
+
+
+
+# 4 crossing pd with UID 0, crossings ++-+ orientation -
+1+4b4a3b2b
+2+4c1d3a3d
+3-2c1c4d2d
+4+1b1a2a3c
+
+
+
+# 4 crossing pd with UID 0, crossings ++-- orientation -
+1+4c4b3b2b
+2+4d1d3a3d
+3-2c1c4a2d
+4-3c1b1a2a
+
+
+
+# 4 crossing pd with UID 0, crossings +-++ orientation -
+1+4b4a3a2c
+2-3c4c1d3d
+3+1c4d2a2d
+4+1b1a2b3b
+
+
+
+# 4 crossing pd with UID 0, crossings +-+- orientation -
+1+4c4b3a2c
+2-3c4d1d3d
+3+1c4a2a2d
+4-3b1b1a2b
+
+
+
+# 4 crossing pd with UID 0, crossings +--+ orientation -
+1+4b4a3b2c
+2-3d4c1d3a
+3-2d1c4d2a
+4+1b1a2b3c
+
+
+
+# 4 crossing pd with UID 0, crossings +--- orientation -
+1+4c4b3b2c
+2-3d4d1d3a
+3-2d1c4a2a
+4-3c1b1a2b
+
+
+
+# 4 crossing pd with UID 0, crossings -+++ orientation -
+1-2b4b4a3a
+2+4c1a3d3c
+3+1d4d2d2c
+4+1c1b2a3b
+
+
+
+# 4 crossing pd with UID 0, crossings -++- orientation -
+1-2b4c4b3a
+2+4d1a3d3c
+3+1d4a2d2c
+4-3b1c1b2a
+
+
+
+# 4 crossing pd with UID 0, crossings -+-+ orientation -
+1-2b4b4a3b
+2+4c1a3a3d
+3-2c1d4d2d
+4+1c1b2a3c
+
+
+
+# 4 crossing pd with UID 0, crossings -+-- orientation -
+1-2b4c4b3b
+2+4d1a3a3d
+3-2c1d4a2d
+4-3c1c1b2a
+
+
+
+# 4 crossing pd with UID 0, crossings --++ orientation -
+1-2c4b4a3a
+2-3c4c1a3d
+3+1d4d2a2d
+4+1c1b2b3b
+
+
+
+# 4 crossing pd with UID 0, crossings --+- orientation -
+1-2c4c4b3a
+2-3c4d1a3d
+3+1d4a2a2d
+4-3b1c1b2b
+
+
+
+# 4 crossing pd with UID 0, crossings ---+ orientation -
+1-2c4b4a3b
+2-3d4c1a3a
+3-2d1d4d2a
+4+1c1b2b3c
+
+
+
+# 4 crossing pd with UID 0, crossings ---- orientation -
+1-2c4c4b3b
+2-3d4d1a3a
+3-2d1d4a2a
+4-3c1c1b2b
+
+
+
+# 4 crossing pd with UID 3, crossings ++++ orientation +
+1+2b3a3d4c
+2+3b1a4d3c
+3+1b2a2d1c
+4+4b4a1d2c
+
+
+
+# 4 crossing pd with UID 3, crossings +++- orientation +
+1+2b3a3d4d
+2+3b1a4a3c
+3+1b2a2d1c
+4-2c4c4b1d
+
+
+
+# 4 crossing pd with UID 3, crossings ++-+ orientation +
+1+2b3b3a4c
+2+3c1a4d3d
+3-1c1b2a2d
+4+4b4a1d2c
+
+
+
+# 4 crossing pd with UID 3, crossings ++-- orientation +
+1+2b3b3a4d
+2+3c1a4a3d
+3-1c1b2a2d
+4-2c4c4b1d
+
+
+
+# 4 crossing pd with UID 3, crossings +-++ orientation +
+1+2c3a3d4c
+2-3c3b1a4d
+3+1b2b2a1c
+4+4b4a1d2d
+
+
+
+# 4 crossing pd with UID 3, crossings +-+- orientation +
+1+2c3a3d4d
+2-3c3b1a4a
+3+1b2b2a1c
+4-2d4c4b1d
+
+
+
+# 4 crossing pd with UID 3, crossings +--+ orientation +
+1+2c3b3a4c
+2-3d3c1a4d
+3-1c1b2b2a
+4+4b4a1d2d
+
+
+
+# 4 crossing pd with UID 3, crossings +--- orientation +
+1+2c3b3a4d
+2-3d3c1a4a
+3-1c1b2b2a
+4-2d4c4b1d
+
+
+
+# 4 crossing pd with UID 3, crossings -+++ orientation +
+1-4c2b3a3d
+2+3b1b4d3c
+3+1c2a2d1d
+4+4b4a1a2c
+
+
+
+# 4 crossing pd with UID 3, crossings -++- orientation +
+1-4d2b3a3d
+2+3b1b4a3c
+3+1c2a2d1d
+4-2c4c4b1a
+
+
+
+# 4 crossing pd with UID 3, crossings -+-+ orientation +
+1-4c2b3b3a
+2+3c1b4d3d
+3-1d1c2a2d
+4+4b4a1a2c
+
+
+
+# 4 crossing pd with UID 3, crossings -+-- orientation +
+1-4d2b3b3a
+2+3c1b4a3d
+3-1d1c2a2d
+4-2c4c4b1a
+
+
+
+# 4 crossing pd with UID 3, crossings --++ orientation +
+1-4c2c3a3d
+2-3c3b1b4d
+3+1c2b2a1d
+4+4b4a1a2d
+
+
+
+# 4 crossing pd with UID 3, crossings --+- orientation +
+1-4d2c3a3d
+2-3c3b1b4a
+3+1c2b2a1d
+4-2d4c4b1a
+
+
+
+# 4 crossing pd with UID 3, crossings ---+ orientation +
+1-4c2c3b3a
+2-3d3c1b4d
+3-1d1c2b2a
+4+4b4a1a2d
+
+
+
+# 4 crossing pd with UID 3, crossings ---- orientation +
+1-4d2c3b3a
+2-3d3c1b4a
+3-1d1c2b2a
+4-2d4c4b1a
+
+
+
+# 4 crossing pd with UID 3, crossings ++++ orientation -
+1+4b3a3d2c
+2+3b4a1d3c
+3+1b2a2d1c
+4+2b1a4d4c
+
+
+
+# 4 crossing pd with UID 3, crossings +++- orientation -
+1+4c3a3d2c
+2+3b4b1d3c
+3+1b2a2d1c
+4-4d2b1a4a
+
+
+
+# 4 crossing pd with UID 3, crossings ++-+ orientation -
+1+4b3b3a2c
+2+3c4a1d3d
+3-1c1b2a2d
+4+2b1a4d4c
+
+
+
+# 4 crossing pd with UID 3, crossings ++-- orientation -
+1+4c3b3a2c
+2+3c4b1d3d
+3-1c1b2a2d
+4-4d2b1a4a
+
+
+
+# 4 crossing pd with UID 3, crossings +-++ orientation -
+1+4b3a3d2d
+2-3c3b4a1d
+3+1b2b2a1c
+4+2c1a4d4c
+
+
+
+# 4 crossing pd with UID 3, crossings +-+- orientation -
+1+4c3a3d2d
+2-3c3b4b1d
+3+1b2b2a1c
+4-4d2c1a4a
+
+
+
+# 4 crossing pd with UID 3, crossings +--+ orientation -
+1+4b3b3a2d
+2-3d3c4a1d
+3-1c1b2b2a
+4+2c1a4d4c
+
+
+
+# 4 crossing pd with UID 3, crossings +--- orientation -
+1+4c3b3a2d
+2-3d3c4b1d
+3-1c1b2b2a
+4-4d2c1a4a
+
+
+
+# 4 crossing pd with UID 3, crossings -+++ orientation -
+1-2c4b3a3d
+2+3b4a1a3c
+3+1c2a2d1d
+4+2b1b4d4c
+
+
+
+# 4 crossing pd with UID 3, crossings -++- orientation -
+1-2c4c3a3d
+2+3b4b1a3c
+3+1c2a2d1d
+4-4d2b1b4a
+
+
+
+# 4 crossing pd with UID 3, crossings -+-+ orientation -
+1-2c4b3b3a
+2+3c4a1a3d
+3-1d1c2a2d
+4+2b1b4d4c
+
+
+
+# 4 crossing pd with UID 3, crossings -+-- orientation -
+1-2c4c3b3a
+2+3c4b1a3d
+3-1d1c2a2d
+4-4d2b1b4a
+
+
+
+# 4 crossing pd with UID 3, crossings --++ orientation -
+1-2d4b3a3d
+2-3c3b4a1a
+3+1c2b2a1d
+4+2c1b4d4c
+
+
+
+# 4 crossing pd with UID 3, crossings --+- orientation -
+1-2d4c3a3d
+2-3c3b4b1a
+3+1c2b2a1d
+4-4d2c1b4a
+
+
+
+# 4 crossing pd with UID 3, crossings ---+ orientation -
+1-2d4b3b3a
+2-3d3c4a1a
+3-1d1c2b2a
+4+2c1b4d4c
+
+
+
+# 4 crossing pd with UID 3, crossings ---- orientation -
+1-2d4c3b3a
+2-3d3c4b1a
+3-1d1c2b2a
+4-4d2c1b4a
+
+
+
+# 4 crossing pd with UID 5, crossings ++++ orientation +
+1+2b3a3d4b
+2+3b1a4a3c
+3+1b2a2d1c
+4+2c1d4d4c
+
+
+
+# 4 crossing pd with UID 5, crossings +++- orientation +
+1+2b3a3d4c
+2+3b1a4b3c
+3+1b2a2d1c
+4-4d2c1d4a
+
+
+
+# 4 crossing pd with UID 5, crossings ++-+ orientation +
+1+2b3b3a4b
+2+3c1a4a3d
+3-1c1b2a2d
+4+2c1d4d4c
+
+
+
+# 4 crossing pd with UID 5, crossings ++-- orientation +
+1+2b3b3a4c
+2+3c1a4b3d
+3-1c1b2a2d
+4-4d2c1d4a
+
+
+
+# 4 crossing pd with UID 5, crossings +-++ orientation +
+1+2c3a3d4b
+2-3c3b1a4a
+3+1b2b2a1c
+4+2d1d4d4c
+
+
+
+# 4 crossing pd with UID 5, crossings +-+- orientation +
+1+2c3a3d4c
+2-3c3b1a4b
+3+1b2b2a1c
+4-4d2d1d4a
+
+
+
+# 4 crossing pd with UID 5, crossings +--+ orientation +
+1+2c3b3a4b
+2-3d3c1a4a
+3-1c1b2b2a
+4+2d1d4d4c
+
+
+
+# 4 crossing pd with UID 5, crossings +--- orientation +
+1+2c3b3a4c
+2-3d3c1a4b
+3-1c1b2b2a
+4-4d2d1d4a
+
+
+
+# 4 crossing pd with UID 5, crossings -+++ orientation +
+1-4b2b3a3d
+2+3b1b4a3c
+3+1c2a2d1d
+4+2c1a4d4c
+
+
+
+# 4 crossing pd with UID 5, crossings -++- orientation +
+1-4c2b3a3d
+2+3b1b4b3c
+3+1c2a2d1d
+4-4d2c1a4a
+
+
+
+# 4 crossing pd with UID 5, crossings -+-+ orientation +
+1-4b2b3b3a
+2+3c1b4a3d
+3-1d1c2a2d
+4+2c1a4d4c
+
+
+
+# 4 crossing pd with UID 5, crossings -+-- orientation +
+1-4c2b3b3a
+2+3c1b4b3d
+3-1d1c2a2d
+4-4d2c1a4a
+
+
+
+# 4 crossing pd with UID 5, crossings --++ orientation +
+1-4b2c3a3d
+2-3c3b1b4a
+3+1c2b2a1d
+4+2d1a4d4c
+
+
+
+# 4 crossing pd with UID 5, crossings --+- orientation +
+1-4c2c3a3d
+2-3c3b1b4b
+3+1c2b2a1d
+4-4d2d1a4a
+
+
+
+# 4 crossing pd with UID 5, crossings ---+ orientation +
+1-4b2c3b3a
+2-3d3c1b4a
+3-1d1c2b2a
+4+2d1a4d4c
+
+
+
+# 4 crossing pd with UID 5, crossings ---- orientation +
+1-4c2c3b3a
+2-3d3c1b4b
+3-1d1c2b2a
+4-4d2d1a4a
+
+
+
+# 4 crossing pd with UID 5, crossings ++++ orientation -
+1+4c3a3d2c
+2+3b4d1d3c
+3+1b2a2d1c
+4+4b4a1a2b
+
+
+
+# 4 crossing pd with UID 5, crossings +++- orientation -
+1+4d3a3d2c
+2+3b4a1d3c
+3+1b2a2d1c
+4-2b4c4b1a
+
+
+
+# 4 crossing pd with UID 5, crossings ++-+ orientation -
+1+4c3b3a2c
+2+3c4d1d3d
+3-1c1b2a2d
+4+4b4a1a2b
+
+
+
+# 4 crossing pd with UID 5, crossings ++-- orientation -
+1+4d3b3a2c
+2+3c4a1d3d
+3-1c1b2a2d
+4-2b4c4b1a
+
+
+
+# 4 crossing pd with UID 5, crossings +-++ orientation -
+1+4c3a3d2d
+2-3c3b4d1d
+3+1b2b2a1c
+4+4b4a1a2c
+
+
+
+# 4 crossing pd with UID 5, crossings +-+- orientation -
+1+4d3a3d2d
+2-3c3b4a1d
+3+1b2b2a1c
+4-2c4c4b1a
+
+
+
+# 4 crossing pd with UID 5, crossings +--+ orientation -
+1+4c3b3a2d
+2-3d3c4d1d
+3-1c1b2b2a
+4+4b4a1a2c
+
+
+
+# 4 crossing pd with UID 5, crossings +--- orientation -
+1+4d3b3a2d
+2-3d3c4a1d
+3-1c1b2b2a
+4-2c4c4b1a
+
+
+
+# 4 crossing pd with UID 5, crossings -+++ orientation -
+1-2c4c3a3d
+2+3b4d1a3c
+3+1c2a2d1d
+4+4b4a1b2b
+
+
+
+# 4 crossing pd with UID 5, crossings -++- orientation -
+1-2c4d3a3d
+2+3b4a1a3c
+3+1c2a2d1d
+4-2b4c4b1b
+
+
+
+# 4 crossing pd with UID 5, crossings -+-+ orientation -
+1-2c4c3b3a
+2+3c4d1a3d
+3-1d1c2a2d
+4+4b4a1b2b
+
+
+
+# 4 crossing pd with UID 5, crossings -+-- orientation -
+1-2c4d3b3a
+2+3c4a1a3d
+3-1d1c2a2d
+4-2b4c4b1b
+
+
+
+# 4 crossing pd with UID 5, crossings --++ orientation -
+1-2d4c3a3d
+2-3c3b4d1a
+3+1c2b2a1d
+4+4b4a1b2c
+
+
+
+# 4 crossing pd with UID 5, crossings --+- orientation -
+1-2d4d3a3d
+2-3c3b4a1a
+3+1c2b2a1d
+4-2c4c4b1b
+
+
+
+# 4 crossing pd with UID 5, crossings ---+ orientation -
+1-2d4c3b3a
+2-3d3c4d1a
+3-1d1c2b2a
+4+4b4a1b2c
+
+
+
+# 4 crossing pd with UID 5, crossings ---- orientation -
+1-2d4d3b3a
+2-3d3c4a1a
+3-1d1c2b2a
+4-2c4c4b1b
+
+
+
+# 4 crossing pd with UID 9, crossings ++++ orientation +
+1+2c2d4a3b
+2+2b2a1a1b
+3+4b1d3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 9, crossings +++- orientation +
+1+2c2d4b3b
+2+2b2a1a1b
+3+4c1d3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 9, crossings ++-+ orientation +
+1+2c2d4a3c
+2+2b2a1a1b
+3-3d4b1d3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 9, crossings ++-- orientation +
+1+2c2d4b3c
+2+2b2a1a1b
+3-3d4c1d3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 9, crossings +-++ orientation +
+1+2d2a4a3b
+2-1b2c2b1a
+3+4b1d3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 9, crossings +-+- orientation +
+1+2d2a4b3b
+2-1b2c2b1a
+3+4c1d3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 9, crossings +--+ orientation +
+1+2d2a4a3c
+2-1b2c2b1a
+3-3d4b1d3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 9, crossings +--- orientation +
+1+2d2a4b3c
+2-1b2c2b1a
+3-3d4c1d3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 9, crossings -+++ orientation +
+1-3b2c2d4a
+2+2b2a1b1c
+3+4b1a3d3c
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 9, crossings -++- orientation +
+1-3b2c2d4b
+2+2b2a1b1c
+3+4c1a3d3c
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 9, crossings -+-+ orientation +
+1-3c2c2d4a
+2+2b2a1b1c
+3-3d4b1a3a
+4+1d3b4d4c
+
+
+
+# 4 crossing pd with UID 9, crossings -+-- orientation +
+1-3c2c2d4b
+2+2b2a1b1c
+3-3d4c1a3a
+4-4d1d3b4a
+
+
+
+# 4 crossing pd with UID 9, crossings --++ orientation +
+1-3b2d2a4a
+2-1c2c2b1b
+3+4b1a3d3c
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 9, crossings --+- orientation +
+1-3b2d2a4b
+2-1c2c2b1b
+3+4c1a3d3c
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 9, crossings ---+ orientation +
+1-3c2d2a4a
+2-1c2c2b1b
+3-3d4b1a3a
+4+1d3b4d4c
+
+
+
+# 4 crossing pd with UID 9, crossings ---- orientation +
+1-3c2d2a4b
+2-1c2c2b1b
+3-3d4c1a3a
+4-4d1d3b4a
+
+
+
+# 4 crossing pd with UID 9, crossings ++++ orientation -
+1+2c2d1d1c
+2+3c4d1a1b
+3+3b3a2a4c
+4+4b4a3d2b
+
+
+
+# 4 crossing pd with UID 9, crossings +++- orientation -
+1+2c2d1d1c
+2+3c4a1a1b
+3+3b3a2a4d
+4-2b4c4b3d
+
+
+
+# 4 crossing pd with UID 9, crossings ++-+ orientation -
+1+2c2d1d1c
+2+3d4d1a1b
+3-4c3c3b2a
+4+4b4a3a2b
+
+
+
+# 4 crossing pd with UID 9, crossings ++-- orientation -
+1+2c2d1d1c
+2+3d4a1a1b
+3-4d3c3b2a
+4-2b4c4b3a
+
+
+
+# 4 crossing pd with UID 9, crossings +-++ orientation -
+1+2d2a1d1c
+2-1b3c4d1a
+3+3b3a2b4c
+4+4b4a3d2c
+
+
+
+# 4 crossing pd with UID 9, crossings +-+- orientation -
+1+2d2a1d1c
+2-1b3c4a1a
+3+3b3a2b4d
+4-2c4c4b3d
+
+
+
+# 4 crossing pd with UID 9, crossings +--+ orientation -
+1+2d2a1d1c
+2-1b3d4d1a
+3-4c3c3b2b
+4+4b4a3a2c
+
+
+
+# 4 crossing pd with UID 9, crossings +--- orientation -
+1+2d2a1d1c
+2-1b3d4a1a
+3-4d3c3b2b
+4-2c4c4b3a
+
+
+
+# 4 crossing pd with UID 9, crossings -+++ orientation -
+1-1d2c2d1a
+2+3c4d1b1c
+3+3b3a2a4c
+4+4b4a3d2b
+
+
+
+# 4 crossing pd with UID 9, crossings -++- orientation -
+1-1d2c2d1a
+2+3c4a1b1c
+3+3b3a2a4d
+4-2b4c4b3d
+
+
+
+# 4 crossing pd with UID 9, crossings -+-+ orientation -
+1-1d2c2d1a
+2+3d4d1b1c
+3-4c3c3b2a
+4+4b4a3a2b
+
+
+
+# 4 crossing pd with UID 9, crossings -+-- orientation -
+1-1d2c2d1a
+2+3d4a1b1c
+3-4d3c3b2a
+4-2b4c4b3a
+
+
+
+# 4 crossing pd with UID 9, crossings --++ orientation -
+1-1d2d2a1a
+2-1c3c4d1b
+3+3b3a2b4c
+4+4b4a3d2c
+
+
+
+# 4 crossing pd with UID 9, crossings --+- orientation -
+1-1d2d2a1a
+2-1c3c4a1b
+3+3b3a2b4d
+4-2c4c4b3d
+
+
+
+# 4 crossing pd with UID 9, crossings ---+ orientation -
+1-1d2d2a1a
+2-1c3d4d1b
+3-4c3c3b2b
+4+4b4a3a2c
+
+
+
+# 4 crossing pd with UID 9, crossings ---- orientation -
+1-1d2d2a1a
+2-1c3d4a1b
+3-4d3c3b2b
+4-2c4c4b3a
+
+
+
+# 4 crossing pd with UID 11, crossings ++++ orientation +
+1+2c2d1d1c
+2+3b3a1a1b
+3+2b2a4a4b
+4+3c3d4d4c
+
+
+
+# 4 crossing pd with UID 11, crossings +++- orientation +
+1+2c2d1d1c
+2+3b3a1a1b
+3+2b2a4b4c
+4-4d3c3d4a
+
+
+
+# 4 crossing pd with UID 11, crossings ++-+ orientation +
+1+2c2d1d1c
+2+3c3b1a1b
+3-4b2b2a4a
+4+3d3a4d4c
+
+
+
+# 4 crossing pd with UID 11, crossings ++-- orientation +
+1+2c2d1d1c
+2+3c3b1a1b
+3-4c2b2a4b
+4-4d3d3a4a
+
+
+
+# 4 crossing pd with UID 11, crossings +-++ orientation +
+1+2d2a1d1c
+2-1b3b3a1a
+3+2c2b4a4b
+4+3c3d4d4c
+
+
+
+# 4 crossing pd with UID 11, crossings +-+- orientation +
+1+2d2a1d1c
+2-1b3b3a1a
+3+2c2b4b4c
+4-4d3c3d4a
+
+
+
+# 4 crossing pd with UID 11, crossings +--+ orientation +
+1+2d2a1d1c
+2-1b3c3b1a
+3-4b2c2b4a
+4+3d3a4d4c
+
+
+
+# 4 crossing pd with UID 11, crossings +--- orientation +
+1+2d2a1d1c
+2-1b3c3b1a
+3-4c2c2b4b
+4-4d3d3a4a
+
+
+
+# 4 crossing pd with UID 11, crossings -+++ orientation +
+1-1d2c2d1a
+2+3b3a1b1c
+3+2b2a4a4b
+4+3c3d4d4c
+
+
+
+# 4 crossing pd with UID 11, crossings -++- orientation +
+1-1d2c2d1a
+2+3b3a1b1c
+3+2b2a4b4c
+4-4d3c3d4a
+
+
+
+# 4 crossing pd with UID 11, crossings -+-+ orientation +
+1-1d2c2d1a
+2+3c3b1b1c
+3-4b2b2a4a
+4+3d3a4d4c
+
+
+
+# 4 crossing pd with UID 11, crossings -+-- orientation +
+1-1d2c2d1a
+2+3c3b1b1c
+3-4c2b2a4b
+4-4d3d3a4a
+
+
+
+# 4 crossing pd with UID 11, crossings --++ orientation +
+1-1d2d2a1a
+2-1c3b3a1b
+3+2c2b4a4b
+4+3c3d4d4c
+
+
+
+# 4 crossing pd with UID 11, crossings --+- orientation +
+1-1d2d2a1a
+2-1c3b3a1b
+3+2c2b4b4c
+4-4d3c3d4a
+
+
+
+# 4 crossing pd with UID 11, crossings ---+ orientation +
+1-1d2d2a1a
+2-1c3c3b1b
+3-4b2c2b4a
+4+3d3a4d4c
+
+
+
+# 4 crossing pd with UID 11, crossings ---- orientation +
+1-1d2d2a1a
+2-1c3c3b1b
+3-4c2c2b4b
+4-4d3d3a4a
+
+
+
+# 4 crossing pd with UID 11, crossings ++++ orientation -
+1+1b1a2a2b
+2+1c1d3d3c
+3+4c4d2d2c
+4+4b4a3a3b
+
+
+
+# 4 crossing pd with UID 11, crossings +++- orientation -
+1+1b1a2a2b
+2+1c1d3d3c
+3+4d4a2d2c
+4-3b4c4b3a
+
+
+
+# 4 crossing pd with UID 11, crossings ++-+ orientation -
+1+1b1a2a2b
+2+1c1d3a3d
+3-2c4c4d2d
+4+4b4a3b3c
+
+
+
+# 4 crossing pd with UID 11, crossings ++-- orientation -
+1+1b1a2a2b
+2+1c1d3a3d
+3-2c4d4a2d
+4-3c4c4b3b
+
+
+
+# 4 crossing pd with UID 11, crossings +-++ orientation -
+1+1b1a2b2c
+2-3c1c1d3d
+3+4c4d2a2d
+4+4b4a3a3b
+
+
+
+# 4 crossing pd with UID 11, crossings +-+- orientation -
+1+1b1a2b2c
+2-3c1c1d3d
+3+4d4a2a2d
+4-3b4c4b3a
+
+
+
+# 4 crossing pd with UID 11, crossings +--+ orientation -
+1+1b1a2b2c
+2-3d1c1d3a
+3-2d4c4d2a
+4+4b4a3b3c
+
+
+
+# 4 crossing pd with UID 11, crossings +--- orientation -
+1+1b1a2b2c
+2-3d1c1d3a
+3-2d4d4a2a
+4-3c4c4b3b
+
+
+
+# 4 crossing pd with UID 11, crossings -+++ orientation -
+1-2b1c1b2a
+2+1d1a3d3c
+3+4c4d2d2c
+4+4b4a3a3b
+
+
+
+# 4 crossing pd with UID 11, crossings -++- orientation -
+1-2b1c1b2a
+2+1d1a3d3c
+3+4d4a2d2c
+4-3b4c4b3a
+
+
+
+# 4 crossing pd with UID 11, crossings -+-+ orientation -
+1-2b1c1b2a
+2+1d1a3a3d
+3-2c4c4d2d
+4+4b4a3b3c
+
+
+
+# 4 crossing pd with UID 11, crossings -+-- orientation -
+1-2b1c1b2a
+2+1d1a3a3d
+3-2c4d4a2d
+4-3c4c4b3b
+
+
+
+# 4 crossing pd with UID 11, crossings --++ orientation -
+1-2c1c1b2b
+2-3c1d1a3d
+3+4c4d2a2d
+4+4b4a3a3b
+
+
+
+# 4 crossing pd with UID 11, crossings --+- orientation -
+1-2c1c1b2b
+2-3c1d1a3d
+3+4d4a2a2d
+4-3b4c4b3a
+
+
+
+# 4 crossing pd with UID 11, crossings ---+ orientation -
+1-2c1c1b2b
+2-3d1d1a3a
+3-2d4c4d2a
+4+4b4a3b3c
+
+
+
+# 4 crossing pd with UID 11, crossings ---- orientation -
+1-2c1c1b2b
+2-3d1d1a3a
+3-2d4d4a2a
+4-3c4c4b3b
+
+
+
+# 4 crossing pd with UID 14, crossings ++++ orientation +
+1+2c2d4a3c
+2+2b2a1a1b
+3+3b3a1d4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings +++- orientation +
+1+2c2d4b3c
+2+2b2a1a1b
+3+3b3a1d4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 14, crossings ++-+ orientation +
+1+2c2d4a3d
+2+2b2a1a1b
+3-4b3c3b1d
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings ++-- orientation +
+1+2c2d4b3d
+2+2b2a1a1b
+3-4c3c3b1d
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 14, crossings +-++ orientation +
+1+2d2a4a3c
+2-1b2c2b1a
+3+3b3a1d4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings +-+- orientation +
+1+2d2a4b3c
+2-1b2c2b1a
+3+3b3a1d4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 14, crossings +--+ orientation +
+1+2d2a4a3d
+2-1b2c2b1a
+3-4b3c3b1d
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings +--- orientation +
+1+2d2a4b3d
+2-1b2c2b1a
+3-4c3c3b1d
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 14, crossings -+++ orientation +
+1-3c2c2d4a
+2+2b2a1b1c
+3+3b3a1a4b
+4+1d3d4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings -++- orientation +
+1-3c2c2d4b
+2+2b2a1b1c
+3+3b3a1a4c
+4-4d1d3d4a
+
+
+
+# 4 crossing pd with UID 14, crossings -+-+ orientation +
+1-3d2c2d4a
+2+2b2a1b1c
+3-4b3c3b1a
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings -+-- orientation +
+1-3d2c2d4b
+2+2b2a1b1c
+3-4c3c3b1a
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 14, crossings --++ orientation +
+1-3c2d2a4a
+2-1c2c2b1b
+3+3b3a1a4b
+4+1d3d4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings --+- orientation +
+1-3c2d2a4b
+2-1c2c2b1b
+3+3b3a1a4c
+4-4d1d3d4a
+
+
+
+# 4 crossing pd with UID 14, crossings ---+ orientation +
+1-3d2d2a4a
+2-1c2c2b1b
+3-4b3c3b1a
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings ---- orientation +
+1-3d2d2a4b
+2-1c2c2b1b
+3-4c3c3b1a
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 14, crossings ++++ orientation -
+1+2c2d1d1c
+2+3c4a1a1b
+3+3b3a2a4b
+4+2b3d4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings +++- orientation -
+1+2c2d1d1c
+2+3c4b1a1b
+3+3b3a2a4c
+4-4d2b3d4a
+
+
+
+# 4 crossing pd with UID 14, crossings ++-+ orientation -
+1+2c2d1d1c
+2+3d4a1a1b
+3-4b3c3b2a
+4+2b3a4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings ++-- orientation -
+1+2c2d1d1c
+2+3d4b1a1b
+3-4c3c3b2a
+4-4d2b3a4a
+
+
+
+# 4 crossing pd with UID 14, crossings +-++ orientation -
+1+2d2a1d1c
+2-1b3c4a1a
+3+3b3a2b4b
+4+2c3d4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings +-+- orientation -
+1+2d2a1d1c
+2-1b3c4b1a
+3+3b3a2b4c
+4-4d2c3d4a
+
+
+
+# 4 crossing pd with UID 14, crossings +--+ orientation -
+1+2d2a1d1c
+2-1b3d4a1a
+3-4b3c3b2b
+4+2c3a4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings +--- orientation -
+1+2d2a1d1c
+2-1b3d4b1a
+3-4c3c3b2b
+4-4d2c3a4a
+
+
+
+# 4 crossing pd with UID 14, crossings -+++ orientation -
+1-1d2c2d1a
+2+3c4a1b1c
+3+3b3a2a4b
+4+2b3d4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings -++- orientation -
+1-1d2c2d1a
+2+3c4b1b1c
+3+3b3a2a4c
+4-4d2b3d4a
+
+
+
+# 4 crossing pd with UID 14, crossings -+-+ orientation -
+1-1d2c2d1a
+2+3d4a1b1c
+3-4b3c3b2a
+4+2b3a4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings -+-- orientation -
+1-1d2c2d1a
+2+3d4b1b1c
+3-4c3c3b2a
+4-4d2b3a4a
+
+
+
+# 4 crossing pd with UID 14, crossings --++ orientation -
+1-1d2d2a1a
+2-1c3c4a1b
+3+3b3a2b4b
+4+2c3d4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings --+- orientation -
+1-1d2d2a1a
+2-1c3c4b1b
+3+3b3a2b4c
+4-4d2c3d4a
+
+
+
+# 4 crossing pd with UID 14, crossings ---+ orientation -
+1-1d2d2a1a
+2-1c3d4a1b
+3-4b3c3b2b
+4+2c3a4d4c
+
+
+
+# 4 crossing pd with UID 14, crossings ---- orientation -
+1-1d2d2a1a
+2-1c3d4b1b
+3-4c3c3b2b
+4-4d2c3a4a
+
+
+
+# 4 crossing pd with UID 15, crossings ++++ orientation +
+1+2b2a4a3b
+2+1b1a2d2c
+3+4b1d3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 15, crossings +++- orientation +
+1+2b2a4b3b
+2+1b1a2d2c
+3+4c1d3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 15, crossings ++-+ orientation +
+1+2b2a4a3c
+2+1b1a2d2c
+3-3d4b1d3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 15, crossings ++-- orientation +
+1+2b2a4b3c
+2+1b1a2d2c
+3-3d4c1d3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 15, crossings +-++ orientation +
+1+2c2b4a3b
+2-2d1b1a2a
+3+4b1d3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 15, crossings +-+- orientation +
+1+2c2b4b3b
+2-2d1b1a2a
+3+4c1d3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 15, crossings +--+ orientation +
+1+2c2b4a3c
+2-2d1b1a2a
+3-3d4b1d3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 15, crossings +--- orientation +
+1+2c2b4b3c
+2-2d1b1a2a
+3-3d4c1d3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 15, crossings -+++ orientation +
+1-3b2b2a4a
+2+1c1b2d2c
+3+4b1a3d3c
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 15, crossings -++- orientation +
+1-3b2b2a4b
+2+1c1b2d2c
+3+4c1a3d3c
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 15, crossings -+-+ orientation +
+1-3c2b2a4a
+2+1c1b2d2c
+3-3d4b1a3a
+4+1d3b4d4c
+
+
+
+# 4 crossing pd with UID 15, crossings -+-- orientation +
+1-3c2b2a4b
+2+1c1b2d2c
+3-3d4c1a3a
+4-4d1d3b4a
+
+
+
+# 4 crossing pd with UID 15, crossings --++ orientation +
+1-3b2c2b4a
+2-2d1c1b2a
+3+4b1a3d3c
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 15, crossings --+- orientation +
+1-3b2c2b4b
+2-2d1c1b2a
+3+4c1a3d3c
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 15, crossings ---+ orientation +
+1-3c2c2b4a
+2-2d1c1b2a
+3-3d4b1a3a
+4+1d3b4d4c
+
+
+
+# 4 crossing pd with UID 15, crossings ---- orientation +
+1-3c2c2b4b
+2-2d1c1b2a
+3-3d4c1a3a
+4-4d1d3b4a
+
+
+
+# 4 crossing pd with UID 15, crossings ++++ orientation -
+1+1b1a2d2c
+2+3c4d1d1c
+3+3b3a2a4c
+4+4b4a3d2b
+
+
+
+# 4 crossing pd with UID 15, crossings +++- orientation -
+1+1b1a2d2c
+2+3c4a1d1c
+3+3b3a2a4d
+4-2b4c4b3d
+
+
+
+# 4 crossing pd with UID 15, crossings ++-+ orientation -
+1+1b1a2d2c
+2+3d4d1d1c
+3-4c3c3b2a
+4+4b4a3a2b
+
+
+
+# 4 crossing pd with UID 15, crossings ++-- orientation -
+1+1b1a2d2c
+2+3d4a1d1c
+3-4d3c3b2a
+4-2b4c4b3a
+
+
+
+# 4 crossing pd with UID 15, crossings +-++ orientation -
+1+1b1a2a2d
+2-1c3c4d1d
+3+3b3a2b4c
+4+4b4a3d2c
+
+
+
+# 4 crossing pd with UID 15, crossings +-+- orientation -
+1+1b1a2a2d
+2-1c3c4a1d
+3+3b3a2b4d
+4-2c4c4b3d
+
+
+
+# 4 crossing pd with UID 15, crossings +--+ orientation -
+1+1b1a2a2d
+2-1c3d4d1d
+3-4c3c3b2b
+4+4b4a3a2c
+
+
+
+# 4 crossing pd with UID 15, crossings +--- orientation -
+1+1b1a2a2d
+2-1c3d4a1d
+3-4d3c3b2b
+4-2c4c4b3a
+
+
+
+# 4 crossing pd with UID 15, crossings -+++ orientation -
+1-2c1c1b2d
+2+3c4d1a1d
+3+3b3a2a4c
+4+4b4a3d2b
+
+
+
+# 4 crossing pd with UID 15, crossings -++- orientation -
+1-2c1c1b2d
+2+3c4a1a1d
+3+3b3a2a4d
+4-2b4c4b3d
+
+
+
+# 4 crossing pd with UID 15, crossings -+-+ orientation -
+1-2c1c1b2d
+2+3d4d1a1d
+3-4c3c3b2a
+4+4b4a3a2b
+
+
+
+# 4 crossing pd with UID 15, crossings -+-- orientation -
+1-2c1c1b2d
+2+3d4a1a1d
+3-4d3c3b2a
+4-2b4c4b3a
+
+
+
+# 4 crossing pd with UID 15, crossings --++ orientation -
+1-2d1c1b2a
+2-1d3c4d1a
+3+3b3a2b4c
+4+4b4a3d2c
+
+
+
+# 4 crossing pd with UID 15, crossings --+- orientation -
+1-2d1c1b2a
+2-1d3c4a1a
+3+3b3a2b4d
+4-2c4c4b3d
+
+
+
+# 4 crossing pd with UID 15, crossings ---+ orientation -
+1-2d1c1b2a
+2-1d3d4d1a
+3-4c3c3b2b
+4+4b4a3a2c
+
+
+
+# 4 crossing pd with UID 15, crossings ---- orientation -
+1-2d1c1b2a
+2-1d3d4a1a
+3-4d3c3b2b
+4-2c4c4b3a
+
+
+
+# 4 crossing pd with UID 16, crossings ++++ orientation +
+1+2c4a1d1c
+2+2b2a1a3c
+3+3b3a2d4b
+4+1b3d4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings +++- orientation +
+1+2c4b1d1c
+2+2b2a1a3c
+3+3b3a2d4c
+4-4d1b3d4a
+
+
+
+# 4 crossing pd with UID 16, crossings ++-+ orientation +
+1+2c4a1d1c
+2+2b2a1a3d
+3-4b3c3b2d
+4+1b3a4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings ++-- orientation +
+1+2c4b1d1c
+2+2b2a1a3d
+3-4c3c3b2d
+4-4d1b3a4a
+
+
+
+# 4 crossing pd with UID 16, crossings +-++ orientation +
+1+2d4a1d1c
+2-3c2c2b1a
+3+3b3a2a4b
+4+1b3d4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings +-+- orientation +
+1+2d4b1d1c
+2-3c2c2b1a
+3+3b3a2a4c
+4-4d1b3d4a
+
+
+
+# 4 crossing pd with UID 16, crossings +--+ orientation +
+1+2d4a1d1c
+2-3d2c2b1a
+3-4b3c3b2a
+4+1b3a4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings +--- orientation +
+1+2d4b1d1c
+2-3d2c2b1a
+3-4c3c3b2a
+4-4d1b3a4a
+
+
+
+# 4 crossing pd with UID 16, crossings -+++ orientation +
+1-1d2c4a1a
+2+2b2a1b3c
+3+3b3a2d4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings -++- orientation +
+1-1d2c4b1a
+2+2b2a1b3c
+3+3b3a2d4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 16, crossings -+-+ orientation +
+1-1d2c4a1a
+2+2b2a1b3d
+3-4b3c3b2d
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings -+-- orientation +
+1-1d2c4b1a
+2+2b2a1b3d
+3-4c3c3b2d
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 16, crossings --++ orientation +
+1-1d2d4a1a
+2-3c2c2b1b
+3+3b3a2a4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings --+- orientation +
+1-1d2d4b1a
+2-3c2c2b1b
+3+3b3a2a4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 16, crossings ---+ orientation +
+1-1d2d4a1a
+2-3d2c2b1b
+3-4b3c3b2a
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings ---- orientation +
+1-1d2d4b1a
+2-3d2c2b1b
+3-4c3c3b2a
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 16, crossings ++++ orientation -
+1+1b1a4a2c
+2+2b2a1d3b
+3+4b2d3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings +++- orientation -
+1+1b1a4b2c
+2+2b2a1d3b
+3+4c2d3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 16, crossings ++-+ orientation -
+1+1b1a4a2c
+2+2b2a1d3c
+3-3d4b2d3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings ++-- orientation -
+1+1b1a4b2c
+2+2b2a1d3c
+3-3d4c2d3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 16, crossings +-++ orientation -
+1+1b1a4a2d
+2-3b2c2b1d
+3+4b2a3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings +-+- orientation -
+1+1b1a4b2d
+2-3b2c2b1d
+3+4c2a3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 16, crossings +--+ orientation -
+1+1b1a4a2d
+2-3c2c2b1d
+3-3d4b2a3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings +--- orientation -
+1+1b1a4b2d
+2-3c2c2b1d
+3-3d4c2a3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 16, crossings -+++ orientation -
+1-2c1c1b4a
+2+2b2a1a3b
+3+4b2d3d3c
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings -++- orientation -
+1-2c1c1b4b
+2+2b2a1a3b
+3+4c2d3d3c
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 16, crossings -+-+ orientation -
+1-2c1c1b4a
+2+2b2a1a3c
+3-3d4b2d3a
+4+1d3b4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings -+-- orientation -
+1-2c1c1b4b
+2+2b2a1a3c
+3-3d4c2d3a
+4-4d1d3b4a
+
+
+
+# 4 crossing pd with UID 16, crossings --++ orientation -
+1-2d1c1b4a
+2-3b2c2b1a
+3+4b2a3d3c
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings --+- orientation -
+1-2d1c1b4b
+2-3b2c2b1a
+3+4c2a3d3c
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 16, crossings ---+ orientation -
+1-2d1c1b4a
+2-3c2c2b1a
+3-3d4b2a3a
+4+1d3b4d4c
+
+
+
+# 4 crossing pd with UID 16, crossings ---- orientation -
+1-2d1c1b4b
+2-3c2c2b1a
+3-3d4c2a3a
+4-4d1d3b4a
+
+
+
+# 4 crossing pd with UID 17, crossings ++++ orientation +
+1+2c4d1d1c
+2+2b2a1a3b
+3+4c2d3d3c
+4+4b4a3a1b
+
+
+
+# 4 crossing pd with UID 17, crossings +++- orientation +
+1+2c4a1d1c
+2+2b2a1a3b
+3+4d2d3d3c
+4-1b4c4b3a
+
+
+
+# 4 crossing pd with UID 17, crossings ++-+ orientation +
+1+2c4d1d1c
+2+2b2a1a3c
+3-3d4c2d3a
+4+4b4a3b1b
+
+
+
+# 4 crossing pd with UID 17, crossings ++-- orientation +
+1+2c4a1d1c
+2+2b2a1a3c
+3-3d4d2d3a
+4-1b4c4b3b
+
+
+
+# 4 crossing pd with UID 17, crossings +-++ orientation +
+1+2d4d1d1c
+2-3b2c2b1a
+3+4c2a3d3c
+4+4b4a3a1b
+
+
+
+# 4 crossing pd with UID 17, crossings +-+- orientation +
+1+2d4a1d1c
+2-3b2c2b1a
+3+4d2a3d3c
+4-1b4c4b3a
+
+
+
+# 4 crossing pd with UID 17, crossings +--+ orientation +
+1+2d4d1d1c
+2-3c2c2b1a
+3-3d4c2a3a
+4+4b4a3b1b
+
+
+
+# 4 crossing pd with UID 17, crossings +--- orientation +
+1+2d4a1d1c
+2-3c2c2b1a
+3-3d4d2a3a
+4-1b4c4b3b
+
+
+
+# 4 crossing pd with UID 17, crossings -+++ orientation +
+1-1d2c4d1a
+2+2b2a1b3b
+3+4c2d3d3c
+4+4b4a3a1c
+
+
+
+# 4 crossing pd with UID 17, crossings -++- orientation +
+1-1d2c4a1a
+2+2b2a1b3b
+3+4d2d3d3c
+4-1c4c4b3a
+
+
+
+# 4 crossing pd with UID 17, crossings -+-+ orientation +
+1-1d2c4d1a
+2+2b2a1b3c
+3-3d4c2d3a
+4+4b4a3b1c
+
+
+
+# 4 crossing pd with UID 17, crossings -+-- orientation +
+1-1d2c4a1a
+2+2b2a1b3c
+3-3d4d2d3a
+4-1c4c4b3b
+
+
+
+# 4 crossing pd with UID 17, crossings --++ orientation +
+1-1d2d4d1a
+2-3b2c2b1b
+3+4c2a3d3c
+4+4b4a3a1c
+
+
+
+# 4 crossing pd with UID 17, crossings --+- orientation +
+1-1d2d4a1a
+2-3b2c2b1b
+3+4d2a3d3c
+4-1c4c4b3a
+
+
+
+# 4 crossing pd with UID 17, crossings ---+ orientation +
+1-1d2d4d1a
+2-3c2c2b1b
+3-3d4c2a3a
+4+4b4a3b1c
+
+
+
+# 4 crossing pd with UID 17, crossings ---- orientation +
+1-1d2d4a1a
+2-3c2c2b1b
+3-3d4d2a3a
+4-1c4c4b3b
+
+
+
+# 4 crossing pd with UID 17, crossings ++++ orientation -
+1+1b1a4a2b
+2+3c1d2d2c
+3+3b3a2a4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 17, crossings +++- orientation -
+1+1b1a4b2b
+2+3c1d2d2c
+3+3b3a2a4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 17, crossings ++-+ orientation -
+1+1b1a4a2b
+2+3d1d2d2c
+3-4b3c3b2a
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 17, crossings ++-- orientation -
+1+1b1a4b2b
+2+3d1d2d2c
+3-4c3c3b2a
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 17, crossings +-++ orientation -
+1+1b1a4a2c
+2-2d3c1d2a
+3+3b3a2b4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 17, crossings +-+- orientation -
+1+1b1a4b2c
+2-2d3c1d2a
+3+3b3a2b4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 17, crossings +--+ orientation -
+1+1b1a4a2c
+2-2d3d1d2a
+3-4b3c3b2b
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 17, crossings +--- orientation -
+1+1b1a4b2c
+2-2d3d1d2a
+3-4c3c3b2b
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 17, crossings -+++ orientation -
+1-2b1c1b4a
+2+3c1a2d2c
+3+3b3a2a4b
+4+1d3d4d4c
+
+
+
+# 4 crossing pd with UID 17, crossings -++- orientation -
+1-2b1c1b4b
+2+3c1a2d2c
+3+3b3a2a4c
+4-4d1d3d4a
+
+
+
+# 4 crossing pd with UID 17, crossings -+-+ orientation -
+1-2b1c1b4a
+2+3d1a2d2c
+3-4b3c3b2a
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 17, crossings -+-- orientation -
+1-2b1c1b4b
+2+3d1a2d2c
+3-4c3c3b2a
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 17, crossings --++ orientation -
+1-2c1c1b4a
+2-2d3c1a2a
+3+3b3a2b4b
+4+1d3d4d4c
+
+
+
+# 4 crossing pd with UID 17, crossings --+- orientation -
+1-2c1c1b4b
+2-2d3c1a2a
+3+3b3a2b4c
+4-4d1d3d4a
+
+
+
+# 4 crossing pd with UID 17, crossings ---+ orientation -
+1-2c1c1b4a
+2-2d3d1a2a
+3-4b3c3b2b
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 17, crossings ---- orientation -
+1-2c1c1b4b
+2-2d3d1a2a
+3-4c3c3b2b
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 18, crossings ++++ orientation +
+1+2c2d1d1c
+2+3b3a1a1b
+3+2b2a4d4c
+4+4b4a3d3c
+
+
+
+# 4 crossing pd with UID 18, crossings +++- orientation +
+1+2c2d1d1c
+2+3b3a1a1b
+3+2b2a4a4d
+4-3c4c4b3d
+
+
+
+# 4 crossing pd with UID 18, crossings ++-+ orientation +
+1+2c2d1d1c
+2+3c3b1a1b
+3-4c2b2a4d
+4+4b4a3a3d
+
+
+
+# 4 crossing pd with UID 18, crossings ++-- orientation +
+1+2c2d1d1c
+2+3c3b1a1b
+3-4d2b2a4a
+4-3d4c4b3a
+
+
+
+# 4 crossing pd with UID 18, crossings +-++ orientation +
+1+2d2a1d1c
+2-1b3b3a1a
+3+2c2b4d4c
+4+4b4a3d3c
+
+
+
+# 4 crossing pd with UID 18, crossings +-+- orientation +
+1+2d2a1d1c
+2-1b3b3a1a
+3+2c2b4a4d
+4-3c4c4b3d
+
+
+
+# 4 crossing pd with UID 18, crossings +--+ orientation +
+1+2d2a1d1c
+2-1b3c3b1a
+3-4c2c2b4d
+4+4b4a3a3d
+
+
+
+# 4 crossing pd with UID 18, crossings +--- orientation +
+1+2d2a1d1c
+2-1b3c3b1a
+3-4d2c2b4a
+4-3d4c4b3a
+
+
+
+# 4 crossing pd with UID 18, crossings -+++ orientation +
+1-1d2c2d1a
+2+3b3a1b1c
+3+2b2a4d4c
+4+4b4a3d3c
+
+
+
+# 4 crossing pd with UID 18, crossings -++- orientation +
+1-1d2c2d1a
+2+3b3a1b1c
+3+2b2a4a4d
+4-3c4c4b3d
+
+
+
+# 4 crossing pd with UID 18, crossings -+-+ orientation +
+1-1d2c2d1a
+2+3c3b1b1c
+3-4c2b2a4d
+4+4b4a3a3d
+
+
+
+# 4 crossing pd with UID 18, crossings -+-- orientation +
+1-1d2c2d1a
+2+3c3b1b1c
+3-4d2b2a4a
+4-3d4c4b3a
+
+
+
+# 4 crossing pd with UID 18, crossings --++ orientation +
+1-1d2d2a1a
+2-1c3b3a1b
+3+2c2b4d4c
+4+4b4a3d3c
+
+
+
+# 4 crossing pd with UID 18, crossings --+- orientation +
+1-1d2d2a1a
+2-1c3b3a1b
+3+2c2b4a4d
+4-3c4c4b3d
+
+
+
+# 4 crossing pd with UID 18, crossings ---+ orientation +
+1-1d2d2a1a
+2-1c3c3b1b
+3-4c2c2b4d
+4+4b4a3a3d
+
+
+
+# 4 crossing pd with UID 18, crossings ---- orientation +
+1-1d2d2a1a
+2-1c3c3b1b
+3-4d2c2b4a
+4-3d4c4b3a
+
+
+
+# 4 crossing pd with UID 18, crossings ++++ orientation -
+1+1b1a2a2b
+2+1c1d3d3c
+3+4b4a2d2c
+4+3b3a4d4c
+
+
+
+# 4 crossing pd with UID 18, crossings +++- orientation -
+1+1b1a2a2b
+2+1c1d3d3c
+3+4c4b2d2c
+4-4d3b3a4a
+
+
+
+# 4 crossing pd with UID 18, crossings ++-+ orientation -
+1+1b1a2a2b
+2+1c1d3a3d
+3-2c4b4a2d
+4+3c3b4d4c
+
+
+
+# 4 crossing pd with UID 18, crossings ++-- orientation -
+1+1b1a2a2b
+2+1c1d3a3d
+3-2c4c4b2d
+4-4d3c3b4a
+
+
+
+# 4 crossing pd with UID 18, crossings +-++ orientation -
+1+1b1a2b2c
+2-3c1c1d3d
+3+4b4a2a2d
+4+3b3a4d4c
+
+
+
+# 4 crossing pd with UID 18, crossings +-+- orientation -
+1+1b1a2b2c
+2-3c1c1d3d
+3+4c4b2a2d
+4-4d3b3a4a
+
+
+
+# 4 crossing pd with UID 18, crossings +--+ orientation -
+1+1b1a2b2c
+2-3d1c1d3a
+3-2d4b4a2a
+4+3c3b4d4c
+
+
+
+# 4 crossing pd with UID 18, crossings +--- orientation -
+1+1b1a2b2c
+2-3d1c1d3a
+3-2d4c4b2a
+4-4d3c3b4a
+
+
+
+# 4 crossing pd with UID 18, crossings -+++ orientation -
+1-2b1c1b2a
+2+1d1a3d3c
+3+4b4a2d2c
+4+3b3a4d4c
+
+
+
+# 4 crossing pd with UID 18, crossings -++- orientation -
+1-2b1c1b2a
+2+1d1a3d3c
+3+4c4b2d2c
+4-4d3b3a4a
+
+
+
+# 4 crossing pd with UID 18, crossings -+-+ orientation -
+1-2b1c1b2a
+2+1d1a3a3d
+3-2c4b4a2d
+4+3c3b4d4c
+
+
+
+# 4 crossing pd with UID 18, crossings -+-- orientation -
+1-2b1c1b2a
+2+1d1a3a3d
+3-2c4c4b2d
+4-4d3c3b4a
+
+
+
+# 4 crossing pd with UID 18, crossings --++ orientation -
+1-2c1c1b2b
+2-3c1d1a3d
+3+4b4a2a2d
+4+3b3a4d4c
+
+
+
+# 4 crossing pd with UID 18, crossings --+- orientation -
+1-2c1c1b2b
+2-3c1d1a3d
+3+4c4b2a2d
+4-4d3b3a4a
+
+
+
+# 4 crossing pd with UID 18, crossings ---+ orientation -
+1-2c1c1b2b
+2-3d1d1a3a
+3-2d4b4a2a
+4+3c3b4d4c
+
+
+
+# 4 crossing pd with UID 18, crossings ---- orientation -
+1-2c1c1b2b
+2-3d1d1a3a
+3-2d4c4b2a
+4-4d3c3b4a
+
+
+
+# 4 crossing pd with UID 19, crossings ++++ orientation +
+1+2c2d4d3c
+2+2b2a1a1b
+3+3b3a1d4c
+4+4b4a3d1c
+
+
+
+# 4 crossing pd with UID 19, crossings +++- orientation +
+1+2c2d4a3c
+2+2b2a1a1b
+3+3b3a1d4d
+4-1c4c4b3d
+
+
+
+# 4 crossing pd with UID 19, crossings ++-+ orientation +
+1+2c2d4d3d
+2+2b2a1a1b
+3-4c3c3b1d
+4+4b4a3a1c
+
+
+
+# 4 crossing pd with UID 19, crossings ++-- orientation +
+1+2c2d4a3d
+2+2b2a1a1b
+3-4d3c3b1d
+4-1c4c4b3a
+
+
+
+# 4 crossing pd with UID 19, crossings +-++ orientation +
+1+2d2a4d3c
+2-1b2c2b1a
+3+3b3a1d4c
+4+4b4a3d1c
+
+
+
+# 4 crossing pd with UID 19, crossings +-+- orientation +
+1+2d2a4a3c
+2-1b2c2b1a
+3+3b3a1d4d
+4-1c4c4b3d
+
+
+
+# 4 crossing pd with UID 19, crossings +--+ orientation +
+1+2d2a4d3d
+2-1b2c2b1a
+3-4c3c3b1d
+4+4b4a3a1c
+
+
+
+# 4 crossing pd with UID 19, crossings +--- orientation +
+1+2d2a4a3d
+2-1b2c2b1a
+3-4d3c3b1d
+4-1c4c4b3a
+
+
+
+# 4 crossing pd with UID 19, crossings -+++ orientation +
+1-3c2c2d4d
+2+2b2a1b1c
+3+3b3a1a4c
+4+4b4a3d1d
+
+
+
+# 4 crossing pd with UID 19, crossings -++- orientation +
+1-3c2c2d4a
+2+2b2a1b1c
+3+3b3a1a4d
+4-1d4c4b3d
+
+
+
+# 4 crossing pd with UID 19, crossings -+-+ orientation +
+1-3d2c2d4d
+2+2b2a1b1c
+3-4c3c3b1a
+4+4b4a3a1d
+
+
+
+# 4 crossing pd with UID 19, crossings -+-- orientation +
+1-3d2c2d4a
+2+2b2a1b1c
+3-4d3c3b1a
+4-1d4c4b3a
+
+
+
+# 4 crossing pd with UID 19, crossings --++ orientation +
+1-3c2d2a4d
+2-1c2c2b1b
+3+3b3a1a4c
+4+4b4a3d1d
+
+
+
+# 4 crossing pd with UID 19, crossings --+- orientation +
+1-3c2d2a4a
+2-1c2c2b1b
+3+3b3a1a4d
+4-1d4c4b3d
+
+
+
+# 4 crossing pd with UID 19, crossings ---+ orientation +
+1-3d2d2a4d
+2-1c2c2b1b
+3-4c3c3b1a
+4+4b4a3a1d
+
+
+
+# 4 crossing pd with UID 19, crossings ---- orientation +
+1-3d2d2a4a
+2-1c2c2b1b
+3-4d3c3b1a
+4-1d4c4b3a
+
+
+
+# 4 crossing pd with UID 19, crossings ++++ orientation -
+1+2c2d1d1c
+2+3b4a1a1b
+3+4b2a3d3c
+4+2b3a4d4c
+
+
+
+# 4 crossing pd with UID 19, crossings +++- orientation -
+1+2c2d1d1c
+2+3b4b1a1b
+3+4c2a3d3c
+4-4d2b3a4a
+
+
+
+# 4 crossing pd with UID 19, crossings ++-+ orientation -
+1+2c2d1d1c
+2+3c4a1a1b
+3-3d4b2a3a
+4+2b3b4d4c
+
+
+
+# 4 crossing pd with UID 19, crossings ++-- orientation -
+1+2c2d1d1c
+2+3c4b1a1b
+3-3d4c2a3a
+4-4d2b3b4a
+
+
+
+# 4 crossing pd with UID 19, crossings +-++ orientation -
+1+2d2a1d1c
+2-1b3b4a1a
+3+4b2b3d3c
+4+2c3a4d4c
+
+
+
+# 4 crossing pd with UID 19, crossings +-+- orientation -
+1+2d2a1d1c
+2-1b3b4b1a
+3+4c2b3d3c
+4-4d2c3a4a
+
+
+
+# 4 crossing pd with UID 19, crossings +--+ orientation -
+1+2d2a1d1c
+2-1b3c4a1a
+3-3d4b2b3a
+4+2c3b4d4c
+
+
+
+# 4 crossing pd with UID 19, crossings +--- orientation -
+1+2d2a1d1c
+2-1b3c4b1a
+3-3d4c2b3a
+4-4d2c3b4a
+
+
+
+# 4 crossing pd with UID 19, crossings -+++ orientation -
+1-1d2c2d1a
+2+3b4a1b1c
+3+4b2a3d3c
+4+2b3a4d4c
+
+
+
+# 4 crossing pd with UID 19, crossings -++- orientation -
+1-1d2c2d1a
+2+3b4b1b1c
+3+4c2a3d3c
+4-4d2b3a4a
+
+
+
+# 4 crossing pd with UID 19, crossings -+-+ orientation -
+1-1d2c2d1a
+2+3c4a1b1c
+3-3d4b2a3a
+4+2b3b4d4c
+
+
+
+# 4 crossing pd with UID 19, crossings -+-- orientation -
+1-1d2c2d1a
+2+3c4b1b1c
+3-3d4c2a3a
+4-4d2b3b4a
+
+
+
+# 4 crossing pd with UID 19, crossings --++ orientation -
+1-1d2d2a1a
+2-1c3b4a1b
+3+4b2b3d3c
+4+2c3a4d4c
+
+
+
+# 4 crossing pd with UID 19, crossings --+- orientation -
+1-1d2d2a1a
+2-1c3b4b1b
+3+4c2b3d3c
+4-4d2c3a4a
+
+
+
+# 4 crossing pd with UID 19, crossings ---+ orientation -
+1-1d2d2a1a
+2-1c3c4a1b
+3-3d4b2b3a
+4+2c3b4d4c
+
+
+
+# 4 crossing pd with UID 19, crossings ---- orientation -
+1-1d2d2a1a
+2-1c3c4b1b
+3-3d4c2b3a
+4-4d2c3b4a
+
+
+
+# 4 crossing pd with UID 20, crossings ++++ orientation +
+1+2b2a4a3c
+2+1b1a2d2c
+3+3b3a1d4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings +++- orientation +
+1+2b2a4b3c
+2+1b1a2d2c
+3+3b3a1d4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 20, crossings ++-+ orientation +
+1+2b2a4a3d
+2+1b1a2d2c
+3-4b3c3b1d
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings ++-- orientation +
+1+2b2a4b3d
+2+1b1a2d2c
+3-4c3c3b1d
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 20, crossings +-++ orientation +
+1+2c2b4a3c
+2-2d1b1a2a
+3+3b3a1d4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings +-+- orientation +
+1+2c2b4b3c
+2-2d1b1a2a
+3+3b3a1d4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 20, crossings +--+ orientation +
+1+2c2b4a3d
+2-2d1b1a2a
+3-4b3c3b1d
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings +--- orientation +
+1+2c2b4b3d
+2-2d1b1a2a
+3-4c3c3b1d
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 20, crossings -+++ orientation +
+1-3c2b2a4a
+2+1c1b2d2c
+3+3b3a1a4b
+4+1d3d4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings -++- orientation +
+1-3c2b2a4b
+2+1c1b2d2c
+3+3b3a1a4c
+4-4d1d3d4a
+
+
+
+# 4 crossing pd with UID 20, crossings -+-+ orientation +
+1-3d2b2a4a
+2+1c1b2d2c
+3-4b3c3b1a
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings -+-- orientation +
+1-3d2b2a4b
+2+1c1b2d2c
+3-4c3c3b1a
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 20, crossings --++ orientation +
+1-3c2c2b4a
+2-2d1c1b2a
+3+3b3a1a4b
+4+1d3d4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings --+- orientation +
+1-3c2c2b4b
+2-2d1c1b2a
+3+3b3a1a4c
+4-4d1d3d4a
+
+
+
+# 4 crossing pd with UID 20, crossings ---+ orientation +
+1-3d2c2b4a
+2-2d1c1b2a
+3-4b3c3b1a
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings ---- orientation +
+1-3d2c2b4b
+2-2d1c1b2a
+3-4c3c3b1a
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 20, crossings ++++ orientation -
+1+1b1a2d2c
+2+3c4a1d1c
+3+3b3a2a4b
+4+2b3d4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings +++- orientation -
+1+1b1a2d2c
+2+3c4b1d1c
+3+3b3a2a4c
+4-4d2b3d4a
+
+
+
+# 4 crossing pd with UID 20, crossings ++-+ orientation -
+1+1b1a2d2c
+2+3d4a1d1c
+3-4b3c3b2a
+4+2b3a4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings ++-- orientation -
+1+1b1a2d2c
+2+3d4b1d1c
+3-4c3c3b2a
+4-4d2b3a4a
+
+
+
+# 4 crossing pd with UID 20, crossings +-++ orientation -
+1+1b1a2a2d
+2-1c3c4a1d
+3+3b3a2b4b
+4+2c3d4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings +-+- orientation -
+1+1b1a2a2d
+2-1c3c4b1d
+3+3b3a2b4c
+4-4d2c3d4a
+
+
+
+# 4 crossing pd with UID 20, crossings +--+ orientation -
+1+1b1a2a2d
+2-1c3d4a1d
+3-4b3c3b2b
+4+2c3a4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings +--- orientation -
+1+1b1a2a2d
+2-1c3d4b1d
+3-4c3c3b2b
+4-4d2c3a4a
+
+
+
+# 4 crossing pd with UID 20, crossings -+++ orientation -
+1-2c1c1b2d
+2+3c4a1a1d
+3+3b3a2a4b
+4+2b3d4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings -++- orientation -
+1-2c1c1b2d
+2+3c4b1a1d
+3+3b3a2a4c
+4-4d2b3d4a
+
+
+
+# 4 crossing pd with UID 20, crossings -+-+ orientation -
+1-2c1c1b2d
+2+3d4a1a1d
+3-4b3c3b2a
+4+2b3a4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings -+-- orientation -
+1-2c1c1b2d
+2+3d4b1a1d
+3-4c3c3b2a
+4-4d2b3a4a
+
+
+
+# 4 crossing pd with UID 20, crossings --++ orientation -
+1-2d1c1b2a
+2-1d3c4a1a
+3+3b3a2b4b
+4+2c3d4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings --+- orientation -
+1-2d1c1b2a
+2-1d3c4b1a
+3+3b3a2b4c
+4-4d2c3d4a
+
+
+
+# 4 crossing pd with UID 20, crossings ---+ orientation -
+1-2d1c1b2a
+2-1d3d4a1a
+3-4b3c3b2b
+4+2c3a4d4c
+
+
+
+# 4 crossing pd with UID 20, crossings ---- orientation -
+1-2d1c1b2a
+2-1d3d4b1a
+3-4c3c3b2b
+4-4d2c3a4a
+
+
+
+# 4 crossing pd with UID 21, crossings ++++ orientation +
+1+2c4a1d1c
+2+2b2a1a3b
+3+4b2d3d3c
+4+1b3a4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings +++- orientation +
+1+2c4b1d1c
+2+2b2a1a3b
+3+4c2d3d3c
+4-4d1b3a4a
+
+
+
+# 4 crossing pd with UID 21, crossings ++-+ orientation +
+1+2c4a1d1c
+2+2b2a1a3c
+3-3d4b2d3a
+4+1b3b4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings ++-- orientation +
+1+2c4b1d1c
+2+2b2a1a3c
+3-3d4c2d3a
+4-4d1b3b4a
+
+
+
+# 4 crossing pd with UID 21, crossings +-++ orientation +
+1+2d4a1d1c
+2-3b2c2b1a
+3+4b2a3d3c
+4+1b3a4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings +-+- orientation +
+1+2d4b1d1c
+2-3b2c2b1a
+3+4c2a3d3c
+4-4d1b3a4a
+
+
+
+# 4 crossing pd with UID 21, crossings +--+ orientation +
+1+2d4a1d1c
+2-3c2c2b1a
+3-3d4b2a3a
+4+1b3b4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings +--- orientation +
+1+2d4b1d1c
+2-3c2c2b1a
+3-3d4c2a3a
+4-4d1b3b4a
+
+
+
+# 4 crossing pd with UID 21, crossings -+++ orientation +
+1-1d2c4a1a
+2+2b2a1b3b
+3+4b2d3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings -++- orientation +
+1-1d2c4b1a
+2+2b2a1b3b
+3+4c2d3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 21, crossings -+-+ orientation +
+1-1d2c4a1a
+2+2b2a1b3c
+3-3d4b2d3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings -+-- orientation +
+1-1d2c4b1a
+2+2b2a1b3c
+3-3d4c2d3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 21, crossings --++ orientation +
+1-1d2d4a1a
+2-3b2c2b1b
+3+4b2a3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings --+- orientation +
+1-1d2d4b1a
+2-3b2c2b1b
+3+4c2a3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 21, crossings ---+ orientation +
+1-1d2d4a1a
+2-3c2c2b1b
+3-3d4b2a3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings ---- orientation +
+1-1d2d4b1a
+2-3c2c2b1b
+3-3d4c2a3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 21, crossings ++++ orientation -
+1+1b1a4a2c
+2+2b2a1d3c
+3+3b3a2d4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings +++- orientation -
+1+1b1a4b2c
+2+2b2a1d3c
+3+3b3a2d4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 21, crossings ++-+ orientation -
+1+1b1a4a2c
+2+2b2a1d3d
+3-4b3c3b2d
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings ++-- orientation -
+1+1b1a4b2c
+2+2b2a1d3d
+3-4c3c3b2d
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 21, crossings +-++ orientation -
+1+1b1a4a2d
+2-3c2c2b1d
+3+3b3a2a4b
+4+1c3d4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings +-+- orientation -
+1+1b1a4b2d
+2-3c2c2b1d
+3+3b3a2a4c
+4-4d1c3d4a
+
+
+
+# 4 crossing pd with UID 21, crossings +--+ orientation -
+1+1b1a4a2d
+2-3d2c2b1d
+3-4b3c3b2a
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings +--- orientation -
+1+1b1a4b2d
+2-3d2c2b1d
+3-4c3c3b2a
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 21, crossings -+++ orientation -
+1-2c1c1b4a
+2+2b2a1a3c
+3+3b3a2d4b
+4+1d3d4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings -++- orientation -
+1-2c1c1b4b
+2+2b2a1a3c
+3+3b3a2d4c
+4-4d1d3d4a
+
+
+
+# 4 crossing pd with UID 21, crossings -+-+ orientation -
+1-2c1c1b4a
+2+2b2a1a3d
+3-4b3c3b2d
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings -+-- orientation -
+1-2c1c1b4b
+2+2b2a1a3d
+3-4c3c3b2d
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 21, crossings --++ orientation -
+1-2d1c1b4a
+2-3c2c2b1a
+3+3b3a2a4b
+4+1d3d4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings --+- orientation -
+1-2d1c1b4b
+2-3c2c2b1a
+3+3b3a2a4c
+4-4d1d3d4a
+
+
+
+# 4 crossing pd with UID 21, crossings ---+ orientation -
+1-2d1c1b4a
+2-3d2c2b1a
+3-4b3c3b2a
+4+1d3a4d4c
+
+
+
+# 4 crossing pd with UID 21, crossings ---- orientation -
+1-2d1c1b4b
+2-3d2c2b1a
+3-4c3c3b2a
+4-4d1d3a4a
+
+
+
+# 4 crossing pd with UID 22, crossings ++++ orientation +
+1+2b2a1d1c
+2+1b1a3d3c
+3+4b4a2d2c
+4+3b3a4d4c
+
+
+
+# 4 crossing pd with UID 22, crossings +++- orientation +
+1+2b2a1d1c
+2+1b1a3d3c
+3+4c4b2d2c
+4-4d3b3a4a
+
+
+
+# 4 crossing pd with UID 22, crossings ++-+ orientation +
+1+2b2a1d1c
+2+1b1a3a3d
+3-2c4b4a2d
+4+3c3b4d4c
+
+
+
+# 4 crossing pd with UID 22, crossings ++-- orientation +
+1+2b2a1d1c
+2+1b1a3a3d
+3-2c4c4b2d
+4-4d3c3b4a
+
+
+
+# 4 crossing pd with UID 22, crossings +-++ orientation +
+1+2c2b1d1c
+2-3c1b1a3d
+3+4b4a2a2d
+4+3b3a4d4c
+
+
+
+# 4 crossing pd with UID 22, crossings +-+- orientation +
+1+2c2b1d1c
+2-3c1b1a3d
+3+4c4b2a2d
+4-4d3b3a4a
+
+
+
+# 4 crossing pd with UID 22, crossings +--+ orientation +
+1+2c2b1d1c
+2-3d1b1a3a
+3-2d4b4a2a
+4+3c3b4d4c
+
+
+
+# 4 crossing pd with UID 22, crossings +--- orientation +
+1+2c2b1d1c
+2-3d1b1a3a
+3-2d4c4b2a
+4-4d3c3b4a
+
+
+
+# 4 crossing pd with UID 22, crossings -+++ orientation +
+1-1d2b2a1a
+2+1c1b3d3c
+3+4b4a2d2c
+4+3b3a4d4c
+
+
+
+# 4 crossing pd with UID 22, crossings -++- orientation +
+1-1d2b2a1a
+2+1c1b3d3c
+3+4c4b2d2c
+4-4d3b3a4a
+
+
+
+# 4 crossing pd with UID 22, crossings -+-+ orientation +
+1-1d2b2a1a
+2+1c1b3a3d
+3-2c4b4a2d
+4+3c3b4d4c
+
+
+
+# 4 crossing pd with UID 22, crossings -+-- orientation +
+1-1d2b2a1a
+2+1c1b3a3d
+3-2c4c4b2d
+4-4d3c3b4a
+
+
+
+# 4 crossing pd with UID 22, crossings --++ orientation +
+1-1d2c2b1a
+2-3c1c1b3d
+3+4b4a2a2d
+4+3b3a4d4c
+
+
+
+# 4 crossing pd with UID 22, crossings --+- orientation +
+1-1d2c2b1a
+2-3c1c1b3d
+3+4c4b2a2d
+4-4d3b3a4a
+
+
+
+# 4 crossing pd with UID 22, crossings ---+ orientation +
+1-1d2c2b1a
+2-3d1c1b3a
+3-2d4b4a2a
+4+3c3b4d4c
+
+
+
+# 4 crossing pd with UID 22, crossings ---- orientation +
+1-1d2c2b1a
+2-3d1c1b3a
+3-2d4c4b2a
+4-4d3c3b4a
+
+
+
+# 4 crossing pd with UID 22, crossings ++++ orientation -
+1+1b1a2d2c
+2+3b3a1d1c
+3+2b2a4d4c
+4+4b4a3d3c
+
+
+
+# 4 crossing pd with UID 22, crossings +++- orientation -
+1+1b1a2d2c
+2+3b3a1d1c
+3+2b2a4a4d
+4-3c4c4b3d
+
+
+
+# 4 crossing pd with UID 22, crossings ++-+ orientation -
+1+1b1a2d2c
+2+3c3b1d1c
+3-4c2b2a4d
+4+4b4a3a3d
+
+
+
+# 4 crossing pd with UID 22, crossings ++-- orientation -
+1+1b1a2d2c
+2+3c3b1d1c
+3-4d2b2a4a
+4-3d4c4b3a
+
+
+
+# 4 crossing pd with UID 22, crossings +-++ orientation -
+1+1b1a2a2d
+2-1c3b3a1d
+3+2c2b4d4c
+4+4b4a3d3c
+
+
+
+# 4 crossing pd with UID 22, crossings +-+- orientation -
+1+1b1a2a2d
+2-1c3b3a1d
+3+2c2b4a4d
+4-3c4c4b3d
+
+
+
+# 4 crossing pd with UID 22, crossings +--+ orientation -
+1+1b1a2a2d
+2-1c3c3b1d
+3-4c2c2b4d
+4+4b4a3a3d
+
+
+
+# 4 crossing pd with UID 22, crossings +--- orientation -
+1+1b1a2a2d
+2-1c3c3b1d
+3-4d2c2b4a
+4-3d4c4b3a
+
+
+
+# 4 crossing pd with UID 22, crossings -+++ orientation -
+1-2c1c1b2d
+2+3b3a1a1d
+3+2b2a4d4c
+4+4b4a3d3c
+
+
+
+# 4 crossing pd with UID 22, crossings -++- orientation -
+1-2c1c1b2d
+2+3b3a1a1d
+3+2b2a4a4d
+4-3c4c4b3d
+
+
+
+# 4 crossing pd with UID 22, crossings -+-+ orientation -
+1-2c1c1b2d
+2+3c3b1a1d
+3-4c2b2a4d
+4+4b4a3a3d
+
+
+
+# 4 crossing pd with UID 22, crossings -+-- orientation -
+1-2c1c1b2d
+2+3c3b1a1d
+3-4d2b2a4a
+4-3d4c4b3a
+
+
+
+# 4 crossing pd with UID 22, crossings --++ orientation -
+1-2d1c1b2a
+2-1d3b3a1a
+3+2c2b4d4c
+4+4b4a3d3c
+
+
+
+# 4 crossing pd with UID 22, crossings --+- orientation -
+1-2d1c1b2a
+2-1d3b3a1a
+3+2c2b4a4d
+4-3c4c4b3d
+
+
+
+# 4 crossing pd with UID 22, crossings ---+ orientation -
+1-2d1c1b2a
+2-1d3c3b1a
+3-4c2c2b4d
+4+4b4a3a3d
+
+
+
+# 4 crossing pd with UID 22, crossings ---- orientation -
+1-2d1c1b2a
+2-1d3c3b1a
+3-4d2c2b4a
+4-3d4c4b3a
+
+
+
+# 4 crossing pd with UID 23, crossings ++++ orientation +
+1+2b2a4d3c
+2+1b1a2d2c
+3+3b3a1d4c
+4+4b4a3d1c
+
+
+
+# 4 crossing pd with UID 23, crossings +++- orientation +
+1+2b2a4a3c
+2+1b1a2d2c
+3+3b3a1d4d
+4-1c4c4b3d
+
+
+
+# 4 crossing pd with UID 23, crossings ++-+ orientation +
+1+2b2a4d3d
+2+1b1a2d2c
+3-4c3c3b1d
+4+4b4a3a1c
+
+
+
+# 4 crossing pd with UID 23, crossings ++-- orientation +
+1+2b2a4a3d
+2+1b1a2d2c
+3-4d3c3b1d
+4-1c4c4b3a
+
+
+
+# 4 crossing pd with UID 23, crossings +-++ orientation +
+1+2c2b4d3c
+2-2d1b1a2a
+3+3b3a1d4c
+4+4b4a3d1c
+
+
+
+# 4 crossing pd with UID 23, crossings +-+- orientation +
+1+2c2b4a3c
+2-2d1b1a2a
+3+3b3a1d4d
+4-1c4c4b3d
+
+
+
+# 4 crossing pd with UID 23, crossings +--+ orientation +
+1+2c2b4d3d
+2-2d1b1a2a
+3-4c3c3b1d
+4+4b4a3a1c
+
+
+
+# 4 crossing pd with UID 23, crossings +--- orientation +
+1+2c2b4a3d
+2-2d1b1a2a
+3-4d3c3b1d
+4-1c4c4b3a
+
+
+
+# 4 crossing pd with UID 23, crossings -+++ orientation +
+1-3c2b2a4d
+2+1c1b2d2c
+3+3b3a1a4c
+4+4b4a3d1d
+
+
+
+# 4 crossing pd with UID 23, crossings -++- orientation +
+1-3c2b2a4a
+2+1c1b2d2c
+3+3b3a1a4d
+4-1d4c4b3d
+
+
+
+# 4 crossing pd with UID 23, crossings -+-+ orientation +
+1-3d2b2a4d
+2+1c1b2d2c
+3-4c3c3b1a
+4+4b4a3a1d
+
+
+
+# 4 crossing pd with UID 23, crossings -+-- orientation +
+1-3d2b2a4a
+2+1c1b2d2c
+3-4d3c3b1a
+4-1d4c4b3a
+
+
+
+# 4 crossing pd with UID 23, crossings --++ orientation +
+1-3c2c2b4d
+2-2d1c1b2a
+3+3b3a1a4c
+4+4b4a3d1d
+
+
+
+# 4 crossing pd with UID 23, crossings --+- orientation +
+1-3c2c2b4a
+2-2d1c1b2a
+3+3b3a1a4d
+4-1d4c4b3d
+
+
+
+# 4 crossing pd with UID 23, crossings ---+ orientation +
+1-3d2c2b4d
+2-2d1c1b2a
+3-4c3c3b1a
+4+4b4a3a1d
+
+
+
+# 4 crossing pd with UID 23, crossings ---- orientation +
+1-3d2c2b4a
+2-2d1c1b2a
+3-4d3c3b1a
+4-1d4c4b3a
+
+
+
+# 4 crossing pd with UID 23, crossings ++++ orientation -
+1+1b1a2d2c
+2+3b4a1d1c
+3+4b2a3d3c
+4+2b3a4d4c
+
+
+
+# 4 crossing pd with UID 23, crossings +++- orientation -
+1+1b1a2d2c
+2+3b4b1d1c
+3+4c2a3d3c
+4-4d2b3a4a
+
+
+
+# 4 crossing pd with UID 23, crossings ++-+ orientation -
+1+1b1a2d2c
+2+3c4a1d1c
+3-3d4b2a3a
+4+2b3b4d4c
+
+
+
+# 4 crossing pd with UID 23, crossings ++-- orientation -
+1+1b1a2d2c
+2+3c4b1d1c
+3-3d4c2a3a
+4-4d2b3b4a
+
+
+
+# 4 crossing pd with UID 23, crossings +-++ orientation -
+1+1b1a2a2d
+2-1c3b4a1d
+3+4b2b3d3c
+4+2c3a4d4c
+
+
+
+# 4 crossing pd with UID 23, crossings +-+- orientation -
+1+1b1a2a2d
+2-1c3b4b1d
+3+4c2b3d3c
+4-4d2c3a4a
+
+
+
+# 4 crossing pd with UID 23, crossings +--+ orientation -
+1+1b1a2a2d
+2-1c3c4a1d
+3-3d4b2b3a
+4+2c3b4d4c
+
+
+
+# 4 crossing pd with UID 23, crossings +--- orientation -
+1+1b1a2a2d
+2-1c3c4b1d
+3-3d4c2b3a
+4-4d2c3b4a
+
+
+
+# 4 crossing pd with UID 23, crossings -+++ orientation -
+1-2c1c1b2d
+2+3b4a1a1d
+3+4b2a3d3c
+4+2b3a4d4c
+
+
+
+# 4 crossing pd with UID 23, crossings -++- orientation -
+1-2c1c1b2d
+2+3b4b1a1d
+3+4c2a3d3c
+4-4d2b3a4a
+
+
+
+# 4 crossing pd with UID 23, crossings -+-+ orientation -
+1-2c1c1b2d
+2+3c4a1a1d
+3-3d4b2a3a
+4+2b3b4d4c
+
+
+
+# 4 crossing pd with UID 23, crossings -+-- orientation -
+1-2c1c1b2d
+2+3c4b1a1d
+3-3d4c2a3a
+4-4d2b3b4a
+
+
+
+# 4 crossing pd with UID 23, crossings --++ orientation -
+1-2d1c1b2a
+2-1d3b4a1a
+3+4b2b3d3c
+4+2c3a4d4c
+
+
+
+# 4 crossing pd with UID 23, crossings --+- orientation -
+1-2d1c1b2a
+2-1d3b4b1a
+3+4c2b3d3c
+4-4d2c3a4a
+
+
+
+# 4 crossing pd with UID 23, crossings ---+ orientation -
+1-2d1c1b2a
+2-1d3c4a1a
+3-3d4b2b3a
+4+2c3b4d4c
+
+
+
+# 4 crossing pd with UID 23, crossings ---- orientation -
+1-2d1c1b2a
+2-1d3c4b1a
+3-3d4c2b3a
+4-4d2c3b4a
+
+
+
+# 4 crossing pd with UID 24, crossings ++++ orientation +
+1+2b4a1d1c
+2+3b1a2d2c
+3+4b2a3d3c
+4+1b3a4d4c
+
+
+
+# 4 crossing pd with UID 24, crossings +++- orientation +
+1+2b4b1d1c
+2+3b1a2d2c
+3+4c2a3d3c
+4-4d1b3a4a
+
+
+
+# 4 crossing pd with UID 24, crossings ++-+ orientation +
+1+2b4a1d1c
+2+3c1a2d2c
+3-3d4b2a3a
+4+1b3b4d4c
+
+
+
+# 4 crossing pd with UID 24, crossings ++-- orientation +
+1+2b4b1d1c
+2+3c1a2d2c
+3-3d4c2a3a
+4-4d1b3b4a
+
+
+
+# 4 crossing pd with UID 24, crossings +-++ orientation +
+1+2c4a1d1c
+2-2d3b1a2a
+3+4b2b3d3c
+4+1b3a4d4c
+
+
+
+# 4 crossing pd with UID 24, crossings +-+- orientation +
+1+2c4b1d1c
+2-2d3b1a2a
+3+4c2b3d3c
+4-4d1b3a4a
+
+
+
+# 4 crossing pd with UID 24, crossings +--+ orientation +
+1+2c4a1d1c
+2-2d3c1a2a
+3-3d4b2b3a
+4+1b3b4d4c
+
+
+
+# 4 crossing pd with UID 24, crossings +--- orientation +
+1+2c4b1d1c
+2-2d3c1a2a
+3-3d4c2b3a
+4-4d1b3b4a
+
+
+
+# 4 crossing pd with UID 24, crossings -+++ orientation +
+1-1d2b4a1a
+2+3b1b2d2c
+3+4b2a3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 24, crossings -++- orientation +
+1-1d2b4b1a
+2+3b1b2d2c
+3+4c2a3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 24, crossings -+-+ orientation +
+1-1d2b4a1a
+2+3c1b2d2c
+3-3d4b2a3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 24, crossings -+-- orientation +
+1-1d2b4b1a
+2+3c1b2d2c
+3-3d4c2a3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 24, crossings --++ orientation +
+1-1d2c4a1a
+2-2d3b1b2a
+3+4b2b3d3c
+4+1c3a4d4c
+
+
+
+# 4 crossing pd with UID 24, crossings --+- orientation +
+1-1d2c4b1a
+2-2d3b1b2a
+3+4c2b3d3c
+4-4d1c3a4a
+
+
+
+# 4 crossing pd with UID 24, crossings ---+ orientation +
+1-1d2c4a1a
+2-2d3c1b2a
+3-3d4b2b3a
+4+1c3b4d4c
+
+
+
+# 4 crossing pd with UID 24, crossings ---- orientation +
+1-1d2c4b1a
+2-2d3c1b2a
+3-3d4c2b3a
+4-4d1c3b4a
+
+
+
+# 4 crossing pd with UID 24, crossings ++++ orientation -
+1+1b1a4d2c
+2+2b2a1d3c
+3+3b3a2d4c
+4+4b4a3d1c
+
+
+
+# 4 crossing pd with UID 24, crossings +++- orientation -
+1+1b1a4a2c
+2+2b2a1d3c
+3+3b3a2d4d
+4-1c4c4b3d
+
+
+
+# 4 crossing pd with UID 24, crossings ++-+ orientation -
+1+1b1a4d2c
+2+2b2a1d3d
+3-4c3c3b2d
+4+4b4a3a1c
+
+
+
+# 4 crossing pd with UID 24, crossings ++-- orientation -
+1+1b1a4a2c
+2+2b2a1d3d
+3-4d3c3b2d
+4-1c4c4b3a
+
+
+
+# 4 crossing pd with UID 24, crossings +-++ orientation -
+1+1b1a4d2d
+2-3c2c2b1d
+3+3b3a2a4c
+4+4b4a3d1c
+
+
+
+# 4 crossing pd with UID 24, crossings +-+- orientation -
+1+1b1a4a2d
+2-3c2c2b1d
+3+3b3a2a4d
+4-1c4c4b3d
+
+
+
+# 4 crossing pd with UID 24, crossings +--+ orientation -
+1+1b1a4d2d
+2-3d2c2b1d
+3-4c3c3b2a
+4+4b4a3a1c
+
+
+
+# 4 crossing pd with UID 24, crossings +--- orientation -
+1+1b1a4a2d
+2-3d2c2b1d
+3-4d3c3b2a
+4-1c4c4b3a
+
+
+
+# 4 crossing pd with UID 24, crossings -+++ orientation -
+1-2c1c1b4d
+2+2b2a1a3c
+3+3b3a2d4c
+4+4b4a3d1d
+
+
+
+# 4 crossing pd with UID 24, crossings -++- orientation -
+1-2c1c1b4a
+2+2b2a1a3c
+3+3b3a2d4d
+4-1d4c4b3d
+
+
+
+# 4 crossing pd with UID 24, crossings -+-+ orientation -
+1-2c1c1b4d
+2+2b2a1a3d
+3-4c3c3b2d
+4+4b4a3a1d
+
+
+
+# 4 crossing pd with UID 24, crossings -+-- orientation -
+1-2c1c1b4a
+2+2b2a1a3d
+3-4d3c3b2d
+4-1d4c4b3a
+
+
+
+# 4 crossing pd with UID 24, crossings --++ orientation -
+1-2d1c1b4d
+2-3c2c2b1a
+3+3b3a2a4c
+4+4b4a3d1d
+
+
+
+# 4 crossing pd with UID 24, crossings --+- orientation -
+1-2d1c1b4a
+2-3c2c2b1a
+3+3b3a2a4d
+4-1d4c4b3d
+
+
+
+# 4 crossing pd with UID 24, crossings ---+ orientation -
+1-2d1c1b4d
+2-3d2c2b1a
+3-4c3c3b2a
+4+4b4a3a1d
+
+
+
+# 4 crossing pd with UID 24, crossings ---- orientation -
+1-2d1c1b4a
+2-3d2c2b1a
+3-4d3c3b2a
+4-1d4c4b3a
+
+
+
