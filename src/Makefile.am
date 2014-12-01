@@ -10,7 +10,7 @@ else
 bin_PROGRAMS = knot_diagram
 endif
 
-noinst_PROGRAMS = spline_view # gcov_tests
+noinst_PROGRAMS = spline_view processpdstor # gcov_tests
 noinst_HEADERS = homfly.h
 
 libplCurveStatic_la_SOURCES = plCurve.c \
@@ -158,6 +158,11 @@ carbonizepd_SOURCES = carbonizepd.c
 carbonizepd_LDADD = -lplCurve 
 carbonizepd_LDFLAGS = -static
 carbonizepd_CFLAGS = -I${top_builddir}/src
+
+processpdstor_SOURCES = processpdstor.c
+processpdstor_LDADD = -lplCurve 
+processpdstor_LDFLAGS = -static
+processpdstor_CFLAGS = -I${top_builddir}/src
 
 spline_view_SOURCES = spline_view.c
 spline_view_LDADD = -lplCurve
