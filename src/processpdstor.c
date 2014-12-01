@@ -7,6 +7,9 @@
 
 #include<plCurve.c>
 #include<plcTopology.h>
+#include<pd_multidx.h>
+#include<pd_cyclic.h>
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -302,28 +305,112 @@ int main(int argc,char *argv[]) {
 	for(i=0;i<inpd->ncross;i++) { 
 	  inpd->cross[i].sign = PD_NEG_ORIENTATION;
 	}
-	
-	/** INSERT COMPONENT SWITCHING STUFF HERE **/
-	/** INSERT CROSSING SWITCHING STUFF HERE **/
-	
-	fprintf(out,"# %d crossing pd with UID %lu, crossings ",inpd->ncross,inpd->uid);
-	for(i=0;i<inpd->ncross;i++) { 
-	  fprintf(out,"%c",pd_print_or(inpd->cross[i].sign));
-	}
-	
-	fprintf(out," orientation ");
-	for(i=0;i<inpd->ncomps;i++) { 
-	  fprintf(out,"%c",pd_print_or(component_orientations[i]));
-	}
-	fprintf(out,"\n");
-	
-	char *ccode = pdcode_to_ccode(inpd);
-	fprintf(out,"%s\n",ccode);
-      
-	free(ccode);
-	free(component_orientations);
 
-	codes_written++;
+	pd_multidx_t *orientation_idx;
+	pd_idx_t*    *comp_orientations;
+	pd_idx_t      one = 1, two = 2;
+	comp_orientations = calloc(inpd->ncomps,sizeof(pd_idx_t *));
+	
+	if (allorientations->count > 0) { 
+
+	  int i;
+	  for(i=0;i<inpd->ncomps;i++) { comp_orientations[i] = &two; }
+
+	} else {
+
+	  int i;
+	  for(i=0;i<inpd->ncomps;i++) { comp_orientations[i] = &one; }
+
+	}
+
+	orientation_idx = pd_new_multidx(inpd->ncomps,
+					 (void **)(comp_orientations),
+					 cyclic_ops);
+
+	unsigned int norientations = pd_multidx_nvals(orientation_idx);
+	unsigned int orcount;
+
+	for(orcount=0;
+	    orcount < norientations;
+	    orcount++,pd_increment_multidx(orientation_idx)) { 
+
+	  pd_multidx_t *crossing_idx;
+	  pd_idx_t*    *comp_crossings;
+	
+	  comp_crossings = calloc(inpd->ncross,sizeof(pd_idx_t *));
+	  
+	  if (allcrossings->count > 0) { 
+
+	    int i;
+	    for(i=0;i<inpd->ncross;i++) { comp_crossings[i] = &two; }
+
+	  } else {
+
+	    int i;
+	    for(i=0;i<inpd->ncross;i++) { comp_crossings[i] = &one; }
+
+	  }
+
+	  crossing_idx = pd_new_multidx(inpd->ncross,
+					(void **)(comp_crossings),
+					cyclic_ops);
+
+	  unsigned int ncrossings = pd_multidx_nvals(crossing_idx);
+	  unsigned int crosscount;
+	  
+	  for(crosscount=0;
+	      crosscount < ncrossings;
+	      crosscount++,pd_increment_multidx(crossing_idx)) { 
+
+	    pd_code_t *working_pd = pd_copy(inpd);
+
+	    for(i=0;i<working_pd->ncomps;i++) { 
+	      if (orientation_idx->i[i] == 1) { 
+		pd_reorient_component(working_pd,i,PD_NEG_ORIENTATION);
+		component_orientations[i] = PD_NEG_ORIENTATION;
+	      } else {
+	      component_orientations[i] = PD_POS_ORIENTATION;
+	      }
+	    }
+
+	    for(i=0;i<working_pd->ncross;i++) { 
+	      if (crossing_idx->i[i] == 1) {
+		working_pd->cross[i].sign = PD_NEG_ORIENTATION;
+	      } else {
+		working_pd->cross[i].sign = PD_POS_ORIENTATION;
+	      }
+	    }
+	      
+	    fprintf(out,"# %d crossing pd with UID %lu, crossings ",
+		    working_pd->ncross,working_pd->uid);
+	    for(i=0;i<working_pd->ncross;i++) { 
+	      fprintf(out,"%c",pd_print_or(working_pd->cross[i].sign));
+	    }
+	
+	    fprintf(out," orientation ");
+	    for(i=0;i<working_pd->ncomps;i++) { 
+	      fprintf(out,"%c",pd_print_or(component_orientations[i]));
+	    }
+	    fprintf(out,"\n");
+	
+	    char *ccode = pdcode_to_ccode(working_pd);
+	    fprintf(out,"%s\n",ccode);
+      
+	    free(ccode);
+	    pd_code_free(&working_pd);
+
+	    codes_written++;
+
+	  }
+
+	  pd_free_multidx(&crossing_idx);
+	  free(comp_crossings);
+
+	}
+
+	pd_free_multidx(&orientation_idx);
+	free(comp_orientations);
+	free(component_orientations);
 
       }
 
