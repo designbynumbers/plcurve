@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_readkt \
+check_PROGRAMS = test_splitdiagram \
+		 test_readkt \
 		 test_tangle_regenerate \
 		 test_tangle_slide_input \
 		 test_bad_homfly \
@@ -49,7 +50,8 @@ check_PROGRAMS = test_readkt \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_readkt \
+TESTS = test_splitdiagram \
+	test_readkt \
 	test_tangle_regenerate \
 	test_tangle_slide_input \
 	test_bad_homfly \
@@ -76,7 +78,8 @@ TESTS = test_readkt \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_readkt \
+check_PROGRAMS = test_splitdiagram \
+	         test_readkt \
 	         test_tangle_regenerate \
 		 test_tangle_slide_input \
 		 test_bad_homfly \
@@ -100,7 +103,8 @@ check_PROGRAMS = test_readkt \
                  hopf_test \
 		 ccode_test
 
-TESTS = test_readkt \
+TESTS = test_splitdiagram \
+	test_readkt \
 	test_tangle_regenerate \
 	test_tangle_slide_input \
 	test_bad_homfly \
@@ -126,6 +130,11 @@ test_homfly_SOURCES = test_homfly.c
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_homfly_LDFLAGS = -static
 test_homfly_CFLAGS = -I$(top_srcdir)/src
+
+test_splitdiagram_SOURCES = test_splitdiagram.c 
+test_splitdiagram_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_splitdiagram_LDFLAGS = -static
+test_splitdiagram_CFLAGS = -I$(top_srcdir)/src
 
 test_readkt_SOURCES = test_readkt.c 
 test_readkt_LDADD = -L$(top_builddir)/src -lplCurveStatic

@@ -12,7 +12,7 @@
 #ifndef __PD_SPLITDIAGRAM_H__
 #define __PD_SPLITDIAGRAM_H__ 1
 
-pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t **pd_children);
+pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t ***pd_children);
 
 /* Splits a disconnected diagram with valid (though maybe disordered)
    components, edges, and crossings into a collection of child

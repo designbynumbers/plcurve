@@ -2865,7 +2865,7 @@ end_anchor   | 	    Tangle     	 |
      in canonicalizing the edge numbering until we split the diagram 
      into pieces. */
   
-  *npieces = pd_split_diagram(pd_working,pd_pieces);
+  *npieces = pd_split_diagram(pd_working,&pd_pieces);
 
   /* We're now actually done-- the pieces themselves have been canonicalized
      after they were built. So quit! */
