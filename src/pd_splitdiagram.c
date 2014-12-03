@@ -64,13 +64,29 @@
 void pdint_split_worker(pd_code_t *pd,pd_idx_t *ncodes,
 			pd_idx_t *edge_code,pd_idx_t edge)
 /* Propagates the edge code of this edge to every edge incident to this one 
-   (if they don't have edge codes already). */
+   (if they don't have edge codes already). We could have a 0-crossing unknot
+   edge here, so we check for that (and don't attempt to propagate past
+   this edge) */
 {
   pd_idx_t incident_edges[4];
 
+  if (pd->edge[edge].head == PD_UNSET_IDX && 
+      pd->edge[edge].tail == PD_UNSET_IDX &&
+      pd->edge[edge].headpos == PD_UNSET_POS &&
+      pd->edge[edge].tailpos == PD_UNSET_POS) { 
+
+    /* This is a (legal) 0-crossing unknot edge. Just return. */
+
+    return;
+
+  }
+
+  pd_check_cr(SRCLOC,pd,pd->edge[edge].head);
+  pd_check_cr(SRCLOC,pd,pd->edge[edge].tail);
+
   incident_edges[0] = pd->cross[pd->edge[edge].head].
     edge[(pd->edge[edge].headpos+1)%4];
-
+  
   incident_edges[1] = pd->cross[pd->edge[edge].head].
     edge[(pd->edge[edge].headpos+3)%4];
 
@@ -180,158 +196,184 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t ***pd_children)
        the fact that the number of vertices is always the number
        of edges divided by 2. */
 
-    (*pd_children)[i] = pd_code_new(nedges/2);
+    if (nedges == 1) { /* This is a 0-crossing unknot component-- the 
+			  only thing that's important is that we keep 
+			  the tag number. */
 
-    (*pd_children)[i]->ncomps = 0;
-    /* The buffer of components was allocated by pd_code_new. */
+      (*pd_children)[i] = pd_build_unknot(0);
 
-    for(j=0;j<pd->ncomps;j++) { 
+      /* Search the components of pd for one with the matching edgecode */
 
-      if (edge_code[pd->comp[j].edge[0]] == i) { 
+      for(j=0;j<pd->ncomps;j++) { 
 
-	(*pd_children)[i]->comp[(*pd_children)[i]->ncomps].nedges = 
-	  pd->comp[j].nedges;
-	
-	(*pd_children)[i]->comp[(*pd_children)[i]->ncomps].tag = 
-	  pd->comp[j].tag;
+	if (edge_code[pd->comp[j].edge[0]] == i) { 
 
-	if (pd->comp[j].nedges > 0) { 
-
-	  (*pd_children)[i]->comp[(*pd_children)[i]->ncomps].edge = 
-	    calloc((*pd_children)[i]->comp[(*pd_children)[i]->ncomps].nedges,
-		   sizeof(pd_idx_t));
-
-	  assert((*pd_children)[i]->comp[(*pd_children)[i]->ncomps].edge != NULL);
-
-	  memcpy((*pd_children)[i]->comp[(*pd_children)[i]->ncomps].edge,
-		 pd->comp[j].edge,pd->comp[j].nedges * sizeof(pd_idx_t));
-
-	} else { /* There aren't any edges here. */
-
-	  (*pd_children)[i]->comp[(*pd_children)[i]->ncomps].edge = NULL;
+	  (*pd_children)[i]->comp[0].tag = pd->comp[j].tag;
 
 	}
 
-	(*pd_children)[i]->ncomps++;
-
       }
 
-    }
+    } else { 
 
-    /* We've now copied the new components into place. Our job is now to 
-       sort them and prepare to assign new edge numbers. */
+      (*pd_children)[i] = pd_code_new(nedges/2);
 
-    qsort((*pd_children)[i]->comp,(*pd_children)[i]->ncomps,
-	  sizeof(pd_component_t),pd_component_cmp);
-    
-    /* Copy edge records into place in this new ordering and
-       set component edge records in the child to the new 
-       ordering. */
+      (*pd_children)[i]->ncomps = 0;
+      /* The buffer of components was allocated by pd_code_new. */
 
-    pd_idx_t edgenum = 0;
-    pd_idx_t *new_edge_num;
+      for(j=0;j<pd->ncomps;j++) { 
 
-    /* Since new_edge_num refers to edge numbers in pd itself, it
-       has to have size given by the number of edges in the large pd! */
-    assert(pd->nedges <= pd->MAXEDGES);
-    new_edge_num = calloc(pd->MAXEDGES,sizeof(pd_idx_t));
-    assert(new_edge_num != NULL);
-    
-    for(j=0;j<(*pd_children)[i]->ncomps;j++) { 
+	if (edge_code[pd->comp[j].edge[0]] == i) { 
 
-      pd_idx_t k;
-      
-      for(k=0;k<(*pd_children)[i]->comp[j].nedges;k++) { 
-
-	assert((*pd_children)[i]->comp[j].edge[k] < pd->MAXEDGES);
-	assert(edgenum < (*pd_children)[i]->MAXEDGES);
-
-	new_edge_num[(*pd_children)[i]->comp[j].edge[k]] = edgenum;
-
-	(*pd_children)[i]->edge[edgenum] = pd->edge[(*pd_children)[i]->comp[j].edge[k]];
-	(*pd_children)[i]->comp[j].edge[k] = edgenum;
-
-	edgenum++;
-
-      }
-      
-    }
-
-    /* Now we need to count the total number of edges we've added to (*pd_children)[i] */
-    /* This should be edgenum, since we've incremented it every time we added an edge */
-
-    (*pd_children)[i]->nedges = edgenum;
-
-    /* We now need to make a list of crossings to copy. The fastest
-       way to get it is to go ahead and scan the list of edges for head
-       and tail crossings. Each crossing that we need will appear 4 times
-       on the resulting list, but we can then sort it and only look at 
-       the indices which are 0 mod 4. */
-
-    pd_idx_t *crossings_to_copy;
-    crossings_to_copy = calloc(2*(*pd_children)[i]->nedges,sizeof(pd_idx_t));
-    assert(crossings_to_copy != NULL);
-
-    pd_idx_t *new_crossing_num;
-    new_crossing_num = calloc(pd->ncross,sizeof(pd_idx_t));
-    assert(new_crossing_num != NULL);
-    
-    for(j=0;j<(*pd_children)[i]->nedges;j++) { 
-
-      crossings_to_copy[2*j] = (*pd_children)[i]->edge[j].head;
-      crossings_to_copy[2*j + 1] = (*pd_children)[i]->edge[j].tail;
-
-    }
-
-    qsort(crossings_to_copy,2*(*pd_children)[i]->nedges,
-	  sizeof(pd_idx_t),pd_idx_cmp);
-    
-    for(j=0;j<2*(*pd_children)[i]->nedges;j+=4) { 
-
-      assert(j/4 < (*pd_children)[i]->MAXVERTS);
-      (*pd_children)[i]->cross[j/4].sign = pd->cross[crossings_to_copy[j]].sign;
-      new_crossing_num[crossings_to_copy[j]] = j/4;
-      
-      pd_idx_t k;
-
-      for(k=0;k<4;k++) { 
-
-	(*pd_children)[i]->cross[j/4].edge[k] =    
-	  new_edge_num[pd->cross[crossings_to_copy[j]].edge[k]];
+	  (*pd_children)[i]->comp[(*pd_children)[i]->ncomps].nedges = 
+	    pd->comp[j].nedges;
 	
+	  (*pd_children)[i]->comp[(*pd_children)[i]->ncomps].tag = 
+	    pd->comp[j].tag;
+
+	  if (pd->comp[j].nedges > 0) { 
+
+	    (*pd_children)[i]->comp[(*pd_children)[i]->ncomps].edge = 
+	      calloc((*pd_children)[i]->comp[(*pd_children)[i]->ncomps].nedges,
+		     sizeof(pd_idx_t));
+
+	    assert((*pd_children)[i]->comp[(*pd_children)[i]->ncomps].edge != NULL);
+
+	    memcpy((*pd_children)[i]->comp[(*pd_children)[i]->ncomps].edge,
+		   pd->comp[j].edge,pd->comp[j].nedges * sizeof(pd_idx_t));
+
+	  } else { /* There aren't any edges here. */
+
+	    (*pd_children)[i]->comp[(*pd_children)[i]->ncomps].edge = NULL;
+
+	  }
+
+	  (*pd_children)[i]->ncomps++;
+
+	}
+
       }
 
+      /* We've now copied the new components into place. Our job is now to 
+	 sort them and prepare to assign new edge numbers. */
+
+      qsort((*pd_children)[i]->comp,(*pd_children)[i]->ncomps,
+	    sizeof(pd_component_t),pd_component_cmp);
+    
+      /* Copy edge records into place in this new ordering and
+	 set component edge records in the child to the new 
+	 ordering. */
+
+      pd_idx_t edgenum = 0;
+      pd_idx_t *new_edge_num;
+
+      /* Since new_edge_num refers to edge numbers in pd itself, it
+	 has to have size given by the number of edges in the large pd! */
+      assert(pd->nedges <= pd->MAXEDGES);
+      new_edge_num = calloc(pd->MAXEDGES,sizeof(pd_idx_t));
+      assert(new_edge_num != NULL);
+    
+      for(j=0;j<(*pd_children)[i]->ncomps;j++) { 
+
+	pd_idx_t k;
+      
+	for(k=0;k<(*pd_children)[i]->comp[j].nedges;k++) { 
+
+	  assert((*pd_children)[i]->comp[j].edge[k] < pd->MAXEDGES);
+	  assert(edgenum < (*pd_children)[i]->MAXEDGES);
+
+	  new_edge_num[(*pd_children)[i]->comp[j].edge[k]] = edgenum;
+
+	  (*pd_children)[i]->edge[edgenum] = pd->edge[(*pd_children)[i]->comp[j].edge[k]];
+	  (*pd_children)[i]->comp[j].edge[k] = edgenum;
+
+	  edgenum++;
+
+	}
+      
+      }
+
+      /* Now we need to count the total number of edges we've added to
+	 (*pd_children)[i]. This should be edgenum, since we've
+	 incremented it every time we added an edge */
+
+      (*pd_children)[i]->nedges = edgenum;
+
+      /* We now need to make a list of crossings to copy. The fastest
+	 way to get it is to go ahead and scan the list of edges for head
+	 and tail crossings. Each crossing that we need will appear 4 times
+	 on the resulting list, but we can then sort it and only look at 
+	 the indices which are 0 mod 4. */
+
+      pd_idx_t *crossings_to_copy;
+      crossings_to_copy = calloc(2*(*pd_children)[i]->nedges,sizeof(pd_idx_t));
+      assert(crossings_to_copy != NULL);
+
+      pd_idx_t *new_crossing_num;
+      new_crossing_num = calloc(pd->ncross,sizeof(pd_idx_t));
+      assert(new_crossing_num != NULL);
+    
+      for(j=0;j<(*pd_children)[i]->nedges;j++) { 
+
+	crossings_to_copy[2*j] = (*pd_children)[i]->edge[j].head;
+	crossings_to_copy[2*j + 1] = (*pd_children)[i]->edge[j].tail;
+
+      }
+
+      qsort(crossings_to_copy,2*(*pd_children)[i]->nedges,
+	    sizeof(pd_idx_t),pd_idx_cmp);
+    
+      for(j=0;j<2*(*pd_children)[i]->nedges;j+=4) { 
+
+	assert(j/4 < (*pd_children)[i]->MAXVERTS);
+	(*pd_children)[i]->cross[j/4].sign = pd->cross[crossings_to_copy[j]].sign;
+	new_crossing_num[crossings_to_copy[j]] = j/4;
+      
+	pd_idx_t k;
+
+	for(k=0;k<4;k++) { 
+
+	  (*pd_children)[i]->cross[j/4].edge[k] =    
+	    new_edge_num[pd->cross[crossings_to_copy[j]].edge[k]];
+	
+	}
+
+      }
+
+      /* Again, we've written to the j/4 position in the crossings array of 
+	 (*pd_children)[i], so this must be the number of crossings we've 
+	 written total. */
+
+      (*pd_children)[i]->ncross = j/4;
+
+      /* Now update the edges in the child with the new crossing numbers. */
+
+      for(j=0;j<(*pd_children)[i]->nedges;j++) { 
+
+	(*pd_children)[i]->edge[j].head 
+	  = new_crossing_num[(*pd_children)[i]->edge[j].head];
+	(*pd_children)[i]->edge[j].tail 
+	  = new_crossing_num[(*pd_children)[i]->edge[j].tail];
+
+      }
+
+      /* Ok, we've now moved components and edges over to the child. We can 
+	 free our working memory and canonicalize the crossings in the child. */
+
+      free(new_edge_num);
+      free(new_crossing_num);
+      free(crossings_to_copy);
+
+      pd_regenerate_crossings((*pd_children)[i]);
+      pd_regenerate_faces((*pd_children)[i]);
+      pd_regenerate_hash((*pd_children)[i]);
+
     }
-
-    /* Again, we've written to the j/4 position in the crossings array of 
-       (*pd_children)[i], so this must be the number of crossings we've 
-       written total. */
-
-    (*pd_children)[i]->ncross = j/4;
-
-    /* Now update the edges in the child with the new crossing numbers. */
-
-    for(j=0;j<(*pd_children)[i]->nedges;j++) { 
-
-      (*pd_children)[i]->edge[j].head = new_crossing_num[(*pd_children)[i]->edge[j].head];
-      (*pd_children)[i]->edge[j].tail = new_crossing_num[(*pd_children)[i]->edge[j].tail];
-
-    }
-
-    /* Ok, we've now moved components and edges over to the child. We can 
-       free our working memory and canonicalize the crossings in the child. */
-
-    free(new_edge_num);
-    free(new_crossing_num);
-    free(crossings_to_copy);
-
-    pd_regenerate_crossings((*pd_children)[i]);
-    pd_regenerate_faces((*pd_children)[i]);
-    pd_regenerate_hash((*pd_children)[i]);
 
     if (!pd_ok((*pd_children)[i])) { 
 
-      pd_error(SRCLOC,"pd_split_diagram: child diagram %d given by %PD doesn't pass pd_ok\n",(*pd_children)[i],i);
+      pd_error(SRCLOC,"pd_split_diagram: child diagram %d "
+	       "given by %PD doesn't pass pd_ok\n",(*pd_children)[i],i);
       exit(1);
 
     }

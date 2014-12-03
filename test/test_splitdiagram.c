@@ -82,7 +82,7 @@ pd_code_t *pd_joindiagram(pd_idx_t ncomponentPD,pd_code_t **componentPD)
 
       new_cross_number[i] = calloc(componentPD[i]->ncross,sizeof(pd_idx_t));
       assert(new_cross_number[i] != NULL);
-    
+     
     }
     
     if (componentPD[i]->nedges > 0) { 
@@ -202,17 +202,28 @@ pd_code_t *pd_joindiagram(pd_idx_t ncomponentPD,pd_code_t **componentPD)
 
     for(j=0;j<componentPD[i]->nedges;j++) { 
 
-      pd->edge[new_edge_number[i][j]].head = 
-	new_cross_number[i][componentPD[i]->edge[j].head];
+      if (componentPD[i]->ncross > 0) {
 
-      pd->edge[new_edge_number[i][j]].tail = 
-	new_cross_number[i][componentPD[i]->edge[j].tail];
+	pd->edge[new_edge_number[i][j]].head = 
+	  new_cross_number[i][componentPD[i]->edge[j].head]; 
 
-      pd->edge[new_edge_number[i][j]].headpos = 
-	componentPD[i]->edge[j].headpos;
+	pd->edge[new_edge_number[i][j]].tail = 
+	  new_cross_number[i][componentPD[i]->edge[j].tail];
 
-      pd->edge[new_edge_number[i][j]].tailpos = 
-	componentPD[i]->edge[j].tailpos;
+	pd->edge[new_edge_number[i][j]].headpos = 
+	  componentPD[i]->edge[j].headpos;
+	
+	pd->edge[new_edge_number[i][j]].tailpos = 
+	  componentPD[i]->edge[j].tailpos;
+
+      } else { 
+
+	pd->edge[new_edge_number[i][j]].head = PD_UNSET_IDX;
+	pd->edge[new_edge_number[i][j]].tail = PD_UNSET_IDX;
+	pd->edge[new_edge_number[i][j]].headpos = PD_UNSET_POS;
+	pd->edge[new_edge_number[i][j]].tailpos = PD_UNSET_POS;
+
+      }
 
     }
 
@@ -337,17 +348,34 @@ bool tested_joindiagram(pd_code_t **joined_pd,pd_idx_t ncomps,pd_code_t **comps)
 
   }
 
-  printf("checking pd_edges_ok...");
+  bool contains_0crossing = false;
+  pd_idx_t i;
 
-  if (pd_edges_ok(*joined_pd)) { 
+  for(i=0;i<ncomps && !contains_0crossing;i++) {
 
-    printf("pass\n");
+    if (comps[i]->ncross == 0) { contains_0crossing = true; }
 
-  } else { 
+  }
 
-    printf("FAIL\n");
-    return false;
+  if (!contains_0crossing) { 
+    
+    printf("checking pd_edges_ok...");
+    
+    if (pd_edges_ok(*joined_pd)) { 
 
+      printf("pass\n");
+
+    } else { 
+      
+      printf("FAIL\n");
+      return false;
+
+    }
+
+  } else {
+
+    printf("can't check pd_edges_ok (joining 0-crossing unknot)...done\n");
+      
   }
 
   printf("checking pd_faces_ok...");
@@ -536,6 +564,85 @@ bool test_joindiagram() {
 
 }
 
+bool test_joindiagramB() { 
+
+  printf("------------------------------------------------------\n"
+	 "testing joindiagramB (just to make sure it runs)       \n"
+	 "------------------------------------------------------\n");
+
+  pd_code_t *pdA, *pdB, *pdC;
+
+  printf("creating twist knot, 0-crossing unknot, and 5-crossing unknot for join...");
+  pdA = pd_build_twist_knot(7);
+  pdB = pd_build_unknot(0);
+  pdC = pd_build_unknot(5);
+  printf("done.\n");
+
+  pd_code_t *(componentPD[3]);  /* Array of three pd_code_t pointers */
+  componentPD[0] = pdA;  componentPD[1] = pdB; componentPD[2] = pdC; 
+
+  pd_code_t *joined_pd;
+
+  printf("running pd_joindiagram...");
+  joined_pd = pd_joindiagram(3,componentPD);
+  printf("finished\n");
+
+  printf("checking pd_cross_ok...");
+
+  if (pd_cross_ok(joined_pd)) { 
+
+    printf("pass\n");
+
+  } else { 
+
+    printf("FAIL\n");
+    return false;
+
+  }
+
+  printf("can't check pd_edges_ok (number of edges off because of 0 crossing comp)...pass\n");
+
+  printf("checking pd_faces_ok...");
+
+  if (pd_cross_ok(joined_pd)) { 
+
+    printf("pass\n");
+
+  } else { 
+
+    printf("FAIL\n");
+    return false;
+
+  }
+  
+  printf("checking pd_comps_ok...");
+
+  if (pd_cross_ok(joined_pd)) { 
+
+    printf("pass\n");
+
+  } else { 
+
+    printf("FAIL\n");
+    return false;
+
+  }
+
+  printf("housekeeping...");
+  pd_code_free(&pdA);
+  pd_code_free(&pdB);
+  pd_code_free(&pdC);
+  pd_code_free(&joined_pd);
+  printf("done\n");
+
+  printf("------------------------------------------------------\n"
+	 "joindiagram test B PASS                               \n"
+	 "------------------------------------------------------\n");
+ 
+  return true;
+
+}
+
 void assign_unique_tags(pd_idx_t ncodes,pd_code_t **codes) 
 {
   pd_tag_t tag = 'A';
@@ -553,10 +660,10 @@ void assign_unique_tags(pd_idx_t ncodes,pd_code_t **codes)
 
 } 
 
-bool test_splitdiagram() { 
+bool test_splitdiagramA() { 
 
   printf("------------------------------------------------------\n"
-	 "testing splitdiagram                                  \n"
+	 "testing splitdiagram -- twist7-chain4-uk5-uk2         \n"
 	 "------------------------------------------------------\n");
 
   pd_code_t *(pd_list_A[4]);
@@ -628,7 +735,170 @@ bool test_splitdiagram() {
   printf("done\n");
 
   printf("------------------------------------------------------\n"
-	 "splitdiagram test PASS                                \n"
+	 "splitdiagram test PASS -- twist7-chain4-uk5-uk2       \n"
+	 "------------------------------------------------------\n");
+ 
+  return true;
+
+}
+
+bool test_splitdiagramB() { 
+
+  printf("------------------------------------------------------\n"
+	 "testing splitdiagram -- uk0-chain4-uk0-uk2         \n"
+	 "------------------------------------------------------\n");
+
+  pd_code_t *(pd_list_A[4]);
+
+  printf("making list uk0-chain4-uk0-uk2 of knots to join and split...");
+ 
+  pd_list_A[0] = pd_build_unknot(0);
+  pd_list_A[1] = pd_build_simple_chain(4);
+  pd_list_A[2] = pd_build_unknot(0);
+  pd_list_A[3] = pd_build_unknot(2);
+ 
+  printf("done.\n");
+
+  printf("assigning tags to components... ");
+  assign_unique_tags(4,pd_list_A);
+  printf("done\n");
+
+  printf("looking for diagram isotopy between this list and itself...\n");
+  if (!compare_list_of_pds(4,pd_list_A,4,pd_list_A)) { 
+
+    printf("looking for diagram isotopy between this list and itself...FAIL\n");
+    return false;
+
+  } else {
+
+    printf("looking for diagram isotopy between this list and itself...pass\n");
+    
+  }
+
+  pd_code_t *joined_pd;
+
+  if (!tested_joindiagram(&joined_pd,4,pd_list_A)) { 
+
+    return false;
+
+  }
+
+  printf("splitting the joined diagram...");
+  pd_code_t **pd_list_B = NULL;
+  pd_idx_t nB = pd_split_diagram(joined_pd,&pd_list_B);
+  printf("done (split into %d components)\n",nB);
+
+  printf("looking for diagram isotopy between joined and split pd_codes...\n");
+  if (!compare_list_of_pds(4,pd_list_A,nB,pd_list_B)) { 
+
+    printf("looking for diagram isotopy between joined and split pd_codes...FAIL\n");
+    return false;
+
+  } else {
+
+    printf("looking for diagram isotopy between joined and split pd_codes...pass\n");
+    
+  }
+  
+  printf("freeing list uk0-chain4-uk0-uk2 of knots...");
+
+  pd_idx_t i;
+
+  for(i=0;i<4;i++) { 
+
+    pd_code_free(&(pd_list_A[i]));
+    pd_code_free(&(pd_list_B[i]));
+
+  }
+
+  free(pd_list_B); /* pd_list_A is heap memory, so isn't freed here. */
+  pd_code_free(&joined_pd);
+
+  printf("done\n");
+
+  printf("------------------------------------------------------\n"
+	 "splitdiagram test PASS -- uk0-chain4-uk0-uk2       \n"
+	 "------------------------------------------------------\n");
+ 
+  return true;
+
+}
+
+bool test_splitdiagramC() { 
+
+  printf("------------------------------------------------------\n"
+	 "testing splitdiagram -- uk0-uk0-uk0                   \n"
+	 "------------------------------------------------------\n");
+
+  pd_code_t *(pd_list_A[3]);
+
+  printf("making list uk0-uk0-uk0 of knots to join and split...");
+ 
+  pd_list_A[0] = pd_build_unknot(0);
+  pd_list_A[1] = pd_build_unknot(0);
+  pd_list_A[2] = pd_build_unknot(0);
+ 
+  printf("done.\n");
+
+  printf("assigning tags to components... ");
+  assign_unique_tags(3,pd_list_A);
+  printf("done\n");
+
+  printf("looking for diagram isotopy between this list and itself...\n");
+  if (!compare_list_of_pds(3,pd_list_A,3,pd_list_A)) { 
+
+    printf("looking for diagram isotopy between this list and itself...FAIL\n");
+    return false;
+
+  } else {
+
+    printf("looking for diagram isotopy between this list and itself...pass\n");
+    
+  }
+
+  pd_code_t *joined_pd;
+
+  if (!tested_joindiagram(&joined_pd,3,pd_list_A)) { 
+
+    return false;
+
+  }
+
+  printf("splitting the joined diagram...");
+  pd_code_t **pd_list_B = NULL;
+  pd_idx_t nB = pd_split_diagram(joined_pd,&pd_list_B);
+  printf("done (split into %d components)\n",nB);
+
+  printf("looking for diagram isotopy between joined and split pd_codes...\n");
+  if (!compare_list_of_pds(3,pd_list_A,nB,pd_list_B)) { 
+
+    printf("looking for diagram isotopy between joined and split pd_codes...FAIL\n");
+    return false;
+
+  } else {
+
+    printf("looking for diagram isotopy between joined and split pd_codes...pass\n");
+    
+  }
+  
+  printf("freeing list uk0-uk0-uk0 of knots...");
+
+  pd_idx_t i;
+
+  for(i=0;i<3;i++) { 
+
+    pd_code_free(&(pd_list_A[i]));
+    pd_code_free(&(pd_list_B[i]));
+
+  }
+
+  free(pd_list_B); /* pd_list_A is heap memory, so isn't freed here. */
+  pd_code_free(&joined_pd);
+
+  printf("done\n");
+
+  printf("------------------------------------------------------\n"
+	 "splitdiagram test PASS -- uk0-uk0-uk0                 \n"
 	 "------------------------------------------------------\n");
  
   return true;
@@ -643,7 +913,7 @@ int main() {
 	 "Unit tests for splitdiagram.c\n"
 	 "=======================================\n");
 
-  if (!test_joindiagram() || !test_splitdiagram()) {
+  if (!test_joindiagram() || !test_joindiagramB() || !test_splitdiagramA() || !test_splitdiagramB() || !test_splitdiagramC()) {
 
     printf("=====================================\n");
     printf("test_splitdiagram:  FAIL.\n");

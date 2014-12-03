@@ -1837,8 +1837,21 @@ bool pd_cross_ok(pd_code_t *pd)
 
     if (edge_seen[edge] != 2) {
 
-      return pd_error(SRCLOC,"%EDGE not seen twice in %PD",pd,edge);
+      if ((pd->edge[edge].head == PD_UNSET_IDX &&
+	   pd->edge[edge].tail == PD_UNSET_IDX &&
+	   pd->edge[edge].headpos == PD_UNSET_POS &&
+	   pd->edge[edge].tailpos == PD_UNSET_POS) &&
+	  edge_seen[edge] == 0) { 
 
+	/* It's ok. This isn't an error. If we have split, unknotted
+	   components (this occurs only in testing), we can get stray
+	   edges which don't interact with any crossing. */
+
+      } else {
+
+	return pd_error(SRCLOC,"%EDGE not seen twice in %PD",pd,edge);
+
+      }
     }
 
   }
@@ -1871,7 +1884,8 @@ bool pd_edges_ok(pd_code_t *pd)
   if (pd->ncross != 0 && pd->nedges != pd->ncross*2) {
     /* We first check for the correct number of edges! */
 
-    return false;
+    return pd_error(SRCLOC,"number of edges (%d) is not 2 * number of crossings (%d)\n",pd,
+		    pd->nedges,pd->ncross);
 
   }
 
