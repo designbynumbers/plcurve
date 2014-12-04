@@ -757,7 +757,7 @@ extern "C" {
 		       pd_idx_t *overstrand_edges, 
 		       pd_idx_t *border_faces,
 		       pd_idx_t *npieces,
-		       pd_code_t **pd_pieces);
+		       pd_code_t ***pd_pieces);
 
  /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
     corresponding faces bordering the tangle (f[0]...f[n-1], below),
@@ -803,7 +803,8 @@ extern "C" {
     pieces. We return the number of connected components of the
     diagram in "npieces" and the components themselves in
     "pd_pieces". The buffer of pd_code_t pointers pd_pieces is
-    allocated inter
+    allocated internally and is the caller's responsibility to 
+    dispose of.
      	       	       	    
    */
 

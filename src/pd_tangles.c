@@ -1568,7 +1568,7 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
 		     pd_idx_t *overstrand_edges, 
 		     pd_idx_t *border_faces,
 		     pd_idx_t *npieces,
-		     pd_code_t **pd_pieces)
+		     pd_code_t ***pd_pieces)
 
  /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
     corresponding faces bordering the tangle (f[0]...f[n-1], below),
@@ -2865,7 +2865,7 @@ end_anchor   | 	    Tangle     	 |
      in canonicalizing the edge numbering until we split the diagram 
      into pieces. */
   
-  *npieces = pd_split_diagram(pd_working,&pd_pieces);
+  *npieces = pd_split_diagram(pd_working,pd_pieces);
 
   /* We're now actually done-- the pieces themselves have been canonicalized
      after they were built. So quit! */

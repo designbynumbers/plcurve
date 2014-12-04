@@ -1,0 +1,227 @@
+Instructions for pd_tangle_slide operational test cases.
+
+We're now working on a critical part of the code, which does a new
+operation to our diagrams: the tangle slide:
+
+ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
+		       pd_idx_t n,
+		       pd_idx_t *overstrand_edges, 
+		       pd_idx_t *border_faces,
+		       pd_idx_t *npieces,
+		       pd_code_t ***pd_pieces);
+
+ /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
+    corresponding faces bordering the tangle (f[0]...f[n-1], below),
+    slide the strand over the tangle to cross the remaining edges
+    of the tangle, as below. The edges e[0]..e[n-1] are supposed to 
+    occur in orientation order along their component.
+    
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |  f[1] | 	 f[0] |	     
+       +--e[n-1]---<----e[1]-----e[0]-+	      
+       	       	 |   | 	     |		   
+
+
+    becomes
+
+		  |    	   |
+       +------------------------------+
+       |	  |  	   |	      |
+       |     +-------------------+    |		  
+       |     |		    	 |    |		  
+       |     | 	    Tangle     	 |    | 	       	  
+    ---+     | 	       	       	 |    +---   	    
+             | 	    	       	 |      	     
+             +-------------------+     	     
+                 |   |       | 	       	     
+                 |   |       |         	      
+       	       	 |   | 	     |		   
+    			     
+    We handle correctly the case where the initial and/or final
+    edges of the strand are tangle edges themselves. We also note
+    that while we call the strand the "overstrand", we also handle
+    the case where the strand goes UNDER all of the tangle strands.
+
+    This operation can disconnect the diagram, potentially into many
+    pieces. We return the number of connected components of the
+    diagram in "npieces" and the components themselves in
+    "pd_pieces". The buffer of pd_code_t pointers pd_pieces is
+    allocated internally and is the caller's responsibility to dispose
+    of.
+     	       	       	    
+   */
+
+At this point, we're actually going to test the operation of the main
+code. The test files are going to come in triples. One file, called
+
+tangle_slide_operation_testa_before.pdstor
+
+should contain the pd code, as always. The second, called
+
+tangle_slide_operation_testa.c
+
+is going to contain a diagram with a marked tangle, and overstrand edges marked 
+with 0 (for 0verstrand) as below:
+
+/*                                                                            */
+/*                ___________       ____________                              */
+/*               /           \     /            \                             */
+/*              /             \   /              \                            */
+/*    (1)      /               \ /                \                           */
+/*            |                 \ 0      (0)      |                           */
+/*            |               /  \                |                           */
+/*            |     (3)      /    \               |                           */
+/*            |             /      3              |                           */
+/*            |            /        v     T       |                           */
+/*            |           /          \    |       0                           */
+/*            |           \    (5)    \   v       v                           */
+/*            |    +-------\----------/------+    |                           */
+/*            ^    |       ^         /       |    |                           */
+/*            2    |         7      /        |    |                           */
+/*            |    |          \    /         |    |                           */
+/*            |    |           \  /          |    |                           */
+/*            |    |            \ 3          |    |                           */
+/*            |    |             \           |    |                           */
+/*            |    |           /  \          |    |                           */
+/*            0    +----------/----\---------+   0                            */
+/*             0             4      ^           0                             */
+/*              0           v  (2)   6         0                              */
+/*               0         /          \       0                               */
+/*                0000000000000<_1000000000000                                */
+/*                       /2              1                                    */
+/*                       \        4)     \                                    */
+/*                        5              /                                    */
+/*                         \__>_________/                                     */
+
+following this will be the following data:
+
+pd_idx_t nedges = 4 ;
+pd_idx_t tangle_faces[4] = {0,5,3,2};
+pd_idx_t tangle_edges[4] = {3,7,4,6};
+
+These give the information for the tangle, just like we did before. After that,
+we'll have to specify the information for the "overstrand". This is given by 
+a number (of overstrand edges) and two arrays (of edges and corresponding faces).
+
+pd_idx_t noverstrand_edges = 3;
+pd_idx_t overstrand_edges[3] = {0,1,2};
+pd_idx_t border_faces[3] = {0,2,3};
+
+After this, we should give a picture of the "after" configuration:
+
+/*                                                                            */
+/*                ___________       _____0______                              */
+/*               /           \     /            \                             */
+/*              2             \   /              \                            */
+/*             /               \ /                \                           */
+/*            |      (4)        \ c0     (3)      |                           */
+/*            |               7  3                |                           */
+/*            |              / (1)\ c1            |                           */
+/*            +-----------------1-----------------+                           */
+/*                       c2/        v                                         */
+/*                        /          4                                        */
+/*                        \    (2)    \                                       */
+/*                         \          /                                       */
+/*                         ^         /                                        */
+/*                           6      4                                         */
+/*                            \    /          (0)      	                      */
+/*                             \  /                                           */
+/*                              \ c3                                          */
+/*                               \                                            */
+/*                             /  \                                           */
+/*                            /    \                                          */
+/*                           5      ^                                         */
+/*                          v        \                                        */
+/*                         /          \                                       */
+/*                        /            5                                      */
+/*                       /              \                                     */
+/*                       \      (5)      \                                    */
+/*                        5              /                                    */
+/*                         \__>_________/                                     */
+
+The third file, 
+
+tangle_slide_operation_testa_after.pdstor
+
+will contain one or more pd codes corresponding to the pd code after
+the given operation. Since the tangle slide can disconnect the
+diagram, we may return many pd codes after the operation is complete.
+
+BOTH BEFORE AND AFTER, WE HAVE COMPONENT TAGS, and the component tags
+must match before and after the operation.
+
+There are a couple of caveats. First, at the moment, the code requires
+that the start and end of the overstand end at "anchor crossings" which
+are outside the tangle. In the case above, both of the anchor
+crossings are crossing 0, which should be just fine. 
+
+So, for the moment, please put files which DON'T obey this condition
+in a separate folder and submit them separately. We're particularly 
+interested in tests where the tangle slide operation disconnects the
+diagram, since these are likely to expose bugs in the whole setup.
+
+For instance, in this diagram (the tangle is indicated with +'s),
+
+/*          +--------------+     +000000000+                        */
+/*          |              |     0         0                        */
+/*          +-----------+  |     0         0                        */
+/*                      |  |     0      T  0                        */
+/*          +00000000000---|---------+  |  0                        */
+/*          0           |  +-----+   |  v  0                        */
+/*          0     +++++++++++++++++++++++  0                        */
+/*          0     +     +------------+  +  0                        */
+/*          0     +                     +  0                        */
+/*          0     +   +----+     +---+  +  0                        */
+/*     	    0	  +   |	   |   	 |   | 	+  0
+/*          0     +++++++++++++++++++++++  0                        */
+/*          0         |    |     |   |     0                        */
+/*          0         |    |     |   |     0                        */
+/*          +000000000|0000|00000|000|00000+                        */
+/*                    |    |     |   |                              */
+/*                    |    |     |   |                              */
+/*                    +----+   +-----|--+                           */
+/*                             | |   |  |                           */
+/*                             | +---|--+                           */
+/*                             |     |                              */
+/*                             +-----+                              */
+/*                                                                  */
+
+which is connected before the tangle slide, becomes
+
+/*          +--------------+     +---------+                        */
+/*          |              |     |         |                        */
+/*          +-----------+  |     |         |                        */
+/*                      |  |     |         |                        */
+/*          +--------------|---------+     |                        */
+/*          |           |  +-----+   |     |                        */
+/*     	    |		|      	     |	   |			    */
+/*	    +------------------------------+                        */
+/*	       	       	|      	     | 	    			    */
+/*                      +------------+                              */
+/*                                                                  */
+/*                    +----+     +---+                              */
+/*     	     	      |	   |   	 |   | 	    			    */
+/*                    |    |     |   |                              */
+/*                    +----+   +-----|--+                           */
+/*                             | |   |  |                           */
+/*                             | +---|--+                           */
+/*                             |     |                              */
+/*                             +-----+                              */
+/*                                                                  */
+
+after the tangle slide. Note that the situation is remarkably bad--
+we've switched from a perfectly nice connected diagram to one that has
+some 0-crossing unknots as well as other disconnected pieces. 
+
+All the best, 
+
+Jason.
+
