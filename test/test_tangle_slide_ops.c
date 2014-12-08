@@ -98,7 +98,7 @@ bool compare_list_of_pds(pd_idx_t nA, pd_code_t **A,
     pd_idx_t i;
     for(i=0;i<np-1;i++) {{ pd_increment_perm((void *)(perm)); }}
 
-    pd_printf("pass (%PERM matches pd codes "
+    pd_printf("pass\n\t(%PERM matches pd codes "
               "in list A with list B)\n",NULL,perm);
     
   }} else {{
@@ -317,63 +317,51 @@ pd_code_t *pd_create_tangle_slide_operation_testa_after_0() {
 /* and probably shouldn't be hand-edited. */
 
 pd_code_t *pd;
-pd = pd_code_new(6);
+pd = pd_code_new(4);
 assert(pd != NULL);
-pd->ncross = 6;
-pd->nedges = 12;
+pd->ncross = 4;
+pd->nedges = 8;
 pd->ncomps = 1;
-pd->nfaces = 8;
-sprintf(pd->hash,"%s","BgwIBQUDAwICAgIBDAAAAAAAAAAAAAA");
+pd->nfaces = 6;
+sprintf(pd->hash,"%s","BAgGBQMDAgIBAQgAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
 pd->cross[0].edge[0] = 0;
-pd->cross[0].edge[1] = 5;
-pd->cross[0].edge[2] = 11;
+pd->cross[0].edge[1] = 3;
+pd->cross[0].edge[2] = 1;
 pd->cross[0].edge[3] = 4;
-pd->cross[0].sign = 0;
+pd->cross[0].sign = 1;
 
 pd->cross[1].edge[0] = 0;
-pd->cross[1].edge[1] = 9;
-pd->cross[1].edge[2] = 1;
-pd->cross[1].edge[3] = 10;
-pd->cross[1].sign = 0;
+pd->cross[1].edge[1] = 7;
+pd->cross[1].edge[2] = 7;
+pd->cross[1].edge[3] = 6;
+pd->cross[1].sign = 1;
 
 pd->cross[2].edge[0] = 1;
-pd->cross[2].edge[1] = 9;
+pd->cross[2].edge[1] = 5;
 pd->cross[2].edge[2] = 2;
-pd->cross[2].edge[3] = 8;
+pd->cross[2].edge[3] = 4;
 pd->cross[2].sign = 1;
 
 pd->cross[3].edge[0] = 2;
-pd->cross[3].edge[1] = 7;
+pd->cross[3].edge[1] = 5;
 pd->cross[3].edge[2] = 3;
-pd->cross[3].edge[3] = 8;
-pd->cross[3].sign = 1;
-
-pd->cross[4].edge[0] = 3;
-pd->cross[4].edge[1] = 7;
-pd->cross[4].edge[2] = 4;
-pd->cross[4].edge[3] = 6;
-pd->cross[4].sign = 1;
-
-pd->cross[5].edge[0] = 5;
-pd->cross[5].edge[1] = 10;
-pd->cross[5].edge[2] = 6;
-pd->cross[5].edge[3] = 11;
-pd->cross[5].sign = 1;
+pd->cross[3].edge[3] = 6;
+pd->cross[3].sign = 0;
 
 
 /* Edge data */
 
-pd->edge[0].head = 1;
+pd->edge[0].head = 0;
 pd->edge[0].headpos = 0;
-pd->edge[0].tail = 0;
+pd->edge[0].tail = 1;
 pd->edge[0].tailpos = 0;
 
 pd->edge[1].head = 2;
 pd->edge[1].headpos = 0;
-pd->edge[1].tail = 1;
+pd->edge[1].tail = 0;
 pd->edge[1].tailpos = 2;
 
 pd->edge[2].head = 3;
@@ -381,55 +369,35 @@ pd->edge[2].headpos = 0;
 pd->edge[2].tail = 2;
 pd->edge[2].tailpos = 2;
 
-pd->edge[3].head = 4;
-pd->edge[3].headpos = 0;
+pd->edge[3].head = 0;
+pd->edge[3].headpos = 1;
 pd->edge[3].tail = 3;
 pd->edge[3].tailpos = 2;
 
-pd->edge[4].head = 0;
+pd->edge[4].head = 2;
 pd->edge[4].headpos = 3;
-pd->edge[4].tail = 4;
-pd->edge[4].tailpos = 2;
+pd->edge[4].tail = 0;
+pd->edge[4].tailpos = 3;
 
-pd->edge[5].head = 5;
-pd->edge[5].headpos = 0;
-pd->edge[5].tail = 0;
+pd->edge[5].head = 3;
+pd->edge[5].headpos = 1;
+pd->edge[5].tail = 2;
 pd->edge[5].tailpos = 1;
 
-pd->edge[6].head = 4;
+pd->edge[6].head = 1;
 pd->edge[6].headpos = 3;
-pd->edge[6].tail = 5;
-pd->edge[6].tailpos = 2;
+pd->edge[6].tail = 3;
+pd->edge[6].tailpos = 3;
 
-pd->edge[7].head = 3;
-pd->edge[7].headpos = 1;
-pd->edge[7].tail = 4;
+pd->edge[7].head = 1;
+pd->edge[7].headpos = 2;
+pd->edge[7].tail = 1;
 pd->edge[7].tailpos = 1;
-
-pd->edge[8].head = 2;
-pd->edge[8].headpos = 3;
-pd->edge[8].tail = 3;
-pd->edge[8].tailpos = 3;
-
-pd->edge[9].head = 1;
-pd->edge[9].headpos = 1;
-pd->edge[9].tail = 2;
-pd->edge[9].tailpos = 1;
-
-pd->edge[10].head = 5;
-pd->edge[10].headpos = 1;
-pd->edge[10].tail = 1;
-pd->edge[10].tailpos = 3;
-
-pd->edge[11].head = 0;
-pd->edge[11].headpos = 2;
-pd->edge[11].tail = 5;
-pd->edge[11].tailpos = 3;
 
 
 /* Component Data */
 
-pd->comp[0].nedges = 12;
+pd->comp[0].nedges = 8;
 pd->comp[0].tag = 'A';
 
 pd->comp[0].edge = calloc(pd->comp[0].nedges,sizeof(pd_idx_t));
@@ -443,10 +411,6 @@ pd->comp[0].edge[4] = 4;
 pd->comp[0].edge[5] = 5;
 pd->comp[0].edge[6] = 6;
 pd->comp[0].edge[7] = 7;
-pd->comp[0].edge[8] = 8;
-pd->comp[0].edge[9] = 9;
-pd->comp[0].edge[10] = 10;
-pd->comp[0].edge[11] = 11;
 
 
 /* Face data */
@@ -458,40 +422,34 @@ assert(pd->face[0].edge != NULL);
 assert(pd->face[0].or != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].or[0] = 1;
 
 pd->face[0].edge[1] = 4;
-pd->face[0].or[1] = 0;
+pd->face[0].or[1] = 1;
 
-pd->face[0].edge[2] = 7;
+pd->face[0].edge[2] = 2;
 pd->face[0].or[2] = 1;
 
-pd->face[0].edge[3] = 2;
-pd->face[0].or[3] = 0;
+pd->face[0].edge[3] = 6;
+pd->face[0].or[3] = 1;
 
-pd->face[0].edge[4] = 9;
-pd->face[0].or[4] = 1;
+pd->face[0].edge[4] = 7;
+pd->face[0].or[4] = 0;
 
-pd->face[1].nedges = 5;
+pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
 pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
 assert(pd->face[1].or != NULL);
 
-pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].edge[0] = 0;
+pd->face[1].or[0] = 0;
 
-pd->face[1].edge[1] = 8;
+pd->face[1].edge[1] = 6;
 pd->face[1].or[1] = 0;
 
 pd->face[1].edge[2] = 3;
 pd->face[1].or[2] = 1;
-
-pd->face[1].edge[3] = 6;
-pd->face[1].or[3] = 0;
-
-pd->face[1].edge[4] = 10;
-pd->face[1].or[4] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
@@ -499,29 +457,26 @@ pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
 assert(pd->face[2].or != NULL);
 
-pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].edge[0] = 1;
+pd->face[2].or[0] = 0;
 
-pd->face[2].edge[1] = 10;
-pd->face[2].or[1] = 1;
+pd->face[2].edge[1] = 3;
+pd->face[2].or[1] = 0;
 
 pd->face[2].edge[2] = 5;
 pd->face[2].or[2] = 0;
 
-pd->face[3].nedges = 3;
+pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
 pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
 assert(pd->face[3].or != NULL);
 
-pd->face[3].edge[0] = 4;
+pd->face[3].edge[0] = 1;
 pd->face[3].or[0] = 1;
 
-pd->face[3].edge[1] = 11;
+pd->face[3].edge[1] = 4;
 pd->face[3].or[1] = 0;
-
-pd->face[3].edge[2] = 6;
-pd->face[3].or[2] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
@@ -529,47 +484,20 @@ pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
 assert(pd->face[4].or != NULL);
 
-pd->face[4].edge[0] = 1;
+pd->face[4].edge[0] = 2;
 pd->face[4].or[0] = 0;
 
-pd->face[4].edge[1] = 9;
-pd->face[4].or[1] = 0;
+pd->face[4].edge[1] = 5;
+pd->face[4].or[1] = 1;
 
-pd->face[5].nedges = 2;
+pd->face[5].nedges = 1;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
 pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
 assert(pd->face[5].or != NULL);
 
-pd->face[5].edge[0] = 2;
+pd->face[5].edge[0] = 7;
 pd->face[5].or[0] = 1;
-
-pd->face[5].edge[1] = 8;
-pd->face[5].or[1] = 1;
-
-pd->face[6].nedges = 2;
-pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
-assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
-
-pd->face[6].edge[0] = 3;
-pd->face[6].or[0] = 0;
-
-pd->face[6].edge[1] = 7;
-pd->face[6].or[1] = 0;
-
-pd->face[7].nedges = 2;
-pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
-assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
-
-pd->face[7].edge[0] = 5;
-pd->face[7].or[0] = 1;
-
-pd->face[7].edge[1] = 11;
-pd->face[7].or[1] = 1;
 
 
 /* End of data. */
@@ -602,32 +530,32 @@ bool pdint_check_tangle_slide_ops_testa() {
 /*    +---<---------e0--ooo+                     |           */
 /*          c1|                                  |           */
 /*            +----->-------e6-------------------+           */
-
-pd_idx_t nedges = 4;
-pd_idx_t tangle_faces[4] = {0,3,2,4};
-pd_idx_t tangle_edges[4] = {2,4,1,5};
-
-pd_idx_t noverstrand_edges = 3;
-pd_idx_t overstrand_edges[3] = {6,7,0};
-pd_idx_t border_faces[3] = {2,3,0};
-
+					 
+pd_idx_t nedges = 4;			 
+pd_idx_t tangle_faces[4] = {0,3,2,4};	 
+pd_idx_t tangle_edges[4] = {2,4,1,5};  	 
+				       	 
+pd_idx_t noverstrand_edges = 3;	       	 
+pd_idx_t overstrand_edges[3] = {6,7,0};	 
+pd_idx_t border_faces[3] = {2,3,0};    	 
+				       	 
+/*                                                       .   */
 /*                                                           */
-/*                                                           */
-/*     +-------2--------+                                    */
-/*     |                |                                    */
-/*     |      (4)       v      (0)                           */
-/*     |                |                                    */
-/*     2                |c0                                  */
-/*     |      +---5--------->---6-----+                      */
+/*     +-------2--------+             +---------+            */
+/*     |                |             |         |            */
+/*     |      (4)       v      (0)    7   (5)   |            */
+/*     |                |             |         |            */
+/*     2                |c3-          |	c1+     |            */
+/*     |      +---5--------->---6-----|----7----+            */
 /*     |      ^   (2)   3     (1)     |                      */
-/*     |    c2|         |c0           |c1                    */
-/*     +--<---|----1-<---------0--<---|----7----+            */
-/*            |         |             |         |            */
-/*            ^         v             v         |            */
-/*            4   (3)   |             |   (5)   7            */
-/*            |         4             7         |            */
-/*            |         |             |         |            */
-/*            +---------+             +---------+            */
+/*     |   c2+|         |c0+          v	                     */
+/*     +--<---|----1-<---------0--<---+	                     */
+/*            |         |                                    */
+/*            ^         v                                    */
+/*            4   (3)   |                                    */
+/*            |         4                                    */
+/*            |         |                                    */
+/*            +---------+                                    */
 /*                                                           */
 /*                                                           */
 /*                                                           */
@@ -686,7 +614,7 @@ pd_idx_t border_faces[3] = {2,3,0};
 
   printf("pass (didn't crash, returned %d children)\n",nchildren);
   
-  printf("checking children for pd_ok...");
+  printf("checking children for pd_ok...\n");
   
   for(i=0;i<nchildren;i++) {
 
@@ -694,6 +622,11 @@ pd_idx_t border_faces[3] = {2,3,0};
 
         pd_printf("child %d fails pd_ok. \n %PD",children[i],i);
         return false;
+
+     } else {
+
+        printf("\t%d crossing child pd #%d is pd_ok...pass\n",
+               children[i]->ncross,i);
 
      }
 
@@ -704,7 +637,7 @@ pd_idx_t border_faces[3] = {2,3,0};
    xchildren[0] = pd_create_tangle_slide_operation_testa_after_0();
 
 
-   printf("checking %d expected children for pd_ok...",nxchildren);
+   printf("checking %d expected children for pd_ok...\n",nxchildren);
 
    for(i=0;i<nxchildren;i++) {
 
@@ -713,11 +646,16 @@ pd_idx_t border_faces[3] = {2,3,0};
        pd_printf("expected child %d failed pd_ok:\n %PD",xchildren[i],i);
        return false;
 
+    } else {
+
+       printf("\t%d crossing expected child pd #%d is pd_ok...pass\n",
+              xchildren[i]->ncross,i);
+
     }
 
    }
 
-   printf("comparing list of xchildren against actual children...");
+   printf("comparing list of xchildren against actual children...\n");
 
    if (!compare_list_of_pds(nchildren,children,nxchildren,xchildren)) {
 
@@ -727,11 +665,11 @@ pd_idx_t border_faces[3] = {2,3,0};
 
    } else {
 
-       printf("pass (children and xchildren match)\n");
+       printf("comparing list of xchildren against actual children...pass\n");
 
     }
 
-  printf("housecleaning...");
+  printf("housecleaning...\n");
 
   printf("\tfreeing parent pd and tangle...");
   pd_code_free(&pd);

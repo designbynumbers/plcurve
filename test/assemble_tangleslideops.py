@@ -175,7 +175,7 @@ bool pdint_check_tangle_slide_ops_test{NAME}() {{
 
   printf("pass (didn't crash, returned %d children)\n",nchildren);
   
-  printf("checking children for pd_ok...");
+  printf("checking children for pd_ok...\n");
   
   for(i=0;i<nchildren;i++) {{
 
@@ -184,13 +184,18 @@ bool pdint_check_tangle_slide_ops_test{NAME}() {{
         pd_printf("child %d fails pd_ok. \n %PD",children[i],i);
         return false;
 
+     }} else {{
+
+        printf("\t%d crossing child pd #%d is pd_ok...pass\n",
+               children[i]->ncross,i);
+
      }}
 
    }}
   
    {LOADXCHILDREN}
 
-   printf("checking %d expected children for pd_ok...",nxchildren);
+   printf("checking %d expected children for pd_ok...\n",nxchildren);
 
    for(i=0;i<nxchildren;i++) {{
 
@@ -199,11 +204,16 @@ bool pdint_check_tangle_slide_ops_test{NAME}() {{
        pd_printf("expected child %d failed pd_ok:\n %PD",xchildren[i],i);
        return false;
 
+    }} else {{
+
+       printf("\t%d crossing expected child pd #%d is pd_ok...pass\n",
+              xchildren[i]->ncross,i);
+
     }}
 
    }}
 
-   printf("comparing list of xchildren against actual children...");
+   printf("comparing list of xchildren against actual children...\n");
 
    if (!compare_list_of_pds(nchildren,children,nxchildren,xchildren)) {{
 
@@ -213,11 +223,11 @@ bool pdint_check_tangle_slide_ops_test{NAME}() {{
 
    }} else {{
 
-       printf("pass (children and xchildren match)\n");
+       printf("comparing list of xchildren against actual children...pass\n");
 
     }}
 
-  printf("housecleaning...");
+  printf("housecleaning...\n");
 
   printf("\tfreeing parent pd and tangle...");
   pd_code_free(&pd);
@@ -364,7 +374,7 @@ bool compare_list_of_pds(pd_idx_t nA, pd_code_t **A,
     pd_idx_t i;
     for(i=0;i<np-1;i++) {{ pd_increment_perm((void *)(perm)); }}
 
-    pd_printf("pass (%PERM matches pd codes "
+    pd_printf("pass\n\t(%PERM matches pd codes "
               "in list A with list B)\n",NULL,perm);
     
   }} else {{
