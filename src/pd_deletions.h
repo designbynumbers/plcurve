@@ -35,4 +35,37 @@ void pd_edge_delete(pd_code_t *pd, pd_idx_t edge);
 
 */
 
+void pd_crossing_delete(pd_code_t *pd,pd_idx_t cross);
+
+/* "Deletes" the crossing "cross" from the pd code. 
+    In practice, this means that the following actions
+    are taken:
+
+    1) Look at the edges coming into the crossing. If 
+       a pair of opposite positions 0-2 or 1-3 has both 
+       edges set, splice the edges together. For example,
+       given
+
+                0
+                ^
+             1--+--3
+                | 
+                2
+
+       and alter the tail of the edge in position 0 to be equal to
+       the tail of the edge in position 2 and we'll delete the edge
+       in position 2. 
+
+       Set instances of the deleted edges in the component records
+       to PD_UNSET_IDX to record that they've been deleted. 
+
+       If a pair of opposite positions has only one edge
+       set, don't do any edge deletions, but change the head 
+       or tail of the corresponding edge to PD_UNSET_IDX.
+
+    2) Set the data associated to the crossing (edges, sign) to 
+       PD_UNSET_IDX and PD_UNSET_OR, as appropriate. 
+
+*/
+
 #endif

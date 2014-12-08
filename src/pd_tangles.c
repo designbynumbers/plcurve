@@ -1853,49 +1853,14 @@ end_anchor   |                   |    +---start_anchor
        	       	 |   | 	     |		   
 	
      We want to delete the crossings at the outward end of the 
-     tangle_slide_edges. We've marked them-- each crossing we 
-     want to get rid of is now adjacent to an unset edge. 
+     interior tangle_slide_edges tse[0]..tse[n-1], sewing together
+     the edges which go "across" the overstrand edge as we go.
+
+     We've marked them-- each crossing we want to get rid of is now
+     adjacent to at least one unset edge. It doesn't matter so much 
+     HOW we delete them as long as we sew together edges as we go.
 	
-     We're going to delete them in chains-- if we have something
-     like
-	
-		  |  	   |
-		  |  	   |
-       	     +-------------------+		  
-	     |		    	 |		  
- end_anchor  | 	    Tangle     	 |      	       	  
-    ---+     | 	       	       	 |    +---start_anchor   	    
-       |     | 	 +---+	     |	 |    | 	     
-       |     +---------------|---+    |	     
-       |      tse[n-1]    tse[0]      |
-       | f[n-1]  |   |  f[1] v 	 f[0] |	     
-       +--e[n-1]-+   +       +---e[0]-+	      
-       	       	 |   | 	     |		  
-                     +-------+
-	   		      
-     we'll keep going forward, deleting crossings as we go, until we 
-     reach a crossing that's NOT marked for deletion, leaving us with 
-     something like
-	   
-	   	  |  	   |
-	   	  |  	   |
-       	     +-------------------+		  
-       	     | 	       	       	 |     	       	       	
-end_anchor   | 	    Tangle     	 |      	       	  
-    ---+     | 	       	       	 |    +---start_anchor 
-       |     | 	      	     |	 |    |     	     
-       |     +---------------|---+    |	     
-       |                  +--+ 	      |	    
-       |                  |    	      |	     
-       +--e[n-1]-         |   ---e[0]-+	      
-       	       	       	  |   		  
-                 +--------+   
-	   	 |	      
-	   
-     The crossing deletion strategy will always be to go in
-     orientation order, so we either start on tangle_slide_edge[i] (if
-     that's oriented OUT), or on the predecessor edge to that (if
-     tse[i] is oriented IN). This has some dangers:
+     This has some dangers:
 
      1) We could delete a component entirely. 
 
@@ -1925,11 +1890,11 @@ end_anchor   | 	    Tangle     	 |
     ---+     | 	       	       	 |    +---start_anchor 
        |     | 	              	 |    |
        |     +-------------------+    |
-       |       |               |      |
-       |       |               |      |
-       +-e[n-1]+  +          + +-e[0]-+
-       	       |      	       |
-               |               | 
+       |                              |
+       |                              |
+       +-e[n-1]---           ----e[0]-+
+       	             	       
+                                
 
      2) We could separate one or more components from the rest of the link without 
      deleting them entirely.
@@ -1961,12 +1926,12 @@ end_anchor   | 	    Tangle     	 |
     ---+     | 	       	       	 |    +---start_anchor 
        |     | 	              	 |    |
        |     +-------------------+    |
-       |       |               |      |
-       |       |               |      |
-       +-e[n-1]+               +-e[0]-+
-       	       |  +----------+ |
-      	       |  | +--+     | |
-               |  | |  |     | |
+       |                              |
+       |                              |
+       +-e[n-1]-                -e[0]-+
+       	          +----------+ 
+      	          | +--+     | 
+                  | |  |     | 
 	      	  | +--------+
 	      	  -----+      
 
@@ -1974,69 +1939,27 @@ end_anchor   | 	    Tangle     	 |
      stay aware that they can happen.
   */	   		      
 	   		      
-  pd_pos_t j;		      
+  pd_idx_t j,k;		      
 	   		      
-  for(i=0;i<n-1;i++) { 
-	   
-    /* First, we check if this edge has already been deleted. */
-	   
-    if (!pd_edge_deleted(pd_working,tangle_slide_edges[i])) { 
-	   
-      pd_idx_t edgechain_start;
-    	   
-      if (pd_tangle_bdy_or(pd_working,t,tangle_slide_edges[i]) == out) { 
-	
-	edgechain_start = tangle_slide_edges[i];
+  for(j=0;j<pd_working->ncross;j++) { 
 
-      } else {
+    bool has_unset = false;
 
-	edgechain_start = pd_previous_edge(pd_working,tangle_slide_edges[i]);
-
-      }
-
-      /* Now follow the edgechain, deleting as we go. */
-
-      pd_idx_t cur_edge_idx;
-      pd_edge_t cur_edge; 
-      for(cur_edge_idx = edgechain_start, cur_edge = pd_working->edge[cur_edge_idx];
-	  /* Until we reach an edge whose head is not going to be deleted */
-	  pd_working->cross[cur_edge.head].edge[(cur_edge.headpos+1)%4] 
-	    != PD_UNSET_IDX && 
-	    pd_working->cross[cur_edge.head].edge[(cur_edge.headpos+3)%4] 
-	    != PD_UNSET_IDX;
-	  /* Advance to the next edge in the chain */
-	  cur_edge_idx = pd_next_edge(pd_working,cur_edge_idx), 
-	    cur_edge = pd_working->edge[cur_edge_idx]) { 
-
-	pd_edge_delete(pd_working,cur_edge_idx);
+    for(k=0;k<4 && !has_unset;k++) { 
       
-      }
+      if (pd_working->cross[j].edge[k] == PD_UNSET_IDX) { has_unset = true; }
 
-      /* We've now reached a cur_edge which has a head which is not to be deleted 
-	 as a crossing. We're going to modify the start of the chain to end here. */
+    }
 
-      pd_working->edge[edgechain_start].head = pd_working->edge[cur_edge_idx].head;
-      pd_working->edge[edgechain_start].headpos = pd_working->edge[cur_edge_idx].headpos;
+    if (has_unset) { 
 
-      pd_edge_delete(pd_working,cur_edge_idx); 
-      
-      /* Now this call to pd_edge_delete set the crossing incident to
-	 cur_edge_idx at the head to have a PD_UNSET_IDX in the
-	 position where cur_edge_idx came in. We want to set this
-	 crossing to have the start of the edgechain coming in
-	 anyway. */
-
-      pd_working->cross[pd_working->edge[edgechain_start].head].
-	edge[pd_working->edge[edgechain_start].headpos] = edgechain_start;
-
-      /* We've killed the entire edgechain. It's time to look for the
-         start of the next edgechain. */
+	pd_crossing_delete(pd_working,j);
 
     }
 
   }
 
-   /* Step 4. We're now (hopefully) in the state: 
+  /* Step 4. We're now (hopefully) in the state: 
 
 		  |  	   |
 		  |  	   |
@@ -2053,107 +1976,200 @@ end_anchor   | 	    Tangle     	 |
 	
      where edges have been deleted and crossings set to 
      the state where they have all incident edges unset.
-     At this point, we should have exactly two crossings
-     which have three edges unset (the head of e[0] and
-     the tail of e[n-1] and various crossings with four 
-     edges unset (everything in the original overstrand).
-     
+
+     At this point, we should have unset the crossings at 
+     the head of e[0] and the tail of e[n-1], and all the 
+     crossings in between along the overstrand, that is, 
+     we should have n-2 unset crossings. 
+
      We're now going to take a moment to check that this
      state holds. */
 
   pd_idx_t UNSET_count;
 
-  /* We start by checking the head of e[0]. */
+  for(UNSET_count=0,i=0;i<pd_working->ncross;i++) { 
 
-  for(UNSET_count=0,i=0;i<4;i++) { 
+    bool all_edges_valid = true;
 
-    if (pd_working->cross[pd_working->edge[overstrand_edges[0]].head].edge[i] 
-	== PD_UNSET_IDX) { UNSET_count++; }
+    for(j=0;j<4;j++) {
 
-  }
+      if (pd_working->cross[i].edge[j] >= pd_working->nedges) {
 
-  if (UNSET_count != 3 && n != 2) { 
+	all_edges_valid = false;
 
-    pd_error(SRCLOC,
-	     "after deleting edges on a %d-edge overstrand\n"
-	     "head of overstrand_edges[0] = %EDGE (%CROSS) does not \n"
-	     "have exactly three incident UNSET edges\n",pd_working,n,overstrand_edges[0],
-	     pd_working->edge[overstrand_edges[0]].head);
-    exit(1);
-
-  }
-  
-  if (UNSET_count != 2 && n == 2) { 
-
-    pd_error(SRCLOC,
-	     "after deleting edges on a %d-edge overstrand\n"
-	     "head of overstrand_edges[0] = %EDGE (%CROSS) does not \n"
-	     "have exactly two incident UNSET edges\n",pd_working,n,overstrand_edges[0],
-	     pd_working->edge[overstrand_edges[0]].head);
-    exit(1);
-
-  }
-
-  /* Now we check the tail of e[n-1] */
-
-  for(UNSET_count=0,i=0;i<4;i++) { 
-
-    if (pd_working->cross[pd_working->edge[overstrand_edges[n-1]].tail].edge[i] 
-	== PD_UNSET_IDX) { UNSET_count++; }
-
-  }
-
-  if (UNSET_count != 3 && n != 2) { 
-
-    pd_error(SRCLOC,
-	     "after deleting edges on a %d-edge overstrand\n"
-	     "tail of overstrand_edges[n-1] = %EDGE (%CROSS) does not \n"
-	     "have exactly three incident UNSET edges\n",pd_working,n,overstrand_edges[n-1],
-	     pd_working->edge[overstrand_edges[n-1]].tail);
-    exit(1);
-
-  }
-  
-  if (UNSET_count != 2 && n == 2) { 
-
-    pd_error(SRCLOC,
-	     "after deleting edges on a %d-edge overstrand\n"
-	     "head of overstrand_edges[0] = %EDGE (%CROSS) does not \n"
-	     "have exactly two incident UNSET edges\n",pd_working,n,overstrand_edges[n-1],
-	     pd_working->edge[overstrand_edges[n-1]].tail);
-    exit(1);
-
-  }
-
-  /* Now we look at the middle of the overstrand. This is a little
-     complicated, since we just deleted all those edges! However, we
-     can look back at pd itself (still unchanged) and recover the
-     crossing numbers. */
-
-  for(i=1;i<n-1;i++) { 
-
-    pd_idx_t cr = pd->edge[overstrand_edges[i]].head;
-
-    for(UNSET_count=0,i=0;i<4;i++) { 
-
-      if (pd_working->cross[cr].edge[i] 
-	  == PD_UNSET_IDX) { UNSET_count++; }
+      }
 
     }
-    
-    if (UNSET_count != 4) { 
 
-      pd_error(SRCLOC,
-	       "after deleting edges on a %d-edge overstrand\n"
-	       "head of overstrand_edge[%d] = %EDGE (%CROSS) does not \n"
-	       "have all 4 incident edges UNSET\n",pd_working,n,overstrand_edges[i],
-	       pd_working->edge[overstrand_edges[i]].head);
-      exit(1);
+    if (!all_edges_valid) { 
+
+      bool all_edges_unset = true;
+
+      for(j=0;j<4;j++) { 
+
+	if (pd_working->cross[i].edge[j] != PD_UNSET_IDX) { 
+
+	  all_edges_unset = false;
+
+	}
+
+      }
+
+      if (!all_edges_unset || 
+	  (all_edges_unset && pd_working->cross[i].sign != PD_UNSET_ORIENTATION)) { 
+
+	pd_error(SRCLOC,
+		 "in pd_tangle_slide, after deleting overstrand edges and\n"
+		 "crossings, found %CROSS which is neither fully valid nor\n"
+		 "fully deleted in %PD",pd_working,i);
+	exit(1);
+
+      } else {
+
+	UNSET_count++;
+
+      }
 
     }
-    
+
   }
 
+  if (UNSET_count != n-1) { 
+
+    pd_error(SRCLOC,
+	     "in pd_tangle_slide, we deleted the crossings from the %d edge\n"
+	     "overstrand, and should have deleted a total of %d crossings\n"
+	     "scanning the crossings found %d deleted instead in %PD",pd_working,
+	     n,n-1,UNSET_count);
+
+    exit(1);
+
+  }
+
+  /* Now we scan through and consider edges. We have certainly deleted
+     n-2 edges from the overstrand itself. However, at each of the n-1
+     crossings interior to the overstrand, we should have deleted an
+     additional edge. So we should have deleted a total of 2n-3
+     edges. We now scan and count.
+
+     Here, we have to keep in mind that the only edges which should
+     have one end unset but not the other are the first and last of
+     the overstrand edges. */
+
+  UNSET_count = 0;
+
+  for(i=0;i<pd_working->nedges;i++) { 
+
+    if (i == overstrand_edges[0]) { /* Only the head should be unset... */
+
+      if (pd_working->edge[i].head != PD_UNSET_IDX ||
+	  pd_working->edge[i].headpos != PD_UNSET_POS ||
+	  pd_working->edge[i].tail >= pd_working->ncross ||
+	  pd_working->edge[i].tailpos >= 4) { 
+
+	pd_error(SRCLOC,
+		 "in pd_tangle_slide, after deleting edges and crossings\n"
+		 "from the overstrand, the first overstrand edge should have HEAD\n"
+		 "crossing (only) unset. However, it is %EDGE.\n",
+		 pd_working,i);
+
+      } 
+
+    } else if (i == overstrand_edges[n-1]) { /* Only the tail should be unset... */
+
+      if (pd_working->edge[i].tail != PD_UNSET_IDX ||
+	  pd_working->edge[i].tailpos != PD_UNSET_POS ||
+	  pd_working->edge[i].head >= pd_working->ncross ||
+	  pd_working->edge[i].headpos >= 4) { 
+
+	pd_error(SRCLOC,
+		 "in pd_tangle_slide, after deleting edges and crossings\n"
+		 "from the overstrand, the last overstrand edge should have TAIL\n"
+		 "crossing (only) unset. However, it is %EDGE.\n",
+		 pd_working,i);
+
+      } 
+
+    } else { /* Either head and tail should unset or head and tail should be set */
+
+      bool all_set = true;
+      bool all_unset = true;
+
+      if (pd_working->edge[i].head < pd_working->ncross &&
+	  pd_working->edge[i].headpos < 4) { 
+
+	all_unset = false;
+
+      } else if (pd_working->edge[i].head == PD_UNSET_IDX &&
+		 pd_working->edge[i].headpos == PD_UNSET_POS) { 
+
+	all_set = false; 
+
+      } else { /* Neither one is true-- things are just messed up! */
+
+	pd_error(SRCLOC,"in pd_tangle_slide, after deleting edges and crossings\n"
+		 "from the center of overstrand, found corrupted edge %EDGE which\n"
+		 "has HEAD which is neither valid nor unset.\n",pd_working,
+		 i);
+	exit(1);
+
+      }
+
+      if (pd_working->edge[i].tail < pd_working->ncross &&
+	  pd_working->edge[i].tailpos < 4) { 
+
+	all_unset = false;
+
+      } else if (pd_working->edge[i].tail == PD_UNSET_IDX &&
+		 pd_working->edge[i].tailpos == PD_UNSET_POS) { 
+
+	all_set = false; 
+
+      } else { /* Neither one is true-- things are just messed up! */
+
+	pd_error(SRCLOC,"in pd_tangle_slide, after deleting edges and crossings\n"
+		 "from the center of overstrand, found corrupted edge %EDGE which\n"
+		 "has TAIL which is neither valid nor unset.\n",pd_working,
+		 i);
+	exit(1);
+
+      }
+
+      if (!all_set && !all_unset) {
+
+	pd_error(SRCLOC,"in pd_tangle_slide, after deleting edges and crossings\n"
+		 "from center of overstrand, found edge %EDGE which is not start\n"
+		 "or end of the overstrand, but still has only one end unset.\n",
+		 pd_working,i);
+	exit(1);
+
+      }
+
+      if (all_set && all_unset) { 
+
+	pd_error(SRCLOC,
+		 "something went wrong parsing %EDGE which has head and tail\n"
+		 "both set and both unset (?)\n",pd_working,i);
+	exit(1);
+
+      }
+
+      if (all_unset) { UNSET_count++; }
+
+    }
+
+  }
+
+  if (UNSET_count != 2*n-3) { 
+
+    pd_error(SRCLOC,"in pd_tangle_slide, had %d edge overstrand. After deleting\n"
+	     "%d interior edges, and %d crossing edges, should have %d edges unset\n"
+	     "but have %d instead\n",pd_working,
+	     n,n-2,n-1,2*n-3,UNSET_count);
+    exit(1);
+
+  }
+    
   /* Step 5. Having checked our deletions, we're now going to insert new crossings
      and edges on the other side of the tangle. This involves several steps. First, 
      we're going to identify a list of "complementary edges". These are going be 
@@ -2277,7 +2293,7 @@ end_anchor   | 	    Tangle     	 |
        	----|-----                                 ----|----	     
        	    |				     new_edge->|
        	    |<-complementary_edges[i] 		       0        	     	
-	    |                             ---->	       +<-new_cross    	       	   
+	    |                             	       +<-new_cross  <---------         
        .....|.....(tangle boundary)	      .........2..........(tangle boundary)
 	    V	 			               |<-complementary_edges[i]    
       	----------				       V       	      
@@ -2290,7 +2306,7 @@ end_anchor   | 	    Tangle     	 |
        	----|-----                                 ----|---- 	     
        	    ^	 			     new_edge->^     
        	    |<-complementary_edges[i] 		       0       	     		
-            |                             ---->	       +<-new_cross    	       	   
+            |                             	       +<-new_cross  <-------- 	   
        .....|.....(tangle boundary)	      .........2..........(tangle boundary)
 	    |	 			               |       	       	       	
 	----------				       |<-complementary_edges[i]   
@@ -2318,15 +2334,25 @@ end_anchor   | 	    Tangle     	 |
 
       pd_working->edge[new_edge].head = new_cross;
       pd_working->edge[new_edge].headpos = 0;
-      pd_working->edge[new_edge].tail = pd_working->edge[complementary_edges[i]].head;
-      pd_working->edge[new_edge].tailpos = pd_working->edge[complementary_edges[i]].headpos;
+ 
+      pd_working->edge[new_edge].tail = pd_working->edge[complementary_edges[i]].tail;
+      pd_working->edge[new_edge].tailpos = pd_working->edge[complementary_edges[i]].tailpos;
+      pd_working->edge[complementary_edges[i]].tail = new_cross;
+      pd_working->edge[complementary_edges[i]].tailpos = 2;
+
+      pd_working->cross[pd_working->edge[new_edge].tail].edge[pd_working->edge[new_edge].tailpos] = new_edge;
 
     } else if (complementary_or[i] == out) { 
 
       pd_working->edge[new_edge].head = pd_working->edge[complementary_edges[i]].head;
       pd_working->edge[new_edge].headpos = pd_working->edge[complementary_edges[i]].headpos;
+      pd_working->cross[pd_working->edge[new_edge].head].edge[pd_working->edge[new_edge].headpos] = new_edge;
+
       pd_working->edge[new_edge].tail = new_cross;
       pd_working->edge[new_edge].tailpos = 0;
+
+      pd_working->edge[complementary_edges[i]].head = new_cross;
+      pd_working->edge[complementary_edges[i]].headpos = 2;
 
     } else { 
 
@@ -2409,8 +2435,8 @@ end_anchor   | 	    Tangle     	 |
        |     +-------------------+    |	     
        |         |   |       |        |
        |         |   |       | 	      |	     
-       +--e[n-1]+|  +|       |+--e[0]-+	      
-       	       	 |   | 	     | 		   
+       +--e[n-1] |   |       | --e[0]-+	      
+       	       	 |   | 	     | 		  <- old crossings all deleted 
   			       
     		     | 	       
 	       	     V 	       	     
@@ -2427,24 +2453,19 @@ end_anchor   | 	    Tangle     	 |
              +-------------------+     	     
                  |   |       |         
                  |   |       | 	       	     	       	
-       	     +   |  +|       |  +      	       	       	
- former tail   	 |   | 	     |	  former head of e[0]  
-   of e[n-1]   	      				       
+       	         |   |       |        	       	       	
+         	 |   | 	     |	    
+      	      				       
     	  
     */	  
       	  
-    pd_edge_t e0,enm1;
-    e0 = pd_working->edge[overstrand_edges[0]];
-    enm1 = pd_working->edge[overstrand_edges[n-1]];
+    /* Now we need to connect e[0] and e[n-1] correctly, then splice in 
+       the new edges. 
 
-    /* We still start by disconnecting from the former head and tail crossings. */
-    pd_working->cross[e0.head].edge[e0.headpos] = PD_UNSET_IDX;
-    pd_working->cross[enm1.tail].edge[enm1.tailpos] = PD_UNSET_IDX;
-
-    /* Now we need to connect e[0] and e[n-1] correctly. We already know 
-       that the complementary edges are going in the order in which the 
-       new strand will encounter them along the boundary-- we just need to
-       know whether this order is clockwise or counterclockwise. 
+       We already know that the complementary edges are going in the
+       order in which the new strand will encounter them along the
+       boundary-- we just need to know whether this order is clockwise
+       or counterclockwise.
 
        This was determined above by the variable "step", which is +1 if we're
        going counterclockwise (positively oriented, same as the direction of 
@@ -2454,8 +2475,8 @@ end_anchor   | 	    Tangle     	 |
        and leaving at position 1, the second, vice-versa.*/
 
     pd_pos_t enter_pos, exit_pos;
-    if (step == +1) { enter_pos = 1; exit_pos = 3; }
-    else if (step == -1) { enter_pos = 3; exit_pos = 1; }
+    if (step == +1) { enter_pos = 3; exit_pos = 1; }
+    else if (step == -1) { enter_pos = 1; exit_pos = 3; }
     else { pd_error(SRCLOC,"step (%d) is neither +1 nor -1. Something is corrupted.\n",
 		    pd_working); exit(1); }
 
@@ -2463,11 +2484,27 @@ end_anchor   | 	    Tangle     	 |
     pd_working->edge[overstrand_edges[0]].head    = pd->ncross;
     pd_working->edge[overstrand_edges[0]].headpos = enter_pos;
 
+    /* Change the entry_pos of the first new crossing to reflect that
+       overstrand_edges[0] is going to be connected to it. */
+
+    pd_working->cross[pd->ncross].edge[enter_pos] = overstrand_edges[0];
+    
     /* Change the tail and tailpos of e[n-1] to join the edge to last new crossing.*/
     pd_working->edge[overstrand_edges[n-1]].tail = pd->ncross + (ncomplementary_edges-1);
     pd_working->edge[overstrand_edges[n-1]].tailpos = exit_pos;
 
-    /* Now add new edges joining new crossings in pairs. */
+    /* Change the exit_pos of the last new crossing to reflect that 
+       overstrand_edges[n-1] is going to be connected to it. */
+
+    pd_working->cross[pd->ncross + (ncomplementary_edges-1)].edge[exit_pos] = overstrand_edges[n-1];
+
+    /* Now add new edges joining new crossings in pairs. We have to 
+       keep in mind that we've already added ncomplementary_edges new
+       edges in the process of splitting the complementary edges. 
+
+       So the new edges start with number pd_working->nedges and go 
+       up from there.
+     */
 
     for(i=1;i<ncomplementary_edges;i++) { 
 
@@ -2485,7 +2522,7 @@ end_anchor   | 	    Tangle     	 |
 
       /* Now add the new edge. */
       
-      pd_idx_t new_edge = pd->nedges;
+      pd_idx_t new_edge = pd_working->nedges;
 
       pd_working->edge[new_edge].head = pd->ncross+i;
       pd_working->edge[new_edge].headpos = enter_pos;
@@ -2658,7 +2695,7 @@ end_anchor   | 	    Tangle     	 |
 
   pd_idx_t *edge_deletions;
 
-  edge_deletions = calloc(pd_working->ncross,sizeof(pd_idx_t));
+  edge_deletions = calloc(pd_working->nedges,sizeof(pd_idx_t));
   assert(edge_deletions != NULL);
   ndeletions = 0;
 
@@ -2688,7 +2725,7 @@ end_anchor   | 	    Tangle     	 |
   free(pd_working->edge);
   pd_working->edge = compacted_edges;
   pd_working->nedges = new_nedges;
-  pd_working->MAXVERTS = new_nedges;
+  pd_working->MAXEDGES = new_nedges;
 
   /* Now we need to scan through the crossing records, updating references to the
      old edge numbering. */
@@ -2833,14 +2870,7 @@ end_anchor   | 	    Tangle     	 |
 
     for(j=0;j<pd_working->comp[i].nedges;j++) { 
 
-      if (edge_appears[pd_working->comp[i].edge[j]]) { 
-
-	pd_error(SRCLOC,"pd_tangle_slide: After component reassembly, %EDGE appears\n"
-		 "at least twice in the components of pd_working, once in component %COMP\n",
-		 pd_working, pd_working->comp[i].edge[j], i);
-	exit(1);
-
-      }
+      edge_appears[pd_working->comp[i].edge[j]] = true;
 
     }
 
