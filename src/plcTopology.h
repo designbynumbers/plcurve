@@ -106,7 +106,14 @@ extern "C" {
     if(ERR) { if(!CHECK) {*ERR = CODE; return RET;} } \
     else { assert(CHECK); }       \
     }
+#define pd_err_set(ERR,CODE) { \
+    if(ERR) {*ERR = CODE;} \
+    }
+#define PD_NO_ERROR 0
 #define PD_NOT_OK 1
+#define PD_BAD_FORMAT 2
+#define PD_EOF 3
+
 
   typedef struct pd_edge_struct {
 
@@ -146,8 +153,8 @@ extern "C" {
 
 			The set of tags for an n component link
 			must be unique elements with ASCII codes
-			>= 'A'.*/ 
-			
+			>= 'A'.*/
+
   } pd_component_t;
 
   typedef struct pd_face_struct {
@@ -423,28 +430,28 @@ extern "C" {
      comps, faces, and crossings */
 
   void pd_regenerate(pd_code_t *pd);
-  /* Regenerates everything from cross data. This needs to be 
+  /* Regenerates everything from cross data. This needs to be
      used with some care if the crossings have signs. The crossing
      signs depend on edge orientations, which are not uniquely specified
      by crossing data.
 
      Therefore, pd_regenerate will try to preserve an existing edge set
      if it passes pd_edges_ok (and if it can, will preserve crossing sign
-     data attached to the crossings). 
+     data attached to the crossings).
 
      If there is no edge set, or the edge set is inconsistent, pd_regenerate
      will rebuild the edge set (if possible), but will discard the crossing
      sign information as it has no way to transfer crossing sign information
-     without knowing the intended orientation of the edges. 
+     without knowing the intended orientation of the edges.
 
      This means that if you're writing code to generate diagrams, you either
-     need to 
+     need to
 
      a) build the edges, too (but not the faces/components/hash)
 
-     or 
+     or
 
-     b) assign crossing SIGNS after the pd_regenerate call 
+     b) assign crossing SIGNS after the pd_regenerate call
   */
 
   /* pd sanity checking */
@@ -496,21 +503,21 @@ extern "C" {
      components related by an isotopy of the 2-sphere or an isotopy of the 2-sphere
      composed with a reflection ("reshaping the diagram" or "turning the diagram inside out").
 
-     1. Corresponding crossings are required to have the same sign (positive, negative, or unset). 
+     1. Corresponding crossings are required to have the same sign (positive, negative, or unset).
      2. Corresponding components are required to have the same tag.
-     3. Corresponding edges are required to have the same orientation. 
+     3. Corresponding edges are required to have the same orientation.
 
      This is the strongest kind of diagram equivalence.
   */
 
   bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
-  /* Detect whether two pd codes are correspond to the same polyhedral decomposition of the 
+  /* Detect whether two pd codes are correspond to the same polyhedral decomposition of the
      3-sphere (or are mirror images of each other). This is much weaker than being diagram-isotopic;
-  
+
      1. Crossing signs are ignored.
      2. Component tags are ignored.
      3. The orientations of all edges in each component are either (all) preserved or (all) reversed.
-        However, some component orientations may be preserved while others are reversed. 
+        However, some component orientations may be preserved while others are reversed.
 
      This is the weakest kind of diagram equivalence.
   */
@@ -521,7 +528,7 @@ extern "C" {
      SWIG. */
 
   bool pd_is_alternating(pd_code_t *pd);
-  /* Tests whether the pd code is alternating. Assumes that all the crossing 
+  /* Tests whether the pd code is alternating. Assumes that all the crossing
      information is set. If some crossings aren't set, it will return a pd_error. */
 
   pd_code_t *pd_copy(pd_code_t *pd);
@@ -530,7 +537,7 @@ extern "C" {
   void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp, pd_or_t or);
   /* Reverse the orientation of component cmp iff or == PD_NEG_ORIENTATION */
 
-  void pd_renumber_component(pd_code_t *pd, pd_idx_t cmp,pd_idx_t ofs); 
+  void pd_renumber_component(pd_code_t *pd, pd_idx_t cmp,pd_idx_t ofs);
   /* Changes the numbering of edges in a component by adding "ofs" cyclically
      to each edge number. */
 
@@ -742,7 +749,7 @@ extern "C" {
   void pd_tangle_free(pd_tangle_t **t);
 
   void pd_regenerate_tangle(pd_code_t *pd,pd_tangle_t *t);
-  /* The usual procedure for generating a tangle is to specify the loop of 
+  /* The usual procedure for generating a tangle is to specify the loop of
      edges and faces and call "pd_regenerate_tangle" in order to reconstruct
      the remaining data. */
 

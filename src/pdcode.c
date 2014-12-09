@@ -2718,6 +2718,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
   if (fgets(pd_line,4096,infile) == NULL) {
 
     pd_error(SRCLOC,"infile is already at EOF-- can't pd_read from it\n",NULL);
+    pd_err_set(err, PD_EOF);
     return NULL;
 
   }
@@ -2751,6 +2752,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "and this line should read\n"
 	       "\n"
 	       "pd\n",NULL,pd_line,bogus_hash,PD_HASHSIZE);
+      pd_err_set(err, PD_BAD_FORMAT);
       return NULL;
 
     } else if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 1) {
@@ -2759,6 +2761,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "first line of pdcode file appears to be in format\n"
 	       "pd <hash> <uid>\n"
 	       "and includes hash %s, but does not include uid (an unsigned integer)\n",NULL,bogus_hash);
+      pd_err_set(err, PD_BAD_FORMAT);
       return NULL;
 
     }
@@ -2775,6 +2778,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "pd <hash> <uid>\n"
 	       "nor\n"
 	       "pd\n",NULL);
+      pd_err_set(err, PD_BAD_FORMAT);
       return NULL;
 
     }
@@ -2788,6 +2792,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "pd <hash> <uid>\n"
 	       "nor\n"
 	       "pd\n",NULL,pd_string);
+      pd_err_set(err, PD_BAD_FORMAT);
       return NULL;
 
     }
@@ -2813,7 +2818,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	     "second line of pdcode file should be in format\n"
 	     "nv <nverts>\n"
 	     "where <nverts> == number of crossings in pd_code\n",NULL);
-
+    pd_err_set(err, PD_BAD_FORMAT);
     return NULL;
 
   }
@@ -2870,11 +2875,13 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
   if (pd->ncross > pd->MAXVERTS) {
 
-    fprintf(stderr,
-	    "%s (%d): Reading pd code which appears to be valid but has %d crossings. "
-	    "         We allocated space for pd->MAXVERTS = %d.\n",__FILE__,__LINE__,
-	    pd->ncross,pd->MAXVERTS);
-    exit(1);
+    pd_error(SRCLOC,
+	    "Reading pd code which appears to be valid but has %d crossings. "
+             "We allocated space for pd->MAXVERTS = %d.\n",pd,
+             pd->ncross,pd->MAXVERTS);
+    pd_err_set(err, PD_BAD_FORMAT);
+    pd_code_free(&pd);
+    return NULL;
 
   }
 
@@ -2888,6 +2895,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
       if(fscanf(infile," %lu ",&input_temp) != 1) {
 
 	pd_error(SRCLOC,"error on crossing %d (of %d), in pd (so far) %PD",pd,cross,pd->ncross);
+        pd_err_set(err, PD_BAD_FORMAT);
 	pd_code_free(&pd);
 	return NULL;
 
@@ -2924,6 +2932,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	     "after crossing lines, should have\n"
 	     "ne <nedges>\n"
 	     "but this file does not\n",pd);
+    pd_err_set(err, PD_BAD_FORMAT);
     pd_code_free(&pd);
     return NULL;
 
@@ -2933,9 +2942,10 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
   if (pd->nedges > pd->MAXEDGES) {
 
     pd_error(SRCLOC,
-	    "%s (%d): Reading pd code which appears to be valid but has %d edges. "
-	    "         We allocated space for pd->MAXEDGES = %d.\n",
+	    "Reading pd code which appears to be valid but has %d edges. "
+	    "We allocated space for pd->MAXEDGES = %d.\n",
 	    pd,pd->nedges,pd->MAXEDGES);
+    pd_err_set(err, PD_BAD_FORMAT);
     pd_code_free(&pd);
     return NULL;
 
@@ -2952,7 +2962,9 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "edge %d is not in the format\n"
 	       "<crossing>,<pos> -> <crossing>,<pos>\n"
 	       "where <crossing> and <pos> are positive integers\n",pd,edge);
-      pd_code_free(&pd); return NULL;
+      pd_err_set(err, PD_BAD_FORMAT);
+      pd_code_free(&pd); 
+      return NULL;
 
     }
 
@@ -2984,6 +2996,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	    "Reading pd code which appears to be valid but has %d components. "
 	    "We allocated space for pd->MAXCOMPONENTS = %d in %PD\n",
 	    pd,pd->ncomps,pd->MAXCOMPONENTS);
+    pd_err_set(err, PD_BAD_FORMAT);
     pd_code_free(&pd);
     return NULL;
 
@@ -3002,8 +3015,9 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "<nedges> : \n"
 	       "where <nedges> is a positive integer\n"
 	       "but this file doesn't\n",pd,comp);
+      pd_err_set(err, PD_BAD_FORMAT);
       pd_code_free(&pd);
-      return false;
+      return NULL;
 
     }
 
@@ -3016,11 +3030,13 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
     if (pd->comp[comp].nedges > pd->MAXEDGES) {
 
-      fprintf(stderr,
-	    "%s (%d): Reading component which appears to be valid but has %d edges. "
-	    "         We expect only a maximum of pd->MAXEDGES = %d.\n",
-	      __FILE__,__LINE__,pd->nedges,pd->MAXEDGES);
-      exit(1);
+      pd_error(SRCLOC,
+               "Reading component which appears to be valid but has %d edges. "
+               "We expect only a maximum of pd->MAXEDGES = %d.\n",
+               pd,pd->nedges,pd->MAXEDGES);
+      pd_err_set(err, PD_BAD_FORMAT);
+      pd_code_free(&pd);
+      return NULL;
 
     }
 
@@ -3030,7 +3046,9 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
 	pd_error(SRCLOC,"edge %d of component %d should be a positive integer\n"
 		 "but isn't in this file\n",pd,edge,comp);
-	pd_code_free(&pd); return NULL;
+        pd_err_set(err, PD_BAD_FORMAT);
+	pd_code_free(&pd); 
+        return NULL;
 
       }
 
@@ -3056,6 +3074,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 		 "tag <tag>\n"
 		 "where <tag> is a single ASCII character\n",
 		 pd,comp,edge);
+        pd_err_set(err, PD_BAD_FORMAT);
 	pd_code_free(&pd);
 	return NULL;
       }
@@ -3078,7 +3097,9 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	     "nf <nfaces>\n"
 	     "where <nfaces> is a positive integer\n"
 	     "but this one doesn't\n",pd);
-    pd_code_free(&pd); return NULL;
+    pd_err_set(err, PD_BAD_FORMAT);
+    pd_code_free(&pd); 
+    return NULL;
 
   }
   pd->nfaces = (pd_idx_t)(input_temp);
@@ -3089,6 +3110,8 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	    "Reading pd code which appears to be valid but has %d faces. "
 	     "We expected a maximum of pd->MAXFACES = %d in %PD\n",pd,
 	     pd->nfaces,pd->MAXFACES);
+    pd_err_set(err, PD_BAD_FORMAT);
+    pd_code_free(&pd);
     return NULL;
 
   }
@@ -3106,7 +3129,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "where <nedges> is a positive integer\n"
 	       "but this one doesn't in %PD\n",pd,
 	       face,pd->nfaces);
-
+      pd_err_set(err, PD_BAD_FORMAT);
       pd_code_free(&pd);
       return NULL;
 
@@ -3120,6 +3143,8 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "Reading face which appears to be valid but has %d edges. "
 	       "We expected a maximum of pd->MAXEDGES = %d.\n",
 	       pd,pd->face[face].nedges,pd->MAXEDGES);
+      pd_err_set(err, PD_BAD_FORMAT);
+      pd_code_free(&pd);
       return NULL;
 
     }
@@ -3137,6 +3162,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 		 "edge %d of face %d in pdcode file\n"
 		 "doesn't have a sign which matches [+-]\n",
 		 pd,edge,face);
+        pd_err_set(err, PD_BAD_FORMAT);
 	pd_code_free(&pd);
 	return NULL;
 
@@ -3150,7 +3176,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 		 "<+-> <edge>\n"
 		 "where <edge> is a positive integer\n",
 		 pd,edge,face);
-
+        pd_err_set(err, PD_BAD_FORMAT);
 	pd_code_free(&pd); return NULL;
       }
 

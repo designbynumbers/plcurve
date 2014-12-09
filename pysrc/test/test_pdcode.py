@@ -141,15 +141,8 @@ class TestPDCode(unittest.TestCase):
         pd_after.regenerate()
         f_after.close()
 
-        print pd_before.faces
-        print pd_before.crossings
-        print pd_before.edges
-        print pd_before.components
-        print pd_after.faces
-        print pd_after.crossings
-        print pd_after.edges
-        print pd_after.components
         pd_result = pd_before.R1_loop_deletion(2)
+        pd_result.regenerate()
         self.assertEqual(pd_result, pd_after)
 
     def test_r2_move(self):
@@ -176,8 +169,8 @@ class TestPDCode(unittest.TestCase):
         failed_cases = "J"
         working_cases = "ABCDEFGHIKLNO"
         for case in working_cases + failed_cases:
-            print
-            print "Case %s:"%case
+            #print
+            #print "Case %s:"%case
             pd_fnames = ("data/r2_test%s_before.pdstor"%case,
                          "data/r2_test%s_after.pdstor"%case)
 
@@ -202,12 +195,12 @@ class TestPDCode(unittest.TestCase):
 
             face = pd_before.faces[case_faces[case]]
             edge = face[0]
-            print face
-            print edge.head, edge.tail
+            #print face
+            #print edge.head, edge.tail
             pd_results = pd_before.R2_bigon_elimination(edge.head,edge.tail)
             self.assertEqual(len(pd_results), len(pds_after))
             for result, check in zip(pd_results, pds_after):
-                print result
+                #print result
                 #result.regenerate()
                 self.assertEqual(result, check)
 
@@ -235,8 +228,8 @@ class TestPDCode(unittest.TestCase):
         failed_cases = "J"
         working_cases = "ABCDEFGHIKLNO"
         for case in working_cases + failed_cases:
-            print
-            print "Neighbors Case %s:"%case
+            #print
+            #print "Neighbors Case %s:"%case
             pd_fnames = ("data/r2_test%s_before.pdstor"%case,
                          "data/r2_test%s_after.pdstor"%case)
 
@@ -256,10 +249,10 @@ class TestPDCode(unittest.TestCase):
                     pass
                 f_after.close()
             except Exception as e:
-                print "Error: %s"%e
+                #print "Error: %s"%e
                 continue
 
-            print list(pd_before.neighbors())
+            #print list(pd_before.neighbors())
 
 
 if __name__=="__main__":

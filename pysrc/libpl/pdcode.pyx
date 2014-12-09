@@ -13,7 +13,7 @@ import libpl.data
 #from cython.view cimport array
 cimport cython
 
-PD_VERBOSE =10
+PD_VERBOSE = 10
 #PD_LIVE_ON_ERROR = 1
 
 cdef class Edge
@@ -1037,6 +1037,10 @@ cdef class PlanarDiagram:
         if err:
             if err == PD_NOT_OK:
                 raise Exception("Loaded PD code is not valid")
+            elif err == PD_BAD_FORMAT:
+                raise Exception("Error in pdcode file format data")
+            elif err == PD_EOF:
+                raise EOFError("Already at end of pdcode file")
         if newobj.p is NULL:
             return None
         newobj.regenerate_py_os()
@@ -1056,9 +1060,12 @@ cdef class PlanarDiagram:
             f.readline()
 
         new_pd = cls.read(f, read_header=False)
-        while new_pd is not None:
+        while True:
             yield new_pd
-            new_pd = cls.read(f)
+            try:
+                new_pd = cls.read(f)
+            except EOFError:
+                return
 
     @classmethod
     def read_knot_theory(cls, f):

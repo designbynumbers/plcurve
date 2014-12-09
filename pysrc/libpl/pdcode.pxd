@@ -10,7 +10,10 @@ cdef extern from "plcTopology.h":
         PD_NEG_ORIENTATION = 0
         PD_UNSET_ORIENTATION = 2
     cdef enum:
+        PD_NO_ERROR = 0
         PD_NOT_OK = 1
+        PD_BAD_FORMAT = 2
+        PD_EOF = 3
     cdef extern int PD_VERBOSE
     cdef extern int PD_LIVE_ON_ERROR
 
