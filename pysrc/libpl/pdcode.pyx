@@ -9,6 +9,7 @@ from operator import itemgetter, mul
 from itertools import islice, izip
 import os
 import libpl.data
+from libpl.graphs import PlanarSignedFaceDigraph
 
 #from cython.view cimport array
 cimport cython
@@ -1517,6 +1518,16 @@ cdef class PlanarDiagram:
 
             except StopIteration:
                 return (self.copy(),)
+
+    def dual_graph(self):
+        dual = PlanarSignedFaceDigraph()
+        dual.verts = range(self.nfaces)
+        for edge in self.edges:
+            (pos_i,_),(neg_i,_) = edge.face_index_pos()
+            dual.add_edge(neg_i, pos_i)
+        for x in self.crossings:
+            dual.add_face([dual.edges[e_i] for e_i in x.edges], x.sign)
+        return dual
 
     def ccode(self):
         return pdcode_to_ccode(self.p)

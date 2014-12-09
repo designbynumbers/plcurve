@@ -373,7 +373,7 @@ class PDStoreExpander(object):
     def read_pdstor(self, f, debug=False, num_pds=None):
         # Read in the pd codes one-by-one.
         if debug: print "Reading file %s"%f.names
-        for pd_id, pd in enumerate(self._pds_in_file(f)):
+        for pd_id, pd in enumerate(PlanarDiagram.read_all(f, read_header=False)):
             if debug: print "> Reading %s of %s (%0.1f%%)"%(
                     pd_id+1,
                     "Unknown" if num_pds is None else num_pds,
