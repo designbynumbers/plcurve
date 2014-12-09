@@ -26,8 +26,8 @@
 /*    (1)                                                   */
        	       	  
 pd_idx_t nedges = 8;
-pd_idx_t tangle_faces[8] = {2,0,6,0,8,0,5,0};
-pd_idx_t tangle_edges[8] = {7,3,3,13,5,5,1};
+pd_idx_t tangle_faces[8] = {2,0,6,0 ,8, 0,5,0};
+pd_idx_t tangle_edges[8] = {7,3,3,13,13,5,5,1};
 
 pd_idx_t noverstrand_edges = 3;
 pd_idx_t overstrand_edges[3] = {9,10,11};

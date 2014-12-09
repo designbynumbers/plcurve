@@ -709,22 +709,27 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
     if (t->edge_bdy_or[i] == in) { /* This is the start of a strand! */
 
       pd_idx_t pos;
-      t->strand[s].nedges = 1;
+      t->strand[s].nedges = 0;
       t->strand[s].start_edge = i;  // Start and end are positions on TANGLE
       pd_component_and_pos(pd,t->edge[i],&(t->strand[s].comp),&pos);
 
-      pd_idx_t j;
+      pd_idx_t j; // PD edge number we're considering.
       bool found_end;
-
-      for(j=pd_next_edge(pd,t->edge[t->strand[s].start_edge]),found_end = false;
-	  !found_end && j != t->edge[t->strand[s].start_edge]; // failsafe
+      pd_idx_t edges_considered = 1;
+      
+      for(j=t->edge[i],found_end = false;
+	  !found_end && edges_considered < pd->comp[t->strand[s].comp].nedges + 5; // failsafe
 	  j=pd_next_edge(pd,j),
-	    t->strand[s].nedges++) {
+	    t->strand[s].nedges++,edges_considered++) {
 
-	/* Now we have to search the list of edges of the tangle 
-	   to try to find this particular edge j. Keep in mind that j may 
-	   appear twice (in which case, we want the one with the OUT 
-	   orientation). */
+	/* Now we have to search the list of edges of the tangle to
+	   try to find this particular edge j. Keep in mind that j may
+	   appear twice if this is a one-strand edge. (in which case,
+	   we want the one with the OUT orientation). 
+
+	   We need to stay aware that in a one-edge strand, we may 
+	   have the same edge occurring twice in the tangle boundary,
+	   with opposite orientations. */
 
 	pd_idx_t si,nfound=0,tpos[2];
 
@@ -739,16 +744,30 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 	  }
 	}
 
-	if (nfound!=0) { 
+	if (nfound!=0) {
+
+	  /* We already know that we didn't find the edge more than
+	     twice on the boundary of the tangle, so we either found
+	     it 1 or 2 times. If we found it twice, this should be a
+	     one edge tangle, with orientations "in" and "out". If we
+	     found it once, this is either the start edge (and it has
+	     orientation "in") or the end edge (and it has orientation
+	     "out"). */
 	  
 	  /* First, we make sure that if nfound == 2, we have only one OUT */
-	  if (nfound == 2) { 
-	    
-	    if (t->edge_bdy_or[tpos[0]] == t->edge_bdy_or[tpos[1]]) { 
-	    
+	  if (nfound == 2) {
+
+	    pd_idx_t out_count=0;
+
+	    if (t->edge_bdy_or[tpos[0]] == out) { out_count++; }
+	    if (t->edge_bdy_or[tpos[1]] == out) { out_count++; }
+
+	    if (out_count == 0 || out_count == 2) { 
+	       
 	      pd_error(SRCLOC,"found %EDGE twice on boundary of %TANGLE, "
-		       "but with the same orientation %EDGE_BDY_OR both times",
-		       pd,t->edge[tpos[0]],t,t->edge_bdy_or[tpos[0]]);
+		       "but with orientations %EDGE_BDY_OR and %EDGE_BDY_OR",
+		       pd,t->edge[tpos[0]],t,t->edge_bdy_or[tpos[0]],
+		       t->edge_bdy_or[tpos[1]]);
 	      exit(1);
 
 	    } 
@@ -759,22 +778,19 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 
 	    }
 
-	  } 
+	  }
+
+	  /* At this point, if we have an out orientation at all, it's in position 0 */ 
 
 	  pd_idx_t bdypos = tpos[0];
 
-	  if (!(t->edge_bdy_or[bdypos] == out)) { /* Just to be safe */
+	  if (t->edge_bdy_or[bdypos] == out) { /* This is the end */ 
 	    
-	    pd_error(SRCLOC,"tangle strand which started (in) with %EDGE "
-		     "has encountered tangle edge %d (%EDGE) with boundary "
-		     "orientation not 'out' \n",pd,
-		     t->strand[s].start_edge,bdypos,t->edge[bdypos]);
-	    exit(1);
+	    found_end = true;
+	    t->strand[s].end_edge = bdypos;
 
-	  }
-
-	  found_end = true;
-	  t->strand[s].end_edge = bdypos;
+	  } /* If not, this is the first edge of the strand, which we do expect to 
+	       find, once, with orientation "in" */
 
 	}
 
@@ -783,10 +799,10 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
       if (!found_end) { 
 
 	pd_error(SRCLOC,
-		 "component %COMP of pd appears "
-		 "to enter tangle at least once (at tangle edge %EDGE), "
-		 " but never leave it",
-		 pd,t->strand[s].comp,t->strand[s].start_edge);
+		 "component %COMP of pd appears\n"
+                 "to enter tangle at least once (at tangle edge %d - %EDGE),\n"
+		 " but never leave it\n",
+		 pd,t->strand[s].comp,t->strand[s].start_edge,t->edge[t->strand[s].start_edge]);
 
 	exit(1); 
 
@@ -2191,27 +2207,114 @@ end_anchor   | 	    Tangle     	 |
        	       	 |   | 	     |		   
                tse[n-1]    tse[0] 
   
-      Once we have the complementary edges, we'll split them by introducing new 
-      crossings just outside the tangle, and string these crossings together with 
-      new edges (if needed) joining e[0] to e[n-1]. 
+      Once we have the complementary edges, we'll split them by
+      introducing new crossings just outside the tangle, and string
+      these crossings together with new edges (if needed) joining e[0]
+      to e[n-1]. The complementary edges are simply the complement 
+      of the tangle slide edges-- this much is clear. 
 
-      The order of the complementary edges is important, but it can
-      only be determined using the order of the border_faces, since
-      there are guaranteed to be two border faces (but there may be
-      only one tangle_slide_edge).
+      But how can we determine the orientation of the complementary 
+      edges? Well, we should be in one of two cases:
 
+       	      	|   |  |       	       	   |   |  |
+	      +----------+     	       	+-----------+
+	      |	  	 |		|    	    |
+	      |	       	 |		|    	    | 
+	      +----------+     	       	+-----------+ 
+       ---+      |      |      +-- ---+      |	      +--
+	  |f[n-1]|      | f[0] |      | f[1] |	f[0]  |
+	  +--------------------+      +---------------+
+	       	 |      |                    |    	       
+                tse[1] tse[0]	            tse[0] 
+
+
+      In the left case, there are two tangle_slide_edges, but the 
+      faces border_face[0] and border_face[n-1] might connect inside
+      (or outside) the tangle. In the right case, there may be only 
+      one tangle slide edge, but the faces f[0] and f[1] can't be
+      the same face (since it's part of a loop, that loop must separate
+      border_face[0] from border_face[1]).
+	       	       
   */
 
+  /************* PROBLEM AREA *******************/
+
+  pd_idx_step step; /* +1 for positively (ccw) oriented complementary 
+		       edges, -1 for negatively (cw) orientated complementary 
+		       edges */
+
+  if (n > 2) { /* That is, there is more than one tangle_slide_edge. */
+
+    /* Look for the pattern of tangle_slide_edges occuring along the boundary 
+       of the tangle. */
+
+    pd_idx_t match_size = 0;
+    
+    for(i=0;i<2*t->nedges && match_size < n-1;i++) {
+
+      if (t->edge[i%t->nedges] == tangle_slide_edges[match_size]) { /* Potential match started */
+
+	match_size++;
+
+      } else {
+
+	match_size = 0;
+
+      }
+
+    }
+
+    if (match_size == n-1) { /* We found the pattern in the forward search! */
+
+      step = -1; /* This means that the complementary edges are oriented negatively. */
+
+    } else {
+
+      match_size = 0;
+
+      for(i=2*t->nedges;i>0 && match_size != n-1;i--) {
+
+	if (t->edge[i%t->nedges] == tangle_slide_edges[match_size]) {
+
+	  match_size++;
+
+	} else {
+
+	  match_size = 0;
+
+	}
+
+      }
+
+      if (match_size == n-1) { /* We found the pattern in the backwards search! */
+
+	step = +1; /* This means that the complementary edges are going forwards. */
+
+      }
+
+    }
+       
+
+    
+
+	
+
+  
   pd_idx_t step;
   bool found_f0 = false;
   pd_idx_t f0_tanglepos;
 
   for(i=0;i<t->nedges;i++) { 
 
-    if (t->face[i] == border_faces[0]) { 
+    if (t->face[i] == border_faces[0]) {
 
-      found_f0 = true;
-      f0_tanglepos = i;
+      if (t->edge[i] == tangle_slide_edges[0] ||
+	  t->edge[(i+t->nedges-1)%t->nedges] == tangle_slide_edges[0]) {  
+
+	found_f0 = true;
+	f0_tanglepos = i;
+
+      }
 
     }
 
@@ -2224,7 +2327,7 @@ end_anchor   | 	    Tangle     	 |
 	     "list of faces in %TANGLE",
 	     pd_working,border_faces[0],t);
     
-    exit(0);
+    exit(1);
 
   }
 
