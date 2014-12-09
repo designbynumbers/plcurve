@@ -10,6 +10,8 @@ from itertools import islice, izip
 import os
 import libpl.data
 from libpl.graphs import PlanarSignedFaceDigraph
+from libc.stdlib cimport free
+from collections import defaultdict
 
 #from cython.view cimport array
 cimport cython
@@ -33,13 +35,22 @@ ctypedef fused Edge_or_idx:
     pd_idx_t
     Edge
 
-
 cdef extern from "stdio.h":
     ctypedef struct FILE:
         pass
 
 cdef extern from "Python.h":
     cdef FILE* PyFile_AsFile(file_obj)
+
+cdef bytes copy_and_free(char* charp):
+    cdef bytes ret
+    try:
+        ret = <bytes>charp
+    finally:
+        free(charp)
+    return ret
+
+
 
 def ori_char(pd_or_t ori):
     return chr(pd_print_or(ori))
@@ -514,6 +525,13 @@ cdef class Crossing(_Disownable):
             return self.p.sign
         def __set__(self, pd_or_t sign):
             self.p.sign = sign
+
+    def toggle_sign(self):
+        if self.p.sign == PD_NEG_ORIENTATION:
+            self.p.sign = PD_POS_ORIENTATION
+        elif self.p.sign == PD_POS_ORIENTATION:
+            self.p.sign = PD_NEG_ORIENTATION
+
     property faces:
         """A tuple of the indices of the faces around this vertex, in clockwise order.
         """
@@ -561,6 +579,13 @@ cdef class Crossing(_Disownable):
         if self.parent is None:
             raise NoParentException("This Crossing is not owned by any PlanarDiagram")
         return self.parent
+
+    def adjacent(self, pos):
+        edge = self[pos]
+        if (self.index, pos) == edge.head_tuple:
+            return edge.prev_crossing(), edge.tailpos
+        else:
+            return edge.next_crossing(), edge.headpos
 
     def overstrand(self):
         """overstrand(self) -> (Edge incoming, Edge outgoing)
@@ -739,7 +764,15 @@ cdef class HOMFLYTerm:
     cpdef bool equals(HOMFLYTerm x, HOMFLYTerm y):
         return x.alpha == y.alpha and x.zeta == y.zeta and x.C == y.C
     def __hash__(self):
-        return self.alpha*1000+self.zeta
+        return hash((self.alpha, self.zeta))
+
+    def __reduce__(self):
+        """Required method to implement pickling of extension types.
+
+        Returns a tuple: (Constructor-ish, Constructor args).
+        """
+        return (self.__class__, (self.C, self.alpha, self.zeta))
+
 
     def __str__(self):
         cdef str cterm = "-" if self.C == -1 else ("" if self.C == 1 else str(self.C))
@@ -764,14 +797,23 @@ cdef class HOMFLYTerm:
 
 cdef class HOMFLYPolynomial:
     """An [immutable] HOMFLY polynomial object."""
-    cdef tuple terms
+    cdef readonly tuple terms
 
     def __cinit__(self):
         self.terms = None
-    def __init__(self, str latex, bool sort=True):
+    def __init__(self, data, bool sort=True):
         """Create a new HOMFLY polynomial from a LaTeX representation"""
-        cdef object coeff, a_part, z_part, term
         # let's do this pythonically now and then improve it later
+        cdef str latex
+
+        if isinstance(data, basestring):
+            latex = data
+            self._load_from_latex(latex, sort=sort)
+        elif getattr(data, '__iter__', False):
+            self._load_from_terms(data, sort=sort)
+
+    def _load_from_latex(self, str latex, bool sort=True):
+        cdef object coeff, a_part, z_part, term
         cdef list result = []
         # change '- x' into '+ -x' for consistency
         latex = latex.replace("- ", "+ -")
@@ -801,6 +843,21 @@ cdef class HOMFLYPolynomial:
             self.terms = tuple(sorted(result))
         else:
             self.terms = tuple(result)
+
+    def _load_from_terms(self, terms, bool sort=True):
+        homfly_terms = []
+        for term in terms:
+            if not isinstance(term, HOMFLYTerm):
+                term = HOMFLYTerm(*term)
+            try:
+                homfly_terms[homfly_terms.index(term)] += term
+            except ValueError:
+                homfly_terms.append(term)
+
+        if sort:
+            self.terms = tuple(sorted(homfly_terms))
+        else:
+            self.terms = tuple(homfly_terms)
 
     def __getitem__(self, x):
         try:
@@ -847,10 +904,14 @@ cdef class HOMFLYPolynomial:
     def __richcmp__(HOMFLYPolynomial x, HOMFLYPolynomial y, int op):
         cdef HOMFLYTerm A,B
         if op == 2:
+            if not isinstance(x, HOMFLYPolynomial) or not isinstance(y, HOMFLYPolynomial):
+                return False
             if len(x.terms) != len(y.terms):
                 return False
             return not (False in (A.equals(B) for A,B in zip(x.terms, y.terms)))
         elif op == 3:
+            if not isinstance(x, HOMFLYPolynomial) or not isinstance(y, HOMFLYPolynomial):
+                return True
             if len(x.terms) != len(y.terms):
                 return True
             return False in (A.equals(B) for A,B in zip(x.terms, y.terms))
@@ -858,6 +919,8 @@ cdef class HOMFLYPolynomial:
             raise NotImplementedError(
                 "Only equality checking implemented for HPs")
 
+    def __reduce__(self):
+        return (self.__class__, (self.terms,))
 
     def __hash__(self):
         return hash(self.terms)
@@ -867,9 +930,10 @@ cdef class HOMFLYPolynomial:
         return " + ".join(repr(t) for t in self.terms)
 
 
-cdef PlanarDiagram PlanarDiagram_wrap(pd_code_t *pd):
+cdef PlanarDiagram PlanarDiagram_wrap(pd_code_t *pd, bool thin=False):
     """Wraps a pd_code_t* in a PlanarDiagram"""
     cdef PlanarDiagram newobj = PlanarDiagram.__new__(PlanarDiagram)
+    newobj.thin = thin
     if pd is NULL:
         return None
     newobj.p = pd
@@ -899,6 +963,7 @@ cdef class PlanarDiagram:
     cdef readonly _FaceList faces
     """A sequence of :py:class:`Face` which belong to this diagram"""
 
+    cdef readonly bool thin
     cdef bool hashed
     cdef char* _homfly
 
@@ -934,11 +999,13 @@ cdef class PlanarDiagram:
     property hash:
         def __get__(self):
             if not self.hashed:
+                self.hashed = True
                 pd_regenerate_hash(self.p)
             return self.p.hash
 
     def __cinit__(self):
         self.p = NULL
+        self.thin = False
         self.hashed = False
         self._homfly = NULL
         self.edges = _EdgeList()
@@ -954,12 +1021,13 @@ cdef class PlanarDiagram:
         self.p = pd_code_new(max_verts)
 
     @classmethod
-    def _wrap(cls, object pdp):
+    def _wrap(cls, object pdp, bool thin=False):
         """Should be cdef but can't because classmethod. If you must call from
         Python somehow, use this. Otherwise, use PlanarDiagram_wrap"""
         cdef pd_code_t *pd = <pd_code_t*>pdp
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd
+        newobj.thin = thin
         newobj.regenerate_py_os()
         return newobj
 
@@ -989,13 +1057,14 @@ cdef class PlanarDiagram:
         """
         return pd_isomorphic(self.p, other_pd.p)
 
-    def copy(self):
+    def copy(self, thin=False):
         """copy() -> PlanarDiagram
 
         Returns a memory deepcopy of this PlanarDiagram
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(self.__class__)
         newobj.p = pd_copy(self.p)
+        newobj.thin = thin
         newobj.regenerate_py_os()
         return newobj
 
@@ -1019,7 +1088,7 @@ cdef class PlanarDiagram:
         pd_write(PyFile_AsFile(f), self.p)
 
     @classmethod
-    def read(cls, f, read_header=False):
+    def read(cls, f, read_header=False, thin=False):
         """read(file f) -> PlanarDiagram
 
         Read the next pdcode from a file object.
@@ -1034,6 +1103,7 @@ cdef class PlanarDiagram:
             f.readline()
 
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+        newobj.thin = thin
         newobj.p = pd_read_err(PyFile_AsFile(f), &err)
         if err:
             if err == PD_NOT_OK:
@@ -1048,7 +1118,7 @@ cdef class PlanarDiagram:
         return newobj
 
     @classmethod
-    def read_all(cls, f, read_header=False):
+    def read_all(cls, f, read_header=False, thin=False):
         """read_all(file f) -> PlanarDiagram
 
         Returns a generator that iterates through the pdcodes stored
@@ -1060,7 +1130,7 @@ cdef class PlanarDiagram:
             f.readline()
             f.readline()
 
-        new_pd = cls.read(f, read_header=False)
+        new_pd = cls.read(f, read_header=False, thin=thin)
         while True:
             yield new_pd
             try:
@@ -1069,7 +1139,7 @@ cdef class PlanarDiagram:
                 return
 
     @classmethod
-    def read_knot_theory(cls, f):
+    def read_knot_theory(cls, f, thin=False):
         """read_knot_theory(file f) -> PlanarDiagram
 
         This function reads a pdcode which was exported from the
@@ -1083,6 +1153,7 @@ cdef class PlanarDiagram:
         This will only read one PD code from ``f``.
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+        newobj.thin = thin
         open_f = None
         to_close = False
         if not isinstance(f, file):
@@ -1098,7 +1169,7 @@ cdef class PlanarDiagram:
 
     # Methods which build standard PlanarDiagrams
     @classmethod
-    def twist_knot(cls, n_twists):
+    def twist_knot(cls, n_twists, thin=False):
         """twist_knot(n_twists) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` which represents a
@@ -1106,12 +1177,13 @@ cdef class PlanarDiagram:
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd_build_twist_knot(n_twists)
+        newobj.thin = thin
         newobj.regenerate_py_os()
         return newobj
     from_twist_knot = twist_knot # Deprecated
 
     @classmethod
-    def torus_knot(cls, p, q):
+    def torus_knot(cls, p, q, thin=False):
         """torus_knot(p, q) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` which represents a
@@ -1122,26 +1194,28 @@ cdef class PlanarDiagram:
             raise(Exception("torus_knot only implemented for p=2"))
 
         newobj = PlanarDiagram.__new__(cls)
+        newobj.thin = thin
         newobj.p = pd_build_torus_knot(p,q)
         newobj.regenerate_py_os()
         return newobj
     from_torus_knot = torus_knot # Deprecated
 
     @classmethod
-    def simple_chain(cls, n_links):
+    def simple_chain(cls, n_links, thin=False):
         """simple_chain(n_links) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` which represents an
         \\\\(n\\\\)-link chain.
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+        newobj.thin = thin
         newobj.p = pd_build_simple_chain(n_links)
         newobj.regenerate_py_os()
         return newobj
     from_simple_chain = simple_chain # Deprecated
 
     @classmethod
-    def unknot(cls, n_crossings):
+    def unknot(cls, n_crossings, thin=False):
         """unknot(n_crossings) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` which represents an
@@ -1149,21 +1223,27 @@ cdef class PlanarDiagram:
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd_build_unknot(n_crossings)
+        newobj.thin = thin
         newobj.regenerate_py_os()
         return newobj
     from_unknot = unknot # Deprecated
 
     @classmethod
-    def unknot_wye(cls, a,b,c):
+    def unknot_wye(cls, a,b,c, thin=False):
         """unknot_wye(a,b,c) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` representing an unknot which is
         designed for hash collisions."""
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+        newobj.thin = thin
         newobj.p = pd_build_unknot_wye(a,b,c)
         newobj.regenerate_py_os()
         return newobj
     from_unknot_wye = unknot_wye # Deprecated
+
+    def set_all_crossing_signs(self, signature):
+        for i, sign in enumerate(signature):
+            self.p.cross[i].sign = sign
 
     def reorient_component(self, pd_idx_t component, pd_or_t sign):
         """reorient_component(component, sign)
@@ -1356,10 +1436,11 @@ cdef class PlanarDiagram:
         """homfly([as_string=False]) -> HOMFLYPolynomial
 
         Compute the HOMFLY polynomial for this diagram."""
+        cdef bytes homflybytes = copy_and_free(pd_homfly(self.p))
         if as_string:
-            return pd_homfly(self.p)
+            return homflybytes
         else:
-            return HOMFLYPolynomial(pd_homfly(self.p))
+            return HOMFLYPolynomial(homflybytes)
 
     def unique_code(self):
         """unique_code() -> str
@@ -1529,8 +1610,33 @@ cdef class PlanarDiagram:
             dual.add_face([dual.edges[e_i] for e_i in x.edges], x.sign)
         return dual
 
+    def as_spherogram(self):
+        """as_spherogram() -> spherogram.Link
+
+        Returns a Spherogram Link object representing this PlanarDiagram"""
+        pdcode = self.pdcode()
+
+        from spherogram import links
+        sg_xings = [links.Crossing(x.index) for x in self.crossings]
+
+        gluings = defaultdict(list)
+        for x_i, (xing, pd_xing, sg_xing) in enumerate(
+                zip(self.crossings, pdcode, sg_xings)):
+            if xing.sign == PD_NEG_ORIENTATION:
+                sg_xing.sign = -1
+            elif xing.sign == PD_POS_ORIENTATION:
+                sg_xing.sign = 1
+            else:
+                sg_xing.sign = 0
+            for pos, e_i in enumerate(pd_xing):
+                gluings[e_i].append((sg_xing, pos))
+        for (x, xpos), (y, ypos) in gluings.itervalues():
+            x[xpos] = y[ypos]
+
+        return links.Link(sg_xings)
+
     def ccode(self):
-        return pdcode_to_ccode(self.p)
+        return copy_and_free(pdcode_to_ccode(self.p))
 
     def pdcode(self):
         cdef list pdcode = []
@@ -1557,11 +1663,12 @@ cdef class PlanarDiagram:
         return pdcode
 
     @classmethod
-    def from_pdcode(cls, pdcode):
+    def from_pdcode(cls, pdcode, thin=False):
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         cdef pd_code_t* pd
         cdef pd_idx_t ncross = len(pdcode)
         cdef pd_idx_t off = min([min(x) for x in pdcode])
+        newobj.thin = thin
         pd = pd_code_new(ncross+2)
         newobj.p = pd
         pd.ncross = ncross
@@ -1610,6 +1717,8 @@ cdef class PlanarDiagram:
         return newobj
 
     cdef regenerate_py_os(self):
+        if self.thin:
+            return
         cdef int i
         cdef Edge e
         cdef Crossing c
@@ -1661,7 +1770,9 @@ cdef class PlanarDiagram:
                 self.__getstate__())
 
     def __hash__(self):
-        return hash(self.__getstate__())
+        return hash((tuple(self.p.face[i].nedges for i in range(self.nfaces)), self.ncross,
+                     tuple(self.p.comp[i].nedges for i in range(self.ncomps)), self.nedges))
+        #return hash(self.__getstate__())
 
     def __getstate__(self):
         cdef pd_crossing_t* x

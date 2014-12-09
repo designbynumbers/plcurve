@@ -8,11 +8,84 @@ import cPickle
 import libpl.data
 import re
 from itertools import combinations_with_replacement as combs
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from operator import itemgetter, mul
 
-Result = namedtuple('Result',
-                    'ncross ncomps ktname filepos pdcode compmask')
+class PrimeFactor(object):
+    def __init__(self, ncross, ncomps, ktname, filepos, pdcode, compmask,
+                 mirror=False):
+        self.ncross = ncross
+        self.ncomps = ncomps
+        self.ktname = ktname
+        self.filepos = filepos
+        self.pdcode = pdcode
+        self.compmask = compmask
+        self.mirror = mirror
+    def __invert__(self):
+        return PrimeFactor(self.ncross, self.ncomps, self.ktname,
+                           self.filepos, self.pdcode, self.compmask,
+                           not self.mirror)
+    def __str__(self):
+        return "%s%s%s"%(
+            self.ktname,
+            "*" if self.mirror else "",
+            "_%s"%"".join(str(i) for i in self.compmask) if self.ncomps > 1 else ""
+        )
+    def __repr__(self):
+        return ("PrimeFactor(ncross=%s, ncomps=%s, ktname=%s, filepos=%s, "
+                "pdcode=%s, compmask=%s, mirror=%s)"%(
+                    repr(self.ncross), repr(self.ncomps), repr(self.ktname),
+                    repr(self.filepos), repr(self.pdcode), repr(self.compmask),
+                    self.mirror))
+
+UnknotFactor = PrimeFactor(0, 1, "Unknot[]", (0,-1), PlanarDiagram.unknot(0), ())
+
+class ClassifyResult(object):
+    def __init__(self, factor_list, n_splits=0):
+        if n_splits >= len(factor_list):
+            import ipdb; ipdb.set_trace()
+            raise Exception("A link can not be split more times than it has factors")
+        self.factor_list = factor_list
+        self.n_splits = n_splits
+
+    @classmethod
+    def all_sums(cls, factor_results, n_splits):
+        for knot_sum in product(*factor_results):
+            factor_list = [prime.factor_list[0] for prime in knot_sum]
+            #print "################" + str(factor_list)
+            yield cls(factor_list, n_splits=n_splits)
+
+    def __getitem__(self, i):
+        return self.factor_list[i]
+    def __len__(self):
+        return len(self.factor_list)
+
+    def __add__(self, other):
+        """Knot connect sum operation"""
+        return ClassifyResult(self.factor_list + other.factor_list,
+                              self.n_splits + other.n_splits)
+
+    def __and__(self, other):
+        """Split link operation"""
+        return ClassifyResult(self.factor_list + other.factor_list,
+                              self.n_splits + other.n_splits + 1)
+
+    def __str__(self):
+        if self.n_splits == 0:
+            return " # ".join(str(factor) for
+                              factor in self.factor_list)
+        elif self.n_splits == len(self.factor_list) - 1:
+            return " U ".join(str(factor) for
+                              factor in self.factor_list)
+        else:
+            return (", ".join(str(factor) for
+                             factor in self.factor_list) +
+                    "split %s times"%self.n_splits)
+
+    def __repr__(self):
+        return "ClassifyResult(factor_list=%s, n_splits=%s)"%(
+            self.factor_list,
+            self.n_splits)
 
 DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
@@ -21,7 +94,7 @@ def bin_list_to_int(blist):
     return sum((i*2)**n for i,n in enumerate(reversed(blist)))
 
 # Some constant, common HOMFLY polynomials
-Punk = HOMFLYPolynomial("1")
+P_unknot = HOMFLYPolynomial("1")
 Ptlink = HOMFLYPolynomial("-a^{1}z^{-1} + -a^{-1}z^{-1}")
 
 class ClassifyDatabase(object):
@@ -79,12 +152,7 @@ class ClassifyDatabase(object):
 
 
     def _load_names_and_table(self, names_fname, table_fname, filetype):
-        names_f = None
-        table_f = None
-        try:
-            names_f = open(names_fname)
-            table_f = open(table_fname)
-
+        with open(names_fname) as names_f, open(table_fname) as table_f:
             names_head = names_f.readline()
             names_type, names_count = names_head.split(" ")
             table_head = table_f.readline()
@@ -93,35 +161,33 @@ class ClassifyDatabase(object):
             if count != int(table_count):
                 raise Exception("Two files differ in number of rows")
             for i, (name, pd_undir) in enumerate(self._iter_name_and_pd(names_f, table_f)):
+                #print "\nLine: %s"%i,
                 for pd,mask in self.component_combinations(pd_undir):
                     homfly = pd.homfly()
-                    result = Result(pd.ncross, pd.ncomps, name, (filetype, i), pd, mask)
+                    result = PrimeFactor(pd.ncross, pd.ncomps, name, (filetype, i), pd, mask)
                     if homfly in self.cls_dict:
                         self.cls_dict[homfly].append(result)#(name, (filetype, i), pd))
                     else:
                         self.cls_dict[homfly] = [result]#(name, (filetype, i), pd),]
                     if i >= count-1:
                         break
-        finally:
-            if names_f:
-                names_f.close()
-            if table_f:
-                table_f.close()
 
-    def load(self):
-        self.load_rolfsen(
-            os.path.join(SOURCE_DIR,"rolfsennames.txt"),
-            os.path.join(SOURCE_DIR,"rolfsentable.txt"))
-        self.load_thistlethwaite(
-            os.path.join(SOURCE_DIR,"thistlethwaitenames.txt"),
-            os.path.join(SOURCE_DIR,"thistlethwaitetable.txt"))
+    def load(self, load_knots=True, load_links=True):
+        if load_knots:
+            self.load_rolfsen(
+                os.path.join(SOURCE_DIR,"rolfsennames.txt"),
+                os.path.join(SOURCE_DIR,"rolfsentable.txt"))
+        if load_links:
+            self.load_thistlethwaite(
+                os.path.join(SOURCE_DIR,"thistlethwaitenames.txt"),
+                os.path.join(SOURCE_DIR,"thistlethwaitetable.txt"))
 
     def load_rolfsen(self, names_fname, table_fname):
         self._load_names_and_table(names_fname, table_fname, self.KNOT)
     def load_thistlethwaite(self, names_fname, table_fname):
         self._load_names_and_table(names_fname, table_fname, self.LINK)
 
-    def calculate_composites(self, max_n_cross):
+    def calculate_composites(self, max_n_cross, num_components=float('inf')):
         """Use facts about HOMFLY polynomials to populate a new search table
         which lists HOMFLYs for composite knots and split links
 
@@ -132,12 +198,14 @@ class ClassifyDatabase(object):
 
         # prepare trim_by_nx as list of buckets of crossing-limited entries
         self.trim_by_nx = [[] for _ in range(1 + max_n_cross)]
-        self.trim_by_nx[0] = [Punk]
+        self.trim_by_nx[0] = [P_unknot]
 
+        # We only want to worry about polynomials which have a knot with a low
+        # enough crossing number in their result bucket
         for P, bucket in self.cls_dict.iteritems():
-            minx = max_n_cross + 1
+            minx = max_n_cross + 1 # Basically, infinity
             for res in bucket:
-                nx = res.ncross#[2].ncross
+                nx = res.ncross
 
                 if nx > max_n_cross:
                     continue
@@ -146,22 +214,38 @@ class ClassifyDatabase(object):
             if minx <= max_n_cross:
                 self.trim_by_nx[minx].append(P)
 
-        self.prod_dict = dict()
+        self.prod_dict = defaultdict(list)
 
-        unknot_polys = (Punk,) * (max_n_cross//2+1)
-        tlink_pows = [Ptlink**(n_unions) for n_unions in range(max_n_cross//2+1)]
+        # The most times it makes sense to split link (each adds 2 crossings)
+        max_split_links = min(
+            (max_n_cross//2) + 1,
+            num_components-1)
+
+        # Smallest nontrivial crossing number:
+        #  2 for links (e.g. hopf)
+        #  3 for knots (trefoil)
+        if num_components > 1:
+            MIN_NONTRIVIAL_NX = 2
+        else:
+            MIN_NONTRIVIAL_NX = 3
+
+        # The most times it makes sense to split link OR connect sum
+        max_joins = (max_n_cross//MIN_NONTRIVIAL_NX) + 1
+
+        unknot_polys = (P_unknot,) * (max_split_links + 1)
+        tlink_pows = [Ptlink**(n_unions) for n_unions in range(max_split_links+1)]
         # Trivial split links
-        for k in range(1, max_n_cross//2+1):
-            self.prod_dict[tlink_pows[k]] = (k, 2*k, unknot_polys[:k+1])
+        for k in range(1, max_split_links):
+            self.prod_dict[tlink_pows[k]].append((k, 2*k, unknot_polys[:k+1]))
 
         # Explode trim_by_nx into pairs (nx, poly)
         nx_poly_pairs = []
-        for nx, bucket in zip(range(2, len(self.trim_by_nx)), self.trim_by_nx[2:]):
+        for nx, bucket in enumerate(self.trim_by_nx[2:], start=2):
             for poly in bucket:
                 nx_poly_pairs.append((nx, poly))
 
         # Nontrivial connect sums and split links
-        for k in range(1, max_n_cross//2 + 1):
+        for k in range(1, max_joins):
             for k_fold_comb in combs(nx_poly_pairs, k):
                 # Smallest number of crossings a connect sum yields
                 n_cs = sum((n for n,_ in k_fold_comb))
@@ -181,61 +265,89 @@ class ClassifyDatabase(object):
                     P_cmp.append( (reduce(mul, chain), chain) )
 
                 # Each split link adds 2 crossings, how many can we have?
+                # We can also only be split fewer times than we have factors
                 assert(n_cs <= max_n_cross)
-                max_n_unions = (max_n_cross - n_cs) // 2
+                max_n_unions = min(
+                    (num_components-1,
+                     (max_n_cross - n_cs)//2,
+                     k-1))
 
                 # All possible number of split links for these factors
-                min_n_trivlks = 1 if len(P) == 1 else 0
+                min_n_trivlks = 1 if k == 1 else 0
+                # If we're a 1-fold-combination, need at least 1 trivial link
+
                 for n_unions in range(max_n_unions + 1):
-                    n_sl = n_unions*2+n_cs
-                    assert(n_sl <= max_n_cross)
+                    nx_with_split = n_unions*2+n_cs
+                    assert(nx_with_split <= max_n_cross)
 
                     # For each mirror-masked homfly...
                     for Q, factors in P_cmp:
-                        max_n_trivlks = (max_n_cross - n_sl) // 2
+                        max_n_trivlks = min(
+                            (max_n_cross - nx_with_split) // 2,
+                            num_components - n_unions - 1)
                         # For each possible number of split-linked unknots
                         for i in range(min_n_trivlks, max_n_trivlks+1):
-                            S = tlink_pows[i + n_unions]
-                            self.prod_dict[S * Q] = (n_unions+i, n_sl+(2*i),
-                                                     factors + unknot_polys[:i])
+                            if n_unions >= len(factors):
+                                print "Error:"
+                                print n_unions
+                                print factors
+                                assert False
 
-    def classify_prime_homfly(self, homfly, ncross=1000):
-        mhomfly = ~homfly
-        if homfly == Punk:
-            return (False, [Result(0, 1, "Unknot[]", (0,-1), PlanarDiagram.unknot(0), ())])
-        if homfly in self.cls_dict:
-            result = (False, [result for result in self.cls_dict[homfly] if result.ncross <= ncross])
-            # TODO: Return mirrored and non-mirrored results if they both exist
-            if result[1]:
-                return result
-        if mhomfly in self.cls_dict:
-            result = (True, [result for result in self.cls_dict[mhomfly] if result.ncross <= ncross])
-            if result[1]:
-                return result
+                            print max_n_unions
+                            print max_n_trivlks
+                            print n_unions, i
+                            total_times_split = n_unions + i
+                            total_nx = nx_with_split + (2*i)
 
-        return (None, [])
+                            assert total_times_split < len(factors)+len(unknot_polys[:i])
+                            # Factor from split links
+                            S = tlink_pows[total_times_split]
+
+                            self.prod_dict[S * Q].append(
+                                (total_times_split,
+                                 total_nx,
+                                 factors + unknot_polys[:i]))
+
+    def classify_prime_homfly(self, hf, ncross=float("inf")):
+        mirror_hf = ~hf
+        results = []
+
+        if hf == P_unknot:
+            results.append(ClassifyResult([UnknotFactor]))
+
+        if hf in self.cls_dict:
+            results.extend(ClassifyResult([prime_factor]) for
+                           prime_factor in self.cls_dict[hf] if
+                           prime_factor.ncross <= ncross)
+
+        if mirror_hf != hf and mirror_hf in self.cls_dict:
+            results.extend(ClassifyResult([~prime_factor]) for
+                           prime_factor in self.cls_dict[mirror_hf] if
+                           prime_factor.ncross <= ncross)
+
+        return results
 
     def classify(self, pd):
         return self.classify_homfly(pd.homfly(), ncross=pd.ncross)
 
-    def classify_homfly(self, homfly, ncross=1000):
-        mhomfly = ~homfly
-
-        p_res = (None, [])
-        c_res = (-1, tuple())
+    def classify_homfly(self, hf, ncross=float("inf")):
+        results = []
 
         # Search for prime matches
-        p_res = self.classify_prime_homfly(homfly, ncross)
+        results.extend(self.classify_prime_homfly(hf, ncross))
 
         # Search for composite and split matches
-        if homfly in self.prod_dict:
-            n_unions, min_nx, factors = self.prod_dict[homfly]
-            #sumkind, Pa, Pb = self.prod_dict[homfly]
-            if min_nx <= ncross:
-                c_res = (n_unions,
-                         tuple(self.classify_prime_homfly(P, ncross) for P in factors))
+        if hf in self.prod_dict:
+            n_splits, min_nx, factors = self.prod_dict[hf]
 
-        return p_res, c_res
+            if min_nx <= ncross:
+                results.extend(
+                    ClassifyResult.all_sums(
+                        [self.classify_prime_homfly(hf_factor) for
+                         hf_factor in factors],
+                        n_splits=n_splits))
+
+        return results
 
 class PDStoreExpander(object):
     def __init__(self, dirloc=DEFAULT_PATH,
@@ -243,12 +355,26 @@ class PDStoreExpander(object):
         self.amortize = amortize
         self.dirloc = dirloc
 
-    def open(self, crossings_list, debug=False):
+    def open(self, crossings_list, debug=False, orient_all=True,
+             thin=False, homflys=True, max_components=None):
         pd_files = (self._db_file(x, self.dirloc) for x in crossings_list)
         iters = []
         for f in pd_files:
             _,npds,_ = self.parse_header(f, debug=debug)
-            iters.append(self.read_pdstor(f, debug=debug, num_pds=int(npds)))
+            iters.append(self.read_pdstor(f, debug=debug, num_pds=int(npds),
+                                          thin=thin, max_components=max_components,
+                                          homflys=homflys, orient_all=orient_all))
+        return chain(*iters)
+
+    def open_shadows(self, crossings_list, debug=False, orient_all=True,
+             thin=False, homflys=True, max_components=None):
+        pd_files = (self._db_file(x, self.dirloc) for x in crossings_list)
+        iters = []
+        for f in pd_files:
+            _,npds,_ = self.parse_header(f, debug=debug)
+            iters.append(self.read_pdstor_shadows(f, debug=debug, num_pds=int(npds),
+                                                  thin=thin, max_components=max_components,
+                                                  homflys=homflys, orient_all=orient_all))
         return chain(*iters)
 
     @staticmethod
@@ -268,7 +394,7 @@ class PDStoreExpander(object):
         a filename descriptor instead; crossing and component count info
         is sufficiently encoded in the sign mapping (length of the tuple)
         """
-        return (len(pd.crossings),
+        return (pd.ncross,
                 pos_in_stor,
                 crs_sgn,
                 cmp_sgn)
@@ -282,16 +408,17 @@ class PDStoreExpander(object):
             pd = PlanarDiagram.read(f)
 
     @staticmethod
-    def crossing_sign_mask(pdc, signature):
-        new_pd = pdc.copy()
-        for crs, sign in zip(new_pd.crossings, signature):
-            crs.sign = sign
+    def crossing_sign_mask(pdc, signature, thin=False):
+        new_pd = pdc.copy(thin=thin)
+        new_pd.set_all_crossing_signs(signature)
         return new_pd
 
     @staticmethod
-    def component_sign_mask(pdc, signature):
-        new_pd = pdc.copy()
-        for comp in compress(range(len(new_pd.components)), signature):
+    def component_sign_mask(pdc, signature, thin=False):
+        new_pd = pdc.copy(thin=thin)
+        unsignature = (1-x for x in signature) # Make 0's 1s and  1's 0s
+        # We want to flip only components with 0 (i.e. negative) sign
+        for comp in compress(range(new_pd.ncomps), unsignature):
             new_pd.reorient_component(comp, 0)
         return new_pd
 
@@ -306,25 +433,25 @@ class PDStoreExpander(object):
         else:
             return product([0,1], repeat=n)
     @classmethod
-    def crossing_combinations(cls, pdc, bool amortize=True):
+    def crossing_combinations(cls, pdc, bool amortize=True, thin=False):
         """crossing_combinations(PlanarDiagram) -> generator(new
         PlanarDiagrams, masks)
 
         Generate all possible crossing sign permutations.  First crossing
         is fixed as (+) so as to avoid mirror images
         """
-        for cross_set in cls._bin_strings(len(pdc.crossings), amortize):
-            yield cls.crossing_sign_mask(pdc, cross_set), cross_set
+        for cross_set in cls._bin_strings(pdc.ncross, amortize):
+            yield cls.crossing_sign_mask(pdc, cross_set, thin=thin), cross_set
 
     @classmethod
-    def component_combinations(cls, pdc, amortize=True):
+    def component_combinations(cls, pdc, amortize=True, thin=False):
         """component_combinations(PlanarDiagram) -> generator(new
         PlanarDiagrams, masks)
 
         Generate all possible component permutations.
         """
-        for comp_set in cls._bin_strings(len(pdc.components), amortize):
-            yield cls.component_sign_mask(pdc, comp_set), comp_set
+        for comp_set in cls._bin_strings(pdc.ncomps, amortize):
+            yield cls.component_sign_mask(pdc, comp_set, thin=thin), comp_set
 
     def add_data(self, cross_count, dirloc=DEFAULT_PATH):
         f = self._db_file(cross_count, dirloc)
@@ -370,20 +497,63 @@ class PDStoreExpander(object):
             return None # actually throw an error here too
         return (claimed,actual,nhashes)
 
-    def read_pdstor(self, f, debug=False, num_pds=None):
+    def shadow_iter(self, pd_id, pd, debug=False, orient_all=True,
+                    thin=False, homflys=True):
+        for crs_pd, crs_sgn in self.crossing_combinations(pd, self.amortize, thin=thin):
+            if orient_all:
+                for cmp_pd, cmp_sgn in self.component_combinations(crs_pd, self.amortize, thin=thin):
+                    if homflys:
+                        homfly = cmp_pd.homfly()
+                    else:
+                        homfly = None
+                    pduid = self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn)
+                    yield (cmp_pd, homfly, pduid)
+            else:
+                if homflys:
+                    homfly = crs_pd.homfly()
+                else:
+                    homfly = None
+                pduid = self.uid(crs_pd, pd_id, crs_sgn, (0,))
+                yield (crs_pd, homfly, pduid)
+
+    def read_pdstor(self, f, debug=False, num_pds=None, orient_all=True,
+                    thin=False, homflys=True, max_components=None):
         # Read in the pd codes one-by-one.
-        if debug: print "Reading file %s"%f.names
-        for pd_id, pd in enumerate(PlanarDiagram.read_all(f, read_header=False)):
+        if debug: print "Reading file %s"%f.name
+        for pd_id, pd in enumerate(PlanarDiagram.read_all(f, read_header=False, thin=thin)):
             if debug: print "> Reading %s of %s (%0.1f%%)"%(
                     pd_id+1,
                     "Unknown" if num_pds is None else num_pds,
-                    "??" if num_pds is None else 100.0*pd_id/num_pds)
-            for crs_pd, crs_sgn in self.crossing_combinations(pd, self.amortize):
-                for cmp_pd, cmp_sgn in self.component_combinations(crs_pd, self.amortize):
-                    homfly = cmp_pd.homfly()
-                    pduid = self.uid(cmp_pd, pd_id, crs_sgn, cmp_sgn)
-                    yield (cmp_pd, homfly, pduid)
+                    "??" if num_pds is None else 100.0*pd_id/num_pds),
+            if max_components is not None and pd.ncomps > max_components:
+                if debug: print "... skipped (too many components)"
+                continue
+            else:
+                if debug: print
+
+            for oriented_pd in self.shadow_iter(pd_id, pd, debug=debug,
+                                                orient_all=orient_all, thin=thin, homflys=homflys):
+                yield oriented_pd
         f.close()
+
+    def read_pdstor_shadows(self, f, debug=False, num_pds=None, orient_all=True,
+                            thin=False, homflys=True, max_components=None):
+        # Read in the pd codes one-by-one.
+        if debug: print "Reading file %s"%f.name
+        for pd_id, pd in enumerate(PlanarDiagram.read_all(f, read_header=False, thin=thin)):
+            if debug: print "> Reading %s of %s (%0.1f%%)"%(
+                    pd_id+1,
+                    "Unknown" if num_pds is None else num_pds,
+                    "??" if num_pds is None else 100.0*pd_id/num_pds),
+            if max_components is not None and pd.ncomps > max_components:
+                if debug: print "... skipped (too many components)"
+                continue
+            else:
+                if debug: print
+            yield self.shadow_iter(pd_id, pd, debug=debug,
+                                    orient_all=orient_all, thin=thin, homflys=homflys)
+        f.close()
+
 
 class PDDatabase(PDStoreExpander):
     def save(self, fname):
