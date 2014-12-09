@@ -428,10 +428,10 @@ cdef class Face(_Disownable):
             if i >= len(self):
                 raise IndexError("Index is out of bounds")
             return self.parent.edges[self.p.edge[i]]
-    
+
     def __hash__(self):
         return self.index
-    
+
     def __richcmp__(self, Face otherface, int op):
         if op == 2:
             if len(self.parent.crossings) == len(otherface.parent.crossings):
@@ -440,19 +440,19 @@ cdef class Face(_Disownable):
                for i in range(0,len(self.parent.crossings))]
                if self.index == otherface.index and not False in truth_table:
                     return True
-            
+
             return False
         elif op == 3:
             if len(self.parent.crossings) == len(otherface.parent.crossings):
                 truth_table = [self.parent.crossings[i].edges == \
                 otherface.parent.crossings[i].edges \
                 for i in range(0,len(self.parent.crossings))]
-                
+
                 if self.index == otherface.index and not False in truth_table:
                     return False
-            
+
             return True
-        	
+
         else:
             raise NotImplementedError(
                 "PlanarDiagram Faces do not support relative comparisons.")
@@ -1634,6 +1634,12 @@ cdef class PlanarDiagram:
             x[xpos] = y[ypos]
 
         return links.Link(sg_xings)
+
+    @classmethod
+    def from_plink(cls, editor):
+        """from_plink(editor) -> new PlanarDiagram
+
+        Creates a new PlanarDiagram from a plink LinkEditor object."""
 
     def ccode(self):
         return copy_and_free(pdcode_to_ccode(self.p))
