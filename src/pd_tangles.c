@@ -1077,21 +1077,183 @@ pd_code_t *pd_flype(pd_code_t *pd,pd_idx_t e[4], pd_idx_t f[4])
    we can write unit tests for the individual pieces. 
   **********************************************************************/
 
+struct sequence_match { 
+
+  pd_idx_t *pos;  /* The positions in "buf" where the match occurs */
+  pd_or_t   or;
+
+};
+
+struct sequence_match pdint_sequence_match_new(pd_idx_t size) 
+
+{
+  struct sequence_match match;
+  match.pos = calloc(size,sizeof(pd_idx_t));
+  assert(match.pos != NULL);
+  match.or = PD_UNSET_ORIENTATION;
+
+  return match;
+}
+
+void pdint_sequence_match_free(struct sequence_match *match) 
+{
+  if (match->pos != NULL) { 
+
+    free(match->pos);
+    match->pos = NULL;
+
+  }
+
+  match->or = PD_UNSET_ORIENTATION;
+}
+
+void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
+			       pd_idx_t npat,pd_idx_t *pat,
+			       pd_idx_t *nmatch, struct sequence_match **match)
+
+/* Finds all the instances where the string of numbers in "pat" 
+   occurs in "buf", assuming that "buf" is a cyclic buffer of pd_idx_t
+   values and "pat" is a (not larger) buffer of pd_idx_t values. 
+
+   Returns the number of matches in nmatch, and a buffer of structures
+   describing the individual matches in "match". If there are no matches,
+   sets match to NULL and returns nmatch = 0. */
+
+{
+  pd_idx_t matchbufsize = 10;
+
+  /* Make room for some matches, even if we don't use them later. */
+  
+  *match = calloc(10,sizeof(struct sequence_match));
+  assert(*match != NULL);
+  *nmatch = 0;
+  
+  pd_idx_t i,j;
+
+  /* First we look for the sequence in the forward orientation. */
+	      	       			      
+  for(i=0;i<nbuf;i++) {  
+			      
+    if (buf[i] == pat[0]) { 
+
+      /* This is a possible start-- we check for the 
+	 pattern sequence in positive orientation. */
+
+      bool match_continues = true;
+
+      for (j=1;j<npat && match_continues;j++) { 
+
+	match_continues = (buf[(i+j)%nbuf] == pat[j]);
+
+      }
+
+      if (match_continues) { /* We matched all the way to end! Record it! */
+
+	if (*nmatch >= matchbufsize) { /* Make space if needed. */
+
+	  matchbufsize *= 2;
+	  (*match) = realloc(*match,matchbufsize*sizeof(struct sequence_match));
+	  assert(*match != NULL);
+	  pd_idx_t k;
+	  for(k=matchbufsize/2;k<matchbufsize;k++) { 
+	    (*match)[k].pos = NULL;
+	    (*match)[k].or = PD_UNSET_ORIENTATION;
+	  }
+
+	}
+
+	(*match)[*nmatch] = pdint_sequence_match_new(npat);
+	for(j=0;j<npat;j++) { 
+	  
+	    (*match)[*nmatch].pos[j] = (i+j)%nbuf;
+	    
+	}
+	(*match)[*nmatch].or = PD_POS_ORIENTATION;
+	(*nmatch)++;
+
+      }
+	  
+    }
+
+  }
+
+  /* We now look for the sequence in the backward orientation. */
+
+  for(i=0;i<nbuf;i++) {  
+			      
+    if (buf[i] == pat[npat-1]) { 
+
+      /* This is a possible start-- we check for the 
+	 pattern sequence in positive orientation. */
+
+      bool match_continues = true;
+
+      for (j=1;j<npat && match_continues;j++) { 
+
+	match_continues = (buf[(i+j)%nbuf] == pat[npat-j]);
+
+      }
+
+      if (match_continues) { /* We matched all the way to end! Record it! */
+
+	if (*nmatch >= matchbufsize) { /* Make space if needed. */
+
+	  matchbufsize *= 2;
+	  (*match) = realloc(*match,matchbufsize*sizeof(struct sequence_match));
+	  assert(*match != NULL);
+	  pd_idx_t k;
+	  for(k=matchbufsize/2;k<matchbufsize;k++) { 
+	    (*match)[k].pos = NULL;
+	    (*match)[k].or = PD_UNSET_ORIENTATION;
+	  }
+
+	}
+
+	(*match)[*nmatch] = pdint_sequence_match_new(npat);
+	for(j=0;j<npat;j++) { 
+	  
+	    (*match)[*nmatch].pos[j] = (i+npat-j)%nbuf;
+	    
+	}
+	(*match)[*nmatch].or = PD_NEG_ORIENTATION;
+	(*nmatch)++;
+
+      }
+	  
+    }
+
+  }
+
+  /* We now see if there were ANY matches-- if not, don't return a buffer. */
+
+  if (*nmatch == 0) { 
+
+    free(*match);
+    *match = NULL;
+
+  }
+
+}
+  
+
 
 bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 					    pd_idx_t n,
 					    pd_idx_t *overstrand_edges, 
 					    pd_idx_t *border_faces,
 					    pd_idx_t **tangle_slide_edges,
-					    bool *overstrand_goes_OVER)
+					    pd_idx_t **complementary_edges,
+					    pd_boundary_or_t **complementary_or,
+					    bool *overstrand_goes_OVER,
+					    pd_or_t *overstrand_orientation)
 
 /* We make sure that the data is appropriate for a 
    tangle slide. 
-
-		  |  	   |
-		  |  	   |
-       	     +-------------------+		  
-	     |		    	 |		  
+	       	       	      ce[1]
+	 	  |    	   |   |       	   
+	 	  |    	   |   |  	   
+       	     +-------------------+	   	  
+  ce[N-1] ---| 	       	       	 |----ce[0]	  
              | 	    Tangle     	 |      	       	  
     ---+     | 	       	       	 |    +---   	    
        |     | 	    	    	 |    | 	     
@@ -1099,14 +1261,14 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
        |       tse[n-1]    tse[0]     |
        | f[n-1]  |   |  f[1] | 	 f[0] |	     
        +--e[n-1]---<----e[1]-----e[0]-+	      
-       	       	 |   | 	     |		   
-
- 
-   We need to make several checks:
-
+       	       	 |   | 	     |	   	   
+				   
+ 				   
+   We need to make several checks: 
+				   
    0) The indices in overstrand_edges and border_faces are
       in-range edge and face indices for the pd code pd.
-
+				   
    1) The border faces are actually border faces of the 
       tangle, either in ccw or cw order.
 
@@ -1117,12 +1279,25 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
       signs.
 
    The procedure returns only if all this is true; otherwise we quit
-   with a call to pd_error. The output buffer tangle_slide_edges (of 
-   size n-1) is allocated in this function and must be disposed of 
-   externally.
+   with a call to pd_error. 
+
+   The output buffer tangle_slide_edges (of size n-1) is allocated in
+   this function and must be disposed of externally. It contains pd_code
+   edge numbers (not tangle edge numbers) of the edges tse[0]...tse[n-1]
+   (oriented with the overstrand) as in the picture above. 
+
+   The output buffer complementary_edges (if N = tangle->nedges - n-1, of
+   size N) contains the pd_code edge numbers of the edges in the tangle
+   complementary to the tangle_slide_edges. 
+
+   The output buffer complementary_or (also of size N) contains the tangle
+   boundary orientation of these edges.
 
    Also returns a flag in the boolean overstrand_goes_over to detect
-   whether the overstrand is going OVER or UNDER the tangle (true if over).
+   whether the overstrand is going OVER or UNDER the tangle (true if over),
+   and the orientation "overstrand_orientation" to detect whether overstrand
+   is running positively (ccw) around the border of the tangle or 
+   negatively (cw) around the border of the tangle.
 
 */
 {
@@ -1174,73 +1349,46 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
   |   +----------+ | |       |                     
   +----------------+ |	     |   
 
-      
+   The first thing to do is to get all the candidate matches. We're going to 
+   use a helper function:
+
+   void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
+                                  pd_idx_t npat,pd_idx_t *pat
+			          pd_idx_t *nmatch, struct sequence_match **match)
+   
+   Here, the match[i].pos buffer contains the positions in "buf" of the 
+   elements of "pat" (in the order the occur in "pat"). These positions
+   count forward in "buf" if match[i].or == PD_POS_ORIENTATION,
+   and count backward in "buf" if match[i].or == PD_NEG_ORIENTATION.
+
   */
 
-  bool found_sequence = false;
-  pd_idx_t j;
+  pd_idx_t nmatches;
+  struct sequence_match *match;
 
-  /* First we look for the sequence in the forward orientation. */
-	      	       			      
-  for(i=0;i<t->nedges;i++) {  
-			      
-    if (t->face[i] == border_faces[0]) { 
-
-      /* This is a possible start-- we check for the 
-	 border_faces sequence in positive orientation. */
-
-      bool match_continues = true;
-
-      for (j=1;j<n && match_continues;j++) { 
-
-	match_continues = (t->face[(i+j)%t->nedges] == border_faces[j]);
-
-      }
-
-      if (match_continues) { found_sequence = true; }
-
-    }
-
-  }
-
-  /* We now look for the sequence in the backward orientation. */
-
-  for(i=0;i<t->nedges;i++) {  
-			      
-    if (t->face[i] == border_faces[n-1]) { 
-
-      /* This is a possible start-- we check for the 
-	 border_faces sequence in positive orientation. */
-
-      bool match_continues = true;
-
-      for (j=1;j<n && match_continues;j++) { 
-
-	match_continues = (t->face[(i+j)%t->nedges] == border_faces[n-1-j]);
-
-      }
-
-      if (match_continues) { found_sequence = true; }
-
-    }
-
-  }
-
-  if (!found_sequence) { 
+  pdint_find_sequence_match(t->nedges,t->face,
+			    n,border_faces,
+			    &nmatches,&match);  
+  if (nmatches == 0) { 
 
     if (n >= 4) { 
 
       pd_error(SRCLOC,
-	       "couldn't find %d border_faces sequence %d %d %d ... %d on the border\n"
-	       "of %TANGLE.\n",pd,n,border_faces[0],border_faces[1],border_faces[2],border_faces[n-1],t);
-      return false;
+	       "couldn't find %d border_faces sequence "
+	       "%d %d %d ... %d on the border\n"
+	       "of %TANGLE.\n",
+	       pd,n,
+	       border_faces[0],border_faces[1],
+	       border_faces[2],border_faces[n-1],t);
 
     } else { 
 
       pd_error(SRCLOC,
-	       "couldn't find %d border_faces sequence %d ... %d on the border\n"
-	       "of %TANGLE.\n",pd,n,border_faces[0],border_faces[n-1],t);
-      return false;
+	       "couldn't find %d border_faces "
+	       "sequence %d ... %d on the border\n"
+	       "of %TANGLE.\n",
+	       pd,n,
+	       border_faces[0],border_faces[n-1],t);
 
     }
 
@@ -1248,8 +1396,13 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
   }
 
-  /* 2. We now check to see whether the overstrand edges are actually on 
-     the faces in question.
+  /* 2. One of these matches should have the overstrand edges 
+     actually on the faces in question. We now have to figure out 
+     which one...
+
+     Now the orientations of the overstrand edges on the faces 
+     should be determined by whether this is a positive or negative 
+     match:
 
 		  |  	   |
 		  |  	   |
@@ -1263,71 +1416,214 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
        +--e[n-1]---<----e[1]-----e[0]-+	      
        	       	 |   | 	     |		   
 
-     Notice that however this goes, either the overstrand edges should
-     all occur positively or all negatively along the faces in question. 
+     (Negative match means the edges should occur negatively on 
+     the border faces, as above.)
+
+
+		  |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[0]    |   |     | f[n-1]   |	     
+       +--e[0]--->-----------e[n-1]---+	      
+       	       	 |   | 	   |		   
+
+     (Positive match means that the edges should occur positively
+     on the border faces, as above). 
 
   */
 
-  pd_idx_t posface, pfp, negface, nfp;
+  pd_idx_t thismatch;
+  bool     found_correct_match;
+  pd_idx_t correct_match = PD_UNSET_IDX;
 
-  pd_face_and_pos(pd,overstrand_edges[0],
-		  &posface, &pfp, &negface, &nfp);
-
-  if (posface == border_faces[0]) { /* We're go in the positive direction. */
+  for(thismatch=0;thismatch < nmatches;thismatch++) { 
 
     pd_idx_t j;
 
-    for(j=1;j<n;j++) { 
+    for(found_correct_match=true,j=0;j<n && found_correct_match;j++) { 
+
+      pd_idx_t posface, pfp, negface, nfp;
 
       pd_face_and_pos(pd,overstrand_edges[j],
 		      &posface, &pfp, &negface, &nfp);
 
-      if (posface != border_faces[j]) { 
+      if ((match[thismatch].or == PD_POS_ORIENTATION &&
+	   posface == border_faces[j]) 
+	  ||
+	  (match[thismatch].or == PD_NEG_ORIENTATION &&
+	   negface == border_faces[j])) {
 
-	pd_error(SRCLOC,
-		 "overstrand_edges[0] = %EDGE occurs on border_face[0] = %FACE positively, but\n"
-		 "overstrand_edges[%d] = %EDGE does not occur on border_face[%d] = %FACE positively\n"
-		 "meaning that overstrand and border_face aren't consistent.\n",
-		 pd,overstrand_edges[0],border_faces[0],j,overstrand_edges[j],border_faces[j]);
+	found_correct_match = true;
 
+      } else { 
+	
+	found_correct_match = false;
+
+      }
+
+    }
+
+    /* If we got this far, either found_correct_match is true (because we 
+       made it to the end of the pattern, still matching), or found_correct_match
+       is false, because we didn't. 
+
+       If true, we save the match (number) in correct_match if it's unset. 
+       If it's set, the correct match is not unique, and everything should
+       come to a halt while we figure things out. */
+
+    if (found_correct_match) { 
+
+      if (correct_match == PD_UNSET_IDX) { 
+
+	correct_match = thismatch;
+
+      } else {
+
+	pd_error(SRCLOC,"overstrand data %BUFFER and border face data %BUFFER\n"
+		 "aren't enough to uniquely determine a collection of tangle\n"
+		 "slide edges (and complementary edges) in %TANGLE",pd,t);
 	return false;
 
       }
 
     }
 
-  } else if (negface == border_faces[0]) { /* We're go in the negative direction. */
+  }
 
-    pd_idx_t j;
-
-    for(j=1;j<n;j++) { 
-
-      pd_face_and_pos(pd,overstrand_edges[j],
-		      &posface, &pfp, &negface, &nfp);
-
-      if (negface != border_faces[j]) { 
-
-	pd_error(SRCLOC,
-		 "overstrand_edges[0] = %EDGE occurs on border_face[0] = %FACE negatively, but\n"
-		 "overstrand_edges[%d] = %EDGE does not occur on border_face[%d] = %FACE negatively\n"
-		 "meaning that overstrand and border_face aren't consistent.\n",
-		 pd,overstrand_edges[0],border_faces[0],j,overstrand_edges[j],border_faces[j]);
-
-	return false;
-
-      }
-
-    }
-
-  } else { 
+  if (correct_match == PD_UNSET_IDX) { 
 
     pd_error(SRCLOC,
-	     "overstrand_edges[0] = %EDGE does not occur on border_face[0] = %FACE\n"
-	     "meaning that overstrand and border_face aren't consistent.\n",
-	     pd,overstrand_edges[0],border_faces[0]);
+	     "found the sequence of border faces %BUFFER on the boundary\n"
+	     "of %TANGLE, but couldn't match the overstrand data %BUFFER\n",
+	     pd,t);
     return false;
-    
+
   }
+
+  /* We now set the tangle_slide_edges and complementary edges
+     using the match, then discard the buffer of matches. */
+
+  *tangle_slide_edges = calloc(n-1,sizeof(pd_idx_t));
+  
+  for(i=0;i<n-1;i++) { 
+
+    if (match[correct_match].or == PD_POS_ORIENTATION) { 
+
+      /*          |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[0]    |   |     | f[n-1]   |	     
+       +--e[0]--->-----------e[n-1]---+	      
+       	       	 |   | 	   |		                           
+      
+      */
+
+      (*tangle_slide_edges)[i] = t->edge[match[correct_match].pos[i]];
+
+    } else if (match[correct_match].or == PD_NEG_ORIENTATION) { 
+
+      /*          |  	   |
+		  |  	   |
+       	     +-------------------+		  
+	     |		    	 |		  
+             | 	    Tangle     	 |      	       	  
+    ---+     | 	       	       	 |    +---   	    
+       |     | 	    	    	 |    | 	     
+       |     +-------------------+    |	     
+       | f[n-1]  |   |     | f[0]     |	     
+       +--e[n-1]->-----------e[0]-----+	      
+       	       	 |   | 	   |		                           
+      
+      */
+
+      (*tangle_slide_edges)[i] = 
+	t->edge[(match[correct_match].pos[i]+t->nedges-1)%t->nedges];
+      
+    } else {
+
+      pd_error(SRCLOC,"match[correct_match].or = %OR, neither POS nor NEG\n",
+	       pd,match[correct_match].or);
+      exit(1);
+
+    }
+
+  }
+
+  /* We now set the complementary edges. */
+
+  pd_idx_t Ncomplementary = t->nedges - n - 1;
+  *complementary_edges = calloc(Ncomplementary,sizeof(pd_idx_t));
+  *complementary_or = calloc(Ncomplementary,sizeof(pd_boundary_or_t));
+
+  for(i=0;i<Ncomplementary;i++) { 
+
+    /* At this point, if we had a forward match, we're in a situation
+       like:
+
+       match.pos buffer [3,4,5,6]
+
+       complementary edges should start with tangle pos 2 
+       and count backwards... */
+
+    if (match[correct_match].or == PD_POS_ORIENTATION) { 
+
+      (*complementary_edges)[i] = 
+	t->edge[(match[correct_match].pos[0]+t->nedges-1-i)%t->nedges];
+
+      (*complementary_or)[i] = 
+	t->edge_bdy_or[(match[correct_match].pos[0]+t->nedges-1-i)%t->nedges];
+
+    } else if (match[correct_match].or == PD_NEG_ORIENTATION) { 
+
+      /* We're in a situation like:
+
+	 match.pos buffer [6,5,4,3]
+
+	 complementary edges should start with tangle pos 7 
+	 and count forwards */
+
+      (*complementary_edges)[i] = 
+	t->edge[(match[correct_match].pos[0]+1+i)%t->nedges];
+      
+      (*complementary_or)[i] = 
+	t->edge_bdy_or[(match[correct_match].pos[0]+1+i)%t->nedges];
+
+    } else {
+
+      pd_error(SRCLOC,"match[correct_match].or = %OR, which is not pos or neg",
+	       pd,match[correct_match].or);
+      exit(1);
+
+    }
+
+  }
+
+  /* Now we set the overstrand orientation. */
+
+  *overstrand_orientation = match[correct_match].or;
+
+  /* At this point, we are no longer going to use the buffer of matches. 
+     So we can free them. We do that so that we don't lose the memory
+     later if we return unexpectedly. */
+
+  for(i=0;i<nmatches;i++) { 
+
+    pdint_sequence_match_free(&(match[i]));
+
+  }
+
+  free(match);
+  match = NULL;
 
   /* We now check that the overstrand edges are not interior to 
      the tangle itself and that overstrand edges 1..n-1 are not 
@@ -1359,7 +1655,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
       if (t->edge[j] == overstrand_edges[i]) { 
 
-	pd_error(SRCLOC,"overstrand_edges[%d] == %EDGE is an incident edge of %TANGLE\n",
+	pd_error(SRCLOC,"overstrand_edges[%d] == %EDGE is an "
+		 "incident edge of %TANGLE\n",
 		 pd,i,overstrand_edges[i],t);
 	return false;
 
@@ -1384,112 +1681,17 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
   }
   
-  /* Finally, we're ready to check for tangle edges at each crossing. This is 
-     complicated by the fact that BOTH of the edges at the crossing may be tangle
-     edges, as in:
 
-       	+----------+
-       	|	   |	     +----e[0]
-       	|    +--------+	     |	      
-       	| e[n-1]      |------|----    
-	| +--|   T    |      | 	      
-	| |  |	      |------|----    
-	| |  +--------+	     | 	      
-	| |  	  | 	     |
-     	| +------------------+
-	+---------+
+  /* Last, we check that the run of overstrand edges is actually over
+     (or under) We start by seeing what the first crossing does, then
+     loop to check the remaining crossings are the same.
 
-     However, we know that only ONE of these two tangle edges should be incident
-     to the corresponding border face:
+     Since we know the overstrand_edges are in orientation order, if
+     the overstrand is going OVER, it is the incoming_edgenum in
+     pd_overstrand:
 
-     		  |  	   |
-		  |  	   |
-       	     +-------------------+		  
-	     |		    	 |		  
-             | 	    Tangle     	 |      	       	  
-    ---+     | 	       	       	 |    +---   	    
-       |     | 	    	    	 |    | 	     
-       |     +-------------------+    |	     
-       | f[n-1]  |   |  f[1] | 	 f[0] |	     
-       +--e[n-1]---<----e[1]-----e[0]-+	      
-       	       	 |   | 	     |		   
-
-     So our strategy is to figure out which of the crossing edges is incident
-     to the correct face, then look for it in the tangle's edges.
-
-  */
-
-  pd_idx_t *te;
-  te = calloc(n-1,sizeof(pd_idx_t));
-  assert(te != NULL);
-
-  for(i=0;i<n-1;i++) {
-
-    pd_idx_t candidate_edges[2];
-    pd_idx_t oe = overstrand_edges[i];
-
-    candidate_edges[0] = pd->cross[pd->edge[oe].head].edge[(pd->edge[oe].headpos+1)%4];
-    candidate_edges[1] = pd->cross[pd->edge[oe].head].edge[(pd->edge[oe].headpos+3)%4];
-
-    if (pd_edge_on_face(pd,candidate_edges[0],border_faces[i]) && 
-	pd_edge_on_face(pd,candidate_edges[0],border_faces[i+1])) { 
-
-      te[i] = candidate_edges[0];
-
-    } else if (pd_edge_on_face(pd,candidate_edges[1],border_faces[i]) && 
-	       pd_edge_on_face(pd,candidate_edges[1],border_faces[i+1])) { 
-
-      te[i] = candidate_edges[1];
-
-    } else {
-
-      pd_error(SRCLOC,
-	       "at overstrand_edges[%d] == %EDGE, neither of the\n"
-	       "candidate edges %EDGE and %EDGE are incident to\n"
-	       "both border_faces[%d] == %FACE and border_faces[%d] == %FACE\n",
-	       pd,i,overstrand_edges[i],candidate_edges[0],candidate_edges[1],
-	       i,border_faces[i],i+1,border_faces[i+1]);
-      free(te);
-
-      return false;
-
-    }
-
-    /* We now check that te[i] is indeed a tangle edge. */
-
-    pd_idx_t j;
-    bool found = false;
-
-    for(j=0;j<t->nedges && !found;j++) {
-
-      if (t->edge[j] == te[i]) { found = true; }
-
-    }
-
-    if (!found) { 
-
-      pd_error(SRCLOC,
-	       "at %CROSS joining overstrand_edges[%d] and [%d] (%EDGE and %EDGE),\n"
-	       "%EDGE is incident to both border faces %FACE and %FACE, but not \n"
-	       "part of %TANGLE\n",
-	       pd,pd->edge[overstrand_edges[i]].head,i,i+1,overstrand_edges[i],overstrand_edges[i+1],
-	       te[i],border_faces[i],border_faces[i+1],t);
-
-      free(te);
-      return false;
-
-    }
-
-  }
-
-  /* Last, we check that the run of overstrand edges is actually over (or under) */
-  /* We start by seeing what the first crossing does, then loop to check the */
-  /* remaining crossings are the same. */
-
-  /* Since we know the overstrand_edges are in orientation order, if the overstrand
-     is going OVER, it is the incoming_edgenum in pd_overstrand:
-
-  void pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum);
+      void pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t
+                         *incoming_edgenum, pd_idx_t *outgoing_edgenum);
 
   */
   
@@ -1505,25 +1707,29 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
     for(j=1;j<n-1;j++) { 
 
-      pd_overstrand(pd,pd->edge[overstrand_edges[j]].head,&incoming_e,&outgoing_e);
+      pd_overstrand(pd,pd->edge[overstrand_edges[j]].head,
+		    &incoming_e,&outgoing_e);
 
       if (incoming_e != overstrand_edges[j]) { 
 
 	pd_error(SRCLOC,
-		 "sequence of overstrand_edges in tangle starts with OVERcrossing at\n"
-		 "head of overstrand_edges[0] == %EDGE (%CROSS), but overstrand_edges[%d]\n"
+		 "sequence of overstrand_edges in tangle "
+		 "starts with OVERcrossing at\n"
+		 "head of overstrand_edges[0] == %EDGE (%CROSS), "
+		 "but overstrand_edges[%d]\n"
 		 "== %EDGE goes UNDER at its head (%CROSS)\n",
 		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
 		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
-	free(te);
 	return false;
 
       }
 
     }
 
-  } else { /* Presumably, we're going UNDER, but we check that the orientation isn't
-	      screwed up somehow just to be sure. */
+  } else { 
+
+     /* Presumably, we're going UNDER, but we check that the
+        orientation isn't screwed up somehow just to be sure. */
 
     pd_understrand(pd,pd->edge[overstrand_edges[0]].head,&incoming_e,&outgoing_e);
 
@@ -1535,17 +1741,19 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
       for(j=1;j<n-1;j++) { 
 	
-	pd_understrand(pd,pd->edge[overstrand_edges[j]].head,&incoming_e,&outgoing_e);
+	pd_understrand(pd,pd->edge[overstrand_edges[j]].head,
+		       &incoming_e,&outgoing_e);
 
 	if (incoming_e != overstrand_edges[j]) { 
 
 	  pd_error(SRCLOC,
-		 "sequence of overstrand_edges in tangle starts with UNDERcrossing at\n"
-		 "head of overstrand_edges[0] == %EDGE (%CROSS), but overstrand_edge[%d]\n"
+		 "sequence of overstrand_edges in tangle starts "
+		 "with UNDERcrossing at\n"
+		 "head of overstrand_edges[0] == %EDGE (%CROSS), but "
+		 "overstrand_edge[%d]\n"
 		 "== %EDGE goes OVER at its head (%CROSS)\n",
 		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
 		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
-	  free(te);
 	  return false;
 
 	}
@@ -1563,18 +1771,16 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	       "orientation or other internal error: edge %EDGE is neither the\n"
 	       "incoming overstrand %d or incoming understrand %d at its head\n"
 	       "(%CROSS).\n",
-	       pd, overstrand_edges[0],ieo,ieu,pd->edge[overstrand_edges[0]].head);
-      free(te);
+	       pd, overstrand_edges[0],ieo,ieu,
+	       pd->edge[overstrand_edges[0]].head);
       return false;
 
     }
 
   }
 
-  /* We've now checked everything. 
-     We assign the tangle_slide_edges buffer address and quit. */
+  /* We've now checked everything. */
 
-  *tangle_slide_edges = te;
   return true;
 
 }
@@ -1658,13 +1864,20 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
   */
 
   pd_idx_t *tangle_slide_edges;
+  pd_idx_t *complementary_edges;
+  pd_boundary_or_t *complementary_or;
+
   bool overstrand_goes_OVER; /* True if overstrand goes OVER, false if not */
+  pd_or_t overstrand_orientation;
 
   if (!pdint_check_tslide_data_ok_and_find_te(pd,t,n,
 					      overstrand_edges, 
 					      border_faces,
 					      &tangle_slide_edges,
-					      &overstrand_goes_OVER)) { 
+					      &complementary_edges,
+					      &complementary_or,
+					      &overstrand_goes_OVER,
+					      &overstrand_orientation)) { 
 
     pd_error(SRCLOC,"tangle slide input data is invalid",pd);
     exit(1);
@@ -1742,8 +1955,10 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
   if (!start_anchor_ok) {
 
     pd_error(SRCLOC,
-	     "this version of pd_tangle_slide requires that the overstrand start\n"
-	     "at an anchor crossing which is not part of the remainder of the overstrand\n"
+	     "this version of pd_tangle_slide requires "
+	     "that the overstrand start\n"
+	     "at an anchor crossing which is not part of the "
+	     "remainder of the overstrand\n"
 	     "or the interior of the tangle.\n"
 	     "overstrand_edges[0] = %EDGE\n"
 	     "starts at %CROSS \n"
@@ -1756,8 +1971,10 @@ void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
   if (!end_anchor_ok) {
 
     pd_error(SRCLOC,
-	     "this version of pd_tangle_slide requires that the overstrand end\n"
-	     "at an anchor crossing which is not part of the remainder of the overstrand\n"
+	     "this version of pd_tangle_slide requires "
+	     "that the overstrand end\n"
+	     "at an anchor crossing which is not part of the remainder "
+	     "of the overstrand\n"
 	     "or the interior of the tangle.\n"
 	     "overstrand_edges[n-1] = %EDGE\n"
 	     "ends at %CROSS \n"
@@ -2186,12 +2403,15 @@ end_anchor   | 	    Tangle     	 |
 
   }
     
-  /* Step 5. Having checked our deletions, we're now going to insert new crossings
-     and edges on the other side of the tangle. This involves several steps. First, 
-     we're going to identify a list of "complementary edges". These are going be 
-     in the order that they will be encountered in the new overstrand passage, which 
-     could be reversed from their order in the t->edge buffer. Going back to the 
-     original diagram, we HAD something like this:
+  /* Step 5. Having checked our deletions, we're now going to insert
+     new crossings and edges on the other side of the tangle. This
+     involves several steps.  We're going to use the buffer of
+     "complementary edges" which was identified earlier:
+     
+     These are going be in the order that they will be encountered in
+     the new overstrand passage, which could be reversed from their
+     order in the t->edge buffer. Going back to the original diagram,
+     we HAD something like this:
 
        	       ce[k-1]    ce[0]
 		  |  	   |
@@ -2210,153 +2430,16 @@ end_anchor   | 	    Tangle     	 |
       Once we have the complementary edges, we'll split them by
       introducing new crossings just outside the tangle, and string
       these crossings together with new edges (if needed) joining e[0]
-      to e[n-1]. The complementary edges are simply the complement 
-      of the tangle slide edges-- this much is clear. 
+      to e[n-1]. 
 
-      But how can we determine the orientation of the complementary 
-      edges? Well, we should be in one of two cases:
+      We know the buffers 
 
-       	      	|   |  |       	       	   |   |  |
-	      +----------+     	       	+-----------+
-	      |	  	 |		|    	    |
-	      |	       	 |		|    	    | 
-	      +----------+     	       	+-----------+ 
-       ---+      |      |      +-- ---+      |	      +--
-	  |f[n-1]|      | f[0] |      | f[1] |	f[0]  |
-	  +--------------------+      +---------------+
-	       	 |      |                    |    	       
-                tse[1] tse[0]	            tse[0] 
+      complementary_edges (from above)
+      complementary_or (from above)
 
-
-      In the left case, there are two tangle_slide_edges, but the 
-      faces border_face[0] and border_face[n-1] might connect inside
-      (or outside) the tangle. In the right case, there may be only 
-      one tangle slide edge, but the faces f[0] and f[1] can't be
-      the same face (since it's part of a loop, that loop must separate
-      border_face[0] from border_face[1]).
-	       	       
   */
 
-  /************* PROBLEM AREA *******************/
-
-  pd_idx_step step; /* +1 for positively (ccw) oriented complementary 
-		       edges, -1 for negatively (cw) orientated complementary 
-		       edges */
-
-  if (n > 2) { /* That is, there is more than one tangle_slide_edge. */
-
-    /* Look for the pattern of tangle_slide_edges occuring along the boundary 
-       of the tangle. */
-
-    pd_idx_t match_size = 0;
-    
-    for(i=0;i<2*t->nedges && match_size < n-1;i++) {
-
-      if (t->edge[i%t->nedges] == tangle_slide_edges[match_size]) { /* Potential match started */
-
-	match_size++;
-
-      } else {
-
-	match_size = 0;
-
-      }
-
-    }
-
-    if (match_size == n-1) { /* We found the pattern in the forward search! */
-
-      step = -1; /* This means that the complementary edges are oriented negatively. */
-
-    } else {
-
-      match_size = 0;
-
-      for(i=2*t->nedges;i>0 && match_size != n-1;i--) {
-
-	if (t->edge[i%t->nedges] == tangle_slide_edges[match_size]) {
-
-	  match_size++;
-
-	} else {
-
-	  match_size = 0;
-
-	}
-
-      }
-
-      if (match_size == n-1) { /* We found the pattern in the backwards search! */
-
-	step = +1; /* This means that the complementary edges are going forwards. */
-
-      }
-
-    }
-       
-
-    
-
-	
-
-  
-  pd_idx_t step;
-  bool found_f0 = false;
-  pd_idx_t f0_tanglepos;
-
-  for(i=0;i<t->nedges;i++) { 
-
-    if (t->face[i] == border_faces[0]) {
-
-      if (t->edge[i] == tangle_slide_edges[0] ||
-	  t->edge[(i+t->nedges-1)%t->nedges] == tangle_slide_edges[0]) {  
-
-	found_f0 = true;
-	f0_tanglepos = i;
-
-      }
-
-    }
-
-  }
-
-  if (!found_f0) { 
-
-    pd_error(SRCLOC,
-	     "couldn't find border_faces[0] = %d in the "
-	     "list of faces in %TANGLE",
-	     pd_working,border_faces[0],t);
-    
-    exit(1);
-
-  }
-
-  if (t->face[(f0_tanglepos+1)%t->nedges] == border_faces[1]) { 
-
-    step = -1; /* Go backwards. */
-
-  } else { 
-
-    step = +1; /* Go forwards. */
-
-  }
-
-  pd_idx_t *complementary_edges = calloc(t->nedges /* too big */,sizeof(pd_idx_t));
-  assert(complementary_edges != NULL);
-  pd_boundary_or_t *complementary_or = calloc(t->nedges, sizeof(pd_boundary_or_t));
-  assert(complementary_or != NULL);
-  pd_idx_t ncomplementary_edges = 0;
-
-  pd_idx_t tpos;
-  for(tpos = f0_tanglepos; /* We could be counting down in mod arithmetic */
-      t->face[tpos] != border_faces[n-1];
-      tpos = (tpos + step + t->nedges)%t->nedges) /* Move around face buffer */ { 
-
-    complementary_edges[ncomplementary_edges] = t->edge[tpos];
-    complementary_or[ncomplementary_edges] = t->edge_bdy_or[tpos];
-    ncomplementary_edges++;
-
-  }
+  pd_idx_t ncomplementary_edges = t->nedges - n - 1;
 
   /* We now have a list of 0 or more complementary edges to work
      with. We're going to split each one in the middle with a new
@@ -2570,18 +2653,21 @@ end_anchor   | 	    Tangle     	 |
        boundary-- we just need to know whether this order is clockwise
        or counterclockwise.
 
-       This was determined above by the variable "step", which is +1 if we're
-       going counterclockwise (positively oriented, same as the direction of 
-       tangle_edges and the like) and -1 if we're going clockwise. 
+       This was determined above by the variable
+       overstrand_orientation, which is positive if we're going
+       counterclockwise (positively oriented, same as the direction of
+       tangle_edges and the like) and negative if we're going clockwise.
 
        In the first case, we're coming IN at position 3 on the new crossings
        and leaving at position 1, the second, vice-versa.*/
 
     pd_pos_t enter_pos, exit_pos;
-    if (step == +1) { enter_pos = 3; exit_pos = 1; }
-    else if (step == -1) { enter_pos = 1; exit_pos = 3; }
-    else { pd_error(SRCLOC,"step (%d) is neither +1 nor -1. Something is corrupted.\n",
-		    pd_working); exit(1); }
+    if (overstrand_orientation == PD_POS_ORIENTATION) { enter_pos = 3; exit_pos = 1; }
+    else if (overstrand_orientation == PD_NEG_ORIENTATION) { enter_pos = 1; exit_pos = 3; }
+    else { 
+      pd_error(SRCLOC,"overstrand_orientation is %OR, neither POS nor NEG.\n",
+	       pd_working,overstrand_orientation); exit(1); 
+    }
 
     /* Change the head and headpos of e[0] to join the edge to first new crossing. */
     pd_working->edge[overstrand_edges[0]].head    = pd->ncross;
@@ -2726,8 +2812,15 @@ end_anchor   | 	    Tangle     	 |
 
      #5. Faces need to be regenerated. */
 
-  /* Ok, so the first problem can be resolved with a compacting copy-
-     -edge update cycle, as we did in the other crossing moves. */
+  /* We begin by preemptively freeing some memory. */
+
+  free(tangle_slide_edges); tangle_slide_edges = NULL;
+  free(complementary_edges); complementary_edges = NULL;
+  free(complementary_or); complementary_or = NULL;
+
+  /* Now we get to work. The first problem can be resolved with a
+     compacting copy/edge update cycle, as we did in the other
+     crossing moves. */
 
   pd_idx_t *crossing_deletions;
   pd_idx_t ndeletions;
