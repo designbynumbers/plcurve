@@ -55,11 +55,16 @@ and identifies the strands in the tangle crossed by the
 overstrand_edges.
 
 bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
-					 pd_idx_t n,
-					 pd_idx_t *overstrand_edges, 
-					 pd_idx_t *border_faces,
-					 pd_idx_t **tangle_edges)
+					    pd_idx_t n,
+					    pd_idx_t *overstrand_edges, 
+					    pd_idx_t *border_faces,
+					    pd_idx_t **tangle_slide_edges,
+					    pd_idx_t **complementary_edges,
+					    pd_boundary_or_t **complementary_or,
+					    bool *overstrand_goes_OVER,
+					    pd_or_t *overstrand_orientation)
 
+					 
 /* We make sure that the data is appropriate for a 
    tangle slide. 
 
@@ -91,9 +96,25 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
       signs.
 
    The procedure returns only if all this is true; otherwise we quit
-   with a call to pd_error. The output buffer tangle_edges (of 
-   size n-1) is allocated in this function and must be disposed of 
-   externally.
+   with a call to pd_error. 
+
+   The output buffer tangle_slide_edges (of size n-1) is allocated in
+   this function and must be disposed of externally. It contains pd_code
+   edge numbers (not tangle edge numbers) of the edges tse[0]...tse[n-1]
+   (oriented with the overstrand) as in the picture above. 
+
+   The output buffer complementary_edges (if N = tangle->nedges - n-1, of
+   size N) contains the pd_code edge numbers of the edges in the tangle
+   complementary to the tangle_slide_edges. 
+
+   The output buffer complementary_or (also of size N) contains the tangle
+   boundary orientation of these edges.
+
+   Also returns a flag in the boolean overstrand_goes_over to detect
+   whether the overstrand is going OVER or UNDER the tangle (true if over),
+   and the orientation "overstrand_orientation" to detect whether overstrand
+   is running positively (ccw) around the border of the tangle or 
+   negatively (cw) around the border of the tangle.
 
 */
 
@@ -161,9 +182,17 @@ if we're testing a case where the input is ok, or
 bool valid_ts_input = false;
 
 for a test where the input is not ok. If the input is ok,
-we expect to get tangle edges (denoted te[0], ... te[n-1] in 
-this picture:
+we expect to get tangle edges (denoted te[0], ... te[n-1]) 
+and complementary edges (denoted ce[0], ..., ce[N-1]) as in 
+this picture, as well as an orientation (overstrand_orientation)
+telling us whether the overstrand is traveling ccw (pos) or 
+cw (neg) around the tangle, and a boolean (overstrand_is_OVER)
+telling us whether the overstrand is going OVER (true) or 
+UNDER (false) the tangle edges, as well as array telling us
+the tangle boundary orientations of the complementary edges.
 
+
+                ce[N-1]   ce[0]
 		  |  	   |
 		  |  	   |
        	     +-------------------+		  
@@ -177,15 +206,23 @@ this picture:
        	       	 |   | 	     |		   
              te[n-1]        te[0] 
  
-so this should be followed by one more line giving the tangle
-edges.
+so this should be followed by five more lines: 
 
 pd_idx_t tangle_slide_edges[2] = {6,4};
+pd_idx_t complementary_edges[2] = {3,7};
+pd_boundary_or_t complementary_or[2] = {in,out};
+bool overstrand_is_OVER = true;
+pd_or_t overstrand_orientation = PD_NEG_ORIENTATION;
 
-If the input is NOT ok, we still have the tangle_slide_edges array, 
-but it only contains one entry, with "PD_UNSET_IDX" filling it.
+If the input is NOT ok, we still have the two arrays, but each 
+with only one entry (and that set to PD_UNSET_IDX), the bool is
+set to false, and the orientation is set to PD_UNSET_ORIENTATION:
 
 pd_idx_t tangle_slide_edges[1] = {PD_UNSET_IDX};
+pd_idx_t complementary_edges[1] = {PD_UNSET_IDX};
+pd_boundary_or_t complementary_or[1] = {unset};
+bool overstrand_is_OVER = false;
+pd_or_t overstrand_orientation = PD_UNSET_ORIENTATION;
 
 Now we need a number of test cases, which explore both valid and 
 invalid input. Try to include comments after the valid/invalid 

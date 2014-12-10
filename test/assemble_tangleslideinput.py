@@ -136,6 +136,12 @@ bool pdint_check_tslide_data_ok_and_find_te_test{NAME}() {{
   pd_idx_t *computed_tangle_slide_edges = &completely_fake_memory_address;
   /* We want to initialize this to something that's not NULL, since we need it
      to be NULL if the input data is invalid. */
+
+  bool computed_overstrand_goes_OVER;
+  pd_or_t computed_overstrand_orientation;
+
+  pd_idx_t *computed_complementary_edges = &completely_fake_memory_address;
+  pd_boundary_or_t *computed_complementary_or = &completely_fake_memory_address;
   
   bool computed_ts_input;
 
@@ -149,12 +155,17 @@ bool pdint_check_tslide_data_ok_and_find_te_test{NAME}() {{
 
   }}
 
-  bool strand_goes_OVER;
 
-  computed_ts_input = pdint_check_tslide_data_ok_and_find_te(pd,t,noverstrand_edges,
-                                                             overstrand_edges,
-                                                             border_faces,
-                                                             &computed_tangle_slide_edges,&strand_goes_OVER);
+
+  computed_ts_input
+     = pdint_check_tslide_data_ok_and_find_te(pd,t,noverstrand_edges,
+                                              overstrand_edges,
+                                              border_faces,
+                                              &computed_tangle_slide_edges,
+                                              &computed_complementary_edges,
+                                              &computed_complementary_or,
+                                              &computed_overstrand_goes_OVER,
+                                              &computed_overstrand_orientation);
                                                              
   if (computed_ts_input != valid_ts_input) {{
 
@@ -187,6 +198,8 @@ bool pdint_check_tslide_data_ok_and_find_te_test{NAME}() {{
   }}
 
   if (computed_ts_input) {{ /* If there ARE tangle edges, try to match them... */
+
+    /*************** Tangle edges *******************/
 
     printf("checking address of computed_tangle_slide_edges...");
     if (computed_tangle_slide_edges == &completely_fake_memory_address) {{
@@ -233,11 +246,163 @@ bool pdint_check_tslide_data_ok_and_find_te_test{NAME}() {{
 
     printf("pass (lists of edges match)\n");
 
+    /*************** Complementary Edges ******************/
+
+    printf("checking address of computed_complementary_edges...");
+    if (computed_complementary_edges == &completely_fake_memory_address) {{
+
+      printf("FAIL (not updated in call)\n");
+      return false;
+
+    }}
+
+    if (computed_complementary_edges == NULL) {{
+
+      printf("FAIL (set to NULL, even though input is valid)\n");
+      return false;
+
+    }}
+
+    printf("pass (set to a new memory address != NULL)\n");
+
+    printf("checking computed complementary_edges against expected...");
+
+    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+
+    for(i=0;i<Ncomplementary;i++) {{
+
+      if (computed_complementary_edges[i] != complementary_edges[i]) {{
+
+        printf("FAIL.\nExpected and computed complementary edges don't match at pos %d\n",i);
+
+        pd_idx_t j;
+
+        printf("Expected complementary edges: ");
+        for(j=0;j<Ncomplementary;j++) {{ printf("%4d ",complementary_edges[j]); }}
+        printf("\nComputed complementary edges: ");
+        for(j=0;j<Ncomplementary;j++) {{ printf("%4d ",computed_complementary_edges[j]); }}
+        printf("\n                       ");
+        for(j=0;j<i;j++) {{ printf("     "); }}
+        printf("-----\n");
+
+        return false;
+
+      }}
+
+    }}
+
+    printf("pass (lists of edges match)\n");
+
+
+    /*************** Complementary Orientations ******************/
+
+    printf("checking address of computed_complementary_or...");
+    if (computed_complementary_or == &completely_fake_memory_address) {{
+
+      printf("FAIL (not updated in call)\n");
+      return false;
+
+    }}
+
+    if (computed_complementary_or == NULL) {{
+
+      printf("FAIL (set to NULL, even though input is valid)\n");
+      return false;
+
+    }}
+
+    printf("pass (set to a new memory address != NULL)\n");
+
+    printf("checking computed complementary_or against expected...");
+
+    for(i=0;i<Ncomplementary;i++) {{
+
+      if (computed_complementary_edges[i] != complementary_edges[i]) {{
+
+        printf("FAIL.\nExpected and computed complementary orientations don't match at pos %d\n",i);
+
+        pd_idx_t j;
+
+        printf("Expected complementary or: ");
+        for(j=0;j<Ncomplementary;j++) {{
+           pd_printf("%BDY_OR ",NULL,complementary_or[j]); }}
+        printf("\nComputed complementary or: ");
+        for(j=0;j<Ncomplementary;j++) {{
+           pd_printf("%BDY_OR ",NULL,computed_complementary_or[j]); }}
+        printf("\n                       ");
+        for(j=0;j<i;j++) {{ printf("     "); }}
+        printf("-----\n");
+
+        return false;
+
+      }}
+
+    }}
+
+    printf("pass (lists match)\n");
+
+    /************** overstrand_goes_OVER ***************/
+
+    printf("checking computed overstrand_goes_OVER...");
+
+    if (computed_overstrand_goes_OVER == overstrand_goes_OVER) {{
+
+       printf("pass (both are %s)\n",(overstrand_goes_OVER ? "true" : "false"));
+
+    }} else {{
+
+       printf("fail (expected %s, got %s)\n",
+       (overstrand_goes_OVER ? "true" : "false"),
+       (computed_overstrand_goes_OVER ? "true" : "false"));
+
+       return false;
+
+     }}
+
+     /************* overstrand_orientation **************/
+
+    printf("checking computed overstrand_orientation...");
+
+    if (computed_overstrand_orientation == overstrand_orientation) {{
+
+       pd_printf("pass (both are %OR)\n",NULL,&overstrand_orientation);
+
+    }} else {{
+
+       pd_printf("fail (expected %OR, got %OR)\n",NULL,
+       &overstrand_orientation,&computed_overstrand_orientation);
+
+       return false;
+
+    }}
+
   }} else {{
 
     printf("checking computed_tangle_slide_edges == NULL ...");
 
     if (computed_tangle_slide_edges != NULL) {{
+
+       printf("FAIL.\n");
+       return false;
+
+    }}
+
+    printf("pass\n");
+
+    printf("checking computed_complementary_edges == NULL ...");
+
+    if (computed_complementary_edges != NULL) {{
+
+       printf("FAIL.\n");
+       return false;
+
+    }}
+
+    printf("pass\n");
+
+    printf("checking computed_complementary_or == NULL ...");
+
+    if (computed_complementary_or != NULL) {{
 
        printf("FAIL.\n");
        return false;
@@ -253,6 +418,8 @@ bool pdint_check_tslide_data_ok_and_find_te_test{NAME}() {{
   pd_code_free(&pd);
   pd_tangle_free(&t);
   free(computed_tangle_slide_edges);
+  free(computed_complementary_edges);
+  free(computed_complementary_or);
 
   printf("done\n");
 
@@ -330,7 +497,10 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 					    pd_idx_t *overstrand_edges, 
 					    pd_idx_t *border_faces,
 					    pd_idx_t **tangle_slide_edges,
-                        bool *overstrand_goes_OVER);
+					    pd_idx_t **complementary_edges,
+					    pd_boundary_or_t **complementary_or,
+					    bool *overstrand_goes_OVER,
+					    pd_or_t *overstrand_orientation);
 """
 
 actualtest = r"""
