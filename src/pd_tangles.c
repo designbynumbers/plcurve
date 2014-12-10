@@ -1313,6 +1313,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
   }  
 
   *tangle_slide_edges = NULL; /* We're going to assume that we're gonna fail. */
+  *complementary_edges = NULL;
+  *complementary_or = NULL;
   
   /* 1. We start by looking for the sequence of faces occuring 
      along the boundary of the tangle. Notice that the same face
@@ -1364,12 +1366,20 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
   */
 
   pd_idx_t nmatches;
-  struct sequence_match *match;
+  struct sequence_match *match = NULL;
 
   pdint_find_sequence_match(t->nedges,t->face,
 			    n,border_faces,
 			    &nmatches,&match);  
   if (nmatches == 0) { 
+
+    if (match != NULL) { 
+
+      pd_error(SRCLOC,"pdint_find_sequence match returned 0 matches, but\n"
+	       "match point is not NULL\n",NULL);
+      exit(1);
+
+    }
 
     if (n >= 4) { 
 
@@ -1487,6 +1497,15 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	pd_error(SRCLOC,"overstrand data %BUFFER and border face data %BUFFER\n"
 		 "aren't enough to uniquely determine a collection of tangle\n"
 		 "slide edges (and complementary edges) in %TANGLE",pd,t);
+
+	/* Now we've got to free the matches... */
+	pd_idx_t k;
+	for(k=0;k<nmatches;k++) { 
+	  pdint_sequence_match_free(&(match[k]));
+	}
+	free(match);
+	  
+
 	return false;
 
       }
@@ -1501,6 +1520,12 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	     "found the sequence of border faces %BUFFER on the boundary\n"
 	     "of %TANGLE, but couldn't match the overstrand data %BUFFER\n",
 	     pd,t);
+    /* Now we've got to free the matches... */
+    pd_idx_t k;
+    for(k=0;k<nmatches;k++) { 
+      pdint_sequence_match_free(&(match[k]));
+    }
+    free(match);
     return false;
 
   }
@@ -1602,6 +1627,18 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
       pd_error(SRCLOC,"match[correct_match].or = %OR, which is not pos or neg",
 	       pd,match[correct_match].or);
+
+      /* Now we've got to free the matches... */
+      pd_idx_t k;
+      for(k=0;k<nmatches;k++) { 
+	pdint_sequence_match_free(&(match[k]));
+      }
+      free(match);
+      
+      free(*complementary_edges); *complementary_edges = NULL;
+      free(*complementary_or);    *complementary_or = NULL;
+      free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+      
       exit(1);
 
     }
@@ -1639,6 +1676,11 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
 	pd_error(SRCLOC,"overstrand_edges[%d] == %EDGE is interior to %TANGLE\n",
 		 pd,i,overstrand_edges[i],t);
+
+	free(*complementary_edges); *complementary_edges = NULL;
+	free(*complementary_or);    *complementary_or = NULL;
+	free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+
 	return false;
 
       }
@@ -1658,6 +1700,11 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	pd_error(SRCLOC,"overstrand_edges[%d] == %EDGE is an "
 		 "incident edge of %TANGLE\n",
 		 pd,i,overstrand_edges[i],t);
+
+	free(*complementary_edges); *complementary_edges = NULL;
+	free(*complementary_or);    *complementary_or = NULL;
+	free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+
 	return false;
 
       }
@@ -1675,6 +1722,11 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
       pd_error(SRCLOC,"overstrand edges %d and %d (%EDGE and %EDGE) are not\n"
 	       "in orientation order along the their component in %PD",pd,
 	       i,i+1,overstrand_edges[i],overstrand_edges[i+1]);
+
+      free(*complementary_edges); *complementary_edges = NULL;
+      free(*complementary_or);    *complementary_or = NULL;
+      free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+
       return false;
 
     }
@@ -1720,6 +1772,11 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 		 "== %EDGE goes UNDER at its head (%CROSS)\n",
 		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
 		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
+	
+	free(*complementary_edges); *complementary_edges = NULL;
+	free(*complementary_or);    *complementary_or = NULL;
+	free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+
 	return false;
 
       }
@@ -1754,6 +1811,11 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 		 "== %EDGE goes OVER at its head (%CROSS)\n",
 		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
 		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
+
+	  free(*complementary_edges); *complementary_edges = NULL;
+	  free(*complementary_or);    *complementary_or = NULL;
+	  free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+
 	  return false;
 
 	}
@@ -1773,6 +1835,11 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	       "(%CROSS).\n",
 	       pd, overstrand_edges[0],ieo,ieu,
 	       pd->edge[overstrand_edges[0]].head);
+
+      free(*complementary_edges); *complementary_edges = NULL;
+      free(*complementary_or);    *complementary_or = NULL;
+      free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+
       return false;
 
     }

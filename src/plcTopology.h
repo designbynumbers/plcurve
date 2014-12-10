@@ -711,7 +711,7 @@ extern "C" {
 
   */
 
-  typedef enum {in,out} pd_boundary_or_t;
+  typedef enum {in,out,unset} pd_boundary_or_t;
 
   typedef struct tangle_strand_struct {
 
