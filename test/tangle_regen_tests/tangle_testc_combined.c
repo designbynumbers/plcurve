@@ -236,10 +236,14 @@ pd_idx_t tangle_edges[4] = {3,7,4,6} ;
 pd_boundary_or_t edge_bdy_or[4] = {in,out,out,in} ;
 
 pd_idx_t ninterior_cross = 1 ;
-pd_idx_t interior_cross[1] = {3} ;
+pd_idx_t interior_cross[1] = {3};
 
-pd_idx_t ninterior_edges = 0 ;
-pd_idx_t interior_edge[0] = {} ;
+pd_idx_t ninterior_edges = 0;
+pd_idx_t interior_edge[1] = {PD_UNSET_IDX} ;
+
+pd_idx_t nstrands = 2;
+pd_tangle_strand_t strand_data[2] = {{0,2,2,0},
+				     {3,1,2,0}};
 
 
   printf("---------------------------------------\n"
@@ -416,6 +420,50 @@ pd_idx_t interior_edge[0] = {} ;
   }
 
   printf("pass (interior edges match)\n");
+
+  printf("testing strand data (%d) strands...\n",nstrands);
+
+  for(i=0;i<nstrands;i++) {
+
+     printf("\tstrand %d...",i);
+
+     if(strand_data[i].start_edge != t->strand[i].start_edge) {
+
+        printf("FAIL. (start_edge %d != expected start_edge %d)\n",
+               strand_data[i].start_edge,t->strand[i].start_edge);
+        return false;
+
+     }
+
+     if(strand_data[i].end_edge != t->strand[i].end_edge) {
+
+        printf("FAIL. (end_edge %d != expected end_edge %d)\n",
+               strand_data[i].end_edge,t->strand[i].end_edge);
+        return false;
+
+     }
+
+     if(strand_data[i].nedges != t->strand[i].nedges) {
+
+        printf("FAIL. (nedges %d != expected nedges %d)\n",
+               strand_data[i].nedges,t->strand[i].nedges);
+        return false;
+
+     }
+
+      if(strand_data[i].comp != t->strand[i].comp) {
+
+        printf("FAIL. (comp %d != expected comp %d)\n",
+               strand_data[i].comp,t->strand[i].comp);
+        return false;
+
+     }
+
+     printf("pass\n");
+
+  }
+
+  printf("testing strand data (%d) strands...pass\n",nstrands);
   
   printf("housecleaning...");
   

@@ -31,11 +31,18 @@
 
 pd_idx_t nedges = 10;
 pd_idx_t tangle_faces[10] = {8,1,2,10,3,12,5,11,4,9};
-pd_idx_t tangle_edges[10] = {20,3,16,2,10,14,7,12,19,9};
+pd_idx_t tangle_edges[10]        = {20,3 ,16 ,2  ,10,14,7  , 12,19 ,9};
 pd_boundary_or_t edge_bdy_or[10] = {in,in,out,out,in,in,out,out,out,in};
-
+/*                                   0  1  2   3   4  5  6   7   8  9  */
 pd_idx_t ninterior_cross = 7;
 pd_idx_t interior_cross[7] = {0,1,2,4,5,6,9};
 
 pd_idx_t ninterior_edges = 9;
 pd_idx_t interior_edge[9] = {0,1,4,5,6,18,11,15,21};
+
+pd_idx_t nstrands = 5;
+pd_tangle_strand_t strand_data[5] = {{0,8,4,3},
+				     {1,6,5,0},
+				     {4,7,3,1},
+				     {5,2,3,2},
+				     {9,3,4,0}};

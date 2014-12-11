@@ -6,10 +6,6 @@ cp ../tot_raw/tangle_slide_operation_testa.c .
 cp ../tot_raw/tangle_slide_operation_testa_after.pdstor .
 cp ../tot_raw/tangle_slide_operation_testa_before.pdstor .
 
-cp ../tot_raw/tangle_slide_operation_testc.c .
-cp ../tot_raw/tangle_slide_operation_testc_after.pdstor .
-cp ../tot_raw/tangle_slide_operation_testc_before.pdstor .
-
 python ./assemble_tangleslideops.py
 cp ./test_tangle_slide_ops_auto.c ../test_tangle_slide_ops.c
 cd ..

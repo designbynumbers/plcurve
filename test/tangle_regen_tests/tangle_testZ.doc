@@ -32,3 +32,7 @@ pd_idx_t interior_cross[1] = {PD_UNSET_IDX};
 
 pd_idx_t ninterior_edges = 0;
 pd_idx_t interior_edge[1] = {PD_UNSET_IDX};
+
+pd_idx_t nstrands = 2;
+pd_tangle_strand_t strand_data[2] = {{0,3,1,2},
+				  {2,1,1,1}};

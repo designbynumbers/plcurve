@@ -696,8 +696,29 @@ extern "C" {
           +-------------+  f[nfaces-2]
      f[2]   |  ....   |
 
-     Equivalently, a tangle is an embedded cycle in the dual graph of the diagram.
+     
+     Tangles must have unique edge sets (that is, the same edge is not
+     to occur twice in the boundary of a tangle). The face set need
+     not be unique: equivalently, a tangle a cycle in the dual graph
+     of the diagram which does not revisit the same edge, but may 
+     pass through a vertex more than once. 
 
+       	....................   	       	..................
+       	.      	/----\	   .		.  		 .
+       	. 	|    |	   .		.	 /--------------
+      --.-------|----/	   .	    ---------\	 |	 .
+       	.       |          .   	       	.    |	 |	 .
+       	.      	\----------.----	.    |	 |	 .
+       	. 		   .		.    |	 |	 .
+       	.   /--------------.----    ---------/ 	 |   	 .
+     ---.---|---\    	   .		.      	 |   	 .
+       	.   |  	|	   .	   --------------/	 .
+	.   \---/	   .		..................
+	....................
+
+        ok (even through face            not ok (same edge occurs
+	  occurs twice on bdy)             twice on the boundary)
+         
      The edges which enter or leave the tangle can be joined
      (pairwise) by chains of edges inside the tangle. Each such chain
      of edges is called a "strand" of the tangle. Note that the union
@@ -715,10 +736,13 @@ extern "C" {
 
   typedef struct tangle_strand_struct {
 
-    pd_idx_t start_edge;  /* Edge number (in tangle) where the strand enters the tangle. */
-    pd_idx_t end_edge;    /* Edge number (in tangle) where the strand exits the tangle. */
-    pd_idx_t nedges;      /* Number of edges incident to tangle (counting start, end) */
+    pd_idx_t start_edge;  /* Edge number (in tangle) where strand enters tangle. */
+    pd_idx_t end_edge;    /* Edge number (in tangle) where strand exits tangle. */
+    pd_idx_t nedges;      /* Number of edges in tangle (counting start, end) */
     pd_idx_t comp;        /* Component (in pd) containing this strand. */
+
+    /* The array of strands is stored in canonical order, sorted by 
+       the edge number (in the tangle) of the start edge. */
 
   } pd_tangle_strand_t;
 
@@ -749,9 +773,9 @@ extern "C" {
   void pd_tangle_free(pd_tangle_t **t);
 
   void pd_regenerate_tangle(pd_code_t *pd,pd_tangle_t *t);
-  /* The usual procedure for generating a tangle is to specify the loop of
-     edges and faces and call "pd_regenerate_tangle" in order to reconstruct
-     the remaining data. */
+  /* The usual procedure for generating a tangle is to specify the
+     loop of edges and faces and call "pd_regenerate_tangle" in order
+     to reconstruct the remaining data. */
 
   pd_boundary_or_t pd_tangle_bdy_or(pd_code_t *pd,pd_tangle_t *t, pd_idx_t pd_edge_num);
   /* Finds the boundary orientation of an edge on the tangle given the

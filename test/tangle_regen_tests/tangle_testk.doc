@@ -59,12 +59,21 @@
 /*           \__________________________________<25________/                   */
 /*                                                                             */   
 pd_idx_t nedges = 14 ;            
-pd_idx_t tangle_faces[14] = {0, 29,0,22,14,2, 17,18,0, 28,0, 24,0,23} ;
-pd_idx_t tangle_edges[14] = {49,49,0,35,1, 15,39,30,53,53,10,10,6,6} ;
-pd_boundary_or_t edge_bdy_or[14] = {in,out,out,out,in,out,in,in,in,out,out,in,out,in} ;
+pd_idx_t tangle_faces[14]        = {0, 29,0,22,14,2, 17,18,0, 28,0, 24,0,23} ;
+pd_idx_t tangle_edges[14]       ={49,49 ,0  ,35 ,1 ,15 ,39,30,53,53 ,10 ,10,6  ,6} ;
+pd_boundary_or_t edge_bdy_or[14]={in,out,out,out,in,out,in,in,in,out,out,in,out,in};
+/*                                  0  1   2   3  4   5  6  7  8   9  10 11  12 13*/
+pd_idx_t ninterior_cross = 18;
+pd_idx_t interior_cross[18]  = {0,2,3,4,5,6,7,8,9,10,11,12,13,23,24,25,26,27};
 
-pd_idx_t ninterior_cross = 18  ;
-pd_idx_t interior_cross[18]  = {0,2,3,4,5,6,7,8,9,10,11,12,13,23,24,25,26,27} ;
+pd_idx_t ninterior_edges = 29;
+pd_idx_t interior_edge[29] = {2,3,4,5,7,8,9,11,12,13,14,31,32,33,34,40,41,42,43,44,45,46,47,48,50,51,52,54,55};
 
-pd_idx_t ninterior_edges = 29  ;
-pd_idx_t interior_edge[29] = {2,3,4,5,7,8,9,11,12,13,14,31,32,33,34,40,41,42,43,44,45,46,47,48,50,51,52,54,55} ;
+pd_idx_t nstrands = 7;
+pd_tangle_strand_t strand_data[7] = {{0,9,5,2},
+				     {4,12,6,0},
+				     {6,3,10,1},
+				     {7,2,4,0},
+				     {8,1,5,2},
+				     {11,5,6,0},
+				     {13,10,5,0}};

@@ -265,6 +265,50 @@ bool tangle_test{NAME}() {{
   }}
 
   printf("pass (interior edges match)\n");
+
+  printf("testing strand data (%d) strands...\n",nstrands);
+
+  for(i=0;i<nstrands;i++) {{
+
+     printf("\tstrand %d...",i);
+
+     if(strand_data[i].start_edge != t->strand[i].start_edge) {{
+
+        printf("FAIL. (start_edge %d != expected start_edge %d)\n",
+               strand_data[i].start_edge,t->strand[i].start_edge);
+        return false;
+
+     }}
+
+     if(strand_data[i].end_edge != t->strand[i].end_edge) {{
+
+        printf("FAIL. (end_edge %d != expected end_edge %d)\n",
+               strand_data[i].end_edge,t->strand[i].end_edge);
+        return false;
+
+     }}
+
+     if(strand_data[i].nedges != t->strand[i].nedges) {{
+
+        printf("FAIL. (nedges %d != expected nedges %d)\n",
+               strand_data[i].nedges,t->strand[i].nedges);
+        return false;
+
+     }}
+
+      if(strand_data[i].comp != t->strand[i].comp) {{
+
+        printf("FAIL. (comp %d != expected comp %d)\n",
+               strand_data[i].comp,t->strand[i].comp);
+        return false;
+
+     }}
+
+     printf("pass\n");
+
+  }}
+
+  printf("testing strand data (%d) strands...pass\n",nstrands);
   
   printf("housecleaning...");
   

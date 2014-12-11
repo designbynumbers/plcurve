@@ -34,7 +34,11 @@ pd_idx_t tangle_edges[4] = {9,13,3,7} ;
 pd_boundary_or_t edge_bdy_or[4] = {out,in,out,in} ;
 
 pd_idx_t ninterior_cross = 3 ;
-pd_idx_t interior_cross[3] = {0,1,2} ;
+pd_idx_t interior_cross[3] = {0,1,2};
 
 pd_idx_t ninterior_edges = 4 ;
-pd_idx_t interior_edge[4] = {0,1,2,8} ;
+pd_idx_t interior_edge[4] = {0,1,2,8};
+
+pd_idx_t nstrands = 2;
+pd_tangle_strand_t strand_data[2] = {{1,2,5,0},
+				     {3,0,3,0}};

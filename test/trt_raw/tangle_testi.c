@@ -28,6 +28,7 @@
 /*   \      \                            /                       /    (9)     */
 /*    \      \______________________<6__/                       /             */
 /*     \_______________________________________________________/              */
+
 pd_idx_t nedges = 4 ;
 pd_idx_t tangle_faces[4] = {0,11,0,9} ;
 pd_idx_t tangle_edges[4] = {6,6,0,0} ;
@@ -38,3 +39,7 @@ pd_idx_t interior_cross[10] = {0,1,2,3,4,5,6,7,8,9} ;
 
 pd_idx_t ninterior_edges = 18 ;
 pd_idx_t interior_edge[18] = {1,2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19} ;
+
+pd_idx_t nstrands = 2;
+pd_tangle_strand_t strand_data[2] = {{0,3,13,0},
+				     {2,1,7,0}};

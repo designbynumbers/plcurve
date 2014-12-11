@@ -39,3 +39,9 @@ pd_idx_t interior_cross[7] = {5,6,7,8,9,10,11} ;
 
 pd_idx_t ninterior_edges = 12 ;
 pd_idx_t interior_edge[12] = {8,9,13,14,16,17,18,19,20,21,22,23} ;
+
+pd_idx_t nstrands = 2;
+pd_tangle_strand_t strand_data[2] = {{0,2,4,0},
+				     {3,1,4,0}};
+
+

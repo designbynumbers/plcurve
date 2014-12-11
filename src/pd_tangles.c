@@ -221,9 +221,14 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
     f[2]  +-------------+ f[n-2]    
              | ..... |
            e[2]     e[n-3]   
-              
+                
   and then consistency-checks remaining 
   tangle information.
+
+  Recall that the strands are supposed to be 
+  in canonical order and that the edges are 
+  supposed to be unique.
+
 */
 {
   pd_check_notnull(SRCLOC,"input pd code",pd);
@@ -254,8 +259,30 @@ bool pd_tangle_ok(pd_code_t *pd,pd_tangle_t *t)
   pd_check_notnull(SRCLOC,"t->edge",t->edge);
   pd_check_notnull(SRCLOC,"t->face",t->face);
 
-  pd_idx_t *pos_face,pfp,*neg_face,nfp;
   pd_idx_t i,j;
+  pd_idx_t *scratch = calloc(t->nedges,sizeof(pd_idx_t));
+  assert(scratch != NULL);
+  
+  for(i=0;i<t->nedges;i++) { scratch[i] = t->edge[i]; }
+  qsort(scratch,t->nedges,sizeof(pd_idx_t),pd_idx_cmp);
+  for(i=0;i<t->nedges-1;i++) {
+
+    if (scratch[i] == scratch[i+1]) {
+
+      pd_error(SRCLOC,
+	       "edge %d occurs more than once in the edge list of %TANGLE",
+	       pd,scratch[i],t);
+      return false;
+
+    }
+
+  }
+
+  free(scratch);
+
+  
+  pd_idx_t *pos_face,pfp,*neg_face,nfp;
+
 
   pos_face = calloc(t->nedges,sizeof(pd_idx_t));
   assert(pos_face != NULL);
@@ -614,6 +641,27 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 
   }
 
+  /* Now we check that the edge list does not contain repeats. */
+
+  pd_idx_t *scratch = calloc(t->nedges,sizeof(pd_idx_t));
+  for(i=0;i<t->nedges;i++) { scratch[i] = t->edge[i]; }
+  qsort(scratch,t->nedges,sizeof(pd_idx_t),pd_idx_cmp);
+  for(i=0;i<t->nedges-1;i++) {
+
+    if (scratch[i] == scratch[i+1]) {
+
+      pd_error(SRCLOC,
+	       "can't regenerate tangle %TANGLE when edge %d\n"
+	       "occurs more than once in the edge list\n",
+	       pd,t,scratch[i]);
+      exit(1);
+
+    }
+
+  }
+
+  free(scratch);
+
   /* We now check that the edges are, in fact, on the corresponding
      faces. */
 
@@ -723,22 +771,19 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 	    t->strand[s].nedges++,edges_considered++) {
 
 	/* Now we have to search the list of edges of the tangle to
-	   try to find this particular edge j. Keep in mind that j may
-	   appear twice if this is a one-strand edge. (in which case,
-	   we want the one with the OUT orientation). 
+	   try to find this particular edge j. Since edges are supposed
+	   to be unique, this should not happen more than once!*/
 
-	   We need to stay aware that in a one-edge strand, we may 
-	   have the same edge occurring twice in the tangle boundary,
-	   with opposite orientations. */
-
-	pd_idx_t si,nfound=0,tpos[2];
+	pd_idx_t si,nfound=0,tpos;
 
 	for(si=0;si<t->nedges;si++) { 
 	  if (t->edge[si] == j) { 
-	    if (nfound == 2) { 
-	      pd_error(SRCLOC,"found edge %d more than 2 times in edges of %TANGLE",pd,j,t);
+	    if (nfound == 1) { 
+	      pd_error(SRCLOC,
+		       "found edge %d > 1 times in edges of %TANGLE",pd,j,t);
+	      exit(1);
 	    } else {
-	      tpos[nfound] = si;
+	      tpos = si;
 	      nfound++;
 	    }
 	  }
@@ -746,48 +791,10 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 
 	if (nfound!=0) {
 
-	  /* We already know that we didn't find the edge more than
-	     twice on the boundary of the tangle, so we either found
-	     it 1 or 2 times. If we found it twice, this should be a
-	     one edge tangle, with orientations "in" and "out". If we
-	     found it once, this is either the start edge (and it has
-	     orientation "in") or the end edge (and it has orientation
-	     "out"). */
-	  
-	  /* First, we make sure that if nfound == 2, we have only one OUT */
-	  if (nfound == 2) {
-
-	    pd_idx_t out_count=0;
-
-	    if (t->edge_bdy_or[tpos[0]] == out) { out_count++; }
-	    if (t->edge_bdy_or[tpos[1]] == out) { out_count++; }
-
-	    if (out_count == 0 || out_count == 2) { 
-	       
-	      pd_error(SRCLOC,"found %EDGE twice on boundary of %TANGLE, "
-		       "but with orientations %EDGE_BDY_OR and %EDGE_BDY_OR",
-		       pd,t->edge[tpos[0]],t,t->edge_bdy_or[tpos[0]],
-		       t->edge_bdy_or[tpos[1]]);
-	      exit(1);
-
-	    } 
-
-	    if (t->edge_bdy_or[tpos[1]] == out) { /* Make sure the OUT instance is first */
-
-	      tpos[0] = tpos[1];
-
-	    }
-
-	  }
-
-	  /* At this point, if we have an out orientation at all, it's in position 0 */ 
-
-	  pd_idx_t bdypos = tpos[0];
-
-	  if (t->edge_bdy_or[bdypos] == out) { /* This is the end */ 
+	  if (t->edge_bdy_or[tpos] == out) { /* This is the end */ 
 	    
 	    found_end = true;
-	    t->strand[s].end_edge = bdypos;
+	    t->strand[s].end_edge = tpos;
 
 	  } /* If not, this is the first edge of the strand, which we do expect to 
 	       find, once, with orientation "in" */
@@ -802,7 +809,9 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 		 "component %COMP of pd appears\n"
                  "to enter tangle at least once (at tangle edge %d - %EDGE),\n"
 		 " but never leave it\n",
-		 pd,t->strand[s].comp,t->strand[s].start_edge,t->edge[t->strand[s].start_edge]);
+		 pd,t->strand[s].comp,
+		 t->strand[s].start_edge,
+		 t->edge[t->strand[s].start_edge]);
 
 	exit(1); 
 
@@ -851,11 +860,27 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 
   }
 
-  for(i=0;i<t->nedges;i++) { 
+  for(i=0;i<t->nstrands;i++) {
 
-    if (t->edge_bdy_or[i] == in) { 
+    /* We're going to walk each strand, using the edges in the 
+       strand to seed the search for interiors. */
 
-      tangle_contents_worker(pd,t,t->edge[i],0);
+    pd_idx_t nwalked,towalk;
+
+    towalk =
+      t->strand[i].nedges -
+      (t->strand[i].start_edge == t->strand[i].end_edge ? 1 : 0);
+
+    /* If the strand is a one-edge strand, then towalk = 1 - 1 = 0,
+       and we're simply not called. */
+    
+    pd_idx_t edge;
+
+    for(edge=t->edge[t->strand[i].start_edge],nwalked=0;
+	nwalked < towalk;
+	nwalked++,edge = pd_next_edge(pd,edge)) { 
+
+      tangle_contents_worker(pd,t,edge,0);
 
     }
 
@@ -867,7 +892,8 @@ void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *t)
 
 }
 
-void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,pd_idx_t edge,pd_idx_t depth)
+void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,
+			    pd_idx_t edge,pd_idx_t depth)
 /* 
    We are given an edge which is either inside the tangle or incident
    to the boundary of the tangle. 
@@ -883,8 +909,6 @@ void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,pd_idx_t edge,pd_idx_t 
 
 */
 {
-  pd_idx_t tangle_bdy_pos;
-
   /* First, make sure the failsafe is working. */
 
   if (depth > pd->nedges) { 
@@ -899,11 +923,37 @@ void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,pd_idx_t edge,pd_idx_t 
 
   }
 
-  /* Now see if we're exiting the tangle here. */
+  /* Now see if we're exiting the tangle here. We have to be 
+     careful at this point-- if this is part of a one-edge strand,
+     it may both enter AND exit the tangle, and match the tangle
+     edge buffer twice. */
 
-  if (pd_buf_contains(t->edge,t->nedges,edge,&tangle_bdy_pos)) { 
+  pd_idx_t i;
+  pd_idx_t matchpos;
+  pd_idx_t nmatches = 0;
 
-    if (t->edge_bdy_or[tangle_bdy_pos] == out) { 
+  for(i=0;i<t->nedges;i++) {
+
+    if (t->edge[i] == edge) {
+
+      if (nmatches == 1) { /* We've already matched! */
+
+	pd_error(SRCLOC,"%EDGE is on the boundary of %TANGLE\n"
+		 "in more than one location\n",pd,edge,t);
+	exit(1);
+
+      }
+
+      matchpos = i;
+      nmatches++;
+      
+    }
+
+  }
+
+  if (nmatches > 0) {
+
+    if (t->edge_bdy_or[matchpos] == out) { 
 
       return;
 
@@ -911,7 +961,8 @@ void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,pd_idx_t edge,pd_idx_t 
 
   } else { /* We're _in_ the tangle, so add this edge to the interior edges. */
 
-    t->interior_edge = pd_sortedbuf_insert(t->interior_edge,&(t->ninterior_edges),edge);
+    t->interior_edge
+      = pd_sortedbuf_insert(t->interior_edge,&(t->ninterior_edges),edge);
     
   }
     
@@ -927,7 +978,8 @@ void tangle_contents_worker(pd_code_t *pd,pd_tangle_t *t,pd_idx_t edge,pd_idx_t 
 
   }
 
-  /* If we haven't seen it, we need to add the crossing to the list of interior crossings. */
+  /* If we haven't seen it, we need to add the crossing to the list of
+     interior crossings. */
 
   t->interior_cross = pd_sortedbuf_insert(t->interior_cross,&(t->ninterior_cross),cr);
 
@@ -1580,7 +1632,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	       pd,match[correct_match].or);
       exit(1);
 
-    }
+    }	  
 
   }
 

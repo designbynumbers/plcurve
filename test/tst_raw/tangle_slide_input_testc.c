@@ -40,8 +40,8 @@ pd_idx_t border_faces[4] = {0,2,6,1};
 bool valid_ts_input = true ; /* overstrand goes under */
 
 pd_idx_t tangle_slide_edges[3] = {16,4,13};
-pd_idx_t complementary_edges[2] = {11,2};
-pd_boundary_or_t complementary_or[2] = {in,out};
+pd_idx_t complementary_edges[3] = {11,2,0};
+pd_boundary_or_t complementary_or[3] = {in,out,out};
 
 bool overstrand_goes_OVER = false;
 pd_or_t overstrand_orientation = PD_POS_ORIENTATION;

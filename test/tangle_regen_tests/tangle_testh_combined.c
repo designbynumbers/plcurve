@@ -479,7 +479,7 @@ bool tangle_testh() {
 /*        3| |     \        \ V    \___<0___|____ | _______<17_________/      */
 /*         | |      \  (6)   \|             |     |0                7         */
 /*          \|       \        |5            |     |                |          */
-/*           \       20       |\      (0)         |                |          */
+/*           \       20       |\      (0)   |     |                |          */
 /*           |\         v     7 \________   |     |                |          */
 /*           | \         \    v (10)     \  |     |                |          */
 /*           |  \         \    \         |  |     /                |          */
@@ -493,14 +493,22 @@ bool tangle_testh() {
 
 pd_idx_t nedges = 10 ;
 pd_idx_t tangle_faces[10] = {0,9,1,11,5,7,3,4,5,8} ;
-pd_idx_t tangle_edges[10] = {0,5,10,16,11,2,12,3,9,4} ;
+pd_idx_t tangle_edges[10]        = {0 ,5 ,10,16 , 11,2  ,12,3 ,9  ,4} ;
 pd_boundary_or_t edge_bdy_or[10] = {in,in,in,out,out,out,in,in,out,out} ;
+/*                                  0   1  2  3    4   5  6  7   8   9 */
 
 pd_idx_t ninterior_cross = 8 ;
 pd_idx_t interior_cross[8] = {1,2,4,5,6,8,9,10} ;
 
 pd_idx_t ninterior_edges = 11 ;
 pd_idx_t interior_edge[11] = {1,6,7,8,13,14,15,18,19,20,21} ;
+
+pd_idx_t nstrands = 5;
+pd_tangle_strand_t strand_data[5] = {{0,5,3,0},
+				     {1,8,5,0},
+				     {2,4,2,0},
+				     {6,3,5,0},
+				     {7,9,2,0}};
 
 
   printf("---------------------------------------\n"
@@ -677,6 +685,50 @@ pd_idx_t interior_edge[11] = {1,6,7,8,13,14,15,18,19,20,21} ;
   }
 
   printf("pass (interior edges match)\n");
+
+  printf("testing strand data (%d) strands...\n",nstrands);
+
+  for(i=0;i<nstrands;i++) {
+
+     printf("\tstrand %d...",i);
+
+     if(strand_data[i].start_edge != t->strand[i].start_edge) {
+
+        printf("FAIL. (start_edge %d != expected start_edge %d)\n",
+               strand_data[i].start_edge,t->strand[i].start_edge);
+        return false;
+
+     }
+
+     if(strand_data[i].end_edge != t->strand[i].end_edge) {
+
+        printf("FAIL. (end_edge %d != expected end_edge %d)\n",
+               strand_data[i].end_edge,t->strand[i].end_edge);
+        return false;
+
+     }
+
+     if(strand_data[i].nedges != t->strand[i].nedges) {
+
+        printf("FAIL. (nedges %d != expected nedges %d)\n",
+               strand_data[i].nedges,t->strand[i].nedges);
+        return false;
+
+     }
+
+      if(strand_data[i].comp != t->strand[i].comp) {
+
+        printf("FAIL. (comp %d != expected comp %d)\n",
+               strand_data[i].comp,t->strand[i].comp);
+        return false;
+
+     }
+
+     printf("pass\n");
+
+  }
+
+  printf("testing strand data (%d) strands...pass\n",nstrands);
   
   printf("housecleaning...");
   
