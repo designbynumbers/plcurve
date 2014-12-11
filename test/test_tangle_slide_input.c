@@ -698,7 +698,7 @@ pd_or_t overstrand_orientation = PD_NEG_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -1330,7 +1330,7 @@ pd_or_t overstrand_orientation = PD_POS_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -1962,7 +1962,7 @@ pd_or_t overstrand_orientation = PD_POS_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -2594,7 +2594,7 @@ pd_or_t overstrand_orientation = PD_POS_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -3366,7 +3366,7 @@ pd_or_t overstrand_orientation = PD_POS_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -4135,7 +4135,7 @@ pd_or_t overstrand_orientation = PD_UNSET_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -4905,7 +4905,7 @@ pd_or_t overstrand_orientation = PD_POS_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -5674,7 +5674,7 @@ pd_or_t overstrand_orientation = PD_UNSET_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -6443,7 +6443,7 @@ pd_or_t overstrand_orientation = PD_UNSET_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -7318,7 +7318,7 @@ pd_or_t overstrand_orientation = PD_POS_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -8193,7 +8193,7 @@ pd_or_t overstrand_orientation = PD_UNSET_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -9063,7 +9063,7 @@ pd_or_t overstrand_orientation = PD_POS_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 
@@ -9933,7 +9933,7 @@ pd_or_t overstrand_orientation = PD_UNSET_ORIENTATION;
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {
 

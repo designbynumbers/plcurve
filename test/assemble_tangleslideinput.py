@@ -267,7 +267,7 @@ bool pdint_check_tslide_data_ok_and_find_te_test{NAME}() {{
 
     printf("checking computed complementary_edges against expected...");
 
-    pd_idx_t Ncomplementary = t->nedges-noverstrand_edges-1;
+    pd_idx_t Ncomplementary = t->nedges-(noverstrand_edges-1);
 
     for(i=0;i<Ncomplementary;i++) {{
 

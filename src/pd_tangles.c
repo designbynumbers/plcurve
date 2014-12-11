@@ -1190,7 +1190,7 @@ void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
 
       for (j=1;j<npat && match_continues;j++) { 
 
-	match_continues = (buf[(i+j)%nbuf] == pat[npat-j]);
+	match_continues = (buf[(i+j)%nbuf] == pat[npat-1-j]);
 
       }
 
@@ -1212,7 +1212,7 @@ void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
 	(*match)[*nmatch] = pdint_sequence_match_new(npat);
 	for(j=0;j<npat;j++) { 
 	  
-	    (*match)[*nmatch].pos[j] = (i+npat-j)%nbuf;
+	    (*match)[*nmatch].pos[j] = (i+npat-1-j)%nbuf;
 	    
 	}
 	(*match)[*nmatch].or = PD_NEG_ORIENTATION;
@@ -1586,7 +1586,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
   /* We now set the complementary edges. */
 
-  pd_idx_t Ncomplementary = t->nedges - n - 1;
+  pd_idx_t Ncomplementary = t->nedges - (n - 1);
   *complementary_edges = calloc(Ncomplementary,sizeof(pd_idx_t));
   *complementary_or = calloc(Ncomplementary,sizeof(pd_boundary_or_t));
 
@@ -1614,14 +1614,30 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
 	 match.pos buffer [6,5,4,3]
 
-	 complementary edges should start with tangle pos 7 
-	 and count forwards */
+	 complementary edges should start with tangle pos 6 and count
+	 forwards (remember that the sequence is a sequence of FACES,
+	 and the faces have the corresponding edge at left. 
 
+
+	  M 	 e2   e1   e0  
+       	    f3 	  | f2 | f1 |  	f0 
+	       	+-------------+	   
+	^      	|    	      |	   
+	|   e3--|      	      |--e7
+	       	+-------------+	 
+             f4	  | f5 | f6 |  f7
+	   M   	  e4   e5   e6 	
+	      <-     M <- M	
+          
+          Here, the tangle edges are 5, 4, and 3, while the complementary
+          edges should be 6, 7, 0, 1, and 2. 
+		     
+      */
       (*complementary_edges)[i] = 
-	t->edge[(match[correct_match].pos[0]+1+i)%t->nedges];
+	t->edge[(match[correct_match].pos[0]+i)%t->nedges];
       
       (*complementary_or)[i] = 
-	t->edge_bdy_or[(match[correct_match].pos[0]+1+i)%t->nedges];
+	t->edge_bdy_or[(match[correct_match].pos[0]+i)%t->nedges];
 
     } else {
 
@@ -1846,6 +1862,66 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
   }
 
+  /* At this point, we should have complementary edges and
+     tangle_slide edges which completely partition the t->nedges
+     buffer without repeats. We should check this before returning.
+
+     To do so, we'll copy everything into scratch buffers, sort them,
+     and compare the sorted buffers. This should serve as a really
+     good sanity check for the code. */
+
+  pd_idx_t j;
+
+  pd_idx_t *scratchA = calloc(t->nedges,sizeof(pd_idx_t));
+  pd_idx_t *scratchB = calloc(t->nedges,sizeof(pd_idx_t));
+  assert(scratchA != NULL); assert(scratchB != NULL);
+
+  for(i=0;i<t->nedges;i++) {
+
+    scratchA[i] = t->edge[i];
+
+  }
+
+  for(i=0,j=0;j<n-1;j++,i++) {
+
+    scratchB[i] = (*tangle_slide_edges)[j];
+
+  }
+
+  for(j=0;j<(t->nedges) - (n-1);j++,i++) {
+
+    scratchB[i] = (*complementary_edges)[j];
+
+  }
+
+  qsort(scratchA,t->nedges,sizeof(pd_idx_t),pd_idx_cmp);
+  qsort(scratchB,t->nedges,sizeof(pd_idx_t),pd_idx_cmp);
+
+  for(i=0;i<t->nedges;i++) {
+
+    if (scratchA[i] != scratchB[i]) {
+
+      pd_printf("expected tangle_slide_edges %BUFFER \n"
+		"and complementary_edges %BUFFER \n"
+		"to partition t->edges %BUFFER \n"
+		"at end of pdint_check_tslide_data_ok_and_find_te\n"
+		"but this didn't happen.\n",NULL);
+
+      free(scratchA);
+      free(scratchB);
+      
+      free(*complementary_edges); *complementary_edges = NULL;
+      free(*complementary_or);    *complementary_or = NULL;
+      free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+
+      return false;
+
+    }
+
+  }
+
+  free(scratchA); free(scratchB);	       	      
+	
   /* We've now checked everything. */
 
   return true;
@@ -2506,7 +2582,7 @@ end_anchor   | 	    Tangle     	 |
 
   */
 
-  pd_idx_t ncomplementary_edges = t->nedges - n - 1;
+  pd_idx_t ncomplementary_edges = t->nedges - (n - 1);
 
   /* We now have a list of 0 or more complementary edges to work
      with. We're going to split each one in the middle with a new
@@ -2721,16 +2797,27 @@ end_anchor   | 	    Tangle     	 |
        or counterclockwise.
 
        This was determined above by the variable
-       overstrand_orientation, which is positive if we're going
-       counterclockwise (positively oriented, same as the direction of
-       tangle_edges and the like) and negative if we're going clockwise.
-
-       In the first case, we're coming IN at position 3 on the new crossings
-       and leaving at position 1, the second, vice-versa.*/
+       overstrand_orientation, which is positive if the original strand 
+       is going ccw. In this case, we're going clockwise (opposite to the
+       orientation of tangle_edges and the like) along the complementary
+       edges, which means we're entering at 1 and leaving at 3:
+    
+		  0   
+       	       	  |  
+       --->   1-------3	 ---->  (new strand going clockwise)
+                  |   	
+      	..........2.........  -tangle boundary
+          (tangle interior)
+		  |
+       
+       In the first case, we're coming IN at position 1 on the new crossings
+       and leaving at position 3, the second, vice-versa.*/
 
     pd_pos_t enter_pos, exit_pos;
-    if (overstrand_orientation == PD_POS_ORIENTATION) { enter_pos = 3; exit_pos = 1; }
-    else if (overstrand_orientation == PD_NEG_ORIENTATION) { enter_pos = 1; exit_pos = 3; }
+    if (overstrand_orientation == PD_POS_ORIENTATION)
+      { enter_pos = 1; exit_pos = 3; }
+    else if (overstrand_orientation == PD_NEG_ORIENTATION)
+      { enter_pos = 3; exit_pos = 1; }
     else { 
       pd_error(SRCLOC,"overstrand_orientation is %OR, neither POS nor NEG.\n",
 	       pd_working,overstrand_orientation); exit(1); 
