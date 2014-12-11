@@ -1,0 +1,46 @@
+rm *.c
+rm *.pdstor
+cp ../assemble_tangleregentest.py .
+
+cp ../trt_raw/tangle_testa.c .
+cp ../trt_raw/tangle_testa.pdstor .
+
+cp ../trt_raw/tangle_testb.c .
+cp ../trt_raw/tangle_testb.pdstor .
+
+cp ../trt_raw/tangle_testc.c .
+cp ../trt_raw/tangle_testc.pdstor .
+
+cp ../trt_raw/tangle_testd.c .
+cp ../trt_raw/tangle_testd.pdstor .
+
+cp ../trt_raw/tangle_teste.c .
+cp ../trt_raw/tangle_teste.pdstor .
+
+cp ../trt_raw/tangle_testf.c .
+cp ../trt_raw/tangle_testf.pdstor .
+
+cp ../trt_raw/tangle_testg.c .
+cp ../trt_raw/tangle_testg.pdstor .
+
+cp ../trt_raw/tangle_testh.c .
+cp ../trt_raw/tangle_testh.pdstor .
+
+cp ../trt_raw/tangle_testi.c .
+cp ../trt_raw/tangle_testi.pdstor .
+
+cp ../trt_raw/tangle_testj.c .
+cp ../trt_raw/tangle_testj.pdstor .
+
+cp ../trt_raw/tangle_testk.c .
+cp ../trt_raw/tangle_testk.pdstor .
+
+cp ../trt_raw/tangle_testZ.c .
+cp ../trt_raw/tangle_testZ.pdstor .
+
+python ./assemble_tangleregentest.py
+cp ./test_tangle_regenerate_auto.c ../test_tangle_regenerate.c
+cd ..
+make ./test_tangle_regenerate
+cd ./tangle_regen_tests
+
