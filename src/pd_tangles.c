@@ -1639,8 +1639,15 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
   /* We now set the complementary edges. */
 
   pd_idx_t Ncomplementary = t->nedges - (n - 1);
-  *complementary_edges = calloc(Ncomplementary,sizeof(pd_idx_t));
-  *complementary_or = calloc(Ncomplementary,sizeof(pd_boundary_or_t));
+
+  if (Ncomplementary != 0) {
+    
+    *complementary_edges = calloc(Ncomplementary,sizeof(pd_idx_t));
+    assert(*complementary_edges != NULL);
+    *complementary_or = calloc(Ncomplementary,sizeof(pd_boundary_or_t));
+    assert(*complementary_edges != NULL);
+
+  }
 
   for(i=0;i<Ncomplementary;i++) { 
 
@@ -1702,10 +1709,23 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	pdint_sequence_match_free(&(match[k]));
       }
       free(match);
+
+      if (*complementary_edges != NULL) {
+	
+	free(*complementary_edges);
+	*complementary_edges = NULL;
+
+      }
+
+      if (*complementary_or != NULL) {
+	
+	free(*complementary_or);
+	*complementary_or = NULL;
+
+      }
       
-      free(*complementary_edges); *complementary_edges = NULL;
-      free(*complementary_or);    *complementary_or = NULL;
-      free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+      free(*tangle_slide_edges);
+      *tangle_slide_edges = NULL;
       
       exit(1);
 
@@ -1745,9 +1765,22 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	pd_error(SRCLOC,"overstrand_edges[%d] == %EDGE is interior to %TANGLE\n",
 		 pd,i,overstrand_edges[i],t);
 
-	free(*complementary_edges); *complementary_edges = NULL;
-	free(*complementary_or);    *complementary_or = NULL;
-	free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+	if (*complementary_edges != NULL) {
+	  
+	  free(*complementary_edges);
+	  *complementary_edges = NULL;
+
+	}
+
+	if (*complementary_or != NULL) {
+	  
+	  free(*complementary_or);
+	  *complementary_or = NULL;
+
+	}
+	
+	free(*tangle_slide_edges);
+	*tangle_slide_edges = NULL;
 
 	return false;
 
@@ -1769,9 +1802,22 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 		 "incident edge of %TANGLE\n",
 		 pd,i,overstrand_edges[i],t);
 
-	free(*complementary_edges); *complementary_edges = NULL;
-	free(*complementary_or);    *complementary_or = NULL;
-	free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
+	if (*complementary_edges != NULL) {
+	  
+	  free(*complementary_edges);
+	  *complementary_edges = NULL;
+
+	}
+
+	if (*complementary_or != NULL) {
+	  
+	  free(*complementary_or);
+	  *complementary_or = NULL;
+
+	}
+	
+	free(*tangle_slide_edges);
+	*tangle_slide_edges = NULL;
 
 	return false;
 
@@ -1791,8 +1837,19 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	       "in orientation order along the their component in %PD",pd,
 	       i,i+1,overstrand_edges[i],overstrand_edges[i+1]);
 
-      free(*complementary_edges); *complementary_edges = NULL;
-      free(*complementary_or);    *complementary_or = NULL;
+      if (*complementary_edges != NULL) {
+	
+	free(*complementary_edges);
+	*complementary_edges = NULL;
+
+      }
+
+      if (*complementary_or != NULL) {
+	
+	free(*complementary_or);
+	*complementary_or = NULL;
+
+      }
       free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
 
       return false;
@@ -1840,9 +1897,20 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 		 "== %EDGE goes UNDER at its head (%CROSS)\n",
 		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
 		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
+	if (*complementary_edges != NULL) {
 	
-	free(*complementary_edges); *complementary_edges = NULL;
-	free(*complementary_or);    *complementary_or = NULL;
+	  free(*complementary_edges);
+	  *complementary_edges = NULL;
+
+	}
+
+	if (*complementary_or != NULL) {
+	  
+	  free(*complementary_or);
+	  *complementary_or = NULL;
+
+	}
+	
 	free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
 
 	return false;
@@ -1879,9 +1947,20 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 		 "== %EDGE goes OVER at its head (%CROSS)\n",
 		 pd,overstrand_edges[0],pd->edge[overstrand_edges[0]].head,j,
 		 overstrand_edges[j],pd->edge[overstrand_edges[j]].head);
+	  if (*complementary_edges != NULL) {
 
-	  free(*complementary_edges); *complementary_edges = NULL;
-	  free(*complementary_or);    *complementary_or = NULL;
+	    free(*complementary_edges);
+	    *complementary_edges = NULL;
+
+	  }
+
+	  if (*complementary_or != NULL) {
+	    
+	    free(*complementary_or);
+	    *complementary_or = NULL;
+
+	  }
+	  
 	  free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
 
 	  return false;
@@ -1904,8 +1983,19 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 	       pd, overstrand_edges[0],ieo,ieu,
 	       pd->edge[overstrand_edges[0]].head);
 
-      free(*complementary_edges); *complementary_edges = NULL;
-      free(*complementary_or);    *complementary_or = NULL;
+      if (*complementary_edges != NULL) {
+	
+	free(*complementary_edges);
+	*complementary_edges = NULL;
+
+      }
+
+      if (*complementary_or != NULL) {
+	
+	free(*complementary_or);
+	*complementary_or = NULL;
+
+      }
       free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
 
       return false;
@@ -1961,9 +2051,21 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
       free(scratchA);
       free(scratchB);
+
+      if (*complementary_edges != NULL) {
+	
+	free(*complementary_edges);
+	*complementary_edges = NULL;
+
+      }
+
+      if (*complementary_or != NULL) {
+	
+	free(*complementary_or);
+	*complementary_or = NULL;
+
+      }
       
-      free(*complementary_edges); *complementary_edges = NULL;
-      free(*complementary_or);    *complementary_or = NULL;
       free(*tangle_slide_edges);  *tangle_slide_edges = NULL;
 
       return false;
@@ -2762,7 +2864,7 @@ end_anchor   | 	    Tangle     	 |
        |     +-------------------+    |	     
        |         |   |       |        |
        |         |   |       | 	      |	     
-       +--e[n-1]+|  +|       |+--e[0]-+	      
+       +--e[n-1] |   |       | --e[0]-+	      
        	       	 |   | 	     |		   
   			    
     		     | 
@@ -2777,30 +2879,58 @@ end_anchor   | 	    Tangle     	 |
              +-------------------+     	     
   e[n-1]         |   |       |         
  deleted         |   |       | 	       	     	       	
-       	     +   |  +|       |  +      	       	       	
- former tail   	 |   | 	     |	  former head of e[0]  
-   of e[n-1]   	      				       
-    
+       	         |   |       |         	       	       	
+               	 |   | 	     |	                       
+               	      				       
+    						     
     */
 
-    pd_edge_t e0,enm1;
-    e0 = pd_working->edge[overstrand_edges[0]];
-    enm1 = pd_working->edge[overstrand_edges[n-1]];
+    pd_working->edge[overstrand_edges[0]].head =
+      pd_working->edge[overstrand_edges[n-1]].head;
 
-    /* Disconnect from the former head and tail crossings. */
-    pd_working->cross[e0.head].edge[e0.headpos] = PD_UNSET_IDX;
-    pd_working->cross[enm1.tail].edge[enm1.tailpos] = PD_UNSET_IDX;
+    pd_working->edge[overstrand_edges[0]].headpos =
+      pd_working->edge[overstrand_edges[n-1]].headpos;
 
-    /* Connect e0 to the end_anchor crossing record. */
-    pd_working->cross[end_anchor].edge[enm1.headpos] = overstrand_edges[0];
-    
-    /* Change the head and headpos of e0 to join the edge to end_anchor. */
-    pd_working->edge[overstrand_edges[0]].head = end_anchor;
-    pd_working->edge[overstrand_edges[0]].headpos = enm1.headpos;
+    /* We should also finish marking overstrand_edge n-1
+       as deleted. */
 
-    /* Delete the edge e[n-1] */
-    pd_working->edge[overstrand_edges[n-1]] = pd_unset_edge(); 
+    pd_working->edge[overstrand_edges[n-1]].head = PD_UNSET_IDX;
+    pd_working->edge[overstrand_edges[n-1]].headpos = PD_UNSET_POS;
 
+    /* Now we need to delete references to overstrand_edges[n-1]
+       elsewhere in pd_working. We start by observing that
+       this edge should be referenced at headpos in the 
+       head crossing */
+
+    pd_edge_t this_edge = pd_working->edge[overstrand_edges[0]];
+
+    pd_working->cross[this_edge.head].edge[this_edge.headpos] =
+      overstrand_edges[0];
+
+    /* We don't know the component number of the edge without 
+       searching, so let's just spin through and delete the 
+       reference to this edge number. */
+
+    pd_idx_t comp, edge;
+
+    for(comp=0;comp<pd_working->ncomps;comp++) {
+
+      for(edge=0;edge<pd_working->comp[comp].nedges;edge++) {
+
+	if (pd_working->comp[comp].edge[edge] == overstrand_edges[n-1]) {
+
+	  pd_working->comp[comp].edge[edge] = PD_UNSET_IDX;
+
+	}
+
+      }
+
+    }
+
+    /* Following our ongoing convention, we're going to leave the 
+       face data "dirty". Otherwise, we should really spin through
+       the faces and delete references to this edge as well. */
+								       
   } else {
 
        /* We have the following picture: 
@@ -3021,8 +3151,20 @@ end_anchor   | 	    Tangle     	 |
   /* We begin by preemptively freeing some memory. */
 
   free(tangle_slide_edges); tangle_slide_edges = NULL;
-  free(complementary_edges); complementary_edges = NULL;
-  free(complementary_or); complementary_or = NULL;
+
+  if (complementary_edges != NULL) {
+    
+    free(complementary_edges);
+    complementary_edges = NULL;
+
+  }
+
+  if (complementary_or != NULL) { 
+    
+    free(complementary_or);
+    complementary_or = NULL;
+
+  }
 
   /* Now we get to work. The first problem can be resolved with a
      compacting copy/edge update cycle, as we did in the other
@@ -3290,6 +3432,9 @@ end_anchor   | 	    Tangle     	 |
     }
 
   }
+
+  free(edge_appears);
+  edge_appears = NULL;
 
   /* Ok, we've checked that the list of components is as good as it's
      going to get. The problem now is that the diagram actually may 
