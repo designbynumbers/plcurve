@@ -112,10 +112,10 @@ void build_choice_vector(int N, int K,
     (*cv)[i].n = n;
     (*cv)[i].k = k;
     i++;
-    
-    n--;
+      
     if(gsl_rng_uniform(r) < new_ascent_probability(n,k)) { k--; }
     /* This generates a random number in [0,1). */
+    n--;
     
   } while (k != n-1 && k != 0);
 
@@ -503,6 +503,7 @@ void random_k_ascent_permutation(int n,int k,
      into the buffer, which should already have been allocated, and
      then free the wperm memory. */
 
+  free(cv);
   convert_wperm_to_buffer(&wp,perm);
   wperm_free(&wp);
 }

@@ -85,8 +85,66 @@ bool nap_lookup_table_test()
 
   }
 
-  printf("pass\n");
+  printf("pass\n\n");
+
+  printf("testing the line nap(3,1) ... nap(3,2) ...\n");
   
+  {
+    double expected_values3[2] =
+      {0.5,1.};
+  
+    int i;
+    for(i=1;i<=2;i++) {
+    
+      printf("\t nap(3,%d) = %g ... ",i,new_ascent_probability(3,i));
+
+      if (fabs(new_ascent_probability(3,i) - expected_values3[i-1]) > 1e-12) {
+      
+	printf("FAIL (!= %g)\n",expected_values3[i-1]);
+	return false;
+      
+      } else {
+
+	printf("pass\n");
+
+      }
+
+    }
+    
+  }
+
+  printf("testing the line nap(3,1) ... nap(3,2) ... pass\n\n");
+
+  printf("testing the line nap(4,1) ... nap(4,3) ...\n");
+  
+  {
+    double expected_values4[3] =
+      {0.2727272727272727,0.7272727272727273,1.};
+  
+    int i;
+    for(i=1;i<=3;i++) {
+    
+      printf("\t nap(4,%d) = %g ... ",i,new_ascent_probability(4,i));
+
+      if (fabs(new_ascent_probability(4,i) - expected_values4[i-1]) > 1e-12) {
+      
+	printf("FAIL (!= %g)\n",expected_values4[i-1]);
+	return false;
+      
+      } else {
+
+	printf("pass\n");
+
+      }
+
+    }
+    
+  }
+
+  printf("testing the line nap(4,1) ... nap(4,3) ... pass\n\n");
+
+
+
   printf("testing the line nap(9,1) ... nap(9,8) ...\n");
   
   double expected_values[8] =
@@ -681,7 +739,7 @@ bool build_choice_vector_test() {
   printf("with %s random number gen, seeded with %d.\n",
 	 gsl_rng_name(rng),seedi);
 
-  printf("generating some 10 choice vectors...\n");
+  printf("generating some 10 choice vectors for inspection...\n");
 
   int i;
   for(i=0;i<10;i++) {
@@ -730,6 +788,74 @@ bool build_choice_vector_test() {
     free(cv);
 
   }
+
+  printf("generating (4,2) choice vecs...");
+  int starts_with_ascending = 0;
+  int starts_with_descending = 0;
+  
+  for(i=0;i<10000;i++) {
+
+    perm_choice_t *cv;
+    int nchoices;
+    
+    build_choice_vector(4,2,
+			&nchoices,&cv,
+			rng);
+
+    int j;
+
+    if (nchoices > 4 || nchoices < 2) {
+
+      printf("FAIL (length of cv = %d > 4 or < 2)\n",
+	     nchoices);
+      return false;
+
+    }
+    
+    if (cv[nchoices-1].k != cv[nchoices-1].n - 1 &&
+	cv[nchoices-1].k != 0) {
+
+      printf("FAIL (choice vector ends with {%d,%d} != {n,n-1} or {n,0}) \n",
+	     cv[nchoices-1].n,cv[nchoices-1].k);
+      return false;
+      
+    }
+
+    if (cv[0].n != 4 || cv[0].k != 2) {
+
+      printf("FAIL (choice vector starts with {%d,%d} != {4,2})\n",
+	     cv[0].n,cv[0].k);
+      return false;
+
+    }
+
+    if (cv[nchoices-1].k == cv[nchoices-1].n - 1) {
+
+      starts_with_ascending++;
+
+    }
+
+    if (cv[nchoices-1].k == 0) {
+
+      starts_with_descending++;
+      
+    }
+
+    free(cv);
+
+  }
+
+  printf("(%d start with ascending, %d with descending)",
+	 starts_with_ascending,starts_with_descending);
+
+  if (starts_with_ascending == 0 || starts_with_descending == 0) {
+
+    printf("FAIL (some of each should be generated)\n");
+    return false;
+
+  }
+
+  printf("pass\n");
 
   printf("performance testing\n");
   printf("got 0.024 sec in Mathematica (2014) for (1000,500) vectors...");
@@ -1543,6 +1669,60 @@ int which63perm(int *perm)
   return -1; /* We didn't find it! */
 }
 
+typedef struct p4_struct {
+  int e[4];
+} perm4;
+
+static perm4 all42perms[11] =
+  {{{1, 2, 4, 3}},
+   {{1, 3, 2, 4}},
+   {{1, 3, 4, 2}},
+   {{1, 4, 2, 3}},
+   {{2, 1, 3, 4}},
+   {{2, 3, 1, 4}},
+   {{2, 3, 4, 1}},
+   {{2, 4, 1, 3}},
+   {{3, 1, 2, 4}},
+   {{3, 4, 1, 2}},
+   {{4, 1, 2, 3}}};
+
+int perm42_cmp(const void *A,const void *B)
+{
+  perm4 *a = (perm4 *)(A);
+  perm4 *b = (perm4 *)(B);
+
+  int j;
+
+  for(j=0;j<4;j++) {
+
+    if (a->e[j] != b->e[j]) {
+
+      return a->e[j] - b->e[j];
+
+    }
+
+  }
+
+  return 0;
+}
+
+int which42perm(int *perm)
+/* Identifies this permutation of 4 elements with 2 ascents using binary
+   search on all42perms, using the fact that all42perms is sorted in 
+   dictionary order. We'd do it brute-force, but we're going to call 
+   this 11,000 times, at least. */
+{
+  perm4 *loc = bsearch(perm,all42perms,11,sizeof(perm4),perm42_cmp);
+  if (loc != NULL) {
+
+    int pos = loc - all42perms;
+    assert(0 <= pos); /* By pointer arithmetic, should be position */
+    assert(10 >= pos);
+    return pos;
+
+  }
+  return -1; /* We didn't find it! */
+}
 
 bool test_k_ascent_permutation() {
 
@@ -1606,6 +1786,159 @@ bool test_k_ascent_permutation() {
 
   }
 
+  printf("testing database of 4 element permutations with 2 ascents...");
+  for(i=0;i<11;i++) {
+
+    if (!isperm(all42perms[i].e,4)) {
+
+      printf("FAIL (permutation %d doesn't pass isperm)\n",i);
+      return false;
+
+    }
+
+    if (ascent_count(all42perms[i].e,4) != 2) {
+
+      printf("FAIL (permutation %d has %d != 2 ascents)\n",
+	     i,ascent_count(all42perms[i].e,4));
+      return false;
+
+    }
+
+  }
+  printf("pass (all elts are permutations with 2 ascents)\n");
+
+  printf("testing ability to locate perms in all42perms...");
+
+  for(i=0;i<11;i++) {
+
+    if (which42perm(all42perms[i].e) != i) {
+
+      printf("FAIL (permutation %d appears in position %d)\n",
+	     i,which42perm(all42perms[i].e));
+      return false;
+
+    }
+
+  }
+      
+  printf("pass (was able to locate all perms)\n");
+
+  printf("generating 11,000 permutations of 4 elts with 2 ascents...");
+  int *tally;
+  tally = calloc(11,sizeof(int));
+  assert(tally != NULL);
+
+  for(i=0;i<11000;i++) {
+
+    int perm[4];
+    random_k_ascent_permutation(4,2,perm,rng);
+
+    if (!isperm(perm,4)) {
+
+      printf("FAIL. Generated buffer ");
+      int j;
+      for(j=0;j<4;j++) { printf("%d ",perm[i]); }
+      printf("which does not pass isperm\n");
+      return false;
+
+    }
+
+    if (ascent_count(perm,4) != 2) {
+
+      printf("FAIL. Generated buffer ");
+      int j;
+      for(j=0;j<4;j++) { printf("%d ",perm[i]); }
+      printf("which has %d != 2 ascents\n",
+	     ascent_count(perm,4));
+      return false;
+
+    }
+     
+    int pos;
+    pos = which42perm(perm);
+
+    if (pos == -1) {
+
+      printf("FAIL. Generated 2 ascent permutation ");
+      int j;
+      for(j=0;j<4;j++) { printf("%d ",perm[i]); }
+      printf(" which was not found in all42perms\n");
+      return false;
+
+    }
+
+    tally[pos]++;
+
+  }
+
+  double normalized_tally[302];
+
+  for(i=0;i<11;i++) {
+
+    normalized_tally[i] = (double)(tally[i])/1000.0;
+
+  }
+
+  printf("\n\tnormalized tallies are\n\t   0: ");
+
+  for(i=0;i<11;i++) {
+    
+    printf("%3.3f ",normalized_tally[i]);
+    if((i+1)%10 == 0) { printf("\n\t %3d: ",i+1); }
+
+  }
+
+  printf("\n\t");
+  
+  int found_count=0;
+  int missing_count=0;
+
+  for(i=0;i<11;i++) {
+
+    if (tally[i] == 0) { missing_count++; }
+    else { found_count++; }
+
+  }
+	   
+  printf("pass\n");
+
+  printf("\n\t%d found permutations are\n\t\n",found_count);
+  printf("\t{");
+
+  int printed_count = 0;
+  for(i=0;i<11;i++) {
+
+    if (tally[i] != 0) {
+
+      printf("%d",i+1);
+      printed_count++;
+      if (printed_count < found_count) { printf(","); }
+      if ((printed_count+1) % 10 == 0) { printf("\n\t"); }
+
+    }
+
+  }
+  printf("}\n");
+
+  printf("\n\t%d missing permutations are\n\t\n",missing_count);
+  printf("\t{");
+
+  printed_count = 0;
+  for(i=0;i<11;i++) {
+
+    if (tally[i] == 0) {
+
+      printf("%d",i+1);
+      printed_count++;
+      if (printed_count < missing_count) { printf(","); }
+      if ((printed_count+1) % 10 == 0) { printf("\n\t"); }
+
+    }
+
+  }
+  printf("}\n\n");
+  free(tally);
+
   printf("testing database of 6 element permutations with 3 ascents...");
   for(i=0;i<302;i++) {
 
@@ -1644,7 +1977,6 @@ bool test_k_ascent_permutation() {
   printf("pass (was able to locate all perms)\n");
 
   printf("generating 302,000 permutations of 6 elts with 3 ascents...");
-  int *tally;
   tally = calloc(302,sizeof(int));
   assert(tally != NULL);
 
@@ -1691,8 +2023,6 @@ bool test_k_ascent_permutation() {
 
   }
 
-  double normalized_tally[302];
-
   for(i=0;i<302;i++) {
 
     normalized_tally[i] = (double)(tally[i])/1000.0;
@@ -1709,8 +2039,75 @@ bool test_k_ascent_permutation() {
   }
 
   printf("\n\t");
+
+  missing_count = 0;
+  found_count = 0;
+
+  for(i=0;i<302;i++) {
+
+    if (tally[i] == 0) { missing_count++; }
+    else { found_count++; }
+    
+  }
+
+  printf("\n\t%d found permutations are\n\t\n",found_count);
+  printf("\t{");
+
+  printed_count = 0;
+  for(i=0;i<302;i++) {
+
+    if (tally[i] != 0) {
+
+      printf("%3d",i+1);
+      printed_count++;
+      if (printed_count < found_count) { printf(","); }
+      if ((printed_count+1) % 10 == 0) { printf("\n\t"); }
+
+    }
+
+  }
+  printf("}\n");
+
+  printf("\n\t%d missing permutations are\n\t\n",missing_count);
+  printf("\t{");
+
+  printed_count = 0;
+  for(i=0;i<302;i++) {
+
+    if (tally[i] == 0) {
+
+      printf("%3d",i+1);
+      printed_count++;
+      if (printed_count < missing_count) { printf(","); }
+      if ((printed_count+1) % 10 == 0) { printf("\n\t"); }
+
+    }
+
+  }
+  printf("}\n\n");
+
+  
   free(tally);
   printf("pass\n");
+
+  printf("performance testing\n");
+  printf("got 0.358 sec in Mathematica (2014) for (1000,500) permutations...");
+
+
+  int perm[1000];
+  start = clock();
+  
+  for(i=0;i<100;i++) {
+
+    random_k_ascent_permutation(1000,500,perm,rng);
+
+  }
+
+  end = clock();
+  cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/100.0;
+
+  printf("%g sec (for this system)\n",cpu_time_used);    
+  gsl_rng_free(rng);
 
   return true;
 
