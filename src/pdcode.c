@@ -2454,6 +2454,35 @@ pd_code_t *pd_copy(pd_code_t *pd)
   return pdA;
 }
 
+void pd_write_KnotTheory(FILE *of, pd_code_t *pd)
+/* Writes a pd code to file in the style of KnotTheory */
+{
+  pd_idx_t cross,under_in,under_out;
+  pd_pos_t pos;
+
+
+  fprintf(of,"PD[");
+
+  for(cross=0;cross<pd->ncross;cross++) {
+    pd_understrand_pos(pd, cross, &under_in, &under_out);
+    fprintf(of,"X[");
+    for(pos=0;pos<4;pos++) {
+      fprintf(of,"%u",(pd->cross[cross].edge[(under_in+pos)%4])+1);
+      if(pos<3) {
+	fprintf(of,",");
+      }
+    }
+    fprintf(of,"]");
+    if(cross<(pd->ncross)-1) {
+      fprintf(of,",");
+    }
+  }
+
+  fprintf(of,"]\n");
+}
+
+
+
 void pd_write(FILE *of,pd_code_t *pd)
 
 /* Writes a pd code (including all precomputed information) in human readable ASCII format. */

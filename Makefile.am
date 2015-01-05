@@ -2,6 +2,8 @@ SUBDIRS = src pysrc test
 
 dist_data_DATA = data/plCurve.typemap
 
+ACLOCAL_AMFLAGS = -I m4
+
 EXTRA_DIST = data/circle_closure_0.vect \
              data/circle_closure_1.vect \
              data/circle_closure_2.vect \

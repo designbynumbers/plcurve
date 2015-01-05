@@ -36,6 +36,7 @@ struct arg_lit  *knotsonly;
 struct arg_lit  *verbose;
 struct arg_lit  *help;
 struct arg_lit  *quiet;
+struct arg_lit  *KnotTheory;
 struct arg_end  *end;
 struct arg_end  *helpend;
 
@@ -133,7 +134,8 @@ int main(int argc,char *argv[]) {
       allorientations = arg_lit0(NULL,"generate-all-orientations","store a version of the pdcode will all orientation choices"),
       knotsonly = arg_lit0("k","knots-only","only process pdcodes for knots (1 component)\n"),
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
-      quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"), 
+      quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"),
+      KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory"),
       help = arg_lit0(NULL,"help","display help message"),
       end = arg_end(20)
     };
@@ -169,7 +171,8 @@ int main(int argc,char *argv[]) {
       fprintf(stderr,"processpdstor compiled " __DATE__ " " __TIME__ "\n");
       printf("processpdstor converts a file of pd_codes in the pdstor text file format\n"
 	     "to the Millett/Ewing ccode format. For each pdcode, we either store the \n"
-	     "ccode format -OR IF-\n"
+	     "ccode format -OR IF- the -K flag is set the pdcodes will be printed in\n"
+	     "in the style of KnotTheory\n"
 	     "\n"
 	     "--generate-all-crossing-signs is set, generate ccodes with all assignments of crossing signs\n"
 	     "\n"
@@ -380,7 +383,8 @@ int main(int argc,char *argv[]) {
 		working_pd->cross[i].sign = PD_POS_ORIENTATION;
 	      }
 	    }
-	      
+	    
+	    
 	    fprintf(out,"# %d crossing pd with UID %lu, crossings ",
 		    working_pd->ncross,working_pd->uid);
 	    for(i=0;i<working_pd->ncross;i++) { 
@@ -392,11 +396,21 @@ int main(int argc,char *argv[]) {
 	      fprintf(out,"%c",pd_print_or(component_orientations[i]));
 	    }
 	    fprintf(out,"\n");
-	
-	    char *ccode = pdcode_to_ccode(working_pd);
-	    fprintf(out,"%s\n",ccode);
+	    
+	    if(KnotTheory->count != 0) { /*KnotTheory flag is set*/
+	      pd_write_KnotTheory(out,working_pd); 
+	    }
+
+	    if(KnotTheory->count ==0){ /*KnotTheory flag not set*/
+	      char *ccode = pdcode_to_ccode(working_pd);
+	      fprintf(out,"%s\n",ccode);
+	      free(ccode);
+	    }
       
-	    free(ccode);
+	    //pd_write(out,working_pd);
+	    //pd_write_KnotTheory(out,working_pd);
+
+	    //free(ccode);
 	    pd_code_free(&working_pd);
 
 	    codes_written++;
