@@ -1,0 +1,3 @@
+The data in this directory were created using the following command to processpdstor (run from /src/):
+
+./processpdstor ../data/pdstors/3.pdstor -o ../data/KnotTheorycodes/3.knottheory --generate-all-crossing-signs --generate-all-orientations -k -K
