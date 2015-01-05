@@ -19,7 +19,7 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_kascent_permutations \
+check_PROGRAMS = test_k_ascent_permutations \
 		 test_tangle_slide_ops \
 		 test_splitdiagram \
 		 test_readkt \
@@ -52,7 +52,7 @@ check_PROGRAMS = test_kascent_permutations \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_kascent_permutations \
+TESTS = test_k_ascent_permutations \
 	test_tangle_slide_ops \
 	test_splitdiagram \
 	test_readkt \
