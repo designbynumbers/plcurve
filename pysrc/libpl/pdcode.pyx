@@ -1,6 +1,7 @@
 from pdcode cimport *
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libc.string cimport memcpy
+from libc.stdlib cimport malloc, free
 import sys
 from cython.operator cimport dereference as deref
 import random
@@ -1653,7 +1654,7 @@ cdef class PlanarDiagram:
         pd.ncross = ncross
         pd.nedges = ncross*2
         pd.nfaces = ncross+2
-        pd.ncomps = len(comps)
+        pd.ncomps = len(components)
 
         i_e = 0
         for component in components:
@@ -1668,12 +1669,12 @@ cdef class PlanarDiagram:
                 else:
                     pos = 2
 
-                pd.cross[i_tail][pos] = i_e
+                pd.cross[i_tail].edge[pos] = i_e
                 pd.edge[i_e].tail = i_tail
                 pd.edge[i_e].tailpos = pos
 
                 i_head = editor.Crossings.index(ehead.crossing)
-                pd.cross[i_head][pos] = i_e
+                pd.cross[i_head].edge[pos] = i_e
                 pd.edge[i_e].head = i_head
                 pd.edge[i_e].headpos = pos
 
@@ -1867,11 +1868,14 @@ cdef class PlanarDiagram:
             pd_code_free(&self.p)
             self.p = NULL
 
-cdef api pd_code_t *pd_simplify(pd_code_t *pd, int *ndias):
+cdef api pd_code_t **pd_simplify(pd_code_t *pd, int *ndias):
     cdef PlanarDiagram py_pd = PlanarDiagram_wrap(pd)
     cdef tuple simp_dias = py_pd.simplify()
-    cdef PlanarDiagram simp = simp_dias[0]
-    cdef pd_code_t *ret = simp.p
+    cdef PlanarDiagram simp
+    cdef pd_code_t **ret
     ndias[0] = len(simp_dias)
-    simp.p = NULL # It's in our hands now
+    ret = <pd_code_t **>malloc(ndias[0] * sizeof(pd_code_t*))
+    for i,simp in enumerate(simp_dias):
+        ret[i] = simp.p
+        simp.p = NULL # It's in C's hands now
     return ret
