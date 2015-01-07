@@ -6,7 +6,7 @@ from cython.operator cimport dereference as deref
 import random
 import re
 from operator import itemgetter, mul
-from itertools import islice, izip
+from itertools import islice, izip, cycle
 import os
 import libpl.data
 from libpl.graphs import PlanarSignedFaceDigraph
@@ -1636,10 +1636,49 @@ cdef class PlanarDiagram:
         return links.Link(sg_xings)
 
     @classmethod
-    def from_plink(cls, editor):
+    def from_plink(cls, editor, thin=False):
         """from_plink(editor) -> new PlanarDiagram
 
         Creates a new PlanarDiagram from a plink LinkEditor object."""
+
+        cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+        cdef pd_code_t* pd
+        cdef pd_idx_t ncross = len(editor.Crossings)
+        newobj.thin = thin
+
+        components = editor.crossing_components()
+        pd = pd_code_new(ncross+2)
+        newobj.p = pd
+
+        pd.ncross = ncross
+        pd.nedges = ncross*2
+        pd.nfaces = ncross+2
+        pd.ncomps = len(comps)
+
+        i_e = 0
+        for component in components:
+            for etail, ehead in izip(component, islice(cycle(component), 1, None)):
+                i_tail = editor.Crossings.index(etail.crossing)
+                if etail.crossing.goes_over():
+                    # TODO: ASSERT THAT THIS IS CORRECT INTERPRETATION
+                    if etail.crossing.sign() == "RH":
+                        pos = 1
+                    elif etail.crossing.sign() == "LH":
+                        pos = 3
+                else:
+                    pos = 2
+
+                pd.cross[i_tail][pos] = i_e
+                pd.edge[i_e].tail = i_tail
+                pd.edge[i_e].tailpos = pos
+
+                i_head = editor.Crossings.index(ehead.crossing)
+                pd.cross[i_head][pos] = i_e
+                pd.edge[i_e].head = i_head
+                pd.edge[i_e].headpos = pos
+
+                i_e += 1
+
 
     def ccode(self):
         return copy_and_free(pdcode_to_ccode(self.p))
