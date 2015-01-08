@@ -55,6 +55,8 @@
 #include <gsl/gsl_randist.h>
 #endif
 
+#include<plCurve.h>
+#include<plcTopology.h>
 #include<naptable.h>
 
 double new_ascent_probability(int n,int k)

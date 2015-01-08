@@ -282,8 +282,3 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
   }
 
 }
-    
-}
-
-
-  

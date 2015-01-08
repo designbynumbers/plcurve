@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_k_ascent_permutations \
+check_PROGRAMS = test_hypersimplex_sampling \
+		 test_k_ascent_permutations \
 		 test_tangle_slide_ops \
 		 test_splitdiagram \
 		 test_readkt \
@@ -52,7 +53,8 @@ check_PROGRAMS = test_k_ascent_permutations \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_k_ascent_permutations \
+TESTS = test_hypersimplex_sampling \
+	test_k_ascent_permutations \
 	test_tangle_slide_ops \
 	test_splitdiagram \
 	test_readkt \
@@ -82,7 +84,8 @@ TESTS = test_k_ascent_permutations \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_k_ascent_permutations \
+check_PROGRAMS = test_hypersimplex_sampling \
+		 test_k_ascent_permutations \
 		 test_tangle_slide_ops \
 		 test_splitdiagram \
 	         test_readkt \
@@ -109,7 +112,8 @@ check_PROGRAMS = test_k_ascent_permutations \
                  hopf_test \
 		 ccode_test
 
-TESTS = test_k_ascent_permutations \
+TESTS = test_hypersimplex_sampling \
+	test_k_ascent_permutations \
 	test_tangle_slide_ops \
 	test_splitdiagram \
 	test_readkt \
@@ -143,6 +147,11 @@ test_k_ascent_permutations_SOURCES = test_k_ascent_permutations.c
 test_k_ascent_permutations_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_k_ascent_permutations_LDFLAGS = -static
 test_k_ascent_permutations_CFLAGS = -I$(top_srcdir)/src
+
+test_hypersimplex_sampling_SOURCES = test_hypersimplex_sampling.c 
+test_hypersimplex_sampling_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_hypersimplex_sampling_LDFLAGS = -static
+test_hypersimplex_sampling_CFLAGS = -I$(top_srcdir)/src
 
 test_tangle_slide_ops_SOURCES = test_tangle_slide_ops.c 
 test_tangle_slide_ops_LDADD = -L$(top_builddir)/src -lplCurveStatic
