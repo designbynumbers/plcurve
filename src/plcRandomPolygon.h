@@ -52,21 +52,35 @@ extern "C" {
 
   /*-
 
-    This package uses the "toric symplectic Markov chain Monte Carlo
-    (tsmcmc)" algorithm to generate Markov chains of equilateral (or
-    fixed edgelength) polygons. These algorithms depend on selecting a
-    triangulation for a closed n-gon to determine which form of the
-    moment polytope for the triangulation to use.
+    This package implements several random polygon algorithms:
 
-    This is described in some detail in our paper:
+    1) The "toric symplectic Markov chain Monte Carlo (tsmcmc)"
+       algorithm to generate Markov chains of equilateral (or fixed
+       edgelength) polygons.
 
-    Symplectic Geometry of Random Walks in 3-space by Cantarella and Shonkwiler.
+       This is described in some detail in our paper:
 
-    If you don't want to worry about it, "fan" is always an acceptable
-    choice. If you want to play with special-purpose triangulations,
-    here are the definitions.
+       Symplectic Geometry of Random Walks in 3-space by Cantarella and Shonkwiler.
 
-    -*/
+       If you don't want to worry about it, "fan" is always an
+       acceptable choice. If you want to play with special-purpose
+       triangulations, here are the definitions.
+
+    2) The direct sampling algorithm from 
+
+       A fast direct sampling algorithm for closed equilateral polygons
+
+       by Cantarella, Shonkwiler, and Uehara. This is slower (per sample),
+       but produces samples that are known to be uncorrelated.
+
+
+
+    We start with the extra stuff for the first algorithm. It depends
+    on selecting a triangulation for a closed n-gon to determine which
+    form of the moment polytope for the triangulation to use, and you 
+    can control this here, if you want to.
+
+   -*/
 
 
   typedef enum chord_enum {diagonal,edge} chordtype_t;
@@ -202,6 +216,14 @@ extern "C" {
 
   tsmcmc_run_parameters tsmcmc_default_unconfined_parameters();
   tsmcmc_run_parameters tsmcmc_default_confined_parameters();
+
+  /* 
+     Direct Sampler. 
+
+  */
+
+  plCurve *plc_random_equilateral(int n,gsl_rng *rng);
+  /* Generate a random equilateral polygon using the CSU algorithm. */
 
   /*-
     Master functions for integrating over polygon space.

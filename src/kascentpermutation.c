@@ -509,7 +509,13 @@ void random_k_ascent_permutation(int n,int k,
 }
   
 
+void random_k_descent_permutation(int n,int k,
+				  int *perm,
+				  gsl_rng *rng) {
 
+  random_k_ascent_permutation(n,n-1-k,perm,rng);
+
+}
       
 
   

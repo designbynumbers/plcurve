@@ -697,7 +697,7 @@ void plc_single_rotation(gsl_rng *r,
   
 }
 
-plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
+plCurve *plc_vhda_polygon(gsl_rng *r,int nEdges)
 
 /* An implementation of the "fast ergodic double rotation" algorithm of 
    Varela, Hinson, Diao, Arsuaga, J. Phys. A. 42 (2009) */
@@ -803,7 +803,67 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
 
   return L;
 
-}   
+}
+
+double *hypercube_slice_sample(int n,gsl_rng *rng);
+
+plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
+/* Uses the CSU algorithm to generate a random equilateral closed polygon. */  
+{
+  double *s;
+  double *d = malloc((n-1)*sizeof(double));
+  assert(d != NULL);
+  bool distances_ok;
+  int i;
+  
+  do {
+
+    /* The first step is to generate a point in the central slice of 
+       the hypercube. We're going to let d[0] = 1.0 and d[n-2] = 1.0,
+       and fill in the remaining distances by summing the entries in
+       this sample. */
+
+    s = hypercube_slice_sample(n-2,rng);
+
+    /* Now we check to see if these are inside our rejection sampling
+       domain. */
+    
+    distances_ok = true;
+    
+    for(i=1;i<n-3 && distances_ok;i++) {
+
+      d[i] = d[i-1] + s[i];  /* Generate the distance. */
+
+      /* We don't have to complete the job if the sum of 
+	 successive distances is too small-- remember that
+         our conditions on the d[i] are that 
+
+         |d[i] - d[i-1]| <= 1.0 (already true because |s[i]| <= 1.0)
+
+         and 
+
+         d[i] + d[i-1] >= 1.0 (which we have to check). */
+
+      if (d[i] + d[i-1] < 1.0) { distances_ok = false; }
+
+    }
+
+    free(s);
+
+  } while (!distances_ok);
+
+  /* If we've gotten to this point, we generated a vector of acceptable
+     distances. We'll now sample angles, too. */
+
+  double *theta = malloc((n-3)*sizeof(double));
+  
+  for(i=0;i<(n-3);i++) { 
+  
+    /***** WORK TO DO HERE *****/
+    
+  }
+
+}
     
 
 plCurve *plc_random_equilateral_open_polygon(gsl_rng *r,int nEdges) 

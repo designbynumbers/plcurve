@@ -354,7 +354,7 @@ bool hypersimplex_test() {
   for(i=0;i<1000;i++) {
 
     double *x;
-    hypersimplex_sample(500,1000,rng);
+    x = hypersimplex_sample(500,1000,rng);
     free(x);
 
   }
@@ -410,19 +410,19 @@ bool hypercube_test() {
 
     printf("\t(");
 
-    for(j=0;j<9;j++) {
+    for(j=0;j<10;j++) {
 
       printf("%1.5g%s",x[j],
-	     j > 0 ? "," : "\n");
+	     j < 9 ? "," : ")\n");
 
     }
 
     double total = 0;
-    for(j=0;j<9;j++) {
+    for(j=0;j<10;j++) {
       total += x[j];
     }
 
-    for(j=0;j<9;j++) {
+    for(j=0;j<10;j++) {
       if (x[j] < -1.0 || x[j] > 1.0) {
 	printf("FAIL (element x[%d] = %g, not in [-1.0,1.0])\n",
 	       j,x[j]);
@@ -490,34 +490,32 @@ bool hypercube_test() {
 
   start = clock();
 
-  for(i=0;i<1000;i++) {
+  for(i=0;i<100;i++) {
 
     double *x;
-    hypercube_slice_sample(1000,rng);
+    x = hypercube_slice_sample(1000,rng);
     free(x);
 
   }
 
   end = clock();
-  cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/1000.0;
+  cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/100.0;
 
   printf("%g sec (for this system)\n",cpu_time_used);    
-  gsl_rng_free(rng);
-
   printf("performance testing for the 1001-cube...");
 
   start = clock();
 
-  for(i=0;i<1000;i++) {
+  for(i=0;i<100;i++) {
 
     double *x;
-    hypercube_slice_sample(1001,rng);
+    x = hypercube_slice_sample(1001,rng);
     free(x);
 
   }
 
   end = clock();
-  cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/1000.0;
+  cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/100.0;
 
   printf("%g sec (for this system)\n",cpu_time_used);    
   gsl_rng_free(rng);

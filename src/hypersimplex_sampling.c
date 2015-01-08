@@ -56,9 +56,9 @@
 
 /* We will link this in from kascentpermutation.c */
 
-void random_k_ascent_permutation(int n,int k,
-				 int *perm,
-				 gsl_rng *rng);
+void random_k_descent_permutation(int n,int k,
+				  int *perm,
+				  gsl_rng *rng);
 
 double *psi_inverse(int n,double *y)
 /* Given a vector of points  y (strictly) in (0,1)^{n-1},
@@ -152,16 +152,19 @@ double *hypersimplex_sample(int k, int n,gsl_rng *rng)
   }
 
   /* Now we need to resort these guys according to a (k-1)-ascent
-     permutation of (n-1) letters. */
+     permutation of (n-1) letters 1..(n-1). */
 
-  random_k_ascent_permutation(n-1,k-1,perm,rng);
+  random_k_descent_permutation(n-1,k-1,perm,rng);
 
   double *x = malloc((n-1)*sizeof(double));
   assert(x != NULL);
 
   for(i=0;i<n-1;i++) {
-  
-    x[i] = sorted_x[perm[i]];
+
+    /* We need to correct for the fact that this produces a
+       permutation of 1..n-1, not of 0..n-2. */
+    
+    x[i] = sorted_x[perm[i]-1];
   
   }
 
@@ -234,7 +237,7 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
     int i;
     z[n-1] = 0;
     
-    for(i=0;i<n;i++) {
+    for(i=0;i<n-1;i++) {
       
       z[i] = 2*y[i] - 1.0;
       z[n-1] -= z[i];
@@ -266,7 +269,7 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
       int i;
       z[n-1] = 0;
     
-      for(i=0;i<n;i++) {
+      for(i=0;i<n-1;i++) {
       
 	z[i] = 2*y[i] - 1.0;
 	z[n-1] -= z[i];
