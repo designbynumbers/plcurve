@@ -246,27 +246,43 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
 
   } else {
 
-    /* If n is odd, we have some more work to do. First, we observe that
-       we can take one of the two hypersimplices
+    /* If n is odd, we take one of the two hypersimplices
 
        (floor(n/2),n) or (ceil(n/2),n)
 
-       and perform the same linear transformation. However, if
+       and perform the same linear transformation. We're
+       rejection sampling here, so we may have to repeat
+       this process. 
+    */
 
-       z_n = 2(floor(n/2)) - n - Sum_{i=1}^{n-1} z_i,
+    double *z = malloc(n*sizeof(double));
+    assert(z != NULL);
+    
+    do {
 
-       we still know that 
+      int k = (gsl_rng_uniform_int(rng,2) == 0) ? floor(n/2) : ceil(n/2);
+      double *y = hypersimplex_sample(k,n,rng);
+     
+      int i;
+      z[n-1] = 0;
+    
+      for(i=0;i<n;i++) {
+      
+	z[i] = 2*y[i] - 1.0;
+	z[n-1] -= z[i];
 
-       Sum_{i=1}^{n-1} z_i = 2 Sum y_i  - n,
-                           = 2 Y - n - 1,
+      }
 
-       and (floor(n/2) - 1) <= Y < floor(n/2), so 
+      free(y);
 
-       2 (floor(n/2) - 1) - n - 1 <= Sum z_i <= 2 floor(n/2) - n - 1
+    } while (z[n-1] < -1.0 || z[n-1] > 1.0);
+    
+    return z;
 
-       But this means that 
+  }
 
-       2 (floor(n/2)) - n - Sum z_i 
+}
+    
 }
 
 
