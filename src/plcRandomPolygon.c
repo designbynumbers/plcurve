@@ -807,7 +807,85 @@ plCurve *plc_vhda_polygon(gsl_rng *r,int nEdges)
 
 double *hypercube_slice_sample(int n,gsl_rng *rng);
 
-plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
+plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
+/* 
+   Now we need to assemble the action-angle coordinates into a
+   polygon.  We've written this code before, but in a very general
+   way. Now we're going to use the fact that we know this is the fan
+   triangulation in order to run this as fast as possible. 
+*/
+{
+  int nv = n,cc = {0};
+  bool open = {false};
+  plCurve *L = plc_new(1,&nv,&open,&cc);
+
+  L->cp[0].vt[0] = plc_build_vect(0,0,0);
+  L->cp[0].vt[1] = plc_build_vect(1,0,0);
+
+  plc_vector normal = {{0,1,0}};
+  int i;
+
+  /* The way this is going to work is that we'll retain a normal vector 
+     for every triangle as we build it, updating as we apply the d[i]
+     and theta[i] in sequence. There are n-1 of the d's, starting with 
+     1.0 and ending with 1.0, but only n-3 of the thetas. */
+
+  for(i=1;i<n-2;i++) {
+
+    /* At this point, we're building vt[i+1] using the current value 
+       of normal, the position of vt[i], and the diagonal d[i-1]. 
+    
+       Define the angles of the triangles at the vertex across from
+       the edge vt[i]->vt[i+1] to be the alpha[i]; we won't store
+       the history of them, but we will need the current one. */
+
+    double cos_alpha = (d[i-1]*d[i-1] + d[i]*d[i] - 1.0)/(2.0*d[i-1]*d[i]);
+    double sin_alpha = sqrt(1 - cos_alpha*cos_alpha);
+
+    /*
+
+             d[i] 
+              |   <=== dihedral angle theta[i-1] applied HERE
+           f2 |   vt[i+1]  
+      f3\   ^ v /\
+         \  |  /  \  1 
+          \ | /    \ 
+           \|/a  f1 \
+            *----->--* vt[i]
+       vt[0]    ^ 	    
+                |
+              d[i-1]
+
+    */
+
+    plc_vector f1, f2, f3;
+    bool ok;
+    
+    f1 = plc_normalize_vect(L->cp[0].vt[i],&ok);
+    assert(ok);
+    f2 = plc_cross_prod(normal,f1);
+
+    L->cp[0].vt[i+1] = plc_vlincomb(d[i]*cos_alpha,f1,
+				    d[i]*sin_alpha,f2);
+
+    /* Now we have to rotate the normal by dihedral theta[i-1]. */
+
+    f3 = plc_cross_prod(normal,plc_normalize_vect(L->cp[0].vt[i+1],&ok));
+    assert(ok);
+    f3 = plc_normalize_vect(f3,&ok);  /* This shouldn't do anything */
+    
+    normal = plc_vlincomb(cos(theta[i-1]),normal,
+			  sin(theta[i-1]),f3);
+
+  }
+
+  assert(fabs(plc_distance(L->cp[0].vt[0],L->cp[0].vt[n-1]) - 1.0) < 1e-8);
+  plc_fix_wrap(L);
+  return L;
+}
+
+
+plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
 /* Uses the CSU algorithm to generate a random equilateral closed polygon. */  
 {
   double *s;
@@ -830,7 +908,7 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
     
     distances_ok = true;
     
-    for(i=1;i<n-3 && distances_ok;i++) {
+    for(i=1,d[0]=1.0;i<n-3 && distances_ok;i++) {
 
       d[i] = d[i-1] + s[i];  /* Generate the distance. */
 
@@ -844,7 +922,7 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
 
          d[i] + d[i-1] >= 1.0 (which we have to check). */
 
-      if (d[i] + d[i-1] < 1.0) { distances_ok = false; }
+      if (d[i] + d[i-1] < 1.0 || d[i] < 1e-12) { distances_ok = false; }
 
     }
 
@@ -856,13 +934,18 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges)
      distances. We'll now sample angles, too. */
 
   double *theta = malloc((n-3)*sizeof(double));
-  
+  double TWOPI = 6.2831853071795864769;
+    
   for(i=0;i<(n-3);i++) { 
   
-    /***** WORK TO DO HERE *****/
+    theta[i] = TWOPI * gsl_rng_uniform(rng); /* Generates in [0,1) */
     
   }
 
+  plCurve *L = fantriangulation_action_angle(n,theta,d);
+  free(theta); free(d);
+
+  return L;
 }
     
 

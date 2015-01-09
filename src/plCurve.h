@@ -216,7 +216,8 @@ extern "C" {
   double plc_norm(plc_vector A);
   double plc_distance(plc_vector A, plc_vector B);
   double plc_sq_dist(plc_vector A, plc_vector B);
-  double plc_angle(plc_vector A, plc_vector B, bool *ok); /* Returns an angle in [0,pi] */
+  double plc_angle(plc_vector A, plc_vector B, bool *ok);
+  /* Returns an angle in [0,pi] */
   double plc_dihedral_angle(plc_vector A, plc_vector B, plc_vector C, plc_vector D,bool *ok);
   /* Returns the dihedral angle (in [0,2pi)) of the AC diagonal in the (oriented)
      tetrahedron A->B->C->D */
