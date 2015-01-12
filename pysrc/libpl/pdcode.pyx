@@ -1873,6 +1873,7 @@ cdef api pd_code_t **pd_simplify(pd_code_t *pd, int *ndias):
     cdef tuple simp_dias = py_pd.simplify()
     cdef PlanarDiagram simp
     cdef pd_code_t **ret
+    py_pd.p = NULL # Cede the original diagram pointer to C
     ndias[0] = len(simp_dias)
     ret = <pd_code_t **>malloc(ndias[0] * sizeof(pd_code_t*))
     for i,simp in enumerate(simp_dias):
