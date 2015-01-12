@@ -14,6 +14,9 @@ from libpl.graphs import PlanarSignedFaceDigraph
 from libc.stdlib cimport free
 from collections import defaultdict
 
+from pdisomorphism cimport pd_iso_t, pd_build_diagram_isotopies
+from pdisomorphism cimport PlanarIsomorphism
+
 #from cython.view cimport array
 cimport cython
 
@@ -1049,6 +1052,17 @@ cdef class PlanarDiagram:
         other`` or ``not pd != other``.
         """
         return pd_diagram_isotopic(self.p, other_pd.p)
+
+    def build_isotopies(self, PlanarDiagram other_pd):
+        cdef unsigned int nisos
+        cdef pd_iso_t **isos
+
+        isos = pd_build_diagram_isotopies(self.p, other_pd.p, &nisos)
+        ret = tuple(PlanarIsomorphism() for _ in range(nisos))
+        for i in range(nisos):
+            (<PlanarIsomorphism>ret[i]).p = isos[i]
+
+        return ret
 
     def isomorphic(self, PlanarDiagram other_pd):
         """isomorphic(PlanarDiagram other_pd) -> bool

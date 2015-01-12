@@ -1,8 +1,8 @@
 if BUILD_PYTHON
 
 PY_FILES = __init__.py data.py graphs.py
-PYX_FILES = plcurve.pyx pdcode.pyx tsmcmc.pyx pdstor.pyx
-PXD_FILES = plcurve.pxd pdcode.pxd plCurve_h.pxd tsmcmc.pxd gsl_rng.pxd
+PYX_FILES = plcurve.pyx pdcode.pyx tsmcmc.pyx pdstor.pyx pdisomorphism.pyx
+PXD_FILES = plcurve.pxd pdcode.pxd plCurve_h.pxd tsmcmc.pxd gsl_rng.pxd pdisomorphism.pxd
 
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
