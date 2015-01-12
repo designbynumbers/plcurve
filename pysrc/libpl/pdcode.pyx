@@ -1674,12 +1674,14 @@ cdef class PlanarDiagram:
                 pd.edge[i_e].tailpos = pos
 
                 i_head = editor.Crossings.index(ehead.crossing)
-                pd.cross[i_head].edge[pos] = i_e
+                pd.cross[i_head].edge[(pos+2)%4] = i_e
                 pd.edge[i_e].head = i_head
-                pd.edge[i_e].headpos = pos
+                pd.edge[i_e].headpos = (pos+2)%4
 
                 i_e += 1
 
+        pd_regenerate(pd)
+        return newobj
 
     def ccode(self):
         return copy_and_free(pdcode_to_ccode(self.p))

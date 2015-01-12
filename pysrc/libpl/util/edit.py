@@ -10,11 +10,11 @@ def pd_edit(pd=None):
     completion, returns a new PlanarDiagram object.
     """
     if pd is not None:
-        editor = spherogram.Link(pd.pdcode()).view()
+        editor = pd.as_spherogram.view()#spherogram.Link(pd.pdcode()).view()
     else:
         editor = LinkEditor()
     Tkinter.mainloop()
-    return pdc.PlanarDiagram.from_pdcode(editor.PD_code())
+    return pdc.PlanarDiagram.from_plink(editor)
 
 if __name__ == "__main__":
     tref = pdc.PlanarDiagram.torus_knot(2,3)
