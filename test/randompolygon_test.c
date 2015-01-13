@@ -266,20 +266,23 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
   for(i=0;i<nPolygons;i++) {
     
     /* Generate polygon and compute chord data */
-    plCurve *L;
-    L = polygen(r,nEdges);
-    thispolychords = plc_mean_squared_chordlengths(L,0,Skips,nSkips);
+   
+    /*thispolychords = plc_mean_squared_chordlengths(L,0,Skips,nSkips); */
     
     /* Add to running total and to data set*/
     int j;
     for(j=0;j<nSkips;j++) {
-      allchords[j] += thispolychords[j];
-      datasets[j][i] = thispolychords[j];
+      plCurve *L;
+      L = polygen(r,nEdges);
+      double dist = plc_M_sq_dist(L->cp[0].vt[0],L->cp[0].vt[Skips[j]]);
+      allchords[j] += dist;
+      datasets[j][i] = dist;
+      plc_free(L);
     }
     
     /* Free memory */
-    free(thispolychords);
-    plc_free(L);
+    /*free(thispolychords);*/
+    /* plc_free(L); */
 
   }
 
@@ -696,14 +699,14 @@ int main(int argc, char *argv[]) {
 
   /* Mean squared chordlength tests. */
 
-  int Skips[100] = {50,100,150,200,250,300,350,400,450};
+  int Skips[100] = {10,20,30,40,50,60,70,80,90};
   int nSkips = 9;
   nPolygons = 60000;
-  int nEdges = 500;
+  int nEdges = 250;
 
-  int nEQEdges = 200;
-  int EQSkips[100] = {10,15,20,25,30,35,40,45,50};
-  int noddEQEdges = 199;
+  int nEQEdges = 250;
+  int EQSkips[100] = {10,20,30,40,50,60,70,80,90};
+  int noddEQEdges = 249;
   int nEQSkips = 9;
   int nEQPolygons = 5000;
   
@@ -735,9 +738,9 @@ int main(int argc, char *argv[]) {
   int gySizes[100] = {150,150,200,250,300,350,400,450,500};
   int ngySizes = 1;
   nPolygons = 40000;
-  int nEQgySizes = 3;
-  int EQgySizes[100] = {50,100,150};
-  int oddEQgySizes[100] = {49,99,149};
+  int nEQgySizes = 5;
+  int EQgySizes[100] = {50,100,150,200,250};
+  int oddEQgySizes[100] = {49,99,149,199,249};
   nEQPolygons = 2000;
 
   if (PAPERMODE) { 

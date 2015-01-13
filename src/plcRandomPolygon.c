@@ -863,7 +863,8 @@ plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
     
     f1 = plc_normalize_vect(L->cp[0].vt[i],&ok);
     assert(ok);
-    f2 = plc_cross_prod(normal,f1);
+    f2 = plc_normalize_vect(plc_cross_prod(normal,f1),&ok);
+    assert(ok);
 
     L->cp[0].vt[i+1] = plc_vlincomb(d[i]*cos_alpha,f1,
 				    d[i]*sin_alpha,f2);
@@ -880,6 +881,7 @@ plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
     
       normal = plc_vlincomb(cos(theta[i-1]),normal,
 			    sin(theta[i-1]),f3);
+      normal = plc_normalize_vect(normal,&ok);
 
     }
 
