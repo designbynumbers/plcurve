@@ -2847,13 +2847,16 @@ double *plc_mean_squared_chordlengths( plCurve *L, int cp, int *skips,int nskips
 
       for(i=0;i<nskips;i++) {
 
+	int data = 0;
+
 	for(a=bufferA,b=bufferB+skips[i];b<bufferB+numverts;a++,b++) {
 
 	  means[i] += plc_M_sq_dist(*a,*b);
+	  data++;
 	  
 	}
 
-	means[i] /= numverts - skips[i];
+	means[i] /= data;
 
       }
 

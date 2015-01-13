@@ -27,6 +27,10 @@
 #include<stdio.h>
 #endif
 
+#ifdef HAVE_ASSERT_H
+#include<assert.h>
+#endif
+
 #ifdef HAVE_GSL_GSL_RNG_H
 #include<gsl/gsl_rng.h>
 #endif
@@ -151,70 +155,6 @@ void timestamp(FILE *outfile) {
   
 }
 
- /* Generate chordlength data for N samples of NEDGE polygons at skips J, 2J, 3J, .... */
-
-double *mean_squared_chordlengths(int N,int NEDGE,int J)
-
- {
-   plCurve *test;
-   double *chordlengthdata;
-   chordlengthdata = calloc(NEDGE,sizeof(double));
-
-   int skip;
-   int i;
-   
-   for(i=0;i<N;i++) {
-
-     test = plc_random_closed_polygon(r,NEDGE);
-
-     for(skip=J;skip<NEDGE;skip+=J) {
-
-	chordlengthdata[skip] += plc_M_sq_dist(test->cp[0].vt[0],test->cp[0].vt[skip]);
-
-     }
-     
-     plc_free(test);
-     
-   }
-   
-   for(i=0;i<NEDGE;i++) { chordlengthdata[i] /= N; }
-   
-   return chordlengthdata;
-
- }
-
- /* Generate chordlength data for N samples of NEDGE polygons at skips J, 2J, 3J, .... */
-
-double *open_mean_squared_chordlengths(int N,int NEDGE,int J)
-
- {
-   plCurve *test;
-   double *chordlengthdata;
-   chordlengthdata = calloc(NEDGE,sizeof(double));
-
-   int skip;
-   int i;
-   
-   for(i=0;i<N;i++) {
-
-     test = plc_random_open_polygon(r,NEDGE);
-     
-     for(skip=J;skip<NEDGE;skip+=J) {
-       
-       chordlengthdata[skip] += plc_M_sq_dist(test->cp[0].vt[0],test->cp[0].vt[skip]);
-       
-     }
-     
-     plc_free(test);
-
-   }
-   
-   for(i=0;i<NEDGE;i++) { chordlengthdata[i] /= N; }
-   
-   return chordlengthdata;
-
- }
-
 bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,
 			     plCurve *polygen(gsl_rng *r,int nEdges),
 			     char *typestring,char *shortstring,bool length2) {
@@ -313,8 +253,15 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
  
   start = clock();
 
-  double *allchords,*thispolychords;
+  double *allchords,*thispolychords,*allSE;
   allchords = calloc(sizeof(double),nSkips);
+  allSE = calloc(sizeof(double),nSkips);
+  
+  double **datasets = calloc(sizeof(double *),nSkips);
+  for(i=0;i<nSkips;i++) {
+    datasets[i] = calloc(sizeof(double),nPolygons);
+    assert(datasets[i] != NULL);
+  }
   
   for(i=0;i<nPolygons;i++) {
     
@@ -323,10 +270,11 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
     L = polygen(r,nEdges);
     thispolychords = plc_mean_squared_chordlengths(L,0,Skips,nSkips);
     
-    /* Add to running total */
+    /* Add to running total and to data set*/
     int j;
     for(j=0;j<nSkips;j++) {
       allchords[j] += thispolychords[j];
+      datasets[j][i] = thispolychords[j];
     }
     
     /* Free memory */
@@ -335,7 +283,29 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
 
   }
 
-  for(i=0;i<nSkips;i++) { allchords[i] /= (double)(nPolygons); }
+  for(i=0;i<nSkips;i++) {
+
+    allchords[i] /= (double)(nPolygons); 
+
+    /* Now we're going to compute the standard error for each data set. */
+    double sampvar = 0;
+    int j;
+    
+    for(j=0;j<nPolygons;j++) {
+
+      sampvar += (datasets[i][j] - allchords[i])*(datasets[i][j] - allchords[i]);
+      
+    }
+    
+    sampvar /= (double)(nPolygons-1); /* Bessel's correction */
+    double SE = sqrt(sampvar/(double)(nPolygons)); /* Standard error. */
+    
+    allSE[i] = SE;
+    free(datasets[i]);
+    
+  }
+  free(datasets);
+  
   end = clock();
   cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
 
@@ -344,26 +314,28 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
   /* Now display results. */
 
   printf("According to CDS, the predicted value of squared chord length \nfor %s at skip k is %s\n\n",polygon_type,prediction_string);
-  printf("Skip      Computed Average    Predicted Average   Difference  Result\n"
-	 "---------------------------------------------------------------------------\n");
+  printf("Skip      Computed Average    Predicted Average   Difference     95%% Confidence     Result\n"
+	 "----------------------------------------------------------------------------------------------------------------------\n");
 
   for(i=0;i<nSkips;i++) {
     
     double predicted  = prediction(nEdges,Skips[i]);
-    double percenterr = 100*(fabs(allchords[i] - predicted)/predicted);
+    double err = allchords[i] - predicted;
+    double SE = allSE[i];
 
-    printf("%-5d     %-13.7g       %-13.7g       %3.3f %%",Skips[i],allchords[i],predicted,percenterr);
+    printf("%-5d     %-13.7g       %-13.7g       %+-13.7g  %-13.7g",Skips[i],allchords[i],predicted,err,1.96*SE);
 
     if (PAPERMODE) {
       fprintf(outfile,", %d , %g ",Skips[i],allchords[i]);
     }
 
-    if (percenterr > 1.0) { printf("      FAIL (> 1%%).\n"); PASS = false; }
-    else { printf("      pass (< 1%%).\n"); }
+    if (fabs(err) > 1.96*SE) { printf("      WARN (> 95%% confidence interval).\n"); PASS = true; }
+    else if (fabs(err) > 3.20*SE) { printf("      FAIL (> 99.9%% confidence interval).\n"); PASS = false; }
+    else { printf("      pass (in 95%% confidence interval).\n"); }
     
   }
 
-  printf("---------------------------------------------------------------------------\n");
+  printf("----------------------------------------------------------------------------------------------------------------------\n");
   printf("\n\n");
 
   if (PAPERMODE) {
@@ -371,6 +343,7 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
   }
     
   free(allchords);
+  free(allSE);
   return PASS;
 
 }
@@ -435,23 +408,48 @@ bool gyradius_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng 
 
   double *allgyradius;
   allgyradius = calloc(sizeof(double),nSizes);
+  double *allError;
+  allError = calloc(sizeof(double),nSizes);
 
   for(j=0;j<nSizes;j++) {
+
+    double *data = calloc(nPolygons,sizeof(double));
   
     for(i=0;i<nPolygons;i++) {
     
       /* Generate polygon and compute gyradius */
       plCurve *L;
       L = polygen(r,Sizes[j]);
-      allgyradius[j] += plc_gyradius(L);
+      double gyr = plc_gyradius(L);
+      
+      allgyradius[j] += gyr;
+      data[i] = gyr;
   
       /* Free memory */
       plc_free(L);
       
     }
 
+    /* Now we need to compute the 95% confidence interval
+       for this sample to see if it's in spec. To do that,
+       we compute sample variance. */
+
     allgyradius[j] /= (double)(nPolygons);
 
+    double sampvar = 0;
+    for(i=0;i<nPolygons;i++) {
+
+      sampvar += (data[i] - allgyradius[j])*(data[i] - allgyradius[j]);
+
+    }
+
+    sampvar /= (double)(nPolygons-1); /* Bessel's correction */
+    double SE = sqrt(sampvar/(double)(nPolygons)); /* Standard error. */
+
+    /* The 95% confidence interval is given by the sample mean +- 1.96 * SE. */
+
+    allError[j] = 1.96*SE;
+    free(data);
   }
   end = clock();
   cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
@@ -461,22 +459,24 @@ bool gyradius_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng 
   /* Now display results. */
 
   printf("According to CDS, the expected value of gyradius for n edges is is %s\n\n",prediction_string);
-  printf("n (num verts)    Mean Gyradius    Predicted Mean Gyradius   Difference  Result\n"
-	 "------------------------------------------------------------------------------\n");
+  printf("n (num verts)    Mean Gyradius    Predicted Mean Gyradius   Difference      95%% Error       Result\n"
+	 "---------------------------------------------------------------------------------------------------------------\n");
 
   for(i=0;i<nSizes;i++) {
     
     double predicted  = prediction(Sizes[i]);
-    double percenterr = 100*(fabs(allgyradius[i] - predicted)/predicted);
+    double err = allgyradius[i] - predicted;
+    double okerr = allError[i];
 
-    printf("%-5d            %-13.7g    %-13.7g             %7.3f %%",Sizes[i],allgyradius[i],predicted,percenterr);
+    printf("%-5d            %-13.7g    %-13.7g             %-+13.6g   %-13.6g",Sizes[i],allgyradius[i],predicted,err,okerr);
 
     if (PAPERMODE) {
       fprintf(outfile,", %d , %g",Sizes[i],allgyradius[i]);
     }
 
-    if (percenterr > 1.0) { printf("   FAIL (> 1%%).\n"); PASS = false; }
-    else { printf("   pass (< 1%%).\n"); }
+    if (fabs(err) > okerr) { printf("   WARN (outside 95 %% confidence).\n"); PASS = true; }
+    else if (fabs(err) > (3.290/1.96)*okerr) { printf("   FAIL (outside 99.9 %% confidence).\n"); PASS = false; }
+    else { printf("   pass (within 95 %%).\n"); }
     
   }
 
@@ -672,7 +672,7 @@ int main(int argc, char *argv[]) {
 
   int Sizes[100] = {20,200,2000,20000};
   int nSizes = 3;
-  int nPolygons = 400;
+  int nPolygons = 40;
   int nEQSizes = 3;
   int eqSizes[100] = {10,100,500,1000};
   int oddeqSizes[100] = {9,99,499,999};
@@ -705,7 +705,7 @@ int main(int argc, char *argv[]) {
   int EQSkips[100] = {10,15,20,25,30,35,40,45,50};
   int noddEQEdges = 199;
   int nEQSkips = 9;
-  int nEQPolygons = 50000;
+  int nEQPolygons = 5000;
   
   if (PAPERMODE) { 
     outfile = fopen("mean_squared_chordlength.csv","w");
@@ -738,7 +738,7 @@ int main(int argc, char *argv[]) {
   int nEQgySizes = 3;
   int EQgySizes[100] = {50,100,150};
   int oddEQgySizes[100] = {49,99,149};
-  nEQPolygons = 20000;
+  nEQPolygons = 2000;
 
   if (PAPERMODE) { 
     outfile = fopen("gyradius.csv","w");
