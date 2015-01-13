@@ -215,7 +215,9 @@ double *open_mean_squared_chordlengths(int N,int NEDGE,int J)
 
  }
 
-bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng *r,int nEdges),char *typestring,char *shortstring) {
+bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,
+			     plCurve *polygen(gsl_rng *r,int nEdges),
+			     char *typestring,char *shortstring,bool length2) {
 
   clock_t start,end;
   double cpu_time_used;
@@ -244,8 +246,13 @@ bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polyge
 
       test = polygen(r,Sizes[i]); 
       length = plc_arclength(test,NULL);
-      
-      if (fabs(length - 2.0)  > 1e-10) { localPASS = false; }
+
+      if (length2) {
+	if (fabs(length - 2.0)  > 1e-10) { localPASS = false; }
+      } else {
+	if (fabs(length - Sizes[i]) > 1e-10) { localPASS = false; }
+      }
+
       plc_free(test);
 
     }
@@ -254,7 +261,8 @@ bool timing_and_length2_test(int nPolygons,int nSizes,int *Sizes,plCurve *polyge
     cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
     cpu_time_used /= (double)(nPolygons);
     
-    printf("%-10d   %-5d         %-5g     %-13.4g          ",Sizes[i],nPolygons,length,cpu_time_used);
+    printf("%-10d   %-5d         %-5g     %-13.4g          ",
+	   Sizes[i],nPolygons,length,cpu_time_used);
 
     if (PAPERMODE) {
       fprintf(outfile,", %d , %g ",Sizes[i],cpu_time_used);
@@ -390,9 +398,9 @@ double plane_arm_prediction(int n,int k) {
 char plane_arm_predstring[256] = "8k/(n(n+1))";
 
 double eq_pol_prediction(int n,int k) {
-  return (double)((n-k)*4*k)/(double)((n-1)*n*n);
+  return (double)((n-k)*k)/(double)((n-1));
 }
-char eq_pol_predstring[256] = "((n-k)/(n-1)) (4k/n^2)";
+char eq_pol_predstring[256] = "(k(n-k)/(n-1))";
 
 double eq_arm_prediction(int n,int k) {
   return (double)(4*k)/(double)(n*n);
@@ -504,9 +512,9 @@ double plane_arm_gyradius_prediction(int n) {
 char plane_arm_gyradius_predstring[256] = "(4/3) (n+2)/(n+1)^2";
 
 double eq_pol_gyradius_prediction(int n) {
-  return (double)(n+1)/(double)(3.0*n*n);
+  return (double)(n+1)/(double)(12.0);
 }
-char eq_pol_gyradius_predstring[256] = "(1/3) (n+1)/n^2";
+char eq_pol_gyradius_predstring[256] = "(n+1)/12";
 
 double eq_arm_gyradius_prediction(int n) {
   return (double)(2.0*(n+2))/(double)(3.0*n*(n+1));
@@ -660,25 +668,27 @@ int main(int argc, char *argv[]) {
   test_gaussianarray();
   test_hdot();
 
-  /* Timing and Length = 2.0 tests. */
+  /* Timing and Length tests. */
 
   int Sizes[100] = {20,200,2000,20000};
   int nSizes = 3;
   int nPolygons = 400;
   int nEQSizes = 3;
-  int eqSizes[100] = {20,200,2000,20000};
+  int eqSizes[100] = {10,100,500,1000};
+  int oddeqSizes[100] = {9,99,499,999};
 
   if (PAPERMODE) { 
     outfile = fopen("timing_and_length2.csv","w");
     timestamp(outfile);
   }
 
-  if (!timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_polygon_selfcheck,"closed space ","CS")
-      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_polygon_selfcheck,"open space ","OS")
-      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_plane_polygon_selfcheck,"closed plane ","CP")
-      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_plane_polygon_selfcheck,"open plane ","OP") 
-      || !timing_and_length2_test(nPolygons,nEQSizes,eqSizes,plc_random_equilateral_closed_polygon,"closed equilateral space ","CES")
-      || !timing_and_length2_test(nPolygons,nEQSizes,eqSizes,plc_random_equilateral_open_polygon,"open equilateral space ","OES")) {
+  if (!timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_polygon_selfcheck,"closed space ","CS",true)
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_polygon_selfcheck,"open space ","OS",true)
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_closed_plane_polygon_selfcheck,"closed plane ","CP",true)
+      || !timing_and_length2_test(nPolygons,nSizes,Sizes,plc_random_open_plane_polygon_selfcheck,"open plane ","OP",true) 
+      || !timing_and_length2_test(nPolygons,nEQSizes,eqSizes,plc_random_equilateral_closed_polygon,"closed equilateral space ","CES",false)
+      || !timing_and_length2_test(nPolygons,nEQSizes,oddeqSizes,plc_random_equilateral_closed_polygon,"closed equilateral space ","CES",false)
+      || !timing_and_length2_test(nPolygons,nEQSizes,eqSizes,plc_random_equilateral_open_polygon,"open equilateral space ","OES",true)) {
     PASS = false;
   }
 
@@ -693,6 +703,7 @@ int main(int argc, char *argv[]) {
 
   int nEQEdges = 200;
   int EQSkips[100] = {10,15,20,25,30,35,40,45,50};
+  int noddEQEdges = 199;
   int nEQSkips = 9;
   int nEQPolygons = 50000;
   
@@ -711,6 +722,7 @@ int main(int argc, char *argv[]) {
     }
 
   if (!chordlength_test(nEQPolygons,nEQEdges,nEQSkips,EQSkips,plc_random_equilateral_closed_polygon,eq_pol_prediction,eq_pol_predstring,"closed equilateral space polygon","CES")
+      || !chordlength_test(nEQPolygons,noddEQEdges,nEQSkips,EQSkips,plc_random_equilateral_closed_polygon,eq_pol_prediction,eq_pol_predstring,"closed equilateral space polygon","CES")
       || !chordlength_test(nEQPolygons,nEQEdges,nEQSkips,EQSkips,plc_random_equilateral_open_polygon,eq_arm_prediction,eq_arm_predstring,"open equilateral space polygon","OES")) 
     {
       PASS = false;
@@ -725,6 +737,7 @@ int main(int argc, char *argv[]) {
   nPolygons = 40000;
   int nEQgySizes = 3;
   int EQgySizes[100] = {50,100,150};
+  int oddEQgySizes[100] = {49,99,149};
   nEQPolygons = 20000;
 
   if (PAPERMODE) { 
@@ -742,6 +755,7 @@ int main(int argc, char *argv[]) {
   }
   
   if (!gyradius_test(nEQPolygons,nEQgySizes,EQgySizes,plc_random_equilateral_closed_polygon,eq_pol_gyradius_prediction,eq_pol_gyradius_predstring,"closed equilateral space","CES")
+      || !gyradius_test(nEQPolygons,nEQgySizes,oddEQgySizes,plc_random_equilateral_closed_polygon,eq_pol_gyradius_prediction,eq_pol_gyradius_predstring,"closed equilateral space","CES")
       || !gyradius_test(nEQPolygons,nEQgySizes,EQgySizes,plc_random_equilateral_open_polygon,eq_arm_gyradius_prediction,eq_arm_gyradius_predstring,"open equilateral space","OES")) 
     {
       PASS = false;

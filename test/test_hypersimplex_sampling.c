@@ -486,38 +486,33 @@ bool hypercube_test() {
 
   printf("pass (entries in-range, sums correct)\n");
   
-  printf("performance testing for the 1000-cube...");
+  printf("performance testing\n");
+   printf("\t n         time     \n"
+	  "\t--------------------\n");
+     
+  int nvalues[10] = {9,10,49,50,99,100,199,200,499,500};
+  int numvals = 10;
 
-  start = clock();
+  for(i=0;i<numvals;i++) {
 
-  for(i=0;i<100;i++) {
+    int j;
+    start = clock();
+    
+    for(j=0;j<100;j++) {
 
-    double *x;
-    x = hypercube_slice_sample(1000,rng);
-    free(x);
+      double *x;
+      x = hypercube_slice_sample(nvalues[i],rng);
+      free(x);
+
+    }
+
+    end = clock();
+    cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/100.0;
+
+    printf("\t%5d       %5.5g \n",nvalues[i],cpu_time_used);
 
   }
-
-  end = clock();
-  cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/100.0;
-
-  printf("%g sec (for this system)\n",cpu_time_used);    
-  printf("performance testing for the 1001-cube...");
-
-  start = clock();
-
-  for(i=0;i<100;i++) {
-
-    double *x;
-    x = hypercube_slice_sample(1001,rng);
-    free(x);
-
-  }
-
-  end = clock();
-  cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/100.0;
-
-  printf("%g sec (for this system)\n",cpu_time_used);    
+  
   gsl_rng_free(rng);
 
   printf("---------------------------------------------\n"
@@ -527,7 +522,68 @@ bool hypercube_test() {
   return true;
 
 }
+
+bool hypercube_quality_test() {
+
+  printf("---------------------------------------\n"
+	 "test hypercube_slice_sample quality    \n"
+	 "---------------------------------------\n");
+
+  clock_t start,end;
+  double cpu_time_used;
+
+  const gsl_rng_type * rng_T;
+  gsl_rng *rng;
   
+  gsl_rng_env_setup();  
+  rng_T = gsl_rng_default;
+  rng = gsl_rng_alloc(rng_T);
+  
+  int seedi;
+  seedi = time(0); 
+  gsl_rng_set(rng,seedi);
+
+  printf("testing generation of hypercube slice samples\n");   
+  printf("with %s random number gen, seeded with %d.\n",
+	 gsl_rng_name(rng),seedi);
+
+  start = clock();
+  
+  printf("generating test file 3samples.csv for analysis...");
+
+  int i;
+  FILE *outfile;
+
+  outfile = fopen("3samples.csv","w");
+  if (outfile == NULL) {
+
+    printf("FAIL (couldn't open output file 3samples.csv)\n");
+    return false;
+
+  }
+
+  for(i=0;i<10000;i++) {
+
+     double *x;
+     x = hypercube_slice_sample(3,rng);
+     fprintf(outfile,"%17.17f, %17.17f, %17.17f\n",x[0],x[1],x[2]); 
+     free(x);
+
+  }
+  fclose(outfile);
+
+  end = clock();
+  cpu_time_used = (((double)(end - start))/CLOCKS_PER_SEC)/100.0;
+
+
+  printf("pass (generated samples in %g sec)\n",cpu_time_used);
+
+  printf("--------------------------------------------\n"
+	 "test hypercube_slice_sample quality: PASS   \n"
+	 "--------------------------------------------\n");
+
+  return true;
+}
 
 int main() {
 
@@ -536,7 +592,8 @@ int main() {
 	 "Unit tests for sampling hypersimplex and hypercube slice. \n"
 	 "========================================================\n");
 
-  if (!psi_inverse_test() || !hypersimplex_test() || !hypercube_test()) {
+  if (!psi_inverse_test() || !hypersimplex_test() || !hypercube_test()
+      || !hypercube_quality_test() ) {
 
     printf("=======================================================\n");
     printf("test_hypersimplex_sampling:  FAIL.\n");

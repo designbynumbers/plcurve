@@ -263,7 +263,7 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
     
     do {
 
-      int k = (gsl_rng_uniform_int(rng,2) == 0) ? floor(n/2) : ceil(n/2);
+      int k = (gsl_rng_uniform_int(rng,2) == 0) ? floor((double)(n)/2.0) : ceil((double)(n)/2.0);
       double *y = hypersimplex_sample(k,n,rng);
      
       int i;

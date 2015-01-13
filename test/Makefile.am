@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_hypersimplex_sampling \
+check_PROGRAMS = csu_random_polygon_test \
+		 test_hypersimplex_sampling \
 		 test_k_ascent_permutations \
 		 test_tangle_slide_ops \
 		 test_splitdiagram \
@@ -53,7 +54,8 @@ check_PROGRAMS = test_hypersimplex_sampling \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_hypersimplex_sampling \
+TESTS = csu_random_polygon_test \
+	test_hypersimplex_sampling \
 	test_k_ascent_permutations \
 	test_tangle_slide_ops \
 	test_splitdiagram \
@@ -84,7 +86,8 @@ TESTS = test_hypersimplex_sampling \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_hypersimplex_sampling \
+check_PROGRAMS = csu_random_polygon_test \
+		 test_hypersimplex_sampling \
 		 test_k_ascent_permutations \
 		 test_tangle_slide_ops \
 		 test_splitdiagram \
@@ -112,7 +115,8 @@ check_PROGRAMS = test_hypersimplex_sampling \
                  hopf_test \
 		 ccode_test
 
-TESTS = test_hypersimplex_sampling \
+TESTS = csu_random_polygon_test \
+	test_hypersimplex_sampling \
 	test_k_ascent_permutations \
 	test_tangle_slide_ops \
 	test_splitdiagram \
@@ -142,6 +146,11 @@ test_homfly_SOURCES = test_homfly.c
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_homfly_LDFLAGS = -static
 test_homfly_CFLAGS = -I$(top_srcdir)/src
+
+csu_random_polygon_test_SOURCES = csu_random_polygon_test.c 
+csu_random_polygon_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
+csu_random_polygon_test_LDFLAGS = -static
+csu_random_polygon_test_CFLAGS = -I$(top_srcdir)/src
 
 test_k_ascent_permutations_SOURCES = test_k_ascent_permutations.c 
 test_k_ascent_permutations_LDADD = -L$(top_builddir)/src -lplCurveStatic

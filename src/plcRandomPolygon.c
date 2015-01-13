@@ -822,7 +822,7 @@ plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
   L->cp[0].vt[0] = plc_build_vect(0,0,0);
   L->cp[0].vt[1] = plc_build_vect(1,0,0);
 
-  plc_vector normal = {{0,1,0}};
+  plc_vector normal = {{0,0,1}};
   int i;
 
   /* The way this is going to work is that we'll retain a normal vector 
@@ -830,7 +830,7 @@ plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
      and theta[i] in sequence. There are n-1 of the d's, starting with 
      1.0 and ending with 1.0, but only n-3 of the thetas. */
 
-  for(i=1;i<n-2;i++) {
+  for(i=1;i<n-1;i++) {
 
     /* At this point, we're building vt[i+1] using the current value 
        of normal, the position of vt[i], and the diagonal d[i-1]. 
@@ -868,14 +868,20 @@ plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
     L->cp[0].vt[i+1] = plc_vlincomb(d[i]*cos_alpha,f1,
 				    d[i]*sin_alpha,f2);
 
-    /* Now we have to rotate the normal by dihedral theta[i-1]. */
+    /* If we're going to have another triangle, we have to 
+       rotate the normal. (By definition, we're going to let 
+       the dihedral angles be the angles between these normals.) */
 
-    f3 = plc_cross_prod(normal,plc_normalize_vect(L->cp[0].vt[i+1],&ok));
-    assert(ok);
-    f3 = plc_normalize_vect(f3,&ok);  /* This shouldn't do anything */
+    if (i<n-2) { 
+
+      f3 = plc_cross_prod(normal,plc_normalize_vect(L->cp[0].vt[i+1],&ok));
+      assert(ok);
+      f3 = plc_normalize_vect(f3,&ok);  /* This shouldn't do anything */
     
-    normal = plc_vlincomb(cos(theta[i-1]),normal,
-			  sin(theta[i-1]),f3);
+      normal = plc_vlincomb(cos(theta[i-1]),normal,
+			    sin(theta[i-1]),f3);
+
+    }
 
   }
 
@@ -886,13 +892,22 @@ plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
 
 
 plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
-/* Uses the CSU algorithm to generate a random equilateral closed polygon. */  
+/* Uses the CSU algorithm to generate a random equilateral closed polygon. */
 {
   double *s;
   double *d = malloc((n-1)*sizeof(double));
   assert(d != NULL);
   bool distances_ok;
   int i;
+  int safety_check = 0;
+
+  assert(n <= 1000);
+  if (n > 1000) {
+
+    printf("Error. Can't call plc_random_equilateral_closed polygon with n > 1000\n");
+    exit(1);
+
+  }
   
   do {
 
@@ -908,9 +923,9 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
     
     distances_ok = true;
     
-    for(i=1,d[0]=1.0;i<n-3 && distances_ok;i++) {
+    for(i=1,d[0]=1.0;i<n-1 && distances_ok;i++) {
 
-      d[i] = d[i-1] + s[i];  /* Generate the distance. */
+      d[i] = d[i-1] + s[i-1];  /* Generate the distance. */
 
       /* We don't have to complete the job if the sum of 
 	 successive distances is too small-- remember that
@@ -927,8 +942,11 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
     }
 
     free(s);
+    safety_check++;
 
-  } while (!distances_ok);
+  } while (!distances_ok && safety_check < 10000);
+
+  assert(safety_check < 10000);
 
   /* If we've gotten to this point, we generated a vector of acceptable
      distances. We'll now sample angles, too. */
