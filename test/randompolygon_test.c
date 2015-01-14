@@ -831,7 +831,7 @@ int main(int argc, char *argv[]) {
   int Sizes[100] = {20,200,2000,20000};
   int nSizes = 3;
   int nPolygons = 40;
-  int nEQSizes = 3;
+  int nEQSizes = 4;
   int eqSizes[100] = {10,100,500,1000};
   int oddeqSizes[100] = {9,99,499,999};
 
