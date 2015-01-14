@@ -1685,21 +1685,43 @@ double plc_totalcurvature(const plCurve * const L,
 
     if (component_tc != NULL) { component_tc[cp] = 0; }
 
-    for (vt=0;vt<L->cp[cp].nv;vt++) {
+    if (L->cp[cp].open) {
 
-      angle = plc_angle(plc_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt]),
-			plc_vect_diff(L->cp[cp].vt[vt]  ,L->cp[cp].vt[vt-1]),
-			&ok);
+      for (vt=1;vt<L->cp[cp].nv-1;vt++) {
 
-      if (!ok) { angle = 0; }  // This is expected at the start and end of open components. 
+	angle = plc_angle(plc_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt]),
+			  plc_vect_diff(L->cp[cp].vt[vt]  ,L->cp[cp].vt[vt-1]),
+			  &ok);
 
-      if (component_tc != NULL) {
+	if (component_tc != NULL) {
   
-	component_tc[cp] += angle;
+	  component_tc[cp] += angle;
+
+	}
+
+	tk += angle;
 
       }
 
-      tk += angle;
+    } else { 
+    
+      for (vt=0;vt<L->cp[cp].nv;vt++) {
+
+	angle = plc_angle(plc_vect_diff(L->cp[cp].vt[vt+1],L->cp[cp].vt[vt]),
+			  plc_vect_diff(L->cp[cp].vt[vt]  ,L->cp[cp].vt[vt-1]),
+			  &ok);
+
+	if (!ok) { angle = 0; }  // This is expected at the start and end of open components. 
+
+	if (component_tc != NULL) {
+  
+	  component_tc[cp] += angle;
+
+	}
+
+	tk += angle;
+
+      }
 
     }
 

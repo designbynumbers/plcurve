@@ -253,7 +253,7 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
  
   start = clock();
 
-  double *allchords,*thispolychords,*allSE;
+  double *allchords,*allSE;
   allchords = calloc(sizeof(double),nSkips);
   allSE = calloc(sizeof(double),nSkips);
   
@@ -265,11 +265,9 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
   
   for(i=0;i<nPolygons;i++) {
     
-    /* Generate polygon and compute chord data */
-   
-    /*thispolychords = plc_mean_squared_chordlengths(L,0,Skips,nSkips); */
-    
+    /* Generate polygon and compute chord data */   
     /* Add to running total and to data set*/
+    
     int j;
     for(j=0;j<nSkips;j++) {
       plCurve *L;
@@ -280,10 +278,6 @@ bool chordlength_test(int nPolygons,int nEdges,int nSkips,int *Skips,plCurve *po
       plc_free(L);
     }
     
-    /* Free memory */
-    /*free(thispolychords);*/
-    /* plc_free(L); */
-
   }
 
   for(i=0;i<nSkips;i++) {
@@ -525,6 +519,167 @@ double eq_arm_gyradius_prediction(int n) {
 char eq_arm_gyradius_predstring[256] = "(2/3) (n+2)/n(n+1)";
 
 
+bool totalcurv_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng *r,int nEdges),double prediction(int n),char *prediction_string,char *polygon_type,char *shortstring)
+
+/* Given a generation function and a prediction for total curvature in terms of n, do test. */
+
+{
+  int i,j;
+  bool PASS = true;
+  clock_t start,end;
+  double cpu_time_used;
+
+  printf("Total curvature test for %d %s polygons at %d numbers of verts.\n\tSizelist: ",
+	 nPolygons,polygon_type,nSizes);
+  for(i=0;i<nSizes;i++) {
+    printf("%5d ",Sizes[i]);
+    if (i % 10 == 0 && i > 0) { printf("\n"); }
+  }
+  
+  if (PAPERMODE) {
+    fprintf(outfile,"Totalcurvature%s, \" %d samples \"",shortstring,nPolygons);
+  }   
+
+  printf("\nComputing data...");
+  fflush(stdout);
+ 
+  start = clock();
+
+  double *alltc;
+  alltc = calloc(sizeof(double),nSizes);
+  double *allSE;
+  allSE = calloc(sizeof(double),nSizes);
+
+  for(j=0;j<nSizes;j++) {
+
+    double *data = calloc(nPolygons,sizeof(double));
+  
+    for(i=0;i<nPolygons;i++) {
+    
+      /* Generate polygon and compute tc */
+      plCurve *L;
+      L = polygen(r,Sizes[j]);
+      double tc = plc_totalcurvature(L,NULL);
+      
+      alltc[j] += tc;
+      data[i] = tc;
+  
+      /* Free memory */
+      plc_free(L);
+      
+    }
+
+    /* Now we need to compute the 95% confidence interval
+       for this sample to see if it's in spec. To do that,
+       we compute sample variance. */
+
+    alltc[j] /= (double)(nPolygons);
+
+    double sampvar = 0;
+    for(i=0;i<nPolygons;i++) {
+
+      sampvar += (data[i] - alltc[j])*(data[i] - alltc[j]);
+
+    }
+
+    sampvar /= (double)(nPolygons-1); /* Bessel's correction */
+    double SE = sqrt(sampvar/(double)(nPolygons)); /* Standard error. */
+
+    /* The 95% confidence interval is given by the 
+       sample mean +- 1.96 * SE. */
+
+    allSE[j] = SE;
+    free(data);
+  }
+  end = clock();
+  cpu_time_used = ((double)(end - start))/CLOCKS_PER_SEC;
+
+  printf("done (%g sec).\n\n",cpu_time_used); 
+
+  /* Now display results. */
+
+  printf("According to CDS, the expected value of tc for n edges is is %s\n\n",prediction_string);
+  printf("n (num verts)    Mean TotalK   Predicted Mean TotalK     Difference      95%% Error       Result\n"
+	 "---------------------------------------------------------------------------------------------------------------\n");
+
+  for(i=0;i<nSizes;i++) {
+    
+    double predicted  = prediction(Sizes[i]);
+    double err = alltc[i] - predicted;
+    double okerr = 1.96*allSE[i];
+
+    printf("%-5d            %-13.7g %-13.7g             %-+13.6g   %-13.6g",Sizes[i],alltc[i],predicted,err,okerr);
+
+    if (PAPERMODE) {
+      fprintf(outfile,", %d , %g",Sizes[i],alltc[i]);
+    }
+
+    if (fabs(err) > 1.96*okerr) { printf("   WARN (outside 95 %% confidence).\n"); PASS = true; }
+    else if (fabs(err) > 3.290*okerr) { printf("   FAIL (outside 99.9 %% confidence).\n"); PASS = false; }
+    else { printf("   pass (within 95 %%).\n"); }
+    
+  }
+
+  printf("\n\n");
+  free(alltc);
+  free(allSE);
+
+  if (PAPERMODE) { fprintf(outfile,"\n"); }
+
+  return PASS;
+
+}
+
+double PI = 3.1415926535897932385;
+
+/* These prediction functions are for totalcurvature_test */
+
+double space_pol_totalcurv_prediction(int n) {
+return (double)(n*PI)/(double)(2.0) + (PI/4.0)*((double)(2*n)/(double)(2*n-3));
+}
+char space_pol_totalcurv_predstring[256] = "n pi/2 + (pi/4)(2n/(2n-3))";
+
+double space_arm_totalcurv_prediction(int n) {
+return (double)(n-1)*(PI/2.0);
+}
+char space_arm_totalcurv_predstring[256] = "(n-1)(pi/2)";
+
+double plane_arm_totalcurv_prediction(int n) {
+return (double)(n-1)*(PI/2.0);
+}
+char plane_arm_totalcurv_predstring[256] =  "(n-1)(pi/2)";
+
+double eq_pol_totalcurv_prediction(int n)
+{
+if (n == 7) {
+return 12.3689737;
+} else if (n==8) {
+return 13.9143058;
+} else if (n==15) {
+return 24.8244132;
+} else if (n==16) {
+return 26.3895713;
+} else if (n==31) {
+return 49.9121020;
+} else if (n==32) {
+return 51.4816285;
+} else if (n==63) {
+return 100.1572789;
+} else if (n==64) {
+return 101.7277732;
+} else {
+return 0.0;
+}
+}
+
+char eq_pol_totalcurv_predstring[256] = "(values computed from integral formula)";
+
+double eq_arm_totalcurv_prediction(int n) {
+return (double)(n-1)*(PI/2.0);
+}
+char eq_arm_totalcurv_predstring[256] = "(n-1)(pi/2)";
+
+
 bool ftc_test(int nPolygons,int nSizes,int *Sizes,plCurve *polygen(gsl_rng *r,int nEdges),double prediction(int n),char *prediction_string,char *polygon_type,char *shortstring)
   
 /* Tests to see if the given size of polygon has correct failure to close. */
@@ -697,6 +852,40 @@ int main(int argc, char *argv[]) {
 
   if (PAPERMODE) { fclose(outfile); }
 
+/* Total curvature tests. */
+
+  int tcSizes[100] = {150,150,200,250,300,350,400,450,500};
+  int ntcSizes = 1;
+  nPolygons = 60000;
+
+  int nEQtcSizes = 4;
+  int EQtcSizes[100] = {8,16,32,64};
+  int oddEQtcSizes[100] = {7,15,31,63};
+  int nEQPolygons = 60000;
+
+  if (PAPERMODE) { 
+    outfile = fopen("totalcurvature.csv","w");
+    timestamp(outfile);
+  }
+
+  if (!totalcurv_test(nPolygons,ntcSizes,tcSizes,plc_random_closed_polygon,space_pol_totalcurv_prediction,space_pol_totalcurv_predstring,"closed space","CS")
+      || !totalcurv_test(nPolygons,ntcSizes,tcSizes,plc_random_open_polygon,space_arm_totalcurv_prediction,space_arm_totalcurv_predstring,"open space","OS")
+      || !totalcurv_test(nPolygons,ntcSizes,tcSizes,plc_random_open_plane_polygon,plane_arm_totalcurv_prediction,plane_arm_totalcurv_predstring,"open plane","OP")) {
+    
+    PASS = false;
+
+  }
+  
+  if (!totalcurv_test(nEQPolygons,nEQtcSizes,EQtcSizes,plc_random_equilateral_closed_polygon,eq_pol_totalcurv_prediction,eq_pol_totalcurv_predstring,"closed equilateral space","CES")
+      || !totalcurv_test(nEQPolygons,nEQtcSizes,oddEQtcSizes,plc_random_equilateral_closed_polygon,eq_pol_totalcurv_prediction,eq_pol_totalcurv_predstring,"closed equilateral space","CES")
+      || !totalcurv_test(nEQPolygons,nEQtcSizes,EQtcSizes,plc_random_equilateral_open_polygon,eq_arm_totalcurv_prediction,eq_arm_totalcurv_predstring,"open equilateral space","OES")) 
+    {
+      PASS = false;
+    }
+  
+  if (PAPERMODE) { fclose(outfile); }
+
+
   /* Mean squared chordlength tests. */
 
   int Skips[100] = {10,20,30,40,50,60,70,80,90};
@@ -708,7 +897,7 @@ int main(int argc, char *argv[]) {
   int EQSkips[100] = {10,20,30,40,50,60,70,80,90};
   int noddEQEdges = 249;
   int nEQSkips = 9;
-  int nEQPolygons = 5000;
+  nEQPolygons = 5000;
   
   if (PAPERMODE) { 
     outfile = fopen("mean_squared_chordlength.csv","w");
