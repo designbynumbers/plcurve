@@ -1139,19 +1139,28 @@ cdef class PlanarDiagram:
         Returns a generator that iterates through the pdcodes stored
         in ``f``.
         """
+        num_pds = float('inf')
         if read_header == True:
             # Actually parse header and check validity
-            f.readline()
-            f.readline()
-            f.readline()
+            start = f.readline()
+            if not start.strip() == "pdstor":
+                raise Exception("Malformed pdstor header; expected `pdstor`, found %s"%start.strip())
+            info = f.readline()
+            args = info.strip().split(" ")
+            num_pds = int(args[args.index("nelts")+1].split("/")[0])
+
+            f.readline() # Blank
 
         new_pd = cls.read(f, read_header=False, thin=thin)
-        while True:
+        i = 1
+        while i < num_pds:
             yield new_pd
             try:
                 new_pd = cls.read(f)
             except EOFError:
                 return
+            i += 1
+        yield new_pd
 
     @classmethod
     def read_knot_theory(cls, f, thin=False):
@@ -1698,6 +1707,7 @@ cdef class PlanarDiagram:
         return newobj
 
     def ccode(self):
+        #print pdcode_to_ccode(self.p)
         return copy_and_free(pdcode_to_ccode(self.p))
 
     def pdcode(self):

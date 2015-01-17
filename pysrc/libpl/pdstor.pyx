@@ -25,6 +25,25 @@ class PrimeFactor(object):
         return PrimeFactor(self.ncross, self.ncomps, self.ktname,
                            self.filepos, self.pdcode, self.compmask,
                            not self.mirror)
+
+    def concise(self):
+        if self.ktname == "Unknot[]":
+            return "0_1"
+
+        i,j = self.ktname.index("["), self.ktname.index("]")
+        uid = self.ktname[i+1:j].split(", ")
+        if len(uid) == 3 and uid[1] == "Alternating":
+                index_name = "a%s"%uid[2]
+        else:
+            index_name = "%s"%uid[-1]
+
+        return "%s%s%s%s"%(
+            "L" if self.ncomps > 1 else "",
+            "%s_%s"%(self.ncross, index_name),
+            "*" if self.mirror else "",
+            "_%s"%"".join(str(i) for i in self.compmask) if self.ncomps > 1 else ""
+        )
+
     def __str__(self):
         return "%s%s%s"%(
             self.ktname,
@@ -69,6 +88,19 @@ class ClassifyResult(object):
         """Split link operation"""
         return ClassifyResult(self.factor_list + other.factor_list,
                               self.n_splits + other.n_splits + 1)
+
+    def concise(self):
+        if self.n_splits == 0:
+            return "#".join(factor.concise() for
+                              factor in self.factor_list)
+        elif self.n_splits == len(self.factor_list) - 1:
+            return "U".join(factor.concise() for
+                              factor in self.factor_list)
+        else:
+            return (",".join(factor.concise() for
+                              factor in self.factor_list) +
+                    "(%sU)"%self.n_splits)
+
 
     def __str__(self):
         if self.n_splits == 0:
@@ -338,7 +370,7 @@ class ClassifyDatabase(object):
 
         # Search for composite and split matches
         if hf in self.prod_dict:
-            n_splits, min_nx, factors = self.prod_dict[hf]
+            n_splits, min_nx, factors = self.prod_dict[hf][0]
 
             if min_nx <= ncross:
                 results.extend(
