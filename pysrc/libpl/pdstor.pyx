@@ -531,9 +531,29 @@ class PDStoreExpander(object):
 
     def shadow_iter(self, pd_id, pd, debug=False, orient_all=True,
                     thin=False, homflys=True):
-        for crs_pd, crs_sgn in self.crossing_combinations(pd, self.amortize, thin=thin):
+        if orient_all:
+            cmp_gen = self.component_combinations(pd, self.amortize, thin=thin)
+        else:
+            cmp_gen = (pd, (1,))
+
+        for cmp_pd, cmp_sgn in cmp_gen:
+            for crs_pd, crs_sgn in self.crossing_combinations(cmp_pd, self.amortize, thin=thin):
+                if homflys:
+                    homfly = crs_pd.homfly()
+                else:
+                    homfly = None
+                pduid = self.uid(crs_pd, pd_id, crs_sgn, cmp_sgn)
+                yield (crs_pd, homfly, pduid)
+
+        """for crs_pd, crs_sgn in self.crossing_combinations(pd, self.amortize, thin=thin):
+            signs = tuple(x.sign for x in crs_pd.crossings)
+            print signs, crs_sgn
+            assert( signs == crs_sgn )
             if orient_all:
                 for cmp_pd, cmp_sgn in self.component_combinations(crs_pd, self.amortize, thin=thin):
+                    signs = tuple(x.sign for x in cmp_pd.crossings)
+                    print signs, crs_sgn
+                    assert( signs == crs_sgn )
                     if homflys:
                         homfly = cmp_pd.homfly()
                     else:
@@ -545,8 +565,8 @@ class PDStoreExpander(object):
                     homfly = crs_pd.homfly()
                 else:
                     homfly = None
-                pduid = self.uid(crs_pd, pd_id, crs_sgn, (0,))
-                yield (crs_pd, homfly, pduid)
+                pduid = self.uid(crs_pd, pd_id, crs_sgn, (1,))
+                yield (crs_pd, homfly, pduid)"""
 
     def read_pdstor(self, f, debug=False, num_pds=None, orient_all=True,
                     thin=False, homflys=True, max_components=None):
