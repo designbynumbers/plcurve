@@ -1,6 +1,8 @@
 from pdisomorphism cimport *
 
 cdef class PlanarIsomorphism:
+    # cdef pd_iso_t *p ## in .pxd
+
     property face_maps:
         def __get__(self):
             return tuple(self.p.facemap.perm.map[i] for 
