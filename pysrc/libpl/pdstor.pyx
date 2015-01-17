@@ -534,7 +534,7 @@ class PDStoreExpander(object):
         if orient_all:
             cmp_gen = self.component_combinations(pd, self.amortize, thin=thin)
         else:
-            cmp_gen = (pd, (1,))
+            cmp_gen = ((pd, (1,)),)
 
         for cmp_pd, cmp_sgn in cmp_gen:
             for crs_pd, crs_sgn in self.crossing_combinations(cmp_pd, self.amortize, thin=thin):

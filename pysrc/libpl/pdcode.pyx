@@ -1346,9 +1346,41 @@ cdef class PlanarDiagram:
             raise Exception("Error on R2 bigonelimination")
         return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
 
-    def _R3_strand_swap(self):
+    def _R3_strand_swap(self, Face f, Edge e):
         # Stub for wrapping C implementation of tangle slide
-        pass
+        cdef pd_idx_t *strand_edges = <pd_idx_t*>malloc(3 * sizeof(pd_idx_t))
+        cdef pd_idx_t *border_faces = <pd_idx_t*>malloc(3 * sizeof(pd_idx_t))
+        cdef pd_idx_t npieces = 0
+        cdef pd_code_t **pd_pieces
+        cdef pd_tangle_t *tangle = pd_tangle_new(4)
+        cdef Crossing x = [x for x in f.get_vertices() if
+                           x.index != e.head and x.index != e.tail][0]
+        for i, e_i in enumerate(x.edges):
+            tangle.edge[i] = e_i
+        pd_regenerate_tangle(self.p, tangle)
+
+        strand_edges[0] = e.prev_edge().index
+        strand_edges[1] = e.index
+        strand_edges[2] = e.next_edge().index
+
+        print "Strand.. ",
+        print strand_edges[0], strand_edges[1], strand_edges[2]
+
+        if e.face_index_pos()[0][0] == f.index:
+            posneg = 0
+        else:
+            posneg = 1
+
+        border_faces[0] = e.prev_edge().face_index_pos()[posneg][0]
+        border_faces[1] = f.index
+        border_faces[2] = e.next_edge().face_index_pos()[posneg][0]
+
+        print "Face.. ",
+        print border_faces[0], border_faces[1], border_faces[2]
+
+        pd_tangle_slide(self.p, tangle,
+                        3, strand_edges, border_faces,
+                        &npieces, &pd_pieces)
 
     def R3_nice_swap(self, Face f, Edge e):
         fip = e.face_pos()

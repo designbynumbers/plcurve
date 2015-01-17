@@ -56,6 +56,36 @@ cdef extern from "plcTopology.h":
 
     ctypedef pd_crossing_struct pd_crossing_t
 
+    # Tangle
+    cdef enum pd_boundary_or_t:
+        input "in"
+        output "out"
+        unset
+
+    cdef struct pd_tangle_strand_struct:
+        pd_idx_t start_edge
+        pd_idx_t end_edge
+        pd_idx_t nedges
+        pd_idx_t comp
+    ctypedef pd_tangle_strand_struct pd_tangle_strand_t
+
+    cdef struct pd_tangle_struct:
+        pd_idx_t nedges
+        pd_idx_t nstrands
+
+        pd_idx_t *edge
+        pd_idx_t *face
+        
+        pd_boundary_or_t *edge_bdy_or
+        pd_tangle_strand_t *strand
+
+        pd_idx_t ninterior_cross
+        pd_idx_t *interior_cross
+
+        pd_idx_t ninterior_edges
+        pd_idx_t *interior_edge
+    ctypedef pd_tangle_struct pd_tangle_t
+
     # Diagram
     cdef struct pd_code_struct:
         pd_uid_t uid
@@ -153,12 +183,24 @@ cdef extern from "plcTopology.h":
     void pd_check_face(char *file, int line, pd_code_t *pd, pd_idx_t face)
     void pd_check_notnull(char *file, int line, char *varname, void *ptr)
 
+    # Tangle utilities
+    bool pd_tangle_ok(pd_code_t *pd, pd_tangle_t *tangle)
+    pd_tangle_t *pd_tangle_new(pd_idx_t nedges)
+    void pd_tangle_free(pd_tangle_t **t)
+    void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *tangle)
+
     # Knot-isomorphic modifications
     pd_code_t* pd_R1_loopdeletion(pd_code_t *pd, pd_idx_t cr)
     void pd_R2_bigon_elimination(pd_code_t *pd,
                                  pd_idx_t cr[2],
                                  pd_idx_t *outpd,
                                  pd_code_t ***outpd)
+    void pd_tangle_slide(pd_code_t *pd, pd_tangle_t *tangle,
+                         pd_idx_t strand_n_edges,
+                         pd_idx_t *strand_edges,
+                         pd_idx_t *border_faces,
+                         pd_idx_t *n_pieces,
+                         pd_code_t ***pd_pieces)
 
     # Builders for typical pd types
     pd_code_t *pd_build_twist_knot(pd_idx_t n)
