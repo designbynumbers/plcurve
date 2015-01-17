@@ -1007,6 +1007,10 @@ cdef class PlanarDiagram:
                 pd_regenerate_hash(self.p)
             return self.p.hash
 
+    property _hash:
+        def __get__(self):
+            return self.p.hash
+
     def __cinit__(self):
         self.p = NULL
         self.thin = False
@@ -1707,7 +1711,6 @@ cdef class PlanarDiagram:
         return newobj
 
     def ccode(self):
-        #print pdcode_to_ccode(self.p)
         return copy_and_free(pdcode_to_ccode(self.p))
 
     def pdcode(self):

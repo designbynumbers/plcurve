@@ -168,4 +168,5 @@ cdef extern from "plcTopology.h":
     pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c)
 
     char *pd_homfly(pd_code_t *pdC)
-    char *pdcode_to_ccode(pd_code_t *pdC)
+
+cdef extern char* pdcode_to_ccode(pd_code_t *pdC)
