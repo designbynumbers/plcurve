@@ -75,7 +75,7 @@ cdef extern from "plcTopology.h":
 
         pd_idx_t *edge
         pd_idx_t *face
-        
+
         pd_boundary_or_t *edge_bdy_or
         pd_tangle_strand_t *strand
 
@@ -164,7 +164,10 @@ cdef extern from "plcTopology.h":
     void       pd_write(FILE *outfile,pd_code_t *pd)
     pd_code_t *pd_read_err(FILE *infile, int *err)
 
+    void       pd_write_KnotTheory(FILE *outfile, pd_code_t *pd)
     pd_code_t *pd_read_KnotTheory(FILE *infile)
+
+    void pd_write_c(FILE *outfile, pd_code_t *pd, char *name)
 
     bool pd_diagram_isotopic(pd_code_t *pdA,pd_code_t *pdB)
     bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB)

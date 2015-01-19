@@ -1106,6 +1106,15 @@ cdef class PlanarDiagram:
             raise IOError("File must be opened in a writable mode.")
         pd_write(PyFile_AsFile(f), self.p)
 
+    def write_knot_theory(self, f):
+        """write_knot_theory(file f)
+
+        Write this pdcode in KnotTheory format to the open file object ``f``.
+        """
+        if not ("w" in f.mode or "a" in f.mode or "+" in f.mode):
+            raise IOError("File must be opened in a writable mode.")
+        pd_write_KnotTheory(PyFile_AsFile(f), self.p)
+
     @classmethod
     def read(cls, f, read_header=False, thin=False):
         """read(file f) -> PlanarDiagram
