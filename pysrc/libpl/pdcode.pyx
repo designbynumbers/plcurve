@@ -1280,6 +1280,13 @@ cdef class PlanarDiagram:
         """
         pd_reorient_component(self.p, component, sign)
 
+    def toggle_crossing(self, pd_idx_t x_i):
+        if self.p.cross[x_i].sign == PD_NEG_ORIENTATION:
+            self.p.cross[x_i].sign = PD_POS_ORIENTATION
+        elif self.p.cross[x_i].sign == PD_POS_ORIENTATION:
+            self.p.cross[x_i].sign = PD_NEG_ORIENTATION
+
+
     # Regenerate pd code data
     def regenerate_crossings(self):
         """regenerate_crossings()
@@ -1673,7 +1680,9 @@ cdef class PlanarDiagram:
     def as_spherogram(self):
         """as_spherogram() -> spherogram.Link
 
-        Returns a Spherogram Link object representing this PlanarDiagram"""
+        Returns a Spherogram Link object representing this PlanarDiagram
+
+        Requires: ``spherogram``"""
         pdcode = self.pdcode()
 
         from spherogram import links
@@ -1694,6 +1703,31 @@ cdef class PlanarDiagram:
             x[xpos] = y[ypos]
 
         return links.Link(sg_xings)
+
+    def snappy_manifold(self):
+        """snappy_manifold() -> snappy.Manifold
+
+        Returns a SnapPy Manifold object which represents this knot/link's
+        complement in $S^3$.
+
+        Requires: `snappy`, `spherogram`"""
+        from snappy import Manifold
+        sgm_link = self.as_spherogram()
+        return Manifold("DT:%s"%sgm_link.DT_code())
+
+    @classmethod
+    def from_dt_code(cls, dt_code):
+        """from_dt_code() -> new PlanarDiagram
+
+        Creates a new PlanarDiagram from a DT code (Dowker-Thistlethwaite).
+        Requires Spherogram
+
+        Warning: Currently depends on from_pdcode, which has bugs with
+        components of length 2
+
+        Requires: ``spherogram``"""
+        import spherogram
+        return cls.from_pdcode(spherogram.DTcodec(dt_code).PD_code())
 
     @classmethod
     def from_plink(cls, editor, thin=False):
