@@ -61,7 +61,12 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
-# Checks for libraries.
+# Checks for libraries. The syntax here is
+#
+# AC_SEARCH_LIBS([a function in the library],[the name of the library])
+#
+# if you find it, it will be automatically added to paths and the link commands
+# for the project.
 AC_SEARCH_LIBS([sqrt],[m])
 AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
 AC_SEARCH_LIBS([cblas_dgemm],[gslcblas])
@@ -116,7 +121,17 @@ fi
 
 AM_CONDITIONAL([BUILD_PYTHON],[test "x${enable_python}" = xyes])
 
-# Checks for header files.
+# Checks for header files. Just add the name of the header file that you
+# require inside the [ ] in AC_CHECK_HEADERS. If you have it, you'll have
+# a preprocessor symbol set in the form HAVE_MYHEADER_H, so you use it with
+#
+# #ifdef HAVE_MYHEADER_H
+#    #include <myheader.h>
+# #endif
+#
+# in your source files. Paths are all handled for you, so you shouldn't need
+# to specify more about where it is.
+
 AC_HEADER_STDC
 AC_HEADER_ASSERT
 AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
