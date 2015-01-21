@@ -415,6 +415,50 @@ bool arcpresentation_tests(gsl_rng *rng) {
     exit(1);
   }
 
+  printf("checking pd_isomorphic to 2-link chain...");
+  pd_code_t *pdhopf = pd_build_simple_chain(2);
+
+  if (!pd_isomorphic(pdhopf,projected_pd)) {
+
+    printf("FAIL\n");
+    pd_printf("pd_code generated from projection\n"
+	      "==================================\n"
+	      "%PD \n"
+	      "==================================\n"
+	      ,projected_pd);
+    pd_printf("is not even isomorphic to expected\n"
+	      "==================================\n"
+	      "%PD \n"
+	      "==================================\n",
+	      pdhopf);
+
+    exit(1);
+
+  }
+	      
+  printf("pass (isomorphic to expected)\n");
+  printf("checking pd_diagram_isomorphic to 2-link chain...");
+
+  if (!pd_diagram_isotopic(pdhopf,projected_pd)) {
+
+    printf("FAIL\n");
+    pd_printf("pd_code generated from projection\n"
+	      "==================================\n"
+	      "%PD \n"
+	      "==================================\n"
+	      ,projected_pd);
+    pd_printf("is not diagram-isotopic to expected\n"
+	      "==================================\n"
+	      "%PD \n"
+	      "==================================\n",
+	      pdhopf);
+
+    exit(1);
+
+  }
+  printf("pass\n");
+  pd_code_free(&pdhopf);
+
   start=clock();
   printf("computing pd_code (random rotation enabled)...");
   
@@ -485,6 +529,50 @@ bool arcpresentation_tests(gsl_rng *rng) {
 
     exit(1);
   }
+
+  printf("checking pd_isomorphic to trefoil...");
+  pd_code_t *pdtref = pd_build_torus_knot(2,3);
+
+  if (!pd_isomorphic(pdtref,projected_pd)) {
+
+    printf("FAIL\n");
+    pd_printf("pd_code generated from projection\n"
+	      "==================================\n"
+	      "%PD \n"
+	      "==================================\n"
+	      ,projected_pd);
+    pd_printf("is not even isomorphic to expected\n"
+	      "==================================\n"
+	      "%PD \n"
+	      "==================================\n",
+	      pdtref);
+
+    exit(1);
+
+  }
+	      
+  printf("pass (isomorphic to expected)\n");
+  printf("checking pd_diagram_isomorphic to trefoil...");
+
+  if (!pd_diagram_isotopic(pdtref,projected_pd)) {
+
+    printf("FAIL\n");
+    pd_printf("pd_code generated from projection\n"
+	      "==================================\n"
+	      "%PD \n"
+	      "==================================\n"
+	      ,projected_pd);
+    pd_printf("is not diagram-isotopic to expected\n"
+	      "==================================\n"
+	      "%PD \n"
+	      "==================================\n",
+	      pdtref);
+
+    exit(1);
+
+  }
+  printf("pass\n");
+  pd_code_free(&pdtref);
 
   start=clock();
   printf("computing pd_code (random rotation enabled)...");
@@ -754,6 +842,8 @@ int main () {
   printf("with %s random number gen, seeded with %d.\n",gsl_rng_name(rng),seedi);
   printf("==========================================\n");
 
+  arcpresentation_tests(rng);
+  
   unknot_and_split_component_test(rng);
 
   torus_knot_test(rng,150,4);
@@ -768,8 +858,6 @@ int main () {
 
   torus_knot_rotation_test(rng,150,3);
   torus_knot_rotation_test(rng,150,4);
-
-  arcpresentation_tests(rng);
 
   randomwalk_test(rng,10);
   //randomwalk_test(rng,101);

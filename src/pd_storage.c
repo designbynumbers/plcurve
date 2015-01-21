@@ -59,9 +59,11 @@ struct pdstorage_struct {
 
   unsigned int nelts;
   
-  char         iter_hash[2*PD_HASHSIZE];      /* Extra-large; should only ever need to contain 32 chars */
+  char         iter_hash[2*PD_HASHSIZE];
+  /* Extra-large; should only ever need to contain 32 chars */
   pd_uid_t     iter_uid;
-  Word_t       *iter_PValue_hash;  /* Pointer to the current JudyL corresponding to iterator uid */
+  Word_t       *iter_PValue_hash;
+  /* Pointer to the current JudyL corresponding to iterator uid */
   
 };
 
@@ -99,7 +101,8 @@ void pd_free_pdstor(pd_stor_t **pdstor)
   Word_t  bytes_freed_all_hashes;
 
   hash[0] = 0;
-  JSLF(PValue_hash,(*pdstor)->PJSLArray,hash); /* Find the first entry in the JudySL of hashes */
+  JSLF(PValue_hash,(*pdstor)->PJSLArray,hash);
+  /* Find the first entry in the JudySL of hashes */
 
   if (PD_VERBOSE > 10) { 
 
