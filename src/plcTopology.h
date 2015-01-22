@@ -406,7 +406,7 @@ extern "C" {
      lowest index edge first and sorts crossings
      in dictionary order based on this reordering. */
 
-  void pd_regnerate_edges(pd_code_t *pd);
+  void pd_regenerate_edges(pd_code_t *pd);
   /* Uses crossing information to create edge records
      with random numberings and orientations, then walks
      along components to make sure the edges have consistent

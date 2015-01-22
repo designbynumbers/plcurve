@@ -1612,6 +1612,9 @@ bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB)
   pd_iso_t **iso_buf;
   unsigned int nisos;
 
+  assert(pdA != NULL); assert(pdB != NULL);
+  /* If one of these has been pd_free'd by mistake, die here. */
+
   iso_buf = pd_build_isos(pdA,pdB,&nisos);
 
   assert((nisos == 0 && iso_buf == NULL) || (nisos != 0 && iso_buf != NULL));

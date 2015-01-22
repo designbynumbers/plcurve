@@ -442,6 +442,7 @@ int crossing_compare(const void *A, const void *B) {
 
 }
 
+
 int crossing_reference_compare(const void *A,const void *B) {
 
   crossing_reference *a = (crossing_reference *)(A);
@@ -960,79 +961,271 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
 
 }
 
+enum height_t { lower, upper }; 
+
+typedef struct crossing_strand_struct {
+  
+  pd_idx_t crossingnumber;
+  pd_idx_t cmp;
+  double   s;
+  enum height_t height;
+  
+} crossing_strand_t;
+
+int crossing_strand_cmp(const void *A,const void *B)
+{
+  crossing_strand_t *a = (crossing_strand_t *)(A);
+  crossing_strand_t *b = (crossing_strand_t *)(B);
+
+  if (a->cmp != b->cmp) {
+
+    return b->cmp-a->cmp;
+
+  }
+
+  if (abs(a->s - b->s) < 1e-8) { return 0; } /* These are the same guy! */
+  
+  return (a->s < b->s) ? -1 : 1;
+
+}
+
 pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[], crossing_container *cc) {
 
-  // We now use the component-wise crossing references and the crossing container's crossing
-  // numbering scheme to assemble a pd_code_t by walking around every component filling in
-  // the details.
+  /* We now use the component-wise crossing references and the crossing container's crossing
+     numbering scheme to assemble a pd_code_t by walking around every component filling in
+     the details.
 
-  pd_code_t *pd = pd_code_new(cc->used > 1 ? cc->used : 2); /* Clear as much space as we need */
-  assert(pd != NULL);
+     Let's review what we have:
 
-  pd->ncross = cc->used;
-  pd->nedges = 2*pd->ncross;
+     crc[i]->buf identifies all the crossings encountered along component i, in arclength order
+     cc->buf identifies all the crossings by lower and upper component number and arclength and 
+             gives a sign for each crossing.
 
-  int cmp,cr,edge;
+     We want to condense from this a list of oriented edges and crossings. We can make some 
+     elementary observations:
 
-  edge = 0;
+     1) Each entry in crc[i]->buf defines an edge uniquely. We can say that the head of the 
+        edge is at the arclength position given in crc[i]->buf[j].s, and at the crossing given
+	by crc[i]->buf[s].crossnum.
+
+     2) We can use these s values to identify the corresponding edges by their entries in the 
+        the cc->buf. 
+
+     So the first part of our process is going to be to replace the crc and cc by edge records
+     records, telling us where the head and tail of each edge are, and whether they are upper or 
+     lower at that point.
+
+     This is going to require some searching and sorting. The first thing we can do is to break
+     up the crossing records in the crossing container into easier-to-sort-and-search pieces.
+
+  */
+  
+  typedef struct crossing_strand_struct {
+
+    pd_idx_t crossingnumber;
+    pd_idx_t cmp;
+    double   s;
+    enum height_t height;
+
+  } crossing_strand_t;
+
+  crossing_strand_t *cs = calloc(2*cc->used,sizeof(crossing_strand_t));
+  pd_idx_t i;
+
+  for(i=0;i<cc->used;i++) {
+
+    cs[2*i].crossingnumber = i;
+    cs[2*i].cmp = cc->buf[i].lower_cmp;
+    cs[2*i].s = cc->buf[i].lower_s;
+    cs[2*i].height = lower;
+
+    cs[2*i+1].crossingnumber = i;
+    cs[2*i+1].cmp = cc->buf[i].upper_cmp;
+    cs[2*i+1].s = cc->buf[i].upper_s;
+    cs[2*i+1].height = upper;
+
+  }
+
+  /* void qsort (void *array, size_t count, size_t size, comparison_fn_t compare) */
+  qsort(cs,2*cc->used,sizeof(crossing_strand_t),crossing_strand_cmp);
+
+  /* Now that we've made the list of crossings searchable, we're going to assemble 
+     edge data. Again, we'll first put our buffer of edges into an "expanded" form, 
+     then translate that into the information we need. */
+
+  typedef struct pd_temp_edge_struct {
+
+    pd_idx_t head;
+    pd_idx_t tail;
+    
+    enum height_t head_height;
+    enum height_t tail_height;
+
+    pd_idx_t cmp;
+
+  } pd_temp_edge_t;
+
+  pd_idx_t total_edges = 0;
+  pd_idx_t cmp,edge,j;
 
   for(cmp=0;cmp<L->nc;cmp++) {
 
-    for(cr=0;cr<crc[cmp].used;cr++,edge++) {
+    total_edges += crc[cmp].size;
 
-      // The edge data is always going to be ordered starting at upper in.
-      // This isn't required the by the pd_code_t spec, but it's going to
-      // help keep us organized.
+  }
 
-      int pd_crossing = crc[cmp].buf[cr].crossnum; // This is the index into cc->buf (the master crossing list)
+  pd_temp_edge_t *tempedges = calloc(total_edges,sizeof(pd_temp_edge_t));
 
-      pd->cross[pd_crossing].sign = cc->buf[pd_crossing].sign > 0 ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
+  for(edge=0,cmp=0;cmp<L->nc;cmp++) {
 
-      if (cmp == cc->buf[pd_crossing].upper_cmp && fabs(crc[cmp].buf[cr].s - cc->buf[pd_crossing].upper_s) < 1e-13) { // This is the upper arc
+    for(i=0;i<crc[cmp].size;i++,edge++) {
 
-	pd->cross[pd_crossing].edge[0] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
-	pd->cross[pd_crossing].edge[2] = edge; // This (outgoing) edge is always the current edge number.
+      /* We're now entering a record for the edge with HEAD at this crossing. We know
+	 the component number and s for this edge, but not the head crossing or over/under data. 
+	 However, we can get this by matching the data we have to the cs array, using
+	 
+	 void * bsearch (const void *key, const void *array, size_t count, size_t size, comparison_fn_t compare)
+  
+      */
 
-      } else { // This is the lower arc, which means that we have to pay attention to sign.
+      crossing_strand_t key;
+      key.cmp = cmp;
+      crossing_strand_t *csrec;
 
-	if (pd->cross[pd_crossing].sign == PD_POS_ORIENTATION) { // Upper out to lower out is ccw, meaning that upper in to lower in is ccw
+      /* First, we search for the head data (which is easier, because this is the head) */
+      
+      key.s = crc[cmp].buf[i].s;
+      csrec = bsearch(&key,cs,2*cc->used,sizeof(crossing_strand_t),crossing_strand_cmp);
+      assert(csrec != NULL);
 
-	  pd->cross[pd_crossing].edge[1] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
-	  pd->cross[pd_crossing].edge[3] = edge; // This (outgoing) edge is always the current edge number.
+      tempedges[edge].head = csrec->crossingnumber;
+      tempedges[edge].head_height = csrec->height;
 
-	} else { // Upper out to lower out is cw, meaning that upper in to lower out is ccw
+      /* Next, we search for the tail data (this is harder because we need to wrap around if i == 0) */
+      /* Note: The tail of the edge is part of the same component, so we don't need to reset key.cmp. */
+      
+      key.s = (i == 0) ? crc[cmp].buf[crc[cmp].size-1].s : crc[cmp].buf[i-1].s;
+      csrec = bsearch(&key,cs,2*cc->used,sizeof(crossing_strand_t),crossing_strand_cmp);
+      assert(csrec != NULL);
 
-	  pd->cross[pd_crossing].edge[3] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1;  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp
-	  pd->cross[pd_crossing].edge[1] = edge; // This (outgoing) edge is always the current edge number.
+      tempedges[edge].tail = csrec->crossingnumber;
+      tempedges[edge].tail_height = csrec->height;
 
-	}
+      /* Now we fill in the component: */
 
-      }
+      tempedges[edge].cmp = cmp;
 
     }
 
   }
 
-  /* We should have assembled a (skeletal) pd_code now, containing only crossing information. */
+  free(cs); cs = NULL;
+      
+  /* We now need to assign positions for the edges at each crossing, and come up with crossing records
+     which are compatible with the given headpos and tailpos positions and with the signs of the crossings.
+     We're going to use KnotTheory conventions to do this
 
-  pd_regenerate(pd);
 
-  /* Now we know how many components we should have found from the plCurve data */
 
-  assert(pd->ncomps == L->nc);
+     FINISH WORK HERE. (Old code commented out below)
 
-  /* This is the most important test: */
 
-  if (!pd_ok(pd)) {
 
-    fprintf(stderr,"pd_code_from_plCurve: Algorithm produced the invalid pd_code\n");
-    pd_write(stderr,pd);
-    fprintf(stderr,"\n"
-	    "from plCurve input. This is a bug in the library, or a truly singular example polygon.\n");
-    exit(1);
 
-  }
+  */
 
+  
+     
+    
+  
+
+  /* pd_code_t *pd = pd_code_new(cc->used > 1 ? cc->used : 2); /\* Clear as much space as we need *\/ */
+  /* assert(pd != NULL); */
+
+  /* pd->ncross = cc->used; */
+  /* pd->nedges = 2*pd->ncross; */
+
+  /* int cmp,cr,edge; */
+
+  /* edge = 0; */
+
+  /* for(cmp=0;cmp<L->nc;cmp++) { */
+
+  /*   for(cr=0;cr<crc[cmp].used;cr++,edge++) { */
+
+  /*     // The edge data is always going to be ordered starting at upper in. */
+  /*     // This isn't required the by the pd_code_t spec, but it's going to */
+  /*     // help keep us organized. */
+     
+  /*     int pd_crossing = crc[cmp].buf[cr].crossnum; */
+  /*     // This is the index into cc->buf (the master crossing list) */
+
+  /*     pd->cross[pd_crossing].sign = */
+  /* 	cc->buf[pd_crossing].sign > 0 ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION; */
+
+  /*     if (cmp == cc->buf[pd_crossing].upper_cmp && */
+  /* 	  fabs(crc[cmp].buf[cr].s - cc->buf[pd_crossing].upper_s) < 1e-13) { // This is the upper arc */
+
+  /* 	pd->cross[pd_crossing].edge[0] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1; */
+  /* 	// Incoming edge is the one BEFORE this one, must wrap if we just started cmp */
+  /* 	pd->cross[pd_crossing].edge[2] = edge; */
+  /* 	// This (outgoing) edge is always the current edge number. */
+
+  /*     } else { // This is the lower arc, which means that we have to pay attention to sign. */
+
+  /* 	if (pd->cross[pd_crossing].sign == PD_POS_ORIENTATION) { */
+  /* 	  // Upper out to lower out is ccw, meaning that upper in to lower in is ccw */
+
+  /* 	  pd->cross[pd_crossing].edge[1] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1; */
+  /* 	  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp */
+  /* 	  pd->cross[pd_crossing].edge[3] = edge; */
+  /* 	  // This (outgoing) edge is always the current edge number. */
+
+  /* 	} else { // Upper out to lower out is cw, meaning that upper in to lower out is ccw */
+
+  /* 	  pd->cross[pd_crossing].edge[3] = (cr == 0) ? (edge+crc[cmp].used-1) : edge-1; */
+  /* 	  // Incoming edge is the one BEFORE this one, must wrap if we just started cmp */
+  /* 	  pd->cross[pd_crossing].edge[1] = edge; */
+  /* 	  // This (outgoing) edge is always the current edge number. */
+
+  /* 	} */
+
+  /*     } */
+
+  /*   } */
+
+  /* } */
+
+  /* // We're going to need to create an edge set at the same time we */
+  /* // create a crossing set, in order to preserve the edge orientations */
+  /* // (which we actually know) and signal to pd_regenerate (later on) */
+  /* // that it's meaningful to preserve crossing signs. The crc information actually gives */
+  /* // us the edges by component, and according to orientation, so this is (relatively) */
+  /* // easy-- the only problem is  */
+  
+
+  /* /\* We should have assembled a (skeletal) pd_code now, containing only crossing information. *\/ */
+
+  /* pd_regenerate(pd); */
+
+  /* /\* Now we know how many components we should have found from the plCurve data *\/ */
+
+  /* assert(pd->ncomps == L->nc); */
+
+  /* /\* This is the most important test: *\/ */
+
+  /* if (!pd_ok(pd)) { */
+
+  /*   fprintf(stderr,"pd_code_from_plCurve: Algorithm produced the invalid pd_code\n"); */
+  /*   pd_write(stderr,pd); */
+  /*   fprintf(stderr,"\n" */
+  /* 	    "from plCurve input. This is a bug in the library, or a truly singular example polygon.\n"); */
+  /*   exit(1); */
+
+  /* } */
+
+  pd_code_t *pd = NULL;
+  
   return pd;
 
 }
