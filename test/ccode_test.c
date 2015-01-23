@@ -96,9 +96,9 @@ plCurve *torusknot(int verts,int p,int q,double major_radius,double minor_radius
       qangle = (q/cp)*theta;
 
       loc = plc_build_vect(
-			   major_radius*cos(qangle)*(1+(minor_radius/major_radius)*cos(pangle)),
-			   major_radius*sin(qangle)*(1+(minor_radius/major_radius)*cos(pangle)),
-			   minor_radius*sin(pangle)
+			   major_radius*cos(qangle)*(1+(minor_radius/major_radius)*cos(-pangle)),
+			   major_radius*sin(qangle)*(1+(minor_radius/major_radius)*cos(-pangle)),
+			   minor_radius*sin(-pangle)
 			   );
 
       tk->cp[i].vt[vt] = loc;
