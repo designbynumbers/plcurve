@@ -21,5 +21,5 @@ setup(
     name = "libpl",
     packages = ["libpl"],
     package_data={"libpl": ["*.pxd", "data/*.txt", "util/*.py"]},
-    ext_modules = cythonize(extensions, gdb_debug=True),
+    ext_modules = cythonize(extensions),
 )
