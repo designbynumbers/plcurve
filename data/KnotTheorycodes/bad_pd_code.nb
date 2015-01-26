@@ -1,0 +1,266 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      8812,        257]
+NotebookOptionsPosition[      7764,        221]
+NotebookOutlinePosition[      8238,        240]
+CellTagsIndexPosition[      8195,        237]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Apparent Bugs in KnotTheory", "Title",
+ CellChangeTimes->{{3.629547238523793*^9, 3.629547245420249*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"AppendTo", "[", 
+   RowBox[{"$Path", ",", "\"\</Users/mattmastin/Dropbox\>\""}], "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"AppendTo", "[", 
+   RowBox[{
+   "$Path", ",", 
+    "\"\</Users/mattmastin/Dropbox/compositelinks/mathematica\>\""}], "]"}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{{3.629472310269299*^9, 3.629472380459289*^9}}],
+
+Cell[BoxData[{
+ RowBox[{"<<", "knottheory`"}], "\[IndentingNewLine]", 
+ RowBox[{"<<", "whitten`"}]}], "Input",
+ CellChangeTimes->{{3.6295465775387907`*^9, 3.629546583720111*^9}}],
+
+Cell["\<\
+I believe I have uncovered a (or several) bugs in KnotTheory that arise on \
+diagrams with extra R1 crossings. The following PDCode corresponds to a \
+trefoil with an R1 loop.\
+\>", "Text",
+ CellChangeTimes->{{3.6295472788524446`*^9, 3.629547301502163*^9}, {
+  3.629547536431424*^9, 3.629547567701756*^9}}],
+
+Cell[BoxData[
+ RowBox[{"TrefR1", "=", 
+  RowBox[{"PD", "[", 
+   RowBox[{
+    RowBox[{"X", "[", 
+     RowBox[{"6", ",", "2", ",", "7", ",", "1"}], "]"}], ",", 
+    RowBox[{"X", "[", 
+     RowBox[{"8", ",", "6", ",", "1", ",", "5"}], "]"}], ",", 
+    RowBox[{"X", "[", 
+     RowBox[{"2", ",", "8", ",", "3", ",", "7"}], "]"}], ",", 
+    RowBox[{"X", "[", 
+     RowBox[{"4", ",", "3", ",", "5", ",", "4"}], "]"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.629475360395071*^9, 3.629475360598073*^9}, {
+  3.629477162567816*^9, 3.6294771963141193`*^9}, {3.6295465178508043`*^9, 
+  3.6295465199534597`*^9}}],
+
+Cell["\<\
+Computing HOMFLYs it seems that this is the mirror of KnotTheory\
+\[CloseCurlyQuote]s 3_1.\
+\>", "Text",
+ CellChangeTimes->{{3.629547573609922*^9, 3.629547591331979*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"HOMFLYPT", "[", "TrefR1", "]"}], "[", 
+  RowBox[{"w", ",", "u"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"HOMFLYPT", "[", 
+   RowBox[{"ApplyWhitten", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", 
+       RowBox[{"{", "1", "}"}], ",", 
+       RowBox[{"{", "1", "}"}]}], "}"}], ",", 
+     RowBox[{"PD", "[", 
+      RowBox[{"Knot", "[", 
+       RowBox[{"3", ",", "1"}], "]"}], "]"}]}], "]"}], "]"}], "[", 
+  RowBox[{"w", ",", "u"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.62947727575804*^9, 3.629477309929669*^9}, {
+   3.629477343250216*^9, 3.629477419326339*^9}, {3.629477531614983*^9, 
+   3.6294775566963663`*^9}, 3.629477617515851*^9, {3.629477785323924*^9, 
+   3.629477785909363*^9}, {3.629478125295745*^9, 3.629478125373322*^9}, 
+   3.6294781659056177`*^9, 3.62947879057518*^9, {3.6295402030309973`*^9, 
+   3.629540214891749*^9}, {3.629544351080093*^9, 3.629544399431384*^9}, {
+   3.629546539881926*^9, 3.629546541637208*^9}, {3.629546777173729*^9, 
+   3.629546780886382*^9}}],
+
+Cell["\<\
+But they produce distinct Kauffman polys! (Comparing this PDCode with the \
+non-mirrored 3_1 gives distinct HOMFLYs and Kauffman polynomials.)\
+\>", "Text",
+ CellChangeTimes->{{3.629547596542987*^9, 3.629547652669476*^9}, 
+   3.629547905028277*^9}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"Kauffman", "[", "TrefR1", "]"}], "[", 
+   RowBox[{"w", ",", "u"}], "]"}], "/.", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"w", "\[Rule]", "3"}], ",", 
+    RowBox[{"u", "\[Rule]", "4"}]}], "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Kauffman", "[", 
+    RowBox[{"ApplyWhitten", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "1"}], ",", 
+        RowBox[{"{", "1", "}"}], ",", 
+        RowBox[{"{", "1", "}"}]}], "}"}], ",", 
+      RowBox[{"PD", "[", 
+       RowBox[{"Knot", "[", 
+        RowBox[{"3", ",", "1"}], "]"}], "]"}]}], "]"}], "]"}], "[", 
+   RowBox[{"w", ",", "u"}], "]"}], "/.", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"w", "\[Rule]", "3"}], ",", 
+    RowBox[{"u", "\[Rule]", "4"}]}], "}"}]}]}], "Input",
+ CellChangeTimes->{{3.629477686373538*^9, 3.62947772260471*^9}, 
+   3.629477812026829*^9, {3.629478128131008*^9, 3.629478132868073*^9}, 
+   3.6294787937025414`*^9, {3.6295402101205378`*^9, 3.629540219415007*^9}, {
+   3.629544370929929*^9, 3.629544402661182*^9}, {3.629546545182379*^9, 
+   3.629546550673497*^9}, {3.6295467523965483`*^9, 3.62954675573746*^9}}],
+
+Cell["\<\
+This is a bit worrying and it means that I cannot trust my classification \
+code at all. 
+
+KnotTheory can convert to Gauss Codes, so let\[CloseCurlyQuote]s do that and \
+try again. (I checked these on Knotilus and they appear to be correct.)\
+\>", "Text",
+ CellChangeTimes->{{3.629547658971233*^9, 3.62954769683495*^9}, {
+  3.6295478884764137`*^9, 3.629547899874769*^9}}],
+
+Cell[BoxData[
+ RowBox[{"code1", "=", 
+  RowBox[{"GaussCode", "[", 
+   RowBox[{"ApplyWhitten", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", 
+       RowBox[{"{", "1", "}"}], ",", 
+       RowBox[{"{", "1", "}"}]}], "}"}], ",", 
+     RowBox[{"PD", "[", 
+      RowBox[{"Knot", "[", 
+       RowBox[{"3", ",", "1"}], "]"}], "]"}]}], "]"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.629540764084324*^9, 3.629540835215242*^9}, 
+   3.62954089058883*^9, 3.629546626177889*^9}],
+
+Cell[BoxData[
+ RowBox[{"code2", "=", 
+  RowBox[{"GaussCode", "[", "TrefR1", "]"}]}]], "Input",
+ CellChangeTimes->{{3.629540719606882*^9, 3.62954072447962*^9}, {
+  3.6295408390068913`*^9, 3.629540846051038*^9}, {3.629546554655732*^9, 
+  3.6295465566918287`*^9}}],
+
+Cell["\<\
+We now compute the HOMFLY of KnotTheory\[CloseCurlyQuote]s diagram.\
+\>", "Text",
+ CellChangeTimes->{{3.629547706715363*^9, 3.629547721455146*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"HOMFLYPT", "[", "code1", "]"}], "[", 
+  RowBox[{"w", ",", "u"}], "]"}]], "Input",
+ CellChangeTimes->{{3.629540850171056*^9, 3.6295408606228228`*^9}, {
+  3.6295466509990664`*^9, 3.629546699519341*^9}}],
+
+Cell["\<\
+In an even more troubling turn of events the following shows that the Gauss \
+Code for the trefoil with an R1 produces a different HOMFLY than the PDCode! \
+This seems really bad for KnotTheory.\
+\>", "Text",
+ CellChangeTimes->{{3.6295477274988947`*^9, 3.62954780340716*^9}, {
+  3.6295479359276123`*^9, 3.629547937828974*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"HOMFLYPT", "[", "code2", "]"}], "[", 
+  RowBox[{"w", ",", "u"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"HOMFLYPT", "[", "TrefR1", "]"}], "[", 
+  RowBox[{"w", ",", "u"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.629540862733774*^9, 3.62954087449708*^9}, {
+  3.629546653497233*^9, 3.6295466964588327`*^9}, {3.629547808809269*^9, 
+  3.6295478189363003`*^9}}],
+
+Cell["\<\
+I also notice that the ApplyWhitten code doesn\[CloseCurlyQuote]t like \
+PDCodes like this either... but I haven\[CloseCurlyQuote]t looked into this \
+yet.\
+\>", "Text",
+ CellChangeTimes->{{3.629547829153314*^9, 3.6295478505098867`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"ApplyWhitten", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"1", ",", 
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", "1", "}"}]}], "}"}], ",", "TrefR1"}], "]"}]], "Input",
+ CellChangeTimes->{{3.6295409292511578`*^9, 3.629540941168351*^9}, {
+  3.6295465612607403`*^9, 3.62954656299337*^9}}]
+}, Open  ]]
+},
+WindowSize->{1839, 1272},
+WindowMargins->{{-2198, Automatic}, {-168, Automatic}},
+ShowSelection->True,
+Magnification->2.,
+FrontEndVersion->"8.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (November 6, \
+2010)",
+StyleDefinitions->FrontEnd`FileName[{"Creative"}, "NaturalColor.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 110, 1, 120, "Title"],
+Cell[692, 25, 389, 11, 105, "Input"],
+Cell[1084, 38, 178, 3, 105, "Input"],
+Cell[1265, 43, 316, 6, 82, "Text"],
+Cell[1584, 51, 601, 14, 74, "Input"],
+Cell[2188, 67, 180, 4, 52, "Text"],
+Cell[2371, 73, 1066, 24, 105, "Input"],
+Cell[3440, 99, 258, 5, 52, "Text"],
+Cell[3701, 106, 1174, 31, 105, "Input"],
+Cell[4878, 139, 381, 8, 112, "Text"],
+Cell[5262, 149, 504, 14, 74, "Input"],
+Cell[5769, 165, 261, 5, 74, "Input"],
+Cell[6033, 172, 157, 3, 52, "Text"],
+Cell[6193, 177, 235, 5, 74, "Input"],
+Cell[6431, 184, 336, 6, 82, "Text"],
+Cell[6770, 192, 403, 9, 105, "Input"],
+Cell[7176, 203, 247, 5, 52, "Text"],
+Cell[7426, 210, 322, 8, 74, "Input"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
