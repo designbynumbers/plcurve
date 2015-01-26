@@ -166,9 +166,9 @@ carbonizepd_LDFLAGS = -static
 carbonizepd_CFLAGS = -I${top_builddir}/src
 
 processpdstor_SOURCES = processpdstor.c
-processpdstor_LDADD = -lplCurve 
-processpdstor_LDFLAGS = -static
-processpdstor_CFLAGS = -I${top_builddir}/src
+processpdstor_LDADD = -lplCurve $(PYTHON_EXTRA_LIBS)
+processpdstor_LDFLAGS = -static $(PYTHON_LDFLAGS)
+processpdstor_CFLAGS = -I${top_builddir}/src -I${top_builddir}/pysrc/libpl $(PYTHON_CPPFLAGS)
 
 spline_view_SOURCES = spline_view.c
 spline_view_LDADD = -lplCurve

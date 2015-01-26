@@ -1,4 +1,4 @@
-SUBDIRS = src pysrc test
+SUBDIRS = src pysrc tools test
 
 dist_data_DATA = data/plCurve.typemap
 

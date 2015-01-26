@@ -22,8 +22,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include<Python.h>
-#include"../pysrc/libpl/pdcode_api.h"
+#include <Python.h>
+#include <pdcode_api.h>
 
 // Turn asserts ON.
 #define DEBUG 1 
@@ -209,7 +209,7 @@ int main(int argc,char *argv[]) {
 
   /* If the simplify flag is set we need to intialize 
         the python libraries*/
-  if(simplify->count != 1) {
+  if(simplify->count != 0) {
 
     Py_Initialize();
     import_libpl__pdcode();
@@ -417,12 +417,16 @@ int main(int argc,char *argv[]) {
               int ndias = 0;
               int results_index = 0;
 	      pd_code_t *testcode;
+              testcode = pd_build_torus_knot(2, 11);
 	     
-	      //results = pd_simplify(working_pd, &ndias);
-              //pd_code_free(&working_pd);
-              //working_pd = results[0];
-              for(results_index = 0; i < ndias; i++){
-                pd_code_free(&results[i]);
+	      results = pd_simplify(testcode, &ndias);
+              pd_code_free(&working_pd);
+              working_pd = results[0];
+
+              // This won't handle split links properly
+              // TODO: Handle split links [so ndias > 1] properly
+              for(results_index = 1; results_index < ndias; results_index++){
+                pd_code_free(&results[results_index]);
               }
             }
 	    
@@ -470,7 +474,7 @@ int main(int argc,char *argv[]) {
 
   }
 
-  if(simplify->count != 1) {
+  if(simplify->count != 0) {
     Py_Finalize();
   }
 

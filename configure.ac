@@ -84,25 +84,30 @@ if test "x${have_argtable2}" = xfalse; then
   -----------------------------------------------------------])
 fi
 
-# Check for SWIG and Python (for interface) [old, going to phase out to Cython...]
-AC_SEARCH_LIBS([Py_Initialize],[python2.7])
-AC_CHECK_HEADERS([Python.h])
+# Check for SWIG and Python if old wrappers are enabled.
+AC_ARG_ENABLE([swig],
+        [AS_HELP_STRING([--enable-swig],
+        [build old swig Python bindings])],
+        [enable_swig=$enableval],
+        [enable_swig=no])
 
-AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_WARN([plCurve requires the SWIG interface library to build its Python interface]); have_swig=false])
-if test "x${have_swig}" = xtrue; then
-   AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?
-   AM_PATH_PYTHON(2.7)
-   CIT_NUMPY_PYTHON_MODULE(1.8.0,[have_numpy=true],[have_numpy=false])
-   if test "x${have_numpy}" = xtrue; then
-      CIT_NUMPY_INCDIR
-   else
-      AC_MSG_WARN([An appropriate numpy installation was not found with Python. numpy functionality will not be included.])
+if text "x${enable_swig}" = xyes; then
+   AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_ERROR([SWIG interface is to be built (--enable-swig), but SWIG was not found.]); have_swig=false])
+   if test "x${have_swig}" = xtrue; then
+      AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?
+      AM_PATH_PYTHON(2.7)
+      CIT_NUMPY_PYTHON_MODULE(1.8.0,[have_numpy=true],[have_numpy=false])
+      if test "x${have_numpy}" = xtrue; then
+         CIT_NUMPY_INCDIR
+      else
+        AC_MSG_WARN([An appropriate numpy installation was not found with Python. numpy functionality will not be included.])
+      fi
    fi
 fi
 
 AM_CONDITIONAL([HAVE_SWIG],[test "x${have_swig}" = xtrue])
 
-# Python extension library checks
+# Python extension library checks (Python, Cython, numpy)
 AC_ARG_ENABLE([python],
         [AS_HELP_STRING([--disable-python],
                 [do not build Python bindings])],
@@ -111,6 +116,7 @@ AC_ARG_ENABLE([python],
 
 if test "x${enable_python}" = xyes; then
    AM_PATH_PYTHON(2.7)
+   AX_PYTHON_DEVEL(">= '2.7'")
    CYTHON_CHECK_VERSION([0.20.0],
         [have_cython=true],
         [AC_MSG_FAILURE([Python bindings were not disabled but Cython was not found.]);
@@ -168,6 +174,7 @@ AC_C_CONST
 AC_CONFIG_FILES([Makefile
 		src/Makefile
                 pysrc/Makefile
+                tools/Makefile
 		test/Makefile])
 AC_OUTPUT
 
