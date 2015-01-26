@@ -85,6 +85,9 @@ if test "x${have_argtable2}" = xfalse; then
 fi
 
 # Check for SWIG and Python (for interface) [old, going to phase out to Cython...]
+AC_SEARCH_LIBS([Py_Initialize],[python2.7])
+AC_CHECK_HEADERS([Python.h])
+
 AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_WARN([plCurve requires the SWIG interface library to build its Python interface]); have_swig=false])
 if test "x${have_swig}" = xtrue; then
    AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?

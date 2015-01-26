@@ -22,6 +22,9 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include<Python.h>
+#include"../pysrc/libpl/pdcode_api.h"
+
 // Turn asserts ON.
 #define DEBUG 1 
 
@@ -37,6 +40,7 @@ struct arg_lit  *verbose;
 struct arg_lit  *help;
 struct arg_lit  *quiet;
 struct arg_lit  *KnotTheory;
+struct arg_lit  *simplify;
 struct arg_end  *end;
 struct arg_end  *helpend;
 
@@ -135,7 +139,8 @@ int main(int argc,char *argv[]) {
       knotsonly = arg_lit0("k","knots-only","only process pdcodes for knots (1 component)\n"),
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"),
-      KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory"),
+      KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory (CURRENTLY DISABLED)"),
+      simplify = arg_lit0("s","simplify","attempt to simplify diagrams - should only be used with -k"),
       help = arg_lit0(NULL,"help","display help message"),
       end = arg_end(20)
     };
@@ -201,6 +206,14 @@ int main(int argc,char *argv[]) {
   }
 
   /* Now we actually do the work */
+
+  /* If the simplify flag is set we need to intialize 
+        the python libraries*/
+  if(simplify->count != 1) {
+
+    Py_Initialize();
+    import_libpl__pdcode();
+  }
      
   printf("processpdstor crossing code generator for pdstor files\n");   
   printf("generating crossing codes for %d pdstor files\n",infile->count);
@@ -397,20 +410,37 @@ int main(int argc,char *argv[]) {
 	    }
 	    fprintf(out,"\n");
 	    
-	    if(KnotTheory->count != 0) { /*KnotTheory flag is set*/
+	    /* Simplify flag is set so we simplify the pdcode
+	       before writing*/
+	    if(simplify->count != 0){ 
+              pd_code_t **results;
+              int ndias = 0;
+              int results_index = 0;
+	      pd_code_t *testcode;
+	     
+	      //results = pd_simplify(working_pd, &ndias);
+              //pd_code_free(&working_pd);
+              //working_pd = results[0];
+              for(results_index = 0; i < ndias; i++){
+                pd_code_free(&results[i]);
+              }
+            }
+	    
+	    /*If the KnotTheory flag is set we use
+	      pd_write_KnotTheory to write codes*/
+	    if(KnotTheory->count != 0) { 
 	      pd_write_KnotTheory(out,working_pd); 
 	    }
 
-	    if(KnotTheory->count ==0){ /*KnotTheory flag not set*/
+	    /*If KnotTheory flag not set then 
+	      we write codes as ccodes*/
+	    if(KnotTheory->count ==0){ 
 	      char *ccode = pdcode_to_ccode(working_pd);
 	      fprintf(out,"%s\n",ccode);
 	      free(ccode);
 	    }
       
-	    //pd_write(out,working_pd);
-	    //pd_write_KnotTheory(out,working_pd);
 
-	    //free(ccode);
 	    pd_code_free(&working_pd);
 
 	    codes_written++;
@@ -439,7 +469,11 @@ int main(int argc,char *argv[]) {
     }
 
   }
-    
+
+  if(simplify->count != 1) {
+    Py_Finalize();
+  }
+
   printf("done\n");
 
   arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
