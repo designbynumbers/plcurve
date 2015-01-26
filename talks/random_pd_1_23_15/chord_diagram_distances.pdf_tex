@@ -1,0 +1,247 @@
+%% Creator: Inkscape inkscape 0.48.5, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'chord_diagram_distances.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%%
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{1852.2337416bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,1.02851506)%
+    \put(0,0){\includegraphics[width=\unitlength]{chord_diagram_distances.pdf}}%
+    \put(0.5897157,0.9374348){\color[rgb]{0,0,0}\rotatebox{81.5}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$0_{1}$}}}}%
+    \put(0.70382656,0.90318425){\color[rgb]{0,0,0}\rotatebox{66.5}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*$}}}}%
+    \put(0.790036,0.85256432){\color[rgb]{0,0,0}\rotatebox{54}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$3_{1}$}}}}%
+    \put(0.86035113,0.7876913){\color[rgb]{0,0,0}\rotatebox{42}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$4_{1}$}}}}%
+    \put(0.90967533,0.71992447){\color[rgb]{0,0,0}\rotatebox{31.5}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$5_{2}$}}}}%
+    \put(0.94314843,0.6513802){\color[rgb]{0,0,0}\rotatebox{22}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$5_{2}^*$}}}}%
+    \put(0.96396652,0.58227444){\color[rgb]{0,0,0}\rotatebox{12.9}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$6_{3}$}}}}%
+    \put(0.97312301,0.51874035){\color[rgb]{0,0,0}\rotatebox{4.9}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$6_{2}$}}}}%
+    \put(0.97355492,0.45853196){\color[rgb]{0,0,0}\rotatebox{-2.6}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$6_{2}^*$}}}}%
+    \put(0.96668758,0.40199481){\color[rgb]{0,0,0}\rotatebox{-9.8}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$5_{1}$}}}}%
+    \put(0.95377338,0.34969042){\color[rgb]{0,0,0}\rotatebox{-16.5}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$5_{1}^*$}}}}%
+    \put(0.93554677,0.3008413){\color[rgb]{0,0,0}\rotatebox{-23}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$6_{1}^*$}}}}%
+    \put(0.91274186,0.25587939){\color[rgb]{0,0,0}\rotatebox{-29.4}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$6_{1}$}}}}%
+    \put(0.88557471,0.21432955){\color[rgb]{0,0,0}\rotatebox{-35.6}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#3_{1}^*$}}}}%
+    \put(0.85745723,0.17969026){\color[rgb]{0,0,0}\rotatebox{-41.2}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{6}$}}}}%
+    \put(0.82929666,0.15088181){\color[rgb]{0,0,0}\rotatebox{-46.2}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{6}^*$}}}}%
+    \put(0.80117935,0.1266516){\color[rgb]{0,0,0}\rotatebox{-50.8}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#3_{1}^*$}}}}%
+    \put(0.77388253,0.1065678){\color[rgb]{0,0,0}\rotatebox{-55.1}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#3_{1}$}}}}%
+    \put(0.74546279,0.08872984){\color[rgb]{0,0,0}\rotatebox{-59.3}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{5}^*$}}}}%
+    \put(0.71613604,0.07318106){\color[rgb]{0,0,0}\rotatebox{-63.4}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{5}$}}}}%
+    \put(0.68598865,0.05987816){\color[rgb]{0,0,0}\rotatebox{-67.6}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#4_{1}$}}}}%
+    \put(0.65510698,0.04882123){\color[rgb]{0,0,0}\rotatebox{-71.7}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#4_{1}$}}}}%
+    \put(0.62530516,0.04044217){\color[rgb]{0,0,0}\rotatebox{-75.5}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{7}$}}}}%
+    \put(0.59688546,0.03443864){\color[rgb]{0,0,0}\rotatebox{-79.2}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{7}^*$}}}}%
+    \put(0.57045243,0.03046502){\color[rgb]{0,0,0}\rotatebox{-82.5}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{2}$}}}}%
+    \put(0.54591991,0.02821911){\color[rgb]{0,0,0}\rotatebox{-85.6}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{2}^*$}}}}%
+    \put(0.521517,0.0273121){\color[rgb]{0,0,0}\rotatebox{-88.6}{\makebox(0,0)[lb]{\smash{\fontsize{1pt}{.1em}$7_{3}^*$}}}}%
+    \put(0.50851646,0.02735528){\color[rgb]{0,0,0}\rotatebox{88.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$7_{3}$}}}}%
+    \put(0.48592748,0.02826227){\color[rgb]{0,0,0}\rotatebox{85.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$7_{4}$}}}}%
+    \put(0.46506623,0.03016271){\color[rgb]{0,0,0}\rotatebox{82.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$7_{4}^*$}}}}%
+    % \put(0.4443345,0.03297013){\color[rgb]{0,0,0}\rotatebox{80.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{20}^*$}}}}%
+    % \put(0.42381869,0.03668457){\color[rgb]{0,0,0}\rotatebox{77.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{20}$}}}}%
+    % \put(0.40399404,0.0412628){\color[rgb]{0,0,0}\rotatebox{75.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{42}$}}}}%
+    % \put(0.38559456,0.04631619){\color[rgb]{0,0,0}\rotatebox{72.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{21}$}}}}%
+    % \put(0.36805898,0.05193104){\color[rgb]{0,0,0}\rotatebox{70.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{21}^*$}}}}%
+    % \put(0.35086891,0.05819373){\color[rgb]{0,0,0}\rotatebox{68.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{8}$}}}}%
+    % \put(0.3341108,0.06506108){\color[rgb]{0,0,0}\rotatebox{65.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{8}^*$}}}}%
+    % \put(0.31765504,0.07257632){\color[rgb]{0,0,0}\rotatebox{63.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{14}$}}}}%
+    % \put(0.3015447,0.08073947){\color[rgb]{0,0,0}\rotatebox{61.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{14}^*$}}}}%
+    % \put(0.28668703,0.08898896){\color[rgb]{0,0,0}\rotatebox{59.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{11}^*$}}}}%
+    % \put(0.27303864,0.09719525){\color[rgb]{0,0,0}\rotatebox{57.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{11}$}}}}%
+    % \put(0.26003809,0.10566073){\color[rgb]{0,0,0}\rotatebox{55.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$7_{1}$}}}}%
+    % \put(0.24777185,0.11425573){\color[rgb]{0,0,0}\rotatebox{53.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$7_{1}^*$}}}}%
+    % \put(0.23580784,0.12319633){\color[rgb]{0,0,0}\rotatebox{51.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{6}^*$}}}}%
+    % \put(0.2241463,0.13252557){\color[rgb]{0,0,0}\rotatebox{49.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{6}$}}}}%
+    % \put(0.21287338,0.14220042){\color[rgb]{0,0,0}\rotatebox{47.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{7}$}}}}%
+    % \put(0.20185967,0.15222074){\color[rgb]{0,0,0}\rotatebox{45.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{7}^*$}}}}%
+    % \put(0.19123467,0.16258661){\color[rgb]{0,0,0}\rotatebox{44.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{13}^*$}}}}%
+    % \put(0.18095516,0.17329801){\color[rgb]{0,0,0}\rotatebox{42.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{13}$}}}}%
+    % \put(0.17106444,0.18426852){\color[rgb]{0,0,0}\rotatebox{40.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{10}$}}}}%
+    % \put(0.1615624,0.19549821){\color[rgb]{0,0,0}\rotatebox{38.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{10}^*$}}}}%
+    % \put(0.15249224,0.20698707){\color[rgb]{0,0,0}\rotatebox{36.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{12}$}}}}%
+    % \put(0.14381083,0.21873502){\color[rgb]{0,0,0}\rotatebox{34.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#5_{2}^*$}}}}%
+    % \put(0.13556138,0.23065572){\color[rgb]{0,0,0}\rotatebox{33.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#5_{2}^*$}}}}%
+    % \put(0.1276574,0.24287882){\color[rgb]{0,0,0}\rotatebox{31.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#5_{2}$}}}}%
+    % \put(0.12014213,0.25536105){\color[rgb]{0,0,0}\rotatebox{29.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#5_{2}$}}}}%
+    % \put(0.1130588,0.26801606){\color[rgb]{0,0,0}\rotatebox{27.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{17}$}}}}%
+    % \put(0.1067529,0.28019593){\color[rgb]{0,0,0}\rotatebox{25.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{2}^*$}}}}%
+    % \put(0.10105165,0.29194393){\color[rgb]{0,0,0}\rotatebox{24.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{2}$}}}}%
+    % \put(0.09578237,0.30373508){\color[rgb]{0,0,0}\rotatebox{22.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{19}^*$}}}}%
+    % \put(0.09085857,0.31556944){\color[rgb]{0,0,0}\rotatebox{21}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{19}$}}}}%
+    % \put(0.08628032,0.32749017){\color[rgb]{0,0,0}\rotatebox{19.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{9}$}}}}%
+    % \put(0.08213397,0.33932454){\color[rgb]{0,0,0}\rotatebox{17.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{4}$}}}}%
+    % \put(0.07833315,0.35115891){\color[rgb]{0,0,0}\rotatebox{16.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{4}^*$}}}}%
+    % \put(0.07487787,0.36303646){\color[rgb]{0,0,0}\rotatebox{14.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{44}$}}}}%
+    % \put(0.07172492,0.3749572){\color[rgb]{0,0,0}\rotatebox{13.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{44}^*$}}}}%
+    % \put(0.06900387,0.38653243){\color[rgb]{0,0,0}\rotatebox{11.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{45}^*$}}}}%
+    % \put(0.06667156,0.39784847){\color[rgb]{0,0,0}\rotatebox{10.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{45}$}}}}%
+    % \put(0.06459839,0.40920775){\color[rgb]{0,0,0}\rotatebox{8.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{15}$}}}}%
+    % \put(0.06282756,0.42061016){\color[rgb]{0,0,0}\rotatebox{7.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{15}^*$}}}}%
+    % \put(0.06135906,0.43196944){\color[rgb]{0,0,0}\rotatebox{6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{16}$}}}}%
+    % \put(0.0601929,0.44328548){\color[rgb]{0,0,0}\rotatebox{4.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{16}^*$}}}}%
+    % \put(0.05928588,0.45442881){\color[rgb]{0,0,0}\rotatebox{3.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{1}^*$}}}}%
+    % \put(0.05868121,0.46539936){\color[rgb]{0,0,0}\rotatebox{1.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{1}$}}}}%
+    % \put(0.05833569,0.47615395){\color[rgb]{0,0,0}\rotatebox{0.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#5_{1}^*$}}}}%
+    % \put(0.0582493,0.48677895){\color[rgb]{0,0,0}\rotatebox{-0.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#5_{1}^*$}}}}%
+    % \put(0.05842206,0.49736076){\color[rgb]{0,0,0}\rotatebox{-2.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#5_{1}$}}}}%
+    % \put(0.05881078,0.50794258){\color[rgb]{0,0,0}\rotatebox{-3.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#5_{1}$}}}}%
+    % \put(0.05945864,0.51843799){\color[rgb]{0,0,0}\rotatebox{-4.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{3}$}}}}%
+    % \put(0.06032247,0.52867431){\color[rgb]{0,0,0}\rotatebox{-6.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{43}^*$}}}}%
+    % \put(0.06135906,0.5387378){\color[rgb]{0,0,0}\rotatebox{-7.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{43}$}}}}%
+    % \put(0.0626116,0.54828307){\color[rgb]{0,0,0}\rotatebox{-8.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{5}$}}}}%
+    % \put(0.06395053,0.55726679){\color[rgb]{0,0,0}\rotatebox{-9.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{5}^*$}}}}%
+    % \put(0.06546222,0.56625056){\color[rgb]{0,0,0}\rotatebox{-10.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#6_{3}$}}}}%
+    % \put(0.06714666,0.57519109){\color[rgb]{0,0,0}\rotatebox{-12}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#6_{3}$}}}}%
+    % \put(0.06900388,0.58395891){\color[rgb]{0,0,0}\rotatebox{-13.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{46}^*$}}}}%
+    % \put(0.07099067,0.5926403){\color[rgb]{0,0,0}\rotatebox{-14.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{46}$}}}}%
+    % \put(0.07310703,0.60106257){\color[rgb]{0,0,0}\rotatebox{-15.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{27}$}}}}%
+    % \put(0.07535298,0.60922569){\color[rgb]{0,0,0}\rotatebox{-16.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{27}^*$}}}}%
+    % \put(0.07768529,0.61730241){\color[rgb]{0,0,0}\rotatebox{-17.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$4_{1}\#4_{1}$}}}}%
+    % \put(0.080104,0.62516322){\color[rgb]{0,0,0}\rotatebox{-18.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#6_{2}$}}}}%
+    % \put(0.08269547,0.63293761){\color[rgb]{0,0,0}\rotatebox{-19.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#6_{2}^*$}}}}%
+    % \put(0.0854165,0.64071201){\color[rgb]{0,0,0}\rotatebox{-20.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#6_{2}^*$}}}}%
+    % \put(0.0882671,0.6484){\color[rgb]{0,0,0}\rotatebox{-21.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#6_{2}$}}}}%
+    % \put(0.09116091,0.65578566){\color[rgb]{0,0,0}\rotatebox{-22.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{30}^*$}}}}%
+    % \put(0.09405472,0.66282583){\color[rgb]{0,0,0}\rotatebox{-23.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{30}$}}}}%
+    % \put(0.09707809,0.66982276){\color[rgb]{0,0,0}\rotatebox{-24.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$4_{1}\#5_{2}^*$}}}}%
+    % \put(0.10018785,0.67677658){\color[rgb]{0,0,0}\rotatebox{-25.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$4_{1}^*\#5_{2}$}}}}%
+    % \put(0.10338399,0.68360074){\color[rgb]{0,0,0}\rotatebox{-26.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{26}^*$}}}}%
+    % \put(0.1067097,0.69033854){\color[rgb]{0,0,0}\rotatebox{-27.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{26}$}}}}%
+    % \put(0.11003543,0.69681722){\color[rgb]{0,0,0}\rotatebox{-28.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{20}$}}}}%
+    % \put(0.11331794,0.70303673){\color[rgb]{0,0,0}\rotatebox{-29.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{20}^*$}}}}%
+    % \put(0.11668684,0.70916987){\color[rgb]{0,0,0}\rotatebox{-30}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{31}^*$}}}}%
+    % \put(0.12014213,0.71521663){\color[rgb]{0,0,0}\rotatebox{-30.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{31}$}}}}%
+    % \put(0.12364062,0.7211338){\color[rgb]{0,0,0}\rotatebox{-31.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$8_{18}$}}}}%
+    % \put(0.12713909,0.72687822){\color[rgb]{0,0,0}\rotatebox{-32.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{25}^*$}}}}%
+    % \put(0.13063756,0.73244988){\color[rgb]{0,0,0}\rotatebox{-33.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{25}$}}}}%
+    % \put(0.13422244,0.73797833){\color[rgb]{0,0,0}\rotatebox{-34.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{18}^*$}}}}%
+    % \put(0.13785048,0.74337722){\color[rgb]{0,0,0}\rotatebox{-35}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#6_{1}$}}}}%
+    % \put(0.14156493,0.74873292){\color[rgb]{0,0,0}\rotatebox{-35.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#6_{1}^*$}}}}%
+    % \put(0.14536574,0.75404542){\color[rgb]{0,0,0}\rotatebox{-36.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#6_{1}$}}}}%
+    % \put(0.14925294,0.75931474){\color[rgb]{0,0,0}\rotatebox{-37.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{15}^*$}}}}%
+    % \put(0.15318332,0.76449768){\color[rgb]{0,0,0}\rotatebox{-38.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{15}$}}}}%
+    % \put(0.15720008,0.76963741){\color[rgb]{0,0,0}\rotatebox{-39.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{18}$}}}}%
+    % \put(0.16130323,0.77473395){\color[rgb]{0,0,0}\rotatebox{-39.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#6_{1}^*$}}}}%
+    % \put(0.1654496,0.77974412){\color[rgb]{0,0,0}\rotatebox{-40.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{24}$}}}}%
+    % \put(0.16963914,0.78471109){\color[rgb]{0,0,0}\rotatebox{-41.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{21}$}}}}%
+    % \put(0.17395824,0.78959168){\color[rgb]{0,0,0}\rotatebox{-42.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{24}^*$}}}}%
+    % \put(0.17827736,0.79442909){\color[rgb]{0,0,0}\rotatebox{-43.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{21}^*$}}}}%
+    % \put(0.18268283,0.79918012){\color[rgb]{0,0,0}\rotatebox{-44}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#3_{1}\#3_{1}^*$}}}}%
+    % \put(0.18713153,0.80384474){\color[rgb]{0,0,0}\rotatebox{-44.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#3_{1}^*\#3_{1}^*$}}}}%
+    % \put(0.19166658,0.80842299){\color[rgb]{0,0,0}\rotatebox{-45.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{19}$}}}}%
+    % \put(0.19620165,0.81295806){\color[rgb]{0,0,0}\rotatebox{-46.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{19}^*$}}}}%
+    % \put(0.2008231,0.81740677){\color[rgb]{0,0,0}\rotatebox{-47.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{33}^*$}}}}%
+    % \put(0.20548774,0.82176905){\color[rgb]{0,0,0}\rotatebox{-48}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{32}^*$}}}}%
+    % \put(0.21019557,0.82604498){\color[rgb]{0,0,0}\rotatebox{-48.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{28}$}}}}%
+    % \put(0.21498979,0.83027769){\color[rgb]{0,0,0}\rotatebox{-49.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{28}^*$}}}}%
+    % \put(0.21982718,0.83446725){\color[rgb]{0,0,0}\rotatebox{-50.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{33}$}}}}%
+    % \put(0.22470779,0.83857039){\color[rgb]{0,0,0}\rotatebox{-51.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{32}$}}}}%
+    % \put(0.22950199,0.84245759){\color[rgb]{0,0,0}\rotatebox{-51.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{8}$}}}}%
+    % \put(0.23416662,0.84617203){\color[rgb]{0,0,0}\rotatebox{-52.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{8}^*$}}}}%
+    % \put(0.23883125,0.84975689){\color[rgb]{0,0,0}\rotatebox{-53.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{17}$}}}}%
+    % \put(0.2434527,0.85321217){\color[rgb]{0,0,0}\rotatebox{-54.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{22}$}}}}%
+    % \put(0.24811734,0.85662428){\color[rgb]{0,0,0}\rotatebox{-54.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{17}^*$}}}}%
+    % \put(0.25282517,0.85999317){\color[rgb]{0,0,0}\rotatebox{-55.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{22}^*$}}}}%
+    % \put(0.25748981,0.86323251){\color[rgb]{0,0,0}\rotatebox{-56.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{14}$}}}}%
+    % \put(0.26219764,0.86638545){\color[rgb]{0,0,0}\rotatebox{-57}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{14}^*$}}}}%
+    % \put(0.26690546,0.86949522){\color[rgb]{0,0,0}\rotatebox{-57.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{23}^*$}}}}%
+    % \put(0.2716133,0.87251859){\color[rgb]{0,0,0}\rotatebox{-58.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{23}$}}}}%
+    % \put(0.27636433,0.87549878){\color[rgb]{0,0,0}\rotatebox{-59.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{36}^*$}}}}%
+    % \put(0.28111534,0.87834939){\color[rgb]{0,0,0}\rotatebox{-59.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{36}$}}}}%
+    % \put(0.28586636,0.88115681){\color[rgb]{0,0,0}\rotatebox{-60.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{47}^*$}}}}%
+    % \put(0.29061739,0.88392104){\color[rgb]{0,0,0}\rotatebox{-61.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{47}$}}}}%
+    % \put(0.29541158,0.88659889){\color[rgb]{0,0,0}\rotatebox{-61.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{7}^*$}}}}%
+    % \put(0.30024898,0.88919035){\color[rgb]{0,0,0}\rotatebox{-62.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{7}$}}}}%
+    % \put(0.30508639,0.89173862){\color[rgb]{0,0,0}\rotatebox{-63.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{48}^*$}}}}%
+    % \put(0.30992379,0.8942437){\color[rgb]{0,0,0}\rotatebox{-63.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{48}$}}}}%
+    % \put(0.3148044,0.89666241){\color[rgb]{0,0,0}\rotatebox{-64.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{13}$}}}}%
+    % \put(0.31968499,0.89899471){\color[rgb]{0,0,0}\rotatebox{-65.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{13}^*$}}}}%
+    % \put(0.32456556,0.90128386){\color[rgb]{0,0,0}\rotatebox{-66}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{12}^*$}}}}%
+    % \put(0.32948936,0.90352979){\color[rgb]{0,0,0}\rotatebox{-66.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{11}^*$}}}}%
+    % \put(0.33441315,0.90568934){\color[rgb]{0,0,0}\rotatebox{-67.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{12}$}}}}%
+    % \put(0.33938013,0.9078057){\color[rgb]{0,0,0}\rotatebox{-68}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{11}$}}}}%
+    % \put(0.34430392,0.90983568){\color[rgb]{0,0,0}\rotatebox{-68.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$4_{1}\#5_{1}$}}}}%
+    % \put(0.34918451,0.91177931){\color[rgb]{0,0,0}\rotatebox{-69.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$4_{1}\#5_{1}^*$}}}}%
+    % \put(0.35397871,0.91363653){\color[rgb]{0,0,0}\rotatebox{-69.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{37}^*$}}}}%
+    % \put(0.35872972,0.91540736){\color[rgb]{0,0,0}\rotatebox{-70.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{9}$}}}}%
+    % \put(0.36343756,0.91709181){\color[rgb]{0,0,0}\rotatebox{-71.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{9}^*$}}}}%
+    % \put(0.36818858,0.91873307){\color[rgb]{0,0,0}\rotatebox{-71.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{37}$}}}}%
+    % \put(0.3729396,0.92033114){\color[rgb]{0,0,0}\rotatebox{-72.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{6}^*$}}}}%
+    % \put(0.37769061,0.92188602){\color[rgb]{0,0,0}\rotatebox{-73.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{6}$}}}}%
+    % \put(0.38235527,0.9233113){\color[rgb]{0,0,0}\rotatebox{-73.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{16}^*$}}}}%
+    % \put(0.38693351,0.92469343){\color[rgb]{0,0,0}\rotatebox{-74.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{16}$}}}}%
+    % \put(0.39146858,0.92603235){\color[rgb]{0,0,0}\rotatebox{-74.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{34}$}}}}%
+    % \put(0.39583088,0.92724171){\color[rgb]{0,0,0}\rotatebox{-75.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{49}^*$}}}}%
+    % \put(0.40014998,0.92836468){\color[rgb]{0,0,0}\rotatebox{-76}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{49}$}}}}%
+    % \put(0.4044691,0.92948765){\color[rgb]{0,0,0}\rotatebox{-76.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{10}^*$}}}}%
+    % \put(0.4087882,0.93056743){\color[rgb]{0,0,0}\rotatebox{-77.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{10}$}}}}%
+    % \put(0.41306413,0.93156081){\color[rgb]{0,0,0}\rotatebox{-77.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{29}$}}}}%
+    % \put(0.41738324,0.93255421){\color[rgb]{0,0,0}\rotatebox{-78.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{38}$}}}}%
+    % \put(0.42165916,0.93346121){\color[rgb]{0,0,0}\rotatebox{-78.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{39}^*$}}}}%
+    % \put(0.42597827,0.93436822){\color[rgb]{0,0,0}\rotatebox{-79.3}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{38}^*$}}}}%
+    % \put(0.43029738,0.93518885){\color[rgb]{0,0,0}\rotatebox{-79.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{39}$}}}}%
+    % \put(0.43461648,0.93600948){\color[rgb]{0,0,0}\rotatebox{-80.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{29}^*$}}}}%
+    % \put(0.43889241,0.93674372){\color[rgb]{0,0,0}\rotatebox{-81}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}\#3_{1}\#3_{1}$}}}}%
+    % \put(0.44312512,0.937478){\color[rgb]{0,0,0}\rotatebox{-81.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$3_{1}^*\#3_{1}^*\#3_{1}^*$}}}}%
+    % \put(0.44731466,0.93812584){\color[rgb]{0,0,0}\rotatebox{-82}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{5}^*$}}}}%
+    % \put(0.45137462,0.93873055){\color[rgb]{0,0,0}\rotatebox{-82.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{5}$}}}}%
+    % \put(0.4553914,0.93929202){\color[rgb]{0,0,0}\rotatebox{-83.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{4}$}}}}%
+    % \put(0.45932178,0.93981032){\color[rgb]{0,0,0}\rotatebox{-83.6}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{4}^*$}}}}%
+    % \put(0.46329537,0.94028539){\color[rgb]{0,0,0}\rotatebox{-84.1}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{3}$}}}}%
+    % \put(0.46718257,0.9407173){\color[rgb]{0,0,0}\rotatebox{-84.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{40}^*$}}}}%
+    % \put(0.47111295,0.94110603){\color[rgb]{0,0,0}\rotatebox{-85}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{41}^*$}}}}%
+    % \put(0.47504335,0.94149476){\color[rgb]{0,0,0}\rotatebox{-85.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{40}$}}}}%
+    % \put(0.47897373,0.9418403){\color[rgb]{0,0,0}\rotatebox{-86}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{41}$}}}}%
+    % \put(0.48290413,0.94214265){\color[rgb]{0,0,0}\rotatebox{-86.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{3}^*$}}}}%
+    % \put(0.48679132,0.9424018){\color[rgb]{0,0,0}\rotatebox{-87}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{2}$}}}}%
+    % \put(0.49063533,0.94261774){\color[rgb]{0,0,0}\rotatebox{-87.5}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{2}^*$}}}}%
+    % \put(0.49426338,0.94283369){\color[rgb]{0,0,0}\rotatebox{-87.9}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{1}$}}}}%
+    % \put(0.49771867,0.94296326){\color[rgb]{0,0,0}\rotatebox{-88.4}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{1}^*$}}}}%
+    % \put(0.50117395,0.94309283){\color[rgb]{0,0,0}\rotatebox{-88.8}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{35}^*$}}}}%
+    % \put(0.50462925,0.94322241){\color[rgb]{0,0,0}\rotatebox{-89.2}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{35}$}}}}%
+    % \put(0.50791176,0.94326561){\color[rgb]{0,0,0}\rotatebox{-89.7}{\makebox(0,0)[rb]{\smash{\fontsize{1pt}{.1em}$9_{34}^*$}}}}%
+  \end{picture}%
+\endgroup%

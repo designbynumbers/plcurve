@@ -1,0 +1,1079 @@
+\documentclass[presentation]{beamer}
+\usetheme{Antibes}
+\usecolortheme{dolphin}
+%\input{header}
+\input{globalmacros}
+\usepackage{svg}
+\usepackage{graphicx}
+%\usepackage{mathrsfs}
+%\usepackage{setspace}
+%\usepackage{showkeys}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{array}
+\pgfplotsset{compat=1.5.1}
+\usetikzlibrary{trees,positioning,arrows,chains,knots,calc,decorations.markings}
+
+\definecolor{beamerblue}{RGB}{234,233,243}
+\definecolor{beamerviolet}{RGB}{47,23,132}
+\definecolor{beamerliteviolet}{RGB}{137,127,207}
+
+\tikzset{onslide/.code args={<#1>#2}{%
+  \only<#1>{\pgfkeysalso{#2}} % \pgfkeysalso doesn't change the path
+}}
+\tikzset{temporal/.code args={<#1>#2#3#4}{%
+  \temporal<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}{\pgfkeysalso{#4}} % \pgfkeysalso doesn't change the path
+}}
+
+\tikzset{
+  invisible/.style={opacity=0},
+  visible on/.style={alt={#1{}{invisible}}},
+  alt/.code args={<#1>#2#3}{%
+    \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+  },
+}
+
+\newcommand{\Uhyp}{\mathcal U} \newcommand{\Vhyp}{\mathcal V}
+\newcommand{\Rhyp}{\mathcal R}
+
+
+\title{Random Planar Diagrams}
+\institute[UGA]{University of Georgia}
+\author[Chapman]{Harrison Chapman}
+\date{Geometry seminar -- \today}
+
+%\allowdisplaybreaks
+%\usepackage[bookmarks,bookmarksopen,bookmarksdepth=4]{hyperref}
+
+\newcommand{\so}[1]{\mathfrak {so}(#1)}
+
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{definition}[theorem]{Definition}
+\newtheorem{proposition}[theorem]{Proposition}
+%\newtheorem{corollary}[theorem]{Corollary}
+
+%\renewcommand*\showkeyslabelformat[1]{\normalfont\tiny\ttfamily(#1)}
+
+\let\oldemptyset\emptyset
+\let\emptyset\varnothing
+
+\DeclareMathOperator{\Arm}{Arm}
+\DeclareMathOperator{\Pol}{Pol}
+\DeclareMathOperator{\UP}{UP}
+\DeclareMathOperator{\VP}{VP}
+\DeclareMathOperator{\APol}{APol}
+\DeclareMathOperator{\Diff}{Diff}
+\DeclareMathOperator{\Sympl}{Sympl}
+\DeclareMathOperator{\ev}{ev}
+\DeclareMathOperator{\Ad}{Ad}
+\DeclareMathOperator{\crit}{crit}
+\DeclareMathOperator{\ind}{ind}
+\DeclareMathOperator{\intr}{int}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\Ext}{Ext}
+\DeclareMathOperator{\codim}{codim}
+\DeclareMathOperator{\Ann}{Ann}
+\DeclareMathOperator{\im}{Im}
+\DeclareMathOperator{\Int}{int}
+
+\begin{document}
+% \section{Symplectic Manifolds}
+% \label{sec:sympmfd}
+\newcommand{\Oh}[1]{\mathcal O (#1)}
+\newcommand{\g}{\mathfrak g}
+\newcommand{\ShSet}{\mathcal S}
+\newcommand{\LnSet}{\mathcal L}
+\newcommand{\sr}{/\!\!/}
+
+\begin{frame}
+\titlepage
+
+\end{frame}
+
+\section{Random Planar Diagrams}
+\label{sec:randompd}
+\newcommand{\Salpha}[1]{S^2_{\alpha_{#1}}}
+
+\subsection{Definition}
+
+\begin{frame}
+  \frametitle{Planar diagrams and knots}
+  A planar diagram is the usual way to express a space curve or knot
+  in two dimensions. We will only
+  consider \textit{oriented} planar diagrams, where components of
+  links are given direction.
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}
+      \begin{scope}[very thick,decoration={
+          markings,
+          mark=between positions .2 and 1 step 0.2 with {\arrow{>}}}
+        ]
+        \def\foil{5}
+        \foreach \brk in {1,...,\foil} {
+          \begin{scope}[rotate=\brk * 360/\foil]
+            \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {};
+          \end{scope}
+        }
+        \draw[ultra thick,black,postaction={decorate}] (0,0) \foreach \brk in
+        {1,...,\foil} {let \n0=\brk, \n1={int(Mod(\brk,\foil)+1)},
+          \n2={int(Mod(\brk+1,\foil)+1)} in (k\n0) .. controls
+          (k\n0.16 south east) and (k\n1.16 south west)
+          .. (k\n1.center) .. controls (k\n1.4 north east) and (k\n2.4
+          north west) .. (k\n2)};
+      \end{scope}
+    \end{tikzpicture}
+    \caption{A typical planar diagram for the knot $5_1$.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Planar diagrams as graphs}
+  \begin{definition}
+    A \textbf{planar diagram} is an isotopy class of 4-valent embedded
+    planar directed multigraphs
+    \begin{itemize}
+    \item together with information at each vertex as to which opposing
+      pair of edges constitutes the over strand and under strand
+      (\textbf{crossing sign}),
+    \item and so that at every vertex, opposite
+      edges do not both point towards or away from the vertex.
+    \end{itemize}
+
+  \end{definition}
+
+
+  Two planar diagrams are equivalent if they differ only by
+  \textbf{diagram isotopy}, wherein both the underlying planar digraph
+  embeddings are isomorphic, and crossing signs agree.
+\end{frame}
+
+\begin{frame}
+  \frametitle{A planar diagram}
+  \begin{figure}
+    \centering
+    \begin{minipage}[c]{.4\linewidth}
+      \vspace{0pt}
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {};
+            \end{scope}
+          }
+          \draw[ultra thick,black,postaction={decorate}] (0,0) \foreach \brk in
+          {1,...,\foil} {let \n0=\brk, \n1={int(Mod(\brk,\foil)+1)},
+            \n2={int(Mod(\brk+1,\foil)+1)} in (k\n0) .. controls
+            (k\n0.16 south east) and (k\n1.16 south west)
+            .. (k\n1.center) .. controls (k\n1.4 north east) and (k\n2.4
+            north west) .. (k\n2)};
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{.4\linewidth}
+      \vspace{0pt}
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {\textbullet};
+            \end{scope}
+            \node[blue] at (k\brk.south) {\large $-$};
+          }
+          \draw[ultra thick,black,->] (k1) --(k2);
+          \draw[ultra thick,black,->] (k2) --(k3);
+          \draw[ultra thick,black,->] (k3) --(k1);
+          \draw[ultra thick,black,->] (k1) to[bend right=90] (k2);
+          \draw[ultra thick,black,->] (k2) to[bend right=90] (k3);
+          \draw[ultra thick,black,->] (k3) to[bend right=90] (k1);
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \caption{Planar diagram for a typical trefoil knot in a standard
+      presentation, and as an annotated directed multigraph.}
+  \end{figure}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Crossing sign}
+  Crossing signs are determined by the right hand rule.
+  \begin{figure}
+    \centering
+    \begin{minipage}[c]{.4\linewidth}
+      \vspace{0pt}
+      \centering
+      \begin{tikzpicture}
+        \draw[knot=black,ultra thick,decoration={markings, mark=at
+          position 0.05 with {\arrow[black,ultra thick]{<}}},postaction={decorate}] (-1,1) -- (1,-1);
+        \draw[knot=black,ultra thick,decoration={markings, mark=at
+          position 1 with {\arrow[black,ultra
+            thick]{>}}},postaction={decorate}] (-1,-1) -- (1,1);
+        \node at (0,-.5) {\large $+$};
+      \end{tikzpicture}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{.4\linewidth}
+      \vspace{0pt}
+      \centering
+      \begin{tikzpicture}
+        \draw[knot=black,ultra thick,decoration={markings, mark=at
+          position 1 with {\arrow[black,ultra thick]{>}}},postaction={decorate}] (-1,-1) -- (1,1);
+        \draw[knot=black,ultra thick,decoration={markings, mark=at
+          position 0.05 with {\arrow[black,ultra
+            thick]{<}}},postaction={decorate}] (-1,1) -- (1,-1);
+        \node at (0,-.5) {\large $-$};
+      \end{tikzpicture}
+    \end{minipage}
+    \caption{Positive and negative crossings.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Diagram isotopy}
+  \begin{figure}
+    \centering
+    \begin{minipage}[c]{.4\linewidth}
+      \vspace{0pt}
+       \begin{tikzpicture}
+        \begin{knot}[
+          consider self intersections,
+          scale=1.5,
+          flip crossing/.list={2,3},
+          clip width=5]
+          \strand[black,decoration={markings, mark=between
+          positions 0 and 1 step 1/6 with {\arrow[black,
+            thick]{>}}},postaction={decorate}]
+          (90:1) to[out=180,in=-120,looseness=2]
+          (-30:1) to[out=60,in=120,looseness=2]
+          (210:1) to[out=-60,in=0,looseness=2] (90:1);
+        \end{knot}
+      \end{tikzpicture}%\vspace{-26pt}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{.4\linewidth}
+      \vspace{0pt}
+       \begin{tikzpicture}
+        \begin{knot}[
+          consider self intersections,
+          scale=1.5,
+          clip width=5]
+          \strand[black,decoration={markings, mark=between
+          positions 0 and 1 step 1/6 with {\arrow[black,
+            thick]{<}}},postaction={decorate}]
+          (90:1) to[out=180,in=-120,looseness=2]
+          (-30:1) to[out=60,in=120,looseness=2]
+          (210:1) to[out=-60,in=0,looseness=2] (90:1);
+        \end{knot}
+      \end{tikzpicture}
+    \end{minipage}
+    \caption{The two diagrams are related by flipping the inside with
+      the out and a rotation.}
+  \end{figure}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Planar diagram shadows}
+  A \textbf{diagram shadow} is an isomorphism class of 4-valent
+  embedded planar multigraphs, up to planar graph isomorphim.
+
+  \begin{figure}
+    \centering\
+    \begin{minipage}[c]{.4\linewidth}
+      \vspace{0pt}
+      \centering
+      \begin{tikzpicture}
+        \begin{knot}[scale=1.2]
+          \strand[ultra thick,black]
+          (90:1) to[out=180,in=-120,looseness=2]
+          (-30:1) to[out=60,in=120,looseness=2]
+          (210:1) to[out=-60,in=0,looseness=2] (90:1);
+        \end{knot}
+      \end{tikzpicture}\vspace{-26pt}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{.4\linewidth}
+      \vspace{0pt}
+      \centering
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {\textbullet};
+            \end{scope}
+          }
+          \draw[ultra thick,black] (k1) --(k2);
+          \draw[ultra thick,black] (k2) --(k3);
+          \draw[ultra thick,black] (k3) --(k1);
+          \draw[ultra thick,black] (k1) to[bend right=90] (k2);
+          \draw[ultra thick,black] (k2) to[bend right=90] (k3);
+          \draw[ultra thick,black] (k3) to[bend right=90] (k1);
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \caption{A diagram shadow viewed both as a drawing and as a graph.}
+    \label{fig:diashadow}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Counting planar diagrams}
+  \begin{block}{Finiteness}
+   The spaces of planar
+   diagrams or diagram shadows with [at most] $n$ crossings is
+    \textit{finite}.
+  \end{block}
+
+  \begin{table}
+    \centering
+    \begin{tabular}{r|cc}
+      n & \# knot shadows & \# knot diagrams \\
+      \hline
+      3 & 6 & $<96$ \\
+      4 & 16 & $<512$ \\
+      5 & 63 & $<4032$ \\
+      6 & 302 & $<38656$ \\
+      7 & 1756 & $<449536$ \\
+      8 & 11621 & $<5949952$ \\
+      9 & $<193903$ & $<193903 * 2^{10}$
+    \end{tabular}
+    \caption{Counts and bounds on knot diagrams and shadows. Numbers
+      are large, but finite.}
+    \label{tab:counts}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exploring the space of diagrams}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_0_collage.eps}
+    \caption{Planar diagrams}
+    \label{fig:planarcollage0}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exploring the space of diagrams}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_1_collage.eps}
+    \caption{Planar diagrams}
+    \label{fig:planarcollage1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exploring the space of diagrams}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_10_collage.eps}
+    \caption{Planar diagrams}
+    \label{fig:planarcollage10}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exploring the space of diagrams}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_16_collage.eps}
+    \caption{Planar diagrams. A map of all shadows with between 3 and
+      6 crossings \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is here.}}
+    \label{fig:planarcollage16}
+  \end{figure}
+\end{frame}
+
+
+\subsection{A Complete List}
+
+\begin{frame}
+  \frametitle{Enumeration of appropriate planar graphs}
+  The first step is to generate a complete list of diagram shadows.
+
+  \begin{block}{plantri}
+    A program \texttt{plantri} by McKay and Brinkmann is able to
+    generate all planar embedded graphs (not multigraphs) with
+    arbitrary numbers of vertices.
+  \end{block}
+  We then omit all such graphs with vertices of degree $> 4$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Shadows from planar graphs}
+  Given an appropriate graph $G$ from \texttt{plantri} and a vertex $V
+  \in G$, there are two
+  different operations which are repeated until the vertex (and then
+  all vertices) has degree 4:
+
+  \begin{enumerate}
+  \item Adding a self-loop to $V$ inside one of the faces of the
+    embedding. This increases the degree of the vertex by 2.
+  \item Doubling an edge adjacent to $V$ in $G$. This increases the
+    degrees of the two connected vertices each by 1.
+  \end{enumerate}
+
+  This process produces a number of (possibly not all unique) diagram
+  shadows.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Self loop addition}
+  \begin{figure}
+    \centering
+    \begin{minipage}[c]{.32\linewidth}
+      \vspace{0pt}
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {\textbullet};
+            \end{scope}
+          }
+            \node[red] at (k3) {\large\textbullet};
+          \draw[ultra thick,black] (k1) to[bend right=90] (k2);
+          \draw[ultra thick,black] (k2) to[bend right=90] (k3);
+          \draw[ultra thick,black] (k3) to[bend right=90] (k1);
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{.32\linewidth}
+      \vspace{0pt}
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {\textbullet};
+            \end{scope}
+          }
+            \node[red] at (k3) {\large\textbullet};
+          \draw[ultra thick,black] (k1) to[bend right=90] (k2);
+          \draw[ultra thick,black] (k2) to[bend right=90] (k3);
+          \draw[ultra thick,black] (k3) to[bend right=90] (k1);
+          \draw[ultra thick,blue] (k3) to[out=135,in=45,looseness=10] (k3);
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \hfill
+        \begin{minipage}[c]{.32\linewidth}
+      \vspace{0pt}
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {\textbullet};
+            \end{scope}
+          }
+            \node[red] at (k3) {\large\textbullet};
+          \draw[ultra thick,black] (k1) to[bend right=90] (k2);
+          \draw[ultra thick,black] (k2) to[bend right=90] (k3);
+          \draw[ultra thick,black] (k3) to[bend right=90] (k1);
+          \draw[ultra thick,blue] (k3) to[out=-135,in=-45,looseness=10] (k3);
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \caption{Addition of a self loop. From the graph on the left, with
+      red selected vertex, the rightmost two graphs are produced.}
+    \label{fig:selfloop}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Edge doubling}
+  \begin{figure}
+    \centering
+    \begin{minipage}[c]{.32\linewidth}
+      \vspace{0pt}
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {\textbullet};
+            \end{scope}
+          }
+            \node[red] at (k3) {\large\textbullet};
+          \draw[ultra thick,black] (k1) to[bend right=90] (k2);
+          \draw[ultra thick,black] (k2) to[bend right=90] (k3);
+          \draw[ultra thick,black] (k3) to[bend right=90] (k1);
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{.32\linewidth}
+      \vspace{0pt}
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {\textbullet};
+            \end{scope}
+          }
+            \node[red] at (k3) {\large\textbullet};
+          \draw[ultra thick,black] (k1) to[bend right=90] (k2);
+          \draw[ultra thick,black] (k2) to[bend right=90] (k3);
+          \draw[ultra thick,black] (k3) to[bend right=90] (k1);
+          \draw[ultra thick,blue] (k3) to[bend left=45] (k1);
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \hfill
+        \begin{minipage}[c]{.32\linewidth}
+      \vspace{0pt}
+      \begin{tikzpicture}
+        \begin{scope}[very thick,decoration={
+            markings,
+            mark=between positions 1/3 and 1 step 1/3 with {\arrow{>}}}
+          ]
+          \def\foil{3}
+          \foreach \brk in {1,...,\foil} {
+            \begin{scope}[rotate=\brk * 360/\foil]
+              \node[transform shape, knot crossing, inner sep=1.5pt] (k\brk) at (0,-1) {\textbullet};
+            \end{scope}
+          }
+            \node[red] at (k3) {\large\textbullet};
+          \draw[ultra thick,black] (k1) to[bend right=90] (k2);
+          \draw[ultra thick,black] (k2) to[bend right=90] (k3);
+          \draw[ultra thick,black] (k3) to[bend right=90] (k1);
+          \draw[ultra thick,blue] (k2) to[bend left=45] (k3);
+        \end{scope}
+      \end{tikzpicture}
+    \end{minipage}
+    \caption{Doubling of an edge. From the graph on the left, with
+      red selected vertex, the rightmost two graphs are produced.}
+    \label{fig:edgedouble}
+  \end{figure}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Ordering shadows}
+  The ultimate list of diagram shadows is ordered by how the algorithm
+  produces them:
+  \begin{itemize}
+  \item The order in which \texttt{plantri} outputs its planar graphs
+    is fixed.
+  \item The algorithm which creates planar diagram shadows from the
+    low-valence planar graph embeddings has order.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exploding shadows}
+  Given a diagram shadow, two sets of binary choices must be made to
+  determine a planar diagram:
+  \begin{enumerate}
+  \item Edges must be given a direction.
+  \item Crossings must be given a sign.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Orienting components}
+  \begin{block}{One edge per component}
+    The constraint on edge orientations in the definition of planar
+    diagrams means that orienting all edges is equivalent to orienting
+    one edge per component.
+  \end{block}
+
+  For knots, there is only one component to orient.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Assigning crossing signs}
+  For any given crossing, there are two valid signs; $+$ and $-$.
+
+  \begin{block}{Bound on diagrams for a shadow}
+    For a $k$-crossing knot (1-component) diagram, there are 2 choices
+    of orientation. There are then $2^k$ total choices for crossing
+    signs. So there are at most $2^{k+1}$ planar diagram isotopy
+    classes for each shadow.
+  \end{block}
+\end{frame}
+
+\subsection{Classification of knot type}
+
+\begin{frame}
+  \frametitle{The HOMFLY polynomial}
+  \begin{block}{HOMFLY polynomial}
+    The \textbf{HOMFLY polynomial} is a knot-invariant polynomial of
+    an oriented planar diagram defined by the following skein
+    relation:
+
+    \[ zP\left(
+    \begin{tikzpicture}[baseline={(0,3pt)}]
+      \draw[thick,->] (0,0) to[bend right=45] (0,12pt);
+      \draw[thick,->] (12pt,0) to[bend left=45] (12pt,12pt);
+    \end{tikzpicture}\right)
+  = aP\left(\begin{tikzpicture}[baseline={(0,3pt)}]
+        \draw[knot=black,background color=beamerblue,thick,decoration={markings, mark=at
+          position 0.13 with {\arrow[black,thick]{<}}},postaction={decorate}] (0,12pt) -- (12pt,0);
+        \draw[knot=black,background color=beamerblue,thick,decoration={markings, mark=at
+          position 1 with {\arrow[black,
+            thick]{>}}},postaction={decorate}] (0,0) -- (12pt,12pt);
+    \end{tikzpicture}\right) + a^{-1}P\left(\begin{tikzpicture}[baseline={(0,3pt)}]
+      \draw[knot=black,background color=beamerblue,thick,decoration={markings, mark=at
+          position 1 with {\arrow[black,
+            thick]{>}}},postaction={decorate}] (0,0) -- (12pt,12pt);
+      \draw[knot=black,background color=beamerblue,thick,decoration={markings, mark=at
+          position 0.13 with {\arrow[black,thick]{<}}},postaction={decorate}] (0,12pt) -- (12pt,0);
+    \end{tikzpicture}\right),
+\qquad P(0_1) = 1.\]
+  \end{block}
+
+  For a knot $K$,
+  \[ P(K)(a,z) = P(K^*)(a^{-1},z)\]
+  For two knots $K, L$,
+  \[ P(K \# L) = P(K)P(L) \text{ and } P(K \cup L) = \left(\frac{a+a^{-1}}{z}\right)P(K)P(L)\]
+\end{frame}
+
+\begin{frame}
+  \frametitle{Classifying knots with small crossing number}
+  All knots (both prime and composite) with a crossing number of 7 or
+  smaller are classified entirely by their HOMFLY polynomial.
+
+  \begin{table}
+    \centering
+    \begin{tabular}{r|l}
+      Knot type & HOMFLY polynomial \\
+      \hline
+      $0_1$ & $1$ \\
+      $3_1$ & $-2a^{2} + a^{2}z^{2} -a^{4}$ \\
+      $3_1^*$ & $-a^{-4} -2a^{-2} + a^{-2}z^{2}$ \\
+      $4_1$ & $-a^{-2} -1 + z^{2} -a^{2}$ \\
+      $5_1$ & $3a^{4} -4a^{4}z^{2} + a^{4}z^{4} + 2a^{6} -a^{6}z^{2}$ \\
+      $5_2$ & $-a^{2} + a^{2}z^{2} + a^{4} -a^{4}z^{2} + a^{6}$ \\
+      $3_1 \# 3_1$ & $4a^{4} -4a^{4}z^{2} + a^{4}z^{4} + 4a^{6} -2a^{6}z^{2} + a^{8}$ \\
+      $3_1 \# 3_1^*$ & $2a^{-2} -a^{-2}z^{2} + 5 -4z^{2} + z^{4} + 2a^{2} -a^{2}z^{2}$ \\
+      $6_1$ & $-a^{-2} + z^{2} + a^{2} -a^{2}z^{2} + a^{4}$ \\
+    \end{tabular}
+    \caption{Some knot types and their HOMFLY polynomial}
+    \label{tab:homflys}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{HOMFLY polynomial collisions}
+  \begin{block}{Negative amphichiral $8_{17}$}
+    In 8 crossings; the
+    knots $8_{17}$ and $8_{17}^*$ have the same polynomial
+    {\footnotesize\begin{align*}
+      & -a^{-2} + 2a^{-2}z^{2} -a^{-2}z^{4} -1 + 5z^{2} -4z^{4} +
+        z^{6} -a^{2} + 2a^{2}z^{2} -a^{2}z^{4}
+    \end{align*}}
+    but are \textbf{different} as oriented knots.
+  \end{block}
+
+  \begin{block}{Prime/composite collision}
+    In 9-crossing knots; $9_{12}$ and $4_1 \# 5_2^*$ both
+    have HOMFLY polynomial
+    {\footnotesize\begin{align*}
+      &-a^{-8} -2a^{-6} + 2a^{-6}z^{2} -a^{-4} + a^{-4}z^{2} -a^{-4}z^{4} -a^{-2}z^{2} + a^{-2}z^{4} + 1 -z^{2}.
+    \end{align*}}
+  \end{block}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{The peculiar $8_{17}$}
+  \begin{figure}
+    \centering
+    \includegraphics[height=.7\textheight,keepaspectratio]{8_17_3d.jpg}
+    \caption{$8_{17}$ is not equal to its inverse if it is oriented.}
+    \label{fig:8_17}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Distinguishing $9_{12}$ and $4_1 \# 5_2^*$}
+  The (prime) satellite knot of minimal crossing number has crossing
+  number 13; hence, no complements of prime knots with crossing number
+  $<13$ have any incompressible non boundary-parallel tori.
+
+  \begin{block}{Help from SnapPy}
+    The software package \texttt{SnapPy} has a method
+    \texttt{splitting\_surfaces} which finds such surfaces; it finds
+    none for $9_{12}$, but two for $4_1 \# 5_2^*$.
+  \end{block}
+  The knots $9_{12}$ and $4_1 \# 5_2^*$ are also distinguished by
+  their Kauffman polynomial (not bracket).
+\end{frame}
+
+\section{Analysis of Data}
+\label{sec:data}
+
+\subsection{Knotting probabilities}
+
+\begin{frame}
+  \frametitle{Experimental ratios}
+  \begin{table}
+    \centering\scriptsize
+    \pgfkeys{/pgf/number format/.cd,fixed,fixed zerofill,precision=5}
+    \pgfplotstabletypeset[
+    columns={n,0.1,3.1,4.1,5.1,5.2,6.1,6.2},
+    columns/n/.style={precision=0, column name=$n$, column type=r|},
+    columns/0.1/.style={column name=$0_1$},
+    columns/3.1/.style={column name=$3_1$},
+    columns/4.1/.style={column name=$4_1$},
+    columns/5.1/.style={column name=$5_1$},
+    columns/5.2/.style={column name=$5_2$},
+    columns/6.1/.style={column name=$6_1$},
+    columns/6.2/.style={column name=$6_2$},
+    every first row/.style={before row={\hline}},
+    ]{knot_freq.tsv}
+    \caption{Ratios of knots appearing in planar diagrams with $\le n$
+    crossings.}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental ratios (unknots in diagrams)}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=.75]
+      \begin{axis}[
+        ymode=log,
+        title={Ratio of unknots in $\le n$-crossing diagrams (log scale)},
+        xlabel={Max \# crossings in diagram},
+        ylabel={Ratio of unknots},
+        ]
+        \addplot table[x=n,y=0.1] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+
+    \caption{Unknot ratio decreases exponentially.}
+    \label{fig:unkdecay}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental ratios (unknots in diagrams)}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=.75]
+      \begin{axis}[
+        ymode=log,
+        title={Ratio of unknots in $\le n$-crossing diagrams (log scale)},
+        xlabel={Max \# crossings in diagram},
+        ylabel={Ratio of unknots},
+        legend pos=south west,
+        ]
+        \addplot table[x=n,y=0.1] {knot_freq.tsv};
+        \addlegendentry{$0_1$}
+        \addplot table[x=n,y={create col/linear regression={y=0.1}}]
+        {knot_freq.tsv};
+        \addlegendentry{slope
+          $\pgfmathprintnumber{\pgfplotstableregressiona}$}
+      \end{axis}
+    \end{tikzpicture}
+
+    \caption{Unknot ratio decreases exponentially.}
+    \label{fig:unkregress}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental ratios (knotting)}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=.75]
+      \begin{axis}[
+        ymode=log,
+        title={Ratios of knots in $\le n$-crossing diagrams (log scale)},
+        xlabel={Max \# crossings in diagram},
+        ylabel={Ratios of knots},
+        legend pos=south west,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$},
+        ]
+        \addplot table[x=n,y=3.1] {knot_freq.tsv};
+        \addplot table[x=n,y=4.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.2] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+
+    \caption{All ratios of knot types are still increasing.}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental ratios (knotting)}
+  \begin{figure}
+    \centering
+      \tikzset{mark=*}
+    \begin{tikzpicture}[scale=.75]
+      \begin{axis}[
+        ymode=log,
+        title={Ratios of knots in $\le n$-crossing diagrams (log scale)},
+        xlabel={Max \# crossings in diagram},
+        ylabel={Ratios of knots},
+        cycle list name=color list,
+        legend style={font=\tiny},
+        legend pos=south west,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $6_1$, $6_2$, $3_1
+          \# 3_1$, $3_1 \# 3_1^*$, $7_1$, $7_2$, $7_3$, $7_4$, $7_5$,
+          $7_6$, $7_7$},
+        ]
+        \addplot table[x=n,y=3.1] {knot_freq.tsv};
+        \addplot table[x=n,y=4.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.2] {knot_freq.tsv};
+        \addplot table[x=n,y=6.1] {knot_freq.tsv};
+        \addplot table[x=n,y=6.2] {knot_freq.tsv};
+        \addplot table[x=n,y=3.1c3.1] {knot_freq.tsv};
+        \addplot table[x=n,y=3.1c3.1x] {knot_freq.tsv};
+        \addplot table[x=n,y=7.1] {knot_freq.tsv};
+        \addplot table[x=n,y=7.2] {knot_freq.tsv};
+        \addplot table[x=n,y=7.3] {knot_freq.tsv};
+        \addplot table[x=n,y=7.4] {knot_freq.tsv};
+        \addplot table[x=n,y=7.5] {knot_freq.tsv};
+        \addplot table[x=n,y=7.6] {knot_freq.tsv};
+        \addplot table[x=n,y=7.7] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+
+    \caption{Ratios of knot types are still increasing.}
+    \label{fig:kgrow2}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Knot type and random polygons}
+  \begin{figure}
+    \centering
+    \includegraphics[height=0.6\textheight,keepaspectratio]{grp_kprobs.png}
+    \caption{Random knotting probability for the knots $3_1$, $3_1 \#
+      3_1$, and $3_1 \# 3_1 \# 3_1$ in Gaussian random polygons with
+      $N$ edges [Deguchi-Tsurusaki 1998]}
+    \label{fig:degtsugraph}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Knotting in random planar diagrams}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=.7]
+      \begin{axis}[title={Ratios of knots},
+        xlabel={Max \# crossings in diagram},
+        ylabel={Ratios of knots},
+        legend pos=north west,
+        legend entries={$3_1$, $3_1 \# 3_1$},
+        ]
+        \addplot table[x=n,y=3.1] {knot_freq.tsv};
+        \addplot table[x=n,y=3.1c3.1] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+
+    \caption{At $n=8$, the ratio of $3_1$ is 0.071; in Gaussian random
+    polygons, the trefoil appears with probability approximately 0.07
+    when $N \approx 50$.}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Unknotting in random confined polygons}
+  \begin{figure}
+    \centering
+    \includegraphics[width=.9\textwidth,keepaspectratio]{conf_kprobs.png}
+    \caption{As a random polygon becomes more confined (i.e. the
+      confinement radius $R$ shrinks), unknotting probability
+      decreases. Right: the blue data has $R = 1$, and the maroon has
+      $R = 1.5$. [Diao-Ernst-Ziegler 2014] }
+    \label{fig:diaoconf}
+  \end{figure}
+\end{frame}
+
+\subsection{Knot distance}
+
+\begin{frame}
+  \frametitle{Distance between knots}
+  A notion of distance between knot types is the following.
+
+  \begin{block}{Knot distance}
+    The distance between two knots $K$ and $L$ is the minimum number
+    of crossing sign toggles required to produce $L$ from $K$.
+  \end{block}
+
+  The \textbf{unknotting number} of a knot $K$ is the distance from
+  $K$ to the unknot $0_1$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Topoisomerase}
+  An immediate application of knot distance is found in the enzyme
+  \textit{topoisomerase}, which aids in the replication of DNA by cutting a
+  strand of a DNA double helix, pulling it through the other, and gluing it back.
+  \begin{figure}\centering
+    \includegraphics[width=\textwidth,keepaspectratio]{topoisomerase.jpg}
+    \caption{Topoisomerase brings strands of DNA closer to unlinking.}
+    \label{fig:topoisomerase}
+  \end{figure}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Known knot distances}
+  Isabel Darcy has compiled tables of known ranges for the distances between
+  knot types. Even in the first few rows there are unknowns.
+
+    \begin{table}
+      \centering\small
+      \begin{tabular}{r|ccccccccccc}
+        &$0_1$ & $3_1$ & $4_1$ & $5_1$ & $5_2$ & $6_1$ & $6_2$ & $6_3$ & $3_1 \# 3_1$ & $3_1 \# 3_1^*$ \\%& $7_1$ & \\
+        \hline
+        $3_1$ & 1 & 0 & 2 & 1 & 1 & 2 & 1 & 1 & 1 & 1 \\%& 2\\ % & 2 & 3 & 2-3 \\
+        $3_1^*$ & 1 & 2 & 2 & 3 & 2 & 2 & 2 & 1 & 3 & 1 \\%& 4 \\% 2 & 2 & 1 \\
+        $4_1$ & 1 & 2 & 0 & 2-3 & 2 & 1 & 1 & 2 & 2-3 & 2-3 \\%& 3-4 \\% 2 & 2-3 & 2-3 \\
+        $5_1$ & 2 & 1 & 2-3 & 0 & 1 & 2-3 & 2 & 2 & 2 & 2 \\%& 1 \\% 2 & 4 & 3-4 \\
+        $5_1^*$ & 2 & 3 & 2-3 & 4 & 3 & 2-3 & 3 & 2 & 4 & 2 \\%& 5 \\%& 3 & 1 & 2 \\
+        $5_2$ & 1 & 1 & 2 & 1 & 0 & 2 & 2 & 2 & 2 & 2 \\%& 2 \\%& 1 & 3 & 2-3 \\
+        $5_2^*$ & 1 & 2 & 2 & 3 & 2 & 2 & 2 & 2 & 3 & 2 \\%& 4 \\%& 2 & 1 & 1 \\
+        $6_1$ & 1 & 2 & 1 & 2-3 & 2 & 0 & 1 & 2 & 2-3 & 1-3 \\%& 3-4 \\%& 2 & 2-3 & 2-3 \\
+        $6_1^*$ & 1 & 2 & 1 & 2-3 & 2 & 1 & 2 & 2 & 2-3 & 1-3 \\%& 3-4 \\%& 2 & 2-3 & 2-3 \\
+      \end{tabular}
+      \caption{A piece of the knot distance tabulation by Darcy.}
+      \label{fig:disttable}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Knot distance graph}
+  As we've enumerated and classified every planar diagram with at most
+  9 crossings, we can create a graph of the knots based on their
+  distance (for $k$ up to 9):
+
+  \begin{block}{Knot distance graph}
+    Between any two vertices (knots), add an edge if there exists
+    crossing switch on a planar diagram with $k$ or fewer crossings
+    which toggles between the two knot types.
+  \end{block}
+
+\end{frame}
+
+
+
+\begin{frame}
+  \frametitle{Knot distance graph for 6-crossing diagrams}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=.7\textheight,keepaspectratio]{6x_distances.pdf}
+    \caption{Knot distance graph up to and including diagrams of 6
+      crossings. \href{http://hchapman.github.io/research/6x_graph.html}{Interactive
+        version here.}}
+    \label{fig:6xgraph}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Knot distance graph for 9-crossing diagrams}
+  \begin{figure}
+    \centering
+    \vspace{-.17\textheight}
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{9x_distances.pdf}
+    \vspace{-.17\textheight}
+    \caption{Knot distance graph up to and including diagrams of 9
+      crossings. \href{http://hchapman.github.io/research/9x_graph.html}{Interactive
+        version here.}}
+    \label{fig:9xgraph}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Distance tabulations using the 9-crossing graph}
+      \begin{table}
+      \centering\small
+      \begin{tabular}{r|ccccccccccc}
+                & $0_1$ & $3_1$ & $4_1$      & $5_1$      & $5_2$ & $6_1$      & $6_2$ & $6_3$ & $3_1 \# 3_1$ & $3_1 \# 3_1^*$ \\
+        \hline
+        $3_1$   & 1     & 0     & 2          & 1          & 1     & 2          & 1     & 1     & 1            & 1              \\
+        $3_1^*$ & 1     & 2     & 2          & 3          & 2     & 2          & 2     & 1     & 3            & 1              \\
+        $4_1$   & 1     & 2     & 0          & \textcolor{red}{3} & 2     & 1          & 1     & 2     & \textcolor{red}{3}   & \textcolor{red}{3}     \\
+        $5_1$   & 2     & 1     & \textcolor{red}{3} & 0          & 1     & \textcolor{red}{3} & 2     & 2     & 2            & 2              \\
+        $5_1^*$ & 2     & 3     & \textcolor{red}{3} & 4          & 3     & \textcolor{red}{3} & 3     & 2     & 4            & 2              \\
+        $5_2$   & 1     & 1     & 2          & 1          & 0     & 2          & 2     & 2     & 2            & 2              \\
+        $5_2^*$ & 1     & 2     & 2          & 3          & 2     & 2          & 2     & 2     & 3            & 2              \\
+        $6_1$   & 1     & 2     & 1          & \textcolor{red}{3} & 2     & 0          & 1     & 2     & \textcolor{red}{3}   & \textcolor{red}{3}     \\
+        $6_1^*$ & 1     & 2     & 1          & \textcolor{red}{3} & 2     & 1          & 2     & 2     & \textcolor{red}{3}   & \textcolor{red}{3}     \\
+      \end{tabular}
+      \caption{Distances calculated from the 9-crossing distance
+        graph. Cells in red are the upper bound for unknowns in Darcy's table}
+      \label{fig:disttable}
+    \end{table}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Transitions between knot types}
+  We can additionally define the weight of any edge in the graph:
+
+  \begin{block}{Edge weights}
+    Let the weight of an edge $(K, L)$ between two knot types be the
+    number of pairs $(D, x)$ of diagrams with knot type $K$ and
+    crossings $x \in D$ so that toggling the sign of $x$ produces a
+    diagram $D'$ which is of knot type $L$.
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Transition probabilities between knot types}
+  \begin{figure}
+    \centering
+    \def\svgwidth{0.6\textheight}
+    \input{chord_diagram_distances.pdf_tex}
+    \caption{Chord diagram of the adjacency matrix of the knot
+      distance graph. \href{http://hchapman.github.io/research/9x_chords.html}{Interactive version here.}}
+    \label{fig:chorddia}
+  \end{figure}
+\end{frame}
+
+\section{Additional information}
+\bibliographystyle{alpha}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
