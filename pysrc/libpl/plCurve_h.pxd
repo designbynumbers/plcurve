@@ -232,3 +232,9 @@ cdef extern from "plCurve.h":
 
     double plc_symmetry_group_check(plCurve *L)
     double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer)
+
+
+cdef extern from "plcTopology.h":
+    ctypedef struct pd_code_t:
+        pass
+    pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L)

@@ -6,6 +6,7 @@ cimport numpy as np
 np.import_array()
 
 from plcurve cimport *
+from pdcode cimport PlanarDiagram, PlanarDiagram_wrap
 
 cdef plc_vector new_plc_vector(list l):
     return plc_build_vect(l[0], l[1], l[2])
@@ -168,14 +169,17 @@ cdef class PlCurve:
         return plc
 
     @classmethod
-    def random_equilateral_closed_polygon(cls, RandomGenerator r, N):
+    def random_equilateral_closed_polygon(cls, RandomGenerator rng, int n_edges):
         """
-        Create a random closed polygon.
+        random_CSU_closed_equilateral_polygon(RandomGenerator rng, int n_edges) -> new PlCurve
+
+        Generate a random equilateral polygon using the CSU algorithm.
         """
         cdef PlCurve plc = PlCurve.__new__(cls)
         plc.own = True
-        plc.p = plc_random_equilateral_closed_polygon(r.p, N)
+        plc.p = plc_random_equilateral_closed_polygon(rng.p, n_edges)
         return plc
+
     @classmethod
     def random_equilateral_open_polygon(cls, RandomGenerator r, N):
         """
@@ -186,4 +190,15 @@ cdef class PlCurve:
         plc.p = plc_random_equilateral_open_polygon(r.p, N)
         return plc
 
-    # Symmetry functions
+    # Symmetry Functions
+
+    # Topology Functions
+    def random_PlanarDiagram(self, RandomGenerator rng):
+        """
+        random_PlanarDiagram(RandomGenerator rng) -> new PlanarDiagram
+
+        Creates a new PlanarDiagram from a projection of this PlCurve
+        onto a random plane.
+
+        """
+        return PlanarDiagram_wrap(pd_code_from_plCurve(rng.p, self.p))
