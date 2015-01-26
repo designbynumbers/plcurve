@@ -417,9 +417,8 @@ int main(int argc,char *argv[]) {
               int ndias = 0;
               int results_index = 0;
 	      pd_code_t *testcode;
-              testcode = pd_build_torus_knot(2, 11);
 	     
-	      results = pd_simplify(testcode, &ndias);
+	      results = pd_simplify(working_pd, &ndias);
               pd_code_free(&working_pd);
               working_pd = results[0];
 
