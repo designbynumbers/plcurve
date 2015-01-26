@@ -10,7 +10,6 @@
 #include<pd_multidx.h>
 #include<pd_cyclic.h>
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h> 
@@ -139,7 +138,7 @@ int main(int argc,char *argv[]) {
       knotsonly = arg_lit0("k","knots-only","only process pdcodes for knots (1 component)\n"),
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"),
-      KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory (CURRENTLY DISABLED)"),
+      KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory (WARNING: WILL NOT HANDLE SPLIT LINKS)"),
       simplify = arg_lit0("s","simplify","attempt to simplify diagrams - should only be used with -k"),
       help = arg_lit0(NULL,"help","display help message"),
       end = arg_end(20)
@@ -206,15 +205,14 @@ int main(int argc,char *argv[]) {
   }
 
   /* Now we actually do the work */
-
+  
   /* If the simplify flag is set we need to intialize 
-        the python libraries*/
+     the python libraries*/
   if(simplify->count != 0) {
-
     Py_Initialize();
     import_libpl__pdcode();
   }
-     
+  
   printf("processpdstor crossing code generator for pdstor files\n");   
   printf("generating crossing codes for %d pdstor files\n",infile->count);
 
@@ -388,7 +386,7 @@ int main(int argc,char *argv[]) {
 	      component_orientations[i] = PD_POS_ORIENTATION;
 	      }
 	    }
-
+	    
 	    for(i=0;i<working_pd->ncross;i++) { 
 	      if (crossing_idx->i[i] == 1) {
 		working_pd->cross[i].sign = PD_NEG_ORIENTATION;
@@ -416,12 +414,13 @@ int main(int argc,char *argv[]) {
               pd_code_t **results;
               int ndias = 0;
               int results_index = 0;
-	      pd_code_t *testcode;
-	     
+	      
+	      //printf("Calling pd_simplify\n");
+	      
 	      results = pd_simplify(working_pd, &ndias);
               pd_code_free(&working_pd);
               working_pd = results[0];
-
+	      
               // This won't handle split links properly
               // TODO: Handle split links [so ndias > 1] properly
               for(results_index = 1; results_index < ndias; results_index++){
@@ -434,27 +433,27 @@ int main(int argc,char *argv[]) {
 	    if(KnotTheory->count != 0) { 
 	      pd_write_KnotTheory(out,working_pd); 
 	    }
-
+	    
 	    /*If KnotTheory flag not set then 
 	      we write codes as ccodes*/
-	    if(KnotTheory->count ==0){ 
+	    if(KnotTheory->count == 0){ 
 	      char *ccode = pdcode_to_ccode(working_pd);
 	      fprintf(out,"%s\n",ccode);
 	      free(ccode);
 	    }
-      
-
+	    
+	    
 	    pd_code_free(&working_pd);
-
+	    
 	    codes_written++;
-
+	    
 	  }
-
+	  
 	  pd_free_multidx(&crossing_idx);
 	  free(comp_crossings);
-
+	  
 	}
-
+	
 	pd_free_multidx(&orientation_idx);
 	free(comp_orientations);
 	free(component_orientations);
@@ -465,14 +464,14 @@ int main(int argc,char *argv[]) {
 	
     }
     printf("done (wrote %d crossing codes).\n",codes_written);
-
+    
     if (outfile->count == 0) { 
       printf("closing output file %s...",ofname);
       fclose(out);
     }
-
+    
   }
-
+  
   if(simplify->count != 0) {
     Py_Finalize();
   }
