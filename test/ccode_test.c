@@ -386,7 +386,7 @@ plCurve *basic_trefoil() {
 bool arcpresentation_tests(gsl_rng *rng) {
 
   clock_t start,end;
-  double cpu_time_used;
+  double cpu_time_used; 
 
   printf("===============================================\n"
 	 "arc presentation tests (nongeneric projections)\n"
@@ -541,46 +541,60 @@ bool arcpresentation_tests(gsl_rng *rng) {
 
 void set_pd_code_from_plCurve_verbose(bool val);
 
-bool randomwalk_test(gsl_rng *rng,int nedges) {
+bool randomwalk_test(gsl_rng *rng,int nedges,bool verbose,int reps) {
 
   clock_t start,end;
   double cpu_time_used;
 
   printf("------------------------------------------------\n"
-	 "random equilateral n-gon test\n"
-	 "------------------------------------------------\n");
+	 "random equilateral %d-gon test\n"
+	 "------------------------------------------------\n",nedges);
 
   start = clock();
-  printf("generating equilateral %d gon...",nedges);
-  plCurve *L = plc_random_equilateral_closed_polygon(rng,nedges);
-  end = clock();
-  cpu_time_used = ((double)(end - start)/CLOCKS_PER_SEC);
-  printf("done (%2.4g sec)\n",cpu_time_used);
+  printf("computing %d pd_codes (random rotation enabled)...",reps);
+  set_pd_code_from_plCurve_verbose(verbose);
 
-  printf("computing pd_code (random rotation enabled, verbose enabled)...\n\n");
-  set_pd_code_from_plCurve_verbose(true);
-  pd_code_t *projected_pd = pd_code_from_plCurve(rng,L);
-  printf("done\n");
-
-  printf("crossings of produced pd code...%d\n",projected_pd->ncross);
-  printf("checking pd_ok...");
-  if (pd_ok(projected_pd)) { 
+  if (verbose) { printf("\n\n"); }
+  
+  int i;
+  double totalcross = 0;
+  for(i=0;i<reps;i++) {
     
-    printf("pass\n");
+    plCurve *L = plc_random_equilateral_closed_polygon(rng,nedges);
+    pd_code_t *projected_pd = pd_code_from_plCurve(rng,L);
+    totalcross += (double)(projected_pd->ncross);
+
+    if (projected_pd == NULL) {
+
+      printf("FAIL\n");
+      printf("unable to generate pd code from plcurve\n");
+      exit(1);
+
+    }
+
+    if (!pd_ok(projected_pd)) {
+
+      printf("FAIL\n");
+      printf("pd code generated from plCurve was:\n");
+      printf("-----------------------------------\n");
+      pd_write(stdout,projected_pd);
+      pd_code_free(&projected_pd);
+      
+      exit(1);
+
+    }
+    
     pd_code_free(&projected_pd);
+    plc_free(L);
 
-  } else { 
-
-    printf("FAIL\n");
-    printf("pd code generated from plCurve was:\n");
-    printf("-----------------------------------\n");
-    pd_write(stdout,projected_pd);
-    pd_code_free(&projected_pd);
-
-    exit(1);
   }
 
-  plc_free(L);
+  end = clock();
+  cpu_time_used = ((double)(end - start)/CLOCKS_PER_SEC);
+  printf("done (%2.4g sec, all passed pd_ok)\n",cpu_time_used);
+
+  printf("average #crossings of produced pd codes...%3.4g\n",totalcross/(double)(reps));
+  
   return true;
  
 }
@@ -765,6 +779,7 @@ int main () {
   rng = gsl_rng_alloc(T);
   
   int seedi;
+  int reps;
   
   seedi = time(0); 
   gsl_rng_set(rng,seedi);
@@ -773,11 +788,12 @@ int main () {
   printf("with %s random number gen, seeded with %d.\n",gsl_rng_name(rng),seedi);
   printf("==========================================\n");
 
+  arcpresentation_tests(rng);
+  
   torus_knot_test(rng,150,3);
   torus_knot_test(rng,150,4);
   torus_knot_test(rng,550,8);
   
-  arcpresentation_tests(rng);
   unknot_and_split_component_test(rng);
   
   //torus_knot_test(rng,250,3);
@@ -789,9 +805,9 @@ int main () {
   torus_knot_rotation_test(rng,150,3);
   torus_knot_rotation_test(rng,150,4);
 
-  randomwalk_test(rng,10);
-  //randomwalk_test(rng,101);
-  //randomwalk_test(rng,250);
+  randomwalk_test(rng,10,true,1);
+  randomwalk_test(rng,101,false,1001);
+  randomwalk_test(rng,250,false,1001);
 
   printf("=======================================\n"
 	 "pd_code_from_plCurve test suite PASSED.\n");

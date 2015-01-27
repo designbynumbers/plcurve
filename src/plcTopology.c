@@ -605,6 +605,14 @@ bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
 
   }
 
+  int i,j;
+
+  for(i=0;i<2;i++) {
+    for(j=0;j<2;j++) {
+      if (plc_distance(A[i],B[j]) < 1e-8) { return true; }
+    }
+  }
+
   int ssAB0,ssAB1,ssBA0,ssBA1; // segment side (of segment) A (of point) B[0], and so forth.
 
   ssAB0 = segment_side(A,B[0]); ssAB1 = segment_side(A,B[1]);
@@ -620,8 +628,10 @@ bool tag_as_trouble(plc_vector A[2], plc_vector B[2]) {
     if (ok) { return false; }
     else {return true; }
 
-  } else if ((ssAB0*ssAB1 == 0 && ssBA0*ssBA1 != +1) || /* An endpoint of B is colinear with A and B is not separated from A */
-	     (ssAB0*ssAB1 != +1 && ssBA0*ssBA1 == 0)) { /* An endpoint of A is colinear with B and A is not separated from B */
+  } else if ((ssAB0*ssAB1 == 0 && ssBA0*ssBA1 != +1) ||
+    /* An endpoint of B is colinear with A and B is not separated from A */
+	     (ssAB0*ssAB1 != +1 && ssBA0*ssBA1 == 0)) {
+    /* An endpoint of A is colinear with B and A is not separated from B */
 
       return true;
 
@@ -652,12 +662,12 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
        perturb our way out of any trouble that we run into. To do so,
        we'll need to know how far we dare perturb any vertex.
 
-       This data is provided by octrope. We cap the perturbation at 1e-4,
+       This data is provided by octrope. We cap the perturbation at 1e-2,
        because a very large perturbation could run us into trouble
        in some unexpected way. */
 
     double safe_radius = (0.3)*octrope_thickness(Lcopy,NULL,0,0);
-    safe_radius = (safe_radius > 1e-4) ? 1e-4 : safe_radius;
+    safe_radius = (safe_radius > 1e-2) ? 1e-2 : safe_radius;
 
     if (safe_radius < 1e-16) {
 
@@ -701,7 +711,8 @@ plCurve *make_zprojection_generic(gsl_rng *rng, plCurve *L) {
 
 	  for(vtB=firstBvert;vtB < lastBvert;vtB++) {
 
-	    if (tag_as_trouble(&(Lprojection->cp[cmpA].vt[vtA]),&(Lprojection->cp[cmpB].vt[vtB]))) {
+	    if (tag_as_trouble(&(Lprojection->cp[cmpA].vt[vtA]),
+			       &(Lprojection->cp[cmpB].vt[vtB]))) {
 
 	      projection_clean = false;
 
@@ -857,7 +868,8 @@ crossing_container *findcrossings(plCurve *L) {
 
 	    } else {
 
-	      fprintf(stderr,"plc_ccode: Unexpected error computing crossings for (supposedly) generic L.\n");
+	      fprintf(stderr,"plc_ccode: Unexpected error computing "
+		      "crossings for (supposedly) generic L.\n");
 	      crossing_container_free(&cc);
 	      return NULL;
 
@@ -983,7 +995,7 @@ int crossing_strand_cmp(const void *A,const void *B)
 
   }
 
-  if (abs(a->s - b->s) < 1e-8) { return 0; } /* These are the same guy! */
+  if (fabs(a->s - b->s) < 1e-8) { return 0; } /* These are the same guy! */
   
   return (a->s < b->s) ? -1 : 1;
 
@@ -1046,6 +1058,22 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
   /* void qsort (void *array, size_t count, size_t size, 
                  comparison_fn_t compare) */
   qsort(cs,2*cc->used,sizeof(crossing_strand_t),crossing_strand_cmp);
+
+  /* Now we're going to look for evidence of a double crossing... */
+
+  for(i=1;i<2*cc->used;i++) {
+
+    if (crossing_strand_cmp(&(cs[i]),&(cs[i-1])) == 0) { /* Same component and s! */
+
+      /* We've found a double crossing. Quit gracefully-- we'll
+	 need another projection to make this work. */
+
+      free(cs);
+      return NULL;
+
+    }
+
+  }
 
   /* Now that we've made the list of crossings searchable, we're going
      to assemble edge data. Again, we'll first put our buffer of edges
