@@ -91,7 +91,7 @@ AC_ARG_ENABLE([swig],
         [enable_swig=$enableval],
         [enable_swig=no])
 
-if text "x${enable_swig}" = xyes; then
+if test "x${enable_swig}" = xyes; then
    AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_ERROR([SWIG interface is to be built (--enable-swig), but SWIG was not found.]); have_swig=false])
    if test "x${have_swig}" = xtrue; then
       AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?
@@ -116,7 +116,7 @@ AC_ARG_ENABLE([python],
 
 if test "x${enable_python}" = xyes; then
    AM_PATH_PYTHON(2.7)
-   AX_PYTHON_DEVEL(">= '2.7'")
+   AX_PYTHON_DEVEL(>= '2.7')
    CYTHON_CHECK_VERSION([0.20.0],
         [have_cython=true],
         [AC_MSG_FAILURE([Python bindings were not disabled but Cython was not found.]);
