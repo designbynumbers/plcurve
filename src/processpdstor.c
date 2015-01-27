@@ -209,8 +209,9 @@ int main(int argc,char *argv[]) {
   /* If the simplify flag is set we need to intialize 
      the python libraries*/
   if(simplify->count != 0) {
-    Py_Initialize();
-    import_libpl__pdcode();
+     printf("Initializing Python libraries.\n");
+     Py_Initialize();	
+     import_libpl__pdcode();
   }
   
   printf("processpdstor crossing code generator for pdstor files\n");   
