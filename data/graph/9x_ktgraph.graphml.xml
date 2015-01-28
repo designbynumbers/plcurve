@@ -1,0 +1,990 @@
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <graph edgedefault="undirected">
+    <node id="Knot[9, 4]" />
+    <node id="Knot[3, 1]* # Knot[6, 1]*" />
+    <node id="Knot[8, 12]" />
+    <node id="Knot[9, 13]" />
+    <node id="Knot[8, 2]" />
+    <node id="Knot[9, 34]" />
+    <node id="Knot[9, 22]" />
+    <node id="Knot[7, 2]" />
+    <node id="Knot[9, 38]*" />
+    <node id="Knot[3, 1]* # Knot[5, 1]*" />
+    <node id="Knot[9, 15]*" />
+    <node id="Knot[9, 22]*" />
+    <node id="Knot[7, 2]*" />
+    <node id="Knot[9, 27]*" />
+    <node id="Knot[3, 1]* # Knot[5, 2]" />
+    <node id="Knot[9, 28]*" />
+    <node id="Knot[9, 43]" />
+    <node id="Knot[9, 45]*" />
+    <node id="Knot[9, 13]*" />
+    <node id="Knot[3, 1] # Knot[5, 2]" />
+    <node id="Knot[9, 18]" />
+    <node id="Knot[9, 7]" />
+    <node id="Knot[6, 1]" />
+    <node id="Knot[3, 1] # Knot[6, 1]*" />
+    <node id="Knot[9, 16]*" />
+    <node id="Knot[9, 7]*" />
+    <node id="Knot[4, 1] # Knot[5, 1]*" />
+    <node id="Knot[8, 11]" />
+    <node id="Knot[7, 1]" />
+    <node id="Knot[7, 3]*" />
+    <node id="Knot[3, 1] # Knot[5, 2]*" />
+    <node id="Knot[8, 19]" />
+    <node id="Knot[9, 23]*" />
+    <node id="Knot[3, 1]* # Knot[3, 1]* # Knot[3, 1]*" />
+    <node id="Knot[5, 1]*" />
+    <node id="Knot[5, 1]" />
+    <node id="Knot[9, 3]*" />
+    <node id="Knot[9, 32]*" />
+    <node id="Knot[8, 19]*" />
+    <node id="Knot[3, 1] # Knot[6, 1]" />
+    <node id="Knot[8, 4]*" />
+    <node id="Knot[8, 11]*" />
+    <node id="Knot[9, 8]*" />
+    <node id="Knot[9, 42]" />
+    <node id="Knot[3, 1]*" />
+    <node id="Knot[3, 1] # Knot[6, 2]*" />
+    <node id="Unknot[]" />
+    <node id="Knot[9, 37]*" />
+    <node id="Knot[3, 1]* # Knot[6, 1]" />
+    <node id="Knot[9, 2]" />
+    <node id="Knot[6, 1]*" />
+    <node id="Knot[8, 1]*" />
+    <node id="Knot[8, 4]" />
+    <node id="Knot[9, 32]" />
+    <node id="Knot[9, 44]*" />
+    <node id="Knot[9, 16]" />
+    <node id="Knot[9, 9]" />
+    <node id="Knot[9, 48]" />
+    <node id="Knot[8, 6]" />
+    <node id="Knot[9, 11]*" />
+    <node id="Knot[9, 41]" />
+    <node id="Knot[9, 39]" />
+    <node id="Knot[9, 14]" />
+    <node id="Knot[9, 40]*" />
+    <node id="Knot[7, 5]" />
+    <node id="Knot[9, 25]" />
+    <node id="Knot[9, 12]*" />
+    <node id="Knot[7, 6]*" />
+    <node id="Knot[8, 14]" />
+    <node id="Knot[7, 7]*" />
+    <node id="Knot[9, 1]*" />
+    <node id="Knot[3, 1]* # Knot[4, 1]" />
+    <node id="Knot[4, 1] # Knot[5, 1]" />
+    <node id="Knot[9, 4]*" />
+    <node id="Knot[8, 15]*" />
+    <node id="Knot[8, 20]*" />
+    <node id="Knot[9, 5]" />
+    <node id="Knot[9, 26]*" />
+    <node id="Knot[9, 33]" />
+    <node id="Knot[9, 12]" />
+    <node id="Knot[7, 3]" />
+    <node id="Knot[9, 23]" />
+    <node id="Knot[3, 1]* # Knot[3, 1] # Knot[3, 1]" />
+    <node id="Knot[9, 40]" />
+    <node id="Knot[9, 15]" />
+    <node id="Knot[8, 5]*" />
+    <node id="Knot[9, 33]*" />
+    <node id="Knot[9, 24]" />
+    <node id="Knot[7, 4]" />
+    <node id="Knot[8, 5]" />
+    <node id="Knot[8, 13]" />
+    <node id="Knot[9, 19]*" />
+    <node id="Knot[5, 2]*" />
+    <node id="Knot[8, 1]" />
+    <node id="Knot[7, 7]" />
+    <node id="Knot[8, 21]" />
+    <node id="Knot[3, 1] # Knot[5, 1]" />
+    <node id="Knot[9, 8]" />
+    <node id="Knot[3, 1]* # Knot[6, 3]" />
+    <node id="Knot[8, 6]*" />
+    <node id="Knot[3, 1] # Knot[6, 2]" />
+    <node id="Knot[9, 36]*" />
+    <node id="Knot[9, 30]*" />
+    <node id="Knot[6, 2]*" />
+    <node id="Knot[3, 1] # Knot[3, 1]" />
+    <node id="Knot[9, 30]" />
+    <node id="Knot[9, 47]*" />
+    <node id="Knot[9, 17]*" />
+    <node id="Knot[9, 6]" />
+    <node id="Knot[9, 20]*" />
+    <node id="Knot[9, 37]" />
+    <node id="Knot[3, 1] # Knot[5, 1]*" />
+    <node id="Knot[9, 43]*" />
+    <node id="Knot[9, 47]" />
+    <node id="Knot[8, 9]" />
+    <node id="Knot[8, 16]" />
+    <node id="Knot[5, 2]" />
+    <node id="Knot[9, 10]*" />
+    <node id="Knot[8, 16]*" />
+    <node id="Knot[9, 3]" />
+    <node id="Knot[3, 1]* # Knot[3, 1]*" />
+    <node id="Knot[7, 5]*" />
+    <node id="Knot[9, 25]*" />
+    <node id="Knot[3, 1]* # Knot[6, 2]" />
+    <node id="Knot[8, 8]*" />
+    <node id="Knot[9, 31]" />
+    <node id="Knot[8, 7]" />
+    <node id="Knot[9, 17]" />
+    <node id="Knot[9, 38]" />
+    <node id="Knot[9, 26]" />
+    <node id="Knot[7, 6]" />
+    <node id="Knot[9, 5]*" />
+    <node id="Knot[8, 15]" />
+    <node id="Knot[9, 34]*" />
+    <node id="Knot[8, 2]*" />
+    <node id="Knot[9, 46]" />
+    <node id="Knot[3, 1]* # Knot[5, 1]" />
+    <node id="Knot[9, 18]*" />
+    <node id="Knot[3, 1] # Knot[4, 1]" />
+    <node id="Knot[9, 9]*" />
+    <node id="Knot[9, 19]" />
+    <node id="Knot[8, 21]*" />
+    <node id="Knot[8, 10]" />
+    <node id="Knot[9, 35]*" />
+    <node id="Knot[9, 46]*" />
+    <node id="Knot[9, 20]" />
+    <node id="Knot[3, 1]* # Knot[3, 1]" />
+    <node id="Knot[3, 1]" />
+    <node id="Knot[8, 18]" />
+    <node id="Knot[6, 2]" />
+    <node id="Knot[3, 1]* # Knot[6, 2]*" />
+    <node id="Knot[9, 48]*" />
+    <node id="Knot[9, 21]*" />
+    <node id="Knot[9, 10]" />
+    <node id="Knot[9, 14]*" />
+    <node id="Knot[7, 1]*" />
+    <node id="Knot[9, 29]*" />
+    <node id="Knot[4, 1] # Knot[4, 1]" />
+    <node id="Knot[3, 1]* # Knot[3, 1]* # Knot[3, 1]" />
+    <node id="Knot[9, 29]" />
+    <node id="Knot[9, 49]" />
+    <node id="Knot[9, 45]" />
+    <node id="Knot[3, 1]* # Knot[5, 2]*" />
+    <node id="Knot[8, 20]" />
+    <node id="Knot[9, 6]*" />
+    <node id="Knot[9, 24]*" />
+    <node id="Knot[7, 4]*" />
+    <node id="Knot[8, 14]*" />
+    <node id="Knot[3, 1] # Knot[3, 1] # Knot[3, 1]" />
+    <node id="Knot[3, 1] # Knot[6, 3]" />
+    <node id="Knot[8, 13]*" />
+    <node id="Knot[4, 1]" />
+    <node id="Knot[9, 49]*" />
+    <node id="Knot[9, 27]" />
+    <node id="Knot[6, 3]" />
+    <node id="Knot[9, 41]*" />
+    <node id="Knot[9, 2]*" />
+    <node id="Knot[9, 31]*" />
+    <node id="Knot[8, 7]*" />
+    <node id="Knot[9, 21]" />
+    <node id="Knot[8, 10]*" />
+    <node id="Knot[9, 11]" />
+    <node id="Knot[9, 39]*" />
+    <node id="Knot[9, 36]" />
+    <node id="Knot[9, 44]" />
+    <node id="Knot[9, 35]" />
+    <node id="Knot[9, 1]" />
+    <node id="Knot[8, 8]" />
+    <node id="Knot[8, 3]" />
+    <node id="Knot[9, 28]" />
+    <node id="Knot[8, 17]" />
+    <edge source="Knot[9, 4]" target="Knot[7, 3]*" />
+    <edge source="Knot[9, 4]" target="Knot[7, 2]" />
+    <edge source="Knot[3, 1]* # Knot[6, 1]*" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[3, 1]* # Knot[6, 1]*" target="Knot[3, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[6, 1]*" target="Knot[6, 1]*" />
+    <edge source="Knot[8, 12]" target="Knot[6, 1]" />
+    <edge source="Knot[8, 12]" target="Knot[8, 12]" />
+    <edge source="Knot[8, 12]" target="Knot[6, 1]*" />
+    <edge source="Knot[8, 12]" target="Knot[8, 1]*" />
+    <edge source="Knot[8, 12]" target="Knot[8, 1]" />
+    <edge source="Knot[8, 12]" target="Knot[4, 1]" />
+    <edge source="Knot[8, 12]" target="Knot[9, 42]" />
+    <edge source="Knot[9, 13]" target="Knot[7, 3]" />
+    <edge source="Knot[9, 13]" target="Knot[7, 5]*" />
+    <edge source="Knot[9, 13]" target="Knot[5, 1]*" />
+    <edge source="Knot[9, 13]" target="Knot[7, 4]" />
+    <edge source="Knot[8, 2]" target="Knot[5, 1]" />
+    <edge source="Knot[8, 2]" target="Knot[8, 11]" />
+    <edge source="Knot[8, 2]" target="Knot[8, 14]" />
+    <edge source="Knot[8, 2]" target="Knot[3, 1]" />
+    <edge source="Knot[8, 2]" target="Knot[8, 2]" />
+    <edge source="Knot[8, 2]" target="Knot[6, 2]" />
+    <edge source="Knot[8, 2]" target="Knot[8, 6]" />
+    <edge source="Knot[9, 34]" target="Knot[6, 2]" />
+    <edge source="Knot[9, 34]" target="Knot[3, 1]*" />
+    <edge source="Knot[9, 34]" target="Unknot[]" />
+    <edge source="Knot[9, 34]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 34]" target="Knot[7, 7]" />
+    <edge source="Knot[9, 22]" target="Knot[6, 3]" />
+    <edge source="Knot[9, 22]" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[9, 22]" target="Knot[7, 7]*" />
+    <edge source="Knot[9, 22]" target="Unknot[]" />
+    <edge source="Knot[9, 22]" target="Knot[6, 2]*" />
+    <edge source="Knot[7, 2]" target="Unknot[]" />
+    <edge source="Knot[7, 2]" target="Knot[9, 7]" />
+    <edge source="Knot[7, 2]" target="Knot[9, 15]*" />
+    <edge source="Knot[7, 2]" target="Knot[9, 18]" />
+    <edge source="Knot[7, 2]" target="Knot[7, 6]" />
+    <edge source="Knot[7, 2]" target="Knot[9, 2]" />
+    <edge source="Knot[7, 2]" target="Knot[7, 5]" />
+    <edge source="Knot[7, 2]" target="Knot[9, 5]*" />
+    <edge source="Knot[7, 2]" target="Knot[7, 3]*" />
+    <edge source="Knot[7, 2]" target="Knot[9, 12]" />
+    <edge source="Knot[7, 2]" target="Knot[7, 2]" />
+    <edge source="Knot[7, 2]" target="Knot[5, 2]" />
+    <edge source="Knot[9, 38]*" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[9, 38]*" target="Knot[7, 5]*" />
+    <edge source="Knot[9, 38]*" target="Knot[5, 1]*" />
+    <edge source="Knot[9, 38]*" target="Knot[7, 4]" />
+    <edge source="Knot[3, 1]* # Knot[5, 1]*" target="Knot[3, 1]* # Knot[5, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[5, 1]*" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[5, 1]*" target="Knot[3, 1]* # Knot[5, 2]*" />
+    <edge source="Knot[3, 1]* # Knot[5, 1]*" target="Knot[5, 1]*" />
+    <edge source="Knot[9, 15]*" target="Knot[7, 6]" />
+    <edge source="Knot[9, 15]*" target="Knot[4, 1]" />
+    <edge source="Knot[9, 15]*" target="Knot[5, 2]" />
+    <edge source="Knot[9, 22]*" target="Knot[6, 2]" />
+    <edge source="Knot[9, 22]*" target="Knot[6, 3]" />
+    <edge source="Knot[9, 22]*" target="Unknot[]" />
+    <edge source="Knot[9, 22]*" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 22]*" target="Knot[7, 7]" />
+    <edge source="Knot[7, 2]*" target="Knot[9, 4]*" />
+    <edge source="Knot[7, 2]*" target="Knot[9, 2]*" />
+    <edge source="Knot[7, 2]*" target="Unknot[]" />
+    <edge source="Knot[7, 2]*" target="Knot[7, 2]*" />
+    <edge source="Knot[7, 2]*" target="Knot[9, 15]" />
+    <edge source="Knot[7, 2]*" target="Knot[7, 6]*" />
+    <edge source="Knot[7, 2]*" target="Knot[9, 7]*" />
+    <edge source="Knot[7, 2]*" target="Knot[9, 5]" />
+    <edge source="Knot[7, 2]*" target="Knot[7, 5]*" />
+    <edge source="Knot[7, 2]*" target="Knot[9, 12]*" />
+    <edge source="Knot[7, 2]*" target="Knot[9, 18]*" />
+    <edge source="Knot[7, 2]*" target="Knot[7, 3]" />
+    <edge source="Knot[7, 2]*" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 27]*" target="Knot[6, 3]" />
+    <edge source="Knot[9, 27]*" target="Knot[7, 6]*" />
+    <edge source="Knot[9, 27]*" target="Knot[4, 1]" />
+    <edge source="Knot[9, 27]*" target="Unknot[]" />
+    <edge source="Knot[9, 27]*" target="Knot[6, 2]" />
+    <edge source="Knot[9, 27]*" target="Knot[3, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[5, 2]" target="Knot[3, 1]* # Knot[5, 2]" />
+    <edge source="Knot[3, 1]* # Knot[5, 2]" target="Knot[3, 1]* # Knot[5, 1]" />
+    <edge source="Knot[3, 1]* # Knot[5, 2]" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1]* # Knot[5, 2]" target="Knot[3, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[5, 2]" target="Knot[5, 2]" />
+    <edge source="Knot[9, 28]*" target="Knot[8, 21]*" />
+    <edge source="Knot[9, 28]*" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[9, 28]*" target="Knot[6, 3]" />
+    <edge source="Knot[9, 28]*" target="Unknot[]" />
+    <edge source="Knot[9, 43]" target="Knot[5, 1]*" />
+    <edge source="Knot[9, 43]" target="Knot[7, 6]*" />
+    <edge source="Knot[9, 43]" target="Knot[8, 14]*" />
+    <edge source="Knot[9, 43]" target="Knot[6, 2]*" />
+    <edge source="Knot[9, 43]" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[9, 43]" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 45]*" target="Unknot[]" />
+    <edge source="Knot[9, 45]*" target="Knot[5, 1]*" />
+    <edge source="Knot[9, 45]*" target="Knot[7, 6]*" />
+    <edge source="Knot[9, 45]*" target="Knot[7, 5]*" />
+    <edge source="Knot[9, 45]*" target="Knot[6, 2]*" />
+    <edge source="Knot[9, 45]*" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[9, 45]*" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 13]*" target="Knot[7, 3]*" />
+    <edge source="Knot[9, 13]*" target="Knot[7, 5]" />
+    <edge source="Knot[9, 13]*" target="Knot[5, 1]" />
+    <edge source="Knot[9, 13]*" target="Knot[7, 4]*" />
+    <edge source="Knot[3, 1] # Knot[5, 2]" target="Knot[3, 1] # Knot[5, 1]" />
+    <edge source="Knot[3, 1] # Knot[5, 2]" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[5, 2]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[5, 2]" target="Knot[3, 1] # Knot[5, 2]" />
+    <edge source="Knot[3, 1] # Knot[5, 2]" target="Knot[5, 2]" />
+    <edge source="Knot[9, 18]" target="Knot[7, 3]*" />
+    <edge source="Knot[9, 18]" target="Knot[7, 5]" />
+    <edge source="Knot[9, 18]" target="Knot[5, 2]" />
+    <edge source="Knot[9, 7]" target="Knot[3, 1]" />
+    <edge source="Knot[9, 7]" target="Knot[7, 5]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 19]" />
+    <edge source="Knot[6, 1]" target="Unknot[]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 37]*" />
+    <edge source="Knot[6, 1]" target="Knot[3, 1]* # Knot[6, 1]" />
+    <edge source="Knot[6, 1]" target="Knot[6, 1]*" />
+    <edge source="Knot[6, 1]" target="Knot[9, 8]*" />
+    <edge source="Knot[6, 1]" target="Knot[9, 30]*" />
+    <edge source="Knot[6, 1]" target="Knot[9, 44]*" />
+    <edge source="Knot[6, 1]" target="Knot[6, 2]" />
+    <edge source="Knot[6, 1]" target="Knot[8, 6]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 47]*" />
+    <edge source="Knot[6, 1]" target="Knot[8, 3]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 14]*" />
+    <edge source="Knot[6, 1]" target="Knot[9, 25]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 37]" />
+    <edge source="Knot[6, 1]" target="Knot[8, 1]" />
+    <edge source="Knot[6, 1]" target="Knot[6, 1]" />
+    <edge source="Knot[6, 1]" target="Knot[8, 11]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 12]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 32]*" />
+    <edge source="Knot[6, 1]" target="Knot[3, 1] # Knot[6, 1]" />
+    <edge source="Knot[6, 1]" target="Knot[8, 4]*" />
+    <edge source="Knot[6, 1]" target="Knot[4, 1]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 46]" />
+    <edge source="Knot[6, 1]" target="Knot[9, 42]" />
+    <edge source="Knot[3, 1] # Knot[6, 1]*" target="Knot[6, 1]*" />
+    <edge source="Knot[3, 1] # Knot[6, 1]*" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[6, 1]*" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 16]*" target="Knot[8, 19]*" />
+    <edge source="Knot[9, 16]*" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[9, 16]*" target="Knot[7, 5]" />
+    <edge source="Knot[9, 7]*" target="Knot[3, 1]*" />
+    <edge source="Knot[9, 7]*" target="Knot[7, 5]*" />
+    <edge source="Knot[4, 1] # Knot[5, 1]*" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[4, 1] # Knot[5, 1]*" target="Knot[5, 1]*" />
+    <edge source="Knot[8, 11]" target="Unknot[]" />
+    <edge source="Knot[8, 11]" target="Knot[8, 11]" />
+    <edge source="Knot[8, 11]" target="Knot[8, 1]" />
+    <edge source="Knot[8, 11]" target="Knot[9, 46]" />
+    <edge source="Knot[8, 11]" target="Knot[6, 2]" />
+    <edge source="Knot[8, 11]" target="Knot[5, 2]" />
+    <edge source="Knot[7, 1]" target="Knot[5, 1]" />
+    <edge source="Knot[7, 1]" target="Knot[9, 3]*" />
+    <edge source="Knot[7, 1]" target="Knot[9, 9]" />
+    <edge source="Knot[7, 1]" target="Knot[9, 6]" />
+    <edge source="Knot[7, 1]" target="Knot[7, 5]" />
+    <edge source="Knot[7, 1]" target="Knot[7, 1]" />
+    <edge source="Knot[7, 1]" target="Knot[7, 3]*" />
+    <edge source="Knot[7, 1]" target="Knot[9, 1]" />
+    <edge source="Knot[7, 3]*" target="Knot[9, 10]*" />
+    <edge source="Knot[7, 3]*" target="Knot[9, 11]*" />
+    <edge source="Knot[7, 3]*" target="Knot[5, 1]" />
+    <edge source="Knot[7, 3]*" target="Knot[9, 3]*" />
+    <edge source="Knot[7, 3]*" target="Knot[9, 9]" />
+    <edge source="Knot[7, 3]*" target="Knot[7, 4]*" />
+    <edge source="Knot[7, 3]*" target="Knot[7, 3]*" />
+    <edge source="Knot[7, 3]*" target="Knot[5, 2]" />
+    <edge source="Knot[3, 1] # Knot[5, 2]*" target="Knot[3, 1] # Knot[5, 2]*" />
+    <edge source="Knot[3, 1] # Knot[5, 2]*" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[5, 2]*" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[5, 2]*" target="Knot[5, 2]*" />
+    <edge source="Knot[3, 1] # Knot[5, 2]*" target="Knot[3, 1] # Knot[5, 1]*" />
+    <edge source="Knot[8, 19]" target="Knot[5, 1]*" />
+    <edge source="Knot[8, 19]" target="Knot[8, 15]*" />
+    <edge source="Knot[8, 19]" target="Knot[9, 16]" />
+    <edge source="Knot[8, 19]" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[8, 19]" target="Knot[7, 5]*" />
+    <edge source="Knot[8, 19]" target="Knot[8, 19]" />
+    <edge source="Knot[9, 23]*" target="Knot[7, 5]*" />
+    <edge source="Knot[9, 23]*" target="Knot[5, 1]*" />
+    <edge source="Knot[9, 23]*" target="Knot[5, 2]*" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]* # Knot[3, 1]*" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[5, 1]*" target="Knot[8, 10]" />
+    <edge source="Knot[5, 1]*" target="Knot[3, 1] # Knot[5, 1]*" />
+    <edge source="Knot[5, 1]*" target="Knot[7, 1]*" />
+    <edge source="Knot[5, 1]*" target="Knot[8, 21]*" />
+    <edge source="Knot[5, 1]*" target="Knot[9, 6]*" />
+    <edge source="Knot[5, 1]*" target="Knot[8, 15]*" />
+    <edge source="Knot[5, 1]*" target="Knot[7, 5]*" />
+    <edge source="Knot[5, 1]*" target="Knot[7, 3]" />
+    <edge source="Knot[5, 1]*" target="Knot[9, 49]" />
+    <edge source="Knot[5, 1]*" target="Knot[8, 7]" />
+    <edge source="Knot[5, 1]*" target="Knot[9, 31]*" />
+    <edge source="Knot[5, 1]*" target="Knot[5, 1]*" />
+    <edge source="Knot[5, 1]*" target="Knot[9, 26]" />
+    <edge source="Knot[5, 1]*" target="Knot[9, 11]" />
+    <edge source="Knot[5, 1]*" target="Knot[9, 36]" />
+    <edge source="Knot[5, 1]*" target="Knot[8, 2]*" />
+    <edge source="Knot[5, 1]*" target="Knot[3, 1]*" />
+    <edge source="Knot[5, 1]*" target="Knot[5, 2]*" />
+    <edge source="Knot[5, 1]" target="Knot[8, 21]" />
+    <edge source="Knot[5, 1]" target="Knot[9, 6]" />
+    <edge source="Knot[5, 1]" target="Knot[3, 1] # Knot[5, 1]" />
+    <edge source="Knot[5, 1]" target="Knot[9, 36]*" />
+    <edge source="Knot[5, 1]" target="Knot[7, 5]" />
+    <edge source="Knot[5, 1]" target="Knot[9, 43]*" />
+    <edge source="Knot[5, 1]" target="Knot[8, 19]*" />
+    <edge source="Knot[5, 1]" target="Knot[4, 1] # Knot[5, 1]" />
+    <edge source="Knot[5, 1]" target="Knot[9, 45]" />
+    <edge source="Knot[5, 1]" target="Knot[9, 11]*" />
+    <edge source="Knot[5, 1]" target="Knot[9, 26]*" />
+    <edge source="Knot[5, 1]" target="Knot[9, 49]*" />
+    <edge source="Knot[5, 1]" target="Knot[9, 23]" />
+    <edge source="Knot[5, 1]" target="Knot[9, 31]" />
+    <edge source="Knot[5, 1]" target="Knot[9, 38]" />
+    <edge source="Knot[5, 1]" target="Knot[8, 7]*" />
+    <edge source="Knot[5, 1]" target="Knot[5, 1]" />
+    <edge source="Knot[5, 1]" target="Knot[8, 10]*" />
+    <edge source="Knot[5, 1]" target="Knot[8, 15]" />
+    <edge source="Knot[5, 1]" target="Knot[3, 1]* # Knot[5, 1]" />
+    <edge source="Knot[5, 1]" target="Knot[3, 1]" />
+    <edge source="Knot[5, 1]" target="Knot[5, 2]" />
+    <edge source="Knot[9, 32]*" target="Knot[8, 21]" />
+    <edge source="Knot[9, 32]*" target="Knot[4, 1]" />
+    <edge source="Knot[9, 32]*" target="Knot[3, 1]" />
+    <edge source="Knot[9, 32]*" target="Knot[7, 7]*" />
+    <edge source="Knot[9, 32]*" target="Knot[6, 2]" />
+    <edge source="Knot[9, 32]*" target="Knot[5, 2]" />
+    <edge source="Knot[8, 19]*" target="Knot[7, 5]" />
+    <edge source="Knot[8, 19]*" target="Knot[8, 15]" />
+    <edge source="Knot[8, 19]*" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[8, 19]*" target="Knot[8, 19]*" />
+    <edge source="Knot[3, 1] # Knot[6, 1]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[6, 1]" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[8, 4]*" target="Knot[8, 3]" />
+    <edge source="Knot[8, 4]*" target="Knot[6, 2]*" />
+    <edge source="Knot[8, 4]*" target="Knot[8, 4]*" />
+    <edge source="Knot[8, 4]*" target="Knot[8, 6]*" />
+    <edge source="Knot[8, 4]*" target="Knot[4, 1]" />
+    <edge source="Knot[8, 4]*" target="Knot[8, 9]" />
+    <edge source="Knot[8, 11]*" target="Unknot[]" />
+    <edge source="Knot[8, 11]*" target="Knot[6, 1]*" />
+    <edge source="Knot[8, 11]*" target="Knot[8, 1]*" />
+    <edge source="Knot[8, 11]*" target="Knot[9, 46]*" />
+    <edge source="Knot[8, 11]*" target="Knot[8, 11]*" />
+    <edge source="Knot[8, 11]*" target="Knot[8, 2]*" />
+    <edge source="Knot[8, 11]*" target="Knot[6, 2]*" />
+    <edge source="Knot[8, 11]*" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 8]*" target="Knot[7, 6]*" />
+    <edge source="Knot[9, 8]*" target="Knot[3, 1]*" />
+    <edge source="Knot[9, 8]*" target="Knot[4, 1]" />
+    <edge source="Knot[9, 42]" target="Unknot[]" />
+    <edge source="Knot[9, 42]" target="Knot[6, 1]*" />
+    <edge source="Knot[9, 42]" target="Knot[8, 6]*" />
+    <edge source="Knot[9, 42]" target="Knot[7, 7]*" />
+    <edge source="Knot[9, 42]" target="Knot[7, 7]" />
+    <edge source="Knot[9, 42]" target="Knot[6, 2]*" />
+    <edge source="Knot[9, 42]" target="Knot[6, 2]" />
+    <edge source="Knot[9, 42]" target="Knot[8, 6]" />
+    <edge source="Knot[9, 42]" target="Knot[8, 17]" />
+    <edge source="Knot[9, 42]" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[9, 42]" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[3, 1]*" target="Unknot[]" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]* # Knot[6, 1]" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 33]*" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]* # Knot[6, 3]" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 32]" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 18]" />
+    <edge source="Knot[3, 1]*" target="Knot[6, 2]*" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 48]" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]* # Knot[6, 2]*" />
+    <edge source="Knot[3, 1]*" target="Knot[6, 3]" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 14]" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 20]*" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 47]" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 46]*" />
+    <edge source="Knot[3, 1]*" target="Knot[7, 6]*" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]* # Knot[5, 2]*" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 14]*" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 21]" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 33]" />
+    <edge source="Knot[3, 1]*" target="Knot[7, 5]*" />
+    <edge source="Knot[3, 1]*" target="Knot[7, 7]" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]* # Knot[6, 2]" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 8]*" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 7]" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]*" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 6]*" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 26]" />
+    <edge source="Knot[3, 1]*" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[3, 1]*" target="Knot[7, 4]" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 8]" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 2]*" />
+    <edge source="Knot[3, 1]*" target="Knot[9, 31]*" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 16]*" />
+    <edge source="Knot[3, 1]*" target="Knot[8, 17]" />
+    <edge source="Knot[3, 1]*" target="Knot[5, 2]*" />
+    <edge source="Knot[3, 1] # Knot[6, 2]*" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[6, 2]*" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[6, 2]*" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[3, 1] # Knot[6, 2]*" target="Knot[6, 2]*" />
+    <edge source="Unknot[]" target="Knot[9, 19]" />
+    <edge source="Unknot[]" target="Unknot[]" />
+    <edge source="Unknot[]" target="Knot[8, 21]" />
+    <edge source="Unknot[]" target="Knot[9, 2]" />
+    <edge source="Unknot[]" target="Knot[6, 1]*" />
+    <edge source="Unknot[]" target="Knot[8, 1]*" />
+    <edge source="Unknot[]" target="Knot[9, 33]*" />
+    <edge source="Unknot[]" target="Knot[6, 2]*" />
+    <edge source="Unknot[]" target="Knot[6, 2]" />
+    <edge source="Unknot[]" target="Knot[3, 1]" />
+    <edge source="Unknot[]" target="Knot[9, 45]" />
+    <edge source="Unknot[]" target="Knot[9, 30]*" />
+    <edge source="Unknot[]" target="Knot[9, 44]*" />
+    <edge source="Unknot[]" target="Knot[9, 30]" />
+    <edge source="Unknot[]" target="Knot[9, 14]" />
+    <edge source="Unknot[]" target="Knot[9, 21]*" />
+    <edge source="Unknot[]" target="Knot[9, 14]*" />
+    <edge source="Unknot[]" target="Knot[9, 12]*" />
+    <edge source="Unknot[]" target="Knot[8, 1]" />
+    <edge source="Unknot[]" target="Knot[8, 14]" />
+    <edge source="Unknot[]" target="Knot[8, 9]" />
+    <edge source="Unknot[]" target="Knot[5, 2]" />
+    <edge source="Unknot[]" target="Knot[8, 21]*" />
+    <edge source="Unknot[]" target="Knot[8, 20]" />
+    <edge source="Unknot[]" target="Knot[7, 6]*" />
+    <edge source="Unknot[]" target="Knot[9, 24]*" />
+    <edge source="Unknot[]" target="Knot[8, 20]*" />
+    <edge source="Unknot[]" target="Knot[8, 14]*" />
+    <edge source="Unknot[]" target="Knot[9, 26]*" />
+    <edge source="Unknot[]" target="Knot[7, 7]*" />
+    <edge source="Unknot[]" target="Knot[8, 13]*" />
+    <edge source="Unknot[]" target="Knot[9, 12]" />
+    <edge source="Unknot[]" target="Knot[7, 7]" />
+    <edge source="Unknot[]" target="Knot[9, 27]" />
+    <edge source="Unknot[]" target="Knot[9, 39]" />
+    <edge source="Unknot[]" target="Knot[6, 3]" />
+    <edge source="Unknot[]" target="Knot[8, 7]" />
+    <edge source="Unknot[]" target="Knot[9, 2]*" />
+    <edge source="Unknot[]" target="Knot[8, 7]*" />
+    <edge source="Unknot[]" target="Knot[9, 21]" />
+    <edge source="Unknot[]" target="Knot[9, 26]" />
+    <edge source="Unknot[]" target="Knot[7, 6]" />
+    <edge source="Unknot[]" target="Knot[9, 39]*" />
+    <edge source="Unknot[]" target="Knot[9, 33]" />
+    <edge source="Unknot[]" target="Knot[9, 24]" />
+    <edge source="Unknot[]" target="Knot[9, 44]" />
+    <edge source="Unknot[]" target="Knot[9, 34]*" />
+    <edge source="Unknot[]" target="Knot[4, 1]" />
+    <edge source="Unknot[]" target="Knot[8, 13]" />
+    <edge source="Unknot[]" target="Knot[9, 28]" />
+    <edge source="Unknot[]" target="Knot[8, 17]" />
+    <edge source="Unknot[]" target="Knot[9, 19]*" />
+    <edge source="Unknot[]" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 37]*" target="Knot[6, 1]*" />
+    <edge source="Knot[9, 37]*" target="Knot[7, 7]*" />
+    <edge source="Knot[3, 1]* # Knot[6, 1]" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[6, 1]*" target="Knot[6, 1]*" />
+    <edge source="Knot[6, 1]*" target="Knot[8, 1]*" />
+    <edge source="Knot[6, 1]*" target="Knot[8, 4]" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 46]*" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 12]*" />
+    <edge source="Knot[6, 1]*" target="Knot[6, 2]*" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 30]" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 14]" />
+    <edge source="Knot[6, 1]*" target="Knot[8, 3]" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 8]" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 37]" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 47]" />
+    <edge source="Knot[6, 1]*" target="Knot[4, 1]" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 25]*" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 32]" />
+    <edge source="Knot[6, 1]*" target="Knot[8, 6]*" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 44]" />
+    <edge source="Knot[6, 1]*" target="Knot[9, 19]*" />
+    <edge source="Knot[8, 1]*" target="Knot[8, 3]" />
+    <edge source="Knot[8, 1]*" target="Knot[8, 1]*" />
+    <edge source="Knot[8, 1]*" target="Knot[8, 6]*" />
+    <edge source="Knot[8, 4]" target="Knot[8, 3]" />
+    <edge source="Knot[8, 4]" target="Knot[8, 4]" />
+    <edge source="Knot[8, 4]" target="Knot[4, 1]" />
+    <edge source="Knot[8, 4]" target="Knot[8, 9]" />
+    <edge source="Knot[8, 4]" target="Knot[6, 2]" />
+    <edge source="Knot[8, 4]" target="Knot[8, 6]" />
+    <edge source="Knot[9, 32]" target="Knot[8, 21]*" />
+    <edge source="Knot[9, 32]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 32]" target="Knot[7, 7]" />
+    <edge source="Knot[9, 32]" target="Knot[6, 2]*" />
+    <edge source="Knot[9, 32]" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 44]*" target="Knot[8, 16]*" />
+    <edge source="Knot[9, 44]*" target="Knot[7, 6]*" />
+    <edge source="Knot[9, 44]*" target="Knot[7, 7]*" />
+    <edge source="Knot[9, 44]*" target="Knot[8, 8]*" />
+    <edge source="Knot[9, 44]*" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[9, 44]*" target="Knot[6, 3]" />
+    <edge source="Knot[9, 16]" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[9, 16]" target="Knot[7, 5]*" />
+    <edge source="Knot[9, 9]" target="Knot[7, 5]" />
+    <edge source="Knot[9, 48]" target="Knot[8, 20]*" />
+    <edge source="Knot[9, 48]" target="Knot[7, 4]" />
+    <edge source="Knot[8, 6]" target="Knot[8, 5]*" />
+    <edge source="Knot[8, 6]" target="Knot[8, 1]" />
+    <edge source="Knot[8, 6]" target="Knot[3, 1]" />
+    <edge source="Knot[8, 6]" target="Knot[6, 2]" />
+    <edge source="Knot[8, 6]" target="Knot[8, 6]" />
+    <edge source="Knot[9, 11]*" target="Knot[7, 6]" />
+    <edge source="Knot[9, 11]*" target="Knot[5, 2]" />
+    <edge source="Knot[9, 41]" target="Knot[7, 7]*" />
+    <edge source="Knot[9, 41]" target="Knot[5, 2]" />
+    <edge source="Knot[9, 39]" target="Knot[7, 6]*" />
+    <edge source="Knot[9, 39]" target="Knot[6, 2]*" />
+    <edge source="Knot[9, 39]" target="Knot[7, 4]" />
+    <edge source="Knot[9, 14]" target="Knot[7, 7]" />
+    <edge source="Knot[9, 14]" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 40]*" target="Knot[8, 21]*" />
+    <edge source="Knot[9, 40]*" target="Knot[4, 1]" />
+    <edge source="Knot[7, 5]" target="Knot[9, 23]" />
+    <edge source="Knot[7, 5]" target="Knot[9, 38]" />
+    <edge source="Knot[7, 5]" target="Knot[9, 6]" />
+    <edge source="Knot[7, 5]" target="Knot[7, 5]" />
+    <edge source="Knot[7, 5]" target="Knot[9, 20]" />
+    <edge source="Knot[7, 5]" target="Knot[9, 36]*" />
+    <edge source="Knot[7, 5]" target="Knot[3, 1]" />
+    <edge source="Knot[7, 5]" target="Knot[5, 2]" />
+    <edge source="Knot[7, 5]" target="Knot[9, 45]" />
+    <edge source="Knot[9, 25]" target="Knot[6, 2]" />
+    <edge source="Knot[9, 25]" target="Knot[7, 6]" />
+    <edge source="Knot[9, 25]" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 25]" target="Knot[5, 2]" />
+    <edge source="Knot[9, 12]*" target="Knot[7, 6]*" />
+    <edge source="Knot[9, 12]*" target="Knot[4, 1]" />
+    <edge source="Knot[9, 12]*" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[9, 12]*" target="Knot[5, 2]*" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 33]*" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 20]*" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 29]*" />
+    <edge source="Knot[7, 6]*" target="Knot[7, 6]*" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 24]*" />
+    <edge source="Knot[7, 6]*" target="Knot[8, 20]*" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 21]" />
+    <edge source="Knot[7, 6]*" target="Knot[4, 1]" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 25]*" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 15]" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 11]" />
+    <edge source="Knot[7, 6]*" target="Knot[9, 36]" />
+    <edge source="Knot[7, 6]*" target="Knot[5, 2]*" />
+    <edge source="Knot[8, 14]" target="Knot[9, 43]*" />
+    <edge source="Knot[8, 14]" target="Knot[8, 14]" />
+    <edge source="Knot[8, 14]" target="Knot[4, 1]" />
+    <edge source="Knot[8, 14]" target="Knot[3, 1]" />
+    <edge source="Knot[8, 14]" target="Knot[6, 2]" />
+    <edge source="Knot[8, 14]" target="Knot[5, 2]" />
+    <edge source="Knot[7, 7]*" target="Knot[9, 17]*" />
+    <edge source="Knot[7, 7]*" target="Knot[9, 14]*" />
+    <edge source="Knot[7, 7]*" target="Knot[4, 1]" />
+    <edge source="Knot[7, 7]*" target="Knot[9, 26]*" />
+    <edge source="Knot[7, 7]*" target="Knot[9, 29]*" />
+    <edge source="Knot[7, 7]*" target="Knot[9, 34]*" />
+    <edge source="Knot[7, 7]*" target="Knot[3, 1]" />
+    <edge source="Knot[7, 7]*" target="Knot[7, 7]*" />
+    <edge source="Knot[7, 7]*" target="Knot[9, 46]" />
+    <edge source="Knot[7, 7]*" target="Knot[9, 47]*" />
+    <edge source="Knot[7, 7]*" target="Knot[9, 19]*" />
+    <edge source="Knot[9, 1]*" target="Knot[7, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[4, 1]" target="Knot[3, 1]* # Knot[4, 1]" />
+    <edge source="Knot[3, 1]* # Knot[4, 1]" target="Knot[9, 36]" />
+    <edge source="Knot[3, 1]* # Knot[4, 1]" target="Knot[4, 1]" />
+    <edge source="Knot[3, 1]* # Knot[4, 1]" target="Knot[9, 25]*" />
+    <edge source="Knot[3, 1]* # Knot[4, 1]" target="Knot[9, 30]*" />
+    <edge source="Knot[3, 1]* # Knot[4, 1]" target="Knot[3, 1]* # Knot[6, 2]" />
+    <edge source="Knot[3, 1]* # Knot[4, 1]" target="Knot[3, 1]* # Knot[6, 2]*" />
+    <edge source="Knot[4, 1] # Knot[5, 1]" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 4]*" target="Knot[7, 3]" />
+    <edge source="Knot[8, 15]*" target="Knot[8, 15]*" />
+    <edge source="Knot[8, 15]*" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[8, 15]*" target="Knot[5, 2]*" />
+    <edge source="Knot[8, 20]*" target="Knot[9, 24]*" />
+    <edge source="Knot[8, 20]*" target="Knot[8, 20]*" />
+    <edge source="Knot[8, 20]*" target="Knot[9, 33]*" />
+    <edge source="Knot[8, 20]*" target="Knot[8, 10]" />
+    <edge source="Knot[8, 20]*" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[8, 20]*" target="Knot[6, 3]" />
+    <edge source="Knot[8, 20]*" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 5]" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 5]" target="Knot[7, 4]" />
+    <edge source="Knot[9, 26]*" target="Knot[3, 1]" />
+    <edge source="Knot[9, 26]*" target="Knot[6, 2]" />
+    <edge source="Knot[9, 26]*" target="Knot[5, 2]" />
+    <edge source="Knot[9, 33]" target="Knot[8, 20]" />
+    <edge source="Knot[9, 33]" target="Knot[7, 6]" />
+    <edge source="Knot[9, 33]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 33]" target="Knot[3, 1]" />
+    <edge source="Knot[9, 33]" target="Knot[6, 3]" />
+    <edge source="Knot[9, 12]" target="Knot[7, 6]" />
+    <edge source="Knot[9, 12]" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 12]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 12]" target="Knot[5, 2]" />
+    <edge source="Knot[7, 3]" target="Knot[9, 9]*" />
+    <edge source="Knot[7, 3]" target="Knot[9, 3]" />
+    <edge source="Knot[7, 3]" target="Knot[9, 10]" />
+    <edge source="Knot[7, 3]" target="Knot[9, 11]" />
+    <edge source="Knot[7, 3]" target="Knot[7, 1]*" />
+    <edge source="Knot[7, 3]" target="Knot[9, 18]*" />
+    <edge source="Knot[7, 3]" target="Knot[7, 3]" />
+    <edge source="Knot[7, 3]" target="Knot[7, 4]" />
+    <edge source="Knot[7, 3]" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 23]" target="Knot[5, 2]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1] # Knot[3, 1]" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1] # Knot[3, 1]" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[9, 40]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 40]" target="Knot[8, 21]" />
+    <edge source="Knot[9, 15]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 15]" target="Knot[5, 2]*" />
+    <edge source="Knot[8, 5]*" target="Knot[6, 2]" />
+    <edge source="Knot[8, 5]*" target="Knot[8, 5]*" />
+    <edge source="Knot[8, 5]*" target="Knot[8, 21]" />
+    <edge source="Knot[8, 5]*" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[9, 33]*" target="Knot[4, 1]" />
+    <edge source="Knot[9, 33]*" target="Knot[3, 1]" />
+    <edge source="Knot[9, 33]*" target="Knot[6, 3]" />
+    <edge source="Knot[9, 24]" target="Knot[7, 6]" />
+    <edge source="Knot[9, 24]" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[9, 24]" target="Knot[8, 20]" />
+    <edge source="Knot[9, 24]" target="Knot[6, 2]*" />
+    <edge source="Knot[7, 4]" target="Knot[9, 49]" />
+    <edge source="Knot[7, 4]" target="Knot[9, 10]" />
+    <edge source="Knot[7, 4]" target="Knot[7, 4]" />
+    <edge source="Knot[7, 4]" target="Knot[9, 35]*" />
+    <edge source="Knot[7, 4]" target="Knot[9, 21]" />
+    <edge source="Knot[7, 4]" target="Knot[5, 2]*" />
+    <edge source="Knot[8, 5]" target="Knot[8, 6]*" />
+    <edge source="Knot[8, 5]" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[8, 5]" target="Knot[8, 5]" />
+    <edge source="Knot[8, 5]" target="Knot[8, 21]*" />
+    <edge source="Knot[8, 5]" target="Knot[6, 2]*" />
+    <edge source="Knot[8, 13]" target="Knot[4, 1]" />
+    <edge source="Knot[8, 13]" target="Knot[8, 13]" />
+    <edge source="Knot[8, 13]" target="Knot[6, 3]" />
+    <edge source="Knot[8, 13]" target="Knot[8, 7]" />
+    <edge source="Knot[8, 13]" target="Knot[5, 2]*" />
+    <edge source="Knot[9, 19]*" target="Knot[4, 1]" />
+    <edge source="Knot[5, 2]*" target="Knot[8, 10]" />
+    <edge source="Knot[5, 2]*" target="Knot[9, 20]*" />
+    <edge source="Knot[5, 2]*" target="Knot[8, 16]*" />
+    <edge source="Knot[5, 2]*" target="Knot[3, 1]* # Knot[5, 2]*" />
+    <edge source="Knot[5, 2]*" target="Knot[8, 14]*" />
+    <edge source="Knot[5, 2]*" target="Knot[9, 21]" />
+    <edge source="Knot[5, 2]*" target="Knot[7, 5]*" />
+    <edge source="Knot[5, 2]*" target="Knot[9, 25]*" />
+    <edge source="Knot[5, 2]*" target="Knot[9, 41]*" />
+    <edge source="Knot[5, 2]*" target="Knot[9, 31]*" />
+    <edge source="Knot[5, 2]*" target="Knot[9, 26]" />
+    <edge source="Knot[5, 2]*" target="Knot[9, 11]" />
+    <edge source="Knot[5, 2]*" target="Knot[8, 8]" />
+    <edge source="Knot[5, 2]*" target="Knot[9, 18]*" />
+    <edge source="Knot[5, 2]*" target="Knot[5, 2]*" />
+    <edge source="Knot[8, 1]" target="Knot[8, 3]" />
+    <edge source="Knot[8, 1]" target="Knot[8, 1]" />
+    <edge source="Knot[7, 7]" target="Knot[9, 17]" />
+    <edge source="Knot[7, 7]" target="Knot[9, 19]" />
+    <edge source="Knot[7, 7]" target="Knot[9, 46]*" />
+    <edge source="Knot[7, 7]" target="Knot[9, 26]" />
+    <edge source="Knot[7, 7]" target="Knot[9, 37]" />
+    <edge source="Knot[7, 7]" target="Knot[9, 44]" />
+    <edge source="Knot[7, 7]" target="Knot[4, 1]" />
+    <edge source="Knot[7, 7]" target="Knot[9, 47]" />
+    <edge source="Knot[7, 7]" target="Knot[7, 7]" />
+    <edge source="Knot[7, 7]" target="Knot[9, 29]" />
+    <edge source="Knot[7, 7]" target="Knot[9, 41]*" />
+    <edge source="Knot[8, 21]" target="Knot[8, 21]" />
+    <edge source="Knot[8, 21]" target="Knot[9, 46]" />
+    <edge source="Knot[8, 21]" target="Knot[6, 2]" />
+    <edge source="Knot[8, 21]" target="Knot[9, 28]" />
+    <edge source="Knot[8, 21]" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[5, 1]" target="Knot[3, 1] # Knot[5, 1]" />
+    <edge source="Knot[3, 1] # Knot[5, 1]" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[9, 8]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 8]" target="Knot[3, 1]" />
+    <edge source="Knot[9, 8]" target="Knot[7, 6]" />
+    <edge source="Knot[3, 1]* # Knot[6, 3]" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[6, 3]" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1]* # Knot[6, 3]" target="Knot[6, 3]" />
+    <edge source="Knot[8, 6]*" target="Knot[8, 6]*" />
+    <edge source="Knot[8, 6]*" target="Knot[8, 2]*" />
+    <edge source="Knot[8, 6]*" target="Knot[6, 2]*" />
+    <edge source="Knot[3, 1] # Knot[6, 2]" target="Knot[6, 2]" />
+    <edge source="Knot[3, 1] # Knot[6, 2]" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[6, 2]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[6, 2]" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 36]*" target="Knot[7, 6]" />
+    <edge source="Knot[9, 36]*" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 30]*" target="Knot[6, 2]*" />
+    <edge source="Knot[9, 30]*" target="Knot[6, 2]" />
+    <edge source="Knot[9, 30]*" target="Knot[6, 3]" />
+    <edge source="Knot[6, 2]*" target="Knot[6, 2]*" />
+    <edge source="Knot[6, 2]*" target="Knot[9, 30]" />
+    <edge source="Knot[6, 2]*" target="Knot[3, 1]* # Knot[6, 2]*" />
+    <edge source="Knot[6, 2]*" target="Knot[9, 17]*" />
+    <edge source="Knot[6, 2]*" target="Knot[9, 20]*" />
+    <edge source="Knot[6, 2]*" target="Knot[8, 9]" />
+    <edge source="Knot[6, 2]*" target="Knot[8, 21]*" />
+    <edge source="Knot[6, 2]*" target="Knot[8, 14]*" />
+    <edge source="Knot[6, 2]*" target="Knot[4, 1]" />
+    <edge source="Knot[6, 2]*" target="Knot[9, 25]*" />
+    <edge source="Knot[6, 2]*" target="Knot[9, 27]" />
+    <edge source="Knot[6, 2]*" target="Knot[8, 17]" />
+    <edge source="Knot[6, 2]*" target="Knot[9, 26]" />
+    <edge source="Knot[6, 2]*" target="Knot[9, 34]*" />
+    <edge source="Knot[6, 2]*" target="Knot[8, 2]*" />
+    <edge source="Knot[3, 1] # Knot[3, 1]" target="Knot[9, 38]" />
+    <edge source="Knot[3, 1] # Knot[3, 1]" target="Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[3, 1]" target="Knot[3, 1] # Knot[6, 3]" />
+    <edge source="Knot[3, 1] # Knot[3, 1]" target="Knot[3, 1] # Knot[3, 1] # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[3, 1]" target="Knot[8, 15]" />
+    <edge source="Knot[3, 1] # Knot[3, 1]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[3, 1]" target="Knot[9, 28]" />
+    <edge source="Knot[9, 30]" target="Knot[6, 2]" />
+    <edge source="Knot[9, 30]" target="Knot[6, 3]" />
+    <edge source="Knot[9, 30]" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 47]*" target="Knot[3, 1]" />
+    <edge source="Knot[9, 17]*" target="Knot[4, 1]" />
+    <edge source="Knot[9, 20]*" target="Knot[7, 5]*" />
+    <edge source="Knot[3, 1] # Knot[5, 1]*" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[5, 1]*" target="Knot[3, 1] # Knot[5, 1]*" />
+    <edge source="Knot[9, 43]*" target="Knot[7, 6]" />
+    <edge source="Knot[9, 43]*" target="Knot[6, 2]" />
+    <edge source="Knot[9, 43]*" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[9, 43]*" target="Knot[5, 2]" />
+    <edge source="Knot[8, 9]" target="Knot[8, 9]" />
+    <edge source="Knot[8, 9]" target="Knot[6, 2]" />
+    <edge source="Knot[8, 16]" target="Knot[9, 44]" />
+    <edge source="Knot[8, 16]" target="Knot[4, 1]" />
+    <edge source="Knot[8, 16]" target="Knot[3, 1]" />
+    <edge source="Knot[8, 16]" target="Knot[6, 3]" />
+    <edge source="Knot[8, 16]" target="Knot[8, 16]" />
+    <edge source="Knot[8, 16]" target="Knot[5, 2]" />
+    <edge source="Knot[5, 2]" target="Knot[9, 20]" />
+    <edge source="Knot[5, 2]" target="Knot[3, 1]" />
+    <edge source="Knot[5, 2]" target="Knot[8, 20]" />
+    <edge source="Knot[5, 2]" target="Knot[9, 21]*" />
+    <edge source="Knot[5, 2]" target="Knot[9, 14]*" />
+    <edge source="Knot[5, 2]" target="Knot[5, 2]" />
+    <edge source="Knot[5, 2]" target="Knot[7, 4]*" />
+    <edge source="Knot[5, 2]" target="Knot[8, 13]*" />
+    <edge source="Knot[5, 2]" target="Knot[8, 8]*" />
+    <edge source="Knot[5, 2]" target="Knot[9, 31]" />
+    <edge source="Knot[5, 2]" target="Knot[8, 10]*" />
+    <edge source="Knot[5, 2]" target="Knot[9, 5]*" />
+    <edge source="Knot[5, 2]" target="Knot[8, 15]" />
+    <edge source="Knot[5, 2]" target="Knot[7, 6]" />
+    <edge source="Knot[5, 2]" target="Knot[9, 45]" />
+    <edge source="Knot[9, 10]*" target="Knot[7, 4]*" />
+    <edge source="Knot[8, 16]*" target="Knot[8, 16]*" />
+    <edge source="Knot[8, 16]*" target="Knot[4, 1]" />
+    <edge source="Knot[8, 16]*" target="Knot[6, 3]" />
+    <edge source="Knot[9, 3]" target="Knot[7, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]*" target="Knot[8, 21]*" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]*" target="Knot[3, 1]* # Knot[5, 2]*" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]*" target="Knot[3, 1]* # Knot[3, 1]*" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]*" target="Knot[3, 1]* # Knot[6, 2]*" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]*" target="Knot[3, 1]* # Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[7, 5]*" target="Knot[9, 6]*" />
+    <edge source="Knot[7, 5]*" target="Knot[9, 9]*" />
+    <edge source="Knot[7, 5]*" target="Knot[9, 36]" />
+    <edge source="Knot[7, 5]*" target="Knot[7, 1]*" />
+    <edge source="Knot[7, 5]*" target="Knot[7, 5]*" />
+    <edge source="Knot[7, 5]*" target="Knot[9, 18]*" />
+    <edge source="Knot[3, 1]* # Knot[6, 2]" target="Knot[6, 2]" />
+    <edge source="Knot[3, 1]* # Knot[6, 2]" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[8, 8]*" target="Knot[8, 7]*" />
+    <edge source="Knot[8, 8]*" target="Knot[8, 10]*" />
+    <edge source="Knot[8, 8]*" target="Knot[8, 8]*" />
+    <edge source="Knot[8, 8]*" target="Knot[3, 1]" />
+    <edge source="Knot[8, 8]*" target="Knot[8, 8]" />
+    <edge source="Knot[8, 8]*" target="Knot[6, 3]" />
+    <edge source="Knot[9, 31]" target="Knot[6, 3]" />
+    <edge source="Knot[9, 31]" target="Knot[3, 1]" />
+    <edge source="Knot[8, 7]" target="Knot[8, 8]" />
+    <edge source="Knot[8, 7]" target="Knot[8, 7]" />
+    <edge source="Knot[8, 7]" target="Knot[6, 3]" />
+    <edge source="Knot[9, 17]" target="Knot[6, 2]" />
+    <edge source="Knot[9, 17]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 38]" target="Knot[7, 4]*" />
+    <edge source="Knot[7, 6]" target="Knot[9, 20]" />
+    <edge source="Knot[7, 6]" target="Knot[3, 1]" />
+    <edge source="Knot[7, 6]" target="Knot[9, 21]*" />
+    <edge source="Knot[7, 6]" target="Knot[9, 29]" />
+    <edge source="Knot[7, 6]" target="Knot[9, 45]" />
+    <edge source="Knot[7, 6]" target="Knot[8, 20]" />
+    <edge source="Knot[7, 6]" target="Knot[9, 27]" />
+    <edge source="Knot[7, 6]" target="Knot[7, 6]" />
+    <edge source="Knot[7, 6]" target="Knot[9, 39]*" />
+    <edge source="Knot[7, 6]" target="Knot[9, 44]" />
+    <edge source="Knot[7, 6]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 5]*" target="Knot[7, 4]*" />
+    <edge source="Knot[8, 15]" target="Knot[8, 15]" />
+    <edge source="Knot[9, 34]*" target="Knot[3, 1]" />
+    <edge source="Knot[9, 34]*" target="Knot[4, 1]" />
+    <edge source="Knot[8, 2]*" target="Knot[8, 14]*" />
+    <edge source="Knot[8, 2]*" target="Knot[8, 2]*" />
+    <edge source="Knot[9, 46]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1]* # Knot[5, 1]" target="Knot[3, 1]* # Knot[5, 1]" />
+    <edge source="Knot[3, 1]* # Knot[5, 1]" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[4, 1]" target="Knot[9, 44]" />
+    <edge source="Knot[3, 1] # Knot[4, 1]" target="Knot[4, 1]" />
+    <edge source="Knot[3, 1] # Knot[4, 1]" target="Knot[3, 1] # Knot[4, 1]" />
+    <edge source="Knot[3, 1] # Knot[4, 1]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1] # Knot[4, 1]" target="Knot[9, 45]" />
+    <edge source="Knot[9, 9]*" target="Knot[7, 1]*" />
+    <edge source="Knot[9, 19]" target="Knot[4, 1]" />
+    <edge source="Knot[8, 21]*" target="Knot[8, 21]*" />
+    <edge source="Knot[8, 21]*" target="Knot[9, 46]*" />
+    <edge source="Knot[8, 10]" target="Knot[8, 10]" />
+    <edge source="Knot[8, 10]" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[8, 10]" target="Knot[8, 8]" />
+    <edge source="Knot[8, 10]" target="Knot[6, 3]" />
+    <edge source="Knot[9, 20]" target="Knot[6, 2]" />
+    <edge source="Knot[9, 20]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[8, 20]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[8, 10]*" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[3, 1] # Knot[6, 3]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[9, 24]*" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[3, 1]* # Knot[3, 1]* # Knot[3, 1]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[9, 29]" />
+    <edge source="Knot[3, 1]* # Knot[3, 1]" target="Knot[9, 29]*" />
+    <edge source="Knot[3, 1]" target="Knot[8, 18]" />
+    <edge source="Knot[3, 1]" target="Knot[9, 14]*" />
+    <edge source="Knot[3, 1]" target="Knot[3, 1]" />
+    <edge source="Knot[3, 1]" target="Knot[6, 2]" />
+    <edge source="Knot[3, 1]" target="Knot[9, 48]*" />
+    <edge source="Knot[3, 1]" target="Knot[9, 21]*" />
+    <edge source="Knot[3, 1]" target="Knot[7, 4]*" />
+    <edge source="Knot[3, 1]" target="Knot[3, 1] # Knot[6, 3]" />
+    <edge source="Knot[3, 1]" target="Knot[9, 27]" />
+    <edge source="Knot[3, 1]" target="Knot[8, 7]*" />
+    <edge source="Knot[3, 1]" target="Knot[8, 8]" />
+    <edge source="Knot[3, 1]" target="Knot[8, 17]" />
+    <edge source="Knot[3, 1]" target="Knot[6, 3]" />
+    <edge source="Knot[8, 18]" target="Knot[8, 18]" />
+    <edge source="Knot[6, 2]" target="Knot[6, 2]" />
+    <edge source="Knot[6, 2]" target="Knot[9, 45]" />
+    <edge source="Knot[6, 2]" target="Knot[9, 24]*" />
+    <edge source="Knot[6, 2]" target="Knot[4, 1]" />
+    <edge source="Knot[6, 2]" target="Knot[9, 39]*" />
+    <edge source="Knot[6, 2]" target="Knot[8, 17]" />
+    <edge source="Knot[9, 48]*" target="Knot[8, 20]" />
+    <edge source="Knot[9, 48]*" target="Knot[7, 4]*" />
+    <edge source="Knot[9, 21]*" target="Knot[7, 4]*" />
+    <edge source="Knot[7, 1]*" target="Knot[9, 6]*" />
+    <edge source="Knot[7, 1]*" target="Knot[7, 1]*" />
+    <edge source="Knot[9, 29]*" target="Knot[6, 3]" />
+    <edge source="Knot[4, 1] # Knot[4, 1]" target="Knot[4, 1] # Knot[4, 1]" />
+    <edge source="Knot[4, 1] # Knot[4, 1]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 29]" target="Knot[6, 3]" />
+    <edge source="Knot[3, 1]* # Knot[5, 2]*" target="Knot[3, 1]* # Knot[5, 2]*" />
+    <edge source="Knot[8, 20]" target="Knot[8, 20]" />
+    <edge source="Knot[8, 20]" target="Knot[8, 10]*" />
+    <edge source="Knot[8, 20]" target="Knot[6, 3]" />
+    <edge source="Knot[7, 4]*" target="Knot[9, 35]" />
+    <edge source="Knot[7, 4]*" target="Knot[9, 39]*" />
+    <edge source="Knot[7, 4]*" target="Knot[7, 4]*" />
+    <edge source="Knot[7, 4]*" target="Knot[9, 49]*" />
+    <edge source="Knot[8, 14]*" target="Knot[8, 14]*" />
+    <edge source="Knot[8, 14]*" target="Knot[4, 1]" />
+    <edge source="Knot[3, 1] # Knot[6, 3]" target="Knot[6, 3]" />
+    <edge source="Knot[8, 13]*" target="Knot[8, 7]*" />
+    <edge source="Knot[8, 13]*" target="Knot[8, 13]*" />
+    <edge source="Knot[8, 13]*" target="Knot[4, 1]" />
+    <edge source="Knot[8, 13]*" target="Knot[6, 3]" />
+    <edge source="Knot[4, 1]" target="Knot[9, 27]" />
+    <edge source="Knot[4, 1]" target="Knot[4, 1]" />
+    <edge source="Knot[9, 27]" target="Knot[6, 3]" />
+    <edge source="Knot[6, 3]" target="Knot[9, 31]*" />
+    <edge source="Knot[6, 3]" target="Knot[8, 7]*" />
+    <edge source="Knot[6, 3]" target="Knot[8, 10]*" />
+    <edge source="Knot[6, 3]" target="Knot[9, 44]" />
+    <edge source="Knot[6, 3]" target="Knot[8, 8]" />
+    <edge source="Knot[6, 3]" target="Knot[9, 28]" />
+    <edge source="Knot[6, 3]" target="Knot[6, 3]" />
+    <edge source="Knot[8, 7]*" target="Knot[8, 7]*" />
+    <edge source="Knot[8, 10]*" target="Knot[8, 10]*" />
+    <edge source="Knot[9, 44]" target="Knot[8, 8]" />
+    <edge source="Knot[8, 8]" target="Knot[8, 8]" />
+    <edge source="Knot[8, 3]" target="Knot[8, 3]" />
+    <edge source="Knot[8, 17]" target="Knot[8, 17]" />
+  </graph>
+</graphml>
