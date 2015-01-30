@@ -1,12 +1,13 @@
 from collections import defaultdict
 def kt_indexer(kt):
-    NX_MUL = 10**7
-    IDX_MUL = 10**3
-    NF_MUL = 10**5
+    NX_MUL = 10**9
+    FACTOR_MUL = 10**4
+    NF_MUL = 10**8
+    IDX_MUL = 10**2
     MIR_MUL = 10
 
     val = 0
-    for factor in kt.split("#"):
+    for i,factor in enumerate(kt.split("#")):
         val += NF_MUL
         factor = factor.strip()
         if "*" in factor:
@@ -14,6 +15,7 @@ def kt_indexer(kt):
         factor = factor.split("*")[0]
         #print factor
         nx, idx = factor.split("_")
+        val += FACTOR_MUL* int(nx) * (10**(2-i))
         val += NX_MUL * int(nx)
         val += IDX_MUL * int(idx)
     return val
@@ -41,6 +43,7 @@ if __name__ == "__main__":
                     row_key = row["K"].replace(" ", "")
                     #print key, row_key, table[key]
                     assert row_key not in table[key]
+                    val = val.replace("-", "~")
                     table[key][row_key] = val
     #print table
     fieldnames = ["K"] + sorted(table.keys(), key=kt_indexer)
@@ -54,9 +57,12 @@ if __name__ == "__main__":
     print table_transpose
     #assert(False)
 
+    rownames = sorted(table_transpose.keys(), key=kt_indexer)
+
     out_writer = csv.DictWriter(args.output, fieldnames)
     out_writer.writeheader()
-    for rowname, row in table_transpose.iteritems():
+    for rowname in rownames:
+        row = table_transpose[rowname]
         outrow = dict(row)
         outrow["K"] = rowname
         out_writer.writerow(outrow)
