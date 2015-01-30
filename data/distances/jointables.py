@@ -27,6 +27,8 @@ if __name__ == "__main__":
                         help="a csv file to join")
     parser.add_argument('output', metavar="output", type=argparse.FileType('wb'),
                         help="a file to create")
+    parser.add_argument('--no-symmetry', action='store_true',
+                        help="do not use symmetry of data to fill out table")
 
     args = parser.parse_args()
     table = defaultdict(dict)
@@ -58,6 +60,12 @@ if __name__ == "__main__":
     #assert(False)
 
     rownames = sorted(table_transpose.keys(), key=kt_indexer)
+    for rowname in rownames:
+        for colname in fieldnames[1:]:
+            if colname in table_transpose[rowname] and rowname in table_transpose[colname]:
+                assert table_transpose[rowname][colname] == table_transpose[colname][rowname]
+            elif rowname in table_transpose[colname]:
+                table_transpose[rowname][colname] = table_transpose[colname][rowname]
 
     out_writer = csv.DictWriter(args.output, fieldnames)
     out_writer.writeheader()
