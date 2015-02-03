@@ -25,11 +25,6 @@ cimport cython
 PD_VERBOSE = 10
 #PD_LIVE_ON_ERROR = 1
 
-cdef class Edge
-cdef class Crossing
-cdef class Face
-cdef class Component
-
 DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
 

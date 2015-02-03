@@ -23,6 +23,9 @@ extensions = [
 #              libraries = ["gsl","plCurve"])
 ]
 
+import Cython
+print "Using Cython version "+Cython.__version__
+
 setup(
     name = "libpl",
     packages = ["libpl"],
