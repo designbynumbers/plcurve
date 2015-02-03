@@ -1,31 +1,25 @@
 from distutils.core import setup
-from distutils.extension import Extension
+from Cython.Distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy
 import os
 
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
+import Cython
+
 extensions = [
-    Extension("*", [os.path.join(ROOT_DIR, "libpl/*.pyx")],
-              include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],
-              library_dirs = ["../src/.libs"],
-              libraries = ["gsl", "plCurve", "gsl", "gslcblas"]),
     Extension("pdcode.*", [os.path.join(ROOT_DIR, "libpl/pdcode/*.pyx")],
               include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],
               library_dirs = ["../src/.libs"],
               libraries = ["gsl", "plCurve", "gsl", "gslcblas"]),
 
-#    Extension("pdcode", ["libpl/pdcode.pyx"],
-#              include_dirs = ["..","."],
-#              libraries = ["gsl","plCurve"]),
-#    Extension("tsmcmc", ["libpl/plcurve.pyx", "libpl/tsmcmc.pyx",],
-#              include_dirs = ["..","."],
-#              libraries = ["gsl","plCurve"])
+    Extension("*", [os.path.join(ROOT_DIR, "libpl/*.pyx")],
+              include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],
+              library_dirs = ["../src/.libs"],
+              libraries = ["gsl", "plCurve", "gsl", "gslcblas"]),
 ]
 
-import Cython
 print "Using Cython version "+Cython.__version__
-
 setup(
     name = "libpl",
     packages = ["libpl"],

@@ -7,6 +7,8 @@ np.import_array()
 
 from plcurve cimport *
 from .pdcode.diagram cimport PlanarDiagram, PlanarDiagram_wrap
+# if you MUST use Cython < 0.21, comment the above line and uncomment this.
+#from libpl.pdcode.diagram cimport PlanarDiagram, PlanarDiagram_wrap
 
 cdef plc_vector new_plc_vector(list l):
     return plc_build_vect(l[0], l[1], l[2])

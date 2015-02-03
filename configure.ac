@@ -117,7 +117,7 @@ AC_ARG_ENABLE([python],
 if test "x${enable_python}" = xyes; then
    AM_PATH_PYTHON(2.7)
    AX_PYTHON_DEVEL(>= '2.7')
-   CYTHON_CHECK_VERSION([0.20.0],
+   CYTHON_CHECK_VERSION([0.21.0],
         [have_cython=true],
         [AC_MSG_FAILURE([Python bindings were not disabled but Cython was not found.]);
          have_cython=false])
