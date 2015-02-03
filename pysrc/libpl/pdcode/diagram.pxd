@@ -43,3 +43,6 @@ cdef class PlanarDiagram:
     cdef regenerate_py_os(self)
 
 cdef PlanarDiagram PlanarDiagram_wrap(pd_code_t *pd, bool thin=*)
+
+cdef public api:
+    pd_code_t **pd_simplify(pd_code_t *pd, int *ndias)

@@ -1,18 +1,36 @@
 if BUILD_PYTHON
 
-PY_FILES = __init__.py data.py graphs.py pdcode/__init__.py
-PYX_FILES = plcurve.pyx pdcode/diagram.pyx pdcode/components.pyx \
-	    pdcode/homfly.pyx tsmcmc.pyx \
-	    pdstor.pyx pdcode/pdisomorphism.pyx
-PXD_FILES = plcurve.pxd pdcode/__init__.pxd plCurve_h.pxd \
-	    tsmcmc.pxd gsl_rng.pxd \
-	    pdcode/diagram.pxd pdcode/components.pxd pdcode/homfly.pxd \
-	    pdcode/plctopology.pxd pdcode/pdisomorphism.pxd
+PY_FILES = \
+	__init__.py \
+	data.py \
+	graphs.py \
+	pdcode/__init__.py
+
+PYX_FILES = \
+	plcurve.pyx \
+	tsmcmc.pyx \
+	pdstor.pyx \
+	pdcode/diagram.pyx \
+	pdcode/components.pyx \
+	pdcode/homfly.pyx \
+	pdcode/pdisomorphism.pyx
+
+PXD_FILES = \
+	plcurve.pxd \
+	plCurve_h.pxd \
+	tsmcmc.pxd \
+	gsl_rng.pxd \
+	pdcode/__init__.pxd \
+	pdcode/diagram.pxd \
+	pdcode/components.pxd \
+	pdcode/homfly.pxd \
+	pdcode/plctopology.pxd \
+	pdcode/pdisomorphism.pxd
 
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
-all-local: libpl pdcode $(CPY_FILES) util
+all-local: libpl pydir
 	$(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src -L"$(abs_top_builddir)"/src/.libs
 
 PYLIBS = tsmcmc.so pdcode.so plcurve.so
@@ -35,6 +53,8 @@ html-local: install
 
 libpl:
 	mkdir -p libpl
+pydir:
+	rsync -tapE $(srcdir)/libpl/ libpl/
 pdcode:
 	mkdir -p libpl/pdcode
 $(CPY_FILES): %: $(srcdir)/libpl/%

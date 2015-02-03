@@ -650,6 +650,12 @@ cdef class PlanarDiagram:
         Check that all data contained in this PD code is sane."""
         return pd_ok(self.p)
 
+    def euler_characteristic(self):
+        """euler_characteristic() -> int
+
+        Return the Euler characteristic of the diagram."""
+        return self.nfaces + self.ncross - self.nedges
+    
     def homfly(self, as_string=False):
         """homfly([as_string=False]) -> HOMFLYPolynomial
 
@@ -1114,7 +1120,7 @@ cdef class PlanarDiagram:
             pd_code_free(&self.p)
             self.p = NULL
 
-cdef api pd_code_t **pd_simplify(pd_code_t *pd, int *ndias):
+cdef pd_code_t **pd_simplify(pd_code_t *pd, int *ndias):
     cdef PlanarDiagram py_pd = PlanarDiagram_wrap(pd)
     cdef tuple simp_dias = py_pd.simplify()
     cdef PlanarDiagram simp

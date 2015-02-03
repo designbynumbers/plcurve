@@ -1,3 +1,3 @@
-from pdcode.homfly cimport *
-from pdcode.components cimport *
-from pdcode.diagram cimport *
+from .homfly cimport *
+from .components cimport *
+from .diagram cimport *
