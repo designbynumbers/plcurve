@@ -1,4 +1,4 @@
-from pdcode cimport pd_idx_t, pd_or_t, pd_code_t
+from .plctopology cimport pd_idx_t, pd_or_t, pd_code_t
 
 cdef extern from "pd_multidx.h":
     pass

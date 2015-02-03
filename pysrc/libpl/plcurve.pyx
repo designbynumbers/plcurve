@@ -6,7 +6,7 @@ cimport numpy as np
 np.import_array()
 
 from plcurve cimport *
-from pdcode cimport PlanarDiagram, PlanarDiagram_wrap
+from .pdcode.diagram cimport PlanarDiagram, PlanarDiagram_wrap
 
 cdef plc_vector new_plc_vector(list l):
     return plc_build_vect(l[0], l[1], l[2])

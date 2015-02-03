@@ -9,6 +9,11 @@ extensions = [
               include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],
               library_dirs = ["../src/.libs"],
               libraries = ["gsl", "plCurve", "gsl", "gslcblas"]),
+    Extension("pdcode.*", ["libpl/pdcode/*.pyx"],
+              include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],
+              library_dirs = ["../src/.libs"],
+              libraries = ["gsl", "plCurve", "gsl", "gslcblas"]),
+
 #    Extension("pdcode", ["libpl/pdcode.pyx"],
 #              include_dirs = ["..","."],
 #              libraries = ["gsl","plCurve"]),
@@ -20,6 +25,6 @@ extensions = [
 setup(
     name = "libpl",
     packages = ["libpl"],
-    package_data={"libpl": ["*.pxd", "data/*.txt", "util/*.py"]},
+    package_data={"libpl": ["*.pxd", "data/*.txt", "util/*.py", "pdcode/*.py"]},
     ext_modules = cythonize(extensions),
 )

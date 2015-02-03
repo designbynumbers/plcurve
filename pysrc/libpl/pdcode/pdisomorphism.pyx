@@ -1,4 +1,4 @@
-from pdisomorphism cimport *
+from .pdisomorphism cimport *
 
 cdef class PlanarIsomorphism:
     # cdef pd_iso_t *p ## in .pxd
