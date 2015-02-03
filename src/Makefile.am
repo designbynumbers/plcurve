@@ -10,7 +10,7 @@ else
 bin_PROGRAMS = knot_diagram
 endif
 
-noinst_PROGRAMS = spline_view processpdstor # gcov_tests
+noinst_PROGRAMS = spline_view # gcov_tests
 noinst_HEADERS = homfly.h
 
 libplCurveStatic_la_SOURCES = plCurve.c \
@@ -72,7 +72,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	pd_deletions.c \
 	naptable.h \
 	kascentpermutation.c \
-	hypersimplex_sampling.c 
+	hypersimplex_sampling.c
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -136,7 +136,7 @@ libplCurve_la_SOURCES = plCurve.c \
 	pd_deletions.c \
 	naptable.h \
 	kascentpermutation.c \
-	hypersimplex_sampling.c 
+	hypersimplex_sampling.c
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
@@ -161,14 +161,9 @@ momentpolytope_SOURCES = momentpolytope.c
 momentpolytope_LDADD = -lplCurve
 
 carbonizepd_SOURCES = carbonizepd.c
-carbonizepd_LDADD = -lplCurve 
+carbonizepd_LDADD = -lplCurve
 carbonizepd_LDFLAGS = -static
 carbonizepd_CFLAGS = -I${top_builddir}/src
-
-processpdstor_SOURCES = processpdstor.c
-processpdstor_LDADD = -lplCurve $(PYTHON_EXTRA_LIBS)
-processpdstor_LDFLAGS = -static $(PYTHON_LDFLAGS)
-processpdstor_CFLAGS = -I${top_builddir}/src -I${top_builddir}/pysrc/libpl $(PYTHON_CPPFLAGS)
 
 spline_view_SOURCES = spline_view.c
 spline_view_LDADD = -lplCurve

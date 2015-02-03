@@ -30,19 +30,16 @@ PXD_FILES = \
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
-all-local: libpl pydir
+all-local:
 	$(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src -L"$(abs_top_builddir)"/src/.libs
 
 PYLIBS = tsmcmc.so pdcode.so plcurve.so
 
 clean-local:
 	$(PYTHON) $(SETUP_PY) clean -a
-	pushd libpl ; \
-	rm $(PYLIBS) 2> /dev/null || true ; \
-	popd
 	rm -r built_doc 2> /dev/null || true
 
-install-exec-local: data
+install-exec-local:
 	$(PYTHON) $(SETUP_PY) install --prefix=$(prefix)
 
 check-local:
@@ -54,7 +51,7 @@ html-local: install
 libpl:
 	mkdir -p libpl
 pydir:
-	rsync -tapE $(srcdir)/libpl/ libpl/
+	rsync --del -tapE $(srcdir)/libpl/ libpl/
 pdcode:
 	mkdir -p libpl/pdcode
 $(CPY_FILES): %: $(srcdir)/libpl/%

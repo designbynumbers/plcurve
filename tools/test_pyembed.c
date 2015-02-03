@@ -1,6 +1,6 @@
 #include <plCurve.h>
 #include <plcTopology.h>
-#include "pdcode_api.h"
+#include <pdcode/diagram_api.h>
 #include <Python.h>
 #include <stdio.h>
 
@@ -17,9 +17,9 @@ int main(int argc, char** argv) {
     //f = fopen("r2_testG_before.pdstor", "r");
     //L = pd_read(f);
     //fclose(f);
-    
+
     Py_Initialize();
-    import_libpl__pdcode();
+    import_libpl__pdcode__diagram();
     for (j=3; j<8; j++) {
 
         K = pd_build_unknot(j);
