@@ -1,0 +1,12 @@
+pdstor 
+nelts 1/1 (claimed/actual) nhashes 1
+
+pd AAECAQEBAQAAAAAAAAAAAAAAAAAAAAA 0
+nv 0
+ne 1
+4294967295,4 -> 4294967295,4 
+nc 1
+1 : 0 tag A
+nf 2
+1 : + 0 
+1 : - 0 
