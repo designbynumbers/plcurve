@@ -872,6 +872,18 @@ cdef class PlanarDiagram:
         sgm_link = self.as_spherogram()
         return Manifold("DT:%s"%sgm_link.DT_code())
 
+    def edit_copy(self):
+        """edit_copy() -> new PlanarDiagram
+
+        Open a plink editor for this PlanarDiagram. On
+        completion, returns a new PlanarDiagram object.
+        """
+        from Tkinter import mainloop as _tk_mainloop
+        editor = self.as_spherogram().view()
+        _tk_mainloop()
+        
+        return self.from_plink(editor)
+    
     @classmethod
     def from_dt_code(cls, dt_code):
         """from_dt_code() -> new PlanarDiagram
@@ -887,10 +899,23 @@ cdef class PlanarDiagram:
         return cls.from_pdcode(spherogram.DTcodec(dt_code).PD_code())
 
     @classmethod
+    def from_editor(cls, **kwargs):
+        """from_editor() -> new PlanarDiagram
+
+        Creates a new PlanarDiagram using a new plink LinkEditor"""
+        from plink import LinkEditor
+        from Tkinter import mainloop as _tk_mainloop
+        
+        editor = LinkEditor(**kwargs)
+        _tk_mainloop()
+        
+        return cls.from_plink(editor)
+    
+    @classmethod
     def from_plink(cls, editor, thin=False):
         """from_plink(editor) -> new PlanarDiagram
 
-        Creates a new PlanarDiagram from a plink LinkEditor object."""
+        Creates a new PlanarDiagram from a plink LinkManager object."""
 
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         cdef pd_code_t* pd

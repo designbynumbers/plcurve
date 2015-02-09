@@ -10,7 +10,7 @@ def pd_edit(pd=None):
     completion, returns a new PlanarDiagram object.
     """
     if pd is not None:
-        editor = pd.as_spherogram.view()#spherogram.Link(pd.pdcode()).view()
+        editor = pd.as_spherogram().view()#spherogram.Link(pd.pdcode()).view()
     else:
         editor = LinkEditor()
     Tkinter.mainloop()
