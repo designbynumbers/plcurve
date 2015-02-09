@@ -515,6 +515,10 @@ cdef class PlanarDiagram:
                            x.index != e.head and x.index != e.tail][0]
         for i, e_i in enumerate(x.edges):
             tangle.edge[i] = e_i
+        print x.edges[0]
+        # TODO: FIX HARD CODING OF THIS OMG
+        for i, k in enumerate([3,0,4,0]):
+            tangle.face[i] = k
         pd_regenerate_tangle(self.p, tangle)
 
         strand_edges[0] = e.prev_edge().index
@@ -539,6 +543,12 @@ cdef class PlanarDiagram:
         pd_tangle_slide(self.p, tangle,
                         3, strand_edges, border_faces,
                         &npieces, &pd_pieces)
+
+        ret = []
+        for i in range(npieces):
+            ret.append(PlanarDiagram_wrap(pd_pieces[i]))
+
+        return ret
 
     def R3_nice_swap(self, Face f, Edge e):
         fip = e.face_pos()

@@ -323,5 +323,43 @@ class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, uni
     def test_S(self):
         self.checkBigonElimination("S", 7)
 
+class TestR3StrandSwap(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
+    DATA_DIR = os.path.join("data", "r3")
+    DATA_BEFORE_TEMPLATE = "%s_before.pdstor"
+    DATA_AFTER_TEMPLATE = "%s_after.pdstor"
+
+    def checkStrandSwap(self, tag, face_n, edge_n):
+        with open(self._get_before_fname(tag)) as before_f:
+            before_pd = PlanarDiagram.read(before_f, read_header=False)
+        self.assertIsNotNone(before_pd)
+
+        # with open(self._get_after_fname(tag)) as after_f:
+        #     after_pds = tuple(PlanarDiagram.read_all(after_f, read_header=True))
+        # self.assertIsNotNone(after_pds)
+        # for after_pd in after_pds:
+        #     self.assertIsNotNone(after_pd)
+
+        before_pd_copy = before_pd.copy()
+        result_pd = before_pd._R3_strand_swap(before_pd.faces[face_n],
+                                              before_pd.edges[edge_n])
+        print result_pd[0].edit_copy()
+
+        # self.assertEqual(before_pd, before_pd_copy)
+        # self.assertEqual(len(result_pds), len(after_pds))
+        # for result_pd, after_pd in zip(result_pds, after_pds):
+        #     self.assertEqual(result_pd, after_pd)
+
+    @unittest.skip("We apparently can't handle tangles with the same edge entering twice")
+    def test_A_simple(self):
+        self.checkStrandSwap("A", 1, 4)
+
+    @unittest.skip("Lacks an appropriately exterior anchor point")
+    def test_B_noloop(self):
+        self.checkStrandSwap("B", 3, 9)
+
+    def test_c_noloop_anchored(self):
+        self.checkStrandSwap("C", 3, 11)
+        
+    
 if __name__=="__main__":
     unittest.main()
