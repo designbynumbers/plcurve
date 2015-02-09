@@ -906,31 +906,66 @@ cdef class PlanarDiagram:
         pd.nfaces = ncross+2
         pd.ncomps = len(components)
 
-        i_e = 0
+        crossing_indices = dict()
+        cross_idx = 0
+        edge_idx = 0
         for component in components:
-            for etail, ehead in izip(component, islice(cycle(component), 1, None)):
-                i_tail = editor.Crossings.index(etail.crossing)
-                if etail.crossing.goes_over():
-                    # TODO: ASSERT THAT THIS IS CORRECT INTERPRETATION
-                    if etail.crossing.sign() == "RH":
-                        pos = 1
-                    elif etail.crossing.sign() == "LH":
-                        pos = 3
+            # Store this edge index for when we come back around
+            first_edge = edge_idx
+
+            # Iterate over "ECrossings"; an ECrossing is an instance of
+            # when an arrow runs through a crossing, either over or under
+            # as we go along the component
+            for k, ec in enumerate(component):
+                # Either add a new crossing index if we haven't run over
+                # this crossing, or get the stored value
+                if ec.crossing not in crossing_indices:
+                    crossing_indices[ec.crossing] = cross_idx
+                    cross_idx += 1
+                x_i = crossing_indices[ec.crossing]
+
+                # Previous edge can always be the 'edge_idx', but next edge
+                # has to be careful; if we are at the end of the component
+                # loop back to the first edge of the component
+                prev_edge = edge_idx
+                edge_idx += 1
+                next_edge = edge_idx if k != len(component) - 1 else first_edge
+
+                # Remember that PLink uses the following sign convention
+                #
+                # RH  ^       LH  ^
+                #     |           |
+                #  ------>     <------
+                #     |           |
+                # (+) |       (-) |
+                #
+                # For now, be PDCode-esque: Under strand goes 0-->2, over strand
+                # depends on sign
+                if ec.goes_over():
+                    if ec.crossing.sign == "RH":
+                        in_pos, out_pos = 3, 1
+                        pd.cross[x_i].sign = PD_POS_ORIENTATION 
+                    else:
+                        in_pos, out_pos = 1, 3
+                        pd.cross[x_i].sign = PD_NEG_ORIENTATION
                 else:
-                    pos = 2
+                    in_pos, out_pos = 0, 2
 
-                pd.cross[i_tail].edge[pos] = i_e
-                pd.edge[i_e].tail = i_tail
-                pd.edge[i_e].tailpos = pos
+                # Plug in edges and crossings; it is very important to actually
+                # set the edge here so that pd_regenerate_edges doesn't get
+                # called and discard all of our precious sign information
+                pd.cross[x_i].edge[in_pos] = prev_edge
+                pd.edge[prev_edge].head = x_i
+                pd.edge[prev_edge].headpos = in_pos
+                
+                pd.cross[x_i].edge[out_pos] = next_edge
+                pd.edge[next_edge].tail = x_i
+                pd.edge[next_edge].tailpos = out_pos
 
-                i_head = editor.Crossings.index(ehead.crossing)
-                pd.cross[i_head].edge[(pos+2)%4] = i_e
-                pd.edge[i_e].head = i_head
-                pd.edge[i_e].headpos = (pos+2)%4
-
-                i_e += 1
-
-        pd_regenerate(pd)
+        # Regenerate the object to load in faces and components
+        # Notice that we could in theory just regenerate faces, and
+        # use component information from the Plink editor for components
+        newobj.regenerate()
         return newobj
 
     def ccode(self):
