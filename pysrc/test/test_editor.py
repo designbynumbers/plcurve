@@ -44,14 +44,34 @@ class TestPDCodeFromPlink(PlanarDiagramAssertMixin, unittest.TestCase):
         self.assertEqual(K.homfly(), HOMFLYPolynomial("1"))
 
     def test_hopf_link(self):
-        pass
+        links = {
+            (1,1): self.plink_file_to_Diagram("hopf_link_pospos.lnk"),
+            (1,0): self.plink_file_to_Diagram("hopf_link_posneg.lnk"),
+            (0,1): self.plink_file_to_Diagram("hopf_link_negpos.lnk"),
+            (0,0): self.plink_file_to_Diagram("hopf_link_negneg.lnk"),
+        }
+        self.assertEqual(
+            links[(1,1)].homfly(),
+            HOMFLYPolynomial("a^{-3}z^{-1} + a^{-1}z^{-1} + -a^{-1}z^{1}"))
+        self.assertEqual(
+            links[(0,0)].homfly(),
+            HOMFLYPolynomial("a^{-3}z^{-1} + a^{-1}z^{-1} + -a^{-1}z^{1}"))
+        self.assertEqual(
+            links[(0,1)].homfly(),
+            HOMFLYPolynomial("a^{1}z^{-1} + -a^{1}z^{1} + a^{3}z^{-1}"))
+        self.assertEqual(
+            links[(1,0)].homfly(),
+            HOMFLYPolynomial("a^{1}z^{-1} + -a^{1}z^{1} + a^{3}z^{-1}"))
 
+    @unittest.skip("Not implemented")
     def test_split_link(self):
         pass
 
+    @unittest.skip("Not implemented")
     def test_hopf_trefoil_unknot(self):
         pass
-    
+
+    @unittest.skip("Not implemented")
     def test_split_trefoil_unknot(self):
         pass
 

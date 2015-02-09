@@ -164,7 +164,7 @@ class TestPDCodeMethods(PlanarDiagramAssertMixin, unittest.TestCase):
         self.knot = PlanarDiagram.torus_knot(2,11)
 
     def test_ccode(self):
-        print self.knot.ccode()
+        self.knot.ccode()
 
 class TestR1LoopDeletion(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
     DATA_DIR = "data"
@@ -256,13 +256,9 @@ class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, uni
         edge = face[0]
         result_pds = before_pd.R2_bigon_elimination(edge.head, edge.tail)
 
-        print result_pds
-        print after_pds
-
         self.assertEqual(before_pd, before_pd_copy)
         self.assertEqual(len(result_pds), len(after_pds))
         for result_pd, after_pd in zip(result_pds, after_pds):
-            print result_pd._hash; print after_pd._hash
             self.assertEqual(result_pd, after_pd)
 
     @unittest.skip("Bad data file (crossing sign error)")
