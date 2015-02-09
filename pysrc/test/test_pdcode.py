@@ -216,7 +216,25 @@ class TestSimplify(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.Test
 
     def test_A_trivial(self):
         self.checkSimplify("A")
+        
+    def test_3_trivial(self):
+        self.checkSimplify("3")
+        
+    def test_4_trivial(self):
+        self.checkSimplify("4")
 
+    @unittest.skip("Crashes (assertions.. meh)")
+    def test_5_trivial(self):
+        self.checkSimplify("5")
+
+    @unittest.skip("Doesn't simplify; needs R3")
+    def test_6_split_link(self):
+        self.checkSimplify("6")
+
+    @unittest.skip("Bad _after; Doesn't simplify, needs R3")
+    def test_7_split_link(self):
+        self.checkSimplify("7")        
+        
 class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
     DATA_DIR = "data"
     DATA_BEFORE_TEMPLATE = "r2_test%s_before.pdstor"
