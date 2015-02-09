@@ -942,7 +942,7 @@ cdef class PlanarDiagram:
                 # For now, be PDCode-esque: Under strand goes 0-->2, over strand
                 # depends on sign
                 if ec.goes_over():
-                    if ec.crossing.sign == "RH":
+                    if ec.crossing.sign() == "RH":
                         in_pos, out_pos = 3, 1
                         pd.cross[x_i].sign = PD_POS_ORIENTATION 
                     else:
