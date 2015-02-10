@@ -1,6 +1,6 @@
 import unittest
 from itertools import product, compress, izip
-from libpl.pdcode import PlanarDiagram
+from libpl.pdcode import PlanarDiagram, pd_debug_off
 import os, os.path
 
 class TestPDCode(unittest.TestCase):
@@ -328,6 +328,9 @@ class TestR3StrandSwap(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.
     DATA_BEFORE_TEMPLATE = "%s_before.pdstor"
     DATA_AFTER_TEMPLATE = "%s_after.pdstor"
 
+    def setUp(self):
+        pd_debug_off()
+
     def checkStrandSwap(self, tag, face_n, edge_n):
         with open(self._get_before_fname(tag)) as before_f:
             before_pd = PlanarDiagram.read(before_f, read_header=False)
@@ -342,7 +345,7 @@ class TestR3StrandSwap(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.
         before_pd_copy = before_pd.copy()
         result_pd = before_pd._R3_strand_swap(before_pd.faces[face_n],
                                               before_pd.edges[edge_n])
-        print result_pd[0]
+        #print result_pd[0]
 
         # self.assertEqual(before_pd, before_pd_copy)
         # self.assertEqual(len(result_pds), len(after_pds))

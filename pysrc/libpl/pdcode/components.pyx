@@ -22,9 +22,6 @@ from .components cimport *
 #from cython.view cimport array
 cimport cython
 
-PD_VERBOSE = 10
-#PD_LIVE_ON_ERROR = 1
-
 DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
 

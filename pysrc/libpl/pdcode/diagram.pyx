@@ -30,6 +30,14 @@ PD_VERBOSE = 10
 DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
 
+def pd_debug_off():
+    global PD_VERBOSE
+    PD_VERBOSE = 9
+
+def pd_debug_on():
+    global PD_VERBOSE
+    PD_VERBOSE = 10
+
 ctypedef fused Edge_or_idx:
     short
     int
