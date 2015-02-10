@@ -191,6 +191,7 @@ cdef extern from "plcTopology.h":
     pd_tangle_t *pd_tangle_new(pd_idx_t nedges)
     void pd_tangle_free(pd_tangle_t **t)
     void pd_regenerate_tangle(pd_code_t *pd, pd_tangle_t *tangle)
+    void pd_regenerate_tangle_err(pd_code_t *pd, pd_tangle_t *tangle, int *err)
 
     # Knot-isomorphic modifications
     pd_code_t* pd_R1_loopdeletion(pd_code_t *pd, pd_idx_t cr)
@@ -204,6 +205,14 @@ cdef extern from "plcTopology.h":
                          pd_idx_t *border_faces,
                          pd_idx_t *n_pieces,
                          pd_code_t ***pd_pieces)
+    void pd_tangle_slide_err(pd_code_t *pd, pd_tangle_t *tangle,
+                             pd_idx_t strand_n_edges,
+                             pd_idx_t *strand_edges,
+                             pd_idx_t *border_faces,
+                             pd_idx_t *n_pieces,
+                             pd_code_t ***pd_pieces,
+                             int *err)
+
 
     # Builders for typical pd types
     pd_code_t *pd_build_twist_knot(pd_idx_t n)

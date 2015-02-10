@@ -521,22 +521,25 @@ cdef class PlanarDiagram:
         cdef pd_tangle_t *tangle = pd_tangle_new(4)
         cdef Crossing x = [x for x in f.get_vertices() if
                            x.index != e.head and x.index != e.tail][0]
-        print "Crossing..", x
-        print "Crossing faces..", x.faces
+        cdef int err = 0
+        #print "Crossing..", x
+        #print "Crossing faces..", x.faces
         for i, e_i in enumerate(x.edges):
             tangle.edge[i] = e_i
-        print x.edges[0]
+        #print x.edges[0]
         # TODO: FIX HARD CODING OF THIS OMG
         for i, k in enumerate(x.faces):
             tangle.face[i] = k
-        pd_regenerate_tangle(self.p, tangle)
+        pd_regenerate_tangle_err(self.p, tangle, &err)
+        if err != 0:
+            raise Exception("Error in creating tangle data structure")
 
         strand_edges[0] = e.prev_edge().index
         strand_edges[1] = e.index
         strand_edges[2] = e.next_edge().index
 
-        print "Strand.. ",
-        print strand_edges[0], strand_edges[1], strand_edges[2]
+        #print "Strand.. ",
+        #print strand_edges[0], strand_edges[1], strand_edges[2]
 
         if e.face_index_pos()[0][0] == f.index:
             posneg = 0
@@ -547,12 +550,15 @@ cdef class PlanarDiagram:
         border_faces[1] = f.index
         border_faces[2] = e.next_edge().face_index_pos()[posneg][0]
 
-        print "Face.. ",
-        print border_faces[0], border_faces[1], border_faces[2]
+        #print "Face.. ",
+        #print border_faces[0], border_faces[1], border_faces[2]
 
-        pd_tangle_slide(self.p, tangle,
-                        3, strand_edges, border_faces,
-                        &npieces, &pd_pieces)
+        err = 0
+        pd_tangle_slide_err(self.p, tangle,
+                            3, strand_edges, border_faces,
+                            &npieces, &pd_pieces, &err)
+        if err != 0:
+            raise Exception("Error with tangle slide")
 
         ret = []
         for i in range(npieces):

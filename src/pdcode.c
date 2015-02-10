@@ -516,9 +516,9 @@ bool pd_edge_on_face(pd_code_t *pd, pd_idx_t edge, pd_idx_t face)
   pd_check_edge(SRCLOC,pd,edge);
   pd_check_face(SRCLOC,pd,face);
 
-  for(i=0;i<pd->face[face].nedges && !found;i++) { 
+  for(i=0;i<pd->face[face].nedges && !found;i++) {
 
-    if (pd->face[face].edge[i] == edge) { 
+    if (pd->face[face].edge[i] == edge) {
 
       found = true;
 
@@ -1841,7 +1841,7 @@ bool pd_cross_ok(pd_code_t *pd)
 	   pd->edge[edge].tail == PD_UNSET_IDX &&
 	   pd->edge[edge].headpos == PD_UNSET_POS &&
 	   pd->edge[edge].tailpos == PD_UNSET_POS) &&
-	  edge_seen[edge] == 0) { 
+	  edge_seen[edge] == 0) {
 
 	/* It's ok. This isn't an error. If we have split, unknotted
 	   components (this occurs only in testing), we can get stray
@@ -2859,15 +2859,15 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
   if ((pd_idx_t)(input_temp) == 0) {
 
-    /* If we're a zero-crossing unknot, there is one piece of 
-       information that can actually matter, which is the tag 
-       of the (single) component. We're going to discard the 
+    /* If we're a zero-crossing unknot, there is one piece of
+       information that can actually matter, which is the tag
+       of the (single) component. We're going to discard the
        rest of the file, but first we'll run through and extract
        the "tag" (if present). */
 
     char rolling_buffer[4];
     pd_tag_t tag = 'A';
-    
+
     rolling_buffer[0] = (char)(getc(infile));
     rolling_buffer[1] = (char)(getc(infile));
     rolling_buffer[2] = (char)(getc(infile));
@@ -2875,9 +2875,9 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
     for(;!feof(infile);) {
 
-      if (!strcmp(rolling_buffer,"tag")) { 
+      if (!strcmp(rolling_buffer,"tag")) {
 
-	fscanf(infile," %c ",&tag); 
+	fscanf(infile," %c ",&tag);
 
       }
 
@@ -2889,7 +2889,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
     pd_code_t *outcode;
     outcode = pd_build_unknot(0);
     outcode->comp[0].tag = tag;
-      
+
     return outcode;
 
   }
@@ -2992,7 +2992,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "<crossing>,<pos> -> <crossing>,<pos>\n"
 	       "where <crossing> and <pos> are positive integers\n",pd,edge);
       pd_err_set(err, PD_BAD_FORMAT);
-      pd_code_free(&pd); 
+      pd_code_free(&pd);
       return NULL;
 
     }
@@ -3076,7 +3076,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	pd_error(SRCLOC,"edge %d of component %d should be a positive integer\n"
 		 "but isn't in this file\n",pd,edge,comp);
         pd_err_set(err, PD_BAD_FORMAT);
-	pd_code_free(&pd); 
+	pd_code_free(&pd);
         return NULL;
 
       }
@@ -3127,7 +3127,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	     "where <nfaces> is a positive integer\n"
 	     "but this one doesn't\n",pd);
     pd_err_set(err, PD_BAD_FORMAT);
-    pd_code_free(&pd); 
+    pd_code_free(&pd);
     return NULL;
 
   }
@@ -4337,7 +4337,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
       free(printed);
 
       nxtconv += 7;
-      
+
     } else if (!strncmp(nxtconv,"%ISO ",5)) { /* pd_code -> pd_code isomorphism */
 
       pd_iso_t *iso = (pd_iso_t *) va_arg(ap,void *);

@@ -106,13 +106,14 @@ extern "C" {
     if(ERR) { if(!CHECK) {*ERR = CODE; return RET;} } \
     else { assert(CHECK); }       \
     }
-#define pd_err_set(ERR,CODE) { \
+#define pd_err_set(ERR,CODE) {                  \
     if(ERR) {*ERR = CODE;} \
     }
 #define PD_NO_ERROR 0
 #define PD_NOT_OK 1
 #define PD_BAD_FORMAT 2
 #define PD_EOF 3
+#define PD_TANGLE_ERROR 4
 
 
   typedef struct pd_edge_struct {
@@ -611,12 +612,12 @@ extern "C" {
      %CROSS     cross number       cross cnum (e0 e1 e2 e3) +/-/U
      %COMP      comp number        compnum (e1 -> e2 -> e3 -> ..... -> e1 (or1))
      %PD        (no argument)      (\n\n output of pd_write \n\n)
-     %FEDGE     face, edge         edge number (orientation on face) 
-                (2 pd_idx_ts)         
+     %FEDGE     face, edge         edge number (orientation on face)
+                (2 pd_idx_ts)
 
      We also have conversions for pointers.
 
-     %ORIENTATION *pd_orientation_t  multiorientation 
+     %ORIENTATION *pd_orientation_t  multiorientation
      %OR          *pd_or_t           +, -, or U (unset)
      %MULTIDX     *pd_multidx_t      multidx (i[0] i[1] ... i[n-1])
      %COMPGRP     *pd_compgrp_t      compgrp (comp[0] .. comp[n-1])
@@ -633,7 +634,7 @@ extern "C" {
      %CYCLIC      *pd_cyclic_t       rot (target of element 0)
      %PERM        *pd_perm_t         perm (map[0] ... map[n-1]) idx (precomputed perm index)
      %BDY_OR      *pd_boundary_or_t  in/out/?
-     
+
      The function also converts %d and %s specifications in the usual way.
 
      We ignore any other format conversions present in fmt,
@@ -697,12 +698,12 @@ extern "C" {
           +-------------+  f[nfaces-2]
      f[2]   |  ....   |
 
-     
+
      Tangles must have unique edge sets (that is, the same edge is not
      to occur twice in the boundary of a tangle). The face set need
      not be unique: equivalently, a tangle a cycle in the dual graph
-     of the diagram which does not revisit the same edge, but may 
-     pass through a vertex more than once. 
+     of the diagram which does not revisit the same edge, but may
+     pass through a vertex more than once.
 
        	....................   	       	..................
        	.      	/----\	   .		.  		 .
@@ -719,7 +720,7 @@ extern "C" {
 
         ok (even through face            not ok (same edge occurs
 	  occurs twice on bdy)             twice on the boundary)
-         
+
      The edges which enter or leave the tangle can be joined
      (pairwise) by chains of edges inside the tangle. Each such chain
      of edges is called a "strand" of the tangle. Note that the union
@@ -742,7 +743,7 @@ extern "C" {
     pd_idx_t nedges;      /* Number of edges in tangle (counting start, end) */
     pd_idx_t comp;        /* Component (in pd) containing this strand. */
 
-    /* The array of strands is stored in canonical order, sorted by 
+    /* The array of strands is stored in canonical order, sorted by
        the edge number (in the tangle) of the start edge. */
 
   } pd_tangle_strand_t;
@@ -774,6 +775,7 @@ extern "C" {
   void pd_tangle_free(pd_tangle_t **t);
 
   void pd_regenerate_tangle(pd_code_t *pd,pd_tangle_t *t);
+  void pd_regenerate_tangle_err(pd_code_t *pd, pd_tangle_t *t, int *err);
   /* The usual procedure for generating a tangle is to specify the
      loop of edges and faces and call "pd_regenerate_tangle" in order
      to reconstruct the remaining data. */
@@ -786,29 +788,37 @@ extern "C" {
 
   void pd_tangle_slide(pd_code_t *pd,pd_tangle_t *t,
 		       pd_idx_t n,
-		       pd_idx_t *overstrand_edges, 
+		       pd_idx_t *overstrand_edges,
 		       pd_idx_t *border_faces,
 		       pd_idx_t *npieces,
 		       pd_code_t ***pd_pieces);
+  void pd_tangle_slide_err(pd_code_t *pd,pd_tangle_t *t,
+                           pd_idx_t n,
+                           pd_idx_t *overstrand_edges,
+                           pd_idx_t *border_faces,
+                           pd_idx_t *npieces,
+                           pd_code_t ***pd_pieces,
+                           int *err);
+
 
  /* Given a list of edges overstrand_edges (e[0]...e[n-1], below) and
     corresponding faces bordering the tangle (f[0]...f[n-1], below),
     slide the strand over the tangle to cross the remaining edges
-    of the tangle, as below. The edges e[0]..e[n-1] are supposed to 
+    of the tangle, as below. The edges e[0]..e[n-1] are supposed to
     occur in orientation order along their component.
-    
+
 
 		  |  	   |
 		  |  	   |
-       	     +-------------------+		  
-	     |		    	 |		  
-             | 	    Tangle     	 |      	       	  
-    ---+     | 	       	       	 |    +---   	    
-       |     | 	    	    	 |    | 	     
-       |     +-------------------+    |	     
-       | f[n-1]  |   |  f[1] | 	 f[0] |	     
-       +--e[n-1]---<----e[1]-----e[0]-+	      
-       	       	 |   | 	     |		   
+       	     +-------------------+
+	     |		    	 |
+             | 	    Tangle     	 |
+    ---+     | 	       	       	 |    +---
+       |     | 	    	    	 |    |
+       |     +-------------------+    |
+       | f[n-1]  |   |  f[1] | 	 f[0] |
+       +--e[n-1]---<----e[1]-----e[0]-+
+       	       	 |   | 	     |
 
 
     becomes
@@ -816,16 +826,16 @@ extern "C" {
 		  |    	   |
        +------------------------------+
        |	  |  	   |	      |
-       |     +-------------------+    |		  
-       |     |		    	 |    |		  
-       |     | 	    Tangle     	 |    | 	       	  
-    ---+     | 	       	       	 |    +---   	    
-             | 	    	       	 |      	     
-             +-------------------+     	     
-                 |   |       | 	       	     
-                 |   |       |         	      
-       	       	 |   | 	     |		   
-    			     
+       |     +-------------------+    |
+       |     |		    	 |    |
+       |     | 	    Tangle     	 |    |
+    ---+     | 	       	       	 |    +---
+             | 	    	       	 |
+             +-------------------+
+                 |   |       |
+                 |   |       |
+       	       	 |   | 	     |
+
     We handle correctly the case where the initial and/or final
     edges of the strand are tangle edges themselves. We also note
     that while we call the strand the "overstrand", we also handle
@@ -835,9 +845,9 @@ extern "C" {
     pieces. We return the number of connected components of the
     diagram in "npieces" and the components themselves in
     "pd_pieces". The buffer of pd_code_t pointers pd_pieces is
-    allocated internally and is the caller's responsibility to 
+    allocated internally and is the caller's responsibility to
     dispose of.
-     	       	       	    
+
    */
 
 
