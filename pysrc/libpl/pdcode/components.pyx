@@ -510,7 +510,8 @@ cdef class Crossing(_Disownable):
             self.p.sign = PD_NEG_ORIENTATION
 
     property faces:
-        """A tuple of the indices of the faces around this vertex, in clockwise order.
+        """A tuple of the indices of the faces around this vertex,
+        in counterclockwise order.
         """
         def __get__(self):
             ret = [0]*4
@@ -518,9 +519,9 @@ cdef class Crossing(_Disownable):
                 (pos_face,_),(neg_face,_) = edge.face_index_pos()
                 if edge.tail == self.index and edge.tailpos == i:
                     # Edge departed from this crossing
-                    ret[i] = pos_face
-                else:
                     ret[i] = neg_face
+                else:
+                    ret[i] = pos_face
             return tuple(ret)
 
     def __cinit__(self):

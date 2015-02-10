@@ -22,8 +22,10 @@ extensions = [
 print "Using Cython version "+Cython.__version__
 setup(
     name = "libpl",
-    packages = ["libpl"],
-    package_dir={'libpl': os.path.join(ROOT_DIR, 'libpl')},
-    package_data={"libpl": ["*.pxd", "data/*.txt",]},
+    packages = ["libpl", "libpl.pdcode"],
+    package_dir={'libpl': os.path.join(ROOT_DIR, 'libpl'), 'libpl.pdcode': os.path.join(ROOT_DIR, 'libpl', 'pdcode')},
+    package_data={"libpl": ["*.pxd",
+                            os.path.join("data", "*.txt"),
+                            os.path.join("pdcode", "*.pxd")]},
     ext_modules = cythonize(extensions),
 )

@@ -513,11 +513,13 @@ cdef class PlanarDiagram:
         cdef pd_tangle_t *tangle = pd_tangle_new(4)
         cdef Crossing x = [x for x in f.get_vertices() if
                            x.index != e.head and x.index != e.tail][0]
+        print "Crossing..", x
+        print "Crossing faces..", x.faces
         for i, e_i in enumerate(x.edges):
             tangle.edge[i] = e_i
         print x.edges[0]
         # TODO: FIX HARD CODING OF THIS OMG
-        for i, k in enumerate([3,0,4,0]):
+        for i, k in enumerate(x.faces):
             tangle.face[i] = k
         pd_regenerate_tangle(self.p, tangle)
 
@@ -665,7 +667,7 @@ cdef class PlanarDiagram:
 
         Return the Euler characteristic of the diagram."""
         return self.nfaces + self.ncross - self.nedges
-    
+
     def homfly(self, as_string=False):
         """homfly([as_string=False]) -> HOMFLYPolynomial
 
@@ -891,9 +893,9 @@ cdef class PlanarDiagram:
         from Tkinter import mainloop as _tk_mainloop
         editor = self.as_spherogram().view()
         _tk_mainloop()
-        
+
         return self.from_plink(editor)
-    
+
     @classmethod
     def from_dt_code(cls, dt_code):
         """from_dt_code() -> new PlanarDiagram
@@ -915,12 +917,12 @@ cdef class PlanarDiagram:
         Creates a new PlanarDiagram using a new plink LinkEditor"""
         from plink import LinkEditor
         from Tkinter import mainloop as _tk_mainloop
-        
+
         editor = LinkEditor(**kwargs)
         _tk_mainloop()
-        
+
         return cls.from_plink(editor)
-    
+
     @classmethod
     def from_plink(cls, editor, thin=False):
         """from_plink(editor) -> new PlanarDiagram
@@ -979,7 +981,7 @@ cdef class PlanarDiagram:
                 if ec.goes_over():
                     if ec.crossing.sign() == "RH":
                         in_pos, out_pos = 3, 1
-                        pd.cross[x_i].sign = PD_POS_ORIENTATION 
+                        pd.cross[x_i].sign = PD_POS_ORIENTATION
                     else:
                         in_pos, out_pos = 1, 3
                         pd.cross[x_i].sign = PD_NEG_ORIENTATION
@@ -992,7 +994,7 @@ cdef class PlanarDiagram:
                 pd.cross[x_i].edge[in_pos] = prev_edge
                 pd.edge[prev_edge].head = x_i
                 pd.edge[prev_edge].headpos = in_pos
-                
+
                 pd.cross[x_i].edge[out_pos] = next_edge
                 pd.edge[next_edge].tail = x_i
                 pd.edge[next_edge].tailpos = out_pos

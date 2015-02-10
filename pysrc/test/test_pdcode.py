@@ -216,10 +216,10 @@ class TestSimplify(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.Test
 
     def test_A_trivial(self):
         self.checkSimplify("A")
-        
+
     def test_3_trivial(self):
         self.checkSimplify("3")
-        
+
     def test_4_trivial(self):
         self.checkSimplify("4")
 
@@ -233,8 +233,8 @@ class TestSimplify(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.Test
 
     @unittest.skip("Bad _after; Doesn't simplify, needs R3")
     def test_7_split_link(self):
-        self.checkSimplify("7")        
-        
+        self.checkSimplify("7")
+
 class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
     DATA_DIR = "data"
     DATA_BEFORE_TEMPLATE = "r2_test%s_before.pdstor"
@@ -342,7 +342,7 @@ class TestR3StrandSwap(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.
         before_pd_copy = before_pd.copy()
         result_pd = before_pd._R3_strand_swap(before_pd.faces[face_n],
                                               before_pd.edges[edge_n])
-        print result_pd[0].edit_copy()
+        print result_pd[0]
 
         # self.assertEqual(before_pd, before_pd_copy)
         # self.assertEqual(len(result_pds), len(after_pds))
@@ -359,7 +359,7 @@ class TestR3StrandSwap(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.
 
     def test_c_noloop_anchored(self):
         self.checkStrandSwap("C", 3, 11)
-        
-    
+
+
 if __name__=="__main__":
     unittest.main()
