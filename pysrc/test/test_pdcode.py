@@ -1,7 +1,8 @@
 import unittest
 from itertools import product, compress, izip
 from libpl.pdcode import PlanarDiagram, pd_debug_off
-import os, os.path
+import os, os.path 
+from libpl.pdcode import Crossing, Edge
 
 class TestPDCode(unittest.TestCase):
     def setUp(self):
@@ -123,6 +124,44 @@ class TestPDCode(unittest.TestCase):
     def test_unknotwye(self):
         for n in range(1, 7):
             self.check_unknot_wye_abcsum(n)
+
+    def test_getcrossing(self):
+        pd = PlanarDiagram.torus_knot(2,7)
+        self.assertEqual(len(pd.crossings), 7) 
+        self.assertIsInstance(pd.crossings[3],Crossing)
+        pd1 = PlanarDiagram.db_knot(8,3)
+        self.assertEqual(len(pd1.crossings), 8) 
+        self.assertIsInstance(pd1.crossings[3],Crossing)
+
+class TestCrossing(unittest.TestCase):
+    def test_length(self):
+        pd = PlanarDiagram.simple_chain(3)
+        x = pd.crossings[1]
+        self.assertEqual(len(x),4)
+    
+    def test_togglesign(self):
+        pd = PlanarDiagram.simple_chain(3)
+        x = pd.crossings[1]
+        self.assertEqual(x.sign,1)
+        x.toggle_sign()
+        self.assertEqual(x.sign,0)
+        self.assertEqual(x.sign,pd.crossings[1].sign)
+        simp_result = pd.simplify()
+        self.assertEqual(len(simp_result),2)
+        x.toggle_sign()
+        self.assertEqual(x.sign,1)
+        x.sign = 2
+        self.assertEqual(x.sign,2)
+        x.toggle_sign()
+        self.assertEqual(x.sign,2)
+
+    def test_iterate(self):
+        pd = PlanarDiagram.simple_chain(3)
+        n = 0
+        for e in pd.crossings[1]:
+            self.assertIsInstance(e,Edge)
+            n = n + 1
+        self.assertEqual(n,4)
 
 class PlanarDiagramAssertMixin(object):
     def __init__(self, *args, **kwargs):
