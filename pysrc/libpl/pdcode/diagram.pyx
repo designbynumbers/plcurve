@@ -31,10 +31,12 @@ DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
 
 def pd_debug_off():
+    """Disable debug output from libplCurve"""
     global PD_VERBOSE
     PD_VERBOSE = 9
 
 def pd_debug_on():
+    """Enable debug output from libplCurve"""
     global PD_VERBOSE
     PD_VERBOSE = 10
 
