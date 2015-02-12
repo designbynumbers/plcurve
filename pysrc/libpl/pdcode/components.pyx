@@ -384,6 +384,12 @@ cdef class Face(_Disownable):
         self.parent = None
 
     def get_vertices(self):
+        """get_vertices() -> (Crossing, [Crossing, ...])
+
+        A tuple of Crossings around this face in counterclockwise
+        order. The first crossing is the one immediately before the first edge
+        in this face.
+        """
         return tuple(self.parent.crossings[vert] for vert in self.vertices)
 
     def __str__(self):
@@ -501,6 +507,11 @@ cdef class Crossing(_Disownable):
             self.p.sign = sign
 
     def toggle_sign(self):
+        """toggle_sign(self)
+
+        Switches the sign of the crossing to be positive if
+        it was negative, or negative if it was positive. Has no
+        effect on a crossing which is unsigned."""
         if self.p.sign == PD_NEG_ORIENTATION:
             self.p.sign = PD_POS_ORIENTATION
         elif self.p.sign == PD_POS_ORIENTATION:
