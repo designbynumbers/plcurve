@@ -138,7 +138,7 @@ A \textbf{coloring on the edges} of a graph is a map, $C_E$, from $E$ to a set o
 	\begin{itemize}
 		\item The vertices of $\bar{G}$ are the vertices of $G$, in other words, $\bar{V} = V$.
 		\item The edges of $\bar{G}$ come from collapsing non-loop edges that have the same endpoints. We do this by defining the edges of $\bar{G}$ to be a set of preimages of $f$. In particular, set $$\bar{E} =  \{f^{-1}(f(v)) : \abs{f(v)} = 2\}.$$
-		\item $\bar{f}(\bar{e}) = f(e)$ where $e$ is any element of $\bar{e}$. Note that this is well-defined as all edges in the set $\bar{f}(\bar{e})$ have the same endpoints by construction.
+		\item $\bar{f}(\bar{e}) = f(e)$ where $e$ is any element of $\bar{e}$. Note that this is well-defined as all edges in the set $\bar{e}$ have the same endpoints by construction.
 		
 	\end{itemize}
 
@@ -159,7 +159,7 @@ A \textbf{coloring on the edges} of a graph is a map, $C_E$, from $E$ to a set o
 	An edge in $G$ is a loop precisely when $\abs{f(v)} = 1$ which is excluded in the definition of $\bar{G}$. Similarly, duplicate edges are not allowed in $\bar{E}$ because it is defined to be the \emph{set} of pre-images. Thus, $\bar{G}$ has no loops or multiedges and is therefore simple.
 \end{proof}
 
-Since $\bar{G} = (\bar{V}, \bar{E}, \bar{f})$ is always simple it can be described by only its set of vertices $\bar{V}$ and a collection of two element subsets of $\bar{V}$ giving the edges. In this case, a bijection $\bar{\phi}_V: \bar{V}_1 \rightarrow \bar{V}_2$ induces a map on the edge sets by $\bar{\phi}_E(\bar{e}) = \{\bar{\phi}_V(\bar{v}),\bar{\phi}_V(\bar{w})\}$. Thus, an isomorphism between simple graphs can be described by only a bijection on the vertex sets.
+Since $\bar{G} = (\bar{V}, \bar{E}, \bar{f})$ is always simple it can be described by only its set of vertices $\bar{V}$ and a collection of two element subsets of $\bar{V}$ giving the edges. In this case, a bijection $\bar{\phi}_V: \bar{V}_1 \rightarrow \bar{V}_2$ induces a map on the edge sets by $\bar{\phi}_E(\bar{e}) = \{\bar{\phi}_V(\bar{v}),\bar{\phi}_V(\bar{w})\}$ where $\bar{v}$ and $\bar{w}$ are the endpoints of $\bar{e}$. Thus, an isomorphism between simple graphs can be described by only a bijection on the vertex sets.
 
 %\begin{definition}
 %	Given a \emph{simple} graph $\bar{G}$ we define an \textbf{edge coloring} on $\bar{G}$ to be a map $C_{\bar{E}}$ from the edges of $\bar{G}$ to a set of colors $X$. Since $\bar{G}$ is simple we may regard $C_{\bar{E}}$ as a map from the two element subsets of $\bar{V}$ to the set of colors $X$. An isomorphism $\phi$ from an edge colored simple graph $G_1$ to an edge colored simple graph $G_2$ \textbf{respects the edge coloring} if $\phi^{-1} \circ C_{\bar{E}_1} = C_{\bar{E}_2} \circ \phi$. 
