@@ -137,7 +137,7 @@ A \textbf{coloring on the edges} of a graph is a map, $C_E$, from $E$ to a set o
 
 	\begin{itemize}
 		\item The vertices of $\bar{G}$ are the vertices of $G$, in other words, $\bar{V} = V$.
-		\item The edges of $\bar{G}$ come collapsing non-loop edges that have the same endpoints. We do this by defining the edges of $\bar{G}$ to be a set of preimages of $f$. In particular, set $$\bar{E} =  \{f^{-1}(f(v)) : \abs{f(v)} = 2\}.$$
+		\item The edges of $\bar{G}$ come from collapsing non-loop edges that have the same endpoints. We do this by defining the edges of $\bar{G}$ to be a set of preimages of $f$. In particular, set $$\bar{E} =  \{f^{-1}(f(v)) : \abs{f(v)} = 2\}.$$
 		\item $\bar{f}(\bar{e}) = f(e)$ where $e$ is any element of $\bar{e}$. Note that this is well-defined as all edges in the set $\bar{f}(\bar{e})$ have the same endpoints by construction.
 		
 	\end{itemize}
@@ -146,7 +146,7 @@ A \textbf{coloring on the edges} of a graph is a map, $C_E$, from $E$ to a set o
 	
 	\begin{itemize}
 		\item $C_{\bar{V}}(\bar{v}) = $ the number of edges $e \in E$ such that $f(e) = \{v\}$.
-		\item $C_{\bar{E}}(\bar{e}) = f(e)$ where $e$ is any element of $\bar{e}$.
+		\item $C_{\bar{E}}(\bar{e}) = \abs{\bar{e}}$.  %where $e$ is any element of $\bar{e}$.
 	\end{itemize}
 
 \end{definition}
