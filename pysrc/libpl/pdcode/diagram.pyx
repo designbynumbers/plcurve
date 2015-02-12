@@ -266,7 +266,7 @@ cdef class PlanarDiagram:
         if not ("w" in f.mode or "a" in f.mode or "+" in f.mode):
             raise IOError("File must be opened in a writable mode.")
         pd_write_KnotTheory(PyFile_AsFile(f), self.p)
-
+       
     @classmethod
     def read(cls, f, read_header=False, thin=False):
         """read(file f) -> PlanarDiagram
@@ -275,6 +275,14 @@ cdef class PlanarDiagram:
 
         :return: A new :py:class:`PlanarDiagram`, or ``None`` on failure.
         """
+        
+        if not isinstance(f, file):
+            if isinstance(f, basestring):
+                with open(f, "r") as real_file:
+                    return cls.read(real_file, read_header=read_header, thin=thin)
+            else:
+                raise TypeError("read() first argument requires a file object or a path to a valid file")
+        
         cdef int err = 0
         if read_header == True:
             # Actually parse header and check validity
@@ -304,6 +312,14 @@ cdef class PlanarDiagram:
         Returns a generator that iterates through the pdcodes stored
         in ``f``.
         """
+
+        if not isinstance(f, file):
+            if isinstance(f, basestring):
+                with open(f, "r") as real_file:
+                    return cls.read_all(real_file, read_header=read_header, thin=thin)
+            else:
+                raise TypeError("read_all() first argument requires a file object or a path to a valid file")
+
         num_pds = float('inf')
         if read_header == True:
             # Actually parse header and check validity
@@ -342,6 +358,14 @@ cdef class PlanarDiagram:
         This will only read one PD code from ``f``.
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+
+        if not isinstance(f, file):
+            if isinstance(f, basestring):
+                with open(f, "r") as real_file:
+                    return cls.read_knot_theory(real_file, thin=thin)
+            else:
+                raise TypeError("read_knot_theory() first argument requires a file object or a path to a valid file")
+
         newobj.thin = thin
         open_f = None
         to_close = False
