@@ -11,9 +11,6 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
-   api/plcurve
-   api/pd
-   api/tsmcmc
    libpl/pdcode
 
 Indices and tables

@@ -25,3 +25,12 @@ Building block classes
 
 .. autoclass:: Face
    :members:
+
+Utility classes
+'''''''''''''''
+
+.. autoclass:: HOMFLYPolynomial
+   :members:
+
+.. autoclass:: HOMFLYTerm
+   :members:
