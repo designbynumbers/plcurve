@@ -4,6 +4,7 @@
 
 \usepackage{geometry}
 \usepackage{amssymb}
+%\usepackage{mathabx}
 \usepackage{latexsym, amsmath, amscd,amsthm}
 \usepackage{graphicx}
 \usepackage{array}
@@ -179,13 +180,27 @@ Since $\bar{G} = (\bar{V}, \bar{E}, \bar{f})$ is always simple it can be describ
 The following theorem says that there is a map from the set of isomorphisms $\bar{G}_1 \rightarrow \bar{G}_2$ to the power set of the isomorphisms $G_1 \rightarrow G_2$ whose image is a partition.
 
 \begin{theorem}
-	Let $G_1$ and $G_2$ be multigraphs and $\bar{G}_1$ and $\bar{G}_2$ the associated colored graphs given in Definition \ref{gbar}. Then, given an isomorphism $\bar{\phi}$ from $\bar{G}_1$ to $\bar{G}_2$ that respects the vertex and edge coloring, we can construct a set of isomorphisms $\Phi(\bar{\phi}) = \{(\phi^1_V,\phi^1_E),\ldots,(\phi^k_V,\phi^k_E)\}$ from $G_1$ to $G_2$. In addition, $\Phi(\bar{\phi}_1)$ and $\Phi(\bar{\phi}_2) $ are disjoint if, and only if, $\bar{\phi}_1$ and $\bar{\phi}_2$ are distinct isomorphisms. Moreover, if $(\phi_V,\phi_E)$ is an isomorphism from $G_1$ to $G_2$, then there exists an isomorphism $\bar{\phi}$ from $\bar{G}_1$ to $\bar{G}_2$ such that $(\phi_V,\phi_E)$ will be produced by this construction. 
+	Let $G_1$ and $G_2$ be multigraphs and $\bar{G}_1$ and $\bar{G}_2$ the associated colored graphs given in Definition \ref{gbar}. Then, given an isomorphism $\bar{\phi}$ from $\bar{G}_1$ to $\bar{G}_2$ that respects the vertex and edge coloring, we can construct a set of isomorphisms  from $G_1$ to $G_2$, denoted $\Phi(\bar{\phi}) $. In addition, $\Phi(\bar{\phi}_1)$ and $\Phi(\bar{\phi}_2) $ are disjoint if, and only if, $\bar{\phi}_1$ and $\bar{\phi}_2$ are distinct isomorphisms. Moreover, if $(\phi_V,\phi_E)$ is an isomorphism from $G_1$ to $G_2$, then there exists an isomorphism $\bar{\phi}$ from $\bar{G}_1$ to $\bar{G}_2$ such that $(\phi_V,\phi_E) \in \Phi(\bar{\phi})$. 
 \end{theorem}
 
-\begin{proof}
-	We will first describe the construction and then prove that it satisfies the properties in the theorem.
+%= \{(\phi^1_V,\phi^1_E),\ldots,(\phi^k_V,\phi^k_E)\}
 
-	IDEA: $\phi^i_V = \bar{\phi}$ for all $i$ and the $\phi^i_E$ come from all choices of bijections between the \emph{sets} labeling the edges of $\bar{G}_1$ and $\bar{G}_2$.
+\begin{proof}
+	IDEA: $\phi^i_V = \bar{\phi}$ for all $i$ and the $\phi^i_E$ come from all choices of bijections between the \emph{sets} labeling the edges of $\bar{G}_1$ and $\bar{G}_2$ and the different bijections on the loops at each vertex.
+
+	We will first describe the construction and then prove that it satisfies the properties in the theorem. 
+
+	First note that $\bar{\phi}$ is a bijection from $\bar{V_1} \rightarrow \bar{V_2}$, but by definition $\bar{V}_1 = V_1$ and $\bar{V}_2 = V_2$. So,  $\bar{\phi}$ \emph{is} a bijection from $V_1 \rightarrow V_2$.
+
+	Since $\bar{\phi}$ respects the edge coloring on $\bar{G}$ we know that $\abs{\bar{e}}=\abs{\bar{\phi}_{\bar{E}}(\bar{e})}$. Let $\Phi_{\bar{e}}$ be the set of bijections from $\bar{e} \rightarrow \bar{\phi}_{\bar{E}}(\bar{e})$ and let $\Phi_{\bar{E}} := \times_{\bar{e} \in \bar{E}} \Phi_{\bar{e}} $. 
+
+	Let $\Phi_{v}$ be the set of bijections from the set of loops at $v$ to the set of loops at $\bar{\phi}(v)$ and let $\Phi_{L} := \times_{v \in V} \Phi_{v} $.
+
+	We can now define $\Phi(\bar{\phi})$ as follows. $$\Phi(\bar{\phi}) := \{\bar{\phi}\} \times (\Phi_{\bar{E}} \times \Phi_{L})$$
+
+	Consider an element $(\phi_{V},(\phi_{E},\phi_L))$ in $\Phi(\bar{\phi})$. We claim this gives an isomorphism from $G_1 \rightarrow G_2$. By construction $\phi_E$ is an (ordered) collection of maps from $E_1 \rightarrow E_2$ since $\abs{\bar{e}}$ and $\abs{\bar{\phi}_{\bar{E}}(\bar{e})}$ are subsets of edges in $E_1$ and $E_2$ respectively. Similarly, $\phi_L$ is an ordered collection of maps $E_1 \rightarrow E_2$. We must argue that together these maps give a bijection from $E_1 \rightarrow E_2$. The edge labels of $\bar{G}$ form a partition of the non-loop edges in $G$ and the collections of loops at each vertex of $G$ form a partition of the loops in $G$. Thus, $\phi_E$ gives a bijection from the non-loop edges in $E_1$ to the non-loop edges in $E_2$ and $\phi_L$ gives a bijection from the loops in $E_1$ to the loops in $E_2$. Thus $(\phi_E,\phi_L)$ gives a bijection from $E_1 \rightarrow E_2$. 
+
+	It remains to show that $(\phi_{V},(\phi_{E},\phi_L))$ is an isomorphism from $G_1 \rightarrow G_2$. Let $e \in E_1$. 
 
 	
 \end{proof}
