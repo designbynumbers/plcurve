@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 4
 
    libpl/pdcode
+   libpl/plcurve
 
 Indices and tables
 ==================

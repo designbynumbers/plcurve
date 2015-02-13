@@ -36,7 +36,7 @@ cdef class Component:
 
 cdef class PlCurve:
     """
-    It's just a PlCurve.
+    It's a PlCurve.
     """
 
     def __cinit__(self):
@@ -78,22 +78,29 @@ cdef class PlCurve:
 
     # Data Operations
     def add_component(self, component):
-        """Add a component to this PlCurve."""
+        """add_component(component)
+
+        Add a component to this PlCurve."""
         cdef plc_vector *verts = <plc_vector*>malloc(len(component) * sizeof(plc_vector))
         for i, vert in enumerate(component):
             verts[i].c[0], verts[i].c[1], verts[i].c[2] = vert[0], vert[1], vert[2]
         plc_add_component(<plCurve*>self.p, 0, len(component), 0, 0, verts, NULL)
 
     def fix_wrap(self):
+        """fix_wrap()
+
+        """
         plc_fix_wrap(self.p)
 
     # Spline package
 
     # Geometric information
     property num_edges:
+        """Number of edges in this PlCurve."""
         def __get__(self):
             return plc_num_edges(self.p)
     property num_vertices:
+        """Number of vertices in this PlCurve."""
         def __get__(self):
             return plc_num_verts(self.p)
 
@@ -120,63 +127,77 @@ cdef class PlCurve:
             return plc_totaltorsion(self.p, NULL)
 
     property pointset_diameter:
+        """Diameter of the points"""
         def __get__(self):
             return plc_pointset_diameter(self.p)
     property center_of_mass:
+        """Center of mass."""
         def __get__(self):
             cdef plc_vector v = plc_center_of_mass(self.p)
             return plc_vector_as_pyo_copy(&v)
     property gyradius:
+        """Gyradius of this PlCurve."""
         def __get__(self):
             return plc_gyradius(self.p)
 
     # Geometric operations
     def perturb(self, floating radius):
+        """perturb(radius)
+
+        Randomly perturb this PlCurve"""
         plc_perturb(self.p, radius)
 
     # Random polygon library
     @classmethod
-    def random_closed_polygon(cls, RandomGenerator r, N):
+    def random_closed_polygon(cls, n_edges, RandomGenerator rng):
         """
+        random_closed_polygon(int n_edges, RandomGenerator rng) -> PlCurve
+
         Create a random closed polygon.
         """
         cdef PlCurve plc = PlCurve.__new__(cls)
         plc.own = True
-        plc.p = plc_random_closed_polygon(r.p, N)
+        plc.p = plc_random_closed_polygon(rng.p, n_edges)
         return plc
     @classmethod
-    def random_open_polygon(cls, RandomGenerator r, N):
+    def random_open_polygon(cls, n_edges, RandomGenerator rng):
         """
+        random_open_polygon(int n_edges, RandomGenerator rng) -> PlCurve
+
         Create a random open polygon.
         """
         cdef PlCurve plc = PlCurve.__new__(cls)
         plc.own = True
-        plc.p = plc_random_open_polygon(r.p, N)
+        plc.p = plc_random_open_polygon(rng.p, n_edges)
         return plc
 
     @classmethod
-    def random_closed_plane_polygon(cls, RandomGenerator r, N):
+    def random_closed_plane_polygon(cls, n_edges, RandomGenerator rng):
         """
-        Create a random closed polygon.
+        random_closed_plane_polygon(int n_edges, RandomGenerator rng) -> PlCurve
+
+        Create a random closed plane polygon.
         """
         cdef PlCurve plc = PlCurve.__new__(cls)
         plc.own = True
-        plc.p = plc_random_closed_plane_polygon(r.p, N)
+        plc.p = plc_random_closed_plane_polygon(rng.p, n_edges)
         return plc
     @classmethod
-    def random_open_plane_polygon(cls, RandomGenerator r, N):
+    def random_open_plane_polygon(cls, n_edges, RandomGenerator rng):
         """
-        Create a random open polygon.
+        random_open_plane_polygon(int n_edges, RandomGenerator rng) -> PlCurve
+
+        Create a random open plane polygon.
         """
         cdef PlCurve plc = PlCurve.__new__(cls)
         plc.own = True
-        plc.p = plc_random_open_plane_polygon(r.p, N)
+        plc.p = plc_random_open_plane_polygon(rng.p, n_edges)
         return plc
 
     @classmethod
-    def random_equilateral_closed_polygon(cls, RandomGenerator rng, int n_edges):
+    def random_equilateral_closed_polygon(cls, n_edges, RandomGenerator rng):
         """
-        random_CSU_closed_equilateral_polygon(RandomGenerator rng, int n_edges) -> new PlCurve
+        random_equilateral_closed_polygon(int n_edges, RandomGenerator rng) -> PlCurve
 
         Generate a random equilateral polygon using the CSU algorithm.
         """
@@ -186,24 +207,25 @@ cdef class PlCurve:
         return plc
 
     @classmethod
-    def random_equilateral_open_polygon(cls, RandomGenerator r, N):
-        """
-        Create a random open polygon.
+    def random_equilateral_open_polygon(cls, n_edges, RandomGenerator rng):
+        """random_equilateral_open_polygon(int n_edges, RandomGenerator rng) -> PlCurve
+
+        Create a random equilateral open polygon.
         """
         cdef PlCurve plc = PlCurve.__new__(cls)
         plc.own = True
-        plc.p = plc_random_equilateral_open_polygon(r.p, N)
+        plc.p = plc_random_equilateral_open_polygon(rng.p, n_edges)
         return plc
 
     # Symmetry Functions
 
     # Topology Functions
-    def random_PlanarDiagram(self, RandomGenerator rng):
+    def projection_to_PlanarDiagram(self, RandomGenerator rng=None):
         """
-        random_PlanarDiagram(RandomGenerator rng) -> new PlanarDiagram
+        projection_to_PlanarDiagram(RandomGenerator rng) -> new PlanarDiagram
 
-        Creates a new PlanarDiagram from a projection of this PlCurve
-        onto a random plane.
-
+        Creates a new PlanarDiagram from a projection of this PlCurve.
         """
+        if rng is None:
+            rng = RandomGenerator()
         return PlanarDiagram_wrap(pd_code_from_plCurve(rng.p, self.p))

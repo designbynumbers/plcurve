@@ -262,3 +262,4 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 autodoc_member_order = "groupwise"
+autodoc_docstring_signature = True

@@ -63,6 +63,11 @@
 <li class="toctree-l2"><a class="reference internal" href="libpl/pdcode.html#utility-classes">Utility classes</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="libpl/plcurve.html">plcurve: Piecewise-Linear Curves (a.k.a. Polygons)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="libpl/plcurve.html#the-plcurve-class">The PlCurve class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libpl/plcurve.html#utility-classes">Utility classes</a></li>
+</ul>
+</li>
 </ul>
 
         
@@ -122,6 +127,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.add_component">add_component() (libpl.plcurve.PlCurve method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.as_spherogram">as_spherogram() (libpl.pdcode.PlanarDiagram method)</a>
   </dt>
 
@@ -131,6 +142,10 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.center_of_mass">center_of_mass (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.Component">Component (class in libpl.pdcode)</a>
   </dt>
@@ -147,12 +162,12 @@
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.components">components (libpl.pdcode.PlanarDiagram attribute)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.components_ok">components_ok() (libpl.pdcode.PlanarDiagram method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.copy">copy() (libpl.pdcode.PlanarDiagram method)</a>
   </dt>
@@ -255,10 +270,14 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.faces_ok">faces_ok() (libpl.pdcode.PlanarDiagram method)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.faces_ok">faces_ok() (libpl.pdcode.PlanarDiagram method)</a>
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.fix_wrap">fix_wrap() (libpl.plcurve.PlCurve method)</a>
   </dt>
 
       
@@ -287,14 +306,18 @@
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.get_R1_loops">get_R1_loops() (libpl.pdcode.PlanarDiagram method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.get_R2_bigons">get_R2_bigons() (libpl.pdcode.PlanarDiagram method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.get_R3_triangles">get_R3_triangles() (libpl.pdcode.PlanarDiagram method)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.gyradius">gyradius (libpl.plcurve.PlCurve attribute)</a>
   </dt>
 
   </dl></td>
@@ -399,18 +422,26 @@
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.neighbors">neighbors() (libpl.pdcode.PlanarDiagram method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.Edge.next_crossing">next_crossing() (libpl.pdcode.Edge method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.Edge.next_edge">next_edge() (libpl.pdcode.Edge method)</a>
   </dt>
 
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.nfaces">nfaces (libpl.pdcode.PlanarDiagram attribute)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.num_edges">num_edges (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.num_vertices">num_vertices (libpl.plcurve.PlCurve attribute)</a>
   </dt>
 
   </dl></td>
@@ -462,17 +493,33 @@
 
       </dl></dd>
       
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.perturb">perturb (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
+      
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram">PlanarDiagram (class in libpl.pdcode)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve">PlCurve (class in libpl.plcurve)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.pointset_diameter">pointset_diameter (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.Edge.prev_crossing">prev_crossing() (libpl.pdcode.Edge method)</a>
   </dt>
 
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.Edge.prev_edge">prev_edge() (libpl.pdcode.Edge method)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.projection_to_PlanarDiagram">projection_to_PlanarDiagram() (libpl.plcurve.PlCurve method)</a>
   </dt>
 
   </dl></td>
@@ -490,9 +537,39 @@
   </dt>
 
       
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.random_closed_plane_polygon">random_closed_plane_polygon (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.random_closed_polygon">random_closed_polygon (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.random_equilateral_closed_polygon">random_equilateral_closed_polygon (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.random_equilateral_open_polygon">random_equilateral_open_polygon (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.random_open_plane_polygon">random_open_plane_polygon (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.PlCurve.random_open_polygon">random_open_polygon (libpl.plcurve.PlCurve attribute)</a>
+  </dt>
+
+      
+  <dt><a href="libpl/plcurve.html#libpl.plcurve.RandomGenerator">RandomGenerator (class in libpl.plcurve)</a>
+  </dt>
+
+      
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.read">read() (libpl.pdcode.PlanarDiagram static method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.read_all">read_all() (libpl.pdcode.PlanarDiagram static method)</a>
   </dt>
@@ -505,8 +582,6 @@
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.regenerate">regenerate() (libpl.pdcode.PlanarDiagram method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="libpl/pdcode.html#libpl.pdcode.PlanarDiagram.regenerate_components">regenerate_components() (libpl.pdcode.PlanarDiagram method)</a>
   </dt>
