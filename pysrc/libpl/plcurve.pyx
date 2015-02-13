@@ -5,6 +5,7 @@ import numpy as np
 cimport numpy as np
 np.import_array()
 
+from cython cimport numeric, floating, integral
 from plcurve cimport *
 from .pdcode.diagram cimport PlanarDiagram, PlanarDiagram_wrap
 # if you MUST use Cython < 0.21, comment the above line and uncomment this.
@@ -130,6 +131,8 @@ cdef class PlCurve:
             return plc_gyradius(self.p)
 
     # Geometric operations
+    def perturb(self, floating radius):
+        plc_perturb(self.p, radius)
 
     # Random polygon library
     @classmethod
