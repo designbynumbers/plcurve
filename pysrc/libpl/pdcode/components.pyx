@@ -299,6 +299,13 @@ cdef class Edge(_Disownable):
         return self.parent.edges[
             self.parent.p.cross[self.p.head].edge[(self.p.headpos+2)%4]]
 
+cdef Edge Edge_FromParent(PlanarDiagram parent, pd_idx_t index):
+    cdef Edge new_edge = Edge.__new__(Edge)
+    new_edge.parent = parent
+    new_edge.p = &parent.p.edge[index]
+    new_edge.index = index
+    return new_edge
+
 cdef class Component(_Disownable):
     property nedges:
         """The number of edges in this component. Equivalent to ``len(cmp)``."""
@@ -341,6 +348,12 @@ cdef class Component(_Disownable):
             if i >= len(self):
                 raise IndexError("Out of bounds error on component access")
             return self.parent.edges[self.p.edge[i]]
+cdef Component Component_FromParent(PlanarDiagram parent, pd_idx_t index):
+    cdef Component new_component = Component.__new__(Component)
+    new_component.parent = parent
+    new_component.p = &parent.p.comp[index]
+    new_component.index = index
+    return new_component
 
 cdef class Face(_Disownable):
     property nedges:
@@ -442,6 +455,13 @@ cdef class Face(_Disownable):
         else:
             raise NotImplementedError(
                 "PlanarDiagram Faces do not support relative comparisons.")
+
+cdef Face Face_FromParent(PlanarDiagram parent, pd_idx_t index):
+    cdef Face new_face = Face.__new__(Face)
+    new_face.parent = parent
+    new_face.p = &parent.p.face[index]
+    new_face.index = index
+    return new_face
 
 
 cdef class Crossing(_Disownable):
@@ -663,3 +683,10 @@ cdef class Crossing(_Disownable):
         return "Crossing(%d.%d.%d.%d %s)"%(
             tuple(self.p.edge[i] for i in range(4)) +
             (ori_char(self.p.sign),))
+
+cdef Crossing Crossing_FromParent(PlanarDiagram parent, pd_idx_t index):
+    cdef Crossing new_crossing = Crossing.__new__(Crossing)
+    new_crossing.parent = parent
+    new_crossing.p = &parent.p.cross[index]
+    new_crossing.index = index
+    return new_crossing

@@ -30,6 +30,7 @@ cdef class Edge(_Disownable):
     cpdef plug_tail(self, Crossing x, pd_idx_t pos)
     cpdef swap_head(self, Edge other, pd_or_t head_or_tail)
     cpdef swap_tail(self, Edge other, pd_or_t head_or_tail)
+cdef Edge Edge_FromParent(PlanarDiagram parent, pd_idx_t index)
 
 cdef class Component(_Disownable):
     cdef pd_component_t* p
@@ -37,6 +38,7 @@ cdef class Component(_Disownable):
     """The :py:class:`PlanarDiagram` to which this component belongs."""
     cdef readonly int index
     """The index by which this component is known in the parent."""
+cdef Component Component_FromParent(PlanarDiagram parent, pd_idx_t index)
 
 cdef class Face(_Disownable):
     cdef pd_face_t* p
@@ -44,8 +46,8 @@ cdef class Face(_Disownable):
     """The :py:class:`PlanarDiagram` to which this face belongs."""
     cdef readonly int index
     """The index by which this face is known in the parent."""
+cdef Face Face_FromParent(PlanarDiagram parent, pd_idx_t index)
 
-    
 cdef class Crossing(_Disownable):
     """A crossing, which holds four edges in positions and an orientation.
 
@@ -72,3 +74,4 @@ cdef class Crossing(_Disownable):
     cpdef overstrand_pos(self)
     cpdef understrand_indices(self)
     cpdef understrand_pos(self)
+cdef Crossing Crossing_FromParent(PlanarDiagram parent, pd_idx_t index)

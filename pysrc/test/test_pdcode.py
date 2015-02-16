@@ -1,7 +1,7 @@
 import unittest
 from itertools import product, compress, izip
 from libpl.pdcode import PlanarDiagram, pd_debug_off
-import os, os.path 
+import os, os.path
 from libpl.pdcode import Crossing, Edge
 
 class TestPDCode(unittest.TestCase):
@@ -127,10 +127,10 @@ class TestPDCode(unittest.TestCase):
 
     def test_getcrossing(self):
         pd = PlanarDiagram.torus_knot(2,7)
-        self.assertEqual(len(pd.crossings), 7) 
+        self.assertEqual(len(pd.crossings), 7)
         self.assertIsInstance(pd.crossings[3],Crossing)
         pd1 = PlanarDiagram.db_knot(8,3)
-        self.assertEqual(len(pd1.crossings), 8) 
+        self.assertEqual(len(pd1.crossings), 8)
         self.assertIsInstance(pd1.crossings[3],Crossing)
 
 class TestCrossing(unittest.TestCase):
@@ -138,7 +138,7 @@ class TestCrossing(unittest.TestCase):
         pd = PlanarDiagram.simple_chain(3)
         x = pd.crossings[1]
         self.assertEqual(len(x),4)
-    
+
     def test_togglesign(self):
         pd = PlanarDiagram.simple_chain(3)
         x = pd.crossings[1]
@@ -368,7 +368,7 @@ class TestR3StrandSwap(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.
     DATA_AFTER_TEMPLATE = "%s_after.pdstor"
 
     def setUp(self):
-        pd_debug_off()
+        pass#pd_debug_on()
 
     def checkStrandSwap(self, tag, face_n, edge_n):
         with open(self._get_before_fname(tag)) as before_f:

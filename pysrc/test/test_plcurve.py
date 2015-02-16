@@ -91,7 +91,7 @@ class TestPlCurve(unittest.TestCase):
     def _rcp(self, seed, N):
         r = RandomGenerator()
         r.set(seed)
-        return PlCurve.random_closed_polygon(r, N)
+        return PlCurve.random_closed_polygon(N, r)
 
     def test_center_of_mass(self):
         # Here's a dumb test for center of mass
@@ -119,7 +119,7 @@ class TestPlCurve(unittest.TestCase):
             PlCurve.random_equilateral_open_polygon
         )
         for pl_gen in gens:
-            self.assertEqual(len(pl_gen(r, 50)),
+            self.assertEqual(len(pl_gen(50, r)),
                              1)
 
     def test_index_lengths(self):

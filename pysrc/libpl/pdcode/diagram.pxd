@@ -1,8 +1,11 @@
 from .plctopology cimport pd_code_t, bool
 
-cdef class _OwnedObjectList(list):
-    cdef delitem(self, i)
-    cdef clearout(self)
+cdef class PlanarDiagram
+
+cdef class _OwnedObjectList:
+    cdef PlanarDiagram parent
+    cdef object objs
+    cdef object _new_child_object(self, long i)
 
 cdef class _EdgeList(_OwnedObjectList):
     pass

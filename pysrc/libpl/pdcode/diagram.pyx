@@ -12,6 +12,7 @@ import libpl.data
 from ..graphs import PlanarSignedFaceDigraph
 from libc.stdlib cimport free
 from collections import defaultdict
+import weakref
 
 from .pdisomorphism cimport pd_iso_t, pd_build_diagram_isotopies
 from .pdisomorphism cimport PlanarIsomorphism
@@ -73,43 +74,69 @@ class NoParentException(Exception):
     pass
 
 # List subclasses which know how to properly delete/set elements within
-cdef class _OwnedObjectList(list):
-    def __delitem__(self, i):
-        if len(self) == 0:
-            return
+cdef class _OwnedObjectList:
+    def __cinit__(self, PlanarDiagram parent):
+        self.parent = parent
+        self.objs = dict()
 
-        if isinstance(i, slice):
-            for j in range(*i.indices(len(self))):
-                (<_Disownable>self[j]).disown()
-            super(_OwnedObjectList, self).__delitem__(i)
-        else:
-            (<_Disownable>self[i]).disown()
-            super(_OwnedObjectList, self).__delitem__(i)
-    def __delslice__(self, i,j):
-        del self[max(0,i):max(0,j):]
+    def __len__(self):
+        return 0
 
-    cdef delitem(self, i):
-        _OwnedObjectList.__delitem__(self, i)
-    cdef clearout(self):
-        _OwnedObjectList.__delitem__(self, slice(None))
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
 
-cdef class _EdgeList(_OwnedObjectList):
-    def __delitem__(self, i):
-        raise NotImplementedError("Can't delete edges yet.")
+    def __repr__(self):
+        return ("[" +
+                ", ".join(repr(o) for o in self) +
+                "]")
+
+    def __getitem__(self, i):
+        if not (isinstance(i, int) or isinstance(i, long)):
+            raise TypeError("Index must be an integer.")
+
+        if i < 0 or i > len(self):
+            raise IndexError("Index %s is out of range"%i)
+
+        if i not in self.objs:
+            self.objs[i] = self._new_child_object(i)
+        return self.objs[i]
+
+    cdef object _new_child_object(self, long i):
+        return None
+
+    def _disown(self):
+        for o in self.objs.itervalues():
+            o.disown()
+        self.parent = None
+
+cdef class _EdgeList:
+    def __len__(self):
+        return self.parent.nedges
+
+    cdef object _new_child_object(self, long i):
+        return Edge_FromParent(self.parent, i)
+
 cdef class _CrossingList(_OwnedObjectList):
-    def __delitem__(self, i):
-        raise NotImplementedError("Can't delete crossings yet.")
+    def __len__(self):
+        return self.parent.ncross
+
+    cdef object _new_child_object(self, long i):
+        return Crossing_FromParent(self.parent, i)
+
 cdef class _ComponentList(_OwnedObjectList):
-    def __delitem__(self, i):
-        raise NotImplementedError("Can't delete components yet.")
+    def __len__(self):
+        return self.parent.ncomps
+
+    cdef object _new_child_object(self, long i):
+        return Component_FromParent(self.parent, i)
+
 cdef class _FaceList(_OwnedObjectList):
-    def __delitem__(self, i):
-        raise NotImplementedError("Can't delete faces.")
+    def __len__(self):
+        return self.parent.nfaces
 
-cdef class _VirtualEdgeArray:
-    """Discreetly wraps an edge array so that Python code can mutate C data."""
-    pass
-
+    cdef object _new_child_object(self, long i):
+        return Face_FromParent(self.parent, i)
 
 cdef PlanarDiagram PlanarDiagram_wrap(pd_code_t *pd, bool thin=False):
     """Wraps a pd_code_t* in a PlanarDiagram"""
@@ -168,10 +195,10 @@ cdef class PlanarDiagram:
         self.thin = False
         self.hashed = False
         self._homfly = NULL
-        self.edges = _EdgeList()
-        self.crossings = _CrossingList()
-        self.components = _ComponentList()
-        self.faces = _FaceList()
+        self.edges = _EdgeList(self)
+        self.crossings = _CrossingList(self)
+        self.components = _ComponentList(self)
+        self.faces = _FaceList(self)
 
     def __init__(self, max_verts=15):
         """__init__([max_verts=15])
@@ -266,7 +293,7 @@ cdef class PlanarDiagram:
         if not ("w" in f.mode or "a" in f.mode or "+" in f.mode):
             raise IOError("File must be opened in a writable mode.")
         pd_write_KnotTheory(PyFile_AsFile(f), self.p)
-       
+
     @classmethod
     def read(cls, f, read_header=False, thin=False):
         """read(file f) -> PlanarDiagram
@@ -275,14 +302,14 @@ cdef class PlanarDiagram:
 
         :return: A new :py:class:`PlanarDiagram`, or ``None`` on failure.
         """
-        
+
         if not isinstance(f, file):
             if isinstance(f, basestring):
                 with open(f, "r") as real_file:
                     return cls.read(real_file, read_header=read_header, thin=thin)
             else:
                 raise TypeError("read() first argument requires a file object or a path to a valid file")
-        
+
         cdef int err = 0
         if read_header == True:
             # Actually parse header and check validity
@@ -548,12 +575,10 @@ cdef class PlanarDiagram:
         cdef Crossing x = [x for x in f.get_vertices() if
                            x.index != e.head and x.index != e.tail][0]
         cdef int err = 0
-        #print "Crossing..", x
-        #print "Crossing faces..", x.faces
+
         for i, e_i in enumerate(x.edges):
             tangle.edge[i] = e_i
-        #print x.edges[0]
-        # TODO: FIX HARD CODING OF THIS OMG
+
         for i, k in enumerate(x.faces):
             tangle.face[i] = k
         pd_regenerate_tangle_err(self.p, tangle, &err)
@@ -563,9 +588,6 @@ cdef class PlanarDiagram:
         strand_edges[0] = e.prev_edge().index
         strand_edges[1] = e.index
         strand_edges[2] = e.next_edge().index
-
-        #print "Strand.. ",
-        #print strand_edges[0], strand_edges[1], strand_edges[2]
 
         if e.face_index_pos()[0][0] == f.index:
             posneg = 0
@@ -1127,40 +1149,14 @@ cdef class PlanarDiagram:
         return newobj
 
     cdef regenerate_py_os(self):
-        if self.thin:
-            return
-        cdef int i
-        cdef Edge e
-        cdef Crossing c
-        cdef Face f
-        cdef Component m
-        self.edges.clearout()
-        self.components.clearout()
-        self.crossings.clearout()
-        self.faces.clearout()
-        if self.p is not NULL:
-            for i in range(self.p.nedges):
-                e = Edge(self)
-                e.p = &(self.p.edge[i])
-                e.index = i
-                self.edges.append(e)
-            for i in range(self.p.ncross):
-                c = Crossing(self)
-                c.p = &(self.p.cross[i])
-                c.index = i
-                self.crossings.append(c)
-            for i in range(self.p.ncomps):
-                m = Component(self)
-                m.p = &(self.p.comp[i])
-                m.index = i
-                self.components.append(m)
-            for i in range(self.p.nfaces):
-                f = Face(self)
-                f.p = &(self.p.face[i])
-                f.index = i
-                self.faces.append(f)
-        else:
-            raise Exception("Pointer for this PD code was not set")
+        self.edges._disown()
+        self.edges = _EdgeList(self)
+        self.components._disown()
+        self.components = _ComponentList(self)
+        self.crossings._disown()
+        self.crossings = _CrossingList(self)
+        self.faces._disown()
+        self.faces = _FaceList(self)
 
     def __len__(self):
         return self.p.ncomps
