@@ -932,8 +932,29 @@ cdef class PlanarDiagram:
                 gluings[e_i].append((sg_xing, pos))
         for (x, xpos), (y, ypos) in gluings.itervalues():
             x[xpos] = y[ypos]
+            
+        link = links.Link(sg_xings)
+        component_starts = []
+        for comp in self.components:
+        
+            # We need to find which CEP our first edge is; so let's take the crossing
+            # at the head of the edge and then look at which entry point our first
+            # edge is in our crossing's list of CEP's
+            head_index = comp[0].head
+            head = self.crossings[head_index]
+            if comp[0].index == head.understrand_indices()[0]:
+                component_starts.append( link.crossings[head_index].entry_points()[0] )
+    
+            elif comp[0].index == head.overstrand_indices()[0]:
+                component_starts.append( link.crossings[head_index].entry_points()[1] )
+              
+            else:
+                raise ValueError("Error in finding first edge in component {}".format( self.components.index(comp) ) )
+              
+        # Now build components starting at the corresponding edges
+        link._build_components(component_starts)
 
-        return links.Link(sg_xings)
+        return link
 
     def snappy_manifold(self):
         """snappy_manifold() -> snappy.Manifold
