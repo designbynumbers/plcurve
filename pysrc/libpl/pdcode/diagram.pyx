@@ -920,6 +920,7 @@ cdef class PlanarDiagram:
         sg_xings = [links.Crossing(x.index) for x in self.crossings]
 
         gluings = defaultdict(list)
+        cross_oriented = True
         for x_i, (xing, pd_xing, sg_xing) in enumerate(
                 zip(self.crossings, pdcode, sg_xings)):
             if xing.sign == PD_NEG_ORIENTATION:
@@ -928,12 +929,19 @@ cdef class PlanarDiagram:
                 sg_xing.sign = 1
             else:
                 sg_xing.sign = 0
+                cross_oriented = False
             for pos, e_i in enumerate(pd_xing):
                 gluings[e_i].append((sg_xing, pos))
         for (x, xpos), (y, ypos) in gluings.itervalues():
             x[xpos] = y[ypos]
             
-        link = links.Link(sg_xings)
+        link = links.Link(sg_xings, build=False)
+
+        # This was in Eric's original email and so I do not know if it needs
+        # to be implemented here since I have passed build=False above
+        if not cross_oriented:
+            link._orient_crossings()
+            
         component_starts = []
         for comp in self.components:
         
