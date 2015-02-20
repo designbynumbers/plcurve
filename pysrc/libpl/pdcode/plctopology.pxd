@@ -5,7 +5,7 @@ cdef extern from "stdio.h":
 cdef extern from "plcTopology.h":
     cdef enum:
         PD_HASHSIZE = 32
-    cdef enum:
+    cpdef enum:
         PD_POS_ORIENTATION = 1
         PD_NEG_ORIENTATION = 0
         PD_UNSET_ORIENTATION = 2

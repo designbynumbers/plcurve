@@ -31,6 +31,10 @@ PD_VERBOSE = 10
 DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
 
+POS_ORIENTATION = PD_POS_ORIENTATION
+NEG_ORIENTATION = PD_NEG_ORIENTATION
+UNSET_ORIENTATION = PD_UNSET_ORIENTATION
+
 def pd_debug_off():
     """Disable debug output from libplCurve"""
     global PD_VERBOSE

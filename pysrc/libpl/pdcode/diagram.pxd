@@ -38,7 +38,7 @@ cdef class PlanarDiagram:
     """A sequence of :py:class:`Component` which belong to this diagram"""
     cdef readonly _FaceList faces
     """A sequence of :py:class:`Face` which belong to this diagram"""
-
+    
     cdef readonly bool thin
     cdef bool hashed
     cdef char* _homfly
