@@ -509,10 +509,10 @@ class PDStoreExpander(object):
     @classmethod
     def pd_by_id(cls, uid, dirloc=DEFAULT_PATH):
         cnum, pos, cross_sgn, comp_sgn = uid
-        return (cls.component_sign_mask(
-            cls.crossing_sign_mask(
+        return (cls.crossing_sign_mask(
+            cls.component_sign_mask(
                 cls.pd_by_filepos(cnum, pos, dirloc),
-                cross_sgn), comp_sgn))
+                comp_sgn), cross_sgn))
 
     @classmethod
     def parse_header(cls, f, debug=False):
