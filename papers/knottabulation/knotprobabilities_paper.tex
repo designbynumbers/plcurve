@@ -158,11 +158,12 @@ In the spirit of Brinkmann and McKay, we now define four expansion moves of embe
 \begin{definition}
 The four expansion operations that we will use are the following:
 \begin{itemize}
-\item $\loopinsert$ Loop insertion adds a loop edge to a vertex of degree 1 or 2, as below.\\
+\item $\loopinsert$ Loop insertion adds a loop edge to a vertex of degree 1 or 2, as below. (Note: Loop insertion can be performed on each side of a vertex of degree 2).\\
 \includegraphics[width=4in]{loop-addition.png}
-\item $\edgedouble$ bigon-creation edge doubling duplicates an existing edge joining vertices of degree $< 4$ so as to create a new bigon face, as below.\\
+\item $\edgedouble$ reversing edge doubling duplicates an existing edge joining vertices of degree $< 4$ so as to create a new bigon face. Note that the (counterclockwise) order of the two vertices is reversed on the two vertices.\\
 \includegraphics[width=4in]{edge-duplication-non-cut.png}
-\item $\cutedgedouble$ cut-edge doubling also duplicates an existing edge joining vertices of degree $<4$, but requires that this edge separate the graph into two connected components. In this case, there is a different way to insert the edge which does not create a bigon with the existing edge. The operation is shown below.\\
+\item $\cutedgedouble$ preserving doubling also duplicates an existing edge joining vertices of degree $<4$, but 
+keeps the counterclockwise order of the edges the same on each at each of the two vertices. This sort of doubling is only available if the original edge is a cut edge of the graph.\\
 \includegraphics[width=4in]{edge-duplication-cut}
 \item $\pairinsert$ pair insertion adds a pair of edges simultaneously, joining two vertices of degree 2 which are both on two faces of the embedding, as below.\\
 \includegraphics[width=4in]{pair-insertion}
@@ -186,19 +187,22 @@ An illustration of the process we describe is
 \begin{proof} 
 We will prove the second statement, reducing in stages from some $G_n = G$ to $G_0$ by performing one reduction at each step. The number of steps we can perform is clearly finite, since each reduces the number of edges by at least one. So suppose we are at stage $G_i$. If there are no loop or multiple edges, we're done, and this is the simple graph $G_0$. 
 
-If there is a loop edge, we can remove it with a $\loopinsert$ move. If there is a multiple edge, we must consider several cases. We can think of each vertex of $G_i$ as retaining a list of 4 connection points, ordered counterclockwise, from the initial embedding of $G$. Since we have performed some reductions already, some of these may be empty, but at least two are filled at each end of the multiple edge. Pick one vertex of the multiple edge and call it $v$ and the other vertex $w$.
+If there is a loop edge, we can remove it with a $\loopinsert$ move. 
 
-If the edge multiplicity is four, $G$ is \hopfgraph. This is obtained from the graph with one edge and two vertices by two $\edgedouble$ moves. If the edge multiplicity is three or two, there is more work to do.
+If there is a multiple edge, we must consider several cases. We can think of each vertex of $G_i$ as retaining a list of 4 connection points, ordered counterclockwise, from the initial embedding of $G$. Since we have performed some reductions already, some of these may be empty, but at least two are filled at each end of the multiple edge. Pick one vertex of the multiple edge and call it $v$ and the other vertex $w$.
 
-So there is at least one connection point on $v$ which is not occupied by a copy of the multiple edge followed immediately by a connection point which is occupied by a copy $e$ of the multiple edge. Without loss of generality, we'll call $e$ the \emph{base copy} of the multiple edge, and its connection point to at $v$ position $0$ around $v$. The remaining connection points will be numbered $1$, $2$, and $3$. By construction, the edge joined to $v$ at position $3$ (if any) is not connected to $w$. 
+If the edge multiplicity is four, $G$ is \hopfgraph. This is obtained from the graph with one edge and two vertices by two $\edgedouble$ moves. 
 
-We can label the other end of the base copy $e$ position $a$ on the second vertex $w$, and label the other positions $b$, $c$, and $d$, again counterclockwise. If the edge multiplicity is three, only one of these positions is unoccupied by a copy of the multiple edge. Looking at the three cases (below), we can see that by parity, it must be position $b$, and the pair of copies $0a$ and $2c$ of the multiple edge can be removed by a $\pairinsert$ operation.
+If the edge multiplicity is three or two, there is at least one connection point on $v$ which is not occupied by a copy of the multiple edge followed immediately by a connection point which is occupied by a copy $e$ of the multiple edge. Without loss of generality, we'll call $e$ the \emph{base copy} of the multiple edge, and its connection point to at $v$ position $0$ around $v$. The remaining connection points will be numbered $1$, $2$, and $3$. By construction, the edge joined to $v$ at position $3$ (if any) is not connected to $w$. We can label the other end of the base copy $e$ position $a$ on the second vertex $w$, and label the other positions $b$, $c$, and $d$, again counterclockwise. 
+
+If the edge multiplicity is three, only one of these positions is unoccupied by a copy of the multiple edge. Looking at the three cases (below), we can see that by parity, it must be position $b$, and the pair of copies $0a$ and $2c$ of the multiple edge can be removed by a $\pairinsert$ operation.
 \begin{center}
 \includegraphics[width=4in]{multiplicity-three}\\
 By parity, because we came from a 4-regular embedded planar graph only the leftmost case can occur at any stage in the reduction process.
 \end{center}
-We have now disposed of the case where edge multiplicity is three. If edge multiplicity is two, there is one edge unaccounted for, which joins either position $1$ or $2$ on vertex $v$ to position $b$, $c$, or $d$ on vertex $w$. Therefore, there are six cases to address. We consider them in order, starting with the $1x$ configurations.
+We have now disposed of the case where edge multiplicity is three. 
 
+If edge multiplicity is two, there is one edge unaccounted for, which joins either position $1$ or $2$ on vertex $v$ to position $b$, $c$, or $d$ on vertex $w$. Therefore, there are six cases to address. We consider them in order, starting with the $1x$ configurations.
 \begin{itemize}
 \item 
 \begin{tabular}{m{1in}m{3in}m{1in}}
@@ -223,7 +227,7 @@ In the $1d$ configuration, the multiple edge forms a bigon face. Deleting $1d$ u
 \includegraphics[width=0.9in]{1-d-target}
 \end{tabular}
 \end{itemize}
-One might think that the $2x$ configurations are simply rearrangements of those above, but this is not true. A genuinely new case arises for $2c$.
+One might think that the $2-$ configurations are simply rearrangements of those above, but this is not true. A genuinely new case arises for $2c$.
 \begin{itemize}
 \item 
 \begin{tabular}{m{1in}m{3in}}
@@ -246,7 +250,7 @@ In the $2c$ configuration, by parity, the graph $G$ must have connected $1$ and 
 The $2d$ configuration is forbidden by parity.
 \end{tabular}
 \end{itemize}
-Along the way, our analysis has been almost entirely local: we need only consider a single vertex to decide whether we can apply an $\loopinsert$ reduction and a pair of vertices to decide on $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ operations. To show that order of operations doesn't matter, we need to show that whether or not we can apply these operations does not depend on which reductions have already been performed.
+Along the way, our analysis has been entirely local: we need only consider a single vertex to decide whether we can apply an $\loopinsert$ reduction and a pair of vertices to decide on $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ operations. To show that order of operations doesn't matter, we need to show that whether or not we can apply these operations does not depend on which reductions have already been performed. First, we note that since we never remove all copies of multiple edge, we never change the connectivity of the graph during the reduction process.
 
 The three copies of a multiplicity three edge must bound two bigons, and this does not change as we reduce other edges. Therefore, the $\pairinsert$ move is always available for all multiplicity three edges.
 
@@ -258,7 +262,7 @@ It is clear that the isomorphism type of $G_0$ does not depend on the order of r
 
 It takes only a moment longer to realize that the embedding of $G_0$ is determined as well-- this embedding is determined by the cyclic order of (surviving) edges around their vertices. We will have deleted some edges from many of these vertices by the time we reach $G_0$, potentially leaving many empty connections. However, the cyclic order of the surviving edges won't be affected by the order in which these connections were emptied. 
 
-One might worry that the choice of \emph{which}\footnote{Remember that the choice of ``base edge'' was arbitrary.} copy of an edge of multiplicity two to delete could affect the embedded isomorphism type after an $\edgedouble$ or $\cutedgedouble$ reduction, but it's easy to check that the two possible reduced configurations are (embedded) graph isomorphic by looking at the pictures above. 
+One might worry that the choice of \emph{which}\footnote{Remember that the choice of ``base edge'' was arbitrary.} copy of an edge of multiplicity two to delete could affect the embedded isomorphism type after an $\edgedouble$ or $\cutedgedouble$ reduction, but it's easy to check that the two possible reduced configurations are (embedded) graph isomorphic by looking at the pictures above. Formally, the point is that the two copies of the edge are adjacent in the cyclic ordering of edges at each vertex, so the surviving copy is always in the same cyclic position relative to surviving edges incident to the vertex.
 \end{proof}
 
 We can use this theorem to come up with a strategy for generating diagrams. Basically, we will start by enumerating embedded planar simple graphs of vertex degree $\leq 4$ using \plantri, then expand them to $4$-regular embedded planar graphs using the moves above. Afterwards, we will see that we can generate embedded isomorphic graphs with different expansion sequences, so we will have to filter the graphs into isomorphism classes. We start with two lemmas:
@@ -273,7 +277,7 @@ If we expand $G_0$ to $G$ using the four moves, three empty connections on the v
 \end{proof}
 
 \begin{lemma}
-Two pairs of vertices $01$ and $ab$ on the unit circle may be joined by nonintersecting chords inside the circle if and only if the pairs are unlinked on the circle. That is, if $01$ and $ab$ are adjacent in the cyclic ordering of the four vertices, as opposed to an order such as $0a1b$ where the pairs alternate.
+Two pairs of vertices $ab$ and $cd$ on the unit circle may be joined by nonintersecting chords inside the circle if and only if the pairs are unlinked on the circle. That is, if $ab$ and $cd$ are adjacent in the cyclic ordering of the four vertices, as opposed to an order such as $acbd$ or $adbc$ where the pairs alternate.
 \end{lemma}
 
 We can now design an algorithm to produce all possible expansions of $G_0$, a given connected embedded planar simple graph of vertex degree $\leq 4$ as an integer constraint satisfaction problem. By Lemma~\ref{lem:degreeone}, we must add a loop to each vertex of degree one in $G_0$ eventually. We can save time by doing so at the start of the computation. We will therefore assume that loops have been added to create a \emph{prepared} graph $G_1$, and each vertex has degree $2$, $3$, or $4$.
@@ -281,14 +285,13 @@ We can now design an algorithm to produce all possible expansions of $G_0$, a gi
 We will now define four classes of variables:
 \begin{itemize}
 \item $l_{i}$ for every vertex $v_i$ of degree $2$ 
-\item $d_{i,j}$ for every edge $e_{ij}$ in the graph joining vertices of degree $<4$. 
-\item $c_{i,j}$ for every $d_{i,j}$ where $e_{ij}$ is a cut edge
+\item $d_{i,j}$ for every non-cut edge $e_{ij}$ in the graph joining vertices of degree $<4$. 
+\item $c_{i,j}$ for every cut edge $e_{ij}$ joining vertices of degree $<4$.
 \item $p_{i,j}$ for every pair of vertices $v_{i}$, $v_j$ which both have degree 2 and are both on two different faces of the embedding
 \end{itemize}
 We take the subscripts to be unordered. That is, $d_{4,17}$ and $d_{17,4}$ are the same variable, since the edges $e_{4,17}$ and $e_{17,4}$ are the same edge.
 
-These variables will all be valued in $0-1$, and represent the absence or presence of $\loopinsert$ loop edges, $\edgedouble$ doubles of existing edges, $\cutedgedouble$ doubles of existing cut edges, and $\pairinsert$ insertions of new pairs of edges. 
-
+These variables will all be valued in $0-1$, and represent the absence or presence of $\loopinsert$ loop edges, $\edgedouble$ or $\cutedgedouble$ doubles of existing edges and $\pairinsert$ insertions of new pairs of edges. 
 We can now define two sets of equations relating these variables.
 
 \begin{definition}
@@ -316,20 +319,20 @@ We note that in the end, at most two of the pair variables above can have value 
 We have defined everything so that
 
 \begin{proposition}
-Every assignment of $\{0,1\}$ to the variables $l_i$, $d_{i,j}$, $c_{i,j}$, and $p_{i,j}$ which obeys the vertex degree equations and linking equations corresponds to a unique expansion of the prepared graph $G_1$ to a connected embedded planar $4$-regular multigraph $G$.
+Every assignment of $\{0,1\}$ to the variables $l_i$, $d_{i,j}$, $c_{i,j}$, and $p_{i,j}$ which obeys the vertex degree equations and linking equations corresponds to an expansion of the connected planar graph $G_1$ with vertex degrees $2$, $3$, and $4$ and loop edges only to a collection of embeddings for the connected planar $4$-regular multigraph $G$.
 \end{proposition}
 
 \begin{proof}
-Actually, there is only a little to check. By the arguments in the proof of Proposition~\ref{prop:reduce}, the order of operations in a possible expansion $G_1, G_2, \dots, G_n = G$ is irrelevant. Therefore, if we can perform the indicated expansions at all, we will generate a unique $G$.
+Actually, there is only a little to check. By the arguments in the proof of Proposition~\ref{prop:reduce}, the order of expansion moves is irrelevant. So suppose there are $n$ expansions, and we've chosen an order for them,  and are trying to generate a family of graphs $G_1, G_2, \dots, G_n = G$. If we can perform the indicated expansions at all, we will generate a unique connected $4$-regular planar multigraph $G$ (we will see that the embedding of $G$ depends on choices we make along the way).  So suppose we have generated a given (embedded) $G_i$, and are trying to expand to $G_{i+1}$.
 
-The $\loopinsert$ expansions indicated by the positive $l_i$ are always possible as long as the vertex degree at $v_i$ is small enough, which is true, because of the corresponding vertex degree equation. 
+If the next expansion is a $\loopinsert$ expansions indicated by a positive $l_i$, it is possible as long as the vertex degree at $v_i$ is small enough. This is true, because of the corresponding vertex degree equation. 
+We must choose which side of the edge to insert the loop; each choice yields a different embedding of $G_{i+1}$, and following the various possibilities will lead to a family of embeddings for $G_n = G$.
 
-The $\edgedouble$ expansions indicated by the positive $d_{i,j}$ are always possible as long as the vertex degrees of $v_i$ and $v_j$ are small enough. This is true by their vertex degree equations.
+If the next expansion is an $\edgedouble$ indicated by a positive $d_{i,j}$, it is possible as long as the vertex degrees of $v_i$ and $v_j$ are small enough. This is true by their vertex degree equations. There is only one way to make this expansion, leading to a unique embedding for $G_{i+1}$.
 
-The $\cutedgedouble$ expansions indicated by the positive $c_{i,j}$ again require small enough vertex degrees at $v_i$ and $v_j$ (which is again true by the vertex degree equations), and also require $e_{i,j}$ to be a cut edge of the current graph $G_i$. It is, because being a cut edge doesn't change as we perform our expansion moves.
+If the next expansion is an $\edgedouble$ or $\cutedgedouble$ expansion indicated by a positive $c_{i,j}$ variable, it is (again) possible if the vertex degrees at $v_i$ and $v_j$ are small enough (which is again true by the vertex degree equations) \emph{and} if $e_{i,j}$ is a cut edge of $G_i$. We never apply these expansions more than once to an edge, so $e_{i,j}$ is a cut edge of $G_i$ since it was a cut edge of $G_1$. Choosing between $\edgedouble$ and $\cutedgedouble$ expansions will yield different embeddings of $G_{i+1}$ and we must follow both possibilities to generate the final family of embeddings of $G$.
 
-This much was easy. The $\pairinsert$ expansions are a little more difficult.
-Each $\pairinsert$ indicated by a positive $p_{i,j}$ requires several conditions. First, vertex degrees at $v_i$, $v_j$ must be small enough, which is checked as before by vertex degree equations. But the $v_i$ and $v_j$ must still be on two faces in the expansion $G_i$, which is not obvious, because previous $\pairinsert$ expansions have split faces of $G_1$ into smaller faces in $G_i$. Let us suppose that $v_i$ and $v_j$ were on the pair of faces $F_1$ and $F_2$ of the original graph. 
+This much was easy. If the next expansion is of type $\pairinsert$, there is more to check. First, we note that there is no ambiguity in embeddings here: if we can do the $\pairinsert$ expansion, we can do it in only one way and we generate a unique embedding of the graph $G_{i+1}$. But can we do it at all? Each $\pairinsert$ indicated by a positive $p_{i,j}$ requires several conditions. First, vertex degrees at $v_i$, $v_j$ must be small enough, which is checked as before by vertex degree equations. But the $v_i$ and $v_j$ must still be on two faces in the expansion $G_i$, which is not obvious, because previous $\pairinsert$ expansions have split faces of $G_1$ into smaller faces in $G_i$. Let us suppose that $v_i$ and $v_j$ were on the pair of faces $F_1$ and $F_2$ of the original graph. 
 \begin{center}
 \includegraphics[width=2in]{pair-interference} 
 \end{center}
@@ -342,9 +345,11 @@ But if the splitting arc also shared $F_1$ and $F_2$, the corresponding pair var
 \end{center}
 
 If the interface between $F_1$ and $F_2$ is connected, than either might have a disconnected interface with (at most one) other face, as shown above. This case is only cosmetically different-- again the key point is that the pair $v_i$, $v_j$ can link along the boundary of $F_1$ (or $F_2$) with a pair edge which also shares $F_1$ and $F_2$ while pairs involving a third face won't link the vertices we're interested in.
+
+We last have only to observe that by the vertex degree equations, the final graph $G$ is a $4$-regular planar multigraph. Since we have only added edges along the way, $G$ is connected because $G_1$ was.
 \end{proof}
 
-We have reduced the problem to that of building and satisfying the vertex degree and linking equations. This problem is basically standard, and we use the usual branch-and-bound algorithm. We must define a canonical order on the variables (it doesn't matter how, but to be specific, in our implementation we sort the classes of variables in the order $p_{ij} \prec c_{i,j} \prec d_{i,j} \prec l_i$ and in dictionary order by the (sorted) pair $\{i,j\}$ within each class). Then we enumerate the possible assignments of $\{0,1\}$ to variables recursively, pruning the tree whenever a vertex degree or linking equation is violated. As usual, this is in theory possibly exponentially slow, but in practice quite efficient.
+We have reduced the problem to that of building and satisfying the vertex degree and linking equations. This problem is basically standard, and we use the usual branch-and-bound algorithm. We must define a canonical order on the variables (it doesn't matter how, but to be specific, in our implementation we sort the classes of variables in the order $l_i \prec d_{i,j} \prec c_{i,j} \prec p_{ij}$ and in dictionary order by the (sorted) pair $\{i,j\}$ within each class). Then we enumerate the possible assignments of $\{0,1\}$ to variables recursively, pruning the tree whenever a vertex degree or linking equation is violated. As usual, this is in theory possibly exponentially slow, but in practice efficient enough for small $n$.
 
 We now consider the problem of dividing the results into embedded isomorphism classes. We first observe that we have already shown in Proposition~\ref{prop:reduce} two different reduced graphs $G_0$ and $G_0'$ cannot expand to the same $G$ since the embedded isomorphism type of the reduction $G_0$ is determined by the embedded isomorphism type of the expansion. However, it is possible for two different collections of expansion moves for the \emph{same} graph $G_0$ to produce isomorphic $G$ and $G'$ as in the picture below:
 \begin{center}
