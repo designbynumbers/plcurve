@@ -10,10 +10,13 @@ class TestPDStorFiles(unittest.TestCase):
             #pdstor_f.readline()
             #pdstor_f.readline()
             for pdcode in PlanarDiagram.read_all(pdstor_f, read_header=True):
-                print pdstor_f.tell()
+                try:
+                    self.assertIsNone(pdcode.pdstor_index(pdstor_f))
+                except EOFError:
+                    pass
 
     def test_pdstor_isomorphism(self):
-        for i in range(3,4):
+        for i in range(3,9):
             self.check_pdstor_isomorphism(i)
 
 class TestPDDatabase(unittest.TestCase):

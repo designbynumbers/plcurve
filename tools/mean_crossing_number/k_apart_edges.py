@@ -11,7 +11,7 @@ from matplotlib import cm
 from scipy.stats import vonmises
 
 class CrossingTetrahedron(object):
-    def __init__(A, B, C, D):
+    def __init__(self, A, B, C, D):
         self._A = np.asarray(A)
         self._B = np.asarray(B)
         self._C = np.asarray(C)
@@ -44,7 +44,7 @@ class CrossingTetrahedron(object):
             setattr(self, prop, ret)
             return ret
         return getattr(self, prop, _setret())
-        
+
     @property
     def theta_0(self):
         return self._getset_dihedral("_theta_0", self._A, self._D, self._B, self._C)
@@ -75,7 +75,18 @@ class CrossingTetrahedron(object):
     @property
     def radius(self):
         return self._getset_edge("_radius", self._A, self._D)
-    
+
+    @classmethod
+    def new_from_plc(cls, plc, i, k):
+        verts = plc.components[0].vertices
+        N = len(verts)
+
+        A,C,B,D = (np.array(verts[i%N]), np.array(verts[(i+1)%N]),
+                   np.array(verts[(i+k+1)%N]), np.array(verts[(i+k+2)%N]))
+
+        del plc
+        return cls(A,B,C,D)
+
 def circmean(alpha, axis=None, ratio=1):
     mean_angle = np.arctan2(np.mean(np.sin(alpha*ratio),axis),
                             np.mean(np.cos(alpha*ratio),axis))
@@ -105,60 +116,20 @@ def get_face_angle(A, B, C):
 
     return np.arccos(-np.dot(u, v))
 
-def get_all_angles(plc, i, k):
-    verts = plc.components[0].vertices
-    N = len(verts)
-
-    A,C,B,D = (np.array(verts[i%N]), np.array(verts[(i+1)%N]),
-                   np.array(verts[(i+k+1)%N]), np.array(verts[(i+k+2)%N]))
-
-    return (
-        get_dihedral_angle(A, D, B, C),
-        get_dihedral_angle(A, B, C, D),
-        get_dihedral_angle(C, B, A, D),
-        get_dihedral_angle(C, D, A, B),
-        get_dihedral_angle(A, C, B, D),
-        get_dihedral_angle(B, D, A, C),
-        get_face_angle(D, A, C),
-        get_face_angle(B, D, A),
-    )
-
-def random_angles_symmetrize_i(n_edges, rng, num_results, k):
-    for i in range(num_results):
-        rplc = PlCurve.random_equilateral_closed_polygon(n_edges, rng)
-        yield get_all_angles(rplc, random.randrange(n_edges), k)
-
-def random_angles_symmetrize_i_min_r(n_edges, rng, num_results, k, min_r):
-    for j in range(num_results):
-        rplc = PlCurve.random_equilateral_closed_polygon(n_edges, rng)
-        verts = rplc.components[0].vertices
-        N = len(verts)
-        i = random.randrange(n_edges)
-        A,B = ( np.array(verts[i%N]), np.array(verts[(i+k+2)%N]) )
-        if 4 <= LA.norm(A-B):              
-            print LA.norm( A-B )
-            yield get_all_angles(rplc, i, k)
-
-def random_angles_min_r(n_edges, rng, num_results, i=None, k=None, min_r=None):
+def random_tetrahedra_one_poly(n_edges, rng, num_results, i=None, k=None, min_r=None):
+    rplc = PlCurve.random_equilateral_closed_polygon(n_edges, rng)
     for _ in range(num_results):
         _i = i if i is not None else random.randrange(n_edges)
         _k = k if k is not None else random.randrange(2,n_edges-3)
-        rplc = PlCurve.random_equilateral_closed_polygon(n_edges, rng)
-        verts = rplc.components[0].vertices
-        N = len(verts)
+        yield CrossingTetrahedron.new_from_plc(rplc, _i, _k)
 
-        A,B = ( np.array(verts[_i%N]), np.array(verts[(_i+_k+2)%N]) )
-        if 4 <= LA.norm(A-B):              
-            print LA.norm( A-B )
-            yield get_all_angles(rplc, _i, _k)
-        
-def random_angles(n_edges, rng, num_results, i=None, k=None, min_r=None):
+def random_tetrahedra(n_edges, rng, num_results, i=None, k=None, min_r=None):
     for _ in range(num_results):
+        rplc = PlCurve.random_equilateral_closed_polygon(n_edges, rng)
         _i = i if i is not None else random.randrange(n_edges)
         _k = k if k is not None else random.randrange(2,n_edges-3)
-        rplc = PlCurve.random_equilateral_closed_polygon(n_edges, rng)
-        yield get_all_angles(rplc, _i, _k)
-        
+        yield CrossingTetrahedron.new_from_plc(rplc, _i, _k)
+        #del rplc
 
 def hist3d(xvar, yvar, nboxes=10):
     hist, xedges, yedges = np.histogram2d(xvar, yvar, nboxes, normed=True)
@@ -183,9 +154,9 @@ def hist3d(xvar, yvar, nboxes=10):
     #ax.scatter(xpos, ypos, dz)
     #ax.plot_trisurf(xpos, ypos, dz, cmap=cm.coolwarm)
     ax.plot_surface(xposm, yposm, hist, cstride=1, rstride=1)
-    xhist = hist.sum(0)
+    xhist = hist.sum(0)*nboxes/10
     xhist /= xhist.sum()/np.pi
-    yhist = hist.sum(1)
+    yhist = hist.sum(1)*nboxes/10
     yhist /= yhist.sum()/np.pi
     print xhist.sum()/np.pi
     print yhist.sum()/np.pi
@@ -196,56 +167,58 @@ def hist3d(xvar, yvar, nboxes=10):
 
 
 if __name__ == "__main__":
-    rng = RandomGenerator(4444)
+    rng = RandomGenerator(444)
     theta = [[], [], [], []]
     diao_th = [[], []]
     EPS = 0.1
     ALPHA = np.pi/4
-    for (t1, t2, t3, t4, ps1, ps2, td1, td2
-         ) in random_angles_min_r(400, rng, 2500, min_r=4):#random_angles_symmetrize_i_k(8, rng, 10000):
+    for tet in random_tetrahedra(100, rng, 100000, min_r=4):
         #if t2 < ALPHA - EPS or t2 > ALPHA + EPS:
         #    continue
-        theta[0].append(t1)
-        theta[1].append(t2)
-        theta[2].append(t3)
-        theta[3].append(t4)
-        diao_th[0].append(td1)
-        diao_th[1].append(td2)
+        theta[0].append(tet.theta_0)
+        theta[1].append(tet.theta_1)
+        #theta[2].append(tet.theta_2)
+        theta[3].append(tet.theta_3)
+        diao_th[0].append(tet.diao_0)
+        diao_th[1].append(tet.diao_1)
+        del tet
     theta[0] = np.array(theta[0])
     theta[1] = np.array(theta[1])
     theta[2] = np.array(theta[2])
     theta[3] = np.array(theta[3])
 
-    mirr_theta0 = np.concatenate((-theta[0], theta[0]))
+    #mirr_theta0 = np.concatenate((-theta[0], theta[0]))
 
     print "Done generating data"
 
     #PLOT = "VONMISES_THETA0"
     #PLOT = "THETA1 vs THETA3"
-    PLOT = "FACE0"
-    
+    PLOT = "FACE ANGLES"
+    #PLOT = "PHI ANGLES"
+
     # Histogram of theta0 vs vonmises(mu=0, kappa=.5)
+
     if PLOT == "VONMISES_THETA0":
-        n, bins, patches = P.hist(mirr_theta0, 20, normed=1, histtype="stepfilled")
+        n, bins, patches = P.hist(theta[0], 40, normed=1, histtype="stepfilled")
         P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
 
         kappa = .5
-        x = np.linspace(vonmises.ppf(0.01, kappa),
+        x = np.linspace(0,
                         vonmises.ppf(0.99, kappa), 100)
         rv = vonmises(kappa)
 
-        P.plot(x, rv.pdf(x), 'r-', lw=5, alpha=0.6, label="k = %d"%kappa)
+        P.plot(x, 2*rv.pdf(x), 'r-', lw=5, alpha=0.6, label="k = %d"%kappa)
 
         P.show()
 
-    if PLOT == "FACE0":
+    if PLOT == "FACE ANGLES":
         n, bins, patches = P.hist(diao_th[1], 20, normed=1, histtype="stepfilled")
         P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         n, bins, patches = P.hist(diao_th[0], 20, normed=1, histtype="stepfilled")
         P.setp(patches, 'facecolor', 'b', 'alpha', 0.75)
 
         kappa = .5
-        x = np.linspace(vonmises.ppf(0.01, kappa),
+        x = np.linspace(0,
                         vonmises.ppf(0.99, kappa), 100)
         rv = vonmises(kappa)
 
@@ -253,9 +226,19 @@ if __name__ == "__main__":
 
         P.show()
 
+    if PLOT == "PHI ANGLES":
+        n, bins, patches = P.hist(theta[1], 40, normed=1, histtype="stepfilled")
+        P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        n, bins, patches = P.hist(theta[3], 40, normed=1, histtype="stepfilled")
+        P.setp(patches, 'facecolor', 'b', 'alpha', 0.75)
+
+        P.plot(1.0/np.pi, 'r-', lw=5, alpha=0.6)
+
+        P.show()
+
 
     elif PLOT == "THETA1 vs THETA3":
-        hist3d(theta[1], theta[3], nboxes=10)
+        hist3d(theta[1], theta[3], nboxes=20)
         plt.show()
 
     #n, bins, patches = P.hist(theta[3], 20, normed=1, histtype="step")

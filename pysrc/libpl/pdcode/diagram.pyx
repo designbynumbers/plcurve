@@ -24,7 +24,7 @@ from .homfly cimport *
 
 #from cython.view cimport array
 cimport cython
-
+cdef extern char* pdcode_to_ccode(pd_code_t *pdC)
 PD_VERBOSE = 10
 #PD_LIVE_ON_ERROR = 1
 
@@ -938,17 +938,17 @@ cdef class PlanarDiagram:
                 gluings[e_i].append((sg_xing, pos))
         for (x, xpos), (y, ypos) in gluings.itervalues():
             x[xpos] = y[ypos]
-            
+
         link = links.Link(sg_xings, build=False)
 
         # This was in Eric's original email and so I do not know if it needs
         # to be implemented here since I have passed build=False above
         if not cross_oriented:
             link._orient_crossings()
-            
+
         component_starts = []
         for comp in self.components:
-        
+
             # We need to find which CEP our first edge is; so let's take the crossing
             # at the head of the edge and then look at which entry point our first
             # edge is in our crossing's list of CEP's
@@ -956,13 +956,13 @@ cdef class PlanarDiagram:
             head = self.crossings[head_index]
             if comp[0].index == head.understrand_indices()[0]:
                 component_starts.append( link.crossings[head_index].entry_points()[0] )
-    
+
             elif comp[0].index == head.overstrand_indices()[0]:
                 component_starts.append( link.crossings[head_index].entry_points()[1] )
-              
+
             else:
                 raise ValueError("Error in finding first edge in component {}".format( self.components.index(comp) ) )
-              
+
         # Now build components starting at the corresponding edges
         link._build_components(component_starts)
 
@@ -994,7 +994,7 @@ cdef class PlanarDiagram:
     def pdstor_index(self, pdstor_f, isotopy=True, read_header=False):
         """pdstor_index() -> int index
 
-        Returns the index of this diagram's isotopy (or isomorphism, if isotopy=False) 
+        Returns the index of this diagram's isotopy (or isomorphism, if isotopy=False)
         class in the opened, readable pdstor file pdstor_f.
 
         Treats pdstor_f's current position as beginning of file, and will re-seek
@@ -1120,7 +1120,7 @@ cdef class PlanarDiagram:
         return newobj
 
     def ccode(self):
-        return copy_and_free(pdcode_to_ccode(self.p))
+        return#return copy_and_free(pdcode_to_ccode(self.p))
 
     def pdcode(self):
         cdef list pdcode = []
