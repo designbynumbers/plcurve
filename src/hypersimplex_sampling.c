@@ -70,7 +70,7 @@ double *psi_inverse(int n,double *y)
   int i;
 
   x[0] = y[0];
-  
+
   for(i=1;i<n-1;i++) {
 
     if (y[i-1] < y[i]) {
@@ -88,7 +88,7 @@ double *psi_inverse(int n,double *y)
 }
 
 double *hypersimplex_sample(int k, int n,gsl_rng *rng)
-/* Use Stanley triangulation to sample randomly from the 
+/* Use Stanley triangulation to sample randomly from the
    (k,n)th hypersimplex: the subpolytope of [0,1]^{n-1}
    defined by the inequalities
 
@@ -102,12 +102,12 @@ double *hypersimplex_sample(int k, int n,gsl_rng *rng)
 
   /* Our first job is to generate a sample from the standard
      (permutation-ordered) simplex in [0,1]^{n-1}. Then we'll
-     transform it by permutation and by psi_inverse. 
+     transform it by permutation and by psi_inverse.
 
      To do this, we start by sampling the standard simplex
      in R^n using the Dirichlet distribution sampler in GSL;
      then we'll take a linear transform of this point to the
-     standard simplex, then map that by psi_inverse. 
+     standard simplex, then map that by psi_inverse.
 
      Consulting the docs, we see that setting all the alpha
      to 1.0 should make the distribution flat on the simplex.*/
@@ -144,9 +144,9 @@ double *hypersimplex_sample(int k, int n,gsl_rng *rng)
   assert(sorted_x != NULL);
 
   sorted_x[0] = theta[0];
-  
+
   for(i=1;i<n-1;i++) {
-    
+
     sorted_x[i] = sorted_x[i-1] + theta[i];
 
   }
@@ -163,9 +163,9 @@ double *hypersimplex_sample(int k, int n,gsl_rng *rng)
 
     /* We need to correct for the fact that this produces a
        permutation of 1..n-1, not of 0..n-2. */
-    
+
     x[i] = sorted_x[perm[i]-1];
-  
+
   }
 
   /* Now we apply the psi_inverse transformation. */
@@ -178,16 +178,17 @@ double *hypersimplex_sample(int k, int n,gsl_rng *rng)
   free(alpha);
   free(sorted_x);
   free(x);
+  free(perm);
 
   return y;
 }
 
 double *hypercube_slice_sample(int n,gsl_rng *rng)
-  
-/* Use hypersimplex sampling to sample the slice of [-1,1]^n where 
-   
-   (z_1, ... ,z_n) = Sum z_i = 0. 
-   
+
+/* Use hypersimplex sampling to sample the slice of [-1,1]^n where
+
+   (z_1, ... ,z_n) = Sum z_i = 0.
+
    Returns a newly allocated buffer; it's the caller's responsibility
    to free it.
 
@@ -198,10 +199,10 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
 
    We are going to map [0,1]^{n-1} -> [-1,1]^n in the following way:
 
-   (y_1,...,y_{n-1}) -> (2y_1 - 1, ... , 2y_{n-1} - 1) 
-                     =  (z_1, ..., z_{n-1}) 
+   (y_1,...,y_{n-1}) -> (2y_1 - 1, ... , 2y_{n-1} - 1)
+                     =  (z_1, ..., z_{n-1})
 
-   These coordinates have sum 2Y - (n-1) = 2Y - n + 1. 
+   These coordinates have sum 2Y - (n-1) = 2Y - n + 1.
 
    Now if the y_i were sampled from the (k,n)th hypersimplex, we know
    the sum Y obeyed k-1 <= Y <= k.
@@ -213,19 +214,19 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
        2k - n - 1 <= Sum z_i <= 2k - n + 1
 
    This means that by setting z_n = 2k - n - Sum_{i=1}^{n-1} z_i,
-   we get some z_n in [-1,1] so that 
+   we get some z_n in [-1,1] so that
 
    0 = Sum_{i=1}^n z_i = 2k - n.
 
    That is, we want to solve this k using "sum" and "n". At this point,
-   the procedure bifurcates. 
+   the procedure bifurcates.
 
-   If n is even, we can solve 
+   If n is even, we can solve
 
              k = n/2
 
-   and sample from the (n/2,n) hypersimplex.    
-*/     
+   and sample from the (n/2,n) hypersimplex.
+*/
 {
   if (n%2 == 0) {
 
@@ -236,9 +237,9 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
 
     int i;
     z[n-1] = 0;
-    
+
     for(i=0;i<n-1;i++) {
-      
+
       z[i] = 2*y[i] - 1.0;
       z[n-1] -= z[i];
 
@@ -255,22 +256,22 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
 
        and perform the same linear transformation. We're
        rejection sampling here, so we may have to repeat
-       this process. 
+       this process.
     */
 
     double *z = malloc(n*sizeof(double));
     assert(z != NULL);
-    
+
     do {
 
       int k = (gsl_rng_uniform_int(rng,2) == 0) ? floor((double)(n)/2.0) : ceil((double)(n)/2.0);
       double *y = hypersimplex_sample(k,n,rng);
-     
+
       int i;
       z[n-1] = 0;
-    
+
       for(i=0;i<n-1;i++) {
-      
+
 	z[i] = 2*y[i] - 1.0;
 	z[n-1] -= z[i];
 
@@ -279,7 +280,7 @@ double *hypercube_slice_sample(int n,gsl_rng *rng)
       free(y);
 
     } while (z[n-1] < -1.0 || z[n-1] > 1.0);
-    
+
     return z;
 
   }
