@@ -2,11 +2,25 @@ import unittest
 from libpl.pdstor import *
 import os.path
 
+class TestPDStorFiles(unittest.TestCase):
+    DATADIR = os.path.join("..", "..", "data", "pdstors")
+    def check_pdstor_isomorphism(self, n_cross):
+        with open(os.path.join(self.DATADIR, "%s.pdstor"%n_cross), "rb") as pdstor_f:
+            #pdstor_f.readline()
+            #pdstor_f.readline()
+            #pdstor_f.readline()
+            for pdcode in PlanarDiagram.read_all(pdstor_f, read_header=True):
+                print pdstor_f.tell()
+
+    def test_pdstor_isomorphism(self):
+        for i in range(3,4):
+            self.check_pdstor_isomorphism(i)
+
 class TestPDDatabase(unittest.TestCase):
     DATADIR = os.path.join("..", "..", "data", "pdstors")
     def setUp(self):
         pass
-
+    
     #@unittest.skip("Test takes a long time")
     def test_pd_dict_homflys(self):
         def assert_homfly(pd, homfly, uid):

@@ -1,5 +1,6 @@
 from plCurve_h cimport *
 from numpy cimport ndarray
+from cython cimport view
 
 cdef plc_vector new_plc_vector(list l)
 cdef ndarray plc_vector_as_pyo(plc_vector *v)
@@ -10,6 +11,8 @@ cdef class RandomGenerator:
 
 cdef class Component:
     cdef plc_strand* p
+    cdef view.array vertex_array
+    cdef update_array(self)
 
 cdef class PlCurve:
     cdef plCurve* p

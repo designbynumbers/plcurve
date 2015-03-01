@@ -991,6 +991,25 @@ cdef class PlanarDiagram:
 
         return self.from_plink(editor)
 
+    def pdstor_index(self, pdstor_f, isotopy=True, read_header=False):
+        """pdstor_index() -> int index
+
+        Returns the index of this diagram's isotopy (or isomorphism, if isotopy=False) 
+        class in the opened, readable pdstor file pdstor_f.
+
+        Treats pdstor_f's current position as beginning of file, and will re-seek
+        file pointer back on completion. It may help to open the file as 'rb' to
+        avoid inconsistencies with Windows.
+        """
+        bof = pdstor_f.tell()
+        for i, pd in enumerate(
+                self.__class__.read_all(pdstor_f, read_header=read_header)):
+            if self.isomorphic(pd):
+                pdstor_f.seek(bof)
+                return i
+        pdstor_f.seek(bof)
+        return None
+
     @classmethod
     def from_dt_code(cls, dt_code):
         """from_dt_code() -> new PlanarDiagram

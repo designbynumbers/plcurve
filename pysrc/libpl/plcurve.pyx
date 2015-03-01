@@ -5,6 +5,7 @@ import numpy as np
 cimport numpy as np
 np.import_array()
 
+from cython cimport view
 from cython cimport numeric, floating, integral
 from plcurve cimport *
 from .pdcode.diagram cimport PlanarDiagram, PlanarDiagram_wrap
@@ -32,7 +33,19 @@ cdef class RandomGenerator:
         gsl_rng_set(self.p, seed)
 
 cdef class Component:
-    pass
+    cdef update_array(self):
+        self.vertex_array = view.array((self.p.nv,3), itemsize=sizeof(double), format="d", allocate_buffer=False)
+        self.vertex_array.data = <char*>self.p.vt
+
+    property vertices:
+        def __get__(self):
+            return self.vertex_array.memview
+
+cdef Component Component_FromPointer(plc_strand *ptr):
+    cdef Component ret = Component.__new__(Component)
+    ret.p = ptr
+    ret.update_array()
+    return ret
 
 cdef class PlCurve:
     """
@@ -74,7 +87,7 @@ cdef class PlCurve:
     cdef void generate_py_components(self):
         self._components = []
         for i in range(self.p.nc):
-            self._components.append(Component())
+            self._components.append(Component_FromPointer(&self.p.cp[i]))
 
     # Data Operations
     def add_component(self, component):
