@@ -74,7 +74,7 @@ class CrossingTetrahedron(object):
 
     @property
     def radius(self):
-        return self._getset_edge("_radius", self._A, self._D)
+        return self._getset_edge("_radius", self._C, self._B)
 
     @classmethod
     def new_from_plc(cls, plc, i, k):
@@ -123,20 +123,26 @@ def random_tetrahedra_one_poly(n_edges, rng, num_results, i=None, k=None, min_r=
         _k = k if k is not None else random.randrange(2,n_edges-3)
         yield CrossingTetrahedron.new_from_plc(rplc, _i, _k)
 
-def random_tetrahedra(n_edges, rng, num_results, i=None, k=None, min_r=None):
-    for _ in range(num_results):
+def random_tetrahedra(n_edges, rng, num_results, i=None, k=None, min_r=None, max_r=None):
+    count = 0
+    while count < num_results:
         rplc = PlCurve.random_equilateral_closed_polygon(n_edges, rng)
         _i = i if i is not None else random.randrange(n_edges)
         _k = k if k is not None else random.randrange(2,n_edges-3)
-        yield CrossingTetrahedron.new_from_plc(rplc, _i, _k)
-        #del rplc
+        tet = CrossingTetrahedron.new_from_plc(rplc, _i, _k)
+        if ((min_r is None or tet.radius >= min_r) and
+            (max_r is None or tet.radius <= max_r)):
+            yield tet
+            count += 1
+            if not count % 100:
+                print count
 
 def hist3d(xvar, yvar, nboxes=10):
-    hist, xedges, yedges = np.histogram2d(xvar, yvar, nboxes, normed=True)
+    hist, xedges, yedges = np.histogram2d(xvar, yvar, nboxes, normed=False)
     #print hist
     #hist = hist*1.0 / sum(hist)
     #print hist
-    print hist.sum()/np.pi/np.pi
+    #print hist.sum()/np.pi/np.pi
 
     elements = (len(xedges) - 1) * (len(yedges) - 1)
     xposm, yposm = np.meshgrid(xedges[:-1]+0.25, yedges[:-1]+0.25)
@@ -148,44 +154,43 @@ def hist3d(xvar, yvar, nboxes=10):
     dy = dx.copy()
     dz = hist.flatten()
 
+    dx *= (xpos[-1]-xpos[0])/nboxes
+    dy *= (ypos[-1]-ypos[0])/nboxes
+
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    #return ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
+    return ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
     #ax.scatter(xpos, ypos, dz)
     #ax.plot_trisurf(xpos, ypos, dz, cmap=cm.coolwarm)
-    ax.plot_surface(xposm, yposm, hist, cstride=1, rstride=1)
-    xhist = hist.sum(0)*nboxes/10
-    xhist /= xhist.sum()/np.pi
-    yhist = hist.sum(1)*nboxes/10
-    yhist /= yhist.sum()/np.pi
-    print xhist.sum()/np.pi
-    print yhist.sum()/np.pi
+    #ax.plot_surface(xposm, yposm, hist, cstride=1, rstride=1)
+    xhist = hist.sum(0)*nboxes
+    yhist = hist.sum(1)*nboxes
     ax.plot(xpos[:nboxes], xhist, zdir="y", color="r")
-    ax.plot(xpos[:nboxes], yhist, zdir="x", color="r")
-    ax.set_xlim([0, np.pi])
-    ax.set_ylim([0, np.pi])
+    ax.plot(ypos[:nboxes], yhist, zdir="x", color="r")
+    ax.set_xlim([xedges[0]-0.25, xedges[-1]+0.25])
+    ax.set_ylim([yedges[0]-0.25, yedges[-1]+0.25])
 
 
 if __name__ == "__main__":
     rng = RandomGenerator(444)
     theta = [[], [], [], []]
     diao_th = [[], []]
-    EPS = 0.1
+    EPS = 0.5
     ALPHA = np.pi/4
-    for tet in random_tetrahedra(100, rng, 100000, min_r=4):
+    R = 4.5
+    tetrahedra = []
+    for tet in random_tetrahedra(400, rng, 1000, k=75):
         #if t2 < ALPHA - EPS or t2 > ALPHA + EPS:
         #    continue
-        theta[0].append(tet.theta_0)
-        theta[1].append(tet.theta_1)
-        #theta[2].append(tet.theta_2)
-        theta[3].append(tet.theta_3)
+        tetrahedra.append(tet)
         diao_th[0].append(tet.diao_0)
         diao_th[1].append(tet.diao_1)
         del tet
-    theta[0] = np.array(theta[0])
-    theta[1] = np.array(theta[1])
-    theta[2] = np.array(theta[2])
-    theta[3] = np.array(theta[3])
+    theta[0] = np.array([tet.theta_0 for tet in tetrahedra])
+    theta[1] = np.array([tet.theta_1 for tet in tetrahedra])
+    theta[2] = np.array([tet.theta_2 for tet in tetrahedra])
+    theta[3] = np.array([tet.theta_3 for tet in tetrahedra])
+    radii = np.array([tet.radius for tet in tetrahedra])
 
     #mirr_theta0 = np.concatenate((-theta[0], theta[0]))
 
@@ -193,8 +198,11 @@ if __name__ == "__main__":
 
     #PLOT = "VONMISES_THETA0"
     #PLOT = "THETA1 vs THETA3"
-    PLOT = "FACE ANGLES"
+    #PLOT = "FACE ANGLES"
+    #PLOT = "THETA0 + THETA2"
     #PLOT = "PHI ANGLES"
+    #PLOT = "ACN vs R"
+    PLOT = "ACN line tail"
 
     # Histogram of theta0 vs vonmises(mu=0, kappa=.5)
 
@@ -211,7 +219,7 @@ if __name__ == "__main__":
 
         P.show()
 
-    if PLOT == "FACE ANGLES":
+    elif PLOT == "FACE ANGLES":
         n, bins, patches = P.hist(diao_th[1], 20, normed=1, histtype="stepfilled")
         P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         n, bins, patches = P.hist(diao_th[0], 20, normed=1, histtype="stepfilled")
@@ -226,7 +234,7 @@ if __name__ == "__main__":
 
         P.show()
 
-    if PLOT == "PHI ANGLES":
+    elif PLOT == "PHI ANGLES":
         n, bins, patches = P.hist(theta[1], 40, normed=1, histtype="stepfilled")
         P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         n, bins, patches = P.hist(theta[3], 40, normed=1, histtype="stepfilled")
@@ -235,6 +243,43 @@ if __name__ == "__main__":
         P.plot(1.0/np.pi, 'r-', lw=5, alpha=0.6)
 
         P.show()
+
+    elif PLOT == "THETA0 + THETA2":
+        print "Mean of \\theta_0+\\theta_2 = %s" % ((np.mean(theta[0]+theta[2]))/np.pi)
+        n, bins, patches = P.hist(theta[0]+theta[2], 40, normed=1, histtype="stepfilled")
+        P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        #n, bins, patches = P.hist(theta[2], 40, normed=1, histtype="stepfilled")
+        #P.setp(patches, 'facecolor', 'b', 'alpha', 0.75)
+
+        P.plot(1.0/np.pi, 'r-', lw=5, alpha=0.6)
+
+        P.show()
+
+    elif PLOT == "ACN":
+        acn = (-(theta[0] + theta[1] + theta[2] + theta[3]) + np.ones_like(theta[0])*2*np.pi)/(2*np.pi)
+        print "Mean ACN = %s" % np.mean(acn)
+        print "Approx ACN = %s" %( 1/(16+R**2) )
+        print "O(1) `=` %s" %( R**3 * np.mean(acn) - R/16 )
+        n, bins, patches = P.hist(acn, 40, normed=1, histtype="stepfilled")
+        P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        #n, bins, patches = P.hist(theta[2], 40, normed=1, histtype="stepfilled")
+        #P.setp(patches, 'facecolor', 'b', 'alpha', 0.75)
+
+        P.plot(1.0/np.pi, 'r-', lw=5, alpha=0.6)
+
+        P.show()
+
+    elif PLOT == "ACN vs R":
+        acn = (-(theta[0] + theta[1] + theta[2] + theta[3]) + np.ones_like(theta[0])*2*np.pi)/(2*np.pi)
+        plt.hist2d(acn*radii**3-(radii/16), radii, bins=20)
+        #hist3d(acn*radii**3-(radii/16), radii, nboxes=20)
+        plt.show()
+
+    elif PLOT == "ACN line tail":
+        acn = (-(theta[0] + theta[1] + theta[2] + theta[3]) + np.ones_like(theta[0])*2*np.pi)/(2*np.pi)
+        plt.scatter(radii, acn*radii**3-(radii/16))
+        #hist3d(acn*radii**3-(radii/16), radii, nboxes=20)
+        plt.show()
 
 
     elif PLOT == "THETA1 vs THETA3":
