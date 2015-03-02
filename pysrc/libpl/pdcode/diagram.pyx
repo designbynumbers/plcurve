@@ -190,6 +190,10 @@ cdef class PlanarDiagram:
                 pd_regenerate_hash(self.p)
             return self.p.hash
 
+    property uid:
+        def __get__(self):
+            return self.p.uid
+        
     property _hash:
         def __get__(self):
             return self.p.hash
@@ -333,6 +337,8 @@ cdef class PlanarDiagram:
                 raise EOFError("Already at end of pdcode file")
         if newobj.p is NULL:
             return None
+        if newobj._hash:
+            newobj.hashed = True
         newobj.regenerate_py_os()
         return newobj
 

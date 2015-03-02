@@ -40,7 +40,7 @@ cdef class PlanarDiagram:
     """A sequence of :py:class:`Face` which belong to this diagram"""
     
     cdef readonly bool thin
-    cdef bool hashed
+    cdef readonly bool hashed
     cdef char* _homfly
 
     cdef regenerate_py_os(self)

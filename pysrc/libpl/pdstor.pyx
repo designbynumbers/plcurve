@@ -583,6 +583,16 @@ class PDStoreExpander(object):
                                     orient_all=orient_all, thin=thin, homflys=homflys)
         f.close()
 
+class PDStorage:
+    def __init__(self):
+        self.hashes = defaultdict(list)
+
+    @classmethod
+    def read(cls, f, read_header=False):
+        ret = cls()
+        for pdcode in PlanarDiagram.read_all(f, read_header=read_header):
+            ret.hashes[pdcode.hash].append(pdcode)
+        return ret
 
 class PDDatabase(PDStoreExpander):
     def save(self, fname):
