@@ -590,13 +590,41 @@ extern "C" {
 
     outpd[1] contains the pd code of the component "on the bottom"
     in the bigon. Again, it might be a 0-crossing diagram.
-
+				
   */
 
+  pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
+			    pd_code_t *pdB, pd_idx_t edgeB);
 
+  /* 
+  	  +----+	       +-------+	   
+       	  |    |       	   +-<-|---+   |       	   
+       	  |    |  edgeA	   |   |   |   |	   
+       	+-|------<---+ 	   |   |   |   |       	   
+      	| |    |     | 	   v   +-------+    	   
+      	| +------>---+ 	   +-->----+   	       	   
+       	+------+       	   edgeB	  
+   				  
+            pdA	       	       pdB
 
+                      ||
+                      vv
+
+  	  +----+      	       +-------+	   
+       	  |    |       	   +-<-|---+   |       	   
+       	  |    |       	   |   |   |   |	   
+       	+-|------<---------+   |   |   |       	   
+      	| |    |       	       +-------+    	   
+      	| +------>------------>----+   	       	   
+       	+------+       	       		  
+       	       	       	       	  
+                  (output pd)  	  
+		      	     
+  */		      	   
+		      	   
+		      
   pd_code_t *pd_simplify(pd_code_t *pd);
-
+		      
   /* Simplify the pd code using combinations of the moves above to
      reduce crossing number as far as possible. */
 

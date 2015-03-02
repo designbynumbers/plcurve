@@ -1934,6 +1934,328 @@ pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3])
 }
 
 
+pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
+			  pd_code_t *pdB, pd_idx_t edgeB)
+
+/* 
+  	  +----+	       +-------+	   
+       	  |    |       	   +-<-|---+   |       	   
+       	  |    |  edgeA	   |   |   |   |	   
+       	+-|------<---+ 	   |   |   |   |       	   
+      	| |    |     | 	   v   +-------+    	   
+      	| +------>---+ 	   +-->----+   	       	   
+       	+------+       	   edgeB	  
+   				  
+            pdA	       	       pdB
+
+                      ||
+                      vv
+
+  	  +----+      	       +-------+	   
+       	  |    |       	   +-<-|---+   |       	   
+       	  |    |       	   |   |   |   |	   
+       	+-|------<---------+   |   |   |       	   
+      	| |    |       	       +-------+    	   
+      	| +------>------------>----+   	       	   
+       	+------+       	       		  
+       	       	       	       	  
+                  (output pd)  	  
+		      	     
+*/	
 
 
+{
+  assert(pd_ok(pdA));
+  assert(pd_ok(pdB));
+  pd_check_edge(SRCLOC,pdA,edgeA);
+  pd_check_edge(SRCLOC,pdB,edgeB);
 
+  /* The algorithm here is straightforward; allocate space, 
+     copy crossings and edges, then reconnect edges. */
+
+  pd_code_t *pd = pd_code_new(pdA->ncross + pdB->ncross);
+
+  /* We need to actually generate an edge set for the connect
+     summed guys here, so we can't just get the crossings right.
+     Our scheme for crossing numbering is going to go like this:
+
+     <all the crossings of A>, <all the crossings of B>
+
+  */
+
+  pd_idx_t *crossAtt = calloc(pdA->ncross,sizeof(pd_idx_t));
+  pd_idx_t *crossBtt = calloc(pdB->ncross,sizeof(pd_idx_t));
+
+  pd_idx_t i;
+
+  for(i=0;i<pdA->ncross;i++) {
+
+    crossAtt[i] = i; /* Crossing i in pdA -> crossing i in pd */
+
+  }
+
+  for(i=0;i<pdB->ncross;i++) {
+
+    crossBtt[i] = i + pdA->ncross; /* Crossing i in pdB -> crossing i + pdA->ncross in pd */
+
+  }
+
+  /* The edge numbering scheme is more complex, because 
+     we are connecting (in general) one of many components of A
+     to one of many components of B. Let's call the components
+     which are joined joinA and joinB.
+
+     <edges of joinA <= edgeA> 
+     <edges of joinB> 
+     <edges of joinA > edgeA>
+
+     <edges of all other components of A>
+     <edges of all other components of B>
+  */
+
+  pd_idx_t joinA, joinB;
+  pd_idx_t posA, posB;
+
+  pd_component_and_pos(pdA,edgeA,&joinA,&posA);
+  pd_component_and_pos(pdB,edgeB,&joinB,&posB);
+
+  pd_idx_t comp,pos,nen=0;
+  pd_idx_t *edgeAtt = calloc(pdA->nedges,sizeof(pd_idx_t));
+
+  for(i=0;i<pdA->nedges;i++) { edgeAtt[i] = PD_UNSET_IDX; }
+
+  for(pos=0;pos<=posA;pos++) {
+
+    edgeAtt[pdA->comp[joinA].edge[pos]] = nen++;
+
+  }
+
+  for(;pos<pdA->comp[joinA].nedges;pos++) {
+
+    edgeAtt[pdA->comp[joinA].edge[pos]] = (pdB->comp[joinB].nedges) + (nen++);
+
+  }
+
+  
+  for(comp=0;comp<pdA->ncomps;comp++) {
+
+    if (comp == joinA) { continue; } /* Don't run the loop for the join component */
+
+    for(pos=0;pos<pdA->comp[comp].nedges;pos++) {
+
+      edgeAtt[pdA->comp[comp].edge[pos]] = nen++;  /* New edge number */
+
+    }
+
+  }
+
+  /* We now deal with the edges of B */
+
+  pd_idx_t *edgeBtt = calloc(pdB->nedges,sizeof(pd_idx_t));
+  for(i=0;i<pdB->nedges;i++) { edgeBtt[i] = PD_UNSET_IDX; }
+
+  pd_component_t *compB = NULL;
+  compB = &(pdB->comp[joinB]);
+  nen = 0;
+  
+  for(pos=(1+posB);pos<(1+posB)+compB->nedges;pos++) {
+
+    edgeBtt[compB->edge[pos%compB->nedges]] = (1+posA) + nen++;
+
+    /* This is a tricky piece of code: the logic is that we're going
+       to let edgeA be the edge "posA" in the final pd, and then splice
+       in the edges in the join component (compB) of pdB.
+
+       So we walk compB starting at (1 + posB) and wrapping
+       around (by the mod operation) until we get back to the start.
+       Since we've already used edge numbers 0..posA (inclusive), we
+       assign edge numbers posA + 1...posA+1+pdB->comp[joinB].nedges.
+
+    */
+
+  }
+
+
+  /* Now we skip-- we've already placed all the edges in pdA, and all
+     the edges in compB. So we can set */
+
+  nen = pdA->nedges + compB->nedges;
+
+  /* ...and then walk the components of B, skipping the one we've
+     already taken care of. */
+
+  for(comp=0;comp<pdB->ncomps;comp++) {
+
+    if (comp == joinB) { continue; }
+
+    for(pos=0;pos<pdB->comp[comp].nedges;pos++) {
+
+      edgeBtt[pdB->comp[comp].edge[pos]] = nen++;
+
+    }
+
+  }
+
+  /* We now check the edge translation tables to make sure that 
+     we haven't duplicated any indices in pd->edge and that we've 
+     made all assignments */
+
+  for(i=0;i<pdA->nedges;i++) {
+
+    assert(edgeAtt[i] != PD_UNSET_IDX);
+
+  }
+
+  for(i=0;i<pdB->nedges;i++) {
+
+    assert(edgeBtt[i] != PD_UNSET_IDX);
+
+  }
+
+  pd_idx_t *checkbuf = calloc(pdA->nedges + pdB->nedges,sizeof(pd_idx_t));
+  pd_idx_t  cb_idx;
+  
+  for(i=0,cb_idx=0;i<pdA->nedges;i++,cb_idx++) {
+
+    checkbuf[cb_idx] = edgeAtt[i];
+
+  }
+
+  for(i=0;i<pdB->nedges;i++,cb_idx++) {
+
+    checkbuf[cb_idx] = edgeBtt[i];
+
+  }
+
+  qsort(checkbuf,pdA->nedges+pdB->nedges,sizeof(pd_idx_t),pd_idx_cmp);
+
+  for(i=0;i<pdA->nedges+pdB->nedges;i++) {
+
+    assert(checkbuf[i] == i);
+
+  }
+
+  free(checkbuf);  /* If we made it here, we pass */
+
+  /* Now we're ready to copy crossing and edge data from pdA and pdB
+     into pd; remember that we have to translate edge references (when
+     copying the crossings) and crossing references (when copying the
+     edges). */
+
+  for(i=0;i<pdA->ncross;i++) {
+
+    pd_crossing_t *pdcross = NULL;
+    pdcross = &(pd->cross[crossAtt[i]]);
+
+    pd_crossing_t *pdAcross = NULL;
+    pdAcross = &(pdA->cross[i]);
+
+    pd_idx_t j;
+
+    for(j=0;j<4;j++) {
+
+      pdcross->edge[j] = edgeAtt[pdAcross->edge[j]];
+
+    }
+
+    pdcross->sign = pdAcross->sign;
+
+  }
+
+  for(i=0;i<pdB->ncross;i++) {
+
+    pd_crossing_t *pdcross = NULL;
+    pdcross = &(pd->cross[crossBtt[i]]);
+
+    pd_crossing_t *pdBcross = NULL;
+    pdBcross = &(pdB->cross[i]);
+
+    pd_idx_t j;
+
+    for(j=0;j<4;j++) {
+
+      pdcross->edge[j] = edgeBtt[pdBcross->edge[j]];
+
+    }
+
+    pdcross->sign = pdBcross->sign;
+
+  }
+
+  /* We now translate the edge records */
+
+  for(i=0;i<pdA->nedges;i++) {
+
+    pd_edge_t *pdedge = NULL;
+    pdedge = &(pd->edge[edgeAtt[i]]);
+
+    pd_edge_t *pdAedge = NULL;
+    pdAedge = &(pdA->edge[i]);
+
+    pdedge->head = crossAtt[pdAedge->head];
+    pdedge->headpos = pdAedge->headpos;
+
+    pdedge->tail = crossAtt[pdAedge->tail];
+    pdedge->tailpos = pdAedge->tailpos;
+
+    
+  }
+
+  for(i=0;i<pdB->nedges;i++) {
+
+    pd_edge_t *pdedge = NULL;
+    pdedge = &(pd->edge[edgeBtt[i]]);
+
+    pd_edge_t *pdBedge = NULL;
+    pdBedge = &(pdB->edge[i]);
+
+    pdedge->head = crossBtt[pdBedge->head];
+    pdedge->headpos = pdBedge->headpos;
+
+    pdedge->tail = crossBtt[pdBedge->tail];
+    pdedge->tailpos = pdBedge->tailpos;
+    
+  }
+
+  /* Finally, we get to the actual connect sum operation,
+     which involves joining the two edges edgeA and edgeB. */
+
+  pd_edge_t *pdedgeA = NULL;
+  pdedgeA = &(pd->edge[posA]);
+
+  pd_edge_t *pdedgeB = NULL;
+  pdedgeB = &(pd->edge[posA + pdB->comp[joinB].nedges]);
+
+  /*  tail	  head 	  tail	     head
+       +  	   +       +  	      +	 
+       |   edgeA   |       |  	      |	 
+       +----->-----+  	   |edgeA     |edgeB	 
+       	       	      =>   v   	      ^	 
+       +----<------+  	   |  	      |	 
+       |   edgeB   |  	   |  	      |	 
+       +  	   +  	   +  	      +	 
+      head     	  tail	  head	    tail 
+  */   	  				 
+  					 
+  pd_edge_t swapB;
+  swapB = *pdedgeB;
+
+  pdedgeB->head = pdedgeA->head;
+  pdedgeB->headpos = pdedgeA->headpos;
+
+  pdedgeA->head = swapB.head;
+  pdedgeA->headpos = swapB.headpos;
+
+  /* Finally, we should be able to regenerate pd */
+
+  pd_regenerate(pd);
+  assert(pd_ok(pd));
+  
+  /* Housekeeping */
+
+  free(edgeAtt); free(edgeBtt);
+  free(crossAtt); free(crossBtt);
+
+  return pd;
+					 
+}					 

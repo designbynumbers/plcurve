@@ -418,8 +418,167 @@ bool rolfsentabletest()
   return true;
 
 }
+
+
+bool connect_sum_tester(pd_code_t *pdA, pd_idx_t edgeA,
+			pd_code_t *pdB, pd_idx_t edgeB,
+			char *nameA,char *nameB,
+			bool verbose)
+{
+  if (verbose) {
+    
+    printf("connect sum of %s and %s...",nameA,nameB);
+
+  }
+  
+  pd_code_t *cs = pd_connect_sum(pdA,edgeA,pdB,edgeB);
+ 
+  if (!pd_ok(cs)) {
+
+    if (verbose) {
+
+      printf("FAIL (connect sum didn't pass pd_ok)\n");
+
+    }
+    
+    return false;
+
+  }
+
+  if (cs->ncross != pdA->ncross + pdB->ncross) {
+
+    if (verbose) {
+
+      printf("FAIL (connect sum has %d crossings != %d + %d)\n",
+	     cs->ncross,pdA->ncross,pdB->ncross);
+
+    }
+    
+    return false;
+
+  }
+
+  pd_idx_t i;
+
+  for(i=0;i<cs->ncross;i++) {
+
+    if (cs->cross[i].sign == PD_UNSET_ORIENTATION &&
+	pdA->cross[0].sign != PD_UNSET_ORIENTATION &&
+	pdB->cross[0].sign != PD_UNSET_ORIENTATION) {
+
+      if (verbose) {
+
+	printf("FAIL (connect sum lost crossing info)\n");
+
+      }
+
+      return false;
+
+    }
+
+  }
+
+  pd_code_free(&cs);
+
+  return true;
+  
+}
   
 
+bool connect_sum_tests()
+
+{
+
+  printf("\n--------------------------------------------------\n"
+	 "Connect Sum tests\n"
+	 "--------------------------------------------------\n"); 
+
+  printf("generating example pdcodes (2,5) torus knot, 3-chain, 4-chain...");
+  
+  pd_code_t *torusKnot = pd_build_torus_knot(2,5);
+  pd_code_t *simpleChainA = pd_build_simple_chain(3);
+  pd_code_t *simpleChainB = pd_build_simple_chain(4);
+
+  if (!pd_ok(torusKnot) || !pd_ok(simpleChainA) || !pd_ok(simpleChainB)) {
+
+    printf("FAIL (didn't pass pd_ok)\n");
+    return false;
+
+  }
+
+  printf("pass (pd_ok for all three)\n");
+
+  if (!connect_sum_tester(torusKnot,3,simpleChainA,5,"(2,5) torus knot","3-chain",true)) {
+
+    return false;
+
+  }
+
+  if (!connect_sum_tester(simpleChainB,9,simpleChainA,5,"4-chain","3-chain",true)) {
+
+    return false;
+
+  }
+
+  printf("testing all connect sums of 3-chain and 4-chain...");
+
+  pd_idx_t i,j;
+
+  for(i=0;i<simpleChainA->nedges;i++) {
+
+    for(j=0;j<simpleChainB->nedges;j++) {
+
+      if (!connect_sum_tester(simpleChainA,i,simpleChainB,j,"3-chain","4-chain",false)) {
+
+	printf("FAIL (on connect sum of 3-chain at %d and 4-chain at %d):\n",
+	       i,j);
+
+	connect_sum_tester(simpleChainA,i,simpleChainB,j,"3-chain","4-chain",true);
+
+	return false;
+
+      }
+
+    }
+
+  }
+	
+  printf("pass (all passed)\n");
+
+  printf("testing all connect sums of torus knot and 4-chain...");
+
+  for(i=0;i<torusKnot->nedges;i++) {
+
+    for(j=0;j<simpleChainB->nedges;j++) {
+
+      if (!connect_sum_tester(torusKnot,i,simpleChainB,j,"(2,5) torus knot","4-chain",false)) {
+
+	printf("FAIL (on connect sum of (2,5) torus knot at %d and 4-chain at %d):\n",
+	       i,j);
+
+	connect_sum_tester(torusKnot,i,simpleChainB,j,"(2,5) torus knot","4-chain",true);
+
+	return false;
+
+      }
+
+    }
+
+  }
+	
+  printf("pass (all passed)\n");
+
+  printf("housekeeping...");
+
+  pd_code_free(&torusKnot);
+  pd_code_free(&simpleChainA);
+  pd_code_free(&simpleChainB);
+
+  printf("done\n");
+  
+  return true;    
+  
+}
     
 
 int main() {
@@ -429,7 +588,7 @@ int main() {
 	 "Unit tests for pdcode operation primitives. \n"
 	 "========================================================\n");
 
-  if (!trefoil_reverse_test() || !rolfsentabletest()) {
+  if (!connect_sum_tests() || !trefoil_reverse_test() || !rolfsentabletest()) {
 
     printf("=======================================================\n");
     printf("test_operations:  FAIL.\n");
