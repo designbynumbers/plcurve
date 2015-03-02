@@ -1,6 +1,7 @@
 import unittest
 from libpl.pdstor import *
 import os.path
+import gzip
 
 class TestPDStorFiles(unittest.TestCase):
     DATADIR = os.path.join("..", "..", "data", "pdstors")
@@ -35,7 +36,7 @@ class TestPDStorFiles(unittest.TestCase):
                 
     def test_pdstor_hashclasses(self):
         # Test passed for me but takes a long time on 8+
-        for i in range(3,8):
+        for i in range(3,5):
             print "Checking hashclasses in %s.pdstor"%i
             self.check_pdstor_hashclasses(i)
 
@@ -50,8 +51,20 @@ class TestPDStorFiles(unittest.TestCase):
                 self.assertEqual(oldhash, newhash)
                     
     def test_pdstor_hashes(self):
-        for i in range(3,6):
+        for i in range(3,5):
             self.check_pdstor_hashes(i)
+
+    def check_prime_subpdstor(self, n_cross):
+        with open(os.path.join(self.DATADIR, "%s.pdstor"%n_cross), "rb") as pdstor_f, \
+             open(os.path.join(self.DATADIR, "%sprime.pdstor"%n_cross), "rb") as primes_f:
+            pdstor = PDStorage.read(pdstor_f, read_header=True)
+            primes = PDStorage.read(primes_f, read_header=True)
+            print " %s PDstors read in."%n_cross
+            self.assertTrue(primes <= pdstor)
+
+    def test_prime_subpdstor(self):
+        for i in range(3,8):
+            self.check_prime_subpdstor(i)
             
 class TestPDDatabase(unittest.TestCase):
     DATADIR = os.path.join("..", "..", "data", "pdstors")

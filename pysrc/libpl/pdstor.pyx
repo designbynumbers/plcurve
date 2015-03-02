@@ -594,6 +594,40 @@ class PDStorage:
             ret.hashes[pdcode.hash].append(pdcode)
         return ret
 
+    def __le__(self, other):
+        if not isinstance(other, PDStorage):
+            return False
+
+        if len(self.hashes) > len(other.hashes):
+            return False
+        
+        for hash_, bucket in self.hashes.iteritems():
+            if hash_ in other.hashes:
+                if len(bucket) > len(other.hashes[hash_]):
+                    return False
+                
+                for pdcode in bucket:
+                    if not True in (pdcode.isomorphic(opd) for
+                                    opd in other.hashes[hash_]):
+                        
+                        return False
+            else:
+                return False
+        return True
+
+    def __ge__(self, other):
+        return NotImplemented
+
+    ## Really lazy quadruple of set inclusion/equality operators
+    def __lt__(self, other):
+        return self <= other and not self >= other
+    def __gt__(self, other):
+        return NotImplemented
+    def __eq__(self, other):
+        return self <= other and self >= other
+    def __ne__(self, other):
+        return not self == other
+
 class PDDatabase(PDStoreExpander):
     def save(self, fname):
         f = open(fname, "wb")
