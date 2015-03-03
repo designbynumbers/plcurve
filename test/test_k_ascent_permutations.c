@@ -802,8 +802,6 @@ bool build_choice_vector_test() {
 			&nchoices,&cv,
 			rng);
 
-    int j;
-
     if (nchoices > 4 || nchoices < 2) {
 
       printf("FAIL (length of cv = %d > 4 or < 2)\n",

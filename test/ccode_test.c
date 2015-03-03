@@ -779,7 +779,6 @@ int main () {
   rng = gsl_rng_alloc(T);
   
   int seedi;
-  int reps;
   
   seedi = time(0); 
   gsl_rng_set(rng,seedi);
