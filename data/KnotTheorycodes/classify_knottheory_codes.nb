@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     10776,        296]
-NotebookOptionsPosition[     10031,        266]
-NotebookOutlinePosition[     10428,        284]
-CellTagsIndexPosition[     10385,        281]
+NotebookDataLength[     10251,        279]
+NotebookOptionsPosition[      9392,        245]
+NotebookOutlinePosition[      9793,        263]
+CellTagsIndexPosition[      9750,        260]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -62,7 +62,12 @@ Cell[BoxData["\<\"Loading KnotTheory` version of March 22, 2011, \
    3.6307651602248173`*^9, 3.6307651646064377`*^9}, 3.630765243321027*^9, 
    3.630765355249776*^9, 3.6307684182495728`*^9, 3.630768487233543*^9, {
    3.6307685355493383`*^9, 3.63076853851968*^9}, {3.6312699091895447`*^9, 
-   3.631269911762988*^9}, 3.631270373864978*^9, 3.631270473597356*^9}]
+   3.631269911762988*^9}, 3.631270373864978*^9, 3.631270473597356*^9, 
+   3.6343812182583313`*^9, 3.634381288560495*^9, {3.634381328166445*^9, 
+   3.63438137244501*^9}, 3.634385432996221*^9, 3.634385607556525*^9, 
+   3.634385757956151*^9, 3.634386076947734*^9, 3.634386948507859*^9, 
+   3.634387367847197*^9, 3.63438759022209*^9, 3.634387946865376*^9, 
+   3.634388725171527*^9, 3.6343887870164433`*^9, 3.634389509177652*^9}]
 }, Open  ]],
 
 Cell[BoxData[
@@ -88,19 +93,18 @@ Cell[BoxData[
    RowBox[{"RawPDCodes", "=", 
     RowBox[{"StringSplit", "[", 
      RowBox[{
-      RowBox[{"Import", "[", "\"\<6.simple.knottheory\>\"", "]"}], ",", 
-      "\"\<\\n\>\""}], "]"}]}], ";"}]}]], "Input",
- CellChangeTimes->{{3.6294724201647577`*^9, 3.629472440071579*^9}, {
-  3.629472518850358*^9, 3.629472543549355*^9}, {3.629475508445252*^9, 
-  3.629475508557509*^9}, {3.6294764216054993`*^9, 3.629476421677785*^9}, {
-  3.629476943088428*^9, 3.629476943166994*^9}, {3.6306896654289017`*^9, 
-  3.630689671572855*^9}, {3.630765299551046*^9, 3.63076532553191*^9}, {
-  3.630765357557563*^9, 3.6307653576466846`*^9}, {3.6307654131213703`*^9, 
-  3.630765413244666*^9}, {3.630765551572219*^9, 3.630765551629764*^9}, {
-  3.630767939008136*^9, 3.630767939084262*^9}, {3.6307685614589577`*^9, 
-  3.630768561547976*^9}, {3.630768633475223*^9, 3.630768633631112*^9}, {
-  3.631269904072155*^9, 3.631269905916739*^9}, {3.631270478575584*^9, 
-  3.631270478721809*^9}, {3.6312708035573683`*^9, 3.631270811354925*^9}}],
+      RowBox[{"Import", "[", "\"\<xah\>\"", "]"}], ",", "\"\<\\n\>\""}], 
+     "]"}]}], ";"}]}]], "Input",
+ CellChangeTimes->CompressedData["
+1:eJwdzE8oQwEcwPG1rDEb0WrbYcooRSxr24nmrVnjsLGmKbWeSbQd2MxOi5DD
+0EJaTqvZ2GFb9oeDwtVKtNbYAZfVSl7EEgdevN/v8O1z+7ba58zTbBaLJWUC
+M4PrljiPIshhthWUqR9IcHTvYwpc0QTuE4zS0g46QGYNSUZH6hSdKZb9YM14
+Bd0+607RfIooWqpo14ErJBNQxCwnHQYDpfQhGE2foLpyJAEaizE0ZKpegNyO
+T/RISz63MeozdjR33KNuZ+T4e1GuSq4BmxVKVGxisyUNFPE61o/KnYUhsFFS
+Qr/uXG5wa8K5AEYWBapaIUUEzQT6rrH1gY92Em2ZVOtAXfhND4rrHFoe40ve
+iW64PFbwNutFLavuXfC7aRn97fTQ4FXCi+4Hlcp6+F2q0TwtHAFTMhF6vhb3
+gaK/JKowXj+BhdwNatiMVsAlewy1JX40fEbfPI3+A9EFxfM=
+  "]],
 
 Cell[BoxData[
  RowBox[{
@@ -172,81 +176,54 @@ Cell[BoxData[
   RowBox[{"(*", 
    RowBox[{"See", " ", "what", " ", "we", " ", 
     RowBox[{"get", "!"}]}], "*)"}], "\[IndentingNewLine]", 
-  RowBox[{"Tally", "[", "KnotTypes", "]"}]}]], "Input",
+  RowBox[{"Types", "=", 
+   RowBox[{"Tally", "[", "KnotTypes", "]"}]}]}]], "Input",
  CellChangeTimes->{{3.630765339431806*^9, 3.630765344345647*^9}, {
-  3.6312708482846127`*^9, 3.631270852817977*^9}}],
+  3.6312708482846127`*^9, 3.631270852817977*^9}, {3.6343854998454313`*^9, 
+  3.634385526344866*^9}, {3.634386846651848*^9, 3.634386847551578*^9}}],
 
 Cell[BoxData[
  RowBox[{"{", 
-  RowBox[{
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[5, 1]m\"\>", "}"}], ",", "12"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[3, 1]m\"\>", "}"}], ",", "1856"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[0, 1]\"\>", "}"}], ",", "12"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", 
-      RowBox[{"Knot", "[", 
-       RowBox[{"0", ",", "1"}], "]"}], "}"}], ",", "34240"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[3, 1]\"\>", "}"}], ",", "1856"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[5, 2]m\"\>", "}"}], ",", "32"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[6, 3]\"\>", "}"}], ",", "4"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[4, 1]\"\>", "}"}], ",", "576"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[5, 2]\"\>", "}"}], ",", "32"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[5, 1]\"\>", "}"}], ",", "12"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[6, 2]\"\>", "}"}], ",", "2"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[6, 2]m\"\>", "}"}], ",", "2"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[6, 1]m\"\>", "}"}], ",", "2"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", "\<\"Knot[6, 1]\"\>", "}"}], ",", "2"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", 
-      RowBox[{"{", 
-       RowBox[{"\<\"Knot[3,1]m\"\>", ",", "\<\"Knot[3,1]m\"\>"}], "}"}], 
-      "}"}], ",", "4"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", 
-      RowBox[{"{", 
-       RowBox[{"\<\"Knot[3,1]\"\>", ",", "\<\"Knot[3,1]m\"\>"}], "}"}], "}"}],
-      ",", "8"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"{", 
-      RowBox[{"{", 
-       RowBox[{"\<\"Knot[3,1]\"\>", ",", "\<\"Knot[3,1]\"\>"}], "}"}], "}"}], 
-     ",", "4"}], "}"}]}], "}"}]], "Output",
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"Knot", "[", 
+      RowBox[{"0", ",", "1"}], "]"}], "}"}], ",", "482368"}], "}"}], 
+  "}"}]], "Output",
  CellChangeTimes->{
   3.63076534475467*^9, 3.630765402364406*^9, {3.6307654612588787`*^9, 
    3.630765487239208*^9}, 3.630766187233328*^9, 3.630767943335094*^9, {
    3.630768544498041*^9, 3.630768555237516*^9}, 3.630768607813287*^9, 
    3.6307692455896053`*^9, 3.631269915847299*^9, 3.631270379986698*^9, 
-   3.63127048430422*^9}]
+   3.63127048430422*^9, 3.634381232923189*^9, 3.6343812888277063`*^9, {
+   3.634381328420857*^9, 3.634381376016098*^9}, {3.6343854822220297`*^9, 
+   3.634385526698146*^9}, 3.6343865132633266`*^9, 3.634386849754228*^9, 
+   3.634387027717869*^9, 3.6343874266413517`*^9, 3.634387643351747*^9, 
+   3.6343879896679697`*^9, 3.634388753729075*^9, 3.634388803477913*^9, 
+   3.634389512898368*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Table", "[", 
+  RowBox[{
+   RowBox[{"Length", "[", 
+    RowBox[{
+     RowBox[{"Types", "[", 
+      RowBox[{"[", "i", "]"}], "]"}], "[", 
+     RowBox[{"[", "1", "]"}], "]"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "1", ",", 
+     RowBox[{"Length", "[", "Types", "]"}]}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.634386841799527*^9, 3.634386905664694*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", "1", "}"}]], "Output",
+ CellChangeTimes->{{3.6343868784543657`*^9, 3.634386906066782*^9}, 
+   3.6343870277564793`*^9, 3.634387426675996*^9, 3.6343876433859997`*^9, 
+   3.634387989694337*^9, 3.634388753765464*^9, 3.634388803499771*^9, 
+   3.634389512932578*^9}]
 }, Open  ]],
 
 Cell[BoxData[
@@ -256,16 +233,18 @@ Cell[BoxData[
     RowBox[{"file", "."}]}], "*)"}], "\[IndentingNewLine]", 
   RowBox[{
    RowBox[{"Export", "[", 
-    RowBox[{"\"\<6.dat\>\"", ",", "KnotTypes"}], "]"}], ";"}]}]], "Input",
- CellChangeTimes->{{3.63076520047402*^9, 3.630765269989704*^9}, {
-  3.630765319039084*^9, 3.6307653191400757`*^9}, {3.6307653501074123`*^9, 
-  3.630765350309635*^9}, {3.6307654082488403`*^9, 3.630765418409422*^9}, {
-  3.6307656134303713`*^9, 3.6307656135178967`*^9}, {3.631269919790703*^9, 
-  3.631269919846901*^9}, {3.631270487532229*^9, 3.631270487655571*^9}, {
-  3.6312708562852373`*^9, 3.631270866434965*^9}}]
+    RowBox[{"\"\<xah.dat\>\"", ",", "KnotTypes"}], "]"}], ";"}]}]], "Input",
+ CellChangeTimes->CompressedData["
+1:eJxTTMoPSmViYGAQBWIQraPNP0mJ97XjitX7Z4FoXYeHC0B0Q/UTMP0m//AS
+EN3x4iSYbvjGvgZE/5H0XQuiZx1dexREz5m0AUwX+P5kluR77XhB8jeYZuX4
+6AWiC359AdOrFDgrQbTNa98qEF33YJEZh8hrRwfT5WB6htp2GxDt5rsTTE+t
+Y3IE0RWMVu4gOmnDficuIP3H9BCYvnXyaDiIdso4Aab9z3yZBKL9Ctgmg+ip
+mswM3EBaoZ4NTM9o6zUB0V3r+sH0ttaMABAtwpENptfM+VkDotsP/wbT9+Md
+74HoB4+dwfSRjd+fguicLz/BNMM8dwceIK1xwxNMAwCvbIzQ
+  "]]
 },
 WindowSize->{1219, 992},
-WindowMargins->{{19, Automatic}, {Automatic, 0}},
+WindowMargins->{{-1371, Automatic}, {47, Automatic}},
 ShowSelection->True,
 Magnification->1.5,
 FrontEndVersion->"8.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (November 6, \
@@ -287,17 +266,21 @@ Cell[557, 20, 203, 4, 39, "Text"],
 Cell[763, 26, 724, 19, 87, "Input"],
 Cell[CellGroupData[{
 Cell[1512, 49, 227, 4, 64, "Input"],
-Cell[1742, 55, 656, 9, 54, "Print"]
+Cell[1742, 55, 1010, 14, 54, "Print"]
 }, Open  ]],
-Cell[2413, 67, 456, 11, 64, "Input"],
-Cell[2872, 80, 1185, 22, 64, "Input"],
-Cell[4060, 104, 1023, 24, 64, "Input"],
-Cell[5086, 130, 1455, 35, 87, "Input"],
+Cell[2767, 72, 456, 11, 64, "Input"],
+Cell[3226, 85, 888, 21, 64, "Input"],
+Cell[4117, 108, 1023, 24, 64, "Input"],
+Cell[5143, 134, 1455, 35, 87, "Input"],
 Cell[CellGroupData[{
-Cell[6566, 169, 321, 7, 64, "Input"],
-Cell[6890, 178, 2418, 70, 133, "Output"]
+Cell[6623, 173, 446, 9, 64, "Input"],
+Cell[7072, 184, 886, 18, 40, "Output"]
 }, Open  ]],
-Cell[9323, 251, 704, 13, 64, "Input"]
+Cell[CellGroupData[{
+Cell[7995, 207, 398, 11, 40, "Input"],
+Cell[8396, 220, 288, 5, 40, "Output"]
+}, Open  ]],
+Cell[8699, 228, 689, 15, 64, "Input"]
 }
 ]
 *)

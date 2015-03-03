@@ -1,3 +1,14 @@
 The data in this directory were created using the following command to processpdstor (run from /src/):
 
 ./processpdstor ../data/pdstors/3.pdstor -o ../data/KnotTheorycodes/3.knottheory --generate-all-crossing-signs --generate-all-orientations -k -K
+
+———————————
+
+The files *.dat contain end line separated knot types corresponding to the knot types of the pd codes in *.knottheory
+
+———————————
+
+
+8.knottheory was split by:
+
+split -l 2000000 8.knottheory 
