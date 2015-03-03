@@ -470,7 +470,7 @@ bool connect_sum_tester(pd_code_t *pdA, pd_idx_t edgeA,
 
 	printf("FAIL (connect sum lost crossing info)\n");
 
-      }
+      }  
 
       return false;
 
@@ -479,6 +479,12 @@ bool connect_sum_tester(pd_code_t *pdA, pd_idx_t edgeA,
   }
 
   pd_code_free(&cs);
+
+  if (verbose) {
+
+    printf("pass\n");
+
+  }
 
   return true;
   

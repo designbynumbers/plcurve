@@ -2030,12 +2030,13 @@ pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
 
   }
 
+  nen += pdB->comp[joinB].nedges; /* Leave room for the compB stuff */
+
   for(;pos<pdA->comp[joinA].nedges;pos++) {
 
-    edgeAtt[pdA->comp[joinA].edge[pos]] = (pdB->comp[joinB].nedges) + (nen++);
+    edgeAtt[pdA->comp[joinA].edge[pos]] = nen++;
 
   }
-
   
   for(comp=0;comp<pdA->ncomps;comp++) {
 
@@ -2182,6 +2183,8 @@ pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
 
   }
 
+  pd->ncross = pdA->ncross + pdB->ncross;
+
   /* We now translate the edge records */
 
   for(i=0;i<pdA->nedges;i++) {
@@ -2217,14 +2220,18 @@ pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
     
   }
 
+  pd->nedges = pdA->nedges + pdB->nedges;
+
   /* Finally, we get to the actual connect sum operation,
-     which involves joining the two edges edgeA and edgeB. */
+     which involves joining the two edges edgeA and edgeB. 
+     Since we've already translated these two to the new
+     numbering scheme, we're going to do this in pd. */
 
   pd_edge_t *pdedgeA = NULL;
-  pdedgeA = &(pd->edge[posA]);
+  pdedgeA = &(pd->edge[edgeAtt[edgeA]]);
 
   pd_edge_t *pdedgeB = NULL;
-  pdedgeB = &(pd->edge[posA + pdB->comp[joinB].nedges]);
+  pdedgeB = &(pd->edge[edgeBtt[edgeB]]);
 
   /*  tail	  head 	  tail	     head
        +  	   +       +  	      +	 
@@ -2245,6 +2252,11 @@ pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
 
   pdedgeA->head = swapB.head;
   pdedgeA->headpos = swapB.headpos;
+
+  /* Note that we also have to update the crossing records */
+
+  pd->cross[pdedgeA->head].edge[pdedgeA->headpos] = edgeAtt[edgeA];
+  pd->cross[pdedgeB->head].edge[pdedgeB->headpos] = edgeBtt[edgeB];
 
   /* Finally, we should be able to regenerate pd */
 

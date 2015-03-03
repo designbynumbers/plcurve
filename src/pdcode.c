@@ -1595,7 +1595,8 @@ void pd_regenerate_faces(pd_code_t *pd)
   pd_or_t  start_or;
   bool     all_assigned = false;
 
-  for(pd->nfaces=0, start_edge = 0, start_or = PD_POS_ORIENTATION;  /* Loop over faces. */
+  for(pd->nfaces=0, start_edge = 0, start_or = PD_POS_ORIENTATION;
+      /* Loop over faces. */
       !all_assigned;
       pd->nfaces++,pdint_next_face_unassigned_edge_or(pd,face_assigned,
 						      &start_edge,&start_or,
@@ -1629,22 +1630,16 @@ void pd_regenerate_faces(pd_code_t *pd)
 
       }
 
-      if (nedges > pd->nedges) {
-
-	fprintf(stderr,
-		"pd_regenerate_faces: Face number %d appears to contain %d edges of %d edge diagram.\n"
-		"                     Suspect crossing or edge information corrupt.\n",
-		pd->nfaces,nedges,pd->nedges);
-	exit(1);
-
-      }
+      pd_idx_t nedges_in_this_face = nedges;
+      assert(nedges_in_this_face < pd->nedges);
 
       /* Increment the edge to the next edge on the face. */
 
       pdint_next_edge_on_face(pd,this_edge,this_or,&this_edge,&this_or);
       nedges++;
 
-    } while (!(this_edge == start_edge && this_or == start_or));  /* End of loop around this face. */
+    } while (!(this_edge == start_edge && this_or == start_or));
+    /* End of loop around this face. */
 
     /* Make sure the number of faces is sane. */
 
