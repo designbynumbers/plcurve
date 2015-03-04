@@ -14,7 +14,9 @@
 \PassOptionsToPackage{caption=false}{subfig}
 \usepackage[lofdepth]{subfig}
 
-\usepackage{clrscode}
+%\usepackage{clrscode}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \def\figdir{figs/}
 \graphicspath{\figdir}
@@ -76,10 +78,15 @@
 \newcommand{\edgedouble}{E_2}
 \newcommand{\cutedgedouble}{E_3}
 \newcommand{\pairinsert}{E_4}
-\newcommand{\plantri}{\texttt{plantri} }
-\newcommand{\nauty}{\texttt{nauty} }
-\newcommand{\saucy}{\texttt{saucy} }
+\newcommand{\plantri}{\textit{plantri} }
+\newcommand{\nauty}{\textit{nauty} }
+\newcommand{\saucy}{\textit{saucy} }
+\newcommand{\pdcode}{pdcode }
+\newcommand{\pdcodes}{pdcodes } 
 
+\newcommand{\edges}{\operatorname{edges}}
+\newcommand{\head}{\operatorname{head}}
+\newcommand{\tail}{\operatorname{tail}}
 
 \graphicspath{{../../figs/}{figs/}}
 
@@ -150,9 +157,123 @@ In the \emph{random diagram model}, a random $n$-crossing knot is selected unifo
 \end{definition}
 We intend to compute knot probabilities directly in the random diagram model for (relatively) small $n$ by direct enumeration of the collection of $n$-crossing random knots. Having the entire collection of diagrams will in addition allow us to study transitions between diagrams, but we will discuss this in future work. 
 
+\section{pdcodes and software architecture}
+
+One of us (Mastin) has given a detailed construction of a combinatorial object bijective to the knot diagrams.
+
+\begin{center}
+\textbf{Matt summarizes pd codes, defines pd code isomorphism combinatorally, we pick up with the expected algorithm for determining pd isomorphism}
+\end{center}
+
+It is clear that a lot of data about a \pdcode is preserved by isomorphism: for instance, the number of crossings, edges, faces, and the numbers of edges around faces. We can use this information to rule out isomorphisms using a hashing scheme.
+
+\begin{definition}
+Suppose the \pdcode $P$ has $V$ crossings, $E$ edges, $F$ faces, and $C$ components. We assume that the faces are denoted $f_1, \dots, f_F$ and the components are denoted $c_1, \dots, c_C$. Further, let $\edges(x)$ give the number of edges on a face or component. Then the \emph{hash} of $P$ is given by the tuple
+\begin{equation*}
+\mathcal{H}(P) = (V,E,F,C,\{ \edges(f_1), \dots, \edges(f_F) \}, 
+ \{ \edges(C_1), \dots, \edges(C_C) \}).
+\end{equation*}
+The last two are unordered sets of integers.
+\end{definition}
+
+It is clear that
+\begin{lemma}
+If two \pdcodes $P_1$ and $P_2$ are isomorphic, then $\mathcal{H}(P_1) = \mathcal{H}(P_2)$.
+\end{lemma}
+
+\begin{proof}
+The numbers $V$, $E$, $F$, and $C$ are clearly preserved by isomorphism. The indices of edges and faces may be permuted by an isomorphism, but the number of edges on each can't change. Thus the \emph{unordered sets} of edge counts for faces and component remain the same as well.
+\end{proof}
+
+We can now build up an isomorphism between pdcodes by a series of definitions:
+
+\begin{definition}
+Suppose we have two pdcodes $P$ and $P'$ with the same hash. 
+\begin{itemize}
+\item A bijection $\gamma: \{c_1,\dots,c_C\} \rightarrow \{c'_1,\dots,c'_C\}$ between the components of $P$ and the components of $P'$ is called \emph{component-length preserving} if $\# \edges(c_i) = \# \edges(\gamma(c_i))$ for all $i$.
+\item Given such a component-length preserving bijection $\gamma$, a bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$ is called \emph{component-preserving} and \emph{compatible with $\gamma$} if $\epsilon$ maps the edges of each $c_i$ to the edges of $\gamma(c_i)$ by an element of the dihedral group $D_{\edges(c_i)}$. That is, the edges of $c_i$ are mapped in cyclic (or reverse-cyclic) order to the corresponding edges of $\gamma(c_i)$. 
+\item Given a component-preserving bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$, we say that a bijection $\nu : \{v_1, \dots, v_V\} \rightarrow \{v'_1,\dots,v'_V\}$ between the vertices of $P$ and the vertices of $P'$ is \emph{compatible with $\epsilon$} if 
+\begin{equation*}
+\nu(\head(e_i)) = \head(\epsilon(e_i)) \quad \text{ and } \quad \nu(\tail(e_i)) = \tail(\epsilon(e_i)
+\end{equation*}
+when $e_i$ is part of a component mapped by an orientation-preserving element of the dihedral group, and 
+\begin{equation*}
+\nu(\head(e_i)) = \tail(\epsilon(e_i)) \quad \text{ and } \quad \nu(\tail(e_i)) = \head(\epsilon(e_i)
+\end{equation*}
+when $e_i$ is part of a component mapped by an orientation-reversing element of the dihedral group.
+\item Given $\gamma$, $\epsilon$, and $\nu$ that obey all the above conditions, we say that they are:
+\begin{itemize}
+ \item \emph{globally orientation-preserving} if the set of edges $e_i, e_j, e_k, e_l$ incident to each vertex $v$ of $P$ (in counterclockwise cyclic order) is mapped to the set of edges $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ incident to $\nu(v)$ in counterclockwise cyclic order. 
+ \item \emph{globally orientation reversing} if the $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ are incident to $\nu(v)$ but in clockwise cyclic order (for each $v$),
+ \item otherwise, the triple is \emph{globally inconsistent}.
+\end{itemize}
+\end{itemize}
+\end{definition}
+
+We then have
+\begin{proposition}
+Given a pair of pdcodes $P$ and $P'$ with the same hash, each isomorphism of $P$ to $P'$ is given by a set of bijections $\gamma$ between their components, $\epsilon$ between their edges, and $\nu$ between their vertices where 
+\begin{itemize}
+\item $\gamma$ is component-length preserving,
+\item $\epsilon$ is component-preserving and compatible with $\gamma$,
+\item $\nu$ is compatible with $\epsilon$ 
+\end{itemize}
+and the triple is globally orientation-preserving (or globally orientation reversing, but not globally inconsistent).
+\end{proposition}
+
+\begin{proof}
+Basically, this is the definition of pd isomorphic.
+\end{proof}
+
+A few other observations are helpful:
+\begin{lemma}
+Given a component-length preserving $\gamma$ and component-preserving and compatible $\epsilon$, and a set of orientations for the components of $P$, there is at most one $\nu : \{v_1, \dots, v_V\} \rightarrow \{v'_1,\dots,v'_V\}$ which is compatible with $\epsilon$ and consistently oriented on components and we can construct $\nu$ as below.
+\end{lemma}
+
+\begin{proof}
+Each vertex $v$ of $P$ is incident to four edges $e_i, e_j, e_k, e_l$. Without loss of generality, let's assume that $v = \tail(e_i)$, $\tail(e_j)$, $\head(e_k)$ and $\head(e_l)$. Then if $\nu$ is compatible with $\epsilon$, we must have
+\begin{equation*}
+\nu(v) = \tail(\epsilon(e_i)) = \tail(\epsilon(e_j)) = \head(\epsilon(e_k)) = \head(\epsilon(e_l)).
+\end{equation*}
+If the four terms on the right are equal, this uniquely defines $\nu(v)$. If not, there is no compatible $\nu$. 
+\end{proof}
+ 
+We can now find all isomorphisms between two pdcodes computationally by a simple brute-force strategy: 
+
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{BuildIsomorphisms}{$P$,$P'$} 
+\Comment{Build all isomorphisms (if any) between pdcodes $P$ and $P'$}
+\If{the hashes $\mathcal{H}(P)$ and $\mathcal{H}(P')$ are different}
+	\State $P$ and $P'$ are not isomorphic. Return $\emptyset$.	
+\EndIf
+
+\ForAll{component-length preserving $\gamma: \{c_1,\dots, c_C\} \rightarrow \{c'_1, \dots, c'_C\}$}
+	\Comment{There is at least one such $\gamma$ because the hashes match}
+	\ForAll{compatible and component-preserving $\epsilon$}
+	\Comment{Generated by iterating over the product of dihedral groups $D_{\edges(c_1)} \times \cdots \times D_{\edges{c_C}}$.}
+	\ForAll{collections of orientations of components}
+	\If{a compatible and consistently oriented $\nu$ exists}
+	\Comment{ince each vertex of $P$ is incident to four edges in $P$, and the corresponding edges in $P'$ might not even share a vertex of $P'$ in common}
+			\If{the edges $e_i, e_j, e_k, e_l$ around \emph{each} vertex $v$ in $P$ (in counterclockwise order) map under $\epsilon$ to the edges around $\nu(v)$ (in counterclockwise order)}
+				\State $\epsilon$, $\nu$ define an isomorphism $P \rightarrow P'$
+			\EndIf
+		\EndIf
+	\EndFor
+\EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+
 \section{Constructing the database of diagrams}
 
-Our first goal is to enumerate the link shadows-- that is, the connected 4-regular embedded planar (multi)graphs-- computationally.  The basic strategy for such an enumeration is to define a smaller class of graphs so that the graphs we are interested in can be obtained from the base class of graphs by various expansion moves. Lehel~\cite{JGT:JGT3190050412} gave a strategy for generating all 4-regular graphs in this way from the octahedral graph. Instead of using Lehel's strategy directly, we build on the method of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa} for enumerating isomorph-free embedded planar graphs; we extend their work here to generate the class of graphs that we're interested in. We note that if we were only interested in 4-edge-connected diagrams (that is, prime diagrams), we could generate them as the duals of the planar simple quadrangulations generated by \plantri following~\cite{Brinkmann:2005um}. But since we are interested in all the diagrams, this approach is not immediately\footnote{We could generate all prime diagrams and connect-sum them to generate the composite ones, but the bookkeeping becomes intricate quickly and it's not easy to debug.} open to us.
+Our first goal is to enumerate the link shadows-- that is, the connected 4-regular embedded planar (multi)graphs-- computationally.  
+
+
+
+The basic strategy for such an enumeration is to define a smaller class of graphs so that the graphs we are interested in can be obtained from the base class of graphs by various expansion moves. Lehel~\cite{JGT:JGT3190050412} gave a strategy for generating all 4-regular graphs in this way from the octahedral graph. Instead of using Lehel's strategy directly, we build on the method of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa} for enumerating isomorph-free embedded planar graphs; we extend their work here to generate the class of graphs that we're interested in. We note that if we were only interested in 4-edge-connected diagrams (that is, prime diagrams), we could generate them as the duals of the planar simple quadrangulations generated by \plantri following~\cite{Brinkmann:2005um}. But since we are interested in all the diagrams, this approach is not immediately\footnote{We could generate all prime diagrams and connect-sum them to generate the composite ones, but the bookkeeping becomes intricate quickly and it's not easy to debug.} open to us.
 
 In the spirit of Brinkmann and McKay, we now define four expansion moves of embedded planar graphs with vertex degree $\leq 4$ which generate new embedded planar graphs of vertex degree $\leq 4$ with the same number of vertices, but additional edges:
 \begin{definition}
