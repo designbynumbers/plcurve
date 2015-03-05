@@ -945,7 +945,7 @@ cdef class PlanarDiagram:
         for (x, xpos), (y, ypos) in gluings.itervalues():
             x[xpos] = y[ypos]
 
-        link = links.Link(sg_xings, build=False)
+        link = links.Link(sg_xings, check_planarity=False, build=False)
 
         # This was in Eric's original email and so I do not know if it needs
         # to be implemented here since I have passed build=False above
@@ -971,6 +971,10 @@ cdef class PlanarDiagram:
 
         # Now build components starting at the corresponding edges
         link._build_components(component_starts)
+        
+        # Lastly, check that our graph is indeed planar.
+        if not link.is_planar():
+            raise ValueError("Diagram not planar.")
 
         return link
 
