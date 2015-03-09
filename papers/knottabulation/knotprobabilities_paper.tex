@@ -82,7 +82,7 @@
 \newcommand{\nauty}{\textit{nauty} }
 \newcommand{\saucy}{\textit{saucy} }
 \newcommand{\pdcode}{pdcode }
-\newcommand{\pdcodes}{pdcodes } 
+\newcommand{\pdcodes}{pdcodes }
 
 \newcommand{\edges}{\operatorname{edges}}
 \newcommand{\head}{\operatorname{head}}
@@ -133,26 +133,26 @@ Examples of link shadows are shown below
 \begin{center}
 \includegraphics[width=4in]{linkshadow}
 \end{center}
-It is well-understood that the equivalence relation preserves the (spherical) embedding of the planar graph; in fact, the left and right-most shadows are actually equivalent under embedded isomorphism-- we have just changed the ``exterior'' face of the projection from the sphere to the plane. 
+It is well-understood that the equivalence relation preserves the (spherical) embedding of the planar graph; in fact, the left and right-most shadows are actually equivalent under embedded isomorphism-- we have just changed the ``exterior'' face of the projection from the sphere to the plane.
 
-We can partition the edges of a link diagram into \emph{components} by defining two edges to be equivalent if they meet at a vertex at positions which are not cyclicly adjacent. We will call shadows with a single component \emph{knot shadows}. They will be the focus of this paper. 
+We can partition the edges of a link diagram into \emph{components} by defining two edges to be equivalent if they meet at a vertex at positions which are not cyclicly adjacent. We will call shadows with a single component \emph{knot shadows}. They will be the focus of this paper.
 
 It's standard in knot theory that
 \begin{proposition}
 The finite set of knot shadows with $n$ vertices is bijective to the finite set of generic immersions of $S^1$ into $S^2$ up to orientation-preserving diffeomorphism of the sphere.
 \end{proposition}
 
-We can define a link diagram by 
+We can define a link diagram by
 \begin{definition}
-A \emph{link diagram} is a link shadow where each component is oriented and each vertex is decorated with over-under information for the edges meeting at the vertex. We call these vertices \emph{crossings}. The equivalence relation for these diagrams is the \emph{diagram automorphism}: a shadow isomorphism which also preserves orientation and over-under information. 
+A \emph{link diagram} is a link shadow where each component is oriented and each vertex is decorated with over-under information for the edges meeting at the vertex. We call these vertices \emph{crossings}. The equivalence relation for these diagrams is the \emph{diagram automorphism}: a shadow isomorphism which also preserves orientation and over-under information.
 \end{definition}
 It is clear that there are at most $2^{\text{\# components}} 2^{\text{\# crossings}}$ link diagrams associated to a given link shadow, but that this number may be reduced if there are nontrivial diagram automorphisms.
 
-Various models of random knots have been proposed in the literature. In this paper, we will examine a quite natural one: 
+Various models of random knots have been proposed in the literature. In this paper, we will examine a quite natural one:
 \begin{definition}
 In the \emph{random diagram model}, a random $n$-crossing knot is selected uniformly from the counting measure on the finite set of one-component $n$-crossing link diagrams.
 \end{definition}
-We intend to compute knot probabilities directly in the random diagram model for (relatively) small $n$ by direct enumeration of the collection of $n$-crossing random knots. Having the entire collection of diagrams will in addition allow us to study transitions between diagrams, but we will discuss this in future work. 
+We intend to compute knot probabilities directly in the random diagram model for (relatively) small $n$ by direct enumeration of the collection of $n$-crossing random knots. Having the entire collection of diagrams will in addition allow us to study transitions between diagrams, but we will discuss this in future work.
 
 \section{pdcodes and software architecture}
 
@@ -167,8 +167,8 @@ It is clear that a lot of data about a \pdcode is preserved by isomorphism: for 
 \begin{definition}
 Suppose the \pdcode $P$ has $V$ crossings, $E$ edges, $F$ faces, and $C$ components. We assume that the faces are denoted $f_1, \dots, f_F$ and the components are denoted $c_1, \dots, c_C$. Further, let $\edges(x)$ give the number of edges on a face or component. Then the \emph{hash} of $P$ is given by the tuple
 \begin{equation*}
-\mathcal{H}(P) = (V,E,F,C,\{ \edges(f_1), \dots, \edges(f_F) \}, 
- \{ \edges(C_1), \dots, \edges(C_C) \}).
+\mathcal{H}(P) = (V,E,F,C,\{ \edges(f_1), \dots, \edges(f_F) \},
+ \{ \edges(c_1), \dots, \edges(c_C) \}).
 \end{equation*}
 The last two are unordered sets of integers.
 \end{definition}
@@ -185,22 +185,22 @@ The numbers $V$, $E$, $F$, and $C$ are clearly preserved by isomorphism. The ind
 We can now build up an isomorphism between pdcodes by a series of definitions:
 
 \begin{definition}
-Suppose we have two pdcodes $P$ and $P'$ with the same hash. 
+Suppose we have two pdcodes $P$ and $P'$ with the same hash.
 \begin{itemize}
 \item A bijection $\gamma: \{c_1,\dots,c_C\} \rightarrow \{c'_1,\dots,c'_C\}$ between the components of $P$ and the components of $P'$ is called \emph{component-length preserving} if $\# \edges(c_i) = \# \edges(\gamma(c_i))$ for all $i$.
-\item Given such a component-length preserving bijection $\gamma$, a bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$ is called \emph{component-preserving} and \emph{compatible with $\gamma$} if $\epsilon$ maps the edges of each $c_i$ to the edges of $\gamma(c_i)$ by an element of the dihedral group $D_{\edges(c_i)}$. That is, the edges of $c_i$ are mapped in cyclic (or reverse-cyclic) order to the corresponding edges of $\gamma(c_i)$. 
-\item Given a component-preserving bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$, we say that a bijection $\nu : \{v_1, \dots, v_V\} \rightarrow \{v'_1,\dots,v'_V\}$ between the vertices of $P$ and the vertices of $P'$ is \emph{compatible with $\epsilon$} if 
+\item Given such a component-length preserving bijection $\gamma$, a bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$ is called \emph{component-preserving} and \emph{compatible with $\gamma$} if $\epsilon$ maps the edges of each $c_i$ to the edges of $\gamma(c_i)$ by an element of the dihedral group $D_{\edges(c_i)}$. That is, the edges of $c_i$ are mapped in cyclic (or reverse-cyclic) order to the corresponding edges of $\gamma(c_i)$.
+\item Given a component-preserving bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$, we say that a bijection $\nu : \{v_1, \dots, v_V\} \rightarrow \{v'_1,\dots,v'_V\}$ between the vertices of $P$ and the vertices of $P'$ is \emph{compatible with $\epsilon$} if
 \begin{equation*}
 \nu(\head(e_i)) = \head(\epsilon(e_i)) \quad \text{ and } \quad \nu(\tail(e_i)) = \tail(\epsilon(e_i)
 \end{equation*}
-when $e_i$ is part of a component mapped by an orientation-preserving element of the dihedral group, and 
+when $e_i$ is part of a component mapped by an orientation-preserving element of the dihedral group, and
 \begin{equation*}
 \nu(\head(e_i)) = \tail(\epsilon(e_i)) \quad \text{ and } \quad \nu(\tail(e_i)) = \head(\epsilon(e_i)
 \end{equation*}
 when $e_i$ is part of a component mapped by an orientation-reversing element of the dihedral group.
 \item Given $\gamma$, $\epsilon$, and $\nu$ that obey all the above conditions, we say that they are:
 \begin{itemize}
- \item \emph{globally orientation-preserving} if the set of edges $e_i, e_j, e_k, e_l$ incident to each vertex $v$ of $P$ (in counterclockwise cyclic order) is mapped to the set of edges $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ incident to $\nu(v)$ in counterclockwise cyclic order. 
+ \item \emph{globally orientation-preserving} if the set of edges $e_i, e_j, e_k, e_l$ incident to each vertex $v$ of $P$ (in counterclockwise cyclic order) is mapped to the set of edges $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ incident to $\nu(v)$ in counterclockwise cyclic order.
  \item \emph{globally orientation reversing} if the $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ are incident to $\nu(v)$ but in clockwise cyclic order (for each $v$),
  \item otherwise, the triple is \emph{inconsistent}.
 \end{itemize}
@@ -209,11 +209,11 @@ when $e_i$ is part of a component mapped by an orientation-reversing element of 
 
 We then have
 \begin{proposition}
-Given a pair of pdcodes $P$ and $P'$ with the same hash, each isomorphism of $P$ to $P'$ is given by a set of bijections $\gamma$ between their components, $\epsilon$ between their edges, and $\nu$ between their vertices where 
+Given a pair of pdcodes $P$ and $P'$ with the same hash, each isomorphism of $P$ to $P'$ is given by a set of bijections $\gamma$ between their components, $\epsilon$ between their edges, and $\nu$ between their vertices where
 \begin{itemize}
 \item $\gamma$ is component-length preserving,
 \item $\epsilon$ is component-preserving and compatible with $\gamma$,
-\item $\nu$ is compatible with $\epsilon$ 
+\item $\nu$ is compatible with $\epsilon$
 \end{itemize}
 and the triple is globally orientation preserving or reversing (not inconsistent).
 \end{proposition}
@@ -224,7 +224,7 @@ Basically, this is the definition of pd isomorphic.
 
 A few other observations are helpful:
 \begin{lemma}
-If $\mathcal{H}(p) = \mathcal{H}(P')$ for pdcodes $P$ and $P'$, there is at least one component-length preserving $\gamma : \{c_1,\dots,c_C\} \rightarrow \{c'_1,\dots,c'_C\}$. All component-length preserving $\gamma$ can be generated by iterating over a product of permutation groups.
+If $\mathcal{H}(P) = \mathcal{H}(P')$ for pdcodes $P$ and $P'$, there is at least one component-length preserving $\gamma : \{c_1,\dots,c_C\} \rightarrow \{c'_1,\dots,c'_C\}$. All component-length preserving $\gamma$ can be generated by iterating over a product of permutation groups.
 \end{lemma}
 
 \begin{proof}
@@ -240,18 +240,18 @@ Each vertex $v$ of $P$ is incident to four edges $e_i, e_j, e_k, e_l$. Without l
 \begin{equation*}
 \nu(v) = \tail(\epsilon(e_i)) = \tail(\epsilon(e_j)) = \head(\epsilon(e_k)) = \head(\epsilon(e_l)).
 \end{equation*}
-If the four terms on the right are equal, this uniquely defines $\nu(v)$. If not, there is no compatible $\nu$. 
+If the four terms on the right are equal, this uniquely defines $\nu(v)$. If not, there is no compatible $\nu$.
 \end{proof}
- 
-We can now find all isomorphisms between two pdcodes computationally by a simple brute-force strategy: 
+
+We can now find all isomorphisms between two pdcodes computationally by a simple brute-force strategy:
 
 \begin{algorithm}
 \begin{algorithmic}[1]
-\Procedure{BuildIsomorphisms}{$P$,$P'$} 
+\Procedure{BuildIsomorphisms}{$P$,$P'$}
 \Comment{Build isomorphisms between pdcodes $P$ and $P'$}
 
 \If {the hashes $\mathcal{H}(P)$ and $\mathcal{H}(P')$ are different}
-	\State $P$ and $P'$ are not isomorphic. Return $\emptyset$.	
+	\State $P$ and $P'$ are not isomorphic. Return $\emptyset$.
 \EndIf
 
 \ForAll{component-length preserving $\gamma: \{c_1,\dots, c_C\} \rightarrow \{c'_1, \dots, c'_C\}$}
@@ -267,7 +267,7 @@ We can now find all isomorphisms between two pdcodes computationally by a simple
 \end{algorithmic}
 \end{algorithm}
 
-It should be immediately clear that there are smarter ways to organize this computation: for instance, we could build only part of $\gamma$ and $\epsilon$ before we start checking the consistency conditions for the existence of a compatible $\nu$. Or we could map faces to faces by elements of the dihedral group on the grounds that faces are smaller than components. Or we could try for a more complicated hashing scheme which took into account the adjacency relations between faces. These sorts of ideas are implemented with great insight and care in graph isomorphism packages like \nauty and \emph{saucy}. However, making these types of changes makes the code more intricate and difficult to debug: in this project, our overall strategy is to use simple, straightforward algorithms in the hopes of minimizing the chance of errors. 
+It should be immediately clear that there are smarter ways to organize this computation: for instance, we could build only part of $\gamma$ and $\epsilon$ before we start checking the consistency conditions for the existence of a compatible $\nu$. Or we could map faces to faces by elements of the dihedral group on the grounds that faces are smaller than components. Or we could try for a more complicated hashing scheme which took into account the adjacency relations between faces. These sorts of ideas are implemented with great insight and care in graph isomorphism packages like \nauty and \emph{saucy}. However, making these types of changes makes the code more intricate and difficult to debug: in this project, our overall strategy is to use simple, straightforward algorithms in the hopes of minimizing the chance of errors.
 
 \section{Constructing the database of diagrams}
 
@@ -275,7 +275,7 @@ Our first goal is to enumerate the link shadows-- that is, the connected 4-regul
 
 \subsection{Dual quadrangulations and connect sums}
 
-Brinkmann et.\ al.~\cite{Brinkmann:2007up} provided an algorithm to enumerate all of the simple embedded planar quadrangulations of $S^2$, up to embedded isomorphism. A quadrangulation is a planar graph where each face has four edges, as in the pictures below. 
+Brinkmann et.\ al.~\cite{Brinkmann:2007up} provided an algorithm to enumerate all of the simple embedded planar quadrangulations of $S^2$, up to embedded isomorphism. A quadrangulation is a planar graph where each face has four edges, as in the pictures below.
 \begin{center}
 \includegraphics[height=1.25in]{quadrangulations-example}
 \end{center}
@@ -290,7 +290,7 @@ The dual graph to a quadrangulation is a connected 4-regular embedded planar mul
 \end{center}
 The \plantri software of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa} can be used to generate the dual graphs of the planar simple quadrangulations of given number of vertices. Since an easy Euler characteristic argument shows that the number of vertices in the dual graph of a quadrangulation is 2 less than the number of vertices in the quadrangulation, we can use this to enumerate the connected 4-regular embedded planar multigraphs which are prime.
 
-To enumerate all diagrams, we recall (as is standard in knot theory) that every composite diagram is uniquely expressed as a collection of prime diagrams joined along pairs of edges by the connect sum operation. Of course, this regularly generates isomorphism diagrams when the prime diagrams have a nontrivial automorphism group. It would be interesting and fun to predict when this happens and arrange to avoid generating duplicate diagrams by tracking edge orbits under the automorphism group of each diagram. However, in keeping with our strategy of simple, robust code, we simply construct all connect sums iteratively and check for isomorphisms with existing pdcodes using the hashing/brute force strategy for isomorphism checking detailed above. The process is shown below
+To enumerate all diagrams, we recall (as is standard in knot theory) that every composite diagram is uniquely expressed as a collection of prime diagrams joined along pairs of edges by the connect sum operation. Of course, this regularly generates isomorphic diagrams when the prime diagrams have a nontrivial automorphism group. It would be interesting and fun to predict when this happens and arrange to avoid generating duplicate diagrams by tracking edge orbits under the automorphism group of each diagram. However, in keeping with our strategy of simple, robust code, we simply construct all connect sums iteratively and check for isomorphisms with existing pdcodes using the hashing/brute force strategy for isomorphism checking detailed above. The process is shown below
 
 \begin{center}
 \includegraphics[width=3in]{composite-workflow}
@@ -310,7 +310,7 @@ The four expansion operations that we will use are the following:
 \includegraphics[width=4in]{loop-addition.png}
 \item $\edgedouble$ reversing edge doubling duplicates an existing edge joining vertices of degree $< 4$ so as to create a new bigon face. Note that the (counterclockwise) order of the two vertices is reversed on the two vertices.\\
 \includegraphics[width=4in]{edge-duplication-non-cut.png}
-\item $\cutedgedouble$ preserving doubling also duplicates an existing edge joining vertices of degree $<4$, but 
+\item $\cutedgedouble$ preserving doubling also duplicates an existing edge joining vertices of degree $<4$, but
 keeps the counterclockwise order of the edges the same on each at each of the two vertices. This sort of doubling is only available if the original edge is a cut edge of the graph.\\
 \includegraphics[width=4in]{edge-duplication-cut}
 \item $\pairinsert$ pair insertion adds a pair of edges simultaneously, joining two vertices of degree 2 which are both on two faces of the embedding, as below.\\
@@ -321,38 +321,38 @@ keeps the counterclockwise order of the edges the same on each at each of the tw
 We can now show
 
 \begin{proposition}
-Every connected $4$-regular embedded planar (multi)graph $G$ can be obtained from a connected, embedded planar simple graph of vertex degree $\leq 4$ $G_0$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ expansions. 
+Every connected $4$-regular embedded planar (multi)graph $G$ can be obtained from a connected, embedded planar simple graph of vertex degree $\leq 4$ $G_0$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ expansions.
 
-Equivalently, any connected $4$-regular embedded planar (multi)graph $G$ can be reduced to a connected embedded planar simple graph $G_0$ of vertex degree $\leq 4$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ reductions. The embedded isomorphism type of $G_0$ is determined by the  embedded isomorphism type of $G$ (the order in which the reductions are performed doesn't matter). 
+Equivalently, any connected $4$-regular embedded planar (multi)graph $G$ can be reduced to a connected embedded planar simple graph $G_0$ of vertex degree $\leq 4$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ reductions. The embedded isomorphism type of $G_0$ is determined by the  embedded isomorphism type of $G$ (the order in which the reductions are performed doesn't matter).
 \label{prop:reduce}
 \end{proposition}
 
-An illustration of the process we describe is 
+An illustration of the process we describe is
 \begin{center}
 \includegraphics[width=4in]{expansion-from-simple-graph}
 \end{center}
 
-\begin{proof} 
-We will prove the second statement, reducing in stages from some $G_n = G$ to $G_0$ by performing one reduction at each step. The number of steps we can perform is clearly finite, since each reduces the number of edges by at least one. So suppose we are at stage $G_i$. If there are no loop or multiple edges, we're done, and this is the simple graph $G_0$. 
+\begin{proof}
+We will prove the second statement, reducing in stages from some $G_n = G$ to $G_0$ by performing one reduction at each step. The number of steps we can perform is clearly finite, since each reduces the number of edges by at least one. So suppose we are at stage $G_i$. If there are no loop or multiple edges, we're done, and this is the simple graph $G_0$.
 
-If there is a loop edge, we can remove it with a $\loopinsert$ move. 
+If there is a loop edge, we can remove it with a $\loopinsert$ move.
 
 If there is a multiple edge, we must consider several cases. We can think of each vertex of $G_i$ as retaining a list of 4 connection points, ordered counterclockwise, from the initial embedding of $G$. Since we have performed some reductions already, some of these may be empty, but at least two are filled at each end of the multiple edge. Pick one vertex of the multiple edge and call it $v$ and the other vertex $w$.
 
-If the edge multiplicity is four, $G$ is \hopfgraph. This is obtained from the graph with one edge and two vertices by two $\edgedouble$ moves. 
+If the edge multiplicity is four, $G$ is \hopfgraph. This is obtained from the graph with one edge and two vertices by three $\edgedouble$ moves.
 
-If the edge multiplicity is three or two, there is at least one connection point on $v$ which is not occupied by a copy of the multiple edge followed immediately by a connection point which is occupied by a copy $e$ of the multiple edge. Without loss of generality, we'll call $e$ the \emph{base copy} of the multiple edge, and its connection point to at $v$ position $0$ around $v$. The remaining connection points will be numbered $1$, $2$, and $3$. By construction, the edge joined to $v$ at position $3$ (if any) is not connected to $w$. We can label the other end of the base copy $e$ position $a$ on the second vertex $w$, and label the other positions $b$, $c$, and $d$, again counterclockwise. 
+If the edge multiplicity is three or two, there is at least one connection point on $v$ which is not occupied by a copy of the multiple edge followed immediately by a connection point which is occupied by a copy $e$ of the multiple edge. Without loss of generality, we'll call $e$ the \emph{base copy} of the multiple edge, and its connection point to at $v$ position $0$ around $v$. The remaining connection points will be numbered $1$, $2$, and $3$. By construction, the edge joined to $v$ at position $3$ (if any) is not connected to $w$. We can label the other end of the base copy $e$ position $a$ on the second vertex $w$, and label the other positions $b$, $c$, and $d$, again counterclockwise.
 
 If the edge multiplicity is three, only one of these positions is unoccupied by a copy of the multiple edge. Looking at the three cases (below), we can see that by parity, it must be position $b$, and the pair of copies $0a$ and $2c$ of the multiple edge can be removed by a $\pairinsert$ operation.
 \begin{center}
 \includegraphics[width=4in]{multiplicity-three}\\
 By parity, because we came from a 4-regular embedded planar graph only the leftmost case can occur at any stage in the reduction process.
 \end{center}
-We have now disposed of the case where edge multiplicity is three. 
+We have now disposed of the case where edge multiplicity is three.
 
 If edge multiplicity is two, there is one edge unaccounted for, which joins either position $1$ or $2$ on vertex $v$ to position $b$, $c$, or $d$ on vertex $w$. Therefore, there are six cases to address. We consider them in order, starting with the $1x$ configurations.
 \begin{itemize}
-\item 
+\item
 \begin{tabular}{m{1in}m{3in}m{1in}}
 \includegraphics[width=0.9in]{1-b-configuration}
 &
@@ -360,13 +360,13 @@ In the $1b$ configuration, the multiple edge forms a 2-cycle dividing the portio
 &
 \includegraphics[width=0.9in]{1-b-target}
 \end{tabular}
-\item 
+\item
 \begin{tabular}{m{1in}m{3in}}
 \includegraphics[width=1in]{1-c-configuration}
 &
-The $1c$ configuration is forbidden by parity. 
+The $1c$ configuration is forbidden by parity.
 \end{tabular}
-\item 
+\item
 \begin{tabular}{m{1in}m{3in}m{1in}}
 \includegraphics[width=0.9in]{1-d-configuration}
 &
@@ -377,13 +377,13 @@ In the $1d$ configuration, the multiple edge forms a bigon face. Deleting $1d$ u
 \end{itemize}
 One might think that the $2-$ configurations are simply rearrangements of those above, but this is not true. A genuinely new case arises for $2c$.
 \begin{itemize}
-\item 
+\item
 \begin{tabular}{m{1in}m{3in}}
 \includegraphics[width=0.9in]{2-b-configuration}
 &
 The $2b$ configuration is forbidden by parity.
 \end{tabular}
-\item 
+\item
 \begin{tabular}{m{1in}m{3in}m{1in}}
 \includegraphics[width=1in]{2-c-configuration}
 &
@@ -391,7 +391,7 @@ In the $2c$ configuration, by parity, the graph $G$ must have connected $1$ and 
 &
 \includegraphics[width=1in]{2-c-target}
 \end{tabular}
-\item 
+\item
 \begin{tabular}{m{1in}m{3in}}
 \includegraphics[width=0.9in]{2-d-configuration}
 &
@@ -406,22 +406,22 @@ Whether a multiplicity two edge is eligible for an $\edgedouble$ move depends on
 
 Whether a multiplicity two edge is eligible for a $\cutedgedouble$ or $\pairinsert$ operation depends not only on the positions of ends of edges on their vertices, but also on the connectivity of the (reduced) graph. However, as we noted above, the connectivity of the graph doesn't change as we perform reductions.
 
-It is clear that the isomorphism type of $G_0$ does not depend on the order of reduction-- after all, in the end we are simply reducing the multiplicity of multiple edges of the edge. 
+It is clear that the isomorphism type of $G_0$ does not depend on the order of reduction-- after all, in the end we are simply reducing the multiplicity of multiple edges of the edge.
 
-It takes only a moment longer to realize that the embedding of $G_0$ is determined as well-- this embedding is determined by the cyclic order of (surviving) edges around their vertices. We will have deleted some edges from many of these vertices by the time we reach $G_0$, potentially leaving many empty connections. However, the cyclic order of the surviving edges won't be affected by the order in which these connections were emptied. 
+It takes only a moment longer to realize that the embedding of $G_0$ is determined as well-- this embedding is determined by the cyclic order of (surviving) edges around their vertices. We will have deleted some edges from many of these vertices by the time we reach $G_0$, potentially leaving many empty connections. However, the cyclic order of the surviving edges won't be affected by the order in which these connections were emptied.
 
 One might worry that the choice of \emph{which}\footnote{Remember that the choice of ``base edge'' was arbitrary.} copy of an edge of multiplicity two to delete could affect the embedded isomorphism type after an $\edgedouble$ or $\cutedgedouble$ reduction, but it's easy to check that the two possible reduced configurations are (embedded) graph isomorphic by looking at the pictures above. Formally, the point is that the two copies of the edge are adjacent in the cyclic ordering of edges at each vertex, so the surviving copy is always in the same cyclic position relative to surviving edges incident to the vertex.
 \end{proof}
 
 We can use this theorem to come up with a strategy for generating diagrams. Basically, we will start by enumerating embedded planar simple graphs of vertex degree $\leq 4$ using \plantri, then expand them to $4$-regular embedded planar graphs using the moves above. Afterwards, we will see that we can generate embedded isomorphic graphs with different expansion sequences, so we will have to filter the graphs into isomorphism classes. We start with two lemmas:
 
-\begin{lemma} 
+\begin{lemma}
 If the embedded planar graph of vertex degree $\leq 4$ $G_0$ is obtained from a $4$-regular embedded planar multigraph $G$ by the reduction process of Proposition~\ref{prop:reduce} then either every vertex of degree one in $G_0$ has exactly one loop edge in $G$ and one multiedge of multiplicity two obtained by $\edgedouble$ or $\cutedgedouble$ or the graph is \hopfgraph.
 \label{lem:degreeone}
 \end{lemma}
 
-\begin{proof} 
-If we expand $G_0$ to $G$ using the four moves, three empty connections on the vertex must be filled during the process. If they are filled by redoubling the existing edge, then the degree of the vertex at the other end of the edge was also one, and we get \hopfgraph. Otherwise, we must fill two by adding a loop edge, and the other by doubling the existing edge. 
+\begin{proof}
+If we expand $G_0$ to $G$ using the four moves, three empty connections on the vertex must be filled during the process. If they are filled by redoubling the existing edge, then the degree of the vertex at the other end of the edge was also one, and we get \hopfgraph. Otherwise, we must fill two by adding a loop edge, and the other by doubling the existing edge.
 \end{proof}
 
 \begin{lemma}
@@ -432,14 +432,14 @@ We can now design an algorithm to produce all possible expansions of $G_0$, a gi
 
 We will now define four classes of variables:
 \begin{itemize}
-\item $l_{i}$ for every vertex $v_i$ of degree $2$ 
-\item $d_{i,j}$ for every non-cut edge $e_{ij}$ in the graph joining vertices of degree $<4$. 
+\item $l_{i}$ for every vertex $v_i$ of degree $2$
+\item $d_{i,j}$ for every non-cut edge $e_{ij}$ in the graph joining vertices of degree $<4$.
 \item $c_{i,j}$ for every cut edge $e_{ij}$ joining vertices of degree $<4$.
 \item $p_{i,j}$ for every pair of vertices $v_{i}$, $v_j$ which both have degree 2 and are both on two different faces of the embedding
 \end{itemize}
 We take the subscripts to be unordered. That is, $d_{4,17}$ and $d_{17,4}$ are the same variable, since the edges $e_{4,17}$ and $e_{17,4}$ are the same edge.
 
-These variables will all be valued in $0-1$, and represent the absence or presence of $\loopinsert$ loop edges, $\edgedouble$ or $\cutedgedouble$ doubles of existing edges and $\pairinsert$ insertions of new pairs of edges. 
+These variables will all be valued in $0-1$, and represent the absence or presence of $\loopinsert$ loop edges, $\edgedouble$ or $\cutedgedouble$ doubles of existing edges and $\pairinsert$ insertions of new pairs of edges.
 We can now define two sets of equations relating these variables.
 
 \begin{definition}
@@ -447,7 +447,7 @@ We define the \emph{vertex degree equations} for a prepared graph $G_1$ to be th
 \begin{equation*}
 \delta(i) + 2 l_i + \sum_j d_{i,j} + \sum_j c_{i,j} + 2 \sum_j p_{i,j} = 4
 \end{equation*}
-where the sums are taken over all $j$ for which the appropriate variables exist. These equations express the fact that in a complete expansion, the vertex degrees must all be four. 
+where the sums are taken over all $j$ for which the appropriate variables exist. These equations express the fact that in a complete expansion, the vertex degrees must all be four.
 \end{definition}
 
 The pair variables $p_{i,j}$ satisfy an additional set of equations:
@@ -458,7 +458,7 @@ p_{i,j} + p_{k,l} \leq 1
 \end{equation*}
 \end{definition}
 
-These equations express the fact that the edges corresponding to a linked pair of endpoints along a face must intersect inside the face. Therefore, if two pair variables are linked, at most one of them can take the value $1$. For instance, in the situation below where there are four vertices of degree two along a pair of faces, we have six pair variables, two of which obey an additional linking equation. 
+These equations express the fact that the edges corresponding to a linked pair of endpoints along a face must intersect inside the face. Therefore, if two pair variables are linked, at most one of them can take the value $1$. For instance, in the situation below where there are four vertices of degree two along a pair of faces, we have six pair variables, two of which obey an additional linking equation.
 \begin{center}
 \includegraphics[height=1.5in]{linked-ghost-pairs}
 \end{center}
@@ -473,18 +473,18 @@ Every assignment of $\{0,1\}$ to the variables $l_i$, $d_{i,j}$, $c_{i,j}$, and 
 \begin{proof}
 Actually, there is only a little to check. By the arguments in the proof of Proposition~\ref{prop:reduce}, the order of expansion moves is irrelevant. So suppose there are $n$ expansions, and we've chosen an order for them,  and are trying to generate a family of graphs $G_1, G_2, \dots, G_n = G$. If we can perform the indicated expansions at all, we will generate a unique connected $4$-regular planar multigraph $G$ (we will see that the embedding of $G$ depends on choices we make along the way).  So suppose we have generated a given (embedded) $G_i$, and are trying to expand to $G_{i+1}$.
 
-If the next expansion is a $\loopinsert$ expansions indicated by a positive $l_i$, it is possible as long as the vertex degree at $v_i$ is small enough. This is true, because of the corresponding vertex degree equation. 
+If the next expansion is a $\loopinsert$ expansions indicated by a positive $l_i$, it is possible as long as the vertex degree at $v_i$ is small enough. This is true, because of the corresponding vertex degree equation.
 We must choose which side of the edge to insert the loop; each choice yields a different embedding of $G_{i+1}$, and following the various possibilities will lead to a family of embeddings for $G_n = G$.
 
 If the next expansion is an $\edgedouble$ indicated by a positive $d_{i,j}$, it is possible as long as the vertex degrees of $v_i$ and $v_j$ are small enough. This is true by their vertex degree equations. There is only one way to make this expansion, leading to a unique embedding for $G_{i+1}$.
 
 If the next expansion is an $\edgedouble$ or $\cutedgedouble$ expansion indicated by a positive $c_{i,j}$ variable, it is (again) possible if the vertex degrees at $v_i$ and $v_j$ are small enough (which is again true by the vertex degree equations) \emph{and} if $e_{i,j}$ is a cut edge of $G_i$. We never apply these expansions more than once to an edge, so $e_{i,j}$ is a cut edge of $G_i$ since it was a cut edge of $G_1$. Choosing between $\edgedouble$ and $\cutedgedouble$ expansions will yield different embeddings of $G_{i+1}$ and we must follow both possibilities to generate the final family of embeddings of $G$.
 
-This much was easy. If the next expansion is of type $\pairinsert$, there is more to check. First, we note that there is no ambiguity in embeddings here: if we can do the $\pairinsert$ expansion, we can do it in only one way and we generate a unique embedding of the graph $G_{i+1}$. But can we do it at all? Each $\pairinsert$ indicated by a positive $p_{i,j}$ requires several conditions. First, vertex degrees at $v_i$, $v_j$ must be small enough, which is checked as before by vertex degree equations. But the $v_i$ and $v_j$ must still be on two faces in the expansion $G_i$, which is not obvious, because previous $\pairinsert$ expansions have split faces of $G_1$ into smaller faces in $G_i$. Let us suppose that $v_i$ and $v_j$ were on the pair of faces $F_1$ and $F_2$ of the original graph. 
+This much was easy. If the next expansion is of type $\pairinsert$, there is more to check. First, we note that there is no ambiguity in embeddings here: if we can do the $\pairinsert$ expansion, we can do it in only one way and we generate a unique embedding of the graph $G_{i+1}$. But can we do it at all? Each $\pairinsert$ indicated by a positive $p_{i,j}$ requires several conditions. First, vertex degrees at $v_i$, $v_j$ must be small enough, which is checked as before by vertex degree equations. But the $v_i$ and $v_j$ must still be on two faces in the expansion $G_i$, which is not obvious, because previous $\pairinsert$ expansions have split faces of $G_1$ into smaller faces in $G_i$. Let us suppose that $v_i$ and $v_j$ were on the pair of faces $F_1$ and $F_2$ of the original graph.
 \begin{center}
-\includegraphics[width=2in]{pair-interference} 
+\includegraphics[width=2in]{pair-interference}
 \end{center}
-The pair of faces can make contact with each in several disconnected arcs, as shown above. Further, additional pair edges can share $F_1$ or $F_2$ with some other face. However, slicing $F_1$ can only separate $v_i$ and $v_j$ if the endpoints of the splitting arc link $v_i$ and $v_j$ on $F_1$. This can't happen if the splitting arc is part of a pair which share $F_1$ with some other face (as shown), as the interfaces of $F_1$ and other faces are all connected. 
+The pair of faces can make contact with each in several disconnected arcs, as shown above. Further, additional pair edges can share $F_1$ or $F_2$ with some other face. However, slicing $F_1$ can only separate $v_i$ and $v_j$ if the endpoints of the splitting arc link $v_i$ and $v_j$ on $F_1$. This can't happen if the splitting arc is part of a pair which share $F_1$ with some other face (as shown), as the interfaces of $F_1$ and other faces are all connected.
 
 But if the splitting arc also shared $F_1$ and $F_2$, the corresponding pair variable $p_{k,l}$ is related to $p_{i,j}$ by a linking equation if and only if adding that arc would leave $v_i$ and $v_j$ on different faces. The linking equation implies that only one of the arcs indicated by $p_{i,j}$ and $p_{k,l}$ is present in the expansion; since we have assumed that $p_{i,j}$ is positive, no such $p_{k,l}$ can have already been inserted earlier in the expansion process. This concludes the case where the interface of $F_1$ and $F_2$ was disconnected.
 
