@@ -1,6 +1,6 @@
-/* 
+/*
 
-   pd_isomorphisms.h : Code to find isomorphisms between pd codes. 
+   pd_isomorphisms.h : Code to find isomorphisms between pd codes.
 
 
 */
@@ -8,9 +8,9 @@
 #ifndef __PD_ISOMORPHISMS_H__
 #define __PD_ISOMORPHISMS_H__ 1
 
-/* The basic idea here is that everything starts with a permutation 
+/* The basic idea here is that everything starts with a permutation
    of the components. However, this is not an arbitrary permutation:
-   it must only permute components with the same number of edges. 
+   it must only permute components with the same number of edges.
 
    To that end, we start by grouping components by edge number. */
 
@@ -19,11 +19,11 @@ typedef struct pdint_compgrp_struct {
   pd_idx_t  ncomps;
   pd_idx_t  nedges; /* All the components in this group should have this many edges */
   pd_idx_t *comp;
-  
+
 } pd_compgrp_t;
 
 bool pd_compgrp_ok(pd_code_t *pd,pd_compgrp_t *compgrp);
-pd_compgrp_t *pd_build_compgrps(pd_code_t *pdA,pd_code_t *pdB,pd_idx_t *ngrps); 
+pd_compgrp_t *pd_build_compgrps(pd_code_t *pdA,pd_code_t *pdB,pd_idx_t *ngrps);
 void pd_free_compgrps(pd_compgrp_t *grps,pd_idx_t ngrps);
 
 /* Once we have grouped the components, we can generate
@@ -40,15 +40,15 @@ bool        pd_compperms_ok(unsigned int ncomp_perms,pd_perm_t **comp_perms);
 
 /* For a given component permutation, we can generate all
    of the compatible edgemaps by iterating over a multi-index
-   of dihedral groups linking components to components. 
+   of dihedral groups linking components to components.
 
    It's going to prove to be convenient later to store the
    orientation of each edge now (even though we could
    theoretically recover it later from the compmap by
-   looking up the component each edge was on). */ 
+   looking up the component each edge was on). */
 
 typedef struct pd_edgemap_struct {
-  
+
   pd_perm_t *perm;  /* Keep in mind that the "perm" type stores the number of entries. */
   pd_or_t   *or;    /* This is a buffer of orientations of size perm->n. */
 
@@ -74,14 +74,14 @@ bool           pd_edgemap_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_edgemap_t 
    to components in an orientation-consistent way. */
 
 pd_edgemap_t  *pd_compose_edgemaps(pd_edgemap_t *edgemapA,pd_edgemap_t *edgemapB);
-/* When the edgemap maps a pd to itself, we can iterate. 
+/* When the edgemap maps a pd to itself, we can iterate.
    Creates a new memory (A * B)(pd) = A(B(pd)) */
 void           pd_stareq_edgemap(pd_edgemap_t *edgemapA,pd_edgemap_t *edgemapB);
 /* Compose A with B in-place. */
 
 void           pd_apply_edgemap(pd_code_t *pd, pd_edgemap_t *edgemap);
-/* Apply the transformation in edgemap to the pd, changing references to edges in 
-   component, face, and crossing data, reorienting edges as needed. This has the 
+/* Apply the transformation in edgemap to the pd, changing references to edges in
+   component, face, and crossing data, reorienting edges as needed. This has the
    side effect of regenerating crossings, because the edge permutation will put
    the crossings out of canonical order. */
 
@@ -106,7 +106,7 @@ char           *pd_print_crossmap(pd_crossmap_t *crossmap);
 void           *pd_copy_crossmap(pd_crossmap_t *crossmap);
 
 bool            pd_crossmap_ok(pd_crossmap_t *crossmap);
-int             pd_crossmap_cmp(const void *A,const void *B); 
+int             pd_crossmap_cmp(const void *A,const void *B);
 /* Compares **pd_crossmap_t */
 
 pd_crossmap_t **pd_build_crossmaps(pd_code_t *pdA,pd_code_t *pdB,
@@ -124,17 +124,17 @@ void            pd_stareq_crossmap(pd_crossmap_t *crossmapA,pd_crossmap_t *cross
    idea here is essentially identical to the crossing
    case, but a little easier. Since an edge can only occur
    once on a given face, there is a unique canonical
-   ordering for the edges on a face. 
+   ordering for the edges on a face.
 
    This means that although the face->face maps are
    technically polygon->polygon maps and hence elements of
    a dihedral group, in reality the group element is
    easily recomputed by putting the image in canonical
-   order. 
+   order.
 
    Thus, just like for a crossmap, we need to store only a
    (global) orientation and a permutation of the face
-   indices. 
+   indices.
 
    SOFTWARE ENGINEERING NOTE: At this point, you're
    wondering why I didn't just replace both the "crossmap"
@@ -144,8 +144,8 @@ void            pd_stareq_crossmap(pd_crossmap_t *crossmapA,pd_crossmap_t *cross
    of mixing up the two types, leading to disaster later
    on. We make them different types in order to get
    compiler warnings if we carelessly mix up the two types
-   down the road. The price we pay for this is having to 
-   rewrite some (simple) primitives twice. 
+   down the road. The price we pay for this is having to
+   rewrite some (simple) primitives twice.
 
 */
 
@@ -164,7 +164,7 @@ void          *pd_copy_facemap(pd_facemap_t *facemap);
 
 bool           pd_facemap_ok(pd_facemap_t *facemap);
 int            pd_facemap_cmp(const void *A,const void *B);
-/* Compare **pd_facemap_t */ 
+/* Compare **pd_facemap_t */
 
 
 pd_facemap_t **pd_build_facemaps(pd_code_t *pdA,pd_code_t *pdB,
@@ -181,7 +181,7 @@ void           pd_stareq_facemap(pd_facemap_t *facemapA,pd_facemap_t *facemapB);
 /* An isomorphism of pd codes consists of a collection of
  compatible data. It encodes a combinatorial isomorphism
  between the (oriented) polyhedral determined by the
- pdcode which 
+ pdcode which
 
  1. is a bijection from the components of one edge graph
     to the components of the other.
@@ -204,13 +204,13 @@ void           pd_stareq_facemap(pd_facemap_t *facemapA,pd_facemap_t *facemapB);
 typedef struct pd_iso_struct {
 
   pd_perm_t     *compperm;   /* The maps use the convention: compperm->map[i] = index of image of (component i in pdA) in pdB. */
-  pd_edgemap_t  *edgemap;    /* edgemap->perm->map[i] = index of image of (edge i in pdA) in pdB */ 
+  pd_edgemap_t  *edgemap;    /* edgemap->perm->map[i] = index of image of (edge i in pdA) in pdB */
   pd_crossmap_t *crossmap;   /* crossmap->perm->map[i] = index of image of (crossing i in pdA) in pdB */
   pd_facemap_t  *facemap;    /* facemap->perm->map[i] = index of image of (face i in pdA) in pdB */
 
 } pd_iso_t;
 
-pd_iso_t *pd_new_iso(pd_code_t *pd); 
+pd_iso_t *pd_new_iso(pd_code_t *pd);
 void      pd_free_iso(pd_iso_t **iso);
 
 pd_iso_t *pd_copy_iso(pd_iso_t *iso); /* Make a new-memory copy of iso. */
@@ -250,21 +250,21 @@ bool      pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
    several additional conditions to hold:
 
    1. components are only mapped to components with the same tag
- 
-   2. all component orientations are reversed and the orientation 
+
+   2. all component orientations are reversed and the orientation
       of the plane is reversed, or none of the component orientations
       are reversed and the orientation of the plane is not reversed.
 
-   Taken together, conditions 1 and 2 reduce the search space to 
+   Taken together, conditions 1 and 2 reduce the search space to
    a unique component permutation, and restricts the space of edgemaps
-   as well. 
+   as well.
 
-   3. every crossing is mapped to a crossing with the same sign. 
+   3. every crossing is mapped to a crossing with the same sign.
       (this includes crossings with sign "PD_UNSET_ORIENTATION")
 
    Since the existence of an ambient isotopy is considerably faster to
    compute than the existence of an isomorphism, we use a different
-   codebase to do the computation. 
+   codebase to do the computation.
 
    However, we use the same data type.
 */
@@ -281,7 +281,7 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
 bool pd_diagram_isotopic(pd_code_t *A, pd_code_t *B);
 /* Detect whether two pd_codes correspond to diagrams of labelled, oriented
    components related by an isotopy of the 2-sphere. Corresponding crossings
-   are required to have the same sign (positive, negative, or unset). 
+   are required to have the same sign (positive, negative, or unset).
 
    This is the strictest kind of diagram equivalence; you can extract weaker forms
    of combinatorial equivalence between diagrams (eg. unoriented equivalence
@@ -289,4 +289,3 @@ bool pd_diagram_isotopic(pd_code_t *A, pd_code_t *B);
 */
 
 #endif
-

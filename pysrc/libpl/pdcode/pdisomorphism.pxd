@@ -30,8 +30,11 @@ cdef extern from "pd_isomorphisms.h":
         pd_facemap_t *facemap
     ctypedef pd_iso_struct pd_iso_t
 
-    cdef pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA, pd_code_t *pdB,
-                                               unsigned int *nisos)
+    void pd_apply_edgemap(pd_code_t *pd, pd_edgemap_t *edgemap)
 
-cdef class PlanarIsomorphism:
-    cdef pd_iso_t *p
+    void pd_free_iso(pd_iso_t **iso)
+
+    cdef pd_iso_t **pd_build_diagram_isotopies(
+        pd_code_t *pdA, pd_code_t *pdB, unsigned int *nisos)
+    cdef pd_iso_t **pd_build_isos(
+        pd_code_t *pdA, pd_code_t *pdB, unsigned int *nisos)

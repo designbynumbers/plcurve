@@ -14,8 +14,10 @@ from libc.stdlib cimport free
 from collections import defaultdict
 import weakref
 
-from .pdisomorphism cimport pd_iso_t, pd_build_diagram_isotopies
-from .pdisomorphism cimport PlanarIsomorphism
+from .pdisomorphism cimport (
+    pd_iso_t, pd_build_diagram_isotopies,
+    pd_build_isos)
+from .isomorphism cimport PlanarIsomorphism
 
 from .plctopology cimport *
 
@@ -110,6 +112,7 @@ cdef class _OwnedObjectList:
         return None
 
     def _disown(self):
+        cdef _Disownable o
         for o in self.objs.itervalues():
             o.disown()
         self.parent = None
@@ -193,7 +196,7 @@ cdef class PlanarDiagram:
     property uid:
         def __get__(self):
             return self.p.uid
-        
+
     property _hash:
         def __get__(self):
             return self.p.hash
@@ -249,6 +252,17 @@ cdef class PlanarDiagram:
         cdef pd_iso_t **isos
 
         isos = pd_build_diagram_isotopies(self.p, other_pd.p, &nisos)
+        ret = tuple(PlanarIsomorphism() for _ in range(nisos))
+        for i in range(nisos):
+            (<PlanarIsomorphism>ret[i]).p = isos[i]
+
+        return ret
+
+    def build_isomorphisms(self, PlanarDiagram other_pd):
+        cdef unsigned int nisos
+        cdef pd_iso_t **isos
+
+        isos = pd_build_isos(self.p, other_pd.p, &nisos)
         ret = tuple(PlanarIsomorphism() for _ in range(nisos))
         for i in range(nisos):
             (<PlanarIsomorphism>ret[i]).p = isos[i]
@@ -971,7 +985,7 @@ cdef class PlanarDiagram:
 
         # Now build components starting at the corresponding edges
         link._build_components(component_starts)
-        
+
         # Lastly, check that our graph is indeed planar.
         if not link.is_planar():
             raise ValueError("Diagram not planar.")

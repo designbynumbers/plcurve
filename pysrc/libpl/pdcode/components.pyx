@@ -14,9 +14,6 @@ from libpl.graphs import PlanarSignedFaceDigraph
 from libc.stdlib cimport free
 from collections import defaultdict
 
-from .pdisomorphism cimport pd_iso_t, pd_build_diagram_isotopies
-from .pdisomorphism cimport PlanarIsomorphism
-
 from .components cimport *
 
 #from cython.view cimport array
