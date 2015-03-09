@@ -258,6 +258,9 @@ cdef class PlanarDiagram:
 
         return ret
 
+    def build_autoisotopies(self):
+        return self.build_isotopies(self)
+
     def build_isomorphisms(self, PlanarDiagram other_pd):
         cdef unsigned int nisos
         cdef pd_iso_t **isos
@@ -268,6 +271,9 @@ cdef class PlanarDiagram:
             (<PlanarIsomorphism>ret[i]).p = isos[i]
 
         return ret
+
+    def build_automorphisms(self):
+        return self.build_isomorphisms(self)
 
     def isomorphic(self, PlanarDiagram other_pd):
         """isomorphic(PlanarDiagram other_pd) -> bool
