@@ -222,9 +222,6 @@ class TestR1LoopDeletion(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittes
         before_pd_copy = before_pd.copy()
         result_pd = before_pd.R1_loop_deletion(face_n)
 
-        result_pd.hash
-        after_pd.hash
-
         self.assertEqual(before_pd, before_pd_copy)
         self.assertDiagramEqual(result_pd, after_pd)
 
@@ -273,6 +270,17 @@ class TestSimplify(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.Test
     @unittest.skip("Bad _after; Doesn't simplify, needs R3")
     def test_7_split_link(self):
         self.checkSimplify("7")
+
+    @unittest.skip("No _after, needs R3 to simplify")
+    def test_deftref1(self):
+        self.checkSimplify("deftref1")
+
+    def test_deftref2(self):
+        self.checkSimplify("deftref2")
+        
+    @unittest.skip("No _after, PDcode not valid.")
+    def test_deftref3(self):
+        self.checkSimplify("deftref3")
 
 class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
     DATA_DIR = "data"
