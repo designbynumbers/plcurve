@@ -584,12 +584,32 @@ class PDStoreExpander(object):
         f.close()
 
 class PDStorage:
-    def __init__(self):
-        self.hashes = defaultdict(list)
+    def __init__(self, isotopy=False):
+        """PDStorage(isotopy=False)
 
+        Create a new PDStorage object. If isotopy is True,
+        then equivalence among diagrams will be diagram isotopy,
+        rather than diagram isomorphism."""
+        
+        self.hashes = defaultdict(list)
+        self.isotopy = isotopy
+
+    def copy(self):
+        """Return a shallow copy of self."""
+        pdstor = self.__class__(isotopy=self.isotopy)
+        for hash_, bucket in self.hashes.iteritems():
+            pdstor.hashes[hash_] = bucket.copy()
+        return pdstor
+            
     @classmethod
-    def read(cls, f, read_header=False):
-        ret = cls()
+    def read(cls, f, read_header=False, isotopy=False):
+        """read(isotopy=False) -> new PDStorage
+
+        Read a PDStorage object from a file. If isotopy is True,
+        then equivalence among diagrams will be diagram isotopy,
+        rather than diagram isomorphism."""
+        
+        ret = cls(isotopy=isotopy)
         for pdcode in PlanarDiagram.read_all(f, read_header=read_header):
             ret.hashes[pdcode.hash].append(pdcode)
         return ret
@@ -627,6 +647,22 @@ class PDStorage:
         return self <= other and self >= other
     def __ne__(self, other):
         return not self == other
+
+    def __sub__(self, other):
+        if not isinstance(other, PDStorage):
+            raise TypeError
+
+        pdstor = self.__class__(isotopic=self.isotopic)
+        
+        for hash_, bucket in self.hashes.iteritems():
+            newbucket = bucket.copy()
+            if hash_ in other.hashes:
+                for pdcode in other.hashes[hash_]:
+                    newbucket = [subpd for subpd in newbucket if
+                                 (self.isotopic and subpd.isotopic(pdcode)) or
+                                 (not self.isotopic and subpd.isomorphic(pdcode))]
+            pdstor.hashes[hash_] = newbucket
+        return pdstor
 
 class PDDatabase(PDStoreExpander):
     def save(self, fname):
