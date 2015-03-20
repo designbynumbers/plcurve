@@ -23,6 +23,7 @@ cdef extern from "plcTopology.h":
     ctypedef unsigned char pd_or_t
     ctypedef unsigned int pd_pos_t
     ctypedef unsigned long int pd_uid_t
+    ctypedef char pd_tag_t
 
     # Edge
     cdef struct pd_edge_struct:
@@ -38,6 +39,7 @@ cdef extern from "plcTopology.h":
     cdef struct pd_component_struct:
         pd_idx_t nedges
         pd_idx_t *edge
+        pd_tag_t tag
 
     ctypedef pd_component_struct pd_component_t
 

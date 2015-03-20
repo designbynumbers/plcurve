@@ -1,5 +1,6 @@
 message PDCode {
-  optional string uid = 1;
+  optional uint64 uid = 1;
+  optional string hash = 6;
 
   // Orientation can be either +, -, or unset
   enum Orientation {

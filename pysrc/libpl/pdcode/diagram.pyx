@@ -1,6 +1,6 @@
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
-from libc.string cimport memcpy
-from libc.stdlib cimport malloc, free
+from libc.string cimport memcpy, strncpy
+from libc.stdlib cimport calloc, malloc, free
 import sys
 from cython.operator cimport dereference as deref
 import random
@@ -282,6 +282,56 @@ cdef class PlanarDiagram:
         input pdcode ``other_pd``.
         """
         return pd_isomorphic(self.p, other_pd.p)
+
+    def identical(self, PlanarDiagram other_pd):
+        """identical(PlanarDiagram other_pd) -> bool
+
+        Returns whether or not this diagram is identical to other_pd,
+        i.e., whether or not it has the exact same crossings, edges,
+        faces, and components. Does not care about memory allocated,
+        just the advertised structure.
+        """
+        if self.p.uid != other_pd.p.uid or self.p.hash != other_pd.p.hash:
+            return False
+
+        if (self.p.ncross != other_pd.p.ncross or
+            self.p.nedges != other_pd.p.nedges or
+            self.p.ncomps != other_pd.p.ncomps or
+            self.p.nfaces != other_pd.p.nfaces):
+            return False
+
+        for i in range(self.p.ncross):
+            if self.p.cross[i].sign != other_pd.p.cross[i].sign:
+                return False
+            for pos in range(4):
+                if self.p.cross[i].edge[pos] != other_pd.p.cross[i].edge[pos]:
+                    return False
+
+        for i in range(self.p.nedges):
+            if (self.p.edge[i].head != other_pd.p.edge[i].head or
+                self.p.edge[i].headpos != other_pd.p.edge[i].headpos or
+                self.p.edge[i].tail != other_pd.p.edge[i].tail or
+                self.p.edge[i].tailpos != other_pd.p.edge[i].tailpos):
+                return False
+
+        for i in range(self.p.ncomps):
+            if self.p.comp[i].tag != other_pd.p.comp[i].tag:
+                return False
+            if self.p.comp[i].nedges != other_pd.p.comp[i].nedges:
+                return False
+            for j in range(self.p.comp[i].nedges):
+                if self.p.comp[i].edge[j] != other_pd.p.comp[i].edge[j]:
+                    return False
+
+        for i in range(self.p.nfaces):
+            if self.p.face[i].nedges != other_pd.p.face[i].nedges:
+                return False
+            for j in range(self.p.face[i].nedges):
+                if (self.p.face[i].edge[j] != other_pd.p.face[i].edge[j] or
+                    self.p.face[i].ori[j] != other_pd.p.face[i].ori[j]):
+                    return False
+
+        return True
 
     def copy(self, thin=False):
         """copy() -> PlanarDiagram
@@ -1151,6 +1201,99 @@ cdef class PlanarDiagram:
 
     def ccode(self):
         return#return copy_and_free(pdcode_to_ccode(self.p))
+
+    def serialize(self):
+        """serialize() -> str
+
+        Serialize this pdcode into a string matching the PDCode spec
+        found in src/plcTopology.proto. Requires protobuf-python.
+        """
+        import plcTopology_pb2
+        pb_code = plcTopology_pb2.PDCode()
+
+        pb_code.uid = self.p.uid
+        if <bytes>self.p.hash:
+            pb_code.hash = <bytes>self.p.hash
+
+        for i in range(self.p.ncross):
+            pb_cross = pb_code.crossings.add()
+            for pos in range(4):
+                pb_cross.edges.append(self.p.cross[i].edge[pos])
+            pb_cross.sign = self.p.cross[i].sign
+
+        for i in range(self.p.nedges):
+            pb_edge = pb_code.edges.add()
+            pb_edge.head = self.p.edge[i].head
+            pb_edge.headpos = self.p.edge[i].headpos
+            pb_edge.tail = self.p.edge[i].tail
+            pb_edge.tailpos = self.p.edge[i].tailpos
+
+        for i in range(self.p.ncomps):
+            pb_comp = pb_code.components.add()
+            pb_comp.tag = self.p.comp[i].tag
+            for j in range(self.p.comp[i].nedges):
+                pb_comp.edges.append(self.p.comp[i].edge[j])
+
+        for i in range(self.p.nfaces):
+            pb_face = pb_code.faces.add()
+            for j in range(self.p.face[i].nedges):
+                pb_face_edge = pb_face.edges.add()
+                pb_face_edge.edge = self.p.face[i].edge[j]
+                pb_face_edge.sign = self.p.face[i].ori[j]
+
+        return pb_code.SerializeToString()
+
+    @classmethod
+    def deserialize(cls, basestring buff):
+        """deserialize(buffer) -> PlanarDiagram
+
+        Deserialize this pdcode from a string matching the PDCode spec
+        found in src/plcTopology.proto. Requires protobuf-python.
+
+        Caveats: tries to reproduce a PlanarDiagram exactly from the
+        serialization, hence will not regenerate() itself.
+        """
+        cdef PlanarDiagram pd = cls.__new__(cls)
+
+        import plcTopology_pb2
+        pb_code = plcTopology_pb2.PDCode.FromString(buff)
+
+        pd.p = pd_code_new(len(pb_code.crossings)+2)
+        pd.p.uid = pb_code.uid
+        if pb_code.hash:
+            strncpy(pd.p.hash, <bytes>pb_code.hash, PD_HASHSIZE)
+
+        pd.p.ncross = len(pb_code.crossings)
+        for i,pb_cross in enumerate(pb_code.crossings):
+            for pos,edge in enumerate(pb_cross.edges):
+                pd.p.cross[i].edge[pos] = edge
+            pd.p.cross[i].sign = pb_cross.sign
+
+        pd.p.nedges = len(pb_code.edges)
+        for i,pb_edge in enumerate(pb_code.edges):
+            pd.p.edge[i].head = pb_edge.head
+            pd.p.edge[i].headpos = pb_edge.headpos
+            pd.p.edge[i].tail = pb_edge.tail
+            pd.p.edge[i].tailpos = pb_edge.tailpos
+
+        pd.p.ncomps = len(pb_code.components)
+        for i,pb_comp in enumerate(pb_code.components):
+            pd.p.comp[i].tag = pb_comp.tag
+            pd.p.comp[i].nedges = len(pb_comp.edges)
+            pd.p.comp[i].edge = <pd_idx_t*>calloc(len(pb_comp.edges), sizeof(pd_idx_t))
+            for j,pb_edge_idx in enumerate(pb_comp.edges):
+                pd.p.comp[i].edge[j] = pb_edge_idx
+
+        pd.p.nfaces = len(pb_code.faces)
+        for i,pb_face in enumerate(pb_code.faces):
+            pd.p.face[i].nedges = len(pb_face.edges)
+            pd.p.face[i].edge = <pd_idx_t*>calloc(len(pb_face.edges), sizeof(pd_idx_t))
+            pd.p.face[i].ori = <pd_or_t*>calloc(len(pb_face.edges), sizeof(pd_or_t))
+            for j,pb_face_edge in enumerate(pb_face.edges):
+                pd.p.face[i].edge[j] = pb_face_edge.edge
+                pd.p.face[i].ori[j] = pb_face_edge.sign
+
+        return pd
 
     def pdcode(self):
         cdef list pdcode = []
