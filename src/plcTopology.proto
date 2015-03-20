@@ -1,0 +1,43 @@
+message PDCode {
+  optional string uid = 1;
+
+  // Orientation can be either +, -, or unset
+  enum Orientation {
+    NEGATIVE = 0;
+    POSITIVE = 1;
+    UNSET = 2;
+  }
+
+  // Pieces of the PDCode
+  // pd_idx_t, pd_pos_t are unsigned int types
+  message Edge {
+    optional uint32 head = 1;
+    optional uint32 headpos = 2;
+
+    optional uint32 tail = 3;
+    optional uint32 tailpos = 4;
+  }
+
+  message Crossing {
+    repeated uint32 edges = 1 [packed=true];
+    optional Orientation sign = 2 [default=UNSET];
+  }
+
+  message Component {
+    repeated uint32 edges = 1 [packed=true];
+    optional uint32 tag = 2;
+  }
+
+  message Face {
+    message FaceEdge {
+      optional uint32 edge = 1;
+      optional Orientation sign = 2;
+    }
+    repeated FaceEdge edges = 1;
+  }
+  
+  repeated Edge edges = 2;
+  repeated Crossing crossings = 3;
+  repeated Component components = 4;
+  repeated Face faces = 5;
+}
