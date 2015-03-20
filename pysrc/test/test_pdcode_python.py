@@ -1,10 +1,21 @@
 import unittest
 from itertools import product, compress, izip
 from libpl.pdcode import PlanarDiagram
+from test_pdcode import PlanarDiagramAssertMixin
 
-class TestPDCode(unittest.TestCase):
+class TestPDCode(PlanarDiagramAssertMixin, unittest.TestCase):
     def setUp(self):
         pass
+
+    def test_serialize(self):
+        test_cases = [
+            PlanarDiagram.torus_knot(2,7),
+            PlanarDiagram.unknot_wye(2,3,8),
+            PlanarDiagram.unknot(0)
+        ]
+        for K in test_cases:
+            L = PlanarDiagram.deserialize(K.serialize())
+            self.assertEqual(K, L)
 
     def test_pickle(self):
         import cPickle
