@@ -87,7 +87,7 @@ cdef class HOMFLYPolynomial:
     def __init__(self, data, bool sort=True):
         """Create a new HOMFLY polynomial from a LaTeX representation"""
         # let's do this pythonically now and then improve it later
-        cdef str latex
+        cdef basestring latex
 
         if isinstance(data, basestring):
             latex = data
@@ -95,7 +95,7 @@ cdef class HOMFLYPolynomial:
         elif getattr(data, '__iter__', False):
             self._load_from_terms(data, sort=sort)
 
-    def _load_from_latex(self, str latex, bool sort=True):
+    def _load_from_latex(self, basestring latex, bool sort=True):
         cdef object coeff, a_part, z_part, term
         cdef list result = []
         # change '- x' into '+ -x' for consistency
@@ -211,4 +211,3 @@ cdef class HOMFLYPolynomial:
         return " + ".join(str(t) for t in self.terms)
     def __repr__(self):
         return " + ".join(repr(t) for t in self.terms)
-
