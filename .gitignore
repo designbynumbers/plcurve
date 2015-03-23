@@ -50,3 +50,10 @@ INSTALL
 /src/tsmcmc.py
 /test-driver
 /cclassify
+*\.aux
+*\.synctex\.gz
+*\.out
+*\.bbl
+*\.blg
+*\.log
+auto/
