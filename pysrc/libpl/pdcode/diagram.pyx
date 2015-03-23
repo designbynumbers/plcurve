@@ -291,7 +291,8 @@ cdef class PlanarDiagram:
         faces, and components. Does not care about memory allocated,
         just the advertised structure.
         """
-        if self.p.uid != other_pd.p.uid or self.p.hash != other_pd.p.hash:
+        if (self.p.uid != other_pd.p.uid or
+            <bytes>self.p.hash != <bytes>other_pd.p.hash):
             return False
 
         if (self.p.ncross != other_pd.p.ncross or
@@ -1200,7 +1201,7 @@ cdef class PlanarDiagram:
         return newobj
 
     def ccode(self):
-        return#return copy_and_free(pdcode_to_ccode(self.p))
+        return copy_and_free(pdcode_to_ccode(self.p))
 
     def serialize(self):
         """serialize() -> str

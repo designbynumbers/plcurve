@@ -313,6 +313,9 @@ cdef class Component(_Disownable):
         def __get__(self):
             cdef int i
             return tuple(self.p.edge[i] for i in range(self.p.nedges))
+    property tag:
+        def __get__(self):
+            return self.p.tag
 
     def __init__(self, PlanarDiagram parent):
         self.parent = parent
