@@ -51,7 +51,21 @@ class HOMFLYType(types.TypeDecorator):
             value = HOMFLYPolynomial(value)
         return value
 
+
 Base = declarative_base()
+
+factorization_factors = Table(
+    'factorization_factors', Base.metadata,
+    Column('product_id', Integer, ForeignKey('factorizations.id')),
+    Column('factor_id', Integer, ForeignKey('factors.id')),
+)
+
+diagram_factorizations = Table(
+    'diagram_factorizations', Base.metadata,
+    Column('diagram_id', Integer, ForeignKey('diagrams.id')),
+    Column('factorization_id', Integer, ForeignKey('factorizations.id'))
+)
+
 class Shadow(Base):
     __tablename__ = 'shadows'
 
@@ -65,6 +79,13 @@ class Shadow(Base):
 
     pd = Column(SerializedDiagram)
 
+    def __init__(self, pdcode):
+        self.uid = pdcode.uid
+        self.n_cross = pdcode.ncross
+        self.n_comps = pdcode.ncomps
+        self.hash = pdcode.hash
+        self.pd = pdcode
+
     def __repr__(self):
         return "<Shadow(n_cross=%s, n_comps=%s, uid=%s, hash='%s')>"%(
             self.n_cross, self.n_comps, self.uid, self.hash)
@@ -76,13 +97,14 @@ class Diagram(Base):
     shadow_id = Column(Integer, ForeignKey('shadows.id'))
     shadow = relationship("Shadow", backref=backref('diagrams', order_by=id))
 
-    n_cross = column_property(shadow.n_cross)
-
     homfly = Column(HOMFLYType)
 
     cross_mask = Column(Mask)
     comp_mask = Column(Mask)
 
+    factorizations = relationship('LinkFactorization', secondary=diagram_factorizations,
+                                  backref='diagrams')
+    
     @property
     def cross_mask_list(self):
         return int_to_bin_list(self.cross_mask, self.shadow.n_cross)
@@ -104,14 +126,48 @@ class Diagram(Base):
             self.shadow.n_cross, self.shadow.n_comps, self.shadow.uid,
             self.cross_mask, self.comp_mask)
 
-class KnotFactor(Base):
-    __tablename__ = 'factors'
+class LinkFactorization(Base):
+    __tablename__ = 'factorizations'
 
     id = Column(Integer, primary_key=True)
     homfly = Column(HOMFLYType)
 
+    factors = relationship('LinkFactor', secondary=factorization_factors,
+                           backref='factorizations')
+    n_splits = Column(Integer)
+
+    @hybrid_property
+    def n_cross(self):
+        return sum(factor.n_cross for factor in self.factors)
+    @n_cross.expression
+    def n_cross(self):
+        return select([func.sum(LinkFactor.n_cross)]).\
+            where(LinkFactor.factorizations(contains(self)))
+    
+class LinkFactor(Base):
+    __tablename__ = 'factors'
+
+    id = Column(Integer, primary_key=True)
+    homfly = Column(HOMFLYType)
+    name = Column(String)
+
     n_cross = Column(Integer)
     n_comps = Column(Integer)
+
+    pd = Column(SerializedDiagram)
+
+    mirrored = Column(Boolean)
+    comp_mask = Column(Mask)
+    
+    @property
+    def comp_mask_list(self):
+        return int_to_bin_list(self.comp_mask, self.n_comps)
+
+    def __repr__(self):
+        return "<LinkFactor(%s%s%s)>"%(
+            self.name,
+            "*" if self.mirrored else "",
+            "_"+"".join(str(j) for j in self.comp_mask_list[1:]) if self.n_comps > 1 else "")
 
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)

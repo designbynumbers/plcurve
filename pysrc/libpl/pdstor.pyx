@@ -122,8 +122,8 @@ class ClassifyResult(object):
 DEFAULT_PATH=os.path.join("data","pdstors")
 SOURCE_DIR=libpl.data.dir
 
-def bin_list_to_int(blist):
-    return sum((i*2)**n for i,n in enumerate(reversed(blist)))
+#def bin_list_to_int(blist):
+#    return sum((i*2)**n for i,n in enumerate(reversed(blist)))
 
 # Some constant, common HOMFLY polynomials
 P_unknot = HOMFLYPolynomial("1")
