@@ -167,7 +167,7 @@ Given a link diagram with labeled edges we generate the set of quadruples of the
 
 \begin{figure}
 \begin{center}
-\begin{overpic}[height=4cm]{PD.pdf}
+\begin{overpic}[height=4cm]{PD.pdf} %% TODO: Add PD.pdf to SVN
 \put(40,35){$1$}
 \put(28,15){$2$}
 \put(-3,30){$3$}
@@ -424,7 +424,7 @@ If edge multiplicity is two, there is one edge unaccounted for, which joins eith
 \begin{itemize}
 \item
 \begin{tabular}{m{1in}m{3in}m{1in}}
-\includegraphics[width=0.9in]{1-b-configuration}
+\includegraphics[width=0.9in]{1-b-configuration.pdf}
 &
 In the $1b$ configuration, the multiple edge forms a 2-cycle dividing the portion of the graph $G$ connected to $cd$ from the portion connected to $23$. Deleting $1b$ requires a $\cutedgedouble$ move, and the remaining base edge is a cut edge of all further-reduced $G_i$, as shown at right.
 &
@@ -432,13 +432,13 @@ In the $1b$ configuration, the multiple edge forms a 2-cycle dividing the portio
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}}
-\includegraphics[width=1in]{1-c-configuration}
+\includegraphics[width=.9in]{1-c-configuration.pdf}
 &
 The $1c$ configuration is forbidden by parity.
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}m{1in}}
-\includegraphics[width=0.9in]{1-d-configuration}
+\includegraphics[width=0.9in]{1-d-configuration.pdf}
 &
 In the $1d$ configuration, the multiple edge forms a bigon face. Deleting $1d$ uses an $\edgedouble$ reduction, and yields the configuration at right. The remaining base edge may or may not be a cut edge of the further $G_i$.
 &
@@ -449,13 +449,13 @@ One might think that the $2-$ configurations are simply rearrangements of those 
 \begin{itemize}
 \item
 \begin{tabular}{m{1in}m{3in}}
-\includegraphics[width=0.9in]{2-b-configuration}
+\includegraphics[width=0.9in]{2-b-configuration.pdf}
 &
 The $2b$ configuration is forbidden by parity.
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}m{1in}}
-\includegraphics[width=1in]{2-c-configuration}
+\includegraphics[width=.9in]{2-c-configuration.pdf}
 &
 In the $2c$ configuration, by parity, the graph $G$ must have connected $1$ and $d$ and also $3$ and $b$. None of our moves change the connectivity of the graph (because we never delete all copies of a multiple edge), so the current graph $G_i$ still joins these pairs of connection points. This means that we are in position for an $\pairinsert$ pair reduction, resulting in the graph at right.
 &
@@ -463,7 +463,7 @@ In the $2c$ configuration, by parity, the graph $G$ must have connected $1$ and 
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}}
-\includegraphics[width=0.9in]{2-d-configuration}
+\includegraphics[width=0.9in]{2-d-configuration.pdf}
 &
 The $2d$ configuration is forbidden by parity.
 \end{tabular}
@@ -602,7 +602,7 @@ monogon and bigon fractions
 degree of alternatingness
 universal properties? comparison with distribution from ERPs, lattice walks, and petaluma.
 
-An experiment to do: make a histogram of the number of diagrams which are all unknots, those that are mostly unknots, those that are partially unknots, and so forth. 
+An experiment to do: make a histogram of the number of diagrams which are all unknots, those that are mostly unknots, those that are partially unknots, and so forth.
 
 I think this should partially explain the unknot fraction; the idea is that we should be able to count diagrams which can't possibly be knots (that is, stuff with only R1's) and see that while they eventually become exponentially scarce, they are (in this data) quite prevalent. Of course, it would be better if we also knew an upper bound on the total number of diagrams (maybe from Thistlethwaite's paper?), so that we could get an asymptotic bound on the decay rate.
 
