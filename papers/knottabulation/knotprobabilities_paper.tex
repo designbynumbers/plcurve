@@ -376,15 +376,23 @@ We now define four expansion moves of embedded planar graphs with vertex degree 
 \begin{definition}
 The four expansion operations that we will use are the following:
 \begin{itemize}
-\item $\loopinsert$ Loop insertion adds a loop edge to a vertex of degree 1 or 2, as below. (Note: Loop insertion can be performed on each side of a vertex of degree 2).\\
-\includegraphics[width=4in]{loop-addition.png}
-\item $\edgedouble$ reversing edge doubling duplicates an existing edge joining vertices of degree $< 4$ so as to create a new bigon face. Note that the (counterclockwise) order of the two vertices is reversed on the two vertices.\\
-\includegraphics[width=4in]{edge-duplication-non-cut.png}
+\item $\loopinsert$ Loop insertion adds a loop edge to a vertex of degree 1 or 2, as below. (Note: Loop insertion can be performed on each side of a vertex of degree 2).
+  \begin{center}
+    \includegraphics[width=4in]{loop-addition.pdf}
+  \end{center}
+\item $\edgedouble$ reversing edge doubling duplicates an existing edge joining vertices of degree $< 4$ so as to create a new bigon face. Note that the (counterclockwise) order of the two vertices is reversed on the two vertices.
+  \begin{center}
+    \includegraphics[width=4in]{edge-duplication-non-cut.png}
+  \end{center}
 \item $\cutedgedouble$ preserving doubling also duplicates an existing edge joining vertices of degree $<4$, but
-keeps the counterclockwise order of the edges the same on each at each of the two vertices. This sort of doubling is only available if the original edge is a cut edge of the graph.\\
-\includegraphics[width=4in]{edge-duplication-cut}
-\item $\pairinsert$ pair insertion adds a pair of edges simultaneously, joining two vertices of degree 2 which are both on two faces of the embedding, as below.\\
-\includegraphics[width=4in]{pair-insertion}
+keeps the counterclockwise order of the edges the same on each at each of the two vertices. This sort of doubling is only available if the original edge is a cut edge of the graph.
+\begin{center}
+  \includegraphics[width=4in]{edge-duplication-cut}
+\end{center}
+\item $\pairinsert$ pair insertion adds a pair of edges simultaneously, joining two vertices of degree 2 which are both on two faces of the embedding, as below.
+  \begin{center}
+    \includegraphics[width=4in]{pair-insertion}
+  \end{center}
 \end{itemize}
 \end{definition}
 
@@ -415,7 +423,7 @@ If the edge multiplicity is three or two, there is at least one connection point
 
 If the edge multiplicity is three, only one of these positions is unoccupied by a copy of the multiple edge. Looking at the three cases (below), we can see that by parity, it must be position $b$, and the pair of copies $0a$ and $2c$ of the multiple edge can be removed by a $\pairinsert$ operation.
 \begin{center}
-\includegraphics[width=4in]{multiplicity-three}\\
+\includegraphics[width=4in]{multiplicity-three.pdf}\\
 By parity, because we came from a 4-regular embedded planar graph only the leftmost case can occur at any stage in the reduction process.
 \end{center}
 We have now disposed of the case where edge multiplicity is three.
@@ -559,7 +567,7 @@ The pair of faces can make contact with each in several disconnected arcs, as sh
 But if the splitting arc also shared $F_1$ and $F_2$, the corresponding pair variable $p_{k,l}$ is related to $p_{i,j}$ by a linking equation if and only if adding that arc would leave $v_i$ and $v_j$ on different faces. The linking equation implies that only one of the arcs indicated by $p_{i,j}$ and $p_{k,l}$ is present in the expansion; since we have assumed that $p_{i,j}$ is positive, no such $p_{k,l}$ can have already been inserted earlier in the expansion process. This concludes the case where the interface of $F_1$ and $F_2$ was disconnected.
 
 \begin{center}
-\includegraphics[width=2in]{connected-pair-interaction-case}
+\includegraphics[width=2in]{connected-pair-interaction-case.pdf}
 \end{center}
 
 If the interface between $F_1$ and $F_2$ is connected, than either might have a disconnected interface with (at most one) other face, as shown above. This case is only cosmetically different-- again the key point is that the pair $v_i$, $v_j$ can link along the boundary of $F_1$ (or $F_2$) with a pair edge which also shares $F_1$ and $F_2$ while pairs involving a third face won't link the vertices we're interested in.
