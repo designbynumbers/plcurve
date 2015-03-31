@@ -428,7 +428,7 @@ If edge multiplicity is two, there is one edge unaccounted for, which joins eith
 &
 In the $1b$ configuration, the multiple edge forms a 2-cycle dividing the portion of the graph $G$ connected to $cd$ from the portion connected to $23$. Deleting $1b$ requires a $\cutedgedouble$ move, and the remaining base edge is a cut edge of all further-reduced $G_i$, as shown at right.
 &
-\includegraphics[width=0.9in]{1-b-target}
+\includegraphics[width=0.9in]{1-b-target.pdf}
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}}
@@ -442,7 +442,7 @@ The $1c$ configuration is forbidden by parity.
 &
 In the $1d$ configuration, the multiple edge forms a bigon face. Deleting $1d$ uses an $\edgedouble$ reduction, and yields the configuration at right. The remaining base edge may or may not be a cut edge of the further $G_i$.
 &
-\includegraphics[width=0.9in]{1-d-target}
+\includegraphics[width=0.9in]{1-d-target.pdf}
 \end{tabular}
 \end{itemize}
 One might think that the $2-$ configurations are simply rearrangements of those above, but this is not true. A genuinely new case arises for $2c$.
@@ -459,7 +459,7 @@ The $2b$ configuration is forbidden by parity.
 &
 In the $2c$ configuration, by parity, the graph $G$ must have connected $1$ and $d$ and also $3$ and $b$. None of our moves change the connectivity of the graph (because we never delete all copies of a multiple edge), so the current graph $G_i$ still joins these pairs of connection points. This means that we are in position for an $\pairinsert$ pair reduction, resulting in the graph at right.
 &
-\includegraphics[width=1in]{2-c-target}
+\includegraphics[width=.9in]{2-c-target.pdf}
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}}
@@ -530,7 +530,7 @@ p_{i,j} + p_{k,l} \leq 1
 
 These equations express the fact that the edges corresponding to a linked pair of endpoints along a face must intersect inside the face. Therefore, if two pair variables are linked, at most one of them can take the value $1$. For instance, in the situation below where there are four vertices of degree two along a pair of faces, we have six pair variables, two of which obey an additional linking equation.
 \begin{center}
-\includegraphics[height=1.5in]{linked-ghost-pairs}
+\includegraphics[height=1.5in]{linked-ghost-pairs.pdf}
 \end{center}
 We note that in the end, at most two of the pair variables above can have value $1$, but that a number of combinations are ruled out by vertex degree equations instead of linking equations.
 
@@ -552,7 +552,7 @@ If the next expansion is an $\edgedouble$ or $\cutedgedouble$ expansion indicate
 
 This much was easy. If the next expansion is of type $\pairinsert$, there is more to check. First, we note that there is no ambiguity in embeddings here: if we can do the $\pairinsert$ expansion, we can do it in only one way and we generate a unique embedding of the graph $G_{i+1}$. But can we do it at all? Each $\pairinsert$ indicated by a positive $p_{i,j}$ requires several conditions. First, vertex degrees at $v_i$, $v_j$ must be small enough, which is checked as before by vertex degree equations. But the $v_i$ and $v_j$ must still be on two faces in the expansion $G_i$, which is not obvious, because previous $\pairinsert$ expansions have split faces of $G_1$ into smaller faces in $G_i$. Let us suppose that $v_i$ and $v_j$ were on the pair of faces $F_1$ and $F_2$ of the original graph.
 \begin{center}
-\includegraphics[width=2in]{pair-interference}
+\includegraphics[width=3in]{pair-interference.pdf}
 \end{center}
 The pair of faces can make contact with each in several disconnected arcs, as shown above. Further, additional pair edges can share $F_1$ or $F_2$ with some other face. However, slicing $F_1$ can only separate $v_i$ and $v_j$ if the endpoints of the splitting arc link $v_i$ and $v_j$ on $F_1$. This can't happen if the splitting arc is part of a pair which share $F_1$ with some other face (as shown), as the interfaces of $F_1$ and other faces are all connected.
 
