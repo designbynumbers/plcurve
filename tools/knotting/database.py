@@ -104,7 +104,7 @@ class Diagram(Base):
 
     factorizations = relationship('LinkFactorization', secondary=diagram_factorizations,
                                   backref='diagrams')
-    
+
     @property
     def cross_mask_list(self):
         return int_to_bin_list(self.cross_mask, self.shadow.n_cross)
@@ -135,15 +135,9 @@ class LinkFactorization(Base):
     factors = relationship('LinkFactor', secondary=factorization_factors,
                            backref='factorizations')
     n_splits = Column(Integer)
+    n_cross = Column(Integer)
+    n_comps = Column(Integer)
 
-    @hybrid_property
-    def n_cross(self):
-        return sum(factor.n_cross for factor in self.factors)
-    @n_cross.expression
-    def n_cross(self):
-        return select([func.sum(LinkFactor.n_cross)]).\
-            where(LinkFactor.factorizations(contains(self)))
-    
 class LinkFactor(Base):
     __tablename__ = 'factors'
 
@@ -158,7 +152,7 @@ class LinkFactor(Base):
 
     mirrored = Column(Boolean)
     comp_mask = Column(Mask)
-    
+
     @property
     def comp_mask_list(self):
         return int_to_bin_list(self.comp_mask, self.n_comps)
@@ -199,24 +193,21 @@ if __name__ == "__main__":
             session.add(db_pdcode)
     """
 
-    N = 9
-    with open("../../data/pdstors/%s.pdstor"%N, "rb") as f:
-        for shadow in PlanarDiagram.read_all(f, read_header=True):
-            if shadow.ncomps > 1:
-                continue
-            (ret, ), = session.query(exists().where(
-                Shadow.uid==shadow.uid).where(
-                    Shadow.n_cross==shadow.ncross))
-            if ret:
-                continue
-            db_shadow = Shadow(
-                uid = shadow.uid,
-                hash = shadow.hash,
-                n_cross = shadow.ncross,
-                n_comps = shadow.ncomps,
-                pd = shadow
-            )
-            session.add(db_shadow)
+    for N in range(3,8+1):
+        with open("../../data/pdstors/%s.pdstor"%N, "rb") as f:
+            in_db = set((shadow.uid for shadow in session.query(Shadow.uid).filter(Shadow.n_cross==N)))
+            for shadow in PlanarDiagram.read_all(f, read_header=True):
+                if shadow.ncomps > 1:
+                    continue
+                #(ret, ), = session.query(exists().where(
+                #    Shadow.uid==shadow.uid).where(
+                #        Shadow.n_cross==shadow.ncross))
+                if shadow.uid in in_db:
+                    continue
+                db_shadow = Shadow(
+                    pdcode = shadow
+                )
+                session.add(db_shadow)
 
     session.commit()
     session.close()
