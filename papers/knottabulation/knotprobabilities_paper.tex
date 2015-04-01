@@ -347,7 +347,7 @@ Our first goal is to enumerate the link shadows-- that is, the connected 4-regul
 
 Brinkmann et.\ al.~\cite{Brinkmann:2007up} provided an algorithm to enumerate all of the simple embedded planar quadrangulations of $S^2$, up to embedded isomorphism. A quadrangulation is a planar graph where each face has four edges, as in the pictures below.
 \begin{center}
-\includegraphics[height=1.25in]{quadrangulations-example}
+\includegraphics[width=4in]{quadrangulations-example.pdf}
 \end{center}
 The dual graph to a quadrangulation is a connected 4-regular embedded planar multigraph, as shown below left. However, if the quadrangulation is simple, the dual graph is what we will call a \emph{prime} diagram: it cannot be decomposed by embedded circles which intersect the diagram in only two edges. We will call diagrams with such a system of decomposing circles \emph{composite}; an example of a non-simple quadrangulation and its (composite) dual graph is shown below right.
 \begin{center}
@@ -579,7 +579,7 @@ We have reduced the problem to that of building and satisfying the vertex degree
 
 We now consider the problem of dividing the results into embedded isomorphism classes. We first observe that we have already shown in Proposition~\ref{prop:reduce} two different reduced graphs $G_0$ and $G_0'$ cannot expand to the same $G$ since the embedded isomorphism type of the reduction $G_0$ is determined by the embedded isomorphism type of the expansion. However, it is possible for two different collections of expansion moves for the \emph{same} graph $G_0$ to produce isomorphic $G$ and $G'$ as in the picture below:
 \begin{center}
-\includegraphics[width=4in]{isomorphic-expansions}
+\includegraphics[width=4in]{isomorphic-expansions.pdf}
 \end{center}
 Therefore, we must insert each expansion we generate from a solution to the vertex degree and linking constraints into a container which rejects the solution if an embedded isomorphic graph already exists in the container. Though very fast graph isomorphism checkers such as \nauty and \saucy might speed things up, the number of vertices here is very small and we get entirely acceptable performance simply by using a hashing scheme and then attempting to build isomorphisms by pruned search.
 
