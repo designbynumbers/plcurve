@@ -81,6 +81,8 @@
 \newcommand{\plantri}{\textit{plantri} }
 \newcommand{\nauty}{\textit{nauty} }
 \newcommand{\saucy}{\textit{saucy} }
+\newcommand{\valgrind}{\textit{valgrind} }
+
 \newcommand{\pdcode}{pdcode }
 \newcommand{\pdcodes}{pdcodes }
 
@@ -344,6 +346,7 @@ It should be immediately clear that there are smarter ways to organize this comp
 Our first goal is to enumerate the link shadows-- that is, the connected 4-regular embedded planar (multi)graphs-- computationally. Since this is the heart of our work, we describe two independent algorithms for the enumeration. One is quite simple while the other is much more complex. We implemented, tested, and ran both of them independently to generate the database of diagrams, verifying that the results of the computations were the same.
 
 \subsection{Dual quadrangulations and connect sums}
+\label{subsec:connect sum}
 
 Brinkmann et.\ al.~\cite{Brinkmann:2007up} provided an algorithm to enumerate all of the simple embedded planar quadrangulations of $S^2$, up to embedded isomorphism. A quadrangulation is a planar graph where each face has four edges, as in the pictures below.
 \begin{center}
@@ -588,15 +591,25 @@ The overall workflow is then as follows:
 \includegraphics[width=4in]{workflow}
 \end{center}
 
-\section{Verifying the results}
+\section{Computing and verifying the results}
 
-There are several ways that we can check our results. The first and most important is that the databases obtained by connect summing and by expansions are identical. However, both of these results depend on \plantri, so it seems useful to perform what checks we can against other sources. Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere\cite{} with $n$ crossings for $n$ from $0$ to $5$. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 through 7 crossings. 
+We implemented the above algorithms in C and used them to generate a database of knot diagrams up to 10 crossings. The longest run took several days on a desktop computer. The most important question, of course, is how the computation was checked. Of course, our implementation was careful and involved quite a bit of internal self-checks as well as testing against \valgrind for memory problems, and writing a suite of unit tests for the codebase. However, good programming practices can only provide a limited measure of confidence in the results, so we continued to test our work. The first and most important test was to verify that the databases obtained by connect summing and by expansions were identical. 
 
-A more interesting check comes from the work of <blossom tree guys>, who provide an explicit generating function for the number of 4-valent embedded planar graphs with a marked edge. This is not a simple multiple of our count, since spherical diagrams with unmarked edges and different-sized automorphism groups contribute varying numbers of distinct marked-edge planar diagrams.   However, knowing the automorphism group of each diagram, we can predict the number of marked-edge planar diagrams by the following procedure:
+We were also able to check against some existing enumerations. K\'apolnai et.\ al. classified spherical ``multiquadrangulations''\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \plantri, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours.
+
+A less obvious and more theoretical check comes from the work of Bouttier et.\ al.\ , who provide an explicit generating function for the number of ``tetravalent two-leg diagrams with geodesic distance 0 between the two legs''\cite[(4.13)]{Bouttier:2003ib}:
+\begin{equation*}
+\frac{24g - 1 + \sqrt{1 - 12g}}{9g(1+\sqrt{1-12g}} = 1 + 2g + 9 g^2 + 54 g^3 + 378 g^4 + 2916 g^5 + \dots
+\end{equation*}
+Basically, these are isomorphism classes of oriented ``long curves'' in the plane. One of our spherical curves can generate as many as $4n$ of these curves by choosing an edge and orientation. However, the resulting planar long curves are not all distinct if the spherical curve has a nontrivial automorphism group. Thus, there is no simple way to translate from this count to ours. However, we do know the automorphism group of each diagram, so we can predict the number of marked-edge planar diagrams by the following procedure:
 
 <insert procedure>
 
-Our counts of spherical diagrams (of all numbers of components) then produce the data below, which matches the prediction from the generating function (I hope!). 
+Our counts of spherical diagrams (of all numbers of components) then produce the data below, which matches the prediction from the generating function above.
+
+For knot diagrams in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension. These counts are given in the table below:
+
+<insert table of counts here>
 
 
 
