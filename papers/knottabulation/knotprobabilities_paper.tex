@@ -13,6 +13,8 @@
 \usepackage{hyperref}
 \PassOptionsToPackage{caption=false}{subfig}
 \usepackage[lofdepth]{subfig}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
 
 %\usepackage{clrscode}
 \usepackage{algorithm}
@@ -366,7 +368,32 @@ The \plantri software of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa
 To enumerate all diagrams, we recall (as is standard in knot theory) that every composite diagram is uniquely expressed as a collection of prime diagrams joined along pairs of edges by the connect sum operation. Of course, this regularly generates isomorphic diagrams when the prime diagrams have a nontrivial automorphism group. It would be interesting and fun to predict when this happens and arrange to avoid generating duplicate diagrams by tracking edge orbits under the automorphism group of each diagram. However, in keeping with our strategy of simple, robust code, we simply construct all connect sums iteratively and check for isomorphisms with existing pdcodes using the hashing/brute force strategy for isomorphism checking detailed above. The process is shown below
 
 \begin{center}
-\includegraphics[width=3in]{composite-workflow}
+  \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
+    %\tikzstyle{every node}=[align=center]
+    \node                  (prime2)
+    {Prime diagrams\\\tt{(plantri)}};
+    \node[left=1in of prime2]  (prime1) 
+    {Prime diagrams\\\tt{(plantri)}};
+    \node[right=1in of prime2] (all)    
+    {All diagrams\\of $n$ crossings};
+
+    \node[below=.7cm of prime2] (sum2) {2-summand\\diagrams};
+    \node[below=.7cm of sum2]   (sum3) {3-summand\\diagrams};
+    \node[below=1.4cm of sum3]    (sumn) {$n$-summand\\diagrams};
+
+    \path (prime1)    edge (prime2)
+                      edge (sum2.west)
+                      edge (sum3.west)
+                      edge (sumn.west)
+          (prime2)    edge (sum2)
+                      edge (all)
+          (sum2)      edge (sum3)
+          (sum2.east) edge (all)
+          (sum3)      edge[dashed] (sumn)
+          (sum3.east) edge (all)
+          (sumn.east) edge (all);
+  \end{tikzpicture}
+%\includegraphics[width=3in]{composite-workflow}
 \end{center}
 
 where the arrows indicate ``all possible connect sums (and entry into the database with isomorphic copies of an existing diagram rejected)'' or simply ``entry into the database with isomorphic copies rejected''.
@@ -588,7 +615,20 @@ Therefore, we must insert each expansion we generate from a solution to the vert
 
 The overall workflow is then as follows:
 \begin{center}
-\includegraphics[width=4in]{workflow}
+  \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
+    %\tikzstyle{every node}=[align=center]
+    \node[text width=1.3in,draw=black] (plantri)
+    {\texttt{plantri}, set to produce planar simple graphs with max degree
+    4 and connectivity 1.};
+    \node[text width=1.3in,right=.5in of plantri,draw=black]  (expand) 
+    {Expansions\\computed branch-and-bound.};
+    \node[text width=1.3in,right=.5in of expand,draw=black] (isomch)    
+    {Embedded\\isomorphism\\checking};
+
+    \path (plantri)    edge (expand)
+          (expand)     edge (isomch);
+  \end{tikzpicture}
+%\includegraphics[width=4in]{workflow}
 \end{center}
 
 \section{Computing and verifying the results}
