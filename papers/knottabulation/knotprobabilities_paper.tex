@@ -128,15 +128,19 @@ Suppose that one is given an $n$-crossing knot diagram chosen at random from the
 
 \section{Definitions}
 
-We begin with some definitions
+We begin with some definitions.
 \begin{definition}
 We define a \emph{link shadow} with $n$ vertices to be an equivalence class of connected $4$-regular embedded planar multigraphs with $n$ vertices up to \emph{shadow isomorphism} which is a graph isomorphism which preserves the counterclockwise order of edges around each vertex.
 \end{definition}
 
-Examples of link shadows are shown below
-\begin{center}
-\includegraphics[width=4in]{linkshadow.pdf}
-\end{center}
+Examples of link shadows are shown in Figure \ref{fig:ShadowExamples}.
+
+\begin{figure}
+	\begin{overpic}[width=4in]{linkshadow.pdf}
+	
+	\end{overpic}
+	\caption{\label{fig:ShadowExamples}Examples of links shadows.}
+\end{figure}
 It is well-understood that the equivalence relation preserves the (spherical) embedding of the planar graph; in fact, the left and right-most shadows are actually equivalent under embedded isomorphism-- we have just changed the ``exterior'' face of the projection from the sphere to the plane.
 
 We can partition the edges of a link diagram into \emph{components} by defining two edges to be equivalent if they meet at a vertex at positions which are not cyclicly adjacent. We will call shadows with a single component \emph{knot shadows}. They will be the focus of this paper.
@@ -350,19 +354,25 @@ Our first goal is to enumerate the link shadows-- that is, the connected 4-regul
 \subsection{Dual quadrangulations and connect sums}
 \label{subsec:connect sum}
 
-Brinkmann et.\ al.~\cite{Brinkmann:2007up} provided an algorithm to enumerate all of the simple embedded planar quadrangulations of $S^2$, up to embedded isomorphism. A quadrangulation is a planar graph where each face has four edges, as in the pictures below.
-\begin{center}
-\includegraphics[width=4in]{quadrangulations-example.pdf}
-\end{center}
-The dual graph to a quadrangulation is a connected 4-regular embedded planar multigraph, as shown below left. However, if the quadrangulation is simple, the dual graph is what we will call a \emph{prime} diagram: it cannot be decomposed by embedded circles which intersect the diagram in only two edges. We will call diagrams with such a system of decomposing circles \emph{composite}; an example of a non-simple quadrangulation and its (composite) dual graph is shown below right.
-\begin{center}
+Brinkmann et.\ al.~\cite{Brinkmann:2007up} provided an algorithm to enumerate all of the simple embedded planar quadrangulations of $S^2$, up to embedded isomorphism. A quadrangulation is a planar graph where each face has four edges, as in Figure \ref{fig:QuadExamples}.
+
+\begin{figure}
+	\begin{overpic}[width=4in]{quadrangulations-example.pdf}
+
+	\end{overpic}
+	\caption{\label{fig:QuadExamples} Examples of quadrangulations.}
+\end{figure}
+
+The dual graph to a quadrangulation is a connected 4-regular embedded planar multigraph, as shown below left. However, if the quadrangulation is simple, the dual graph is what we will call a \emph{prime} diagram: it cannot be decomposed by embedded circles which intersect the diagram in only two edges. We will call diagrams with such a system of decomposing circles \emph{composite}; an example of a non-simple quadrangulation and its (composite) dual graph are shown in Figure \ref{fig:NonSimpleQuad}.
+\begin{figure}
 \hphantom{.}
 \hfill
 \includegraphics[height=1.25in]{quadrangulation} \hfill
 \includegraphics[height=1.25in]{non-simple-quadrangulation}
 \hfill
 \hphantom{.}
-\end{center}
+\caption{\label{fig:NonSimpleQuad} An example of a non-simple quadrangulation (right) and its dual graph (left).}
+\end{figure}
 The \plantri software of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa} can be used to generate the dual graphs of the planar simple quadrangulations of given number of vertices. Since an easy Euler characteristic argument shows that the number of vertices in the dual graph of a quadrangulation is 2 less than the number of vertices in the quadrangulation, we can use this to enumerate the connected 4-regular embedded planar multigraphs which are prime.
 
 To enumerate all diagrams, we recall (as is standard in knot theory) that every composite diagram is uniquely expressed as a collection of prime diagrams joined along pairs of edges by the connect sum operation. Of course, this regularly generates isomorphic diagrams when the prime diagrams have a nontrivial automorphism group. It would be interesting and fun to predict when this happens and arrange to avoid generating duplicate diagrams by tracking edge orbits under the automorphism group of each diagram. However, in keeping with our strategy of simple, robust code, we simply construct all connect sums iteratively and check for isomorphisms with existing pdcodes using the hashing/brute force strategy for isomorphism checking detailed above. The process is shown below
@@ -435,9 +445,12 @@ Equivalently, any connected $4$-regular embedded planar (multi)graph $G$ can be 
 \label{prop:reduce}
 \end{proposition}
 
-An illustration of the process we describe is
+
+An illustration of the process we describe is shown below.
+
 \begin{center}
 \includegraphics[width=4in]{expansion-from-simple-graph.pdf}
+%\caption{\label{fig:Expansion} An illustration of the process described in Proposition \ref{prop:reduce}}
 \end{center}
 
 \begin{proof}
@@ -451,57 +464,137 @@ If the edge multiplicity is four, $G$ is \hopfgraph. This is obtained from the g
 
 If the edge multiplicity is three or two, there is at least one connection point on $v$ which is not occupied by a copy of the multiple edge followed immediately by a connection point which is occupied by a copy $e$ of the multiple edge. Without loss of generality, we'll call $e$ the \emph{base copy} of the multiple edge, and its connection point to at $v$ position $0$ around $v$. The remaining connection points will be numbered $1$, $2$, and $3$. By construction, the edge joined to $v$ at position $3$ (if any) is not connected to $w$. We can label the other end of the base copy $e$ position $a$ on the second vertex $w$, and label the other positions $b$, $c$, and $d$, again counterclockwise.
 
-If the edge multiplicity is three, only one of these positions is unoccupied by a copy of the multiple edge. Looking at the three cases (below), we can see that by parity, it must be position $b$, and the pair of copies $0a$ and $2c$ of the multiple edge can be removed by a $\pairinsert$ operation.
-\begin{center}
+If the edge multiplicity is three, only one of these positions is unoccupied by a copy of the multiple edge. Looking at the three cases (shown in Figure \ref{fig:MultThree}), we can see that by parity, it must be position $b$, and the pair of copies $0a$ and $2c$ of the multiple edge can be removed by a $\pairinsert$ operation. We have now disposed of the case where edge multiplicity is three.
+\begin{figure}
 \includegraphics[width=4in]{multiplicity-three.pdf}\\
-By parity, because we came from a 4-regular embedded planar graph only the leftmost case can occur at any stage in the reduction process.
-\end{center}
-We have now disposed of the case where edge multiplicity is three.
+\caption{\label{fig:MultThree} By parity, because we came from a 4-regular embedded planar graph only the leftmost case can occur at any stage in the reduction process.}
+\end{figure}
+
+
+
 
 If edge multiplicity is two, there is one edge unaccounted for, which joins either position $1$ or $2$ on vertex $v$ to position $b$, $c$, or $d$ on vertex $w$. Therefore, there are six cases to address. We consider them in order, starting with the $1x$ configurations.
 \begin{itemize}
 \item
 \begin{tabular}{m{1in}m{3in}m{1in}}
-\includegraphics[width=0.9in]{1-b-configuration.pdf}
+\begin{overpic}[width=1in]{1-b-configuration.pdf}
+	\put(23,52){\tiny{$2$}}
+	\put(10,40){\tiny{$3$}}
+	\put(35,40){\tiny{$1$}}
+	\put(17,17){\tiny{$0$}}
+
+	\put(73,36){\tiny{$d$}}
+	\put(62,24){\tiny{$a$}}
+	\put(85,24){\tiny{$c$}}
+	\put(67,4){\tiny{$b$}}
+\end{overpic}
 &
 In the $1b$ configuration, the multiple edge forms a 2-cycle dividing the portion of the graph $G$ connected to $cd$ from the portion connected to $23$. Deleting $1b$ requires a $\cutedgedouble$ move, and the remaining base edge is a cut edge of all further-reduced $G_i$, as shown at right.
 &
-\includegraphics[width=0.9in]{1-b-target.pdf}
+\begin{overpic}[width=1in]{1-b-target.pdf}
+	\put(23,52){\tiny{$2$}}
+	\put(11.5,40.5){\tiny{$3$}}
+
+	\put(73,35){\tiny{$d$}}
+	\put(84.5,24){\tiny{$c$}}
+\end{overpic}
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}}
-\includegraphics[width=.9in]{1-c-configuration.pdf}
+\begin{overpic}[width=1in]{1-c-configuration.pdf}
+	\put(23,52){\tiny{$2$}}
+	\put(10,40){\tiny{$3$}}
+	\put(35,40){\tiny{$1$}}
+	\put(17,17){\tiny{$0$}}
+
+	\put(73,36){\tiny{$d$}}
+	\put(62,24){\tiny{$a$}}
+	\put(85,24){\tiny{$c$}}
+	\put(67,4){\tiny{$b$}}
+\end{overpic}
 &
 The $1c$ configuration is forbidden by parity.
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}m{1in}}
-\includegraphics[width=0.9in]{1-d-configuration.pdf}
+\begin{overpic}[width=0.9in]{1-d-configuration.pdf}
+	\put(23,52){\tiny{$2$}}
+	\put(10,40){\tiny{$3$}}
+	\put(35,40){\tiny{$1$}}
+	\put(17,17){\tiny{$0$}}
+
+	\put(73.5,36){\tiny{$d$}}
+	\put(62,24){\tiny{$a$}}
+	\put(85,24){\tiny{$c$}}
+	\put(66,3){\tiny{$b$}}
+\end{overpic}
 &
 In the $1d$ configuration, the multiple edge forms a bigon face. Deleting $1d$ uses an $\edgedouble$ reduction, and yields the configuration at right. The remaining base edge may or may not be a cut edge of the further $G_i$.
 &
-\includegraphics[width=0.9in]{1-d-target.pdf}
+\begin{overpic}[width=0.9in]{1-d-target.pdf}
+	\put(23,52){\tiny{$2$}}
+	\put(11.5,40.5){\tiny{$3$}}
+
+	\put(73,-2){\tiny{$b$}}
+	\put(84.5,24){\tiny{$c$}}
+\end{overpic}
 \end{tabular}
 \end{itemize}
 One might think that the $2-$ configurations are simply rearrangements of those above, but this is not true. A genuinely new case arises for $2c$.
 \begin{itemize}
 \item
 \begin{tabular}{m{1in}m{3in}}
-\includegraphics[width=0.9in]{2-b-configuration.pdf}
+\begin{overpic}[width=0.9in]{2-b-configuration.pdf}
+	\put(20,52){\tiny{$2$}}
+	\put(10,40){\tiny{$3$}}
+	\put(35,40){\tiny{$1$}}
+	\put(17,17){\tiny{$0$}}
+
+	\put(73,36){\tiny{$d$}}
+	\put(62,24){\tiny{$a$}}
+	\put(85,24){\tiny{$c$}}
+	\put(66,3){\tiny{$b$}}
+\end{overpic}
 &
 The $2b$ configuration is forbidden by parity.
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}m{1in}}
-\includegraphics[width=.9in]{2-c-configuration.pdf}
+\begin{overpic}[width=.9in]{2-c-configuration.pdf}
+	\put(20,52){\tiny{$2$}}
+	\put(10,40){\tiny{$3$}}
+	\put(35,40){\tiny{$1$}}
+	\put(17,17){\tiny{$0$}}
+
+	\put(74,36){\tiny{$d$}}
+	\put(62,24){\tiny{$a$}}
+	\put(85,24){\tiny{$c$}}
+	\put(66,3){\tiny{$b$}}
+\end{overpic}
 &
 In the $2c$ configuration, by parity, the graph $G$ must have connected $1$ and $d$ and also $3$ and $b$. None of our moves change the connectivity of the graph (because we never delete all copies of a multiple edge), so the current graph $G_i$ still joins these pairs of connection points. This means that we are in position for an $\pairinsert$ pair reduction, resulting in the graph at right.
 &
-\includegraphics[width=.9in]{2-c-target.pdf}
+\begin{overpic}[width=.9in]{2-c-target.pdf}
+	\put(11,40){\tiny{$3$}}
+	\put(34,40){\tiny{$1$}}
+
+	\put(79,30){\tiny{$d$}}
+	\put(79,6){\tiny{$b$}}
+\end{overpic}
 \end{tabular}
 \item
 \begin{tabular}{m{1in}m{3in}}
-\includegraphics[width=0.9in]{2-d-configuration.pdf}
+\begin{overpic}[width=0.9in]{2-d-configuration.pdf}
+	\put(20,52){\tiny{$2$}}
+	\put(10,40){\tiny{$3$}}
+	\put(35,40){\tiny{$1$}}
+	\put(17,17){\tiny{$0$}}
+
+	\put(77,36){\tiny{$d$}}
+	\put(62,24){\tiny{$a$}}
+	\put(85,24){\tiny{$c$}}
+	\put(66,3){\tiny{$b$}}
+\end{overpic}
 &
 The $2d$ configuration is forbidden by parity.
 \end{tabular}
