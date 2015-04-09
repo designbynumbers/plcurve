@@ -4,7 +4,7 @@ from collections import defaultdict
 P_unk = HOMFLYPolynomial('1')
 from collections import Counter
 from operator import mul
-from itertools import combinations_with_replacement
+from itertools import combinations_with_replacement, groupby
 
 def knot_partition(n, k):
     """knot_partition(n, k) -> [a_1, ...]
@@ -101,12 +101,18 @@ if __name__ == "__main__":
         prime_knots[lf.n_cross].append(lf)
     for N in range(MIN_N, MAX_N+1):
         for fzn in all_knotgraded_sums(N, prime_knots):
+            factors = []
+            for k,g in groupby(fzn):
+                fassoc = FactorizationFactor(multiplicity=len(list(g)))
+                fassoc.factor = k
+                factors.append(fassoc)
+
             db_fzn = LinkFactorization(
                 homfly = reduce(mul, (k.homfly for k in fzn)),
                 n_splits = 0,
                 n_cross = N,
                 n_comps = 1,
-                factors = list(fzn)
+                factors = factors,
             )
             session.add(db_fzn)
 

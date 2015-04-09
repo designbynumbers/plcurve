@@ -54,11 +54,12 @@ class HOMFLYType(types.TypeDecorator):
 
 Base = declarative_base()
 
-factorization_factors = Table(
-    'factorization_factors', Base.metadata,
-    Column('product_id', Integer, ForeignKey('factorizations.id')),
-    Column('factor_id', Integer, ForeignKey('factors.id')),
-)
+class FactorizationFactor(Base):
+    __tablename__ = 'factorization_factors'
+    product_id = Column(Integer, ForeignKey('factorizations.id'), primary_key=True)
+    factor_id = Column(Integer, ForeignKey('factors.id'), primary_key=True)
+    factor = relationship("LinkFactor")
+    multiplicity = Column(Integer)
 
 diagram_factorizations = Table(
     'diagram_factorizations', Base.metadata,
@@ -102,8 +103,8 @@ class Diagram(Base):
     cross_mask = Column(Mask)
     comp_mask = Column(Mask)
 
-    factorizations = relationship('LinkFactorization', secondary=diagram_factorizations,
-                                  backref='diagrams')
+                     #relationship('LinkFactorization', secondary=diagram_factorizations,
+                     #             backref='diagrams')
 
     @property
     def cross_mask_list(self):
@@ -132,17 +133,21 @@ class LinkFactorization(Base):
     id = Column(Integer, primary_key=True)
     homfly = Column(HOMFLYType)
 
-    factors = relationship('LinkFactor', secondary=factorization_factors,
-                           backref='factorizations')
+    factors = relationship('FactorizationFactor')
+    
     n_splits = Column(Integer)
     n_cross = Column(Integer)
     n_comps = Column(Integer)
 
     def __str__(self):
-        return "#".join(str(factor) for factor in self.factors)
-    
+        return "#".join(
+            "#".join(str(fassoc.factor) for _ in range(fassoc.multiplicity))
+            for fassoc in self.factors)
+
     def __repr__(self):
-        return "#".join(repr(factor) for factor in self.factors)
+        return "#".join(
+            "#".join(repr(fassoc.factor) for _ in range(fassoc.multiplicity))
+            for fassoc in self.factors)
 
 class LinkFactor(Base):
     __tablename__ = 'factors'
@@ -176,6 +181,15 @@ class LinkFactor(Base):
             "*" if self.mirrored else "",
             "_"+"".join(str(j) for j in self.comp_mask_list[1:]) if self.n_comps > 1 else "")
 
+#Diagram.factorizations = column_property(select([LinkFactorization])\
+#                                         .where(LinkFactorization.n_cross==Shadow.n_cross)\
+#                                         .where(LinkFactorization.homfly==Diagram.homfly))
+
+def classify(session, diagram):
+    return session.query(LinkFactorization)\
+                  .filter(LinkFactorization.n_cross <= diagram.shadow.n_cross)\
+                  .filter(LinkFactorization.homfly == diagram.homfly).all()
+    
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 

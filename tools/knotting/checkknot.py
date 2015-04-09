@@ -2,10 +2,10 @@ from database import *
 from libpl.pdstor import *
 P_unk = HOMFLYPolynomial('1')
 
-if __name__ == "__main__":
-    session = Session()
-    n_cross = 8
-    for db_shadow in session.query(Shadow).filter(Shadow.n_cross==n_cross):
+def load_diagrams(session, n_cross):
+    for i, db_shadow in enumerate(session.query(Shadow).filter(Shadow.n_cross==n_cross)):
+        if i%100 == 0:
+            print i
         for pd, xmask in PDStoreExpander.crossing_combinations(db_shadow.pd):
             homfly = pd.homfly()
             if homfly != P_unk:
@@ -25,6 +25,12 @@ if __name__ == "__main__":
                         comp_mask = (0,)
                     )
                     session.add(db_pd)
-                    print pd.crossings, pd.homfly()
+                    #print pd.crossings, pd.homfly()
     session.commit()
+
+if __name__ == "__main__":
+    session = Session()
+    for n_cross in range(8,9):
+        print n_cross
+        load_diagrams(session, n_cross)
     session.close()
