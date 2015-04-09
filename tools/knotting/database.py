@@ -73,8 +73,9 @@ class Shadow(Base):
     id = Column(Integer, primary_key=True)
     uid = Column(Integer)
 
-    n_cross = Column(Integer)
-    n_comps = Column(Integer)
+    n_cross = Column(Integer) # # crossings
+    n_comps = Column(Integer) # # components
+    n_autos = Column(Integer) # # automorphisms
 
     hash = Column(String)
 
@@ -91,20 +92,29 @@ class Shadow(Base):
         return "<Shadow(n_cross=%s, n_comps=%s, uid=%s, hash='%s')>"%(
             self.n_cross, self.n_comps, self.uid, self.hash)
 
+class DiagramClass(Base):
+    __tablename__ = 'diagram_classes'
+
+    id = Column(Integer, primary_key=True)
+    shadow_id = Column(Integer, ForeignKey('shadows.id'))
+    shadow = relationship("Shadow", backref=backref('diagram_classes', order_by=id))
+
+    homfly = Column(HOMFLYType)
+
+    diagrams = relationship("Diagram", backref="iso_class")
+
+    def __repr__(self):
+        return "<DiagramClass(n_cross=%s, n_comps=%s, shadow=%s, id=%s)>"%(
+            self.shadow.n_cross, self.shadow.n_comps, self.shadow.uid, self.id)
+    
 class Diagram(Base):
     __tablename__ = 'diagrams'
 
     id = Column(Integer, primary_key=True)
-    shadow_id = Column(Integer, ForeignKey('shadows.id'))
-    shadow = relationship("Shadow", backref=backref('diagrams', order_by=id))
-
-    homfly = Column(HOMFLYType)
+    iso_class_id = Column(Integer, ForeignKey('diagram_classes.id'))
 
     cross_mask = Column(Mask)
     comp_mask = Column(Mask)
-
-                     #relationship('LinkFactorization', secondary=diagram_factorizations,
-                     #             backref='diagrams')
 
     @property
     def cross_mask_list(self):
@@ -198,7 +208,7 @@ if __name__ == "__main__":
 
     from libpl.pdstor import *
 
-    for N in range(3,8+1):
+    for N in range(3,6+1):
         with open("../../data/pdstors/%s.pdstor"%N, "rb") as f:
             in_db = set((shadow.uid for shadow in (session.query(Shadow.uid)
                                                    .filter(Shadow.n_cross==N))))

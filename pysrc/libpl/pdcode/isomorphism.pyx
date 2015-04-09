@@ -1,6 +1,7 @@
 from .pdisomorphism cimport *
 from .isomorphism cimport *
 from .diagram cimport PlanarDiagram
+from itertools import izip, cycle
 
 cdef PlanarIsomorphism_FromPointer(pd_iso_t *c_iso):
     cdef PlanarIsomorphism new_iso = PlanarIsomorphism.__new__(PlanarIsomorphism)
@@ -41,6 +42,37 @@ cdef class PlanarIsomorphism:
 
         pd_apply_edgemap(pd.p, self.p.edgemap)
         pd.regenerate_py_os()
+
+    def face_index_orbit(self, int f):
+        ret = self.face_maps[f]
+        while ret != f:
+            yield ret
+            ret = self.face_maps[ret]
+        yield ret
+
+    def edge_index_orbit(self, int e):
+        ret = self.edge_maps[e]
+        while ret != e:
+            yield ret
+            ret = self.edge_maps[ret]
+            yield ret
+
+    def cross_index_orbit(self, int x):
+        ret = self.cross_maps[x]
+        while ret != x:
+            yield ret
+            ret = self.cross_maps[ret]
+            yield ret
+
+    def flag_orbit(self, int x, int e, int f):
+        x_orbit = self.cross_index_orbit(x)
+        e_orbit = self.edge_index_orbit(e)
+        f_orbit = self.face_index_orbit(f)
+        start = (x,e,f)
+        for x,e,f in izip(cycle(x_orbit),cycle(e_orbit),cycle(f_orbit)):
+            yield x,e,f
+            if (x,e,f) == start:
+                return
 
     property face_maps:
         def __get__(self):
