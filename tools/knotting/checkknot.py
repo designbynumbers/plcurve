@@ -4,14 +4,15 @@ P_unk = HOMFLYPolynomial('1')
 
 if __name__ == "__main__":
     session = Session()
-    n_cross = 6
+    n_cross = 8
     for db_shadow in session.query(Shadow).filter(Shadow.n_cross==n_cross):
         for pd, xmask in PDStoreExpander.crossing_combinations(db_shadow.pd):
             homfly = pd.homfly()
             if homfly != P_unk:
-                (ret, ), = session.query(exists()
-                .where(Diagram.shadow==db_shadow)
-                .where(Diagram.cross_mask==xmask))
+                ret = False
+                #(ret, ), = session.query(exists()
+                #.where(Diagram.shadow==db_shadow)
+                #.where(Diagram.cross_mask==xmask))
                 #ret = session.query(Diagram)\
                 #             .filter(Diagram.shadow==db_shadow)\
                 #             .filter(Diagram.cross_mask==xmask).all()

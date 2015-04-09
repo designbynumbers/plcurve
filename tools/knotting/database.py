@@ -5,7 +5,7 @@ import sqlalchemy.types as types
 from sqlalchemy.ext.hybrid import hybrid_property
 from itertools import compress
 
-engine = create_engine("sqlite:///shadows.db", echo=True)
+engine = create_engine("sqlite:///shadows.db", echo=False)
 
 from libpl.pdcode import *
 class SerializedDiagram(types.TypeDecorator):
@@ -138,6 +138,12 @@ class LinkFactorization(Base):
     n_cross = Column(Integer)
     n_comps = Column(Integer)
 
+    def __str__(self):
+        return "#".join(str(factor) for factor in self.factors)
+    
+    def __repr__(self):
+        return "#".join(repr(factor) for factor in self.factors)
+
 class LinkFactor(Base):
     __tablename__ = 'factors'
 
@@ -157,6 +163,13 @@ class LinkFactor(Base):
     def comp_mask_list(self):
         return int_to_bin_list(self.comp_mask, self.n_comps)
 
+    def __str__(self):
+        return "%s%s%s"%(
+            self.name,
+            "*" if self.mirrored else "",
+            "_"+"".join(str(j) for j in self.comp_mask_list[1:]) if self.n_comps > 1 else "")
+
+    
     def __repr__(self):
         return "<LinkFactor(%s%s%s)>"%(
             self.name,
@@ -171,31 +184,10 @@ if __name__ == "__main__":
 
     from libpl.pdstor import *
 
-    """
-    expander = PDStoreExpander(dirloc="../../data/pdstors", debug=False)
-    pdstor = expander.open_shadows([4], debug=True, orient_all=False, homflys=False, max_components=1)
-    for i,shadow in enumerate(pdstor):
-        db_shadow = None
-        for pdcode, homfly, uid in shadow:
-            if db_shadow is None:
-                db_shadow = Shadow(
-                    uid=pdcode.uid,
-                    hash=pdcode.hash,
-                    n_cross=pdcode.ncross,
-                    n_comps=pdcode.ncomps,
-                    pd=pdcode)
-                session.add(db_shadow)
-            db_pdcode = Diagram(
-                homfly=str(pdcode.homfly()),
-                shadow=db_shadow,
-                cross_mask=uid[2],
-                comp_mask=uid[3])
-            session.add(db_pdcode)
-    """
-
     for N in range(3,8+1):
         with open("../../data/pdstors/%s.pdstor"%N, "rb") as f:
-            in_db = set((shadow.uid for shadow in session.query(Shadow.uid).filter(Shadow.n_cross==N)))
+            in_db = set((shadow.uid for shadow in (session.query(Shadow.uid)
+                                                   .filter(Shadow.n_cross==N))))
             for shadow in PlanarDiagram.read_all(f, read_header=True):
                 if shadow.ncomps > 1:
                     continue
