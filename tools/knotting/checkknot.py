@@ -4,7 +4,10 @@ from collections import defaultdict
 P_unk = HOMFLYPolynomial('1')
 
 def load_diagrams(session, n_cross):
-    for i, db_shadow in enumerate(session.query(Shadow).filter(Shadow.n_cross==n_cross)):
+    print "There are %s shadows to process"%session.query(Shadow)\
+                                  .filter(Shadow.n_cross==n_cross).count()
+    for i, db_shadow in enumerate(session.query(Shadow)\
+                                  .filter(Shadow.n_cross==n_cross)):
         if i%100 == 0:
             print i
             session.commit()
@@ -37,8 +40,14 @@ def load_diagrams(session, n_cross):
     session.commit()
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Expand shadows in the database into diagrams.")
+    parser.add_argument('crossings', metavar='N', type=int, nargs='+',
+                        help="crossing counts shadows to expand")
+    args = parser.parse_args()
+
     session = Session()
-    for n_cross in range(3,6+1):
+    for n_cross in args.crossings:
         print n_cross
         load_diagrams(session, n_cross)
     session.close()

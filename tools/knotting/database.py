@@ -73,8 +73,8 @@ class Shadow(Base):
     id = Column(Integer, primary_key=True)
     uid = Column(Integer)
 
-    n_cross = Column(Integer) # # crossings
-    n_comps = Column(Integer) # # components
+    n_cross = Column(Integer, index=True) # # crossings
+    n_comps = Column(Integer, index=True) # # components
     n_autos = Column(Integer) # # automorphisms
 
     hash = Column(String)
@@ -96,10 +96,10 @@ class DiagramClass(Base):
     __tablename__ = 'diagram_classes'
 
     id = Column(Integer, primary_key=True)
-    shadow_id = Column(Integer, ForeignKey('shadows.id'))
+    shadow_id = Column(Integer, ForeignKey('shadows.id'), index=True)
     shadow = relationship("Shadow", backref=backref('diagram_classes', order_by=id))
 
-    homfly = Column(HOMFLYType)
+    homfly = Column(HOMFLYType, index=True)
 
     diagrams = relationship("Diagram", backref="iso_class")
 
@@ -111,7 +111,7 @@ class Diagram(Base):
     __tablename__ = 'diagrams'
 
     id = Column(Integer, primary_key=True)
-    iso_class_id = Column(Integer, ForeignKey('diagram_classes.id'))
+    iso_class_id = Column(Integer, ForeignKey('diagram_classes.id'), index=True)
 
     cross_mask = Column(Mask)
     comp_mask = Column(Mask)
@@ -150,8 +150,8 @@ class LinkFactorization(Base):
     factors = relationship('FactorizationFactor')
 
     n_splits = Column(Integer)
-    n_cross = Column(Integer)
-    n_comps = Column(Integer)
+    n_cross = Column(Integer, index=True)
+    n_comps = Column(Integer, index=True)
 
     def __str__(self):
         return "#".join(
@@ -208,11 +208,18 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Load PD Shadows into the database.")
+    parser.add_argument('shadows', metavar='N', type=int, nargs='+',
+                        help="crossing counts for files to load in")
+    args = parser.parse_args()
+
     session = Session()
 
     from libpl.pdstor import *
 
-    for N in range(3,9+1):
+    for N in args.shadows:
+        print "Adding shadows from ../../data/pdstors/%s.pdstor to database..."%N
         with open("../../data/pdstors/%s.pdstor"%N, "rb") as f:
             in_db = set((shadow.uid for shadow in (session.query(Shadow.uid)
                                                    .filter(Shadow.n_cross==N))))

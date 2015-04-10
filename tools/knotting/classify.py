@@ -37,8 +37,8 @@ if __name__ == "__main__":
             uid_list.append(xmasked)
 
     #print matt_dict
-#    sorted_diagrams = sorted(db_diagrams, key=lambda d: 
-    
+#    sorted_diagrams = sorted(db_diagrams, key=lambda d:
+
     for db_diagram in db_diagrams:
         #print db_diagram.shadow.uid
         #print db_diagram.cross_mask, 2**N-1-db_diagram.cross_mask
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         mtype, comment, pdcode = matt_dict[knot_uids.index(db_diagram.shadow.uid)][db_diagram.comp_mask][2**N-1-db_diagram.cross_mask]
         #matt_types[knot_uids.index(db_diagram.shadow.uid)*(2**N+1)+
         #           db_diagram.comp_mask*(2**N)+(2**N-db_diagram.cross_mask-1)]
-                             
+
         if str(fzn) != mtype:
             print fzn, mtype
             print comment
