@@ -1,5 +1,6 @@
 from database import *
 from libpl.pdstor import *
+from collections import defaultdict
 P_unk = HOMFLYPolynomial('1')
 
 def load_diagrams(session, n_cross):
@@ -8,42 +9,31 @@ def load_diagrams(session, n_cross):
             print i
             session.commit()
 
-        iso_classes = []
-
         # Two knot diagrams can only be isotopic if they have the same (absolute) total sign.
-        sign_counts = []
-        for pd, xmask in PDStoreExpander.crossing_combinations(db_shadow.pd):
-            sign_count = abs(sum(x*2-1 for x in xmask))
-            if (sign_count in sign_counts and
-                any((pd.isotopic(iso_class) for iso_class in iso_classes))):
-                ## Still have to add diagram :(
-                continue
-            else:
-                sign_counts.append(sign_count)
-                iso_classes.append(pd)
-            
-            homfly = pd.homfly()
-            ret = False
-            #(ret, ), = session.query(exists()
-            #.where(Diagram.shadow==db_shadow)
-            #.where(Diagram.cross_mask==xmask))
-            #ret = session.query(Diagram)\
-            #             .filter(Diagram.shadow==db_shadow)\
-            #             .filter(Diagram.cross_mask==xmask).all()
-            #print ret
-            if not ret:
-                iso_pd = DiagramClass(
-                    shadow = db_shadow,
-                    homfly = homfly,
-                )
-                session.add(iso_pd)
+        iso_classes = defaultdict(dict)
+        for comp_pd, cmask in PDStoreExpander.component_combinations(db_shadow.pd, True, thin=False):
+            for pd, xmask in PDStoreExpander.crossing_combinations(comp_pd):
+                sign_count = sum(x*2-1 for x in xmask)
+                if not (sign_count in iso_classes and pd in iso_classes[sign_count]):
+                    homfly = pd.homfly()
+
+                    db_iso = DiagramClass(
+                        shadow = db_shadow,
+                        homfly = homfly,
+                    )
+                    session.add(db_iso)
+                    iso_classes[sign_count][pd] = db_iso
+                else:
+                    db_iso = iso_classes[sign_count][pd]
+
                 db_pd = Diagram(
-                    iso_class = iso_pd,
+                    iso_class = db_iso,
                     cross_mask = xmask,
-                    comp_mask = (0,)
-                )
+                    comp_mask = cmask,
+                    )
                 session.add(db_pd)
-                #print pd.crossings, pd.homfly()
+
+
     session.commit()
 
 if __name__ == "__main__":

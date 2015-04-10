@@ -106,7 +106,7 @@ class DiagramClass(Base):
     def __repr__(self):
         return "<DiagramClass(n_cross=%s, n_comps=%s, shadow=%s, id=%s)>"%(
             self.shadow.n_cross, self.shadow.n_comps, self.shadow.uid, self.id)
-    
+
 class Diagram(Base):
     __tablename__ = 'diagrams'
 
@@ -122,6 +122,10 @@ class Diagram(Base):
     @property
     def comp_mask_list(self):
         return int_to_bin_list(self.comp_mask, self.shadow.n_comps)
+
+    @property
+    def shadow(self):
+        return self.iso_class.shadow
 
     @property
     def pd(self):
@@ -144,7 +148,7 @@ class LinkFactorization(Base):
     homfly = Column(HOMFLYType)
 
     factors = relationship('FactorizationFactor')
-    
+
     n_splits = Column(Integer)
     n_cross = Column(Integer)
     n_comps = Column(Integer)
@@ -184,7 +188,7 @@ class LinkFactor(Base):
             "*" if self.mirrored else "",
             "_"+"".join(str(j) for j in self.comp_mask_list[1:]) if self.n_comps > 1 else "")
 
-    
+
     def __repr__(self):
         return "<LinkFactor(%s%s%s)>"%(
             self.name,
@@ -199,7 +203,7 @@ def classify(session, diagram):
     return session.query(LinkFactorization)\
                   .filter(LinkFactorization.n_cross <= diagram.shadow.n_cross)\
                   .filter(LinkFactorization.homfly == diagram.homfly).all()
-    
+
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
@@ -208,7 +212,7 @@ if __name__ == "__main__":
 
     from libpl.pdstor import *
 
-    for N in range(3,6+1):
+    for N in range(3,9+1):
         with open("../../data/pdstors/%s.pdstor"%N, "rb") as f:
             in_db = set((shadow.uid for shadow in (session.query(Shadow.uid)
                                                    .filter(Shadow.n_cross==N))))
