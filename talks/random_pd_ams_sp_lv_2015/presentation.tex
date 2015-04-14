@@ -372,104 +372,374 @@
 
 \end{frame}
 
+% \begin{frame}
+%   \frametitle{Graph expansions}
+%   \begin{itemize}
+%   \item The software \texttt{plantri} can also enumerate \textbf{simple}
+%     embedded planar graphs with $n$ vertices with given degree constraints.
+%   \item Link shadows are \textit{multigraphs}.
+%   \item Can amend the algorithm to enumerate all link shadows.
+%   \end{itemize}
+
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Expansion procedure}
+%   \begin{enumerate}
+%   \item Set \texttt{plantri} to produce embedded planar simple
+%     connected graphs with maximum vertex degree 4.
+%   \item Expand planar simple graphs via a series of expansion moves
+%     $E_1, E_2, E_3, E_4$.
+%   \item Isomorphism checking to take only one representative per class.
+%   \end{enumerate}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Loop addition $E_1$}
+%     \begin{center}
+%     \includegraphics[width=4in]{loop-addition.pdf}
+%   \end{center}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Edge duplication $E_2$, $E_3$}
+%   \begin{center}
+%     \includegraphics[width=4in]{edge-duplication-non-cut.pdf}
+%   \end{center}
+% \begin{center}
+%   \includegraphics[width=4in]{edge-duplication-cut.pdf}
+% \end{center}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Pair insertion $E_4$}
+%   \begin{center}
+%     \includegraphics[width=4in]{pair-insertion.pdf}
+%   \end{center}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Expansion moves}
+%   \begin{proposition}
+%     Every link shadow $G$ can
+%     be obtained from a connected, embedded planar simple graph of
+%     vertex degree $\leq 4$ $G_0$ by a series of $\loopinsert$,
+%     $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ expansions.
+%     \\\hfill \\
+%     Equivalently, link shadow $G$ can be reduced to a connected embedded planar
+%     simple graph $G_0$ of vertex degree $\leq 4$ by a series of
+%     $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$
+%     reductions. The embedded isomorphism type of $G_0$ is determined
+%     by the embedded isomorphism type of $G$.
+%     \label{prop:reduce}
+%   \end{proposition}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Graph reduction}
+%   \begin{center}
+%     \includegraphics[width=4in]{expansion-from-simple-graph.pdf}
+%     % \caption{\label{fig:Expansion} An illustration of the process described in Proposition \ref{prop:reduce}}
+%   \end{center}
+% \end{frame}
+
+\section{Data and Analysis}
+
 \begin{frame}
-  \frametitle{Graph expansions}
+  \frametitle{From shadows to diagrams}
+  Expansion of shadows to diagrams consists of 2 (or 3) steps:
+  \begin{enumerate}
+  \item Orient each component. ($2^{\#\text{components}}$ choices)
+  \item Assign over-under information to each
+    vertex. ($2^{\#\text{crossings}}$ choices)
+  \item Optionally group diagrams into diagram isomorphism classes.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How many shadows?}
+    \begin{table}
+    \centering
+    \begin{tabular}{r|cc}
+      n & \# link shadows & \# knot shadows \\
+      \hline
+      0 & 1 & 1 \\
+      1 & 1 & 1 \\
+      2 & 3 & 2 \\
+      3 & 7 & 6 \\
+      4 & 30 & 19\\
+      5 & 124 & 76 \\
+      6 & 733 & 376$^{**}$ \\
+      7 & 4586 & 2194$^{**}$ \\
+      8 & 33373 & 14614$^*$ \\
+      9 & 259434$^\dagger$ & 106421$^*$ \\
+    \end{tabular}
+    \caption{Counts and bounds on knot diagrams and shadows. Numbers
+      are large, but finite.}
+    \label{tab:counts}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How many link shadows?}
+  \begin{block}{}
+    Counts of link shadows with $n$ crossings match K\'apolnai,
+    Domokos, and Szab\'o's counts of spherical multiquadrangulations
+    with $n+2$ crossings (hence $n$ faces).
+  \end{block}
+
+    \textit{Caveat:} They use \texttt{plantri} in their
+      computations too, although it is not clear how.
+    
+\end{frame}
+
+\begin{frame}
+  \frametitle{How many knot shadows?}
+  \begin{block}{}
+    Counts of knot shadows with $n$ crossings match Arnold's counts of
+    immersions of the unoriented circle into the unoriented sphere
+    with $n$ double points (OEIS A008989).
+  \end{block}
+
+    \textit{Caveat:} Arnold's list is for $n=0$ to $n=5$; the
+      terms for $n=6$ and $n=7$ are attributed to Guy H.\ Valette with
+      no clear source.
+\end{frame}
+
+\begin{frame}
+  \frametitle{How many shadows?}
+    \begin{table}
+    \centering
+    \begin{tabular}{r|cc}
+      n & \# link shadows & \# knot shadows \\
+      \hline
+      0 & 1 & 1 \\
+      1 & 1 & 1 \\
+      2 & 3 & 2 \\
+      3 & 7 & 6 \\
+      4 & 30 & 19\\
+      5 & 124 & 76 \\
+      6 & 733 & 376$^{*}$ \\
+      7 & 4586 & 2194$^{*}$ \\
+      8 & 33373 & 14614$^{**}$ \\
+      9 & 259434$^\dagger$ & 106421$^{**}$ \\
+    \end{tabular}
+    \caption{$\dagger$: Not in KDS. $*$: Attributed to Guy H.\
+      Valette. $**$: New; values not in OEIS.}
+    \label{tab:counts}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The space of shadows}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_0_collage.eps}
+    \caption{Link shadows. A map of all shadows with between 3 and
+      6 crossings \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is here.}}
+    \label{fig:planarcollage0}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The space of shadows}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_1_collage.eps}
+    \caption{Link shadows. A map of all shadows with between 3 and
+      6 crossings \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is here.}}
+    \label{fig:planarcollage1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The space of shadows}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_10_collage.eps}
+    \caption{Link shadows. A map of all shadows with between 3 and
+      6 crossings \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is here.}}
+    \label{fig:planarcollage10}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The space of shadows}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_16_collage.eps}
+    \caption{Link shadows. A map of all shadows with between 3 and
+      6 crossings \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is here.}}
+    \label{fig:planarcollage16}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How many knot diagrams?}
+  \begin{table}
+    \centering
+    \begin{tabular}{r|ccc}
+      n & \# knot shadows & \# knot diagrams & \# knot iso. classes \\
+      \hline
+      %0 & 1 & 2 & 1 \\
+      %1 & 1 & 4 & 1 \\
+      %2 & 2 & 16 & \\
+      3 & 6 & 96 & 36 \\
+      4 & 19 & 608 & 276 \\
+      5 & 76 & 4,864 & 2,936 \\
+      6 & 376 & 48,128 & 35,872 \\
+      7 & 2,194 & 561,664 & 484,088 \\
+      8 & 14,614 & 7,482,368 & 6,967,942 \\
+      9 & 106,421 & 108,975,104 & \text{in process} \\
+    \end{tabular}
+    \caption{Counts of knot shadows and diagrams}
+    \label{tab:counts}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Knotting probabilities}
   \begin{itemize}
-  \item The software \texttt{plantri} can also enumerate \textbf{simple}
-    embedded planar graphs with $n$ vertices with given degree constraints.
-  \item Link shadows are \textit{multigraphs}.
-  \item Can amend the algorithm to enumerate all link shadows.
+  \item Advantage of a combinatorial model:
+    Able to run searches across entire space computationally.
+  \item We can check knot type of each diagram (HOMFLY is typically
+    enough for our low crossing number)
   \end{itemize}
 
 \end{frame}
 
 \begin{frame}
-  \frametitle{Expansion procedure}
-  \begin{enumerate}
-  \item Set \texttt{plantri} to produce embedded planar simple
-    connected graphs with maximum vertex degree 4.
-  \item Expand planar simple graphs via a series of expansion moves
-    $E_1, E_2, E_3, E_4$.
-  \item Isomorphism checking to take only one representative per class.
-  \end{enumerate}
+  \frametitle{Unknottedness in diagrams}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=.75]
+      \begin{axis}[
+        ymode=log,
+        title={Ratio of unknots in $\le n$-crossing diagram iso. classes (log scale)},
+        xlabel={Max \# crossings in diagram},
+        ylabel={Ratio of unknots},
+        ]
+        \addplot table[x=n,y=0.1] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+
+    \caption{Unknot ratio decreases exponentially.}
+    \label{fig:unkdecay}
+  \end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Loop addition $E_1$}
-    \begin{center}
-    \includegraphics[width=4in]{loop-addition.pdf}
-  \end{center}
+  \frametitle{Knotting in diagrams}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=.75]
+      \begin{axis}[
+        ymode=log,
+        title={Ratios of knots in $\le n$-crossing diagram iso. classes (log scale)},
+        xlabel={Max \# crossings in diagram},
+        ylabel={Ratios of knots},
+        legend pos=south west,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$},
+        ]
+        \addplot table[x=n,y=3.1] {knot_freq.tsv};
+        \addplot table[x=n,y=4.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.2] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+
+    \caption{All ratios of knot types are still increasing. Knot $5_2$
+    is more common than knot $5_1$.}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Knotting in diagrams}
+  \begin{figure}
+    \centering
+      \tikzset{mark=*}
+    \begin{tikzpicture}[scale=.75]
+      \begin{axis}[
+        ymode=log,
+        title={Ratios of knots in $\le n$-crossing diagram iso. classes (log scale)},
+        xlabel={Max \# crossings in diagram},
+        ylabel={Ratios of knots},
+        cycle list name=color list,
+        legend style={font=\tiny},
+        legend pos=south west,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $6_1$, $6_2$, $3_1
+          \# 3_1$, $3_1 \# 3_1^*$, $7_1$, $7_2$, $7_3$, $7_4$, $7_5$,
+          $7_6$, $7_7$},
+        ]
+        \addplot table[x=n,y=3.1] {knot_freq.tsv};
+        \addplot table[x=n,y=4.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.2] {knot_freq.tsv};
+        \addplot table[x=n,y=6.1] {knot_freq.tsv};
+        \addplot table[x=n,y=6.2] {knot_freq.tsv};
+        \addplot table[x=n,y=3.1c3.1] {knot_freq.tsv};
+        \addplot table[x=n,y=3.1c3.1m] {knot_freq.tsv};
+        \addplot table[x=n,y=7.1] {knot_freq.tsv};
+        \addplot table[x=n,y=7.2] {knot_freq.tsv};
+        \addplot table[x=n,y=7.3] {knot_freq.tsv};
+        \addplot table[x=n,y=7.4] {knot_freq.tsv};
+        \addplot table[x=n,y=7.5] {knot_freq.tsv};
+        \addplot table[x=n,y=7.6] {knot_freq.tsv};
+        \addplot table[x=n,y=7.7] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+
+    \caption{Ratios of knot types are still increasing.}
+    \label{fig:kgrow2}
+  \end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Edge duplication $E_2$, $E_3$}
-  \begin{center}
-    \includegraphics[width=4in]{edge-duplication-non-cut.pdf}
-  \end{center}
-\begin{center}
-  \includegraphics[width=4in]{edge-duplication-cut.pdf}
-\end{center}
+  \frametitle{Counting monogons and bigons in knot shadows}
+    \begin{table}
+    \centering
+    \resizebox{\columnwidth}{!}{\begin{tabular}{r|ccccc}
+      $n$ & shadows & 1-gon 
+      & 2-gon & either \\
+      \hline
+      3 & 6 & 5 (83.33\%) & 3 (50\%) & 6 (100\%) \\
+      4 & 19 & 18 (94.74\%) & 11 (57.89\%) & 19 (100\%) \\
+      5 & 76 & 74 (97.37\%) & 52 (68.42\%) & 76 (100\%) \\
+      6 & 376 & 371 (98.67\%) & 275 (73.14\%) & 376 (100\%) \\
+      7 & 2,194 & 2,178 (99.27\%) & 1,714 (78.12\%) & 2,194 (100\%) \\
+      8 & 14,614 & 14,562 (99.64\%) & 11,892 (81.37\%) & 14,613 (99.99\%) \\
+      9 & 106,421 & 106,216 (99.81\%) & 89,627 (84.22\%) & 106,420
+                                                           (99.99\%) \\
+    \end{tabular}}
+    \caption{Counts of knot shadows and diagrams}
+    \label{tab:counts}
+  \end{table}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Pair insertion $E_4$}
-  \begin{center}
-    \includegraphics[width=4in]{pair-insertion.pdf}
-  \end{center}
+  \frametitle{Future directions}
+  \begin{itemize}
+  \item Most analysis here is on knot diagrams; what can we say about
+    link diagrams?
+  \item How does the random diagram model compare to other models?
+    \begin{itemize}
+    \item \textit{Petaluma} model (Evan-Zohar, Hass, Linial, and
+      Nowik)
+    \item Random space polygons, random equilateral space polygons,
+      random confined space polygons
+    \item Random closed self-avoiding lattice walks
+    \end{itemize}
+  \item Uniform sampling of diagrams of higher crossing number: Can we
+    avoid outright enumeration?
+  \end{itemize}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Expansion moves}
-  \begin{proposition}
-    Every link shadow $G$ can
-    be obtained from a connected, embedded planar simple graph of
-    vertex degree $\leq 4$ $G_0$ by a series of $\loopinsert$,
-    $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ expansions.
-    \\\hfill \\
-    Equivalently, link shadow $G$ can be reduced to a connected embedded planar
-    simple graph $G_0$ of vertex degree $\leq 4$ by a series of
-    $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$
-    reductions. The embedded isomorphism type of $G_0$ is determined
-    by the embedded isomorphism type of $G$.
-    \label{prop:reduce}
-  \end{proposition}
-\end{frame}
+\section*{}
 
 \begin{frame}
-  \frametitle{Graph reduction}
-  \begin{center}
-    \includegraphics[width=4in]{expansion-from-simple-graph.pdf}
-    % \caption{\label{fig:Expansion} An illustration of the process described in Proposition \ref{prop:reduce}}
-  \end{center}
-\end{frame}
-
-\section{Data and Analysis}
-
-\begin{frame}
-  \frametitle{The big pictures}
-  Pictures of lots of shadows?
-\end{frame}
-
-\begin{frame}
-  \frametitle{Other counts of shadows}
-  Our data matches!
-\end{frame}
-
-\begin{frame}
-  \frametitle{Shadow expansion to diagrams}
-  What did we do?
-\end{frame}
-
-\begin{frame}
-  \frametitle{Knotting probabilities}
-  How common are some knots?
-\end{frame}
-
-\begin{frame}
-  \frametitle{Other analytics}
-  How many diagrams have monogons?
-  How many diagrams have bigons?
-  How many diagrams have neither?
+  \centering\textbf{\huge Thank you!}
 \end{frame}
 
 \section{Additional information}
