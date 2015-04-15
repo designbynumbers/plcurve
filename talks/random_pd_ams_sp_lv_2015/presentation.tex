@@ -1,6 +1,10 @@
 \documentclass[presentation]{beamer}
 \usetheme{Antibes}
+%\usetheme{Boadilla}
+%\usetheme{default}
 \usecolortheme{dolphin}
+\useinnertheme{rectangles}
+\useoutertheme{infolines}
 %\input{header}
 
 %\input{globalmacros}
@@ -142,10 +146,10 @@
 \newcommand{\Rhyp}{\mathcal R}
 
 
-\title{Random Planar Diagrams}
+\title{Random Knot Diagrams}
 \author[Cantarella, Chapman, Mastin]{Harrison Chapman (UGA - Graduate
   student)\\joint w/ Jason Cantarella (UGA), Matt Mastin (Wake Forest)}
-\date{AMS Western Spring Sectionals 2015 (UNLV) -- April 18, 2015}
+\date[AMS Sectionals 2015]{AMS Western Spring Sectionals 2015 (UNLV) -- April 18, 2015}
 
 %\allowdisplaybreaks
 %\usepackage[bookmarks,bookmarksopen,bookmarksdepth=4]{hyperref}
@@ -194,10 +198,12 @@
 
 \begin{frame}
 \titlepage
-\small{Sponsored by NSF VIGRE [typeset this]}
 \end{frame}
 
 \section{Introduction}
+\subsection{Natural questions}
+
+
 
 \begin{frame}
   \frametitle{Natural questions about knot diagrams}
@@ -217,7 +223,7 @@
   \frametitle{Natural questions about knot diagrams}
   \begin{block}{Question}
     What is the average minimal crossing \# of an 8-crossing diagram?
-    \onslide<2>{\begin{center}$12.48\%$
+    \onslide<2>{\begin{center}$0.52$
       \end{center}
     }
   \end{block}
@@ -250,7 +256,7 @@
   \frametitle{Natural questions about knot diagrams}
   \begin{block}{Question}
     What is the average crossing \# of a delooped 8-crossing diagram?
-    \onslide<2>{\begin{center}$12.48\%$
+    \onslide<2>{\begin{center}$2.19$
       \end{center}
     }
   \end{block}
@@ -278,59 +284,67 @@
   \end{figure}
 \end{frame}
 
+\subsection{Background}
 
 \begin{frame}
-  \frametitle{Knotting and Polymers}
-  \begin{figure}
-    \centering
-
-    \caption{Knotting in polymers. DNA must be unlinked during mitosis
-      (left). Enzymes must fold appropriately (right).}
-    \label{fig:polymr}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Random curve distributions}
-  Classical workflow for understanding knotting in random polymers:
-  Random distributions on spaces of curves
-  \begin{itemize}
-  \item Random space polygons. (Fixed edge length, equilateral,
-    confined, etc.)
-  \item Random closed self-avoiding lattice walks.
-  \end{itemize}
-
+  \frametitle{Ansatz}
   \begin{figure}
     \centering
     \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
       % \tikzstyle{every node}=[align=center]
-      \node[text width=1in,draw=black] (plantri)
+      \node[text width=1in] (plantri)
       {Polymers\\\includegraphics[width=.95in]{polymer_protein.jpg}};
-      \node[text width=1in,right=.3in of plantri,draw=black]  (expand)
-      {Polygons\\\includegraphics[width=.95in]{space_polygon.jpg}};
-      \node[text width=1in,right=.3in of expand,draw=black] (isomch)
+      \node[text width=1in,right=.3in of plantri]  (expand)
+      {Random curves\\\includegraphics[width=.95in]{space_polygon.jpg}};
+      \node[text width=1in,right=.3in of expand] (isomch)
       {Knots\\\includegraphics[width=.95in]{knot_3d.jpg}};
 
       \path (plantri)    edge (expand)
       (expand)     edge (isomch);
     \end{tikzpicture}
-    \caption{Typical random curve workflow}
   \end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Combinatorial knot distributions}
-  Alternative approach: Combinatorial distributions
-  \begin{itemize}
-  \item Petaluma model (Evan-Zohar, Hass, et al.)
-  \item Random braid words
-  \end{itemize}
-  Combinatorial models are recent.
+  \frametitle{Combinatorial approaches}
+    \begin{figure}
+    \centering
+    \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
+      % \tikzstyle{every node}=[align=center]
+      \node[text width=1in] (plantri)
+      {Polymers\\\includegraphics[width=.95in]{polymer_protein.jpg}};
+      \node[text width=1in,right=.3in of plantri]  (expand)
+      {Random curves\\\includegraphics[width=.95in]{space_polygon.jpg}};
+      \node[text width=1in,right=.3in of expand] (isomch)
+      {Knots\\\includegraphics[width=.95in]{knot_3d.jpg}};
+      \node[text width=1in,below=.3in of isomch]  (combinatorics)
+      {Random combinatorial\\
+        \resizebox{.95in}{!}{
+          \tikz[thick]{
+            \foreach \x in {0,1,...,4} {
+              % \draw[white,-,line width = 5] (\x*288-54:3) -- (\x*288+90:3);
+              \draw[>=triangle 90 cap,white,<->,line width = 6,shorten >=3, shorten <=3] (\x*288-54:3) -- (\x*288+90:3);
+              \draw[black,decoration={markings,mark=at position 0.25 with {\arrow{>}}},postaction={decorate}] (\x*288-54:3) -- (\x*288+90:3); }
+            \foreach \x in {0,1,...,4} {
+              \draw (\x*144-54:3)+(\x*144+99:1) node[auto,scale=0.7] {\x};}
+            %\foreach \p/\x in {24/0,03/1,14/2,02/3,13/4} \node[scale=0.7] at (\x*144-90:1.5){$p_{\p}$};
+            %\filldraw (306:3) circle (2pt);
+            % \draw[step=0.5,gray,very thin] (-3,-3) grid (3,3);
+            \pgfresetboundingbox \clip (-3,-2.75) rectangle (3,3);
+          }
+        }
+      };
+
+      \path (plantri)    edge (expand)
+      (expand)     edge (isomch);
+      \path (combinatorics) edge (isomch);
+    \end{tikzpicture}
+  \end{figure}
 \end{frame}
 
 \begin{frame}
   \frametitle{The Petaluma model}
-  Many satisfying theorems have been proven for the Petaluma model
+  Satisfying theorems have been proven for the Petaluma model
   \begin{figure}
     \centering
     \resizebox{.8\columnwidth}{!}{\begin{tabular}{ccc}
@@ -359,65 +373,145 @@
 Petal diagram & & Star diagram
 \end{tabular}}
 
-    \caption{Petal diagram and corresponding star diagram for the
-      trefoil. (Diagram from Evan-Zohar, et al.)}
+    \caption{Diagram from Evan-Zohar, Hass, et al.}
     \label{fig:petaluma}
   \end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{The void}
-  There is no clear connection between the two models: E.g.\ how to
-  produce a star diagram from a random polygon?
-  \begin{figure}
-    \centering
-    \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
-      % \tikzstyle{every node}=[align=center]
-      \node[text width=1in,draw=black] (knots) {Knot types};
-      \node[below=.5in of knots] (diagrams) {};
-      \node[text width=1.2in,draw=black,left=.5in of diagrams] (curves) {Curve\\distributions};
-      \node[text width=1.2in,draw=black,right=.5in of diagrams]  (combs)
-      {Combinatorial distributions};
+  %\frametitle{The void}
+  %There is no clear connection between the two models: E.g.\ how to
+  %produce a star diagram from a random polygon?
+  % \begin{figure}
+  %   \centering
+  %   \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
+  %     % \tikzstyle{every node}=[align=center]
+  %     \node[text width=1in,draw=black] (knots) {Knot types};
+  %     \node[below=.5in of knots] (diagrams) {};
+  %     \node[text width=1.2in,draw=black,left=.5in of diagrams] (curves) {Curve\\distributions};
+  %     \node[text width=1.2in,draw=black,right=.5in of diagrams]  (combs)
+  %     {Combinatorial distributions};
 
-      \path (curves) edge (knots)
-             (combs) edge (knots);
-      \draw[-,decorate, decoration={zigzag}] (curves) -- (combs) node[midway,above]  {???};
-      %\path (plantri)    edge (expand)
-      %(expand)     edge (isomch);
+  %     \path (curves) edge (knots)
+  %            (combs) edge (knots);
+  %     \draw[-,decorate, decoration={zigzag}] (curves) -- (combs) node[midway,above]  {???};
+  %     %\path (plantri)    edge (expand)
+  %     %(expand)     edge (isomch);
+  %   \end{tikzpicture}
+  %   \caption{There is no convenient middle between the two methods}
+  % \end{figure}
+    \begin{figure}
+    \centering
+    \begin{tikzpicture}[->,,shorten
+      >=1pt,semithick,align=center,minimum height=1.3in]
+      % \tikzstyle{every node}=[align=center]
+      \node[text width=1in] (plantri)
+      {Polymers\\\includegraphics[width=.95in]{polymer_protein.jpg}};
+      \node[text width=1in,right=.3in of plantri]  (expand)
+      {Random curves\\\includegraphics[width=.95in]{space_polygon.jpg}};
+      \node[text width=1in,right=.3in of expand] (isomch)
+      {Knots\\\includegraphics[width=.95in]{knot_3d.jpg}};
+      \node[fill=black,text=white,text width=1in,below=.3in of expand] (diagrams)
+      {???};
+      \node[text width=1in,below=.3in of isomch]  (combinatorics)
+      {Random combinatorial\\
+        \resizebox{.95in}{!}{
+          \tikz[thick]{
+            \foreach \x in {0,1,...,4} {
+              % \draw[white,-,line width = 5] (\x*288-54:3) -- (\x*288+90:3);
+              \draw[>=triangle 90 cap,white,<->,line width = 6,shorten >=3, shorten <=3] (\x*288-54:3) -- (\x*288+90:3);
+              \draw[black,decoration={markings,mark=at position 0.25 with {\arrow{>}}},postaction={decorate}] (\x*288-54:3) -- (\x*288+90:3); }
+            \foreach \x in {0,1,...,4} {
+              \draw (\x*144-54:3)+(\x*144+99:1) node[auto,scale=0.7] {\x};}
+            %\foreach \p/\x in {24/0,03/1,14/2,02/3,13/4} \node[scale=0.7] at (\x*144-90:1.5){$p_{\p}$};
+            %\filldraw (306:3) circle (2pt);
+            % \draw[step=0.5,gray,very thin] (-3,-3) grid (3,3);
+            \pgfresetboundingbox \clip (-3,-2.75) rectangle (3,3);
+          }
+        }
+      };
+
+      \path (plantri)    edge (expand)
+      (expand)     edge (isomch);
+      \path (combinatorics) edge (isomch);
+      \draw[<->] (expand) -- (diagrams);
+      \draw[<->] (combinatorics) -- (diagrams);
     \end{tikzpicture}
-    \caption{There is no convenient middle between the two methods}
   \end{figure}
+
 \end{frame}
 
 \begin{frame}
-  \frametitle{The random diagram model}
-  Every space curve can
-  project to a diagram, \emph{and} diagrams are combinatorial objects.
-  \begin{figure}
+    \begin{figure}
     \centering
-    \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
+    \begin{tikzpicture}[->,,shorten
+      >=1pt,semithick,align=center,minimum height=1.4in]
       % \tikzstyle{every node}=[align=center]
-      \node[text width=1in,draw=black] (knots) {Knot types};
-      \node[below=.5in of knots] (diagrams) {};
-      \node[text width=1.2in,draw=black,left=.5in of diagrams] (curves) {Curve\\distributions};
-      \node[text width=1.2in,draw=black,right=.5in of diagrams]
-      (combs)
-      {Combinatorial distributions};
-      \node[text width=1.4in, draw=black,below=.3in of diagrams]
-      (dias) {Random\\diagram model};
+      \node[text width=1in] (plantri)
+      {Polymers\\\includegraphics[width=.95in]{polymer_protein.jpg}};
+      \node[text width=1in,right=.3in of plantri]  (expand)
+      {Random curves\\\includegraphics[width=.95in]{space_polygon.jpg}};
+      \node[text width=1in,right=.3in of expand] (isomch)
+      {Knots\\\includegraphics[width=.95in]{knot_3d.jpg}};
+      \node[text width=1in,below=.3in of expand] (diagrams)
+      {Random diagrams\\\includegraphics[width=.95in]{8x_tref.pdf}};
+      \node[text width=1in,below=.3in of isomch]  (combinatorics)
+      {Random combinatorial\\
+        \resizebox{.95in}{!}{
+          \tikz[thick]{
+            \foreach \x in {0,1,...,4} {
+              % \draw[white,-,line width = 5] (\x*288-54:3) -- (\x*288+90:3);
+              \draw[>=triangle 90 cap,white,<->,line width = 6,shorten >=3, shorten <=3] (\x*288-54:3) -- (\x*288+90:3);
+              \draw[black,decoration={markings,mark=at position 0.25 with {\arrow{>}}},postaction={decorate}] (\x*288-54:3) -- (\x*288+90:3); }
+            \foreach \x in {0,1,...,4} {
+              \draw (\x*144-54:3)+(\x*144+99:1) node[auto,scale=0.7] {\x};}
+            %\foreach \p/\x in {24/0,03/1,14/2,02/3,13/4} \node[scale=0.7] at (\x*144-90:1.5){$p_{\p}$};
+            %\filldraw (306:3) circle (2pt);
+            % \draw[step=0.5,gray,very thin] (-3,-3) grid (3,3);
+            \pgfresetboundingbox \clip (-3,-2.75) rectangle (3,3);
+          }
+        }
+      };
 
-      \path (curves) edge (knots)
-             (combs) edge (knots)
-             (dias) edge (knots);
-
-      \draw[<->,thick,beamerviolet] (dias.west) -- (curves);
-      \draw[<->,thick,beamerviolet] (dias.east) -- (combs);
-      %\path (plantri)    edge (expand)
-      %(expand)     edge (isomch);
+      \path (plantri)    edge (expand)
+      (expand)     edge (isomch);
+      \path (combinatorics) edge (isomch);
+      \draw[<->] (expand) -- (diagrams);
+      \draw[<->] (combinatorics) -- (diagrams);
+      \path (diagrams) edge (isomch);
     \end{tikzpicture}
-    \caption{We're trying to fill the void with the random diagram model}
   \end{figure}
+
+  %\frametitle{The random diagram model}
+  % Every space curve can
+  % project to a diagram, \emph{and} diagrams are combinatorial objects.
+  % \begin{figure}
+  %   \centering
+  %   \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
+  %     % \tikzstyle{every node}=[align=center]
+  %     \node[text width=1in,draw=black] (knots) {Knot types};
+  %     \node[below=.5in of knots] (diagrams) {};
+  %     \node[text width=1.2in,draw=black,left=.5in of diagrams] (curves) {Curve\\distributions};
+  %     \node[text width=1.2in,draw=black,right=.5in of diagrams]
+  %     (combs)
+  %     {Combinatorial distributions};
+  %     \node[text width=1.4in, draw=black,below=.3in of diagrams]
+  %     (dias) {Random\\diagram model};
+
+  %     \path (curves) edge (knots)
+  %            (combs) edge (knots)
+  %            (dias) edge (knots);
+
+  %     \draw[<->,thick,beamerviolet] (dias.west) -- (curves);
+  %     \draw[<->,thick,beamerviolet] (dias.east) -- (combs);
+  %     %\path (plantri)    edge (expand)
+  %     %(expand)     edge (isomch);
+  %   \end{tikzpicture}
+  %   \caption{We're trying to fill the void with the random diagram model}
+  % \end{figure}
 \end{frame}
+
+\subsection{Tabulation}
 
 \begin{frame}
   \frametitle{Random diagrams}
@@ -426,37 +520,48 @@ Petal diagram & & Star diagram
     $n$-crossing diagram is drawn uniformly from the finite set of
     $n$-crossing knot diagrams.
   \end{definition}
+  \begin{figure}
+    \centering
+    \includegraphics[width=1.2in]{8x_tref.pdf}\qquad
+    \includegraphics[width=1.2in]{8x_tref_loopy.pdf}\qquad
+    \includegraphics[width=1.2in]{tree_like_8x.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Random diagrams}
+  \begin{definition}
+    A \emph{knot diagram} is a generic embedding of the oriented $S^1$ into
+    the sphere $S^2$ together with over-under strand information at each
+    double point.
+  \end{definition}
+  \begin{figure}
+    \centering
+    \includegraphics[width=1.2in]{8x_tref.pdf}\qquad
+    \includegraphics[width=1.2in]{8x_tref_loopy.pdf}\qquad
+    \includegraphics[width=1.2in]{tree_like_8x.pdf}
+  \end{figure}
 \end{frame}
 
 \begin{frame}
   \frametitle{Diagrams from shadows}
   Sample diagrams uniformly through tabulation:
   \begin{enumerate}
-  \item Enumerate shadows (underlying graph structure behind
+  \item Enumerate shadows (unoriented graph structure behind
     diagrams).
   \item Expand shadows into diagrams.
   \end{enumerate}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Knot shadows and circle immersions}
-  \begin{block}{}
-    Knot shadows in $n$ crossings $\Leftrightarrow$ unoriented, generic
-    immersions of the circle into the sphere with $n$ double points,
-    up to unoriented diffeomorphism.
-  \end{block}
-  \begin{figure}
-    \centering
-    \includegraphics[width=4in]{linkshadow.pdf}
-    \caption{Knot shadows. The shadow on the left is equivalent to the
-      shadow on the right.}
-    \label{fig:shadows}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
   \frametitle{How many shadows?}
-    \begin{table}
+  \begin{columns}
+    \begin{column}{.6\columnwidth}
+      \includegraphics[width=\columnwidth]{arnold_table.png}\\\hfill\\\hfill\\
+      \includegraphics[width=\columnwidth]{oeis_shadows.png}
+    \end{column}
+    \begin{column}{.4\columnwidth}
+          \begin{table}
     \centering
     \begin{tabular}{r|c}
       n & \# knot shadows \\
@@ -472,10 +577,11 @@ Petal diagram & & Star diagram
       8 & 14614$^{**}$ \\
       9 & 106421$^{**}$ \\
     \end{tabular}
-    \caption{Counts on knot shadows. Numbers
-      are large, but finite.}
     \label{tab:counts}
   \end{table}
+
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % \begin{frame}
@@ -491,75 +597,88 @@ Petal diagram & & Star diagram
 
 % \end{frame}
 
-\begin{frame}
-  \frametitle{How many knot shadows?}
-  \begin{block}{}
-    Counts of knot shadows with $n$ crossings match Arnol'd's counts of
-    immersions of the unoriented circle into the unoriented sphere
-    with $n$ double points (OEIS A008989).
-  \end{block}
+% \begin{frame}
+%   \frametitle{How many knot shadows?}
+%   \begin{block}{}
+%     Counts of knot shadows with $n$ crossings match Arnol'd's counts of
+%     immersions of the unoriented circle into the unoriented sphere
+%     with $n$ double points (OEIS A008989).
+%   \end{block}
 
-    \textit{Caveat:} Arnol'd's list is for $n=0$ to $n=5$; the
-      terms for $n=6$ and $n=7$ are attributed to Guy H.\ Valette with
-      no clear source.
-\end{frame}
+%     \textit{Caveat:} Arnol'd's list is for $n=0$ to $n=5$; the
+%       terms for $n=6$ and $n=7$ are attributed to Guy H.\ Valette with
+%       no clear source.
+% \end{frame}
 
-\begin{frame}
-  \frametitle{How many shadows?}
-    \begin{table}
-    \centering
-    \begin{tabular}{r|c}
-      n & \# knot shadows \\
-      \hline
-      0 & 1 \\
-      1 & 1 \\
-      2 & 2 \\
-      3 & 6 \\
-      4 & 19\\
-      5 & 76 \\
-      6 & 376$^{*}$ \\
-      7 & 2194$^{*}$ \\
-      8 & 14614$^{**}$ \\
-      9 & 106421$^{**}$ \\
-    \end{tabular}
-    \caption{$*$: Attributed to Guy H.\
-      Valette. $**$: New; values not in OEIS.}
-    \label{tab:counts}
-  \end{table}
-\end{frame}
+% \begin{frame}
+%   \frametitle{How many shadows?}
+%     \begin{table}
+%     \centering
+%     \begin{tabular}{r|c}
+%       n & \# knot shadows \\
+%       \hline
+%       0 & 1 \\
+%       1 & 1 \\
+%       2 & 2 \\
+%       3 & 6 \\
+%       4 & 19\\
+%       5 & 76 \\
+%       6 & 376$^{*}$ \\
+%       7 & 2194$^{*}$ \\
+%       8 & 14614$^{**}$ \\
+%       9 & 106421$^{**}$ \\
+%     \end{tabular}
+%     \caption{$*$: Attributed to Guy H.\
+%       Valette. $**$: New; values not in OEIS.}
+%     \label{tab:counts}
+%   \end{table}
+% \end{frame}
 
 \begin{frame}
   \frametitle{Tabulating knot shadows}
-  Ggenerated table of knot shadows two different ways as a
-  check.\\\hfill\\
+  Generated table of knot shadows two different ways as a
+  check. Both methods use features from McKay and Brinkmann's
+  \texttt{plantri}.
 
-  Both methods use features from McKay and Brinkmann's \texttt{plantri}.
-\end{frame}
-
-\begin{frame}
-  \frametitle{Duals to quadrangulations}
-  \begin{figure}
-    \hphantom{.}
-    \hfill
-    \includegraphics[height=1.25in]{quadrangulation} \hfill
-    \includegraphics[height=1.25in]{non-simple-quadrangulation}
-    \hfill
-    \hphantom{.}
-    \caption{\label{fig:NonSimpleQuad} Find all quadrangulations of
-    the sphere in $n$ faces. Shadows are dual to quadrangulations.}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Planar graph expansions}
   \begin{figure}
     \centering
-      \includegraphics[width=4in]{expansion-from-simple-graph.pdf}
-    \caption{Reduction to a planar graph of degree $\le 4$ and
-      connectivity $\ge 1$. Expansion is the inverse.}
-    \label{fig:graphexpand}
+    \begin{tabular}{ccccc}
+      $\vcenter{\hbox{\includegraphics[width=1in]{pre_shadow_graph.pdf}}}$
+      & $\Rightarrow$
+      & $\vcenter{\hbox{\includegraphics[width=1in]{result_shadow.pdf}}}$
+      & $\Leftarrow$
+      & $\vcenter{\hbox{\includegraphics[width=1in]{pre_shadow_quads.pdf}}}$
+    \end{tabular}
   \end{figure}
+
+  \onslide<2->{Actually generate all \textbf{link shadows}, then
+    restrict to knot shadows}
 \end{frame}
+
+% \begin{frame}
+%   \frametitle{Duals to quadrangulations}
+%   \begin{figure}
+%     \hphantom{.}
+%     \hfill
+%     \includegraphics[height=1.25in]{quadrangulation} \hfill
+%     \includegraphics[height=1.25in]{non-simple-quadrangulation}
+%     \hfill
+%     \hphantom{.}
+%     \caption{\label{fig:NonSimpleQuad} Find all quadrangulations of
+%     the sphere in $n$ faces. Shadows are dual to quadrangulations.}
+%   \end{figure}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Planar graph expansions}
+%   \begin{figure}
+%     \centering
+%       \includegraphics[width=4in]{expansion-from-simple-graph.pdf}
+%     \caption{Reduction to a planar graph of degree $\le 4$ and
+%       connectivity $\ge 1$. Expansion is the inverse.}
+%     \label{fig:graphexpand}
+%   \end{figure}
+% \end{frame}
 
 \begin{frame}
   \frametitle{The space of shadows}
@@ -617,37 +736,53 @@ Petal diagram & & Star diagram
 
   \begin{figure}
     \centering
-    \caption{The trefoil shadow has 12-fold symmetry (Left). This
-      diagram with trefoil shadow has 6-fold symmetry (Right).}
+    \begin{tabular}{ccc}
+      \begin{overpic}[width=1.2in]{shadow_skinny.pdf}
+        \put(77,45){1}
+        \put(17,45){2}
+        \put(47,10){3}
+      \end{overpic}
+      & \hspace{.5in} & \includegraphics[width=1.2in]{tref_isom_1.pdf}
+      \\
+      &&\\
+      \begin{overpic}[width=1.2in]{shadow_skinny.pdf}
+        \put(77,45){2}
+        \put(17,45){1}
+        \put(47,10){3}
+      \end{overpic}
+      & \hspace{.5in} & \includegraphics[width=1.2in]{tref_isom_2.pdf} \\
+
+    \end{tabular}
     \label{fig:trefsym}
   \end{figure}
 \end{frame}
 
 \begin{frame}
   \frametitle{Breaking symmetries could make counting easier}
-  Easier to count shadows/diagrams with broken symmetries
-  (rooted diagrams). E.g., is a correspondence:
-
   \begin{figure}
     \centering
-
-    \caption{Two-leg diagrams (left) correspond to rooted shadows (right).}
+    \includegraphics[width=.8\columnwidth]{legdias.pdf}
     \label{fig:legdia}
   \end{figure}
 
-  Diagrams on the left are counted by a generating function (Bouttier,
-  et.\ al).
+  Two-leg diagrams counted by generating function (Bouttier,
+  et.\ al):
+  \[ G_0 = \frac{24g - 1 + \sqrt{1-12g}}{9g(1+\sqrt{1-12g})} = 1 + 2g
+  + 9g^2 + 54g^3 + 378g^4 +  \cdots \]
 \end{frame}
 
 \section{Data and Analysis}
 
+\subsection{Data}
+
+
 \begin{frame}
   \frametitle{From shadows to diagrams}
-  Expansion of shadows to diagrams procedure:
+  Expansion of $n$-crossing shadows to diagrams procedure:
   \begin{enumerate}
-  \item Orient each component. ($2^{\#\text{components}}$ choices)
+  \item Orient each component. (2 choices)
   \item Assign over-under information to each
-    vertex. ($2^{\#\text{crossings}}$ choices)
+    vertex. ($2^n$ choices)
   \item Group diagrams by isomorphism.
   \end{enumerate}
 \end{frame}
@@ -658,7 +793,8 @@ Petal diagram & & Star diagram
   \begin{table}
     \centering
     \begin{tabular}{r|ccc}
-      n  & \# knot shadows & \# knot diagrams & \# knot iso. classes \\
+      % n  & \# knot shadows & \# knot diagrams & \# knot iso. classes \\
+      n  & \# knot shadows & $2^{n+1}$ (\# shadows) & \# knot diagrams \\
       \hline
       %0 & 1               & 2                & 1                    \\
       %1 & 1               & 4                & 1                    \\
@@ -671,7 +807,6 @@ Petal diagram & & Star diagram
       8  & 14,614          & 7,482,368        & 6,967,942            \\
       9  & 106,421         & 108,975,104      & \text{in process}    \\
     \end{tabular}
-    \caption{Counts of knot shadows and diagrams}
     \label{tab:counts}
   \end{table}
 \end{frame}
@@ -679,8 +814,7 @@ Petal diagram & & Star diagram
 \begin{frame}
   \frametitle{Knotting probabilities}
   \begin{itemize}
-  \item Advantage of a combinatorial model:
-    Able to run searches across entire space computationally.
+  \item Able to run searches across entire space computationally.
   \item Can check knot type of each diagram (HOMFLY is typically
     enough for our low crossing number)
   \item Possible to run many different types of searches
@@ -696,9 +830,11 @@ Petal diagram & & Star diagram
         ymode=log,
         log ticks with fixed point,
         title={Ratio of unknots in $n$-crossing diagram iso. classes (log scale)},
-        xlabel={Max \# crossings in diagram},
+        xlabel={\# crossings in diagram},
         ylabel={Ratio of unknots},
         cycle list name=Mark-Set1-9,
+        legend pos=south west,
+        legend entries={Unknots},
         ]
         \addplot table[x=n,y=0.1] {knot_freq.tsv};
       \end{axis}
@@ -715,7 +851,7 @@ Petal diagram & & Star diagram
         ymode=log,
         log ticks with fixed point,
         title={Ratios of knots in $n$-crossing diagram iso. classes (log scale)},
-        xlabel={Max \# crossings in diagram},
+        xlabel={\# crossings in diagram},
         ylabel={Ratios of knots},
         cycle list name=Mark-Set1-9,
         legend pos=south west,
@@ -741,7 +877,7 @@ Petal diagram & & Star diagram
         ymode=log,
         log ticks with fixed point,
         title={Ratios of knots in $n$-crossing diagram iso. classes (log scale)},
-        xlabel={Max \# crossings in diagram},
+        xlabel={\# crossings in diagram},
         ylabel={Ratios of knots},
         cycle list name=Mark-Set1-9,
         legend style={font=\tiny},
@@ -788,9 +924,6 @@ Petal diagram & & Star diagram
       8 & 14,614 & 14,562 (99.64\%) & 11,892 (81.37\%) & 1 \\
       9 & 106,421 & 106,216 (99.81\%) & 89,627 (84.22\%) & 1 \\
     \end{tabular}}
-    \caption{Counts of knot shadows with monogons, bigons, or
-      neither. 8- and 9- crossing shadows with neither are Conway's $8^*$ and
-      $9^*$.}
     \label{tab:counts}
   \end{table}
 \end{frame}
@@ -834,20 +967,18 @@ Petal diagram & & Star diagram
     \centering
     \includegraphics[width=.3\columnwidth]{8_18_celtic.png}\hspace{.1\columnwidth}
     \includegraphics[width=.3\columnwidth]{9_40_symmetric.png}
-    \caption{Knots with the two knot shadows in $\le 9$ crossings which are
-      planar simple graphs: $8_{18}$ (left), $9_{40}$ (right).}
+    \caption{$8_{18}$ (left), $9_{40}$ (right).}
     \label{fig:basicpoly}
   \end{figure}
 \end{frame}
 
 \begin{frame}
   \frametitle{Tree-like curves}
-  A \emph{tree-like curve} is a knot shadow which can be untwisted to
+  A \emph{tree-like curve} is a knot shadow which can be delooped to
   the trivial shadow.
   \begin{figure}
     \centering
-    \includegraphics[width=.4\columnwidth]{tree_like.png}
-    \caption{A tree-like curve.}
+    \includegraphics[width=1.5in]{tree_like_8x.pdf}
     \label{fig:treelike}
   \end{figure}
   Tree-like curves $\Rightarrow$ lower bound on unknottedness.
@@ -870,13 +1001,12 @@ Petal diagram & & Star diagram
       8 & 14,614          & 6,229        & 42.62\%      \\
       9 & 106,421         & 35,995       & 33.82\%      \\
     \end{tabular}
-    \caption{Counts of knot shadows and tree-like curves}
     \label{tab:counts}
   \end{table}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Unknottedness and tree-like shadows}
+  \frametitle{Unknottedness and tree-like diagrams}
   \begin{figure}
     \centering
     \begin{tikzpicture}[scale=.75]
@@ -894,9 +1024,6 @@ Petal diagram & & Star diagram
         \addplot table[x=n,y=totrat] {treelike.tsv};
       \end{axis}
     \end{tikzpicture}
-
-    \caption{The number of unknots is bounded by the number of
-      tree-like diagrams.}
     \label{fig:unkdecay}
   \end{figure}
 \end{frame}
@@ -916,7 +1043,6 @@ Petal diagram & & Star diagram
       8   & 2.19                         \\
       9   & 2.70                         \\
     \end{tabular}
-    \caption{Average delooped crossing number over shadows with $n$ crossings.}
     \label{tab:deloop}
   \end{table}
 \end{frame}
@@ -927,12 +1053,20 @@ Petal diagram & & Star diagram
 %   How many diagrams are connect sums? Prime?  [Figure]
 % \end{frame}
 
+\subsection{Further questions}
+
+
+
 \begin{frame}
   \frametitle{Questions to answer}
+  \begin{theorem}[Sumners-Wittington]
+    The ratio of unknots in random $n$-edge self-avoiding lattice
+    polygons tends to zero exponentially with $n$.
+  \end{theorem}
   \begin{block}{Conjecture}
-    The ratio of unknots in diagrams tends to zero as $n$ increases.
+    The ratio of unknots in diagrams tends to zero as $n$
+    increases. (Exponentially?)
   \end{block}
-  This would match data from random curve experiments.
 \end{frame}
 
 \begin{frame}
@@ -951,26 +1085,25 @@ Petal diagram & & Star diagram
 \end{frame}
 
 \begin{frame}
-  \frametitle{Future directions}
-  \begin{itemize}
-  \item Most analysis here is on knot diagrams; what can we say about
-    link diagrams?
-  \item How does the random diagram model compare to other models?
-    \begin{itemize}
-    \item \textit{Petaluma} model (Evan-Zohar, Hass, Linial, and
-      Nowik)
-    \item Random space polygons, random equilateral space polygons,
-      random confined space polygons
-    \item Random closed self-avoiding lattice walks
-    \end{itemize}
-  \item Uniform sampling of diagrams of higher crossing number: Can we
-    avoid outright enumeration?
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
   \frametitle{Link diagrams}
-  Counts for link diagrams
+      \begin{table}
+    \centering
+    \begin{tabular}{r|cc}
+      n & \# link shadows & \# knot shadows \\
+      \hline
+      0 & 1 & 1 \\
+      1 & 1 & 1 \\
+      2 & 3 & 2 \\
+      3 & 7 & 6 \\
+      4 & 30 & 19\\
+      5 & 124 & 76 \\
+      6 & 733 & 376$^{**}$ \\
+      7 & 4586 & 2194$^{**}$ \\
+      8 & 33373 & 14614$^*$ \\
+      9 & 259434 & 106421$^*$ \\
+    \end{tabular}
+    \label{tab:count2s}
+  \end{table}
 \end{frame}
 
 \begin{frame}
@@ -985,6 +1118,26 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \centering\textbf{\huge Thank you!}
+
+  Coming soon: \textit{Knot probabilities in random diagrams}.
+
+  \vfill
+
+  \begin{minipage}[t][.6\textheight]{1.0\linewidth}
+    \vfill
+    \begin{columns}
+      \begin{column}{.1\columnwidth}
+        \includegraphics[width=\columnwidth]{nsf4.eps}
+      \end{column}
+      \begin{column}{.9\columnwidth}
+        \small This research was supported in part by NSF grant
+        DMS-1344994 (RTG in Algebra, Algebraic Geometry, and Number
+        Theory, at the University of Georgia).
+      \end{column}
+    \end{columns}
+  \end{minipage}
+
+
 \end{frame}
 
 
