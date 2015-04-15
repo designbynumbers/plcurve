@@ -82,8 +82,9 @@
 \usepackage{pgfplots}
 \usepackage{pgfplotstable}
 \usepackage{array}
-\pgfplotsset{compat=1.5.1}
+\pgfplotsset{compat=1.8}
 \usetikzlibrary{positioning,arrows,knots,calc,decorations.markings}
+\usepgfplotslibrary{colorbrewer}
 
 \definecolor{beamerblue}{RGB}{234,233,243}
 \definecolor{beamerviolet}{RGB}{47,23,132}
@@ -103,6 +104,39 @@
     \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
   },
 }
+
+\pgfplotsset{
+  /pgfplots/bar cycle list/.style={/pgfplots/cycle list={%
+      {RdBu-9-1!50!black,fill=RdBu-9-1!80!white,mark=none},%
+      {RdBu-9-2!50!black,fill=RdBu-9-2!80!white,mark=none},%
+      {RdBu-9-3!50!black,fill=RdBu-9-3!80!white,mark=none},%
+      {RdBu-9-4!50!black,fill=RdBu-9-4!80!white,mark=none},%
+      {RdBu-9-5!50!black,fill=RdBu-9-5!80!white,mark=none},%
+      {RdBu-9-6!50!black,fill=RdBu-9-6!80!white,mark=none},%
+      {RdBu-9-7!50!black,fill=RdBu-9-7!80!white,mark=none},%
+      {RdBu-9-8!50!black,fill=RdBu-9-8!80!white,mark=none},%
+      {RdBu-9-9!50!black,fill=RdBu-9-9!80!white,mark=none},%
+      {RdBu-9-80!50!black,fill=RdBu-9-80!80!white,mark=none},%
+    }
+  },
+}
+
+% \pgfplotsset{
+%   /pgfplots/bar cycle list/.style={/pgfplots/cycle list={%
+%       {red!80!black,fill=red!30!white,mark=none},%
+%       {orange!80!black,fill=orange!30!white,mark=none},%
+%       {yellow!80!black,fill=yellow!30!white,mark=none},%
+%       {lime!80!black,fill=lime!30!white,mark=none},%
+%       {green!80!black,fill=green!30!white,mark=none},%
+%       {teal!80!black,fill=teal!30!white,mark=none},%
+%       {cyan!80!black,fill=cyan!30!white,mark=none},%
+%       {blue!80!black,fill=blue!30!white,mark=none},%
+%       {violet!80!black,fill=violet!30!white,mark=none},%
+%       {purple!80!black,fill=purple!30!white,mark=none},%
+%     }
+%   },
+% }
+
 
 \newcommand{\Uhyp}{\mathcal U} \newcommand{\Vhyp}{\mathcal V}
 \newcommand{\Rhyp}{\mathcal R}
@@ -166,14 +200,100 @@
 \section{Introduction}
 
 \begin{frame}
-  \frametitle{Knotting and Polymers}
+  \frametitle{Natural questions about knot diagrams}
+  \begin{block}{Question}
+    What fraction of 8-crossing diagrams are trefoils?
+    \onslide<2>{\begin{center}$12.48\%$
+      \end{center}
+    }
+  \end{block}
+  \begin{figure}
+    \centering
+    \includegraphics[width=1.5in]{8x_tref.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Natural questions about knot diagrams}
+  \begin{block}{Question}
+    What is the average minimal crossing \# of an 8-crossing diagram?
+    \onslide<2>{\begin{center}$12.48\%$
+      \end{center}
+    }
+  \end{block}
+  \begin{figure}
+    \centering
+    \[
+    \vcenter{\hbox{\includegraphics[width=1.5in]{8x_tref.pdf}}}
+    \Rightarrow
+    \vcenter{\hbox{\includegraphics[width=1.5in]{8x_min_tref.pdf}}}
+    \]
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Natural questions about knot diagrams}
+  Define an operation on diagrams, \emph{delooping}: Recursively RI
+  untwist monogon loops in a diagram until there are no more.
+  \begin{figure}
+    \centering
+    \[
+    \vcenter{\hbox{\includegraphics[width=1.5in]{8x_tref_loopy.pdf}}}
+    \Rightarrow
+    \vcenter{\hbox{\includegraphics[width=1.5in]{8x_tref_deloopy.pdf}}}
+    \]
+  \end{figure}
 
 \end{frame}
 
 \begin{frame}
+  \frametitle{Natural questions about knot diagrams}
+  \begin{block}{Question}
+    What is the average crossing \# of a delooped 8-crossing diagram?
+    \onslide<2>{\begin{center}$12.48\%$
+      \end{center}
+    }
+  \end{block}
+  \begin{figure}
+    \centering
+    \[
+    \vcenter{\hbox{\includegraphics[width=1.5in]{8x_tref_loopy.pdf}}}
+    \Rightarrow
+    \vcenter{\hbox{\includegraphics[width=1.5in]{8x_tref_deloopy.pdf}}}
+    \]
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Natural questions about knot diagrams}
+  \begin{block}{Question}
+    How many 8-crossing diagrams can be delooped to the unknot?
+    \onslide<2>{\begin{center}$44.51\%$
+      \end{center}
+    }
+  \end{block}
+  \begin{figure}
+    \centering
+    \includegraphics[width=1.5in]{tree_like_8x.pdf}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Knotting and Polymers}
+  \begin{figure}
+    \centering
+
+    \caption{Knotting in polymers. DNA must be unlinked during mitosis
+      (left). Enzymes must fold appropriately (right).}
+    \label{fig:polymr}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
   \frametitle{Random curve distributions}
-  The classical workflow for understanding knotting in random polymers
-  is via random distributions on different spaces of curves.
+  Classical workflow for understanding knotting in random polymers:
+  Random distributions on spaces of curves
   \begin{itemize}
   \item Random space polygons. (Fixed edge length, equilateral,
     confined, etc.)
@@ -200,20 +320,20 @@
 
 \begin{frame}
   \frametitle{Combinatorial knot distributions}
-  There are are also combinatorial distributions in use to study
-  random knotting. Examples include
+  Alternative approach: Combinatorial distributions
   \begin{itemize}
   \item Petaluma model (Evan-Zohar, Hass, et al.)
   \item Random braid words
   \end{itemize}
-  These combinatorial models are recent.
+  Combinatorial models are recent.
 \end{frame}
 
 \begin{frame}
   \frametitle{The Petaluma model}
-\begin{figure}
+  Many satisfying theorems have been proven for the Petaluma model
+  \begin{figure}
     \centering
-    \resizebox{\columnwidth}{!}{\begin{tabular}{ccc}
+    \resizebox{.8\columnwidth}{!}{\begin{tabular}{ccc}
 \tikz[thick]{
 \foreach \angle in {0, 72, ..., 288} \draw[decoration={markings,mark=at position 0.7 with {\arrow{>}}},postaction={decorate}] (0,0) .. controls +(\angle+36:4) and +(\angle:4) .. (0,0);
 \filldraw (0,0)+(306:2.83) circle (2pt);
@@ -247,10 +367,8 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{The void}
-  There is no clear connection between the two models. For example,
-  nearly no random polygons are expected to produce a star
-  diagram from the Petaluma model.
-
+  There is no clear connection between the two models: E.g.\ how to
+  produce a star diagram from a random polygon?
   \begin{figure}
     \centering
     \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
@@ -312,10 +430,10 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{Diagrams from shadows}
-  We sample diagrams uniformly through tabulation:
+  Sample diagrams uniformly through tabulation:
   \begin{enumerate}
-  \item Enumerate shadows, the underlying graph structure behind
-    diagrams.
+  \item Enumerate shadows (underlying graph structure behind
+    diagrams).
   \item Expand shadows into diagrams.
   \end{enumerate}
 \end{frame}
@@ -323,7 +441,7 @@ Petal diagram & & Star diagram
 \begin{frame}
   \frametitle{Knot shadows and circle immersions}
   \begin{block}{}
-    Knot shadows in $n$ crossings correspond to unoriented, generic
+    Knot shadows in $n$ crossings $\Leftrightarrow$ unoriented, generic
     immersions of the circle into the sphere with $n$ double points,
     up to unoriented diffeomorphism.
   \end{block}
@@ -412,10 +530,10 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{Tabulating knot shadows}
-  We have generated our table of knot shadows two different ways as a
-  computational check.\\\hfill\\
+  Ggenerated table of knot shadows two different ways as a
+  check.\\\hfill\\
 
-  Both methods use features from McKay and Brinkmann's \texttt{plantri} software.
+  Both methods use features from McKay and Brinkmann's \texttt{plantri}.
 \end{frame}
 
 \begin{frame}
@@ -427,7 +545,7 @@ Petal diagram & & Star diagram
     \includegraphics[height=1.25in]{non-simple-quadrangulation}
     \hfill
     \hphantom{.}
-    \caption{\label{fig:NonSimpleQuad} We find all quadrangulations of
+    \caption{\label{fig:NonSimpleQuad} Find all quadrangulations of
     the sphere in $n$ faces. Shadows are dual to quadrangulations.}
   \end{figure}
 \end{frame}
@@ -495,29 +613,20 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{Tabulation is difficult!}
-  As of yet this problem is a complicated computational problem; it
-  takes a day on a desktop computer to classify all 9-crossing
-  diagrams.  It seems that this is a very difficult problem, because
-  we group by isomorphism! It is difficult at both the shadow stage
-  and the diagram stage
+  Accounting for symmetry is complicated.
 
   \begin{figure}
     \centering
-    Trefoil shadow has 6-fold symmetry
-    [Figure]
-
-    Trefoil [++-] has 3-fold symmetry
-    [Figure]
-    \caption{The trefoil shadow has 6-fold symmetry (Left). This
-      diagram with trefoil shadow has 3-fold symmetry (Right).}
+    \caption{The trefoil shadow has 12-fold symmetry (Left). This
+      diagram with trefoil shadow has 6-fold symmetry (Right).}
     \label{fig:trefsym}
   \end{figure}
 \end{frame}
 
 \begin{frame}
   \frametitle{Breaking symmetries could make counting easier}
-  There exist counts for shadows/diagrams with broken symmetries
-  (rooted diagrams). For example, there is a correspondence:
+  Easier to count shadows/diagrams with broken symmetries
+  (rooted diagrams). E.g., is a correspondence:
 
   \begin{figure}
     \centering
@@ -526,7 +635,7 @@ Petal diagram & & Star diagram
     \label{fig:legdia}
   \end{figure}
 
-  The diagrams on the left are counted by a generating function (Bouttier,
+  Diagrams on the left are counted by a generating function (Bouttier,
   et.\ al).
 \end{frame}
 
@@ -534,12 +643,12 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{From shadows to diagrams}
-  Expansion of shadows to diagrams consists of three steps:
+  Expansion of shadows to diagrams procedure:
   \begin{enumerate}
   \item Orient each component. ($2^{\#\text{components}}$ choices)
   \item Assign over-under information to each
     vertex. ($2^{\#\text{crossings}}$ choices)
-  \item Group diagrams into diagram isomorphism classes.
+  \item Group diagrams by isomorphism.
   \end{enumerate}
 \end{frame}
 
@@ -568,71 +677,47 @@ Petal diagram & & Star diagram
 \end{frame}
 
 \begin{frame}
-  \frametitle{Questions we can answer}
-  \begin{itemize}
-  \item[Q:]<+-> What fraction of 8-crossing diagrams are trefoils?\\
-    \onslide<+->{\centering\color{beamerviolet} 12.48\%.}
-
-  \item[Q:]<+-> What is the average minimal crossing \# of a
-    7-crossing diagram?\\
-    \onslide<+->{\centering\color{beamerviolet} 0.4.}
-
-  \item[Q:]<+-> How many 8-crossing diagrams are tree-like curves?\\
-    \onslide<+->{\centering\color{beamerviolet} 44.51\%.}
-
-  \item[Q:]<+-> What is the average crossing number of a 9-crossing diagram after all
-    immediate R1 moves?\\
-    \onslide<+->{\centering\color{beamerviolet} 2.702.}
-
-  \end{itemize}
-
-\end{frame}
-
-
-\begin{frame}
   \frametitle{Knotting probabilities}
-  Advantage of combinatorial model; given enough computing power, we can
-  definitively answer questions about diagrams
-
   \begin{itemize}
   \item Advantage of a combinatorial model:
     Able to run searches across entire space computationally.
-  \item We can check knot type of each diagram (HOMFLY is typically
+  \item Can check knot type of each diagram (HOMFLY is typically
     enough for our low crossing number)
+  \item Possible to run many different types of searches
   \end{itemize}
 
 \end{frame}
 
 \begin{frame}
-  \frametitle{Unknottedness in diagrams}
   \begin{figure}
     \centering
-    \begin{tikzpicture}[scale=.75]
+    \begin{tikzpicture}[scale=1]
       \begin{axis}[
         ymode=log,
-        title={Ratio of unknots in $\le n$-crossing diagram iso. classes (log scale)},
+        log ticks with fixed point,
+        title={Ratio of unknots in $n$-crossing diagram iso. classes (log scale)},
         xlabel={Max \# crossings in diagram},
         ylabel={Ratio of unknots},
+        cycle list name=Mark-Set1-9,
         ]
         \addplot table[x=n,y=0.1] {knot_freq.tsv};
       \end{axis}
     \end{tikzpicture}
-
-    \caption{Unknot ratio may decrease exponentially.}
     \label{fig:unkdecay}
   \end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Knotting in diagrams}
   \begin{figure}
     \centering
-    \begin{tikzpicture}[scale=.75]
+    \begin{tikzpicture}[scale=1]
       \begin{axis}[
         ymode=log,
-        title={Ratios of knots in $\le n$-crossing diagram iso. classes (log scale)},
+        log ticks with fixed point,
+        title={Ratios of knots in $n$-crossing diagram iso. classes (log scale)},
         xlabel={Max \# crossings in diagram},
         ylabel={Ratios of knots},
+        cycle list name=Mark-Set1-9,
         legend pos=south west,
         legend entries={$3_1$, $4_1$, $5_1$, $5_2$},
         ]
@@ -642,28 +727,25 @@ Petal diagram & & Star diagram
         \addplot table[x=n,y=5.2] {knot_freq.tsv};
       \end{axis}
     \end{tikzpicture}
-
-    \caption{All ratios of knot types are still increasing. Knot $5_2$
-    is more common than knot $5_1$.}
     \label{fig:kgrow1}
   \end{figure}
 \end{frame}
 
 
 \begin{frame}
-  \frametitle{Knotting in diagrams}
   \begin{figure}
     \centering
       \tikzset{mark=*}
-    \begin{tikzpicture}[scale=.75]
+    \begin{tikzpicture}[scale=1]
       \begin{axis}[
         ymode=log,
-        title={Ratios of knots in $\le n$-crossing diagram iso. classes (log scale)},
+        log ticks with fixed point,
+        title={Ratios of knots in $n$-crossing diagram iso. classes (log scale)},
         xlabel={Max \# crossings in diagram},
         ylabel={Ratios of knots},
-        cycle list name=color list,
+        cycle list name=Mark-Set1-9,
         legend style={font=\tiny},
-        legend pos=south west,
+        legend pos=outer north east,
         legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $6_1$, $6_2$, $3_1
           \# 3_1$, $3_1 \# 3_1^*$, $7_1$, $7_2$, $7_3$, $7_4$, $7_5$,
           $7_6$, $7_7$},
@@ -686,7 +768,6 @@ Petal diagram & & Star diagram
       \end{axis}
     \end{tikzpicture}
 
-    \caption{Ratios of knot types are still increasing.}
     \label{fig:kgrow2}
   \end{figure}
 \end{frame}
@@ -708,10 +789,43 @@ Petal diagram & & Star diagram
       9 & 106,421 & 106,216 (99.81\%) & 89,627 (84.22\%) & 1 \\
     \end{tabular}}
     \caption{Counts of knot shadows with monogons, bigons, or
-      neither. The 8- and 9- crossing shadows are Conway's $8^*$ and
-      $9^*$, respectively.}
+      neither. 8- and 9- crossing shadows with neither are Conway's $8^*$ and
+      $9^*$.}
     \label{tab:counts}
   \end{table}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=1]
+      \begin{axis}[
+        ybar stacked,
+        %stack plots=y,
+        bar width=.5,
+        area style,
+        cycle multi list={OrRd-9},
+        title={Monogons in diagrams},
+        xlabel={\# crossings in diagram},
+        legend style={font=\tiny},
+        legend pos=outer north east,
+        legend entries={1,2,3,4,5,6,7,8,9},
+        ylabel={Ratio},
+        ]
+        \addplot table[x=n,y=1] {mono_bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=2] {mono_bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=3] {mono_bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=4] {mono_bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=5] {mono_bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=6] {mono_bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=7] {mono_bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=8] {mono_bi_counts.tsv};% \closedcycle;
+        %\addplot table[x=n,y=9] {mono_bi_counts.tsv};% \closedcycle;
+        %\addplot table[x=n,y=10] {mono_bi_counts.tsv};% \closedcycle;
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:monogons}
+  \end{figure}
 \end{frame}
 
 \begin{frame}
@@ -728,16 +842,15 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{Tree-like curves}
-  A \emph{tree-like curve} is a knot shadow which is a connect sum of
-  one-crossing diagrams (figure-eight shadows).
+  A \emph{tree-like curve} is a knot shadow which can be untwisted to
+  the trivial shadow.
   \begin{figure}
     \centering
     \includegraphics[width=.4\columnwidth]{tree_like.png}
     \caption{A tree-like curve.}
     \label{fig:treelike}
   \end{figure}
-  Tree-like curves provide a lower bound on unknottedness: Diagrams
-  with tree-like shadow are always unknotted.
+  Tree-like curves $\Rightarrow$ lower bound on unknottedness.
 \end{frame}
 
 \begin{frame}
@@ -769,6 +882,7 @@ Petal diagram & & Star diagram
     \begin{tikzpicture}[scale=.75]
       \begin{axis}[
         ymode=log,
+        log ticks with fixed point,
         title={Ratio of unknots, tree-like curves in $\le n$-crossing diagram iso. classes (log scale)},
         xlabel={Max \# crossings in diagram},
         ylabel={Percent},
@@ -812,6 +926,29 @@ Petal diagram & & Star diagram
 %   \frametitle{Prime knot shadows}
 %   How many diagrams are connect sums? Prime?  [Figure]
 % \end{frame}
+
+\begin{frame}
+  \frametitle{Questions to answer}
+  \begin{block}{Conjecture}
+    The ratio of unknots in diagrams tends to zero as $n$ increases.
+  \end{block}
+  This would match data from random curve experiments.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Questions to answer}
+  Random curves project to diagrams.
+  \begin{block}{Question}
+    How does the pushforward measure differ from uniform diagram sampling?
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Questions to answer}
+  \begin{block}{Question}
+    Can we sample diagrams uniformly without enumeration?
+  \end{block}
+\end{frame}
 
 \begin{frame}
   \frametitle{Future directions}
