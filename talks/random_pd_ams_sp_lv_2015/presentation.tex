@@ -1,11 +1,13 @@
+\PassOptionsToPackage{table}{xcolor}
 \documentclass[presentation]{beamer}
-\usetheme{Antibes}
+%\usetheme{Antibes}
 %\usetheme{Boadilla}
-%\usetheme{default}
+\usetheme{default}
 \usecolortheme{dolphin}
 \useinnertheme{rectangles}
-\useoutertheme{infolines}
+%\useoutertheme{infolines}
 %\input{header}
+
 
 %\input{globalmacros}
 %% Good old "not sure if equal"
@@ -111,16 +113,16 @@
 
 \pgfplotsset{
   /pgfplots/bar cycle list/.style={/pgfplots/cycle list={%
-      {RdBu-9-1!50!black,fill=RdBu-9-1!80!white,mark=none},%
-      {RdBu-9-2!50!black,fill=RdBu-9-2!80!white,mark=none},%
-      {RdBu-9-3!50!black,fill=RdBu-9-3!80!white,mark=none},%
-      {RdBu-9-4!50!black,fill=RdBu-9-4!80!white,mark=none},%
-      {RdBu-9-5!50!black,fill=RdBu-9-5!80!white,mark=none},%
-      {RdBu-9-6!50!black,fill=RdBu-9-6!80!white,mark=none},%
-      {RdBu-9-7!50!black,fill=RdBu-9-7!80!white,mark=none},%
-      {RdBu-9-8!50!black,fill=RdBu-9-8!80!white,mark=none},%
-      {RdBu-9-9!50!black,fill=RdBu-9-9!80!white,mark=none},%
-      {RdBu-9-80!50!black,fill=RdBu-9-80!80!white,mark=none},%
+      {RdBu-10-1!50!black,fill=RdBu-10-1!80!white,mark=none},%
+      {RdBu-10-2!50!black,fill=RdBu-10-2!80!white,mark=none},%
+      {RdBu-10-3!50!black,fill=RdBu-10-3!80!white,mark=none},%
+      {RdBu-10-4!50!black,fill=RdBu-10-4!80!white,mark=none},%
+      {RdBu-10-5!50!black,fill=RdBu-10-5!80!white,mark=none},%
+      {RdBu-10-6!50!black,fill=RdBu-10-6!80!white,mark=none},%
+      {RdBu-10-7!50!black,fill=RdBu-10-7!80!white,mark=none},%
+      {RdBu-10-8!50!black,fill=RdBu-10-8!80!white,mark=none},%
+      {RdBu-10-9!50!black,fill=RdBu-10-9!80!white,mark=none},%
+      {RdBu-10-10!50!black,fill=RdBu-10-10!80!white,mark=none},%
     }
   },
 }
@@ -188,8 +190,10 @@
 \DeclareMathOperator{\im}{Im}
 \DeclareMathOperator{\Int}{int}
 
-\begin{document}
+%\usepackage[table]{xcolor}
 
+\begin{document}
+\rowcolors{2}{beamerblue!25}{white}
 \newcommand{\Oh}[1]{\mathcal O (#1)}
 \newcommand{\g}{\mathfrak g}
 \newcommand{\ShSet}{\mathcal S}
@@ -256,7 +260,7 @@
   \frametitle{Natural questions about knot diagrams}
   \begin{block}{Question}
     What is the average crossing \# of a delooped 8-crossing diagram?
-    \onslide<2>{\begin{center}$2.19$
+    \onslide<2>{\begin{center}$2.20$
       \end{center}
     }
   \end{block}
@@ -274,7 +278,7 @@
   \frametitle{Natural questions about knot diagrams}
   \begin{block}{Question}
     How many 8-crossing diagrams can be delooped to the unknot?
-    \onslide<2>{\begin{center}$44.51\%$
+    \onslide<2>{\begin{center}$42.05\%$
       \end{center}
     }
   \end{block}
@@ -293,7 +297,7 @@
     \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
       % \tikzstyle{every node}=[align=center]
       \node[text width=1in] (plantri)
-      {Polymers\\\includegraphics[width=.95in]{polymer_protein.jpg}};
+      {Polymers\\\includegraphics[width=.95in]{dna.jpg}};
       \node[text width=1in,right=.3in of plantri]  (expand)
       {Random curves\\\includegraphics[width=.95in]{space_polygon.jpg}};
       \node[text width=1in,right=.3in of expand] (isomch)
@@ -312,7 +316,7 @@
     \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
       % \tikzstyle{every node}=[align=center]
       \node[text width=1in] (plantri)
-      {Polymers\\\includegraphics[width=.95in]{polymer_protein.jpg}};
+      {Polymers\\\includegraphics[width=.95in]{dna.jpg}};
       \node[text width=1in,right=.3in of plantri]  (expand)
       {Random curves\\\includegraphics[width=.95in]{space_polygon.jpg}};
       \node[text width=1in,right=.3in of expand] (isomch)
@@ -406,7 +410,7 @@ Petal diagram & & Star diagram
       >=1pt,semithick,align=center,minimum height=1.3in]
       % \tikzstyle{every node}=[align=center]
       \node[text width=1in] (plantri)
-      {Polymers\\\includegraphics[width=.95in]{polymer_protein.jpg}};
+      {Polymers\\\includegraphics[width=.95in]{dna.jpg}};
       \node[text width=1in,right=.3in of plantri]  (expand)
       {Random curves\\\includegraphics[width=.95in]{space_polygon.jpg}};
       \node[text width=1in,right=.3in of expand] (isomch)
@@ -448,7 +452,7 @@ Petal diagram & & Star diagram
       >=1pt,semithick,align=center,minimum height=1.4in]
       % \tikzstyle{every node}=[align=center]
       \node[text width=1in] (plantri)
-      {Polymers\\\includegraphics[width=.95in]{polymer_protein.jpg}};
+      {Polymers\\\includegraphics[width=.95in]{dna.jpg}};
       \node[text width=1in,right=.3in of plantri]  (expand)
       {Random curves\\\includegraphics[width=.95in]{space_polygon.jpg}};
       \node[text width=1in,right=.3in of expand] (isomch)
@@ -564,8 +568,8 @@ Petal diagram & & Star diagram
           \begin{table}
     \centering
     \begin{tabular}{r|c}
+      \rowcolor{gray!50}
       n & \# knot shadows \\
-      \hline
       0 & 1 \\
       1 & 1 \\
       2 & 2 \\
@@ -685,11 +689,8 @@ Petal diagram & & Star diagram
   \begin{figure}
     \centering
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_0_collage.eps}
-    \caption{Link shadows. Pictures generated by Eric Lybrand (UGA)
-      with with SnapPy. A map of all shadows with between 3 and 6
-      crossings
-      \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is
-        here.}}
+    \\ Link shadows. Pictures generated by Eric Lybrand (UGA
+      undergrad).
     \label{fig:planarcollage0}
   \end{figure}
 \end{frame}
@@ -699,9 +700,8 @@ Petal diagram & & Star diagram
   \begin{figure}
     \centering
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_1_collage.eps}
-    \caption{Link shadows. Pictures generated by Eric Lybrand (UGA)
-      with with SnapPy.  A map of all shadows with between 3 and
-      6 crossings \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is here.}}
+     \\ Link shadows. Pictures generated by Eric Lybrand (UGA
+      undergrad).
     \label{fig:planarcollage1}
   \end{figure}
 \end{frame}
@@ -711,9 +711,8 @@ Petal diagram & & Star diagram
   \begin{figure}
     \centering
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_10_collage.eps}
-    \caption{Link shadows. Pictures generated by Eric Lybrand (UGA)
-      with with SnapPy. A map of all shadows with between 3 and
-      6 crossings \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is here.}}
+ \\ Link shadows. Pictures generated by Eric Lybrand (UGA
+      undergrad).
     \label{fig:planarcollage10}
   \end{figure}
 \end{frame}
@@ -723,9 +722,8 @@ Petal diagram & & Star diagram
   \begin{figure}
     \centering
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_16_collage.eps}
-    \caption{Link shadows. Pictures generated by Eric Lybrand (UGA)
-      with with SnapPy. A map of all shadows with between 3 and
-      6 crossings \href{http://prezi.com/s5te-8obcfgq/?utm_campaign=share&utm_medium=copy&rc=ex0share}{is here.}}
+  \\ Link shadows. Pictures generated by Eric Lybrand (UGA
+      undergrad).
     \label{fig:planarcollage16}
   \end{figure}
 \end{frame}
@@ -743,8 +741,7 @@ Petal diagram & & Star diagram
         \put(47,10){3}
       \end{overpic}
       & \hspace{.5in} & \includegraphics[width=1.2in]{tref_isom_1.pdf}
-      \\
-      &&\\
+      \\ \rowcolor{white}&& \\
       \begin{overpic}[width=1.2in]{shadow_skinny.pdf}
         \put(77,45){2}
         \put(17,45){1}
@@ -793,19 +790,15 @@ Petal diagram & & Star diagram
   \begin{table}
     \centering
     \begin{tabular}{r|ccc}
-      % n  & \# knot shadows & \# knot diagrams & \# knot iso. classes \\
+      \rowcolor{gray!50}
       n  & \# knot shadows & $2^{n+1}$ (\# shadows) & \# knot diagrams \\
-      \hline
-      %0 & 1               & 2                & 1                    \\
-      %1 & 1               & 4                & 1                    \\
-      %2 & 2               & 16               &                      \\
       3  & 6               & 96               & 36                   \\
       4  & 19              & 608              & 276                  \\
       5  & 76              & 4,864            & 2,936                \\
       6  & 376             & 48,128           & 35,872               \\
       7  & 2,194           & 561,664          & 484,088              \\
       8  & 14,614          & 7,482,368        & 6,967,942            \\
-      9  & 106,421         & 108,975,104      & \text{in process}    \\
+      9  & 106,421         & 108,975,104      & 105,555,336          \\
     \end{tabular}
     \label{tab:counts}
   \end{table}
@@ -827,14 +820,38 @@ Petal diagram & & Star diagram
     \centering
     \begin{tikzpicture}[scale=1]
       \begin{axis}[
-        ymode=log,
-        log ticks with fixed point,
-        title={Ratio of unknots in $n$-crossing diagram iso. classes (log scale)},
+        %ymode=log,
+        %log ticks with fixed point,
+        title={Ratio of unknots in $n$-crossing diagrams},
         xlabel={\# crossings in diagram},
         ylabel={Ratio of unknots},
         cycle list name=Mark-Set1-9,
         legend pos=south west,
         legend entries={Unknots},
+        ymax=1, ymin=0,
+        ]
+        \addplot table[x=n,y=0.1] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:unkdecay}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=1]
+      \begin{axis}[
+        ymode=log,
+        log ticks with fixed point,
+        title={Ratio of unknots in $n$-crossing diagrams (log scale)},
+        xlabel={\# crossings in diagram},
+        ylabel={Ratio of unknots},
+        cycle list name=Mark-Set1-9,
+        legend pos=south west,
+        legend entries={Unknots},
+        ymax=1,
         ]
         \addplot table[x=n,y=0.1] {knot_freq.tsv};
       \end{axis}
@@ -848,9 +865,36 @@ Petal diagram & & Star diagram
     \centering
     \begin{tikzpicture}[scale=1]
       \begin{axis}[
+        %ymode=log,
+        %log ticks with fixed point,
+        title={Ratios of knots in $n$-crossing diagrams},
+        xlabel={\# crossings in diagram},
+        ylabel={Ratios of knots},
+        cycle list name=Mark-Set1-9,
+        legend pos=outer north east,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $0_1$},
+        ymin=0, ymax=1,
+        ]
+        \addplot table[x=n,y=3.1] {knot_freq.tsv};
+        \addplot table[x=n,y=4.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.1] {knot_freq.tsv};
+        \addplot table[x=n,y=5.2] {knot_freq.tsv};
+        \addplot table[x=n,y=0.1] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=1]
+      \begin{axis}[
         ymode=log,
         log ticks with fixed point,
-        title={Ratios of knots in $n$-crossing diagram iso. classes (log scale)},
+        title={Ratios of knots in $n$-crossing diagrams (log scale)},
         xlabel={\# crossings in diagram},
         ylabel={Ratios of knots},
         cycle list name=Mark-Set1-9,
@@ -876,7 +920,7 @@ Petal diagram & & Star diagram
       \begin{axis}[
         ymode=log,
         log ticks with fixed point,
-        title={Ratios of knots in $n$-crossing diagram iso. classes (log scale)},
+        title={Ratios of knots in $n$-crossing diagrams (log scale)},
         xlabel={\# crossings in diagram},
         ylabel={Ratios of knots},
         cycle list name=Mark-Set1-9,
@@ -908,25 +952,24 @@ Petal diagram & & Star diagram
   \end{figure}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Counting monogons and bigons in knot shadows}
-    \begin{table}
-    \centering
-    \resizebox{\columnwidth}{!}{\begin{tabular}{r|ccccc}
-      $n$ & shadows & 1-gon
-      & 2-gon & neither \\
-      \hline
-      3 & 6 & 5 (83.33\%) & 3 (50\%) & 0 \\
-      4 & 19 & 18 (94.74\%) & 11 (57.89\%) & 0 \\
-      5 & 76 & 74 (97.37\%) & 52 (68.42\%) & 0 \\
-      6 & 376 & 371 (98.67\%) & 275 (73.14\%) & 0 \\
-      7 & 2,194 & 2,178 (99.27\%) & 1,714 (78.12\%) & 0 \\
-      8 & 14,614 & 14,562 (99.64\%) & 11,892 (81.37\%) & 1 \\
-      9 & 106,421 & 106,216 (99.81\%) & 89,627 (84.22\%) & 1 \\
-    \end{tabular}}
-    \label{tab:counts}
-  \end{table}
-\end{frame}
+% \begin{frame}
+%   \frametitle{Counting monogons and bigons in knot shadows}
+%     \begin{table}
+%     \centering
+%     \resizebox{\columnwidth}{!}{\begin{tabular}{r|ccccc}
+%                                   \rowcolor{gray!50}
+%       $n$ & shadows & 1-gon & 2-gon & neither \\
+%       3 & 6 & 5 (83.33\%) & 3 (50\%) & 0 \\
+%       4 & 19 & 18 (94.74\%) & 11 (57.89\%) & 0 \\
+%       5 & 76 & 74 (97.37\%) & 52 (68.42\%) & 0 \\
+%       6 & 376 & 371 (98.67\%) & 275 (73.14\%) & 0 \\
+%       7 & 2,194 & 2,178 (99.27\%) & 1,714 (78.12\%) & 0 \\
+%       8 & 14,614 & 14,562 (99.64\%) & 11,892 (81.37\%) & 1 \\
+%       9 & 106,421 & 106,216 (99.81\%) & 89,627 (84.22\%) & 1 \\
+%     \end{tabular}}
+%     \label{tab:counts}
+%   \end{table}
+% \end{frame}
 
 \begin{frame}
     \begin{figure}
@@ -942,24 +985,62 @@ Petal diagram & & Star diagram
         xlabel={\# crossings in diagram},
         legend style={font=\tiny},
         legend pos=outer north east,
-        legend entries={1,2,3,4,5,6,7,8,9},
+        legend entries={0,1,2,3,4,5,6,7,8,9},
         ylabel={Ratio},
+        ymin=0, ymax=1,
         ]
-        \addplot table[x=n,y=1] {mono_bi_counts.tsv};% \closedcycle;
-        \addplot table[x=n,y=2] {mono_bi_counts.tsv};% \closedcycle;
-        \addplot table[x=n,y=3] {mono_bi_counts.tsv};% \closedcycle;
-        \addplot table[x=n,y=4] {mono_bi_counts.tsv};% \closedcycle;
-        \addplot table[x=n,y=5] {mono_bi_counts.tsv};% \closedcycle;
-        \addplot table[x=n,y=6] {mono_bi_counts.tsv};% \closedcycle;
-        \addplot table[x=n,y=7] {mono_bi_counts.tsv};% \closedcycle;
-        \addplot table[x=n,y=8] {mono_bi_counts.tsv};% \closedcycle;
-        %\addplot table[x=n,y=9] {mono_bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=0] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=1] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=2] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=3] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=4] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=5] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=6] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=7] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=8] {mono_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=9] {mono_counts.tsv};% \closedcycle;
         %\addplot table[x=n,y=10] {mono_bi_counts.tsv};% \closedcycle;
       \end{axis}
     \end{tikzpicture}
     \label{fig:monogons}
   \end{figure}
 \end{frame}
+
+\begin{frame}
+    \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=1]
+      \begin{axis}[
+        ybar stacked,
+        %stack plots=y,
+        bar width=.5,
+        area style,
+        cycle multi list={OrRd-9},
+        title={Bigons in diagrams},
+        xlabel={\# crossings in diagram},
+        legend style={font=\tiny},
+        legend pos=outer north east,
+        legend entries={0,1,2,3,4,5,6,7,8,9},
+        ylabel={Ratio},
+        ymin=0, ymax=1,
+        ]
+        \addplot table[x=n,y=0] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=1] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=2] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=3] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=4] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=5] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=6] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=7] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=8] {bi_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=9] {bi_counts.tsv};% \closedcycle;
+        %\addplot table[x=n,y=10] {bi_bi_counts.tsv};% \closedcycle;
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:bigons}
+  \end{figure}
+\end{frame}
+
 
 \begin{frame}
   \frametitle{Basic polyhedra $8^*$ and $9^*$}
@@ -984,44 +1065,45 @@ Petal diagram & & Star diagram
   Tree-like curves $\Rightarrow$ lower bound on unknottedness.
 \end{frame}
 
-\begin{frame}
-  \frametitle{Tree-like curves}
-    \begin{table}
-    \centering
-    \begin{tabular}{r|ccc}
-      n & \# knot shadows & \# tree-like & \% tree-like \\
-      \hline
-      1 & 1               & 1            & 100.00\%     \\
-      2 & 2               & 2            & 100.00\%     \\
-      3 & 6               & 5            & 83.33\%      \\
-      4 & 19              & 16           & 84.21\%      \\
-      5 & 76              & 55           & 72.37\%      \\
-      6 & 376             & 240          & 63.83\%      \\
-      7 & 2,194           & 1149         & 52.37\%      \\
-      8 & 14,614          & 6,229        & 42.62\%      \\
-      9 & 106,421         & 35,995       & 33.82\%      \\
-    \end{tabular}
-    \label{tab:counts}
-  \end{table}
-\end{frame}
+% \begin{frame}
+%   \frametitle{Tree-like curves}
+%     \begin{table}
+%     \centering
+%     \begin{tabular}{r|ccc}
+%       \rowcolor{gray!50}
+%       n & \# knot shadows & \# tree-like & \% tree-like \\
+%       1 & 1               & 1            & 100.00\%     \\
+%       2 & 2               & 2            & 100.00\%     \\
+%       3 & 6               & 5            & 88.88\%      \\
+%       4 & 19              & 16           & 86.23\%      \\
+%       5 & 76              & 55           & 74.39\%      \\
+%       6 & 376             & 240          & 63.12\%      \\
+%       7 & 2,194           & 1149         & 51.92\%      \\
+%       8 & 14,614          & 6,229        & 42.05\%      \\
+%       9 & 106,421         & 35,995       & 33.54\%      \\ 
+%     \end{tabular}
+%     \label{tab:counts}
+%   \end{table}
+% \end{frame}
 
 \begin{frame}
-  \frametitle{Unknottedness and tree-like diagrams}
   \begin{figure}
     \centering
-    \begin{tikzpicture}[scale=.75]
+    \begin{tikzpicture}[scale=1]
       \begin{axis}[
-        ymode=log,
-        log ticks with fixed point,
-        title={Ratio of unknots, tree-like curves in $\le n$-crossing diagram iso. classes (log scale)},
-        xlabel={Max \# crossings in diagram},
+        %ymode=log,
+        %log ticks with fixed point,
+        title={Ratio of unknots, tree-like curves in $n$-crossing diagrams},
+        xlabel={\# crossings in diagram},
         ylabel={Percent},
         legend style={font=\tiny},
         legend pos=south west,
-        legend entries={Unknots, Tree-like}
+        cycle list name=Mark-Set1-9,
+        legend entries={Unknots, Tree-like},
+        ymin=0, ymax=1
         ]
-        \addplot table[x=n,y=unknot] {treelike.tsv};
-        \addplot table[x=n,y=totrat] {treelike.tsv};
+        \addplot table[x=n,y=0.1] {knot_freq.tsv};
+        \addplot table[x=n,y=diarat] {treelike.tsv};
       \end{axis}
     \end{tikzpicture}
     \label{fig:unkdecay}
@@ -1029,23 +1111,99 @@ Petal diagram & & Star diagram
 \end{frame}
 
 \begin{frame}
-  \frametitle{Delooped crossing number}
-  \begin{table}
+  \begin{figure}
     \centering
-    \begin{tabular}{r|c}
-      $n$ & Average delooped crossing \# \\
-      \hline
-      3   & 0.50                         \\
-      4   & 0.53                         \\
-      5   & 0.92                         \\
-      6   & 1.25                         \\
-      7   & 1.72                         \\
-      8   & 2.19                         \\
-      9   & 2.70                         \\
-    \end{tabular}
-    \label{tab:deloop}
-  \end{table}
+    \begin{tikzpicture}[scale=1]
+      \begin{axis}[
+        ymode=log,
+        log ticks with fixed point,
+        title={Ratio of unknots, tree-like curves in $n$-crossing diagrams (log scale)},
+        xlabel={\# crossings in diagram},
+        ylabel={Percent},
+        legend style={font=\tiny},
+        legend pos=south west,
+        cycle list name=Mark-Set1-9,
+        legend entries={Unknots, Tree-like}
+        ]
+        \addplot table[x=n,y=0.1] {knot_freq.tsv};
+        \addplot table[x=n,y=diarat] {treelike.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:unkdecay}
+  \end{figure}
 \end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=1]
+      \begin{axis}[
+        title={Crossing \# vs. Average delooped crossing \#},
+        xlabel={\# crossings in diagram},
+        ylabel={Average \# crossings in delooped diagram},
+        cycle list name=Mark-Set1-9,
+        ymin=0, ymax=4,
+        ]
+        \addplot table[x=n,y=avg] {avgcn_counts.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:unkdecay}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=1]
+      \begin{axis}[
+        ybar stacked,
+        %stack plots=y,
+        bar width=.5,
+        area style,
+        cycle multi list={OrRd-9},
+        title={Delooped crossing \#},
+        xlabel={\# crossings in diagram},
+        legend style={font=\tiny},
+        legend pos=outer north east,
+        legend entries={0,1,2,3,4,5,6,7,8,9},
+        ylabel={Ratio},
+        ymin=0, ymax=1,
+        ]
+        \addplot table[x=n,y=0] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=1] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=2] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=3] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=4] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=5] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=6] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=7] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=8] {avgcn_counts.tsv};% \closedcycle;
+        \addplot table[x=n,y=9] {avgcn_counts.tsv};% \closedcycle;
+        %\addplot table[x=n,y=10] {mono_bi_counts.tsv};% \closedcycle;
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:monogons}
+  \end{figure}
+\end{frame}
+
+% \begin{frame}
+%   \frametitle{Delooped crossing number}
+%   \begin{table}
+%     \centering
+%     \begin{tabular}{r|c}
+%       \rowcolor{gray!50}
+%       $n$ & Average delooped crossing \# \\
+%       3   & 0.50                         \\
+%       4   & 0.53                         \\
+%       5   & 0.92                         \\
+%       6   & 1.25                         \\
+%       7   & 1.72                         \\
+%       8   & 2.19                         \\
+%       9   & 2.70                         \\
+%     \end{tabular}
+%     \label{tab:deloop}
+%   \end{table}
+% \end{frame}
 
 
 % \begin{frame}
@@ -1079,6 +1237,38 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{Questions to answer}
+  \begin{columns}
+    \begin{column}{.5\columnwidth}
+          \centering
+      \tikzset{mark=*}
+    \begin{tikzpicture}[scale=.5]
+      \begin{axis}[
+        title={Ratios of knots in $n$-crossing diagrams},
+        xlabel={\# crossings in diagram},
+        ylabel={Ratios of knots},
+        cycle list name=Mark-Set1-9,
+        legend style={font=\tiny},
+        legend pos=north east,
+        legend entries={$3_1$, $3_1^2$, $3_1^3$},
+        ymin=0, ymax=.25
+        ]
+        \addplot table[x=n,y expr=\thisrow{3.1}*2] {knot_freq.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1}*2 + \thisrow{3.1c3.1m}] {knot_freq.tsv};
+        \addplot table[x=n,y=\thisrow{3.1c3.1c3.1}*2 +
+        \thisrow{3.1c3.1c3.1m}*2 + \thisrow{3.1c3.1mc3.1m}*2] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \end{column}
+    \begin{column}{.5\columnwidth}
+      \centering
+      \includegraphics[width=\columnwidth]{grp_kprobs.png}\\
+      {\small (from Deguchi, et. al.)}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Questions to answer}
   \begin{block}{Question}
     Can we sample diagrams uniformly without enumeration?
   \end{block}
@@ -1089,18 +1279,18 @@ Petal diagram & & Star diagram
       \begin{table}
     \centering
     \begin{tabular}{r|cc}
+      \rowcolor{gray!50}
       n & \# link shadows & \# knot shadows \\
-      \hline
       0 & 1 & 1 \\
       1 & 1 & 1 \\
       2 & 3 & 2 \\
       3 & 7 & 6 \\
       4 & 30 & 19\\
       5 & 124 & 76 \\
-      6 & 733 & 376$^{**}$ \\
-      7 & 4586 & 2194$^{**}$ \\
-      8 & 33373 & 14614$^*$ \\
-      9 & 259434 & 106421$^*$ \\
+      6 & 733 & 376 \\
+      7 & 4586 & 2194 \\
+      8 & 33373 & 14614 \\
+      9 & 259434 & 106421 \\
     \end{tabular}
     \label{tab:count2s}
   \end{table}
@@ -1108,10 +1298,10 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{Knot distances}
-  Can study pure knot theoretic things, not just probabilistic
-  things--transitions between knots
-
-  bat graph [figure]
+  \begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{9x_distances.png}
+  \end{figure}
 \end{frame}
 
 \section*{}
@@ -1127,7 +1317,7 @@ Petal diagram & & Star diagram
     \vfill
     \begin{columns}
       \begin{column}{.1\columnwidth}
-        \includegraphics[width=\columnwidth]{nsf4.eps}
+        \includegraphics[width=.5\columnwidth]{nsf4.eps}
       \end{column}
       \begin{column}{.9\columnwidth}
         \small This research was supported in part by NSF grant
