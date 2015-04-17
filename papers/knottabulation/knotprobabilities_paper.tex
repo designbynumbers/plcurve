@@ -682,7 +682,30 @@ p_{i,j} + p_{k,l} \leq 1
 
 These equations express the fact that the edges corresponding to a linked pair of endpoints along a face must intersect inside the face. Therefore, if two pair variables are linked, at most one of them can take the value $1$. For instance, in the situation below where there are four vertices of degree two along a pair of faces, we have six pair variables, two of which obey an additional linking equation.
 \begin{center}
-\includegraphics[height=1.5in]{linked-ghost-pairs.pdf}
+	\begin{overpic}[height=1.5in]{linked-ghost-pairs.pdf}
+	\put(27,27){$a$}
+	\put(42,27){$b$}
+	\put(56,27){$c$}
+	\put(71,27){$d$}
+
+	\put(48,48){\textcolor{red}{$g_6$}}
+	\put(48,0.5){\textcolor{red}{$g_6$}}
+
+	\put(41.5,40){\textcolor{blue}{$g_1$}}
+	\put(41.5,8.5){\textcolor{blue}{$g_1$}}
+
+	\put(56,40){\textcolor{blue}{$g_2$}}
+	\put(56,8.5){\textcolor{blue}{$g_2$}}
+
+	\put(35,31){\textcolor{green}{$g_3$}}
+	\put(35,18){\textcolor{green}{$g_3$}}
+
+	\put(47.9,31){\textcolor{green}{$g_4$}}
+	\put(47.9,18){\textcolor{green}{$g_4$}}
+
+	\put(61,31){\textcolor{green}{$g_5$}}
+	\put(61,18){\textcolor{green}{$g_5$}}
+	\end{overpic}
 \end{center}
 We note that in the end, at most two of the pair variables above can have value $1$, but that a number of combinations are ruled out by vertex degree equations instead of linking equations.
 
@@ -704,14 +727,28 @@ If the next expansion is an $\edgedouble$ or $\cutedgedouble$ expansion indicate
 
 This much was easy. If the next expansion is of type $\pairinsert$, there is more to check. First, we note that there is no ambiguity in embeddings here: if we can do the $\pairinsert$ expansion, we can do it in only one way and we generate a unique embedding of the graph $G_{i+1}$. But can we do it at all? Each $\pairinsert$ indicated by a positive $p_{i,j}$ requires several conditions. First, vertex degrees at $v_i$, $v_j$ must be small enough, which is checked as before by vertex degree equations. But the $v_i$ and $v_j$ must still be on two faces in the expansion $G_i$, which is not obvious, because previous $\pairinsert$ expansions have split faces of $G_1$ into smaller faces in $G_i$. Let us suppose that $v_i$ and $v_j$ were on the pair of faces $F_1$ and $F_2$ of the original graph.
 \begin{center}
-\includegraphics[width=3in]{pair-interference.pdf}
+	\begin{overpic}[width=3in,grid]{pair-interference.pdf}
+	\put(34,53){$F_1$}
+	\put(63,10){$F_2$}
+	
+	\put(11.5,35){$v_i$}
+	\put(33.5,35){$v_k$}
+	\put(61.5,35){$v_j$}
+	\put(84,35){$v_l$}
+	\end{overpic}
 \end{center}
 The pair of faces can make contact with each in several disconnected arcs, as shown above. Further, additional pair edges can share $F_1$ or $F_2$ with some other face. However, slicing $F_1$ can only separate $v_i$ and $v_j$ if the endpoints of the splitting arc link $v_i$ and $v_j$ on $F_1$. This can't happen if the splitting arc is part of a pair which share $F_1$ with some other face (as shown), as the interfaces of $F_1$ and other faces are all connected.
 
 But if the splitting arc also shared $F_1$ and $F_2$, the corresponding pair variable $p_{k,l}$ is related to $p_{i,j}$ by a linking equation if and only if adding that arc would leave $v_i$ and $v_j$ on different faces. The linking equation implies that only one of the arcs indicated by $p_{i,j}$ and $p_{k,l}$ is present in the expansion; since we have assumed that $p_{i,j}$ is positive, no such $p_{k,l}$ can have already been inserted earlier in the expansion process. This concludes the case where the interface of $F_1$ and $F_2$ was disconnected.
 
 \begin{center}
-\includegraphics[width=2in]{connected-pair-interaction-case.pdf}
+	\begin{overpic}[width=2in,grid]{connected-pair-interaction-case.pdf}
+	\put(46.5,82){$F_1$}
+	\put(46.5,29){$F_2$}
+
+	\put(35,53.5){$v_i$}
+	\put(59,53.5){$v_j$}
+	\end{overpic}
 \end{center}
 
 If the interface between $F_1$ and $F_2$ is connected, than either might have a disconnected interface with (at most one) other face, as shown above. This case is only cosmetically different-- again the key point is that the pair $v_i$, $v_j$ can link along the boundary of $F_1$ (or $F_2$) with a pair edge which also shares $F_1$ and $F_2$ while pairs involving a third face won't link the vertices we're interested in.
