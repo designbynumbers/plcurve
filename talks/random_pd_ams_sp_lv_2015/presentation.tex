@@ -1,5 +1,5 @@
 \PassOptionsToPackage{table}{xcolor}
-\documentclass[presentation]{beamer}
+\documentclass[presentation,t]{beamer}
 %\usetheme{Antibes}
 %\usetheme{Boadilla}
 \usetheme{default}
@@ -212,10 +212,8 @@
 \begin{frame}
   \frametitle{Natural questions about knot diagrams}
   \begin{block}{Question}
-    What fraction of 8-crossing diagrams are trefoils?
-    \onslide<2>{\begin{center}$12.48\%$
-      \end{center}
-    }
+    What fraction of 8-crossing diagrams are trefoils?\\
+    \onslide<2>{\centering $12.48\%$}
   \end{block}
   \begin{figure}
     \centering
@@ -226,10 +224,8 @@
 \begin{frame}
   \frametitle{Natural questions about knot diagrams}
   \begin{block}{Question}
-    What is the average minimal crossing \# of an 8-crossing diagram?
-    \onslide<2>{\begin{center}$0.52$
-      \end{center}
-    }
+    What is the average minimal crossing \# of an 8-crossing diagram?\\
+    \onslide<2>{\centering $0.52$}
   \end{block}
   \begin{figure}
     \centering
@@ -243,8 +239,11 @@
 
 \begin{frame}
   \frametitle{Natural questions about knot diagrams}
-  Define an operation on diagrams, \emph{untwisting}: Recursively RI
-  untwist loops in a diagram until there are no more.
+  \begin{definition}
+    Define an operation on diagrams, \emph{untwisting}: Recursively RI
+    untwist loops in a diagram until there are no more.
+  \end{definition}
+
   \begin{figure}
     \centering
     \[
@@ -259,10 +258,8 @@
 \begin{frame}
   \frametitle{Natural questions about knot diagrams}
   \begin{block}{Question}
-    What is the average crossing \# of a untwisted 8-crossing diagram?
-    \onslide<2>{\begin{center}$2.20$
-      \end{center}
-    }
+    What is the average crossing \# of a untwisted 8-crossing diagram?\\
+    \onslide<2>{\centering $2.20$}
   \end{block}
   \begin{figure}
     \centering
@@ -277,10 +274,8 @@
 \begin{frame}
   \frametitle{Natural questions about knot diagrams}
   \begin{block}{Question}
-    How many 8-crossing diagrams can be untwisted to the unknot?
-    \onslide<2>{\begin{center}$42.05\%$
-      \end{center}
-    }
+    How many 8-crossing diagrams can be untwisted to the unknot?\\
+    \onslide<2>{\centering $42.05\%$}
   \end{block}
   \begin{figure}
     \centering
@@ -568,19 +563,18 @@ Petal diagram & & Star diagram
   \end{proposition}
   \begin{enumerate}
   \item<2-> Add loops and edges to planar simple graphs
-  \item<3-> Generate multiquadrangulations by connect sum and take
+  \item<3-> Generate multiquadrangulations by connect sum, take
     dual graphs
   \end{enumerate}
   \begin{center}
     \begin{tabular}{ccccc}
-      \onslide<2->{$\vcenter{\hbox{\includegraphics[width=1in]{pre_shadow_graph.pdf}}}$}
+      \onslide<2->{$\vcenter{\hbox{\includegraphics[width=.8in]{pre_shadow_graph.pdf}}}$}
       & \onslide<2->{$\Rightarrow$}
-      & $\vcenter{\hbox{\includegraphics[width=1in]{result_shadow.pdf}}}$
+      & $\vcenter{\hbox{\includegraphics[width=.8in]{result_shadow.pdf}}}$
       & \onslide<3->{$\Leftarrow$}
-      & \onslide<3->{$\vcenter{\hbox{\includegraphics[width=1in]{pre_shadow_quads.pdf}}}$}
+      & \onslide<3->{$\vcenter{\hbox{\includegraphics[width=.8in]{pre_shadow_quads.pdf}}}$}
     \end{tabular}
   \end{center}
-
   \onslide<4->{Actually generate all \textbf{link shadows}, then
     restrict to knot shadows}
 \end{frame}
@@ -623,41 +617,44 @@ Petal diagram & & Star diagram
 \end{frame}
 
 \begin{frame}
-  \frametitle{How many shadows?}
+  \frametitle{Verifying against existing shadow counts}
   \begin{columns}
-    \begin{column}{.6\columnwidth}
-      \includegraphics[width=\columnwidth]{arnold_table.png}\\\hfill\\\hfill\\
-      \includegraphics[width=\columnwidth]{oeis_shadows.png}
+    \begin{column}[T]{.6\columnwidth}
+      \centering
+      \includegraphics[width=\columnwidth]{arnold_table.png}\\
+      {\small V.I. Arnol'd. \textit{Topological Invariants of Plane Curves}}
+      \hfill\\\hfill\\
+      \includegraphics[width=\columnwidth]{oeis_shadows.png}\\
+      {\small OEIS A008989}
     \end{column}
-    \begin{column}{.4\columnwidth}
-          \begin{table}
-    \centering
-    \begin{tabular}{r|c}
-      \rowcolor{gray!50}
-      n & \# knot shadows \\
-      \rowcolor{yellow!40}
-      0 & 1 \\
-      \rowcolor{yellow!40}
-      1 & 1 \\
-      \rowcolor{yellow!40}
-      2 & 2 \\
-      \rowcolor{yellow!40}
-      3 & 6 \\
-      \rowcolor{yellow!40}
-      4 & 19\\
-      \rowcolor{yellow!40}
-      5 & 76 \\
-      \rowcolor{yellow!40}
-      6 & 376 \\
-      \rowcolor{yellow!40}
-      7 & 2194 \\
-      8 & 14614 \\
-      9 & 106421 \\
-    \end{tabular}
-    \label{tab:counts}
-  \end{table}
-
-    \end{column}
+    \begin{column}[T]{.4\columnwidth}
+          %\begin{table}
+            \centering
+            \begin{tabular}{r|c}
+              \rowcolor{gray!50}
+              n & \# knot shadows \\
+              \rowcolor{yellow!40}
+              0 & 1 \\
+              \rowcolor{yellow!40}
+              1 & 1 \\
+              \rowcolor{yellow!40}
+              2 & 2 \\
+              \rowcolor{yellow!40}
+              3 & 6 \\
+              \rowcolor{yellow!40}
+              4 & 19\\
+              \rowcolor{yellow!40}
+              5 & 76 \\
+              \rowcolor{yellow!40}
+              6 & 376 \\
+              \rowcolor{yellow!40}
+              7 & 2194 \\
+              8 & 14614 \\
+              9 & 106421 \\
+            \end{tabular}
+            \label{tab:counts}
+          %\end{table}
+        \end{column}
   \end{columns}
 \end{frame}
 
@@ -815,7 +812,7 @@ Petal diagram & & Star diagram
   \end{figure}
 
   Two-leg diagrams counted by generating function (Bouttier,
-  et.\ al):
+  et al.\ 2003):
   \[ G_0 = \frac{24g - 1 + \sqrt{1-12g}}{9g(1+\sqrt{1-12g})} = 1 + 2g
   + 9g^2 + 54g^3 + 378g^4 +  \cdots \]
 \end{frame}
@@ -1104,7 +1101,7 @@ Petal diagram & & Star diagram
     \centering
     \includegraphics[width=.3\columnwidth]{8_18_celtic.png}\hspace{.1\columnwidth}
     \includegraphics[width=.3\columnwidth]{9_40_symmetric.png}
-    \caption{$8_{18}$ (left), $9_{40}$ (right).}
+    \\{\centering $8_{18}$ (left), $9_{40}$ (right).}
     \label{fig:basicpoly}
   \end{figure}
 \end{frame}
@@ -1185,9 +1182,9 @@ Petal diagram & & Star diagram
         \addplot table[x=n,y=diarat] {treelike.tsv};
       \end{axis}
     \end{tikzpicture}
+    Tree-like curves alone explain only some of the unknot fraction
     \label{fig:unkdecay}
   \end{figure}
-  Tree-like curves alone explain only some of the unknot fraction
 \end{frame}
 
 \begin{frame}
@@ -1275,7 +1272,7 @@ Petal diagram & & Star diagram
   Random curves project to diagrams.
   \begin{block}{Question}
     How does the pushforward measure differ from uniform diagram
-    sampling? (c.f.\ Hua, Nguyen, et al. 2005)
+    sampling? (c.f.\ Hua, Nguyen, Raghavan, Arsuaga, Vasquez 2005)
   \end{block}
   \begin{figure}
     \centering
@@ -1292,12 +1289,18 @@ Petal diagram & & Star diagram
 \begin{frame}
   \frametitle{Questions to answer}
   \begin{block}{Question}
-    Given $n_1, n_2$ so that $\PP(\text{an $n_1$-crossing diagram is
-      unknotted}) = \PP(\text{an $n_2$-edge random polygon is
-      unknotted})$. Is there any relation between the probabilities of
-    knots appearing?
+    Let $PD(n,K)$ be the probability of knot type $K$ in a random
+    diagram of $n$ crossings and $PC(n,K)$ the probability of knot
+    type $K$ in a random polygon of $n$ edges.\vspace{.1in}
+
+    If $n, m$ are such that $PD(n,0_1) = PC(m,0_1)$, is there a
+    relationship between $PD(n,K) = PC(m,K)$ for other knot types $K$?
+    % Given $n, m$ so that $\PP(\text{an $n_1$-crossing diagram is
+    %   unknotted}) = \PP(\text{an $n_2$-edge random polygon is
+    %   unknotted})$. Is there any relation between the probabilities of
+    % knots appearing?
   \end{block}
-  \begin{columns}
+  \begin{columns}[T]
     \begin{column}{.5\columnwidth}
           \centering
       \tikzset{mark=*}
