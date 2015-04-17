@@ -530,7 +530,7 @@ Petal diagram & & Star diagram
 \begin{frame}
   \frametitle{Random diagrams}
   \begin{definition}
-    A \emph{knot diagram} is a generic embedding of the oriented $S^1$ into
+    A \emph{knot diagram} is a equivalence class of generic immersions of the oriented $S^1$ into
     the sphere $S^2$ together with over-under strand information at each
     double point up to diffeomorphism of $S^2$.
   \end{definition}
@@ -545,7 +545,7 @@ Petal diagram & & Star diagram
 \begin{frame}
   \frametitle{How to enumerate knot diagrams}
   \begin{definition}
-    A \emph{knot shadow} is a generic embedding of the unoriented $S^1$
+    A \emph{knot shadow} is a generic equivalence class of immersions of the unoriented $S^1$
     into the sphere $S^2$ up to diffeomorphism of $S^2$.
   \end{definition}
   \begin{enumerate}
@@ -566,6 +566,7 @@ Petal diagram & & Star diagram
   \item<3-> Generate multiquadrangulations by connect sum, take
     dual graphs
   \end{enumerate}
+  \vspace{-.3in}
   \begin{center}
     \begin{tabular}{ccccc}
       \onslide<2->{$\vcenter{\hbox{\includegraphics[width=.8in]{pre_shadow_graph.pdf}}}$}
@@ -656,6 +657,7 @@ Petal diagram & & Star diagram
           %\end{table}
         \end{column}
   \end{columns}
+  We have not found any existing counts of \emph{diagrams}.
 \end{frame}
 
 % \begin{frame}
@@ -833,6 +835,7 @@ Petal diagram & & Star diagram
 % \end{frame}
 
 \begin{frame}
+  \frametitle{Knotting in diagrams}
   \begin{figure}
     \centering
     \begin{tikzpicture}[scale=1]
@@ -934,6 +937,8 @@ Petal diagram & & Star diagram
     The ratio of unknots in diagrams tends to zero as $n$
     increases. (Exponentially?)
   \end{block}
+  Exist theorems on planar (simple) graphs (Dowden 2008) similar to
+  the Kesten pattern theorem (Kesten 1963) for lattice walks
 \end{frame}
 
 \begin{frame}
@@ -1097,6 +1102,10 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{Basic polyhedra $8^*$ and $9^*$}
+  \begin{proposition}
+    Conway's basic polyhedra $8^*$ and $9^*$ are the only diagrams in
+    $\le 9$ crossings with no monogons or bigons.
+  \end{proposition}
   \begin{figure}
     \centering
     \includegraphics[width=.3\columnwidth]{8_18_celtic.png}\hspace{.1\columnwidth}
@@ -1108,7 +1117,7 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \frametitle{Some shadows are always unknots}
-  A \emph{tree-like curve} is a knot shadow which can be untwisted to
+  A \emph{tree-like curve} (Aicardi 1994) is a knot shadow which can be untwisted to
   the trivial shadow.
   \begin{figure}
     \centering
@@ -1165,6 +1174,7 @@ Petal diagram & & Star diagram
 
 \begin{frame}
   \begin{figure}
+    \vspace{-.2in}
     \centering
     \begin{tikzpicture}[scale=1]
       \begin{axis}[
@@ -1332,7 +1342,7 @@ Petal diagram & & Star diagram
 \begin{frame}
   \frametitle{Questions to answer}
   \begin{block}{Fact}
-    No one will realistically enumerate the 100-crossing knot diagrams.
+    No one will enumerate the 100-crossing knot diagrams.
   \end{block}
   \begin{block}{Question}
     Can we generate uniformly sampled random 100-crossing knot
@@ -1372,7 +1382,8 @@ Petal diagram & & Star diagram
 
 \section*{}
 
-\begin{frame}
+\begin{frame}[c]
+  \vspace{}
   \centering\textbf{\huge Thank you!}
 
   Coming soon: Cantarella, Chapman, Mastin. \textit{Knot probabilities in random diagrams}.
