@@ -5,9 +5,12 @@ P_unk = HOMFLYPolynomial('1')
 
 def load_diagrams(session, n_cross):
     print "There are %s shadows to process"%session.query(Shadow)\
-                                  .filter(Shadow.n_cross==n_cross).count()
+                                  .filter(Shadow.n_cross==n_cross)\
+                                  .filter(~Shadow.diagram_classes.any())\
+                                  .count()
     for i, db_shadow in enumerate(session.query(Shadow)\
-                                  .filter(Shadow.n_cross==n_cross)):
+                                  .filter(Shadow.n_cross==n_cross)\
+                                  .filter(~Shadow.diagram_classes.any())):
         if i%100 == 0:
             print i
             session.commit()
