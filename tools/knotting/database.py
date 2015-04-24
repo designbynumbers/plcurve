@@ -100,6 +100,8 @@ class DiagramClass(Base):
     shadow = relationship("Shadow", backref=backref('diagram_classes', order_by=id))
 
     homfly = Column(HOMFLYType, index=True)
+    linktype_id = Column(Integer, ForeignKey('factorizations.id'), index=True)
+    linktype = relationship("LinkFactorization", backref=backref('diagram_classes', order_by=id))
 
     diagrams = relationship("Diagram", backref="iso_class")
 
@@ -129,7 +131,7 @@ class Diagram(Base):
 
     @property
     def pd(self):
-        pd = self.shadow.pd
+        pd = self.shadow.pd.copy()
         unsignature = (1-x for x in self.comp_mask_list)
         for comp in compress(range(pd.ncomps), unsignature):
            pd.reorient_component(comp, 0)
