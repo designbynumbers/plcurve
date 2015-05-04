@@ -143,6 +143,68 @@ class Diagram(Base):
             self.shadow.n_cross, self.shadow.n_comps, self.shadow.uid,
             self.cross_mask, self.comp_mask)
 
+from itertools import groupby
+def dumb_get_factorization(session, facstr):
+    """ facstr is of fmt "Knot[3, 1]#Knot[3, 1]#Knot[3, 1]*" """
+    fzn = [(fact, len(list(grouper))) for
+           fact,grouper in groupby(sorted(facstr.split("#")))]
+    # fzn = ["Knot[3, 1]", 2, ...]
+
+    q = session.query(LinkFactorization)
+
+    # Use a join w/ correlated subquery to count num factors
+    cfq = session.query(FactorizationFactor.product_id,
+                        func.count(FactorizationFactor.product_id).label('fzn_count')).\
+                        group_by(FactorizationFactor.product_id).subquery()
+    q = q.join(cfq, cfq.c.product_id == LinkFactorization.id).filter(cfq.c.fzn_count==len(fzn))
+
+    for factor, count in fzn:
+        mirrored = False
+        if "*" in factor:
+            factor = factor[:-1]
+            mirrored = True
+
+        # Filter by this factor
+        q = q.filter(LinkFactorization.factors.any(and_(
+            FactorizationFactor.factor_id == session.query(LinkFactor.id)\
+            .filter(LinkFactor.name == factor).filter(LinkFactor.mirrored == mirrored),
+            FactorizationFactor.multiplicity == count
+        )))
+
+    # It is an error if there is more than 1 of this LF
+    return q.one()
+
+from sqlalchemy.ext.hybrid import Comparator
+class FactorizationNameTransformer(Comparator):
+    def operate(self, op, other):
+        def transform(q):
+            fzn = [(fact, len(list(grouper))) for
+                   fact,grouper in groupby(sorted(other.split("#")))]
+
+            cls = self.__clause_element__()
+
+            cfq = q.session.query(
+                FactorizationFactor.product_id,
+                func.count(FactorizationFactor.product_id).label('fzn_count')).\
+                group_by(FactorizationFactor.product_id).subquery()
+            q = q.join(cfq, cfq.c.product_id == cls.id)\
+                 .filter(cfq.c.fzn_count==len(fzn))
+
+            for factor, count in fzn:
+                mirrored = False
+                if "*" in factor:
+                    factor = factor[:-1]
+                    mirrored = True
+
+                # Filter by this factor
+                q = q.filter(cls.factors.any(and_(
+                    FactorizationFactor.factor_id == q.session.query(LinkFactor.id)\
+                    .filter(LinkFactor.name == factor).filter(LinkFactor.mirrored == mirrored),
+                    FactorizationFactor.multiplicity == count
+                )))
+            return q
+        return transform
+
 class LinkFactorization(Base):
     __tablename__ = 'factorizations'
 
@@ -154,6 +216,16 @@ class LinkFactorization(Base):
     n_splits = Column(Integer)
     n_cross = Column(Integer, index=True)
     n_comps = Column(Integer, index=True)
+
+    @hybrid_property
+    def name(self):
+        return "#".join(
+            "#".join(str(fassoc.factor) for _ in range(fassoc.multiplicity))
+            for fassoc in self.factor)
+
+    @name.comparator
+    def name(cls):
+        return FactorizationNameTransformer(cls)
 
     def __str__(self):
         return "#".join(
