@@ -221,7 +221,7 @@ class LinkFactorization(Base):
     def name(self):
         return "#".join(
             "#".join(str(fassoc.factor) for _ in range(fassoc.multiplicity))
-            for fassoc in self.factor)
+            for fassoc in self.factors)
 
     @name.comparator
     def name(cls):
