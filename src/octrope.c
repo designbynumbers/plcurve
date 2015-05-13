@@ -985,7 +985,7 @@ bool octrope_solveMatrixLU(double A[2][2],double b[2],double x[2])
     
     for(j=0;j<2;j++) {
       
-      if ((temp = fabs(B[i][j])) > big) big = temp;
+      if ((temp = fabsl(B[i][j])) > big) big = temp;
       
     }
     
@@ -1024,7 +1024,7 @@ bool octrope_solveMatrixLU(double A[2][2],double b[2],double x[2])
       
       B[i][j] = sum;
       
-      if ((dum = vv[i] * fabs(sum)) >= big) {   
+      if ((dum = vv[i] * fabsl(sum)) >= big) {   
 	
 	big = dum;
 	imax = i;
@@ -1108,7 +1108,7 @@ bool octrope_solveMatrixLU(double A[2][2],double b[2],double x[2])
   bcheck[0] = A[0][0]*x[0] + A[0][1]*x[1];
   bcheck[1] = A[1][0]*x[0] + A[1][1]*x[1];
 
-  if (fabs(bcheck[0] - b[0]) < 1e-8 && fabs(bcheck[1] - b[1]) < 1e-8) { return true; }
+  if (fabsl(bcheck[0] - b[0]) < 1e-8 && fabsl(bcheck[1] - b[1]) < 1e-8) { return true; }
 
   LU_DOUBLE_TYPE delta[2];
 
@@ -1152,7 +1152,7 @@ bool octrope_solveMatrixLU(double A[2][2],double b[2],double x[2])
   bcheck[0] = A[0][0]*x[0] + A[0][1]*x[1];
   bcheck[1] = A[1][0]*x[0] + A[1][1]*x[1];
 
-  return (fabs(bcheck[0] - b[0]) < 1e-8 && fabs(bcheck[1] - b[1]) < 1e-8);
+  return (fabsl(bcheck[0] - b[0]) < 1e-8 && fabsl(bcheck[1] - b[1]) < 1e-8);
 
 }
 

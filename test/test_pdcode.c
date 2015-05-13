@@ -206,14 +206,8 @@ bool test_twist() {
 bool test_unknot_wye_abcsum(pd_idx_t n) {
 
   pd_code_t *pd;
-  char      test_hash[2*PD_HASHSIZE];
 
   printf("testing unknot wyes with a + b + c = %d twists ...\n\n",n);
-  
-  pd = pd_build_unknot_wye(n,0,0);
-  strncpy(test_hash,pd->hash,PD_HASHSIZE);
-  printf("everything should have hash %s.\n",test_hash);
-  pd_code_free(&pd);
 
   pd_idx_t A,B;
 
@@ -262,10 +256,6 @@ bool test_unknot_wye_abcsum(pd_idx_t n) {
       fee[face++] = 2*(n+3);
       
       if (!face_edgevec_test(pd,fee)) { printf("FAIL (wrong # of edges per face)\n"); return false; }
-
-      printf("\t checking hash ... ");
-      if (strcmp(pd->hash,test_hash)) { printf("FAIL (hash %s != expected %s)\n",pd->hash,test_hash); return false; }
-      printf("pass.\n\n");
 
       pd_code_free(&pd);
       free(cee);

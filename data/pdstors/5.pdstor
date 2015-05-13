@@ -1,7 +1,7 @@
 pdstor 
-nelts 124/124 (claimed/actual) nhashes 92 
+nelts 124/124 (claimed/actual) nhashes 124 
 
-pd BQoHBAMDAwMCAgIGBAAAAAAAAAAAAAA 0
+pd BQoHBAMDAwMCAgIGBAACAwIDAgIIAvQ 0
 nv 5
 0 8 1 9 
 0 9 5 6 
@@ -31,7 +31,7 @@ nf 7
 2 : + 0 + 9 
 2 : - 3 + 7 
 
-pd BQoHBAQDAwICAgEKAAAAAAAAAAAAAAA 1
+pd BQoHBAQDAwICAgEKAAIEBPQAAAAAAAA 1
 nv 5
 0 5 9 4 
 0 6 1 5 
@@ -60,7 +60,7 @@ nf 7
 2 : - 2 - 8 
 2 : + 3 + 7 
 
-pd BQoHBAQDAwMCAQEKAAAAAAAAAAAAAAA 2
+pd BQoHBAQDAwMCAQEKAgECBAP0AAAAAAA 2
 nv 5
 0 2 9 3 
 0 8 1 7 
@@ -89,7 +89,7 @@ nf 7
 2 : - 3 - 9 
 1 : + 6 
 
-pd BQoHBAQEAwICAQMGAgIAAAAAAAAAAAA 3
+pd BQoHBAQEAwICAQMGAgIEAQID9AAAAAA 3
 nv 5
 0 6 1 7 
 0 7 5 6 
@@ -120,7 +120,7 @@ nf 7
 2 : + 0 + 7 
 1 : + 3 
 
-pd BQoHBAQEAwMBAQEKAAAAAAAAAAAAAAA 4
+pd BQoHBAQEAwMBAQEKCAIE9AAAAAAAAAA 4
 nv 5
 0 8 1 7 
 0 8 9 9 
@@ -149,7 +149,7 @@ nf 7
 1 : + 4 
 1 : - 9 
 
-pd BQoHBAQEBAIBAQEKAAAAAAAAAAAAAAA 5
+pd BQoHBAQEBAIBAQEKBAIC8AAAAAAAAAA 5
 nv 5
 0 3 9 2 
 0 6 1 5 
@@ -178,7 +178,7 @@ nf 7
 1 : - 4 
 1 : + 7 
 
-pd BQoHBQMDAwMCAQEKAAAAAAAAAAAAAAA 6
+pd BQoHBQMDAwMCAQEKAgEDAwMDAQIGBPU 6
 nv 5
 0 2 9 3 
 0 8 1 7 
@@ -207,7 +207,7 @@ nf 7
 2 : - 3 - 9 
 1 : - 6 
 
-pd BQoHBQQDAgICAgIIAgAAAAAAAAAAAAA 7
+pd BQoHBQQDAgICAgIIAgICAgQCBAIBAwH 7
 nv 5
 0 8 1 9 
 0 9 7 8 
@@ -237,36 +237,7 @@ nf 7
 2 : - 2 + 5 
 2 : + 3 - 6 
 
-pd BQoHBQQDAwICAQEKAAAAAAAAAAAAAAA 8
-nv 5
-0 2 9 3 
-0 7 1 8 
-1 9 2 8 
-3 7 4 6 
-4 6 5 5 
-ne 10
-0,0 -> 1,0 
-1,2 -> 2,0 
-2,2 -> 0,1 
-0,3 -> 3,0 
-3,2 -> 4,0 
-4,2 -> 4,3 
-4,1 -> 3,3 
-3,1 -> 1,1 
-1,3 -> 2,3 
-2,1 -> 0,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-5 : - 0 + 3 - 6 - 4 + 7 
-4 : - 1 - 7 - 3 - 9 
-3 : + 0 + 8 + 2 
-3 : + 4 - 5 + 6 
-2 : + 1 - 8 
-2 : - 2 + 9 
-1 : + 5 
-
-pd BQoHBQQDAwICAQEKAAAAAAAAAAAAAAA 9
+pd BQoHBQQDAwICAQEKAgEEAgMEAQIBAQI 8
 nv 5
 0 2 9 3 
 0 8 1 7 
@@ -295,7 +266,36 @@ nf 7
 2 : - 3 - 9 
 1 : + 5 
 
-pd BQoHBQQDAwICAQIIAgAAAAAAAAAAAAA 10
+pd BQoHBQQDAwICAQEKBAMDBAMEAQICA/U 9
+nv 5
+0 2 9 3 
+0 7 1 8 
+1 9 2 8 
+3 7 4 6 
+4 6 5 5 
+ne 10
+0,0 -> 1,0 
+1,2 -> 2,0 
+2,2 -> 0,1 
+0,3 -> 3,0 
+3,2 -> 4,0 
+4,2 -> 4,3 
+4,1 -> 3,3 
+3,1 -> 1,1 
+1,3 -> 2,3 
+2,1 -> 0,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+5 : - 0 + 3 - 6 - 4 + 7 
+4 : - 1 - 7 - 3 - 9 
+3 : + 0 + 8 + 2 
+3 : + 4 - 5 + 6 
+2 : + 1 - 8 
+2 : - 2 + 9 
+1 : + 5 
+
+pd BQoHBQQDAwICAQIIAgYCAwQEAwEBAQI 10
 nv 5
 0 4 1 3 
 0 4 7 5 
@@ -325,7 +325,7 @@ nf 7
 2 : - 2 + 9 
 1 : - 6 
 
-pd BQoHBQQDAwMBAQIIAgAAAAAAAAAAAAA 11
+pd BQoHBQQDAwMBAQIIAgYDAwMDAwEBAwX 11
 nv 5
 0 2 1 1 
 0 9 7 8 
@@ -355,7 +355,7 @@ nf 7
 1 : + 1 
 1 : - 5 
 
-pd BQoHBQQDAwMBAQIIAgAAAAAAAAAAAAA 12
+pd BQoHBQQDAwMBAQIIAgYDAwMDBAEBAgI 12
 nv 5
 0 1 1 2 
 0 9 7 8 
@@ -385,7 +385,7 @@ nf 7
 1 : - 1 
 1 : - 5 
 
-pd BQoHBQQEAgICAQIGBAAAAAAAAAAAAAA 13
+pd BQoHBQQEAgICAQIGBAICAgIEBAEDA/E 13
 nv 5
 0 6 5 9 
 0 7 1 6 
@@ -415,7 +415,7 @@ nf 7
 2 : - 5 + 9 
 1 : + 3 
 
-pd BQoHBQQEAgICAQMEBAIAAAAAAAAAAAA 14
+pd BQoHBQQEAgICAQMEBAIEAgQEBAQBAwH 14
 nv 5
 0 8 1 9 
 0 9 3 8 
@@ -446,65 +446,7 @@ nf 7
 2 : + 2 + 4 
 1 : + 6 
 
-pd BQoHBQQEAwIBAQEKAAAAAAAAAAAAAAA 15
-nv 5
-0 5 1 6 
-0 8 9 9 
-1 7 2 6 
-2 3 3 4 
-4 7 5 8 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 3,1 
-3,3 -> 4,0 
-4,2 -> 0,1 
-0,3 -> 2,3 
-2,1 -> 4,1 
-4,3 -> 1,1 
-1,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-5 : + 0 + 6 + 2 + 4 + 8 
-4 : - 0 + 9 - 8 + 5 
-4 : - 2 + 7 - 4 + 3 
-3 : - 1 - 5 - 7 
-2 : + 1 - 6 
-1 : - 3 
-1 : - 9 
-
-pd BQoHBQQEAwIBAQEKAAAAAAAAAAAAAAA 16
-nv 5
-0 7 1 8 
-0 8 9 9 
-1 6 2 7 
-2 5 3 6 
-3 4 4 5 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 4,0 
-4,2 -> 4,1 
-4,3 -> 3,1 
-3,3 -> 2,1 
-2,3 -> 0,1 
-0,3 -> 1,1 
-1,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-5 : - 0 + 9 - 8 + 1 + 7 
-4 : - 1 - 7 + 2 + 6 
-4 : - 2 - 6 + 3 + 5 
-3 : - 3 - 5 + 4 
-2 : + 0 + 8 
-1 : - 4 
-1 : - 9 
-
-pd BQoHBQQEAwIBAQEKAAAAAAAAAAAAAAA 17
+pd BQoHBQQEAwIBAQEKBAEDAgQDAQEBAQE 15
 nv 5
 0 3 9 2 
 0 6 1 5 
@@ -533,7 +475,65 @@ nf 7
 1 : - 4 
 1 : - 7 
 
-pd BQoHBQQEAwIBAQIGBAAAAAAAAAAAAAA 18
+pd BQoHBQQEAwIBAQEKBAIEBAQEAgEBAvQ 16
+nv 5
+0 5 1 6 
+0 8 9 9 
+1 7 2 6 
+2 3 3 4 
+4 7 5 8 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 3,1 
+3,3 -> 4,0 
+4,2 -> 0,1 
+0,3 -> 2,3 
+2,1 -> 4,1 
+4,3 -> 1,1 
+1,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+5 : + 0 + 6 + 2 + 4 + 8 
+4 : - 0 + 9 - 8 + 5 
+4 : - 2 + 7 - 4 + 3 
+3 : - 1 - 5 - 7 
+2 : + 1 - 6 
+1 : - 3 
+1 : - 9 
+
+pd BQoHBQQEAwIBAQEKCAECBAQCAQECAvQ 17
+nv 5
+0 7 1 8 
+0 8 9 9 
+1 6 2 7 
+2 5 3 6 
+3 4 4 5 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 4,0 
+4,2 -> 4,1 
+4,3 -> 3,1 
+3,3 -> 2,1 
+2,3 -> 0,1 
+0,3 -> 1,1 
+1,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+5 : - 0 + 9 - 8 + 1 + 7 
+4 : - 1 - 7 + 2 + 6 
+4 : - 2 - 6 + 3 + 5 
+3 : - 3 - 5 + 4 
+2 : + 0 + 8 
+1 : - 4 
+1 : - 9 
+
+pd BQoHBQQEAwIBAQIGBAYCBAMDBAEBAQE 18
 nv 5
 0 6 1 7 
 0 9 5 6 
@@ -563,7 +563,7 @@ nf 7
 1 : - 3 
 1 : + 8 
 
-pd BQoHBQQEBAEBAQIGBAAAAAAAAAAAAAA 19
+pd BQoHBQQEBAEBAQIGBAYBBAQEBAIB7QA 19
 nv 5
 0 2 1 1 
 0 7 5 8 
@@ -593,7 +593,7 @@ nf 7
 1 : + 4 
 1 : + 9 
 
-pd BQoHBQUCAgICAgEKAAAAAAAAAAAAAAA 20
+pd BQoHBQUCAgICAgEKAArxAAAAAAAAAAA 20
 nv 5
 0 5 9 4 
 0 6 1 5 
@@ -622,7 +622,7 @@ nf 7
 2 : - 3 + 8 
 2 : + 4 - 9 
 
-pd BQoHBQUDAgICAQIIAgAAAAAAAAAAAAA 21
+pd BQoHBQUDAgICAQIIAgYBAQMC9QAAAAA 21
 nv 5
 0 4 1 3 
 0 4 7 5 
@@ -652,7 +652,7 @@ nf 7
 2 : - 5 - 7 
 1 : + 6 
 
-pd BQoHBQUDAwIBAQEKAAAAAAAAAAAAAAA 22
+pd BQoHBQUDAwIBAQEKBAICBvUAAAAAAAA 22
 nv 5
 0 3 9 2 
 0 6 1 5 
@@ -681,7 +681,7 @@ nf 7
 1 : + 4 
 1 : - 7 
 
-pd BQoHBQUDAwIBAQIGBAAAAAAAAAAAAAA 23
+pd BQoHBQUDAwIBAQIGBAYBAQEBBPUAAAA 23
 nv 5
 0 6 1 7 
 0 9 5 6 
@@ -711,36 +711,7 @@ nf 7
 1 : - 3 
 1 : - 8 
 
-pd BQoHBQUEAgIBAQEKAAAAAAAAAAAAAAA 24
-nv 5
-0 7 1 8 
-0 8 9 9 
-1 6 2 7 
-2 5 3 6 
-3 5 4 4 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 4,0 
-4,2 -> 4,3 
-4,1 -> 3,1 
-3,3 -> 2,1 
-2,3 -> 0,1 
-0,3 -> 1,1 
-1,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-5 : - 0 + 9 - 8 + 1 + 7 
-5 : - 2 - 6 + 3 - 4 + 5 
-4 : - 1 - 7 + 2 + 6 
-2 : + 0 + 8 
-2 : - 3 - 5 
-1 : + 4 
-1 : - 9 
-
-pd BQoHBQUEAgIBAQEKAAAAAAAAAAAAAAA 25
+pd BQoHBQUEAgIBAQEKBAICAvEAAAAAAAA 24
 nv 5
 0 5 9 4 
 0 6 1 5 
@@ -769,7 +740,7 @@ nf 7
 1 : - 2 
 1 : - 7 
 
-pd BQoHBQUEAgIBAQEKAAAAAAAAAAAAAAA 26
+pd BQoHBQUEAgIBAQEKBAIE8QAAAAAAAAA 25
 nv 5
 0 5 9 4 
 0 6 1 5 
@@ -798,7 +769,36 @@ nf 7
 1 : + 2 
 1 : - 7 
 
-pd BQoHBQUEAwEBAQEKAAAAAAAAAAAAAAA 27
+pd BQoHBQUEAgIBAQEKCAIE8QAAAAAAAAA 26
+nv 5
+0 7 1 8 
+0 8 9 9 
+1 6 2 7 
+2 5 3 6 
+3 5 4 4 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 4,0 
+4,2 -> 4,3 
+4,1 -> 3,1 
+3,3 -> 2,1 
+2,3 -> 0,1 
+0,3 -> 1,1 
+1,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+5 : - 0 + 9 - 8 + 1 + 7 
+5 : - 2 - 6 + 3 - 4 + 5 
+4 : - 1 - 7 + 2 + 6 
+2 : + 0 + 8 
+2 : - 3 - 5 
+1 : + 4 
+1 : - 9 
+
+pd BQoHBQUEAwEBAQEKCAECAvQAAAAAAAA 27
 nv 5
 0 6 1 5 
 0 6 9 7 
@@ -827,7 +827,7 @@ nf 7
 1 : + 4 
 1 : - 8 
 
-pd BQoHBQUEAwEBAQIGBAAAAAAAAAAAAAA 28
+pd BQoHBQUEAwEBAQIGBAYBAgEC9QAAAAA 28
 nv 5
 0 2 1 1 
 0 7 5 8 
@@ -857,7 +857,7 @@ nf 7
 1 : - 4 
 1 : + 9 
 
-pd BQoHBQUEAwEBAQIIAgAAAAAAAAAAAAA 29
+pd BQoHBQUEAwEBAQIIAgYBAgIB9QAAAAA 29
 nv 5
 0 1 1 2 
 0 9 7 8 
@@ -887,7 +887,7 @@ nf 7
 1 : + 4 
 1 : - 6 
 
-pd BQoHBQUFAgEBAQEKAAAAAAAAAAAAAAA 30
+pd BQoHBQUFAgEBAQEKCAMC8QAAAAAAAAA 30
 nv 5
 0 6 1 5 
 0 6 9 7 
@@ -916,7 +916,7 @@ nf 7
 1 : + 4 
 1 : + 8 
 
-pd BQoHBgMDAgICAgMGAgIAAAAAAAAAAAA 31
+pd BQoHBgMDAgICAgMGAgIEAgMDAgMDAgI 31
 nv 5
 0 3 1 4 
 0 7 5 6 
@@ -947,7 +947,7 @@ nf 7
 2 : - 5 - 6 
 2 : + 5 - 7 
 
-pd BQoHBgMDAwICAQEKAAAAAAAAAAAAAAA 32
+pd BQoHBgMDAwICAQEKBAICAwMDAwECAgI 32
 nv 5
 0 7 9 6 
 0 8 1 7 
@@ -976,7 +976,7 @@ nf 7
 2 : + 6 - 9 
 1 : + 3 
 
-pd BQoHBgQDAgICAQEKAAAAAAAAAAAAAAA 33
+pd BQoHBgQDAgICAQEKBAECBAMEAgECAgI 33
 nv 5
 0 2 9 3 
 0 7 1 8 
@@ -1005,7 +1005,7 @@ nf 7
 2 : + 4 + 6 
 1 : - 5 
 
-pd BQoHBgQDAgICAQIGBAAAAAAAAAAAAAA 34
+pd BQoHBgQDAgICAQIGBAIBAwICAgMBAwM 34
 nv 5
 0 6 5 9 
 0 7 1 6 
@@ -1035,7 +1035,7 @@ nf 7
 2 : - 5 + 9 
 1 : - 3 
 
-pd BQoHBgQDAgICAQMEBAIAAAAAAAAAAAA 35
+pd BQoHBgQDAgICAQMEBAIEAQMEAgQDAQE 35
 nv 5
 0 8 1 9 
 0 9 3 8 
@@ -1066,7 +1066,7 @@ nf 7
 2 : + 2 + 4 
 1 : - 6 
 
-pd BQoHBgQDAwIBAQEKAAAAAAAAAAAAAAA 36
+pd BQoHBgQDAwIBAQEKBAEDAgQEAwEBAQE 36
 nv 5
 0 5 1 6 
 0 9 9 8 
@@ -1095,7 +1095,7 @@ nf 7
 1 : - 3 
 1 : + 9 
 
-pd BQoHBgQDAwIBAQEKAAAAAAAAAAAAAAA 37
+pd BQoHBgQDAwIBAQEKCAIDAwIEBAICAgL 37
 nv 5
 0 8 1 7 
 0 8 9 9 
@@ -1124,7 +1124,7 @@ nf 7
 1 : - 4 
 1 : - 9 
 
-pd BQoHBgQDAwIBAQIGBAAAAAAAAAAAAAA 38
+pd BQoHBgQDAwIBAQIGBAYDAwMDBAQBAQE 38
 nv 5
 0 2 5 3 
 0 6 1 7 
@@ -1154,7 +1154,7 @@ nf 7
 1 : - 4 
 1 : - 9 
 
-pd BQoHBgQDAwIBAQIIAgAAAAAAAAAAAAA 39
+pd BQoHBgQDAwIBAQIIAgYBAgMDAwIBAQI 39
 nv 5
 0 2 1 1 
 0 9 7 8 
@@ -1184,7 +1184,7 @@ nf 7
 1 : + 1 
 1 : + 5 
 
-pd BQoHBgQDAwIBAQIIAgAAAAAAAAAAAAA 40
+pd BQoHBgQDAwIBAQIIAgYBAgMEAwIBAQI 40
 nv 5
 0 1 1 2 
 0 9 7 8 
@@ -1214,7 +1214,7 @@ nf 7
 1 : - 1 
 1 : + 5 
 
-pd BQoHBgQEAgIBAQEKAAAAAAAAAAAAAAA 41
+pd BQoHBgQEAgIBAQEKBAEEBAEEBAIE8AA 41
 nv 5
 0 5 9 4 
 0 6 1 5 
@@ -1243,7 +1243,7 @@ nf 7
 1 : - 2 
 1 : + 7 
 
-pd BQoHBgQEAgIBAQIGBAAAAAAAAAAAAAA 42
+pd BQoHBgQEAgIBAQIGBAYBAgQCBAIBAQE 42
 nv 5
 0 6 1 7 
 0 9 5 6 
@@ -1273,7 +1273,7 @@ nf 7
 1 : + 3 
 1 : + 8 
 
-pd BQoHBgQEAwEBAQEKAAAAAAAAAAAAAAA 43
+pd BQoHBgQEAwEBAQEKCAEEBAQEBAEBAQL 43
 nv 5
 0 6 1 5 
 0 6 9 7 
@@ -1302,7 +1302,7 @@ nf 7
 1 : + 4 
 1 : - 8 
 
-pd BQoHBgQEAwEBAQIGBAAAAAAAAAAAAAA 44
+pd BQoHBgQEAwEBAQIGBAYBAwQBBAMBAgE 44
 nv 5
 0 1 1 2 
 0 7 5 8 
@@ -1332,37 +1332,7 @@ nf 7
 1 : + 4 
 1 : + 9 
 
-pd BQoHBgQEAwEBAQIIAgAAAAAAAAAAAAA 45
-nv 5
-0 1 1 2 
-0 9 7 8 
-2 8 3 9 
-3 4 4 5 
-5 6 6 7 
-ne 10
-1,0 -> 0,0 
-0,2 -> 0,1 
-0,3 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 3,1 
-3,3 -> 4,0 
-4,2 -> 4,1 
-4,3 -> 1,2 
-1,3 -> 2,1 
-2,3 -> 1,1 
-nc 2
-8 : 0 1 2 3 4 5 6 7 
-2 : 8 9 
-nf 7
-6 : - 3 - 8 - 7 + 6 - 5 + 4 
-4 : - 0 + 8 - 2 + 1 
-4 : + 3 + 5 + 7 - 9 
-3 : + 0 + 2 + 9 
-1 : - 1 
-1 : - 4 
-1 : - 6 
-
-pd BQoHBgQEAwEBAQIIAgAAAAAAAAAAAAA 46
+pd BQoHBgQEAwEBAQIIAgYBBAEEAwQBAgI 45
 nv 5
 0 2 1 1 
 0 9 7 8 
@@ -1392,7 +1362,37 @@ nf 7
 1 : - 4 
 1 : - 6 
 
-pd BQoHBgUCAgICAQMGAgIAAAAAAAAAAAA 47
+pd BQoHBgQEAwEBAQIIAgYBBAEEBAQBAgP 46
+nv 5
+0 1 1 2 
+0 9 7 8 
+2 8 3 9 
+3 4 4 5 
+5 6 6 7 
+ne 10
+1,0 -> 0,0 
+0,2 -> 0,1 
+0,3 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 3,1 
+3,3 -> 4,0 
+4,2 -> 4,1 
+4,3 -> 1,2 
+1,3 -> 2,1 
+2,3 -> 1,1 
+nc 2
+8 : 0 1 2 3 4 5 6 7 
+2 : 8 9 
+nf 7
+6 : - 3 - 8 - 7 + 6 - 5 + 4 
+4 : - 0 + 8 - 2 + 1 
+4 : + 3 + 5 + 7 - 9 
+3 : + 0 + 2 + 9 
+1 : - 1 
+1 : - 4 
+1 : - 6 
+
+pd BQoHBgUCAgICAQMGAgIEAQUCBQIFAQI 47
 nv 5
 0 7 5 6 
 0 8 1 9 
@@ -1423,65 +1423,7 @@ nf 7
 2 : + 5 - 7 
 1 : + 3 
 
-pd BQoHBgUDAgIBAQEKAAAAAAAAAAAAAAA 48
-nv 5
-0 7 1 8 
-0 8 9 9 
-1 6 2 7 
-2 6 3 5 
-3 5 4 4 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 4,0 
-4,2 -> 4,3 
-4,1 -> 3,3 
-3,1 -> 2,1 
-2,3 -> 0,1 
-0,3 -> 1,1 
-1,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-6 : - 1 - 7 + 2 - 5 - 3 + 6 
-5 : - 0 + 9 - 8 + 1 + 7 
-3 : + 3 - 4 + 5 
-2 : + 0 + 8 
-2 : - 2 - 6 
-1 : + 4 
-1 : - 9 
-
-pd BQoHBgUDAgIBAQEKAAAAAAAAAAAAAAA 49
-nv 5
-0 1 1 2 
-0 9 9 8 
-2 6 3 5 
-3 6 4 7 
-4 8 5 7 
-ne 10
-1,0 -> 0,0 
-0,2 -> 0,1 
-0,3 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 4,0 
-4,2 -> 2,3 
-2,1 -> 3,1 
-3,3 -> 4,3 
-4,1 -> 1,3 
-1,1 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-6 : - 0 - 8 - 4 - 6 - 2 + 1 
-5 : + 0 + 2 - 5 + 8 - 9 
-3 : + 3 + 7 + 5 
-2 : - 3 + 6 
-2 : + 4 - 7 
-1 : - 1 
-1 : + 9 
-
-pd BQoHBgUDAgIBAQEKAAAAAAAAAAAAAAA 50
+pd BQoHBgUDAgIBAQEKBAEFAQUDBQICAgH 48
 nv 5
 0 2 1 1 
 0 9 9 8 
@@ -1510,7 +1452,65 @@ nf 7
 1 : + 1 
 1 : + 9 
 
-pd BQoHBgUDAgIBAQIGBAAAAAAAAAAAAAA 51
+pd BQoHBgUDAgIBAQEKBAEFAgIFBQEBAgI 49
+nv 5
+0 1 1 2 
+0 9 9 8 
+2 6 3 5 
+3 6 4 7 
+4 8 5 7 
+ne 10
+1,0 -> 0,0 
+0,2 -> 0,1 
+0,3 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 4,0 
+4,2 -> 2,3 
+2,1 -> 3,1 
+3,3 -> 4,3 
+4,1 -> 1,3 
+1,1 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+6 : - 0 - 8 - 4 - 6 - 2 + 1 
+5 : + 0 + 2 - 5 + 8 - 9 
+3 : + 3 + 7 + 5 
+2 : - 3 + 6 
+2 : + 4 - 7 
+1 : - 1 
+1 : + 9 
+
+pd BQoHBgUDAgIBAQEKCAIDAwIFBQEBAgI 50
+nv 5
+0 7 1 8 
+0 8 9 9 
+1 6 2 7 
+2 6 3 5 
+3 5 4 4 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 4,0 
+4,2 -> 4,3 
+4,1 -> 3,3 
+3,1 -> 2,1 
+2,3 -> 0,1 
+0,3 -> 1,1 
+1,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+6 : - 1 - 7 + 2 - 5 - 3 + 6 
+5 : - 0 + 9 - 8 + 1 + 7 
+3 : + 3 - 4 + 5 
+2 : + 0 + 8 
+2 : - 2 - 6 
+1 : + 4 
+1 : - 9 
+
+pd BQoHBgUDAgIBAQIGBAYBAgUCBQIBAQE 51
 nv 5
 0 6 1 7 
 0 9 5 6 
@@ -1540,7 +1540,7 @@ nf 7
 1 : + 3 
 1 : - 8 
 
-pd BQoHBgUDAgIBAQIIAgAAAAAAAAAAAAA 52
+pd BQoHBgUDAgIBAQIIAgYCAwUFBQMCAQE 52
 nv 5
 0 5 1 6 
 0 9 7 8 
@@ -1570,7 +1570,7 @@ nf 7
 1 : - 2 
 1 : - 4 
 
-pd BQoHBgUDAgIBAQIIAgAAAAAAAAAAAAA 53
+pd BQoHBgUDAgIBAQIIAgYCBQMDBQUBAQE 53
 nv 5
 0 8 1 9 
 0 9 7 8 
@@ -1600,7 +1600,7 @@ nf 7
 1 : + 2 
 1 : - 5 
 
-pd BQoHBgUDAwEBAQEKAAAAAAAAAAAAAAA 54
+pd BQoHBgUDAwEBAQEKCAEFAwMFBQIBAgL 54
 nv 5
 0 4 1 3 
 0 9 9 8 
@@ -1629,7 +1629,7 @@ nf 7
 1 : - 6 
 1 : + 9 
 
-pd BQoHBgUDAwEBAQIGBAAAAAAAAAAAAAA 55
+pd BQoHBgUDAwEBAQIGBAYBAwUBBQMBAgI 55
 nv 5
 0 1 1 2 
 0 7 5 8 
@@ -1659,7 +1659,7 @@ nf 7
 1 : - 4 
 1 : + 9 
 
-pd BQoHBgUEAgEBAQEKAAAAAAAAAAAAAAA 56
+pd BQoHBgUEAgEBAQEKCAEEBAUFBAEBAQL 56
 nv 5
 0 6 1 5 
 0 6 9 7 
@@ -1688,37 +1688,7 @@ nf 7
 1 : + 4 
 1 : + 8 
 
-pd BQoHBgUEAgEBAQIGBAAAAAAAAAAAAAA 57
-nv 5
-0 1 1 2 
-0 5 5 4 
-2 7 3 6 
-3 9 4 6 
-7 9 8 8 
-ne 10
-1,0 -> 0,0 
-0,2 -> 0,1 
-0,3 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 1,3 
-1,1 -> 1,2 
-3,3 -> 2,3 
-2,1 -> 4,0 
-4,2 -> 4,3 
-4,1 -> 3,1 
-nc 2
-6 : 0 1 2 3 4 5 
-4 : 6 7 8 9 
-nf 7
-6 : - 0 - 4 - 9 - 7 - 2 + 1 
-5 : + 0 + 2 - 6 + 4 - 5 
-4 : - 3 + 7 - 8 + 9 
-2 : + 3 + 6 
-1 : - 1 
-1 : + 5 
-1 : + 8 
-
-pd BQoHBgUEAgEBAQIGBAAAAAAAAAAAAAA 58
+pd BQoHBgUEAgEBAQIGBAYBBQEFAgUBAgE 57
 nv 5
 0 2 1 1 
 0 5 5 4 
@@ -1748,7 +1718,37 @@ nf 7
 1 : + 5 
 1 : + 8 
 
-pd BQoHBgUFAQEBAQEKAAAAAAAAAAAAAAA 59
+pd BQoHBgUEAgEBAQIGBAYBBQQEBQUBAQE 58
+nv 5
+0 1 1 2 
+0 5 5 4 
+2 7 3 6 
+3 9 4 6 
+7 9 8 8 
+ne 10
+1,0 -> 0,0 
+0,2 -> 0,1 
+0,3 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 1,3 
+1,1 -> 1,2 
+3,3 -> 2,3 
+2,1 -> 4,0 
+4,2 -> 4,3 
+4,1 -> 3,1 
+nc 2
+6 : 0 1 2 3 4 5 
+4 : 6 7 8 9 
+nf 7
+6 : - 0 - 4 - 9 - 7 - 2 + 1 
+5 : + 0 + 2 - 6 + 4 - 5 
+4 : - 3 + 7 - 8 + 9 
+2 : + 3 + 6 
+1 : - 1 
+1 : + 5 
+1 : + 8 
+
+pd BQoHBgUFAQEBAQEKCAUFBQUFBQTtAAA 59
 nv 5
 0 5 1 6 
 0 9 9 8 
@@ -1777,7 +1777,7 @@ nf 7
 1 : + 7 
 1 : + 9 
 
-pd BQoHBgYDAgEBAQEKAAAAAAAAAAAAAAA 60
+pd BQoHBgYDAgEBAQEKCAECAgL2AAAAAAA 60
 nv 5
 0 4 1 3 
 0 9 9 8 
@@ -1806,7 +1806,7 @@ nf 7
 1 : + 6 
 1 : + 9 
 
-pd BQoHBgYDAgEBAQIGBAAAAAAAAAAAAAA 61
+pd BQoHBgYDAgEBAQIGBAYDAQEC9gAAAAA 61
 nv 5
 0 2 1 1 
 0 5 5 4 
@@ -1836,7 +1836,7 @@ nf 7
 1 : + 5 
 1 : - 8 
 
-pd BQoHBwMDAgICAQEKAAAAAAAAAAAAAAA 62
+pd BQoHBwMDAgICAQEKBAECAwICAwICAvM 62
 nv 5
 0 7 9 6 
 0 8 1 7 
@@ -1865,7 +1865,7 @@ nf 7
 2 : + 6 - 9 
 1 : - 3 
 
-pd BQoHBwMDAgICAQIIAgAAAAAAAAAAAAA 63
+pd BQoHBwMDAgICAQIIAgYCAwIDAgMDAQH 63
 nv 5
 0 3 1 4 
 0 4 7 5 
@@ -1895,7 +1895,7 @@ nf 7
 2 : + 2 + 9 
 1 : - 6 
 
-pd BQoHBwMDAwIBAQEKAAAAAAAAAAAAAAA 64
+pd BQoHBwMDAwIBAQEKBAEDAgMBAwMBBPM 64
 nv 5
 0 5 1 6 
 0 9 9 8 
@@ -1924,7 +1924,7 @@ nf 7
 1 : + 3 
 1 : + 9 
 
-pd BQoHBwMDAwIBAQIGBAAAAAAAAAAAAAA 65
+pd BQoHBwMDAwIBAQIGBAYBAwMDAwMDAQL 65
 nv 5
 0 2 5 3 
 0 6 1 7 
@@ -1954,36 +1954,7 @@ nf 7
 1 : - 4 
 1 : + 9 
 
-pd BQoHBwQDAgIBAQEKAAAAAAAAAAAAAAA 66
-nv 5
-0 7 1 8 
-0 8 9 9 
-1 7 2 6 
-2 6 3 5 
-3 5 4 4 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 4,0 
-4,2 -> 4,3 
-4,1 -> 3,3 
-3,1 -> 2,3 
-2,1 -> 0,1 
-0,3 -> 1,1 
-1,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-7 : - 0 + 9 - 8 + 1 - 6 - 2 + 7 
-4 : + 2 - 5 - 3 + 6 
-3 : + 3 - 4 + 5 
-2 : + 0 + 8 
-2 : - 1 - 7 
-1 : + 4 
-1 : - 9 
-
-pd BQoHBwQDAgIBAQEKAAAAAAAAAAAAAAA 67
+pd BQoHBwQDAgIBAQEKBAEEAQQCAgQCAfQ 66
 nv 5
 0 1 1 2 
 0 8 9 9 
@@ -2012,7 +1983,36 @@ nf 7
 1 : - 1 
 1 : - 9 
 
-pd BQoHBwQDAgIBAQIGBAAAAAAAAAAAAAA 68
+pd BQoHBwQDAgIBAQEKCAECAgQEAgIBAvQ 67
+nv 5
+0 7 1 8 
+0 8 9 9 
+1 7 2 6 
+2 6 3 5 
+3 5 4 4 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 4,0 
+4,2 -> 4,3 
+4,1 -> 3,3 
+3,1 -> 2,3 
+2,1 -> 0,1 
+0,3 -> 1,1 
+1,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+7 : - 0 + 9 - 8 + 1 - 6 - 2 + 7 
+4 : + 2 - 5 - 3 + 6 
+3 : + 3 - 4 + 5 
+2 : + 0 + 8 
+2 : - 1 - 7 
+1 : + 4 
+1 : - 9 
+
+pd BQoHBwQDAgIBAQIGBAYBAgMEBAMCAQE 68
 nv 5
 0 2 5 3 
 0 6 1 7 
@@ -2042,37 +2042,7 @@ nf 7
 1 : + 4 
 1 : - 9 
 
-pd BQoHBwQDAgIBAQIIAgAAAAAAAAAAAAA 69
-nv 5
-0 5 1 6 
-0 9 7 8 
-1 2 2 3 
-3 5 4 4 
-6 8 7 9 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 2,1 
-2,3 -> 3,0 
-3,2 -> 3,3 
-3,1 -> 0,1 
-0,3 -> 4,0 
-4,2 -> 1,2 
-1,3 -> 4,1 
-4,3 -> 1,1 
-nc 2
-8 : 0 1 2 3 4 5 6 7 
-2 : 8 9 
-nf 7
-7 : - 0 + 8 - 6 + 1 + 3 - 4 + 5 
-4 : - 1 - 5 - 3 + 2 
-3 : + 0 + 6 + 9 
-2 : - 7 - 8 
-2 : + 7 - 9 
-1 : - 2 
-1 : + 4 
-
-pd BQoHBwQDAgIBAQIIAgAAAAAAAAAAAAA 70
+pd BQoHBwQDAgIBAQIIAgYBBAIEAwMEAQH 69
 nv 5
 0 8 1 9 
 0 9 7 8 
@@ -2102,36 +2072,37 @@ nf 7
 1 : - 2 
 1 : - 5 
 
-pd BQoHBwQDAwEBAQEKAAAAAAAAAAAAAAA 71
+pd BQoHBwQDAgIBAQIIAgYBBAMCAwQEAQH 70
 nv 5
-0 8 1 7 
-0 8 9 9 
-1 3 2 2 
-3 6 4 7 
-4 5 5 6 
+0 5 1 6 
+0 9 7 8 
+1 2 2 3 
+3 5 4 4 
+6 8 7 9 
 ne 10
 1,0 -> 0,0 
 0,2 -> 2,0 
-2,2 -> 2,3 
-2,1 -> 3,0 
-3,2 -> 4,0 
-4,2 -> 4,1 
-4,3 -> 3,1 
-3,3 -> 0,3 
-0,1 -> 1,1 
-1,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
+2,2 -> 2,1 
+2,3 -> 3,0 
+3,2 -> 3,3 
+3,1 -> 0,1 
+0,3 -> 4,0 
+4,2 -> 1,2 
+1,3 -> 4,1 
+4,3 -> 1,1 
+nc 2
+8 : 0 1 2 3 4 5 6 7 
+2 : 8 9 
 nf 7
-7 : + 0 - 7 + 4 + 6 - 3 - 1 + 8 
-4 : + 1 - 2 + 3 + 7 
-3 : - 0 + 9 - 8 
-3 : - 4 - 6 + 5 
-1 : + 2 
-1 : - 5 
-1 : - 9 
+7 : - 0 + 8 - 6 + 1 + 3 - 4 + 5 
+4 : - 1 - 5 - 3 + 2 
+3 : + 0 + 6 + 9 
+2 : - 7 - 8 
+2 : + 7 - 9 
+1 : - 2 
+1 : + 4 
 
-pd BQoHBwQDAwEBAQEKAAAAAAAAAAAAAAA 72
+pd BQoHBwQDAwEBAQEKCAEDAQMEBAMBAvQ 71
 nv 5
 0 6 1 5 
 0 6 9 7 
@@ -2160,7 +2131,36 @@ nf 7
 1 : - 4 
 1 : - 8 
 
-pd BQoHBwQEAgEBAQIGBAAAAAAAAAAAAAA 73
+pd BQoHBwQDAwEBAQEKCAMDBAMDBAQCAew 72
+nv 5
+0 8 1 7 
+0 8 9 9 
+1 3 2 2 
+3 6 4 7 
+4 5 5 6 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 2,3 
+2,1 -> 3,0 
+3,2 -> 4,0 
+4,2 -> 4,1 
+4,3 -> 3,1 
+3,3 -> 0,3 
+0,1 -> 1,1 
+1,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+7 : + 0 - 7 + 4 + 6 - 3 - 1 + 8 
+4 : + 1 - 2 + 3 + 7 
+3 : - 0 + 9 - 8 
+3 : - 4 - 6 + 5 
+1 : + 2 
+1 : - 5 
+1 : - 9 
+
+pd BQoHBwQEAgEBAQIGBAYBBAEEBAQEAQL 73
 nv 5
 0 1 1 2 
 0 4 5 5 
@@ -2190,7 +2190,7 @@ nf 7
 1 : - 5 
 1 : + 8 
 
-pd BQoHBwUCAgIBAQEKAAAAAAAAAAAAAAA 74
+pd BQoHBwUCAgIBAQEKCAECAgUFAgIBAvE 74
 nv 5
 0 7 1 8 
 0 8 9 9 
@@ -2219,7 +2219,7 @@ nf 7
 1 : - 4 
 1 : - 9 
 
-pd BQoHBwUCAgIBAQIIAgAAAAAAAAAAAAA 75
+pd BQoHBwUCAgIBAQIIAgYBAgUCBQUCAQH 75
 nv 5
 0 8 1 9 
 0 9 7 8 
@@ -2249,65 +2249,7 @@ nf 7
 1 : + 2 
 1 : + 5 
 
-pd BQoHBwUDAgEBAQEKAAAAAAAAAAAAAAA 76
-nv 5
-0 5 1 6 
-0 6 9 7 
-1 2 2 3 
-3 4 4 5 
-7 8 8 9 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 2,1 
-2,3 -> 3,0 
-3,2 -> 3,1 
-3,3 -> 0,1 
-0,3 -> 1,1 
-1,3 -> 4,0 
-4,2 -> 4,1 
-4,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-7 : - 0 + 7 + 9 - 6 + 1 + 3 + 5 
-5 : - 1 - 5 + 4 - 3 + 2 
-3 : - 7 - 9 + 8 
-2 : + 0 + 6 
-1 : - 2 
-1 : - 4 
-1 : - 8 
-
-pd BQoHBwUDAgEBAQEKAAAAAAAAAAAAAAA 77
-nv 5
-0 6 1 5 
-0 6 9 7 
-1 2 2 3 
-3 4 4 5 
-7 9 8 8 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 2,1 
-2,3 -> 3,0 
-3,2 -> 3,1 
-3,3 -> 0,3 
-0,1 -> 1,1 
-1,3 -> 4,0 
-4,2 -> 4,3 
-4,1 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-7 : + 0 - 5 + 4 - 3 + 2 - 1 + 6 
-5 : - 0 + 7 - 8 + 9 - 6 
-3 : + 1 + 3 + 5 
-2 : - 7 - 9 
-1 : - 2 
-1 : - 4 
-1 : + 8 
-
-pd BQoHBwUDAgEBAQEKAAAAAAAAAAAAAAA 78
+pd BQoHBwUDAgEBAQEKCAECBQEFBQIBAvU 76
 nv 5
 0 4 1 3 
 0 9 9 8 
@@ -2336,7 +2278,65 @@ nf 7
 1 : - 6 
 1 : + 9 
 
-pd BQoHBwUDAgEBAQIGBAAAAAAAAAAAAAA 79
+pd BQoHBwUDAgEBAQEKCAEDAQMFBQMBAvE 77
+nv 5
+0 6 1 5 
+0 6 9 7 
+1 2 2 3 
+3 4 4 5 
+7 9 8 8 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 2,1 
+2,3 -> 3,0 
+3,2 -> 3,1 
+3,3 -> 0,3 
+0,1 -> 1,1 
+1,3 -> 4,0 
+4,2 -> 4,3 
+4,1 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+7 : + 0 - 5 + 4 - 3 + 2 - 1 + 6 
+5 : - 0 + 7 - 8 + 9 - 6 
+3 : + 1 + 3 + 5 
+2 : - 7 - 9 
+1 : - 2 
+1 : - 4 
+1 : + 8 
+
+pd BQoHBwUDAgEBAQEKCAIDAwIFBQUBAu0 78
+nv 5
+0 5 1 6 
+0 6 9 7 
+1 2 2 3 
+3 4 4 5 
+7 8 8 9 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 2,1 
+2,3 -> 3,0 
+3,2 -> 3,1 
+3,3 -> 0,1 
+0,3 -> 1,1 
+1,3 -> 4,0 
+4,2 -> 4,1 
+4,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+7 : - 0 + 7 + 9 - 6 + 1 + 3 + 5 
+5 : - 1 - 5 + 4 - 3 + 2 
+3 : - 7 - 9 + 8 
+2 : + 0 + 6 
+1 : - 2 
+1 : - 4 
+1 : - 8 
+
+pd BQoHBwUDAgEBAQIGBAYBAwUBBQUDAQE 79
 nv 5
 0 1 1 2 
 0 5 5 4 
@@ -2366,7 +2366,7 @@ nf 7
 1 : + 5 
 1 : - 8 
 
-pd BQoHBwUEAQEBAQEKAAAAAAAAAAAAAAA 80
+pd BQoHBwUEAQEBAQEKCAEEBAUFBQQBAu0 80
 nv 5
 0 5 1 6 
 0 9 9 8 
@@ -2395,7 +2395,7 @@ nf 7
 1 : - 7 
 1 : + 9 
 
-pd BQoHBwYCAgEBAQEKAAAAAAAAAAAAAAA 81
+pd BQoHBwYCAgEBAQEKCAECBgEGBgIBAvI 81
 nv 5
 0 4 1 3 
 0 9 9 8 
@@ -2424,7 +2424,7 @@ nf 7
 1 : + 6 
 1 : + 9 
 
-pd BQoHBwYCAgEBAQIIAgAAAAAAAAAAAAA 82
+pd BQoHBwYCAgEBAQIIAgYBBgEGAgYGAQH 82
 nv 5
 0 1 1 2 
 0 9 7 8 
@@ -2454,7 +2454,7 @@ nf 7
 1 : + 3 
 1 : + 5 
 
-pd BQoHBwYCAgEBAQIIAgAAAAAAAAAAAAA 83
+pd BQoHBwYCAgEBAQIIAgYBBgIGAQYGAQH 83
 nv 5
 0 1 1 2 
 0 9 7 8 
@@ -2484,36 +2484,7 @@ nf 7
 1 : + 3 
 1 : - 5 
 
-pd BQoHBwYDAQEBAQEKAAAAAAAAAAAAAAA 84
-nv 5
-0 2 1 1 
-0 9 9 8 
-2 3 3 4 
-4 7 5 8 
-5 6 6 7 
-ne 10
-1,0 -> 0,0 
-0,2 -> 0,3 
-0,1 -> 2,0 
-2,2 -> 2,1 
-2,3 -> 3,0 
-3,2 -> 4,0 
-4,2 -> 4,1 
-4,3 -> 3,1 
-3,3 -> 1,3 
-1,1 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-7 : - 0 - 8 + 5 + 7 - 4 + 3 - 2 
-6 : + 0 - 1 + 2 + 4 + 8 - 9 
-3 : - 5 - 7 + 6 
-1 : + 1 
-1 : - 3 
-1 : - 6 
-1 : + 9 
-
-pd BQoHBwYDAQEBAQEKAAAAAAAAAAAAAAA 85
+pd BQoHBwYDAQEBAQEKCAEGAQYBBgYBAvY 84
 nv 5
 0 2 1 1 
 0 9 9 8 
@@ -2542,7 +2513,36 @@ nf 7
 1 : - 6 
 1 : + 9 
 
-pd BQoHBwYDAQEBAQEKAAAAAAAAAAAAAAA 86
+pd BQoHBwYDAQEBAQEKCAEGAwMGBgYBAu4 85
+nv 5
+0 2 1 1 
+0 9 9 8 
+2 3 3 4 
+4 7 5 8 
+5 6 6 7 
+ne 10
+1,0 -> 0,0 
+0,2 -> 0,3 
+0,1 -> 2,0 
+2,2 -> 2,1 
+2,3 -> 3,0 
+3,2 -> 4,0 
+4,2 -> 4,1 
+4,3 -> 3,1 
+3,3 -> 1,3 
+1,1 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+7 : - 0 - 8 + 5 + 7 - 4 + 3 - 2 
+6 : + 0 - 1 + 2 + 4 + 8 - 9 
+3 : - 5 - 7 + 6 
+1 : + 1 
+1 : - 3 
+1 : - 6 
+1 : + 9 
+
+pd BQoHBwYDAQEBAQEKCAEGBgMDBgYBAu4 86
 nv 5
 0 1 1 2 
 0 9 9 8 
@@ -2571,7 +2571,7 @@ nf 7
 1 : - 6 
 1 : + 9 
 
-pd BQoHBwcCAQEBAQEKAAAAAAAAAAAAAAA 87
+pd BQoHBwcCAQEBAQEKCOoAAAAAAAAAAAA 87
 nv 5
 0 2 1 1 
 0 9 9 8 
@@ -2600,7 +2600,7 @@ nf 7
 1 : + 6 
 1 : + 9 
 
-pd BQoHCAMCAgICAQIIAgAAAAAAAAAAAAA 88
+pd BQoHCAMCAgICAQIIAgYBAgIDAgMCAgH 88
 nv 5
 0 3 1 4 
 0 4 7 5 
@@ -2630,7 +2630,7 @@ nf 7
 2 : - 5 - 7 
 1 : + 6 
 
-pd BQoHCAMDAgIBAQEKAAAAAAAAAAAAAAA 89
+pd BQoHCAMDAgIBAQEKCAICAwMCAgMDAus 89
 nv 5
 0 8 1 7 
 0 8 9 9 
@@ -2659,7 +2659,7 @@ nf 7
 1 : + 4 
 1 : - 9 
 
-pd BQoHCAMDAgIBAQIGBAAAAAAAAAAAAAA 90
+pd BQoHCAMDAgIBAQIGBAYBAgMDAQMDAgL 90
 nv 5
 0 2 5 3 
 0 6 1 7 
@@ -2689,7 +2689,7 @@ nf 7
 1 : + 4 
 1 : + 9 
 
-pd BQoHCAMDAgIBAQIIAgAAAAAAAAAAAAA 91
+pd BQoHCAMDAgIBAQIIAgYBAwEDAwIDAwH 91
 nv 5
 0 5 1 6 
 0 9 7 8 
@@ -2719,7 +2719,7 @@ nf 7
 1 : + 2 
 1 : + 4 
 
-pd BQoHCAMDAwEBAQEKAAAAAAAAAAAAAAA 92
+pd BQoHCAMDAwEBAQEKCAEDAwMDAwMDAus 92
 nv 5
 0 8 1 7 
 0 8 9 9 
@@ -2748,7 +2748,7 @@ nf 7
 1 : - 5 
 1 : - 9 
 
-pd BQoHCAQCAgIBAQIIAgAAAAAAAAAAAAA 93
+pd BQoHCAQCAgIBAQIIAgYBAgQBBAIEAgH 93
 nv 5
 0 8 1 9 
 0 9 7 8 
@@ -2778,7 +2778,7 @@ nf 7
 1 : - 2 
 1 : + 5 
 
-pd BQoHCAQDAgEBAQEKAAAAAAAAAAAAAAA 94
+pd BQoHCAQDAgEBAQEKCAECBAMDBAQCAQH 94
 nv 5
 0 7 1 8 
 0 8 9 9 
@@ -2807,7 +2807,7 @@ nf 7
 1 : - 6 
 1 : - 9 
 
-pd BQoHCAQDAgEBAQEKAAAAAAAAAAAAAAA 95
+pd BQoHCAQDAgEBAQEKCAEEAgMDAgQEAQH 95
 nv 5
 0 5 1 6 
 0 6 9 7 
@@ -2836,7 +2836,7 @@ nf 7
 1 : + 4 
 1 : - 8 
 
-pd BQoHCAQDAgEBAQIGBAAAAAAAAAAAAAA 96
+pd BQoHCAQDAgEBAQIGBAYBAwQBBAEEAwE 96
 nv 5
 0 1 1 2 
 0 4 5 5 
@@ -2866,36 +2866,7 @@ nf 7
 1 : - 5 
 1 : - 8 
 
-pd BQoHCAQEAQEBAQEKAAAAAAAAAAAAAAA 97
-nv 5
-0 5 1 6 
-0 9 9 8 
-1 2 2 3 
-3 5 4 4 
-6 7 7 8 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 2,1 
-2,3 -> 3,0 
-3,2 -> 3,3 
-3,1 -> 0,1 
-0,3 -> 4,0 
-4,2 -> 4,1 
-4,3 -> 1,3 
-1,1 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-8 : - 0 - 8 + 7 - 6 + 1 + 3 - 4 + 5 
-4 : + 0 + 6 + 8 - 9 
-4 : - 1 - 5 - 3 + 2 
-1 : - 2 
-1 : + 4 
-1 : - 7 
-1 : + 9 
-
-pd BQoHCAQEAQEBAQEKAAAAAAAAAAAAAAA 98
+pd BQoHCAQEAQEBAQEKCAEEBAEEBAQEAuw 97
 nv 5
 0 5 1 6 
 0 9 9 8 
@@ -2924,7 +2895,36 @@ nf 7
 1 : - 7 
 1 : + 9 
 
-pd BQoHCAUCAgEBAQEKAAAAAAAAAAAAAAA 99
+pd BQoHCAQEAQEBAQEKCAEEBAQBBAQEAuw 98
+nv 5
+0 5 1 6 
+0 9 9 8 
+1 2 2 3 
+3 5 4 4 
+6 7 7 8 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 2,1 
+2,3 -> 3,0 
+3,2 -> 3,3 
+3,1 -> 0,1 
+0,3 -> 4,0 
+4,2 -> 4,1 
+4,3 -> 1,3 
+1,1 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+8 : - 0 - 8 + 7 - 6 + 1 + 3 - 4 + 5 
+4 : + 0 + 6 + 8 - 9 
+4 : - 1 - 5 - 3 + 2 
+1 : - 2 
+1 : + 4 
+1 : - 7 
+1 : + 9 
+
+pd BQoHCAUCAgEBAQEKCAECAgUFBQICAu0 99
 nv 5
 0 5 1 6 
 0 6 9 7 
@@ -2953,7 +2953,7 @@ nf 7
 1 : - 4 
 1 : + 8 
 
-pd BQoHCAUCAgEBAQIIAgAAAAAAAAAAAAA 100
+pd BQoHCAUCAgEBAQIIAgYBBQEFAQUCBQH 100
 nv 5
 0 1 1 2 
 0 9 7 8 
@@ -2983,7 +2983,7 @@ nf 7
 1 : - 3 
 1 : - 5 
 
-pd BQoHCAUDAQEBAQEKAAAAAAAAAAAAAAA 101
+pd BQoHCAUDAQEBAQEKCAEDAQMFBQUDAu0 101
 nv 5
 0 5 1 6 
 0 9 9 8 
@@ -3012,7 +3012,7 @@ nf 7
 1 : + 7 
 1 : + 9 
 
-pd BQoHCAUDAQEBAQEKAAAAAAAAAAAAAAA 102
+pd BQoHCAUDAQEBAQEKCAEFAQUDAwUFAQH 102
 nv 5
 0 1 1 2 
 0 9 9 8 
@@ -3041,7 +3041,7 @@ nf 7
 1 : - 6 
 1 : + 9 
 
-pd BQoHCAUDAQEBAQEKAAAAAAAAAAAAAAA 103
+pd BQoHCAUDAQEBAQEKCAEFAwMFAQUFAQH 103
 nv 5
 0 2 1 1 
 0 8 9 9 
@@ -3070,7 +3070,7 @@ nf 7
 1 : - 6 
 1 : - 9 
 
-pd BQoHCAYCAQEBAQEKAAAAAAAAAAAAAAA 104
+pd BQoHCAYCAQEBAQEKCAECBgEGBgYCAu4 104
 nv 5
 0 2 1 1 
 0 9 9 8 
@@ -3099,7 +3099,7 @@ nf 7
 1 : + 6 
 1 : + 9 
 
-pd BQoHCAYCAQEBAQEKAAAAAAAAAAAAAAA 105
+pd BQoHCAYCAQEBAQEKCAECBgYBBgYCAu4 105
 nv 5
 0 1 1 2 
 0 9 9 8 
@@ -3128,36 +3128,7 @@ nf 7
 1 : + 6 
 1 : + 9 
 
-pd BQoHCAcBAQEBAQEKAAAAAAAAAAAAAAA 106
-nv 5
-0 1 1 2 
-0 9 9 8 
-2 4 3 3 
-4 6 5 5 
-6 7 7 8 
-ne 10
-1,0 -> 0,0 
-0,2 -> 0,1 
-0,3 -> 2,0 
-2,2 -> 2,3 
-2,1 -> 3,0 
-3,2 -> 3,3 
-3,1 -> 4,0 
-4,2 -> 4,1 
-4,3 -> 1,3 
-1,1 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-8 : + 0 + 2 - 3 + 4 - 5 + 6 + 8 - 9 
-7 : - 0 - 8 + 7 - 6 - 4 - 2 + 1 
-1 : - 1 
-1 : + 3 
-1 : + 5 
-1 : - 7 
-1 : + 9 
-
-pd BQoHCAcBAQEBAQEKAAAAAAAAAAAAAAA 107
+pd BQoHCAcBAQEBAQEKCAEHAQcBBwcH6gA 106
 nv 5
 0 2 1 1 
 0 9 9 8 
@@ -3186,7 +3157,36 @@ nf 7
 1 : - 7 
 1 : + 9 
 
-pd BQoHCQMCAgIBAQEKAAAAAAAAAAAAAAA 108
+pd BQoHCAcBAQEBAQEKCAEHAQcHAQcH6gA 107
+nv 5
+0 1 1 2 
+0 9 9 8 
+2 4 3 3 
+4 6 5 5 
+6 7 7 8 
+ne 10
+1,0 -> 0,0 
+0,2 -> 0,1 
+0,3 -> 2,0 
+2,2 -> 2,3 
+2,1 -> 3,0 
+3,2 -> 3,3 
+3,1 -> 4,0 
+4,2 -> 4,1 
+4,3 -> 1,3 
+1,1 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+8 : + 0 + 2 - 3 + 4 - 5 + 6 + 8 - 9 
+7 : - 0 - 8 + 7 - 6 - 4 - 2 + 1 
+1 : - 1 
+1 : + 3 
+1 : + 5 
+1 : - 7 
+1 : + 9 
+
+pd BQoHCQMCAgIBAQEKCAECAgIDAwICAgH 108
 nv 5
 0 7 1 8 
 0 8 9 9 
@@ -3215,7 +3215,7 @@ nf 7
 1 : - 4 
 1 : - 9 
 
-pd BQoHCQMDAgEBAQEKAAAAAAAAAAAAAAA 109
+pd BQoHCQMDAgEBAQEKCAECAwEDAwMDAgH 109
 nv 5
 0 7 1 8 
 0 8 9 9 
@@ -3244,7 +3244,7 @@ nf 7
 1 : + 6 
 1 : - 9 
 
-pd BQoHCQMDAgEBAQEKAAAAAAAAAAAAAAA 110
+pd BQoHCQMDAgEBAQEKCAEDAQMCAwMCAwH 110
 nv 5
 0 5 1 6 
 0 6 9 7 
@@ -3273,36 +3273,7 @@ nf 7
 1 : + 4 
 1 : - 8 
 
-pd BQoHCQQCAgEBAQEKAAAAAAAAAAAAAAA 111
-nv 5
-0 7 1 8 
-0 8 9 9 
-1 5 2 4 
-2 3 3 4 
-5 6 6 7 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 3,1 
-3,3 -> 2,3 
-2,1 -> 4,0 
-4,2 -> 4,1 
-4,3 -> 0,1 
-0,3 -> 1,1 
-1,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-9 : - 0 + 9 - 8 + 1 - 4 + 3 - 2 + 5 + 7 
-4 : - 1 - 7 + 6 - 5 
-2 : + 0 + 8 
-2 : + 2 + 4 
-1 : - 3 
-1 : - 6 
-1 : - 9 
-
-pd BQoHCQQCAgEBAQEKAAAAAAAAAAAAAAA 112
+pd BQoHCQQCAgEBAQEKCAECAgQBBAQCAgH 111
 nv 5
 0 5 1 6 
 0 6 9 7 
@@ -3331,7 +3302,36 @@ nf 7
 1 : + 4 
 1 : + 8 
 
-pd BQoHCQQDAQEBAQEKAAAAAAAAAAAAAAA 113
+pd BQoHCQQCAgEBAQEKCAECBAIBAgQEAgH 112
+nv 5
+0 7 1 8 
+0 8 9 9 
+1 5 2 4 
+2 3 3 4 
+5 6 6 7 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 3,1 
+3,3 -> 2,3 
+2,1 -> 4,0 
+4,2 -> 4,1 
+4,3 -> 0,1 
+0,3 -> 1,1 
+1,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+9 : - 0 + 9 - 8 + 1 - 4 + 3 - 2 + 5 + 7 
+4 : - 1 - 7 + 6 - 5 
+2 : + 0 + 8 
+2 : + 2 + 4 
+1 : - 3 
+1 : - 6 
+1 : - 9 
+
+pd BQoHCQQDAQEBAQEKCAEDAQMEAQQEAwH 113
 nv 5
 0 5 1 6 
 0 9 9 8 
@@ -3360,7 +3360,7 @@ nf 7
 1 : - 7 
 1 : + 9 
 
-pd BQoHCQQDAQEBAQEKAAAAAAAAAAAAAAA 114
+pd BQoHCQQDAQEBAQEKCAEEAQQBBAMDBAH 114
 nv 5
 0 1 1 2 
 0 8 9 9 
@@ -3389,7 +3389,7 @@ nf 7
 1 : - 6 
 1 : - 9 
 
-pd BQoHCQUCAQEBAQEKAAAAAAAAAAAAAAA 115
+pd BQoHCQUCAQEBAQEKCAECBQEFAQUFAgH 115
 nv 5
 0 1 1 2 
 0 9 9 8 
@@ -3418,7 +3418,7 @@ nf 7
 1 : + 6 
 1 : + 9 
 
-pd BQoHCQUCAQEBAQEKAAAAAAAAAAAAAAA 116
+pd BQoHCQUCAQEBAQEKCAECBQEFBQEFAgH 116
 nv 5
 0 2 1 1 
 0 8 9 9 
@@ -3447,7 +3447,7 @@ nf 7
 1 : + 6 
 1 : - 9 
 
-pd BQoHCQYBAQEBAQEKAAAAAAAAAAAAAAA 117
+pd BQoHCQYBAQEBAQEKCAEGAQYBBgEGBgH 117
 nv 5
 0 1 1 2 
 0 9 9 8 
@@ -3476,7 +3476,7 @@ nf 7
 1 : - 7 
 1 : + 9 
 
-pd BQoHCgICAgIBAQEKAAAAAAAAAAAAAAA 118
+pd BQoHCgICAgIBAQEKCAECAgICAQICAgL 118
 nv 5
 0 7 1 8 
 0 8 9 9 
@@ -3505,36 +3505,7 @@ nf 7
 1 : + 4 
 1 : - 9 
 
-pd BQoHCgMCAgEBAQEKAAAAAAAAAAAAAAA 119
-nv 5
-0 7 1 8 
-0 8 9 9 
-1 5 2 4 
-2 3 3 4 
-5 7 6 6 
-ne 10
-1,0 -> 0,0 
-0,2 -> 2,0 
-2,2 -> 3,0 
-3,2 -> 3,1 
-3,3 -> 2,3 
-2,1 -> 4,0 
-4,2 -> 4,3 
-4,1 -> 0,1 
-0,3 -> 1,1 
-1,3 -> 1,2 
-nc 1
-10 : 0 1 2 3 4 5 6 7 8 9 
-nf 7
-10 : - 0 + 9 - 8 + 1 - 4 + 3 - 2 + 5 - 6 + 7 
-3 : - 1 - 7 - 5 
-2 : + 0 + 8 
-2 : + 2 + 4 
-1 : - 3 
-1 : + 6 
-1 : - 9 
-
-pd BQoHCgMCAgEBAQEKAAAAAAAAAAAAAAA 120
+pd BQoHCgMCAgEBAQEKCAECAgMBAwEDAgL 119
 nv 5
 0 5 1 6 
 0 6 9 7 
@@ -3563,7 +3534,36 @@ nf 7
 1 : + 4 
 1 : + 8 
 
-pd BQoHCgMDAQEBAQEKAAAAAAAAAAAAAAA 121
+pd BQoHCgMCAgEBAQEKCAECAwEDAgECAwL 120
+nv 5
+0 7 1 8 
+0 8 9 9 
+1 5 2 4 
+2 3 3 4 
+5 7 6 6 
+ne 10
+1,0 -> 0,0 
+0,2 -> 2,0 
+2,2 -> 3,0 
+3,2 -> 3,1 
+3,3 -> 2,3 
+2,1 -> 4,0 
+4,2 -> 4,3 
+4,1 -> 0,1 
+0,3 -> 1,1 
+1,3 -> 1,2 
+nc 1
+10 : 0 1 2 3 4 5 6 7 8 9 
+nf 7
+10 : - 0 + 9 - 8 + 1 - 4 + 3 - 2 + 5 - 6 + 7 
+3 : - 1 - 7 - 5 
+2 : + 0 + 8 
+2 : + 2 + 4 
+1 : - 3 
+1 : + 6 
+1 : - 9 
+
+pd BQoHCgMDAQEBAQEKCAEDAQMDAQMBAwP 121
 nv 5
 0 5 1 6 
 0 8 9 9 
@@ -3592,7 +3592,7 @@ nf 7
 1 : - 7 
 1 : - 9 
 
-pd BQoHCgQCAQEBAQEKAAAAAAAAAAAAAAA 122
+pd BQoHCgQCAQEBAQEKCAECBAEEAQQBBAL 122
 nv 5
 0 1 1 2 
 0 8 9 9 
@@ -3621,7 +3621,7 @@ nf 7
 1 : + 6 
 1 : - 9 
 
-pd BQoHCgUBAQEBAQEKAAAAAAAAAAAAAAA 123
+pd BQoHCgUBAQEBAQEKCAEFAQUBBQEFAQX 123
 nv 5
 0 2 1 1 
 0 9 9 8 

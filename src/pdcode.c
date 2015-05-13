@@ -1300,6 +1300,81 @@ void base64encode(unsigned char data[24],char *encoded) {
 
 }
 
+int pd_idx_cmp(const void *a,const void *b);
+
+int pd_buf_cmp(pd_idx_t *a, pd_idx_t *b, pd_idx_t len)
+{
+  pd_idx_t i;
+
+  for(i=0;i<len;i++) {
+
+    if (a[i] < b[i]) { return -1; }
+    else if (a[i] > b[i]) { return 1; }
+
+  }
+
+  return 0;
+}
+
+pd_idx_t *pd_canonicalorder(pd_idx_t *buf,pd_idx_t len)
+
+/* Given a buffer of <len> pd_idx_t, try all cyclic reorderings
+   and reversals to see which is the least in dictionary order. */
+  
+{
+  pd_idx_t *curbuf, *bestbuf;
+  pd_idx_t i,j;
+
+  curbuf = calloc(len,sizeof(pd_idx_t));
+  bestbuf = calloc(len,sizeof(pd_idx_t));
+
+  /* We start by setting curbuf and bestbuf to buf,
+     then loop over the possible cyclic reorderings. */
+  
+  memcpy(bestbuf,buf,len*sizeof(pd_idx_t));
+
+  /* First, try the forward reorderings. */
+
+  for(i=0;i<len;i++) {
+
+    for(j=0;j<len;j++) {
+
+      curbuf[j] = buf[(i+j)%len];
+
+    }
+
+    if (pd_buf_cmp(curbuf,bestbuf,len) < 0) {
+
+      memcpy(bestbuf,curbuf,len*sizeof(pd_idx_t));
+
+    }
+    
+  }
+
+  /* Next, try the backwards reorderings. */
+
+  for(i=0;i<len;i++) {
+
+    for(j=0;j<len;j++) {
+
+      curbuf[len-1-j] = buf[(i+j)%len];
+
+    }
+
+    if (pd_buf_cmp(curbuf,bestbuf,len) < 0) {
+
+      memcpy(bestbuf,curbuf,len*sizeof(pd_idx_t));
+
+    }
+    
+  }
+
+  free(curbuf);
+  return bestbuf;
+  
+}
+
+
 void pd_regenerate_hash(pd_code_t *pd)
 
 /* Fills in a (printable) hash string from component, face, crossing information. */
@@ -1321,16 +1396,54 @@ void pd_regenerate_hash(pd_code_t *pd)
    ...
    edges in comp n (shortest component)
 
-   and then base64encode to make it printable.
+   We then have information from the dual graph encoding how the faces fit together.
+   We start with some easy and well-defined quantities.
 
+   bigons in the dual graph (this is measure of how composite the diagram is)
+
+   IF there is a unique largest face, we then list the numbers of
+   edges on the faces going around the largest face. This vector can 
+   be canonicalized by reordering it clockwise and counterwise, and 
+   with all cyclic shifts, and then taking the first element in the 
+   (dictionary order) sort of these possibilities. Call this vector v.
+
+   v (canonical vector of largest-face adjacent face degrees)
+
+   We then construct an array, in order, of the following:
+
+   #edges joining monogon faces to bigon faces
+   #edges joining monogon faces to trigon faces
+   #edges joining monogon faces to quadrilateral faces
+   #edges joining monogon faces to pentagonal faces
+   #edges joining monogon faces to hexagonal faces
+
+   #edges joining bigon faces to bigon faces
+   #edges joining bigon faces to trigon faces
+   #edges joining bigon faces to quadrilateral faces
+   #edges joining bigon faces to pentagonal faces
+   #edges joining bigon faces to hexagonal faces
+
+   #edges joining trigon faces to trigon faces
+   #edges joining trigon faces to quadrilateral faces
+   #edges joining trigon faces to pentagonal faces
+   #edges joining trigon faces to hexagonal faces
+
+   Once we've built the array, we condense it by combining 
+   consecutive runs of zeros into numbers in the form 255 - (#zeros).
+
+   and then base64encode to make it printable. 
+   
 */
 
 {
-  assert(pd != NULL);
+   assert(pd != NULL);
 
-  unsigned char data[24];
+  unsigned char data[24] = {0,0,0,0,0,0,
+			    0,0,0,0,0,0,
+			    0,0,0,0,0,0,
+			    0,0,0,0,0,0};
   int i,face,comp;
-
+  
   data[0] = (unsigned char)(pd->ncross);
   data[1] = (unsigned char)(pd->nedges);
   data[2] = (unsigned char)(pd->nfaces);
@@ -1342,19 +1455,275 @@ void pd_regenerate_hash(pd_code_t *pd)
   }
 
   if(i < 24) { data[i++] = (unsigned char)(pd->ncomps); }
-
+  
   for(comp=0;comp<pd->ncomps && i < 24;i++,comp++) {
-
+    
     data[i] = (unsigned char)(pd->comp[comp].nedges);
+    
+  }
+  
+  /* Now we calculate bigons in the dual graph. We're going to do this 
+     quickly, so we go ahead and cache the faces which each edge is 
+     incident to. */
+
+  typedef struct incident_face_struct {
+
+    pd_idx_t f[2];
+
+  } incident_face_t;
+
+  incident_face_t *iface = calloc(pd->nedges,sizeof(incident_face_t));
+
+  int edge;
+
+  for(edge=0;edge<pd->nedges;edge++) {
+
+    iface[edge].f[0] = PD_UNSET_IDX;
+    iface[edge].f[1] = PD_UNSET_IDX;
+
+  }
+  
+  for(face=0;face<pd->nfaces;face++) {
+
+    for(edge=0;edge<pd->face[face].nedges;edge++) {
+
+      pd_idx_t te = pd->face[face].edge[edge];
+
+      if (iface[te].f[0] == PD_UNSET_IDX) {
+
+	iface[te].f[0] = face;
+
+      } else if (iface[te].f[1] == PD_UNSET_IDX) {
+
+	iface[te].f[1] = face;
+
+      } else {
+
+	printf("pd_regenerate_hash: Data corrupt! Edge %d appears on three faces (%d,%d,%d)\n",
+	       te,iface[te].f[0],iface[te].f[1],face);
+	exit(1);
+
+      }
+
+    }
 
   }
 
+  for(edge=0;edge<pd->nedges;edge++) {
+
+    assert(iface[edge].f[0] != PD_UNSET_IDX);
+    assert(iface[edge].f[1] != PD_UNSET_IDX);
+
+  }
+
+  /* Now we can look at the collection of faces adjacent to each face
+     and search for repeated faces. */
+
+  pd_idx_t dual_bigons = 0;
+  
+  pd_idx_t monogon_joins[7] = {0,0,0,0,0,0,0};
+  pd_idx_t bigon_joins[7] = {0,0,0,0,0,0,0};
+  pd_idx_t trigon_joins[7] = {0,0,0,0,0,0,0};
+  pd_idx_t combined_vector[21] = {0,0,0,0,0,0,0,
+				  0,0,0,0,0,0,0,
+				  0,0,0,0,0,0,0};
+
+  pd_idx_t compressed_vector[21] = {0,0,0,0,0,0,0,
+				    0,0,0,0,0,0,0,
+				    0,0,0,0,0,0,0};
+
+  pd_idx_t *V = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
+ 
+  for(face=0;face<pd->nfaces;face++) {
+
+    pd_idx_t j;
+    pd_idx_t *adjfaces = calloc(pd->face[face].nedges,sizeof(pd_idx_t));
+    
+    for(j=0;j<pd->face[face].nedges;j++) {  /* Clear adjfaces */
+
+      adjfaces[j] = PD_UNSET_IDX;
+
+    }
+
+    for(edge=0;edge<pd->face[face].nedges;edge++) { /* Fill adjfaces for this face. */
+
+      pd_idx_t te = pd->face[face].edge[edge];
+      adjfaces[edge] = (iface[te].f[0] == face) ? iface[te].f[1] : iface[te].f[0];
+
+    }
+
+    if (face == 0) { /* Construct the "V" vector */
+
+      for(edge=0;edge < pd->face[0].nedges;edge++) {
+
+	V[edge] = pd->face[adjfaces[edge]].nedges;
+
+      }
+
+    }
+
+    /* Look for dups by sorting and searching */
+
+    qsort(adjfaces,pd->face[face].nedges,sizeof(pd_idx_t),pd_idx_cmp);
+
+    for(j=0;j<pd->face[face].nedges-1;j++) {
+
+      if (adjfaces[j] == adjfaces[j+1]) { dual_bigons++; }
+
+    }
+
+    /* If this is a monogon or bigon, increment joins arrays */
+
+    if (pd->face[face].nedges == 1) {
+
+      if (pd->face[adjfaces[0]].nedges < 7) {
+
+	monogon_joins[pd->face[adjfaces[0]].nedges]++;
+
+      }
+
+    } else if (pd->face[face].nedges == 2) {
+
+      pd_idx_t te;
+
+      for(te = 0;te<pd->face[face].nedges; te++) {
+
+	if (pd->face[adjfaces[te]].nedges < 7) {
+
+	  bigon_joins[pd->face[adjfaces[te]].nedges]++;
+
+	}
+
+      }
+
+    } else if (pd->face[face].nedges == 3) {
+
+      pd_idx_t te;
+
+      for(te = 0;te<pd->face[face].nedges; te++) {
+
+	if (pd->face[adjfaces[te]].nedges < 7) {
+
+	  trigon_joins[pd->face[adjfaces[te]].nedges]++;
+
+	}
+
+      }
+
+    }
+    
+    free(adjfaces);
+
+  }
+
+  /* Now add the dual graph data to the "data" array. */
+    
+  if (i < 24) {
+
+    data[i++] = (unsigned char)(dual_bigons);
+
+  }
+
+  /* Now, IF there's a unique largest face, we go ahead and
+     canonicalize and insert the "V" vector. If not, we chuck it. */
+
+  bool face0largest = true;
+
+  for(face=1;face<pd->nfaces;face++) {
+
+    if (pd->face[face].nedges >= pd->face[0].nedges) {
+
+      face0largest = false;
+
+    }
+
+  }
+
+  if (!face0largest) {
+
+    free(V);
+
+  } else { /* Face 0 IS largest; so we can use V */
+
+    pd_idx_t *canonV = pd_canonicalorder(V,pd->face[0].nedges);
+    pd_idx_t j;
+    
+    for(j=0;i<24 && j<pd->face[0].nedges;i++,j++) {
+
+      data[i] = (unsigned char)(canonV[j]);
+
+    }
+
+    free(canonV);
+    free(V);
+
+  }   
+
+  /* Now we assemble the combined and compressed vectors */
+
+  pd_idx_t j = 0, k= 0;
+
+  for(j=0,k=3;k<7;k++,j++) {
+
+    combined_vector[j] = monogon_joins[k];
+
+  }
+
+  for(k=3;k<7;k++,j++) {
+
+    combined_vector[j] = bigon_joins[k];
+
+  }
+
+  for(k=3;k<7;k++,j++) {
+
+    combined_vector[j] = trigon_joins[k];
+
+  }
+
+  for(j=0,k=0;j<21;j++) { /* Read the combined vector */
+
+    if (combined_vector[j] != 0) {
+
+      compressed_vector[k++] = combined_vector[j];
+
+    } else {
+
+      /* We have some number of zeros. Start counting. */
+
+      compressed_vector[k] = 255; 
+
+      for(;j<21 && combined_vector[j] == 0;j++) {
+
+	compressed_vector[k]--;
+
+      }
+
+      /* We ended on a j that's NOT zero (or when j == 21). 
+	 We're about to increment j again, but we don't want to. 
+	 So it's ok to decrement it first, instead. */
+
+      j--;
+
+    }
+
+  }
+
+  
+  for(j=0;i < 24 && j < 21;i++,j++) {
+
+    data[i] = (unsigned char)(compressed_vector[j]);
+
+  }
+
+  free(iface);
+  
   for(;i < 24;i++) { data[i] = 0; } /* Pad any remaining space with zeros. */
 
   base64encode(data,pd->hash);
 
   pd->hash[31] = 0; /* Make sure that we end the string with a zero. */
-
+  
 }
 
 
@@ -2619,8 +2988,8 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
 	  "pd->nedges = %d;\n"
 	  "pd->ncomps = %d;\n"
 	  "pd->nfaces = %d;\n"
-	  "sprintf(pd->hash,\"%%s\",\"%s\");\n",
-	  pd->ncross,pd->nedges,pd->ncomps,pd->nfaces,pd->hash);
+	  ,
+	  pd->ncross,pd->nedges,pd->ncomps,pd->nfaces);
 
   pd_idx_t i,j;
 
@@ -2711,6 +3080,7 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
 
   fprintf(outfile,
 	  "\n/* End of data. */\n\n"
+	  "pd_regenerate_hash(pd);\n"
 	  "assert(pd_ok(pd));\n"
 	  "return pd;\n\n"
 	  "}\n\n");
@@ -2752,7 +3122,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
      want the sscanf pattern to reflect PD_HASHSIZE (which might change) */
 
   char hash_template[1024];
-  sprintf(hash_template," pd %%%d[a-zA-Z0-9;:] %%lu ",PD_HASHSIZE);
+  sprintf(hash_template," pd %%%d[a-zA-Z0-9+/] %%lu ",PD_HASHSIZE);
 
   int sscanf_result = sscanf(pd_line,hash_template,hash,&input_temp);
 
@@ -2770,7 +3140,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 	       "pd <hash> <uid>\n"
 	       "but hash == %s, which violates a hash rule\n"
 	       "the hash may be at most %d characters long\n"
-	       "and should only contain characters [a-zA-Z0-9;:]\n"
+	       "and should only contain characters [a-zA-Z0-9+/]\n"
 	       "\n"
 	       "If you don't know the hash, it should be omitted\n"
 	       "and this line should read\n"

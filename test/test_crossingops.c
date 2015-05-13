@@ -745,7 +745,6 @@ pd->ncross = 3;
 pd->nedges = 6;
 pd->ncomps = 1;
 pd->nfaces = 5;
-sprintf(pd->hash,"%s","AwYFBAMDAQEBBgAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -887,7 +886,7 @@ pd->face[4].or[0] = 0;
 
 
 /* End of data. */
-
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -905,7 +904,6 @@ pd->ncross = 2;
 pd->nedges = 4;
 pd->ncomps = 1;
 pd->nfaces = 4;
-sprintf(pd->hash,"%s","AgQEAwMBAQEEAAAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -1011,7 +1009,7 @@ pd->face[3].or[0] = 1;
 
 
 /* End of data. */
-
+pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -1130,7 +1128,6 @@ pd->ncross = 6;
 pd->nedges = 12;
 pd->ncomps = 2;
 pd->nfaces = 8;
-sprintf(pd->hash,"%s","BgwIBgQDAwMCAgECBgYAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -1387,7 +1384,7 @@ pd->face[7].or[0] = 1;
 
 
 /* End of data. */
-
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -1405,7 +1402,6 @@ pd->ncross = 5;
 pd->nedges = 10;
 pd->ncomps = 2;
 pd->nfaces = 7;
-sprintf(pd->hash,"%s","BQoHBAMDAwMCAgIGBAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -1627,6 +1623,7 @@ pd->face[6].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -1738,7 +1735,6 @@ pd->ncross = 8;
 pd->nedges = 16;
 pd->ncomps = 2;
 pd->nfaces = 10;
-sprintf(pd->hash,"%s","CBAKBQQEBAMDAwMCAQIKBgAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -2068,6 +2064,7 @@ pd->face[9].or[0] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -2085,7 +2082,6 @@ pd->ncross = 7;
 pd->nedges = 14;
 pd->ncomps = 2;
 pd->nfaces = 9;
-sprintf(pd->hash,"%s","Bw4JBAQDAwMDAwMCAgoEAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -2379,6 +2375,7 @@ pd->face[8].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -2492,7 +2489,6 @@ pd->ncross = 15;
 pd->nedges = 30;
 pd->ncomps = 3;
 pd->nfaces = 17;
-sprintf(pd->hash,"%s","Dx4RBwcFBAQEBAMDAwMDAwICAgEDDAw");
 
 /* Crossing data. */
 
@@ -3081,6 +3077,7 @@ pd->face[16].or[0] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -3098,7 +3095,6 @@ pd->ncross = 14;
 pd->nedges = 28;
 pd->ncomps = 3;
 pd->nfaces = 16;
-sprintf(pd->hash,"%s","DhwQBwUFBAQEAwMDAwMDAwICAgMMDAQ");
 
 /* Crossing data. */
 
@@ -3651,6 +3647,7 @@ pd->face[15].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -3775,7 +3772,6 @@ pd->ncross = 4;
 pd->nedges = 8;
 pd->ncomps = 1;
 pd->nfaces = 6;
-sprintf(pd->hash,"%s","BAgGBQMDAgIBAQgAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -3954,6 +3950,7 @@ pd->face[5].or[0] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -3971,7 +3968,6 @@ pd->ncross = 3;
 pd->nedges = 6;
 pd->ncomps = 1;
 pd->nfaces = 5;
-sprintf(pd->hash,"%s","AwYFAwMCAgIBBgAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -4114,6 +4110,7 @@ pd->face[4].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -4234,7 +4231,6 @@ pd->ncross = 6;
 pd->nedges = 12;
 pd->ncomps = 2;
 pd->nfaces = 8;
-sprintf(pd->hash,"%s","BgwIBQUDAwICAgICCgIAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -4492,6 +4488,7 @@ pd->face[7].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -4511,7 +4508,6 @@ pd->ncross = 4;
 pd->nedges = 8;
 pd->ncomps = 1;
 pd->nfaces = 6;
-sprintf(pd->hash,"%s","BAgGAwMDAwICAQgAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -4690,6 +4686,7 @@ pd->face[5].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -4707,7 +4704,6 @@ pd->ncross = 0;
 pd->nedges = 1;
 pd->ncomps = 1;
 pd->nfaces = 2;
-sprintf(pd->hash,"%s","AAECAQEBAQAAAAAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -4754,6 +4750,7 @@ pd->face[1].or[0] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -4868,7 +4865,7 @@ bool r2testA() {
     printf("\t testing for isomorphism with after configuration %d...",ct);
     if (!pd_isomorphic(newpd[ct],after[ct])) { 
       pd_printf("fail (output pd %PD ",newpd[ct]);
-      pd_printf("is not isomorphism to expected \"after\" configuration %PD\n",after[ct]);
+      pd_printf("is not isomorphic to expected \"after\" configuration %PD\n",after[ct]);
       return false;
     }
 
@@ -4911,7 +4908,6 @@ pd->ncross = 6;
 pd->nedges = 12;
 pd->ncomps = 1;
 pd->nfaces = 8;
-sprintf(pd->hash,"%s","BgwIBQQDAwMCAgIBDAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -5162,6 +5158,7 @@ pd->face[7].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -5181,7 +5178,6 @@ pd->ncross = 4;
 pd->nedges = 8;
 pd->ncomps = 1;
 pd->nfaces = 6;
-sprintf(pd->hash,"%s","BAgGBAQDAgIBAQgAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -5360,6 +5356,7 @@ pd->face[5].or[0] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -5517,7 +5514,6 @@ pd->ncross = 6;
 pd->nedges = 12;
 pd->ncomps = 2;
 pd->nfaces = 8;
-sprintf(pd->hash,"%s","BgwIBgYCAgICAgICBgYAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -5775,6 +5771,7 @@ pd->face[7].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -5794,7 +5791,6 @@ pd->ncross = 4;
 pd->nedges = 8;
 pd->ncomps = 2;
 pd->nfaces = 6;
-sprintf(pd->hash,"%s","BAgGBAQCAgICAgQEAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -5980,6 +5976,7 @@ pd->face[5].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -6132,7 +6129,6 @@ pd->ncross = 12;
 pd->nedges = 24;
 pd->ncomps = 3;
 pd->nfaces = 14;
-sprintf(pd->hash,"%s","DBgOCAcGBAMDAwICAgICAgIDCgoEAAA");
 
 /* Crossing data. */
 
@@ -6613,6 +6609,7 @@ pd->face[13].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -6632,7 +6629,6 @@ pd->ncross = 10;
 pd->nedges = 20;
 pd->ncomps = 3;
 pd->nfaces = 12;
-sprintf(pd->hash,"%s","ChQMCQcEAwMCAgICAgICAwoIAgAAAAA");
 
 /* Crossing data. */
 
@@ -7041,6 +7037,7 @@ pd->face[11].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -7197,7 +7194,6 @@ pd->ncross = 2;
 pd->nedges = 4;
 pd->ncomps = 1;
 pd->nfaces = 4;
-sprintf(pd->hash,"%s","AgQEBAIBAQEEAAAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -7304,6 +7300,7 @@ pd->face[3].or[0] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -7323,7 +7320,6 @@ pd->ncross = 0;
 pd->nedges = 1;
 pd->ncomps = 1;
 pd->nfaces = 2;
-sprintf(pd->hash,"%s","AAECAQEBAQAAAAAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -7370,6 +7366,7 @@ pd->face[1].or[0] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -7521,7 +7518,6 @@ pd->ncross = 3;
 pd->nedges = 6;
 pd->ncomps = 1;
 pd->nfaces = 5;
-sprintf(pd->hash,"%s","AwYFAwMCAgIBBgAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -7664,6 +7660,7 @@ pd->face[4].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -7683,7 +7680,6 @@ pd->ncross = 1;
 pd->nedges = 2;
 pd->ncomps = 1;
 pd->nfaces = 3;
-sprintf(pd->hash,"%s","AQIDAgEBAQIAAAAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -7754,6 +7750,7 @@ pd->face[2].or[0] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -7905,7 +7902,6 @@ pd->ncross = 10;
 pd->nedges = 20;
 pd->ncomps = 2;
 pd->nfaces = 12;
-sprintf(pd->hash,"%s","ChQMCgUEBAMCAgICAgICAgwIAAAAAAA");
 
 /* Crossing data. */
 
@@ -8307,6 +8303,7 @@ pd->face[11].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -8326,7 +8323,6 @@ pd->ncross = 5;
 pd->nedges = 10;
 pd->ncomps = 1;
 pd->nfaces = 7;
-sprintf(pd->hash,"%s","BQoHBQUCAgICAgEKAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -8541,6 +8537,7 @@ pd->face[6].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -8558,7 +8555,6 @@ pd->ncross = 3;
 pd->nedges = 6;
 pd->ncomps = 1;
 pd->nfaces = 5;
-sprintf(pd->hash,"%s","AwYFAwMCAgIBBgAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -8701,6 +8697,7 @@ pd->face[4].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -8860,7 +8857,6 @@ pd->ncross = 10;
 pd->nedges = 20;
 pd->ncomps = 3;
 pd->nfaces = 12;
-sprintf(pd->hash,"%s","ChQMBQUEBAQEBAICAgICAwwEBAAAAAA");
 
 /* Crossing data. */
 
@@ -9269,6 +9265,7 @@ pd->face[11].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -9288,7 +9285,6 @@ pd->ncross = 8;
 pd->nedges = 16;
 pd->ncomps = 3;
 pd->nfaces = 10;
-sprintf(pd->hash,"%s","CBAKBgUEBAMCAgICAgMKBAIAAAAAAAA");
 
 /* Crossing data. */
 
@@ -9625,6 +9621,7 @@ pd->face[9].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -9778,7 +9775,6 @@ pd->ncross = 10;
 pd->nedges = 20;
 pd->ncomps = 6;
 pd->nfaces = 12;
-sprintf(pd->hash,"%s","ChQMCgQEBAQCAgICAgICBgQEBAQCAgA");
 
 /* Crossing data. */
 
@@ -10208,6 +10204,7 @@ pd->face[11].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -10227,7 +10224,6 @@ pd->ncross = 4;
 pd->nedges = 8;
 pd->ncomps = 3;
 pd->nfaces = 6;
-sprintf(pd->hash,"%s","BAgGBAQCAgICAwQCAgAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -10420,6 +10416,7 @@ pd->face[5].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -10437,7 +10434,6 @@ pd->ncross = 4;
 pd->nedges = 8;
 pd->ncomps = 3;
 pd->nfaces = 6;
-sprintf(pd->hash,"%s","BAgGBAQCAgICAwQCAgAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -10630,6 +10626,7 @@ pd->face[5].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -10786,7 +10783,6 @@ pd->ncross = 11;
 pd->nedges = 22;
 pd->ncomps = 4;
 pd->nfaces = 13;
-sprintf(pd->hash,"%s","CxYNBQUEBAQEAwMDAwICAgQKBAQEAAA");
 
 /* Crossing data. */
 
@@ -11238,6 +11234,7 @@ pd->face[12].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -11257,7 +11254,6 @@ pd->ncross = 9;
 pd->nedges = 18;
 pd->ncomps = 4;
 pd->nfaces = 11;
-sprintf(pd->hash,"%s","CRILCAQEAwMDAwICAgIECgQCAgAAAAA");
 
 /* Crossing data. */
 
@@ -11637,6 +11633,7 @@ pd->face[10].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -11790,7 +11787,6 @@ pd->ncross = 6;
 pd->nedges = 12;
 pd->ncomps = 2;
 pd->nfaces = 8;
-sprintf(pd->hash,"%s","BgwIBAQEAwMCAgICCAQAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -12048,6 +12044,7 @@ pd->face[7].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -12067,7 +12064,6 @@ pd->ncross = 4;
 pd->nedges = 8;
 pd->ncomps = 2;
 pd->nfaces = 6;
-sprintf(pd->hash,"%s","BAgGBgMCAgIBAgYCAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -12253,6 +12249,7 @@ pd->face[5].or[0] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -12404,7 +12401,6 @@ pd->ncross = 7;
 pd->nedges = 14;
 pd->ncomps = 2;
 pd->nfaces = 9;
-sprintf(pd->hash,"%s","Bw4JBQUEAwMCAgICAgoEAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -12698,6 +12694,7 @@ pd->face[8].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -12717,7 +12714,6 @@ pd->ncross = 5;
 pd->nedges = 10;
 pd->ncomps = 2;
 pd->nfaces = 7;
-sprintf(pd->hash,"%s","BQoHBQQDAgICAgIIAgAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -12939,6 +12935,7 @@ pd->face[6].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -13091,7 +13088,6 @@ pd->ncross = 7;
 pd->nedges = 14;
 pd->ncomps = 1;
 pd->nfaces = 9;
-sprintf(pd->hash,"%s","Bw4JBgQEAwMCAgICAQ4AAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -13378,6 +13374,7 @@ pd->face[8].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -13397,7 +13394,6 @@ pd->ncross = 5;
 pd->nedges = 10;
 pd->ncomps = 1;
 pd->nfaces = 7;
-sprintf(pd->hash,"%s","BQoHBAQDAwICAgEKAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -13612,6 +13608,7 @@ pd->face[6].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -13762,7 +13759,6 @@ pd->ncross = 9;
 pd->nedges = 18;
 pd->ncomps = 2;
 pd->nfaces = 11;
-sprintf(pd->hash,"%s","CRILBQQEAwMDAwMDAwICDAYAAAAAAAA");
 
 /* Crossing data. */
 
@@ -14128,6 +14124,7 @@ pd->face[10].or[1] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -14147,7 +14144,6 @@ pd->ncross = 7;
 pd->nedges = 14;
 pd->ncomps = 2;
 pd->nfaces = 9;
-sprintf(pd->hash,"%s","Bw4JBAQDAwMDAwMCAgoEAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -14441,6 +14437,7 @@ pd->face[8].or[1] = 0;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -14593,7 +14590,6 @@ pd->ncross = 8;
 pd->nedges = 16;
 pd->ncomps = 3;
 pd->nfaces = 10;
-sprintf(pd->hash,"%s","CBAKBgQEBAQDAgICAQMIBAQAAAAAAAA");
 
 /* Crossing data. */
 
@@ -14930,6 +14926,7 @@ pd->face[9].or[0] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -14949,7 +14946,6 @@ pd->ncross = 6;
 pd->nedges = 12;
 pd->ncomps = 3;
 pd->nfaces = 8;
-sprintf(pd->hash,"%s","BgwICAQDAgICAgEDBgQCAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -15214,6 +15210,7 @@ pd->face[7].or[0] = 1;
 
 /* End of data. */
 
+ pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 

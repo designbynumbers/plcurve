@@ -10,7 +10,6 @@ pd->ncross = 1;
 pd->nedges = 2;
 pd->ncomps = 1;
 pd->nfaces = 3;
-sprintf(pd->hash,"%s","AQIDAgEBAQIAAAAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -81,6 +80,7 @@ pd->face[2].or[0] = 1;
 
 /* End of data. */
 
+pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
@@ -98,7 +98,6 @@ pd->ncross = 1;
 pd->nedges = 2;
 pd->ncomps = 1;
 pd->nfaces = 3;
-sprintf(pd->hash,"%s","AQIDAgEBAQIAAAAAAAAAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -169,6 +168,7 @@ pd->face[2].or[0] = 0;
 
 /* End of data. */
 
+pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 

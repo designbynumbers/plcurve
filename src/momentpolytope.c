@@ -255,7 +255,7 @@ int main(int argc,char *argv[]) {
     
     }
 
-    if (abs(edgelengths[0] - round(edgelengths[0])) < 1e-8 && integral_arg->count == 0) { 
+    if (fabs(edgelengths[0] - round(edgelengths[0])) < 1e-8 && integral_arg->count == 0) { 
 
       printf("momentpolytope: Warning! Failure to close distance is an integer (%g), but --integral option not specified.\n"
 	     "                Will continue the computation in floating point mode.\n",edgelengths[0]);

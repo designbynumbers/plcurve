@@ -10,7 +10,6 @@ pd->ncross = 6;
 pd->nedges = 12;
 pd->ncomps = 2;
 pd->nfaces = 8;
-sprintf(pd->hash,"%s","BgwIBQQDAwMDAgECBgYAAAAAAAAAAAA");
 
 /* Crossing data. */
 
@@ -268,6 +267,7 @@ pd->face[7].or[0] = 1;
 
 /* End of data. */
 
+pd_regenerate_hash(pd);
 assert(pd_ok(pd));
 return pd;
 
