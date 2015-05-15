@@ -1,4 +1,5 @@
 AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
+AM_CPPFLAGS = -I $(top_srcdir)/judy/src      # We'll need to find Judy.h here. 
 ACLOCAL_AMFLAGS = -I m4
 
 include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.h
@@ -76,6 +77,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
+libplCurveStatic_la_LIBADD = $(top_builddir)/judy/src/libJudy.la # Add the judy stuff
 
 libplCurve_la_SOURCES = plCurve.c \
 	plCurve.h \
@@ -140,6 +142,7 @@ libplCurve_la_SOURCES = plCurve.c \
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
+libplCurve_la_LIBADD = $(top_builddir)/judy/src/libJudy.la # Add the judy stuff
 
 libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c
 libnplCurve_la_CFLAGS = $(AM_CFLAGS)
