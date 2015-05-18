@@ -42,6 +42,9 @@
 
 typedef enum {SIGNED_CROSSINGS, UNSIGNED_CROSSINGS} pd_signcross_t;
 
+unsigned int pd_size(pd_code_t *pd);
+/* Total memory (bytes) used by this pd code */
+
 unsigned int pd_indexbits(unsigned int ncrossings);
 /* # of bits to store an edge index in an ncrossings pd code */
 

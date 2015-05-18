@@ -33,12 +33,8 @@
    #include<assert.h>
 #endif
 
-#ifdef HAVE_ARGTABLE2_H
-  #include<argtable2.h>
-#endif
-
 #include<ordie.h>
-#include<plcTopology.h>
+#include<pdcode.h>
 
 #include<pd_multidx.h>
 #include<pd_perm.h>
@@ -48,7 +44,9 @@
 
 #include<pd_storage.h>
 
-int PD_VERBOSE=50;
+#include"argtable2.h" /* We use a local copy of argtable */
+
+int PD_VERBOSE=0;
 
 bool insert_torusknots(int nknots,pd_stor_t **pdstor)
 
@@ -56,6 +54,12 @@ bool insert_torusknots(int nknots,pd_stor_t **pdstor)
 
 {
   int i;
+
+  if (nknots + 2 > PD_MAXVERTS) {
+
+    nknots = PD_MAXVERTS-3;
+
+  }
 
   (*pdstor) = pd_new_pdstor();
 
@@ -69,7 +73,7 @@ bool insert_torusknots(int nknots,pd_stor_t **pdstor)
     pd_code_t *pd;
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-    pd_code_free(&pd);
+    free(pd);
 
   }
 
@@ -104,10 +108,17 @@ bool insert_torusknots(int nknots,pd_stor_t **pdstor)
 
 bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
 
-/* Insert nknots (distinct) torusknots into the pdstor, along with (many) duplicate entries. */
+/* Insert nknots (distinct) torusknots into the pdstor, 
+   along with (many) duplicate entries. */
 
 {
   int i;
+
+  if (nknots + 2 > PD_MAXVERTS) {
+
+    nknots = PD_MAXVERTS-3;
+
+  }
 
   (*pdstor) = pd_new_pdstor();
 
@@ -122,11 +133,11 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-    pd_code_free(&pd);
+    free(pd);
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do a repeat insert. */
-    pd_code_free(&pd);
+    free(pd);
 
   }
 
@@ -136,11 +147,11 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-    pd_code_free(&pd);
+    free(pd);
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do a repeat insert. */
-    pd_code_free(&pd);
+    free(pd);
 
   }
 
@@ -289,6 +300,12 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor)
 
   (*pdstor) = pd_new_pdstor();
 
+  if (n > PD_MAXVERTS-3) {
+
+    n = PD_MAXVERTS-3;
+
+  }
+
   printf("inserting all unknotted wyes with %d twists in pdstor with %d elements...",
 	 n,pd_stor_nelts(*pdstor));
 
@@ -301,7 +318,7 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor)
       pd_code_t *pd;
       pd = pd_build_unknot_wye(a,m-a,n-m);
       pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-      pd_code_free(&pd);
+      free(pd);
 
     }
 
@@ -315,13 +332,13 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor)
 
   unsigned int expected_nelts = count_unknotwye_isomorphism_types(n);
 
-  if (nhashes == 1 && nelts == expected_nelts) {
+  if (nelts == expected_nelts) {
 
-    printf("pass (nhashes %u == 1, nelts %u == expected_nelts %u).\n",nhashes,nelts,expected_nelts);
+    printf("pass (nhashes %u, nelts %u == expected_nelts %u).\n",nhashes,nelts,expected_nelts);
 
   } else {
 
-    printf("FAIL (nhashes %u != 1 || nelts %u != expected_nelts %u).\n",nhashes,nelts,expected_nelts);
+    printf("FAIL (nhashes %u, nelts %u != expected_nelts %u).\n",nhashes,nelts,expected_nelts);
     return false;
 
   }
@@ -493,7 +510,7 @@ bool should_succeed_iso_search(pd_code_t *pd,pd_stor_t *pdstor)
 
   pd_free_isos(&nisos,&isos);
   pd_free_isos(&check_nisos,&check_isos);
-  
+  free(retpd); /* This was a new allocation */
   return true;
   
 }
@@ -508,6 +525,12 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
   int i;
   pd_code_t *pd;
 
+  if (nknots > PD_MAXVERTS-3) {
+
+    nknots = PD_MAXVERTS-3;
+
+  }
+
   printf("testing copyinto and search for torusknots with up to %d crossings\n",nknots);
 
   (*pdstor) = pd_new_pdstor();
@@ -518,7 +541,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3); 
     if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    pd_code_free(&pd);
+    free(pd);
 
   }
 
@@ -534,7 +557,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3);
     pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
-    pd_code_free(&pd);
+    free(pd);
 
   }
 
@@ -564,7 +587,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3); 
     if (!should_succeed_iso_search(pd,*pdstor)) { return false; }
-    pd_code_free(&pd);
+    free(pd);
     
   }
 
@@ -572,12 +595,14 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
   
   printf("now searching for various knots/links which shouldn't be present ... ");
 
-  for(i=2;i<10;i++) {
+  for(i=2;i<PD_MAXVERTS-2;i++) {
 
     pd_code_t *pd;
     pd = pd_build_twist_knot(i);
-    if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    pd_code_free(&pd);
+    if (!should_fail_iso_search(pd,*pdstor)) {
+      printf("FAIL (found twist_knot %d)\n",i);
+      return false; }
+    free(pd);
 
   }
 
@@ -585,8 +610,10 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd_code_t *pd;
     pd = pd_build_simple_chain(i);
-    if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    pd_code_free(&pd);
+    if (!should_fail_iso_search(pd,*pdstor)) {
+      printf("FAIL (found simple_chain %d)\n",i);
+      return false; }
+    free(pd);
 
   }
 
@@ -594,10 +621,14 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd_code_t *pd;
     pd = pd_build_unknot(i);
-    if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    pd_code_free(&pd);
+    if (!should_fail_iso_search(pd,*pdstor)) {
+      printf("FAIL (found unknot %d)\n",i);
+      return false; }
+    free(pd);
 
   }
+
+  printf("pass\n");
 
   return true;
      
@@ -646,7 +677,7 @@ bool read_write_test()
   unsigned int VERB_STORE;
   VERB_STORE = PD_VERBOSE;
 
-  for(i=0;i<10;i++) {
+  for(i=0;i<PD_MAXVERTS-3;i++) {
 
     pd = pd_build_torus_knot(2,i+3); 
 
@@ -657,7 +688,7 @@ bool read_write_test()
     }
 
     pd_copyinto_pdstor(pdstor,pd);
-    pd_code_free(&pd);
+    free(pd);
 
   }
 
@@ -669,16 +700,20 @@ bool read_write_test()
 
       for(k=0;k<4;k++) {
 
-	pd = pd_build_unknot_wye(i,j,k);
+	if (i+j+k <= PD_MAXVERTS-3) { 
 
-	if (PD_VERBOSE > 20) {
+	  pd = pd_build_unknot_wye(i,j,k);
 	  
-	  printf("\t unknotwye (%d,%d,%d) hash -> %s \n",i,j,k,pd->hash);
+	  if (PD_VERBOSE > 20) {
+	    
+	    printf("\t unknotwye (%d,%d,%d) hash -> %s \n",i,j,k,pd->hash);
+	    
+	  }
 	  
+	  pd_copyinto_pdstor(pdstor,pd);
+	  free(pd);
+
 	}
-	
-	pd_copyinto_pdstor(pdstor,pd);
-	pd_code_free(&pd);
 
       }
 
@@ -794,6 +829,9 @@ bool read_write_test()
       return false;
 
     }
+
+    free(cmp_pd); free(pd); /* These are new-memory allocations from the 
+			       search functions. */
 
   }
    

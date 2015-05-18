@@ -340,7 +340,8 @@ unsigned int *pd_pack(pd_code_t *pd,unsigned int *packedlength)
   else { crtype = SIGNED_CROSSINGS; }
 
   unsigned int  idxbits = pd_indexbits(pd->ncross);
-  unsigned int  crossbits = 4*(1+idxbits) + (crtype == SIGNED_CROSSINGS ? 1 : 0); /* Bits per crossing */
+  unsigned int  crossbits = 4*(1+idxbits) + (crtype == SIGNED_CROSSINGS ? 1 : 0);
+  /* Bits per crossing */
   
   unsigned int *intstring = calloc(pd_packbits(pd->ncross,crtype),sizeof(unsigned int));
   int ofs;
@@ -411,15 +412,17 @@ pd_code_t *pd_unpack(unsigned int *bitform)
 
   }
   
-  pd_code_t *pd = calloc(1,sizeof(pd_code_t));
+  pd_code_t *pd = pd_code_new(ncross);
   pd->ncross = ncross;
 
   unsigned int nbits = pd_packbits(ncross,crtype);
   unsigned int idxbits = pd_indexbits(ncross);
+  unsigned int crossbits = 4*(1+idxbits) + (crtype == SIGNED_CROSSINGS ? 1 : 0);
+  /* Bits per crossing */
   unsigned int ofs=0,k;
   unsigned int *intstring = pd_unpackbitstring(&bitform[1],nbits);
 
-  for(ofs=0,k=0;k<pd->ncross;k++,ofs+=4+4*idxbits) {
+  for(ofs=0,k=0;k<pd->ncross;k++,ofs+=crossbits) {
 
     pd_crossing_bitdecode(&(intstring[ofs]),k,pd,crtype);
 
@@ -437,5 +440,32 @@ pd_code_t *pd_unpack(unsigned int *bitform)
   return pd;
 }
 
-    
+unsigned int pd_size(pd_code_t *pd)
+/* Total memory (bytes) used by this pd code */
   
+{
+  unsigned int sz = 0;
+
+  sz += sizeof(pd_code_t);
+  sz += pd->MAXVERTS * sizeof(pd_crossing_t);
+  sz += pd->MAXEDGES * sizeof(pd_edge_t);
+  sz += pd->MAXCOMPONENTS * sizeof(pd_component_t);
+  sz += pd->MAXFACES * sizeof(pd_face_t);
+  
+  int i;
+
+  for(i=0;i<pd->ncomps;i++) {
+
+    sz += pd->comp[i].nedges * sizeof(pd_idx_t);
+
+  }
+
+  for(i=0;i<pd->nfaces;i++) {
+
+    sz += pd->face[i].nedges * (sizeof(pd_idx_t) + sizeof(pd_or_t));
+
+  }
+
+  return sz;
+
+}
