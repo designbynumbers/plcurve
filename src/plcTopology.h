@@ -538,7 +538,7 @@ extern "C" {
      and can be searched with respect to this relation. */
   
   typedef struct pdstorage_struct pd_stor_t;
-  typedef enum {NONE, ISOMORPHISM, ISOTOPY} pd_equivalence_t;
+  typedef enum {NONE, ISOMORPHISM, DIAGRAM_ISOTOPY} pd_equivalence_t;
 
   pd_stor_t *pd_new_pdstor();
   /* Create new (empty) pdstor */

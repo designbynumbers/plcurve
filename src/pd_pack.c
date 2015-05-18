@@ -36,7 +36,7 @@
    #include<math.h>
 #endif
 
-#include<pdcode.h>
+#include<plcTopology.h>
 #include<pd_container.h>
 
 #include<pd_multidx.h>
@@ -73,7 +73,7 @@ unsigned int pd_indexbits(unsigned int ncrossings)
   return (unsigned int)(ceil(log2((double)(2*ncrossings))));
 }
 
-unsigned int pd_packbits(unsigned int ncross,pd_crossing_t crtype)
+unsigned int pd_packbits(unsigned int ncross,pd_signcross_t crtype)
 /* Returns the length (in bits) of the packed format for n crossing codes, not counting
    the size of the initial unsigned int giving the number of crossings. */
 {
@@ -208,7 +208,7 @@ pd_idx_t pd_idx_bitdecode(unsigned int *bitcode,unsigned int ncrossings)
   return i;
 }
 
-unsigned int *pd_crossing_bitencode(pd_idx_t cr,pd_code_t *pd,pd_crossing_t crtype)
+unsigned int *pd_crossing_bitencode(pd_idx_t cr,pd_code_t *pd,pd_signcross_t crtype)
 /* Encodes a crossing in the format 
    
    (head/tail 0 bit) (edge 0 index) ... (head/tail 3 bit) (edge 3 index)
@@ -251,7 +251,7 @@ unsigned int *pd_crossing_bitencode(pd_idx_t cr,pd_code_t *pd,pd_crossing_t crty
 
 }
 
-void pd_crossing_bitdecode(unsigned int *bitcode,pd_idx_t cr, pd_code_t *pd,pd_crossing_t crtype)
+void pd_crossing_bitdecode(unsigned int *bitcode,pd_idx_t cr, pd_code_t *pd,pd_signcross_t crtype)
 /* Decodes a crossing in the format
 
    (head/tail 0 bit) (edge 0 idx) ... (head/tail 3 bit) (edge 3 index)
@@ -324,7 +324,7 @@ unsigned int *pd_pack(pd_code_t *pd,unsigned int *packedlength)
 
   } else {
 
-    for(k=1;k<pd->cross;k++) {
+    for(k=1;k<pd->ncross;k++) {
 
       if (pd->cross[k].sign == PD_UNSET_ORIENTATION) { crossings_consistent = false; }
 
@@ -334,7 +334,7 @@ unsigned int *pd_pack(pd_code_t *pd,unsigned int *packedlength)
 
   assert(crossings_consistent);
 
-  pd_crossing_t crtype;
+  pd_signcross_t crtype;
 
   if (pd->cross[0].sign == PD_UNSET_ORIENTATION) { crtype = UNSIGNED_CROSSINGS; }
   else { crtype = SIGNED_CROSSINGS; }
@@ -397,7 +397,7 @@ pd_code_t *pd_unpack(unsigned int *bitform)
      of bitform[0] is negative. */
   
   pd_idx_t ncross;
-  pd_crossing_t crtype;
+  pd_signcross_t crtype;
   
   if ((int)(bitform[0]) > 0) {
 
@@ -414,7 +414,7 @@ pd_code_t *pd_unpack(unsigned int *bitform)
   pd_code_t *pd = calloc(1,sizeof(pd_code_t));
   pd->ncross = ncross;
 
-  unsigned int nbits = pd_packbits(ncross);
+  unsigned int nbits = pd_packbits(ncross,crtype);
   unsigned int idxbits = pd_indexbits(ncross);
   unsigned int ofs=0,k;
   unsigned int *intstring = pd_unpackbitstring(&bitform[1],nbits);
@@ -433,8 +433,7 @@ pd_code_t *pd_unpack(unsigned int *bitform)
 
   pd_regenerate(pd);
   assert(pd_ok(pd));
-
-  free(edge_used);
+  
   return pd;
 }
 

@@ -40,12 +40,12 @@
 #ifndef __PD_PACK_H 
 #define __PD_PACK_H 1
 
-typedef enum {SIGNED_CROSSINGS, UNSIGNED_CROSSINGS} pd_crossing_t;
+typedef enum {SIGNED_CROSSINGS, UNSIGNED_CROSSINGS} pd_signcross_t;
 
 unsigned int pd_indexbits(unsigned int ncrossings);
 /* # of bits to store an edge index in an ncrossings pd code */
 
-unsigned int pd_packbits(unsigned int ncrossm,pd_crossing_t crtype);
+unsigned int pd_packbits(unsigned int ncrossm,pd_signcross_t crtype);
 /* Returns the length (in bits) of the packed format for n crossing
    codes, not counting the size of the initial unsigned int giving the
    number of crossings. */
@@ -68,7 +68,7 @@ pd_idx_t pd_idx_bitdecode(unsigned int *bitcode,unsigned int ncrossings);
 /* Recover a pd_idx_t from an array of pd_indexbits(ncrossings) unsigned ints,
    each set to 1 or 0 */
 
-unsigned int *pd_crossing_bitencode(pd_idx_t cr,pd_code_t *pd,pd_crossing_t crtype);
+unsigned int *pd_crossing_bitencode(pd_idx_t cr,pd_code_t *pd,pd_signcross_t crtype);
 /* Encodes a crossing in the format  
 
    (head/tail 0 bit) (edge 0 index) ... (head/tail 3 bit) (edge 3 index)
@@ -82,7 +82,7 @@ unsigned int *pd_crossing_bitencode(pd_idx_t cr,pd_code_t *pd,pd_crossing_t crty
    Note that the head/tail bits are always 1:head, 0:tail.
 */
 
-void pd_crossing_bitdecode(unsigned int *bitcode,pd_idx_t cr,pd_code_t *pd,pd_crossing_t crtype);
+void pd_crossing_bitdecode(unsigned int *bitcode,pd_idx_t cr,pd_code_t *pd,pd_signcross_t crtype);
 /* Decodes a crossing in the format
 
    (head/tail 0 bit) (edge 0 idx) ... (head/tail 3 bit) (edge 3 index)

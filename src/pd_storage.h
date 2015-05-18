@@ -31,7 +31,7 @@
 
 /* The data type is private b/c it depends on Judy.h */
 
-typedef struct pdstorage_struct pd_stor_t;
+// typedef struct pdstorage_struct pd_stor_t;
 
 /* The pdstor type only contains a few primitives. */
 
@@ -90,7 +90,7 @@ pd_code_t      *pd_search_pdstor_by_hash_uid(pd_stor_t *pdstor,char *hash, pd_ui
 /* File I/O */
 
 void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor);
-pd_stor_t *pd_read_pdstor(FILE *stream);
+pd_stor_t *pd_read_pdstor(FILE *stream,pd_equivalence_t eq);
 
 /* Debugging code */
 
