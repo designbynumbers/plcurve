@@ -500,6 +500,7 @@ extern "C" {
 
   pd_code_t *pd_read_KnotTheory(FILE *infile); /* Returns NULL if the file is corrupt */
 
+
   bool pd_diagram_isotopic(pd_code_t *A, pd_code_t *B);
   /* Detect whether two pd_codes correspond to diagrams of labelled, oriented
      components related by an isotopy of the 2-sphere or an isotopy of the 2-sphere
@@ -528,6 +529,52 @@ extern "C" {
   /* This method will generate pd code objects and return the call
      to pd_isomorphic. The purpose is to call this from Python via
      SWIG. */
+
+  /* PD storage. We define a flexible container type. It can be
+     queried by isomorphism type and inserted in almost linear time,
+     and comfortably holds millions of pd_code_t objects in memory. 
+
+     The container holds pd_code_t's up to an equivalence relation,
+     and can be searched with respect to this relation. */
+  
+  typedef struct pdstorage_struct pd_stor_t;
+  typedef enum {NONE, ISOMORPHISM, ISOTOPY} pd_equivalence_t;
+
+  pd_stor_t *pd_new_pdstor();
+  /* Create new (empty) pdstor */
+
+  void pd_free_pdstor(pd_stor_t **pdstor);
+  /* Delete pdstor (and all associated memory) */
+
+  void pd_addto_pdstor(pd_stor_t *pdstor, pd_code_t *pd,pd_equivalence_t eq);
+  /* Add a new-memory copy of pd to pdstor, unless an equivalent pd_code_t 
+     is already stored. Note: If eq == NONE, then we always stored, even if 
+     this is an exact duplicated of a previous entry. */
+  
+  pd_code_t *pd_stor_firstelt(pd_stor_t *pdstor); 
+  
+  /* Finds the first element of pdstor, and initializes the internal
+     state of pdstor. Note that this internal state will go stale if an
+     insert or delete operation is performed, and so it's reset if we do
+     an insert. */
+  
+  pd_code_t *pd_stor_nextelt(pd_stor_t *pdstor);
+  /* Can be repeatedly called until it returns NULL to iterate over a
+     pdstor. As with pdstor_firstelt, this depends on an internal state
+     which goes stale and is reset whenever an insert or delete
+     operation is performed. */
+
+  void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor);
+
+  pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq);
+  /* Reads pdstor from file, storing elements up to equivalence relation eq.*/
+
+
+  /* TOPOLOGICAL OPERATIONS. 
+
+     Perform various knot-theoretic operations on a pd_code_t. 
+
+  */
 
   bool pd_is_alternating(pd_code_t *pd);
   /* Tests whether the pd code is alternating. Assumes that all the crossing

@@ -73,7 +73,9 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	pd_deletions.c \
 	naptable.h \
 	kascentpermutation.c \
-	hypersimplex_sampling.c
+	hypersimplex_sampling.c \
+	pd_pack.h \
+	pd_pack.c
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -138,7 +140,9 @@ libplCurve_la_SOURCES = plCurve.c \
 	pd_deletions.c \
 	naptable.h \
 	kascentpermutation.c \
-	hypersimplex_sampling.c
+	hypersimplex_sampling.c \
+	pd_pack.h \
+	pd_pack.c
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

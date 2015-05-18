@@ -176,6 +176,8 @@ AC_CONFIG_FILES([Makefile
                 pysrc/Makefile
                 tools/Makefile
 		test/Makefile])
+
+AC_CONFIG_SUBDIRS([judy])
 AC_OUTPUT
 
 echo \

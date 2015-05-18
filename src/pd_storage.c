@@ -33,7 +33,7 @@
 #endif
 
 /* In this version of the world, Judy.h is an installed header
-   under libpdcode/, or a local header in randomdiagram/judy/src. */
+   under libpdcode/, or a local header in plcurve/judy/src. */
 
 #include<Judy.h>
 
@@ -43,7 +43,7 @@
 //#include<thrift/Thrift.h>
 //#include<libcassie/cassie.h>
 
-#include<plcTopology.h>
+#include<pdcode.h>
 #include<pd_container.h>
 
 #include<pd_multidx.h>
@@ -52,6 +52,7 @@
   
 #include<pd_isomorphisms.h>
 #include<pd_storage.h>
+#include<pd_pack.h>
 
 struct pdstorage_struct {
 
@@ -59,11 +60,9 @@ struct pdstorage_struct {
 
   unsigned int nelts;
   
-  char         iter_hash[2*PD_HASHSIZE];
-  /* Extra-large; should only ever need to contain 32 chars */
+  char         iter_hash[64];   /* should only need 32 chars */
   pd_uid_t     iter_uid;
-  Word_t       *iter_PValue_hash;
-  /* Pointer to the current JudyL corresponding to iterator uid */
+  Word_t       *iter_PValue_hash;  /* ptr to current JudyL corresponding to iter_uid */
   
 };
 
@@ -97,7 +96,7 @@ pd_stor_t *pd_new_pdstor()
 void pd_free_pdstor(pd_stor_t **pdstor)
 {
   Word_t *PValue_hash; /* Top Level (Hash indexed JudySL) Pointer */
-  char    hash[32];
+  uint8_t hash[32];
   Word_t  bytes_freed_all_hashes;
 
   hash[0] = 0;
@@ -127,11 +126,11 @@ void pd_free_pdstor(pd_stor_t **pdstor)
 
     for(;PValue_uid != NULL;) { /* Iterates in JudyL */
 
-      /* At this point, PValue should be a pointer to a pointer an actual pd_code_t. */
+      /* At this point, PValue should be a pointer to a pointer to a packed pd_code_t. */
       /* Actually free the data (and clear the pointer too, while we're at it) */
  
-      assert((pd_code_t *)(*PValue_uid) != NULL); 
-      free((pd_code_t *)(*PValue_uid));
+      assert((unsigned int *)(*PValue_uid) != NULL); 
+      free((unsigned int *)(*PValue_uid));
       *PValue_uid = (Word_t)(NULL);
       max_uid = (pd_uid_t)(uid) > max_uid ? (pd_uid_t)(uid) : max_uid;
 
@@ -173,9 +172,9 @@ unsigned int pd_stor_nelts(pd_stor_t *pdstor)
   else { return pdstor->nelts; }
 }
 
-void pd_copyinto_pdstor(pd_stor_t *pdstor,pd_code_t *pd)
+void pd_addto_pdstor(pd_stor_t *pdstor,pd_code_t *pd,pd_equivalence_t eq)
 
-/* Given a pd_code copy it into the pdstor <=> it's not isomorphic to an existing elt. */ 
+/* Given a pd_code copy it into the pdstor if it's not equivalent to existing elt. */ 
 /* Assign a uid to any new insert, and update the uid of an existing insert. */
 
 {
@@ -193,7 +192,7 @@ void pd_copyinto_pdstor(pd_stor_t *pdstor,pd_code_t *pd)
      pd_stor_t is the root POINTER to the PJLArray of uids
      for this hash. */
   
-  JSLI(PValue_hash,pdstor->PJSLArray,/*(uint8_t *)*/(pd->hash));
+  JSLI(PValue_hash,pdstor->PJSLArray,(uint8_t *)(pd->hash));
   PJLArray = (Pvoid_t)(*PValue_hash); 
 
   /* PJLArray now maps to a JudyL (maybe an empty one!).
@@ -222,30 +221,36 @@ void pd_copyinto_pdstor(pd_stor_t *pdstor,pd_code_t *pd)
     for(;PValue_uid != NULL;) {
 
       last_ok_Index = Index; /* This index is present, so record it. */
-      
-      if (pd_isomorphic((pd_code_t *)(*PValue_uid),pd)) { /* We found it: Quit! */
+
+      pd_code_t *stored_pd = pd_unpack((unsigned int *)(*PValue_uid));
+      stored_pd->uid = (pd_uid_t)(Index);
+
+      if ((eq == ISOMORPHISM && pd_isomorphic(stored_pd,pd)) ||
+	  (eq == DIAGRAM_ISOTOPY && pd_diagram_isotopic(stored_pd,pd))) { /* We found it: Quit! */
 	
 	if (PD_VERBOSE > 20) {
 	  
-	  printf("\t pd_insert_pdstor: Attempting to insert pd code with hash %s and uid %d.\n"
-		 "\t                   Found isomorphic pd code with hash %s and uid %d present.\n"
+	  printf("\t pd_addto_pdstor: Attempting to insert pd code with hash %s and uid %d.\n"
+		 "\t                   Found equivalent (%s) pd code with hash %s and uid %d present.\n"
 		 "\t                   Resetting original uid (%d) to correct uid (%d).\n",
 		 pd->hash,
 		 (int)(pd->uid),
-		 ((pd_code_t *)(*PValue_uid))->hash,
-		 (int)((pd_code_t *)(*PValue_uid))->uid,
+		 (eq == ISOMORPHISM) ? "isomorphic" : "diagram isotopic",
+		 stored_pd->hash,
+		 (int)(stored_pd->uid),
 		 (int)(pd->uid),
-		 (int)((pd_code_t *)(*PValue_uid))->uid);
-	  
+		 (int)(stored_pd->uid));
+		 
 	}
-
-	assert( (pd_uid_t)(Index) == ((pd_code_t *)(*PValue_uid))->uid ); /* Check that uid is correctly set. */
-	pd->uid = (pd_uid_t)(Index);
+	
+	pd->uid = stored_pd->uid;
+	free(stored_pd);  
 	
 	return;
 	
       }
-      
+
+      free(stored_pd);
       JLN(PValue_uid,PJLArray,Index); /* Iterate to the next uid. */
       /* This will destroy "Index" if we are at the end of the list */
 
@@ -276,19 +281,18 @@ void pd_copyinto_pdstor(pd_stor_t *pdstor,pd_code_t *pd)
   JLI(PValue_uid,PJLArray,(Word_t)(new_uid));
   assert(*PValue_uid == 0); /* If this isn't a clean insert, crash out. */
 
-  /* Now we make a new-memory copy of the pd code */
-  
-  pd_code_t *pdA;
-  pdA = pd_copy(pd);
-  pdA->uid = new_uid;
+  /* Now we pack the pd code for memory storage*/
 
-  /* Now we do the insert, storing the POINTER to the new
-     pd code in the Value spot POINTED TO by
-     PValue_uid. */
+  unsigned int packsize;
+  unsigned int *pdp = pd_pack(pd,&packsize);
 
-  *PValue_uid = (Word_t)(pdA);  
+  /* Now we do the insert, storing the POINTER to the new pd code in
+     the Value spot POINTED TO by PValue_uid. */
 
-  /* Finally, we have to update the value of PValue_hash to reflect the new PJLArray value */
+  *PValue_uid = (Word_t)(pdp);  
+
+  /* Finally, we have to update the value of PValue_hash to reflect
+     the new PJLArray value */
 
   *PValue_hash = (Word_t)(PJLArray);
 
@@ -304,9 +308,9 @@ void pd_copyinto_pdstor(pd_stor_t *pdstor,pd_code_t *pd)
 
   if (PD_VERBOSE > 20) { 
 
-    printf("\t pd_insert_pdstor: Inserted pd with hash %s and (new) uid %d into storage.\n",
-	   pdA->hash,(int)(pdA->uid));
-
+    printf("\t pd_addto_pdstor: Inserted pd with hash %s and (new) uid %d into storage.\n",
+	   pd->hash,(int)(new_uid));
+    
   }
 
 }
@@ -322,7 +326,7 @@ pd_code_t *pd_stor_firstelt(pd_stor_t *pdstor)
   /* Step 1: Find the first hash */
 
   JSLF(pdstor->iter_PValue_hash,pdstor->PJSLArray,
-       /*(uint8_t *)*/(pdstor->iter_hash));  /* Find the first hash */
+       (uint8_t *)(pdstor->iter_hash));  /* Find the first hash */
 
   if (pdstor->iter_PValue_hash == NULL) { /* The PJSLArray is actually empty! */ 
 
@@ -342,8 +346,11 @@ pd_code_t *pd_stor_firstelt(pd_stor_t *pdstor)
     assert(PValue_uid != NULL); /* If the hash is present in the JudySL,
 				   it should contain at least one uid! */
     pdstor->iter_uid = (pd_uid_t)(Index);
+    pd_code_t *stored_pd = pd_unpack((unsigned int *)(*PValue_uid));
+    stored_pd->uid = (pd_uid_t)(Index);
+    /* PValue_uid points to a pointer to the packed representation of this pd_code. */
 
-    return (pd_code_t *)(*PValue_uid); /* PValue_uid points to a pointer to this pd_code. */
+    return stored_pd; 
 
   }
 
@@ -373,7 +380,7 @@ pd_code_t *pd_stor_nextelt(pd_stor_t *pdstor)
     /* We've reached the end of the current hash's JudyL and need to increment hashes */
 
     Word_t *PValue_hash;
-    JSLN(PValue_hash,pdstor->PJSLArray,/*(uint8_t *)*/(pdstor->iter_hash));
+    JSLN(PValue_hash,pdstor->PJSLArray,(uint8_t *)(pdstor->iter_hash));
 
     if (PValue_hash == NULL) {
 
@@ -397,14 +404,20 @@ pd_code_t *pd_stor_nextelt(pd_stor_t *pdstor)
 				      it shouldn't be an empty JudyL. */
       
       pdstor->iter_uid = (pd_uid_t)(Index);
-      return (pd_code_t *)(*PValue_uid);
+
+      /* Now unpack the element. */
+      pd_code_t *stored_pd = pd_unpack((unsigned int *)(*PValue_uid));
+      stored_pd->uid = (pd_uid_t)(Index);
+      return stored_pd;
   
     }
 
   } else { /* We found another uid in this hash's JudyL */
 
     pdstor->iter_uid = (pd_uid_t)(Index);
-    return (pd_code_t *)(*PValue_uid);
+    pd_code_t *stored_pd = pd_unpack((unsigned int *)(*PValue_uid));
+    stored_pd->uid = (pd_uid_t)(Index);
+    return stored_pd;
 
   }
 
@@ -415,16 +428,16 @@ pd_code_t *pd_stor_nextelt(pd_stor_t *pdstor)
 pd_code_t *pd_search_pdstor_by_isomorphism(pd_stor_t *pdstor,pd_code_t *pd,
 					   pd_iso_t ***pisos,unsigned int *nisos) 
 
-/* Return a pointer to the actual stored copy of the
-   unique pd in pdstor which is isomorphic to the given
-   pd, along with a buffer of (pointers to) all the
-   isomorphisms from pd to the stored copy. Returns NULL
-   if we can't find such a pd in storage. */
+/* Return a pointer to an unpacked version of the stored copy of the
+   unique pd in pdstor which is isomorphic to the given pd, along with
+   a buffer of (pointers to) all the isomorphisms from pd to the
+   stored copy. Returns NULL if we can't find such a pd in storage. */
 {
   PWord_t PValue_hash;
   Pvoid_t PJLArray;
 
-  JSLG(PValue_hash,pdstor->PJSLArray,/*(uint8_t *)*/(pd->hash)); /* Search for a matching hash */
+  JSLG(PValue_hash,pdstor->PJSLArray,(uint8_t *)(pd->hash));
+  /* Search for a matching hash */
 
   if (PValue_hash == NULL) { /* We didn't find one */
 
@@ -440,11 +453,13 @@ pd_code_t *pd_search_pdstor_by_isomorphism(pd_stor_t *pdstor,pd_code_t *pd,
   PWord_t PValue_uid;
 
   JLF(PValue_uid,PJLArray,Index);
-  assert(PValue_uid != NULL);    /* As before, we are supposed to have some index present. */
+  assert(PValue_uid != NULL);
+  /* As before, we are supposed to have some index present. */
   
   for(;PValue_uid != NULL;) {
 
-    pd_code_t    *stored_pd = (pd_code_t *)(*PValue_uid);
+    pd_code_t    *stored_pd = pd_unpack((unsigned int *)(*PValue_uid));
+    stored_pd->uid = (pd_uid_t)(Index);
     pd_iso_t     **isos;
 
     isos = pd_build_isos(pd,stored_pd,nisos);
@@ -455,6 +470,8 @@ pd_code_t *pd_search_pdstor_by_isomorphism(pd_stor_t *pdstor,pd_code_t *pd,
       return stored_pd;
 
     }
+
+    free(stored_pd); /* If we don't use the pd, we need to free it */
 
     JLN(PValue_uid,PJLArray,Index); /* Iterate to the next uid. */
     /* This will destroy "Index" if we are at the end of the list */
@@ -479,7 +496,7 @@ void pd_stor_stats(pd_stor_t *pdstor,unsigned int *nhashes,unsigned int *nelts)
 
 {
   Word_t  *PValue_hash; 
-  char     Index[2*PD_HASHSIZE];
+  uint8_t Index[64];
   Index[0] = 0;
   
   JSLF(PValue_hash,pdstor->PJSLArray,Index);
@@ -523,11 +540,11 @@ void pd_display_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representatio
   /* Now list each hash and uid separately using iterators. */
 
   pd_code_t *pd;
-  char       cur_hash[2*PD_HASHSIZE]; 
+  char       cur_hash[64]; 
   pd_uid_t   uid_min,uid_max;
 
   pd = pd_stor_firstelt(pdstor);
-  strncpy(cur_hash,pd->hash,PD_HASHSIZE);
+  strncpy(cur_hash,pd->hash,32);
   uid_min = pd->uid;
   uid_max = pd->uid;
 
@@ -551,7 +568,11 @@ void pd_display_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representatio
 
     }
 
+    free(pd); /* Remember that pd_stor_firstelt and nextelt allocate memory */
+
   }
+
+  free(pd);
 
   fprintf(stream,"%u \n",(unsigned int) uid_max);
       
@@ -586,19 +607,25 @@ void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representation 
 
   fprintf(stream,
 	  "pdstor \n"
-	  "nelts %u/%u (claimed/actual) nhashes %u \n\n",pd_stor_nelts(pdstor),nelts,nhashes);
+	  "nelts %u/%u (claimed/actual) nhashes %u \n\n",
+	  pd_stor_nelts(pdstor),nelts,nhashes);
 
   if (nelts == 0) { return; }
  
   /* Now iterate through the pdstor, writing each pd to disk */
 
+  pd_uid_t uid = 0;
   pd_code_t *pd;
-  for(pd = pd_stor_firstelt(pdstor);pd != NULL;pd = pd_stor_nextelt(pdstor)) {
+  for(pd = pd_stor_firstelt(pdstor);pd != NULL;pd = pd_stor_nextelt(pdstor),uid++) {
 
+    pd->uid = uid;
     pd_write(stream,pd);
     fprintf(stream,"\n");
+    free(pd); /* Remember, these are allocated by pd_stor_firstelt and nextelt */
 
   }
+
+  free(pd);
 
   if (PD_VERBOSE > 20) { 
 
@@ -609,7 +636,7 @@ void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representation 
 
 }
 
-pd_stor_t *pd_read_pdstor(FILE *stream) 
+pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalenct_t eq) 
 
 {
   assert(stream != NULL);
@@ -667,7 +694,7 @@ pd_stor_t *pd_read_pdstor(FILE *stream)
 
     } else {
 
-      pd_copyinto_pdstor(pdstor,&pd);
+      pd_copyinto_pdstor(pdstor,&pd,eq);
 
     }
 
@@ -687,24 +714,26 @@ pd_stor_t *pd_read_pdstor(FILE *stream)
     
   }
 
-  /* Check stats. */
+  /* /\* Check stats. *\/ */
 
-  unsigned int built_nhashes, built_nelts;
-  pd_stor_stats(pdstor,&built_nhashes,&built_nelts);
+  /* unsigned int built_nhashes, built_nelts; */
+  /* pd_stor_stats(pdstor,&built_nhashes,&built_nelts); */
 
-  assert(built_nhashes == nhashes);
-  assert(built_nelts == nelts);
+  /* assert(built_nhashes == nhashes); */
+  /* assert(built_nelts == nelts); */
 
   return pdstor;
 
 }
-  
+
+
+
 void pd_copyinto_cass(pd_code_t *pd)
 {
 
   //int com_size = 21 + PD_MAXVERTS*4 + 1 + 32;
-  char *com_string[110];
-  char *current_char[1];
+  char com_string[110];
+  char current_char[1];
   
   sprintf(com_string, "python shad_stor.py ");
   
@@ -725,3 +754,9 @@ void pd_copyinto_cass(pd_code_t *pd)
   printf("%s \n", com_string );  
   system(com_string);
 }
+
+
+  
+  
+
+
