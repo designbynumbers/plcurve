@@ -43,7 +43,7 @@
 //#include<thrift/Thrift.h>
 //#include<libcassie/cassie.h>
 
-#include<pdcode.h>
+#include<plcTopology.h>
 #include<pd_container.h>
 
 #include<pd_multidx.h>
@@ -636,7 +636,7 @@ void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representation 
 
 }
 
-pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalenct_t eq) 
+pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq) 
 
 {
   assert(stream != NULL);
@@ -684,9 +684,9 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalenct_t eq)
 
     }
 
-    pd_code_t pd;
+    pd_code_t *pd = pd_read(stream);
 
-    if (!pd_read(stream,&pd)) { 
+    if (pd == NULL) { 
 
       if (PD_VERBOSE > 20) { printf("pd_read_pdstor: Couldn't parse pd code %d.\n",elt); }
       pd_free_pdstor(&pdstor);
@@ -694,7 +694,7 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalenct_t eq)
 
     } else {
 
-      pd_copyinto_pdstor(pdstor,&pd,eq);
+      pd_addto_pdstor(pdstor,pd,eq);
 
     }
 

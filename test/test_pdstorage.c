@@ -34,7 +34,7 @@
 #endif
 
 #include<ordie.h>
-#include<pdcode.h>
+#include<plcTopology.h>
 
 #include<pd_multidx.h>
 #include<pd_perm.h>
@@ -48,23 +48,20 @@
 
 int PD_VERBOSE=0;
 
-bool insert_torusknots(int nknots,pd_stor_t **pdstor)
+bool insert_torusknots(int nknots,pd_stor_t **pdstor,pd_equivalence_t eq)
 
-/* Insert nknots (distinct) torusknots into the pdstor. */
-
+/* Insert nknots (distinct) torusknots into the pdstor, using equivalence */
+/* type eq (NONE, ISOMORPHISM, or DIAGRAM_ISOTOPY) */
+  
 {
   int i;
 
-  if (nknots + 2 > PD_MAXVERTS) {
-
-    nknots = PD_MAXVERTS-3;
-
-  }
-
   (*pdstor) = pd_new_pdstor();
 
-  printf("inserting %d (distinct) torus knots in pdstor with %d elements...",
-	 nknots,pd_stor_nelts(*pdstor));
+  printf("\ninserting %d (distinct) torus knots in pdstor with %d elements\n"
+	 "equivalence relation is %s...",
+	 nknots,pd_stor_nelts(*pdstor),
+	 eq == NONE ? "none" : (eq == ISOMORPHISM ? "isomorphism" : "diagram isotopy"));
 
   if (PD_VERBOSE > 10) { printf("\n"); }
 
@@ -72,7 +69,7 @@ bool insert_torusknots(int nknots,pd_stor_t **pdstor)
 
     pd_code_t *pd;
     pd = pd_build_torus_knot(2,i+3);
-    pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
+    pd_addto_pdstor(*pdstor,pd,eq); /* Do the insert. */
     free(pd);
 
   }
@@ -106,7 +103,7 @@ bool insert_torusknots(int nknots,pd_stor_t **pdstor)
   
 }
 
-bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
+bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor,pd_equivalence_t eq)
 
 /* Insert nknots (distinct) torusknots into the pdstor, 
    along with (many) duplicate entries. */
@@ -114,30 +111,30 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
 {
   int i;
 
-  if (nknots + 2 > PD_MAXVERTS) {
-
-    nknots = PD_MAXVERTS-3;
-
-  }
-
   (*pdstor) = pd_new_pdstor();
 
-  printf("inserting %d (distinct) torus knots along with duplicates in pdstor with %d elements...",
-	 nknots,pd_stor_nelts(*pdstor));
+  printf("\ninserting %d torus knots w/dups in pdstor with %d elements\n"
+	 "equivalence relation is %s...",
+	 nknots,pd_stor_nelts(*pdstor),
+	 eq == NONE ? "none" : (eq == ISOMORPHISM ? "isomorphism" : "diagram isotopy"));
 
   if (PD_VERBOSE > 10) { printf("\n"); }
+
+  int added = 0;
 
   for(i=0;i<nknots;i++) {
 
     pd_code_t *pd;
 
     pd = pd_build_torus_knot(2,i+3);
-    pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
+    pd_addto_pdstor(*pdstor,pd,eq); /* Do the insert. */
     free(pd);
+    added++;
 
     pd = pd_build_torus_knot(2,i+3);
-    pd_copyinto_pdstor(*pdstor,pd); /* Do a repeat insert. */
+    pd_addto_pdstor(*pdstor,pd,eq); /* Do a repeat insert. */
     free(pd);
+    added++;
 
   }
 
@@ -146,12 +143,14 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
     pd_code_t *pd;
 
     pd = pd_build_torus_knot(2,i+3);
-    pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
+    pd_addto_pdstor(*pdstor,pd,eq); /* Do the insert. */
     free(pd);
-
+    added++;
+    
     pd = pd_build_torus_knot(2,i+3);
-    pd_copyinto_pdstor(*pdstor,pd); /* Do a repeat insert. */
+    pd_addto_pdstor(*pdstor,pd,eq); /* Do a repeat insert. */
     free(pd);
+    added++;
 
   }
 
@@ -160,17 +159,39 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor)
 
   unsigned int nhashes, nelts;
   pd_stor_stats(*pdstor,&nhashes,&nelts);
+
+  if (eq == ISOMORPHISM || eq == DIAGRAM_ISOTOPY) { 
   
-  if (nhashes == nknots && nelts == nknots) {
+    if (nhashes == nknots && nelts == nknots) {
+      
+      printf("pass (nhashes %u == nelts %u == nknots %d).\n",nhashes,nelts,nknots);
+      
+    } else {
+      
+      printf("FAIL (nhashes %u, nelts %u, nknots %d).\n",nhashes,nelts,nknots);
+      return false;
+      
+    }
 
-    printf("pass (nhashes %u == nelts %u == nknots %d).\n",nhashes,nelts,nknots);
+  } else if (eq == NONE) {
 
-  } else {
+    if (nhashes != nknots) {
 
-    printf("FAIL (nhashes %u, nelts %u, nknots %d).\n",nhashes,nelts,nknots);
-    return false;
+      printf("fail (number of hashes %d != number of knot types %d)\n",nhashes,nknots);
+      return false;
+
+    }
+
+    if (nelts != added) {
+
+      printf("fail (added %d knots using no equivalence relation, but have %d in pdstor)\n",
+	     added,nelts);
+      return false;
+
+    }
 
   }
+	    
 
   if (nknots < 20) { 
 
@@ -290,26 +311,24 @@ unsigned int count_unknotwye_isomorphism_types(int n)
 
 }
 
-bool insert_unknotwyes(int n,pd_stor_t **pdstor)
+bool insert_unknotwyes(int n,pd_stor_t **pdstor,pd_equivalence_t eq)
 
 /* Insert all of the unknotted wyes with n twists into the pdstor. */
-/* This is designed to be the mother of all hash collisions. */
+/* This is designed to generate some hash collisions. */
 
 {
   pd_idx_t a,m;
+  int added = 0;
 
   (*pdstor) = pd_new_pdstor();
 
-  if (n > PD_MAXVERTS-3) {
-
-    n = PD_MAXVERTS-3;
-
-  }
-
-  printf("inserting all unknotted wyes with %d twists in pdstor with %d elements...",
-	 n,pd_stor_nelts(*pdstor));
+  printf("\ninserting all unknotted wyes with %d twists in pdstor with %d elements\n"
+	 "equivalence relation is %s...",
+	 n,pd_stor_nelts(*pdstor),
+	 eq == NONE ? "none" : (eq == ISOMORPHISM ? "isomorphism" : "diagram isotopy"));
 
   if (PD_VERBOSE > 10) { printf("\n"); }
+  if (n < 4) { printf("\n"); }
 
   for(m=0;m<=n;m++) {
 
@@ -317,8 +336,15 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor)
 
       pd_code_t *pd;
       pd = pd_build_unknot_wye(a,m-a,n-m);
-      pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
+      pd_addto_pdstor(*pdstor,pd,eq); /* Do the insert. */
       free(pd);
+      added++;
+
+      if (n < 4) {
+
+	printf("\t added (%d-%d-%d), nelts = %d\n",a,m-a,n-m,pd_stor_nelts(*pdstor));
+
+      }	
 
     }
 
@@ -332,14 +358,35 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor)
 
   unsigned int expected_nelts = count_unknotwye_isomorphism_types(n);
 
-  if (nelts == expected_nelts) {
+  if (eq == ISOMORPHISM || eq == DIAGRAM_ISOTOPY) { 
+  
+    if (nelts == expected_nelts) {
+      
+      printf("pass (nhashes %u, nelts %u == expected_nelts %u).\n",nhashes,nelts,expected_nelts);
+      
+    } else {
+      
+      printf("FAIL (nhashes %u, nelts %u != expected_nelts %u).\n",nhashes,nelts,expected_nelts);
+      return false;
 
-    printf("pass (nhashes %u, nelts %u == expected_nelts %u).\n",nhashes,nelts,expected_nelts);
+    }
 
-  } else {
+  } else if (eq == NONE) {
 
-    printf("FAIL (nhashes %u, nelts %u != expected_nelts %u).\n",nhashes,nelts,expected_nelts);
-    return false;
+    if (nelts != added) {
+
+      printf("FAIL (no eq relation, but nelts = %d != added = %d)\n",nelts,added);
+      return false;
+
+    }
+
+    if (nhashes > expected_nelts) {
+
+      printf("FAIL (have more hashes (%d) than isomorphism types (%d))\n",
+	     nhashes,expected_nelts);
+      return false;
+
+    }
 
   }
 
@@ -383,22 +430,62 @@ bool test_copyinto() {
   printf("pd_copyinto_pdstor test suite\n"
 	 "--------------------------------\n");
 
-  if (!insert_torusknots(10,&pdstor)) { return false; }
+  if (!insert_torusknots(10,&pdstor,NONE)) { return false; }
   if (!free_test(&pdstor)) { return false; }
 
-  if (!insert_torusknots_with_dups(10,&pdstor)) { return false; }
+  if (!insert_torusknots_with_dups(10,&pdstor,NONE)) { return false; }
   if (!free_test(&pdstor)) { return false; }
 
-  if (!insert_unknotwyes(1,&pdstor)) { return false; }
+  if (!insert_unknotwyes(1,&pdstor,NONE)) { return false; }
   if (!free_test(&pdstor)) { return false; }
 
-  if (!insert_unknotwyes(2,&pdstor)) { return false; }
+  if (!insert_unknotwyes(2,&pdstor,NONE)) { return false; }
   if (!free_test(&pdstor)) { return false; }
   
-  if (!insert_unknotwyes(3,&pdstor)) { return false; }
+  if (!insert_unknotwyes(3,&pdstor,NONE)) { return false; }
   if (!free_test(&pdstor)) { return false; }
 
-  if (!insert_unknotwyes(10,&pdstor)) { return false; }
+  if (!insert_unknotwyes(10,&pdstor,NONE)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  if (!insert_torusknots(10,&pdstor,NONE)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  /** */
+  
+  if (!insert_torusknots_with_dups(10,&pdstor,ISOMORPHISM)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  if (!insert_unknotwyes(1,&pdstor,ISOMORPHISM)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  if (!insert_unknotwyes(2,&pdstor,ISOMORPHISM)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+  
+  if (!insert_unknotwyes(3,&pdstor,ISOMORPHISM)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  if (!insert_unknotwyes(10,&pdstor,ISOMORPHISM)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  if (!insert_torusknots(10,&pdstor,ISOMORPHISM)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  /*** */
+
+  if (!insert_torusknots_with_dups(10,&pdstor,DIAGRAM_ISOTOPY)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  if (!insert_unknotwyes(1,&pdstor,DIAGRAM_ISOTOPY)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  if (!insert_unknotwyes(2,&pdstor,DIAGRAM_ISOTOPY)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+  
+  if (!insert_unknotwyes(3,&pdstor,DIAGRAM_ISOTOPY)) { return false; }
+  if (!free_test(&pdstor)) { return false; }
+
+  if (!insert_unknotwyes(10,&pdstor,DIAGRAM_ISOTOPY)) { return false; }
   if (!free_test(&pdstor)) { return false; }
  
   printf("-----------------------------------\n"
@@ -525,12 +612,6 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
   int i;
   pd_code_t *pd;
 
-  if (nknots > PD_MAXVERTS-3) {
-
-    nknots = PD_MAXVERTS-3;
-
-  }
-
   printf("testing copyinto and search for torusknots with up to %d crossings\n",nknots);
 
   (*pdstor) = pd_new_pdstor();
@@ -556,7 +637,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
     pd_code_t *pd;
 
     pd = pd_build_torus_knot(2,i+3);
-    pd_copyinto_pdstor(*pdstor,pd); /* Do the insert. */
+    pd_addto_pdstor(*pdstor,pd,ISOMORPHISM); /* Do the insert. */
     free(pd);
 
   }
@@ -595,7 +676,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
   
   printf("now searching for various knots/links which shouldn't be present ... ");
 
-  for(i=2;i<PD_MAXVERTS-2;i++) {
+  for(i=2;i<14;i++) {
 
     pd_code_t *pd;
     pd = pd_build_twist_knot(i);
@@ -677,7 +758,7 @@ bool read_write_test()
   unsigned int VERB_STORE;
   VERB_STORE = PD_VERBOSE;
 
-  for(i=0;i<PD_MAXVERTS-3;i++) {
+  for(i=0;i<14;i++) {
 
     pd = pd_build_torus_knot(2,i+3); 
 
@@ -687,7 +768,7 @@ bool read_write_test()
 
     }
 
-    pd_copyinto_pdstor(pdstor,pd);
+    pd_addto_pdstor(pdstor,pd,ISOMORPHISM);
     free(pd);
 
   }
@@ -700,7 +781,7 @@ bool read_write_test()
 
       for(k=0;k<4;k++) {
 
-	if (i+j+k <= PD_MAXVERTS-3) { 
+	if (i+j+k <= 14-3) { 
 
 	  pd = pd_build_unknot_wye(i,j,k);
 	  
@@ -710,7 +791,7 @@ bool read_write_test()
 	    
 	  }
 	  
-	  pd_copyinto_pdstor(pdstor,pd);
+	  pd_addto_pdstor(pdstor,pd,ISOMORPHISM);
 	  free(pd);
 
 	}
@@ -761,7 +842,7 @@ bool read_write_test()
 
   }
   
-  new_pdstor = pd_read_pdstor(infile);
+  new_pdstor = pd_read_pdstor(infile,ISOMORPHISM);
 
   if (new_pdstor == NULL) {
 

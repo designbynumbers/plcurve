@@ -2364,9 +2364,10 @@ bool pd_diagram_isotopy_ok(pd_iso_t *A, pd_code_t *pdA,pd_code_t *pdB)
 pd_edgemap_t **pd_build_oriented_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_t *comp_perm,unsigned int *nedgemaps)
 
 /* Given a component permutation, we can build the set of edgemaps
-   which consistently preserve orientation from components of pdA to
-   components of pdB by iterating over a multi-index composed of
-   CYCLIC groups. */
+   which consistently preserve orientation from ALL components of pdA
+   to ALL components of pdB (or consistently reversing orientation
+   from ALL components of A to all components of pdB) by iterating
+   over a multi-index composed of CYCLIC groups. */
 
 {
   assert(comp_perm != NULL);
@@ -2402,7 +2403,7 @@ pd_edgemap_t **pd_build_oriented_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_
   pd_edgemap_t **edgemaps;
   unsigned int i;
 
-  *nedgemaps = pd_multidx_nvals(idx);
+  *nedgemaps = 2*pd_multidx_nvals(idx);
 
   edgemaps = calloc(*nedgemaps,sizeof(pd_edgemap_t *)); assert(edgemaps != NULL);
   
@@ -2412,9 +2413,9 @@ pd_edgemap_t **pd_build_oriented_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_
 
   }
 
-  /* 2. Loop over the multi-idx and actually generate the edgemaps. */
+  /* 2. Loop over the multi-idx and generate orientation PRESERVING edgemaps. */
   
-  for(i=0;i<*nedgemaps;i++,pd_increment_multidx(idx)) {
+  for(i=0;i<pd_multidx_nvals(idx);i++,pd_increment_multidx(idx)) {
 
     for(comp=0;comp<idx->nobj;comp++) { 
 
@@ -2446,6 +2447,46 @@ pd_edgemap_t **pd_build_oriented_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_
     
   }
 
+  /* 3. Loop over multidx again and generate all orientation REVERSING edgemaps */
+
+  int j;
+  
+  for(j=0;j<pd_multidx_nvals(idx);j++,pd_increment_multidx(idx),i++) {
+
+    for(comp=0;comp<idx->nobj;comp++) { 
+
+      pd_cyclic_t *this_cyclic = (pd_cyclic_t *)(idx->obj[comp]);
+      pd_idx_t     edge;
+
+      /* Map the edge #s in component comp to the cyclic-group images
+	 of these edge numbers in the target component given by comp_perm. */
+
+      assert(pdA->comp[comp].nedges == pdB->comp[comp_perm->map[comp]].nedges);
+      pd_idx_t this_comp_edges = pdA->comp[comp].nedges;
+
+      for(edge=0;edge<this_comp_edges;edge++) {
+	
+	pd_idx_t edgefrom = pdA->comp[comp].edge[edge];
+	pd_idx_t edgeto   = pdB->comp[comp_perm->map[comp]].edge[
+	      (pdB->comp[comp_perm->map[comp]].nedges-1) - this_cyclic->map[edge]];
+	/* Note that this is REVERSED */
+	
+	edgemaps[i]->perm->map[edgefrom] = edgeto;
+	edgemaps[i]->or[edgefrom] = PD_NEG_ORIENTATION;	
+     
+      } 
+      
+    }
+
+    /* We should have built an entire permutation of all nedges edges of the pd_code. */
+    /* Recompute the pc_idx, now that we've got the whole permutation in place. */
+
+    pd_regenerate_pcidx(edgemaps[i]->perm);
+    
+  }
+
+  /* 4. Housekeeping */
+  
   pd_free_multidx(&idx);
   free(compsizes);
 
