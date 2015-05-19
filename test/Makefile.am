@@ -155,11 +155,6 @@ test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_homfly_LDFLAGS = -static
 test_homfly_CFLAGS = -I$(top_srcdir)/src
 
-test_pdstorage_SOURCES = test_pdstorage.c 
-test_pdstorage_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_pdstorage_LDFLAGS = -static
-test_pdstorage_CFLAGS = -I$(top_srcdir)/src
-
 test_pdpack_SOURCES = test_pdpack.c 
 test_pdpack_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_pdpack_LDFLAGS = -static
@@ -169,9 +164,6 @@ test_pdstorage_SOURCES = test_pdstorage.c
 test_pdstorage_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_pdstorage_LDFLAGS = -static
 test_pdstorage_CFLAGS = -I$(top_srcdir)/src
-
-
-
 
 csu_random_polygon_test_SOURCES = csu_random_polygon_test.c 
 csu_random_polygon_test_LDADD = -L$(top_builddir)/src -lplCurveStatic

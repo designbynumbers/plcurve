@@ -6,7 +6,7 @@ include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
 if HAVE_ARGTABLE2
-bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs plcrwalk momentpolytope carbonizepd
+bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs plcrwalk momentpolytope carbonizepd connectsum
 else
 bin_PROGRAMS = knot_diagram
 endif
@@ -175,6 +175,11 @@ carbonizepd_SOURCES = carbonizepd.c
 carbonizepd_LDADD = -lplCurve
 carbonizepd_LDFLAGS = -static
 carbonizepd_CFLAGS = -I${top_builddir}/src
+
+connectsum_SOURCES = connectsum.c
+connectsum_LDADD = -lplCurve
+connectsum_LDFLAGS = -static
+connectsum_CFLAGS = -I${top_builddir}/src
 
 spline_view_SOURCES = spline_view.c
 spline_view_LDADD = -lplCurve

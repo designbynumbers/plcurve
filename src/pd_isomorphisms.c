@@ -1453,9 +1453,16 @@ void pd_stareq_facemap(pd_facemap_t *facemapA,pd_facemap_t *facemapB)
 }
 
 /************************* isomorphisms ***************************/
+pd_iso_t **pdint_build_isos(pd_code_t *pdA,pd_code_t *pdB,
+			    unsigned int *nisos,bool FAILEARLY);
 
 pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
+{
+  return pdint_build_isos(pdA,pdB,nisos,false);
+}
 
+pd_iso_t **pdint_build_isos(pd_code_t *pdA,pd_code_t *pdB,
+			    unsigned int *nisos,bool FAILEARLY)
 {
   /* For the pdcodes to even have a chance of being
      isomorphic, the hash codes, # crossings, # edges, #
@@ -1463,6 +1470,8 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
      vect (over faces) must all match. We check these
      first, hoping to fail out early (and fast). */
 
+  bool abortflag = false;
+  
   *nisos = 0;
 
   pd_idx_t i;  
@@ -1483,10 +1492,10 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
      pd_ok. So it's safe to just compare the buffers
      element-for-element in their existing order. */
 
-  for(comp=0;comp<ncomps;comp++) { if (pdA->comp[comp].nedges != pdB->comp[comp].nedges) return NULL; }
-  for(face=0;face<nfaces;face++) { if (pdA->face[face].nedges != pdB->face[face].nedges) return NULL; }
-
-
+  for(comp=0;comp<ncomps;comp++) {
+    if (pdA->comp[comp].nedges != pdB->comp[comp].nedges) return NULL; }
+  for(face=0;face<nfaces;face++) {
+    if (pdA->face[face].nedges != pdB->face[face].nedges) return NULL; }
 
   /* We could put in weirder topological comparisons here
      like "number of edges in faces adjacent to face i" or
@@ -1516,7 +1525,8 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
      to hold the isomorphisms */
 
   pd_container_t *isos; 
-  isos = pd_new_container((pd_contidx_t)(1000)); /* A colossal overestimate, but only 8K of memory */
+  isos = pd_new_container((pd_contidx_t)(1000));
+  /* A colossal overestimate, but only 8K of memory */
 
   /* The next step is to generate component permutations. */
 
@@ -1526,7 +1536,7 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
   comp_perms = pd_build_compperms(ngrps,compgrp,&ncomp_perms);
   assert(pd_compperms_ok(ncomp_perms,comp_perms));
 
-  for(comp_perm=0;comp_perm < ncomp_perms;comp_perm++) { 
+  for(comp_perm=0;comp_perm < ncomp_perms && !abortflag;comp_perm++) { 
 
     pd_edgemap_t **edgemaps;
     unsigned int  nedgemaps,edgemap;
@@ -1534,7 +1544,7 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
     edgemaps = pd_build_edgemaps(pdA,pdB,comp_perms[comp_perm],&nedgemaps);
     assert(pd_edgemaps_ok(nedgemaps,edgemaps));
 
-    for(edgemap=0;edgemap < nedgemaps;edgemap++) { 
+    for(edgemap=0;edgemap < nedgemaps && !abortflag;edgemap++) { 
 
       pd_crossmap_t **crossmaps;
       pd_facemap_t  **facemaps;
@@ -1546,7 +1556,7 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
       assert(ncrossmaps == nfacemaps);
       nmaps = ncrossmaps;
 
-      for(map=0;map<nmaps;map++) { /* We have actually generated an isomorphism! */
+      for(map=0;map<nmaps && !abortflag;map++) { /* We have actually generated an isomorphism! */
 
 	pd_iso_t *new_iso;
 	new_iso = calloc(1,sizeof(pd_iso_t)); assert(new_iso != NULL); 
@@ -1557,8 +1567,9 @@ pd_iso_t **pd_build_isos(pd_code_t *pdA,pd_code_t *pdB,unsigned int *nisos)
 	new_iso->facemap  = pd_copy_facemap(facemaps[map]);
 
 	assert(pd_iso_consistent(pdA,pdB,new_iso)); /* Check ok-ness as we generate */
-
 	pd_addto_container(isos,new_iso);
+
+	if (FAILEARLY) { abortflag = true; } /* We only need to know if there is ONE iso */
 
       } /* End of crossmap/facemap loop */
 
@@ -1615,7 +1626,7 @@ bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB)
   assert(pdA != NULL); assert(pdB != NULL);
   /* If one of these has been pd_free'd by mistake, die here. */
 
-  iso_buf = pd_build_isos(pdA,pdB,&nisos);
+  iso_buf = pdint_build_isos(pdA,pdB,&nisos,true); /* Run in FAILEARLY configuration */
 
   assert((nisos == 0 && iso_buf == NULL) || (nisos != 0 && iso_buf != NULL));
 
