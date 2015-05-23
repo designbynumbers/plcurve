@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 if HAVE_ARGTABLE2
-check_PROGRAMS = test_pdstorage \
+check_PROGRAMS = test_invariants \
+	         test_pdstorage \
 		 test_pdpack \
 		 csu_random_polygon_test \
 		 test_hypersimplex_sampling \
@@ -56,7 +57,8 @@ check_PROGRAMS = test_pdstorage \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_pdstorage \
+TESTS = test_invariants \
+	test_pdstorage \
 	test_pdpack \
 	csu_random_polygon_test \
 	test_hypersimplex_sampling \
@@ -90,7 +92,8 @@ TESTS = test_pdstorage \
 	test_perm \
 	ccode_test
 else
-check_PROGRAMS = test_pdstorage \
+check_PROGRAMS = test_invariants \
+		 test_pdstorage \
 		 test_pdpack \
 		 csu_random_polygon_test \
 		 test_hypersimplex_sampling \
@@ -121,7 +124,8 @@ check_PROGRAMS = test_pdstorage \
                  hopf_test \
 		 ccode_test
 
-TESTS = test_pdstorage \
+TESTS = test_invariants \
+	test_pdstorage \
 	test_pdpack \
 	csu_random_polygon_test \
 	test_hypersimplex_sampling \
@@ -154,6 +158,11 @@ test_homfly_SOURCES = test_homfly.c
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_homfly_LDFLAGS = -static
 test_homfly_CFLAGS = -I$(top_srcdir)/src
+
+test_invariants_SOURCES = test_invariants.c 
+test_invariants_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_invariants_LDFLAGS = -static
+test_invariants_CFLAGS = -I$(top_srcdir)/src
 
 test_pdpack_SOURCES = test_pdpack.c 
 test_pdpack_LDADD = -L$(top_builddir)/src -lplCurveStatic

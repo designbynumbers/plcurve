@@ -77,7 +77,9 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	pd_pack.h \
 	pd_pack.c \
 	pd_storage.h \
-	pd_storage.c
+	pd_storage.c \
+	pd_invariants.h \
+	pd_invariants.c
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -146,7 +148,9 @@ libplCurve_la_SOURCES = plCurve.c \
 	pd_pack.h \
 	pd_pack.c \
 	pd_storage.h \
-	pd_storage.c
+	pd_storage.c \
+	pd_invariants.h \
+	pd_invariants.c
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

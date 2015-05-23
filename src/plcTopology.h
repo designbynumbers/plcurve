@@ -980,7 +980,6 @@ extern "C" {
 
   pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c); /* An unknot diagram designed for hash collisions */
 
-
   /******* Interface with traditional plCurve types ******/
 
   pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L);

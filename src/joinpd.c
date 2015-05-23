@@ -67,6 +67,7 @@
 struct arg_lit  *verbose;
 struct arg_file *files;
 struct arg_file *outfile;
+struct arg_lit  *nochecking;
 struct arg_lit  *help;
 struct arg_end  *end;
 struct arg_end  *helpend;
