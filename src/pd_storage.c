@@ -222,35 +222,43 @@ void pd_addto_pdstor(pd_stor_t *pdstor,pd_code_t *pd,pd_equivalence_t eq)
 
       last_ok_Index = Index; /* This index is present, so record it. */
 
-      pd_code_t *stored_pd = pd_unpack((unsigned int *)(*PValue_uid));
-      stored_pd->uid = (pd_uid_t)(Index);
+      if (eq != NONE) {
 
-      if ((eq == ISOMORPHISM && pd_isomorphic(stored_pd,pd)) ||
-	  (eq == DIAGRAM_ISOTOPY && pd_diagram_isotopic(stored_pd,pd))) { /* We found it: Quit! */
-	
-	if (PD_VERBOSE > 20) {
+	/* If there's no need to look for isomorphic copies, we can just
+	   iterate through the list. */
+      
+	pd_code_t *stored_pd = pd_unpack((unsigned int *)(*PValue_uid));
+	stored_pd->uid = (pd_uid_t)(Index);
+
+	if ((eq == ISOMORPHISM && pd_isomorphic(stored_pd,pd)) ||
+	    (eq == DIAGRAM_ISOTOPY && pd_diagram_isotopic(stored_pd,pd))) { /* We found it: Quit! */
 	  
-	  printf("\t pd_addto_pdstor: Attempting to insert pd code with hash %s and uid %d.\n"
-		 "\t                   Found equivalent (%s) pd code with hash %s and uid %d present.\n"
-		 "\t                   Resetting original uid (%d) to correct uid (%d).\n",
-		 pd->hash,
-		 (int)(pd->uid),
-		 (eq == ISOMORPHISM) ? "isomorphic" : "diagram isotopic",
-		 stored_pd->hash,
-		 (int)(stored_pd->uid),
-		 (int)(pd->uid),
-		 (int)(stored_pd->uid));
-		 
+	  if (PD_VERBOSE > 20) {
+	  
+	    printf("\t pd_addto_pdstor: Attempting to insert pd code with hash %s and uid %d.\n"
+		   "\t                   Found equivalent (%s) pd code with hash %s and uid %d present.\n"
+		   "\t                   Resetting original uid (%d) to correct uid (%d).\n",
+		   pd->hash,
+		   (int)(pd->uid),
+		   (eq == ISOMORPHISM) ? "isomorphic" : "diagram isotopic",
+		   stored_pd->hash,
+		   (int)(stored_pd->uid),
+		   (int)(pd->uid),
+		   (int)(stored_pd->uid));
+	    
+	  }
+	  
+	  pd->uid = stored_pd->uid;
+	  pd_code_free(&stored_pd);  
+	
+	  return;
+	
 	}
-	
-	pd->uid = stored_pd->uid;
-	free(stored_pd);  
-	
-	return;
-	
-      }
 
-      free(stored_pd);
+	pd_code_free(&stored_pd);
+
+      }
+      
       JLN(PValue_uid,PJLArray,Index); /* Iterate to the next uid. */
       /* This will destroy "Index" if we are at the end of the list */
 
@@ -621,7 +629,7 @@ void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representation 
     pd->uid = uid;
     pd_write(stream,pd);
     fprintf(stream,"\n");
-    free(pd); /* Remember, these are allocated by pd_stor_firstelt and nextelt */
+    pd_code_free(&pd); /* Remember, these are allocated by pd_stor_firstelt and nextelt */
 
   }
 
@@ -697,6 +705,8 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq)
       pd_addto_pdstor(pdstor,pd,eq);
 
     }
+
+    pd_code_free(&pd);
 
   }
 

@@ -219,7 +219,8 @@ bool pack_torusknots(int nknots)
     printf("pass\n");
 
     printf("\thousekeeping...");
-    free(pd); free(newpd); free(packform);
+    pd_code_free(&pd);
+    pd_code_free(&newpd); free(packform);
     printf("done\n\n");
     
   }
@@ -279,7 +280,9 @@ bool pack_torusknots_unsigned(int nknots)
     printf("pass\n");
 
     printf("\thousekeeping...");
-    free(pd); free(newpd); free(packform);
+    pd_code_free(&pd);
+    pd_code_free(&newpd);
+    free(packform);
     printf("done\n\n");
     
   }
@@ -453,7 +456,9 @@ bool pack_unknotwyes(int n)
       printf("pass\n");
       
       printf("\thousekeeping...");
-      free(pd); free(newpd); free(packform);
+      pd_code_free(&pd);
+      pd_code_free(&newpd);
+      free(packform);
       printf("done\n\n");
       
     }
@@ -516,7 +521,8 @@ bool pack_unknotwyes_unsigned(int n)
       printf("pass\n");
       
       printf("\thousekeeping...");
-      free(pd); free(newpd); free(packform);
+      pd_code_free(&pd); pd_code_free(&newpd);
+      free(packform);
       printf("done\n\n");
       
     }
@@ -805,7 +811,8 @@ bool pd_stor_test(unsigned int n)
     }
 
 
-    free(pd); free(newpd); free(packform);
+    pd_code_free(&pd);
+    pd_code_free(&newpd); free(packform);
 
   }
 

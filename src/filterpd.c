@@ -183,7 +183,7 @@ int main(int argc,char *argv[])
     
   pd_code_t *pd;
   unsigned int processed = 1;
-  int percent_complete;
+  int percent_complete = 0;
   bool keep;
  
   for(pd = pd_stor_firstelt(pdstor);pd != NULL;pd = pd_stor_nextelt(pdstor),
@@ -191,7 +191,7 @@ int main(int argc,char *argv[])
 
     keep = true;
     
-    if (ncomps->count > 0) {
+    if (ncomps->count > 0) {  
 
       if (pd->ncomps != ncomps->ival[0]) { keep = false; }
 
@@ -203,7 +203,7 @@ int main(int argc,char *argv[])
       
     }
 	      
-    free(pd);
+    pd_code_free(&pd);
 	      
     /* We now report progress. */
 
