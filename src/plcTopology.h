@@ -384,21 +384,24 @@ extern "C" {
 
   void pd_understrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum);
 
-  /*  Returns the edge number  (that is, a number in 0..pd->nedges)
-      of the incoming and outgoing edges of the strand going UNDER at crossing cr of pd,
-      using the sign of the crossing to determine. */
+  /*  Returns the edge number (that is, a number in 0..pd->nedges) of
+      the incoming and outgoing edges of the strand going UNDER at
+      crossing cr of pd, using the sign of the crossing to
+      determine. */
 
   void pd_overstrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos);
 
-  /* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
-     edges of the strand going over at this crossing, using the crossing sign data
-     and edge orientations in order to compute the answer. */
+  /* Returns the position in crossing cr of pd (that is, a number in
+     0..3) of the incoming and outgoing edges of the strand going over
+     at this crossing, using the crossing sign data and edge
+     orientations in order to compute the answer. */
 
   void pd_understrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos);
 
-  /* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
-     edges of the strand going under at this crossing, using the crossing sign data
-     and edge orientations in order to compute the answer. */
+  /* Returns the position in crossing cr of pd (that is, a number in
+     0..3) of the incoming and outgoing edges of the strand going
+     under at this crossing, using the crossing sign data and edge
+     orientations in order to compute the answer. */
 
   /* Functions to compute data from crossing (and other) information */
 

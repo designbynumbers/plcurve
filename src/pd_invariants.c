@@ -57,7 +57,62 @@ int int_cmp (const void *a, const void *b)
   return (*ia > *ib) - (*ia < *ib);
 }
 
-unsigned int pdint_interlaced_comp(pd_code_t *pd,pd_idx_t comp)
+int pdint_polyak_sign(pd_code_t *pd,pd_idx_t cross)
+/*
+   The sign is the product of signs given to each crossing, where the
+   crossing sign is computable from the original crossing information:
+ 
+        e2 
+        ^
+        |
+    ----+----> e1
+        | 
+        |
+
+    edge number e1 > edge number e2:  + crossing
+    edge number e1 < edge number e2:  - crossing
+
+    and the sign of an interlacement is the product of the signs 
+    of the crossings.
+*/
+{
+  /* First, we're going to have to temporarily assign a sign to this
+     crossing so that we can use "understrand" and "overstrand" to
+     pick off the incoming and outgoing edge positions. */
+  
+  pd_or_t  stored_or = pd->cross[cross].sign;
+  pd->cross[cross].sign = PD_POS_ORIENTATION;
+
+  pd_idx_t iop,oop,iup,oup;
+
+  pd_overstrand_pos(pd,cross,&iop,&oop);
+  pd_understrand_pos(pd,cross,&iup,&oup);
+
+  /* Now we know the positions of the outgoing strands; they are oop
+     and oup. We want to assign these to e1, e2 so that they go in the
+     ccw order e1 -> e2. This takes a little special-casing if the
+     positions wrap around from 3 to 0. */
+
+  pd_idx_t e1p = 0,e2p = 0;
+
+  assert(oup != oop);
+
+  if (oop == 0 && oup == 3) { oop = 4; }
+  if (oup == 0 && oop == 3) { oup = 4; }
+
+  if (oop > oup) { e2p = oop % 4; e1p = oup % 4; }
+  else { e1p = oop % 4; e2p = oup % 4; }
+
+  assert(e1p != e2p);
+
+  int sign;
+  sign = (pd->cross[cross].edge[e2p] > pd->cross[cross].edge[e1p]) ? +1 : -1;
+
+  pd->cross[cross].sign = stored_or;
+  return sign;
+}
+  
+int pdint_interlaced_comp(pd_code_t *pd,pd_idx_t comp,bool signs)
 /* 
    Counts the number of interlaced crossings on one component of pd.
    The basic algorithm is simple: first we compute a Gauss code where
@@ -163,6 +218,24 @@ unsigned int pdint_interlaced_comp(pd_code_t *pd,pd_idx_t comp)
    we're done, we'll sum the remainder (mod 2) over the array to get
    the total number of interlaced pairs.
 
+   If "signed" is true, to each of these interlaced pairs, we'll need
+   to assign a sign.  The sign is the product of signs given to each
+   crossing, where the crossing sign is computable from the original
+   crossing information:
+ 
+        e2 
+        ^
+        |
+    ----+----> e1
+        | 
+        |
+
+    edge number e1 > edge number e2:  + crossing
+    edge number e1 < edge number e2:  - crossing
+
+    and the sign of an interlacement is the product of the signs 
+    of the crossings.
+
 */
 {
   /* Phase 1. Compute the Gauss code, converting crossings to 1-indexed. */
@@ -238,10 +311,14 @@ unsigned int pdint_interlaced_comp(pd_code_t *pd,pd_idx_t comp)
   qsort(crossingspresent,cpsize,sizeof(int),int_cmp);
 
   int *newcrossinglabel = calloc(pd->ncross+1,sizeof(int));
+  int *oldcrossinglabel = calloc(cpsize+1,sizeof(int));
 
   for(i=0;i<cpsize;i++) {
 
     newcrossinglabel[crossingspresent[i]] = i+1;
+    oldcrossinglabel[i+1] = crossingspresent[i]-1;
+    /* The -1 is because the "crossingspresent" record in the 
+       original gausscode is shifted up by 1 to begin with. */
 
   }
 
@@ -307,16 +384,32 @@ unsigned int pdint_interlaced_comp(pd_code_t *pd,pd_idx_t comp)
 
   } while ( madeswap );
     
-  /* Phase 4. Count (mod 2) the number of swaps in each bin. */
+  /* Phase 4. Count (mod 2) the number of swaps in each bin and add the 
+     corresponding +1 or -1 to the signed interlacement count.*/
 
-  unsigned int interlacements = 0;
+  int interlacements = 0;
   int j;
 
   for(i=2;i<=cpsize;i++) {
 
     for(j=1;j<i;j++) {
 
-      interlacements += nswaps[i][j] % 2;
+      if (nswaps[i][j]%2 != 0) {
+
+	/* i and j are interlaced */
+
+	if (signs) {
+	  
+	  interlacements += pdint_polyak_sign(pd,oldcrossinglabel[i])*
+	    pdint_polyak_sign(pd,oldcrossinglabel[j]);
+
+	} else {
+
+	  interlacements += 1;
+
+	}
+
+      }
 
     }
 
@@ -332,22 +425,41 @@ unsigned int pdint_interlaced_comp(pd_code_t *pd,pd_idx_t comp)
 
   free(nswaps);
   free(augmentedgausscode);
+  free(oldcrossinglabel);
 
   return interlacements;
 
 }
 
 
-unsigned int *pd_interlaced_crossings(pd_code_t *pd)
+int *pd_interlaced_crossings(pd_code_t *pd)
+/* Returns an array, pd->ncomps long, counting signed number of crossings
+   which occur in the order ABAB along the component with Polyak's sign
+   convention. This number is equal to (-1/2)(J^+ + 2 St).*/
+{
+  int *interlacements = calloc(pd->ncomps,sizeof(unsigned int));
+  pd_idx_t i;
+
+  for(i=0;i<pd->ncomps;i++) {
+
+    interlacements[i] = pdint_interlaced_comp(pd,i,true);
+
+  }
+
+  return interlacements;
+
+}
+
+unsigned int *pd_interlaced_crossings_unsigned(pd_code_t *pd)
 /* Returns an array, pd->ncomps long, counting number of crossings
-   which occur in the order ABAB along the component. */
+   which occur in the order ABAB along the component.*/
 {
   unsigned int *interlacements = calloc(pd->ncomps,sizeof(unsigned int));
   pd_idx_t i;
 
   for(i=0;i<pd->ncomps;i++) {
 
-    interlacements[i] = pdint_interlaced_comp(pd,i);
+    interlacements[i] = (unsigned int)(pdint_interlaced_comp(pd,i,false));
 
   }
 

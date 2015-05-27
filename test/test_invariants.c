@@ -73,7 +73,7 @@ bool unknot_interlacement_test(pd_idx_t ncross)
 
   printf("built %d crossing unknot...done\n",ncross);
   printf("checking number of interlaced crossing pairs...");
-  unsigned int *interlacements = pd_interlaced_crossings(pdA);
+  int *interlacements = pd_interlaced_crossings(pdA);
 
   if (interlacements == NULL) {
 
@@ -131,8 +131,22 @@ bool twist_interlacement_test(pd_idx_t ntwist)
    interlacements in an n-twist knot with n even, and 2n+1
    interlacements in a n-twist knot with n odd.  
 
-   (And n+2 crossings overall.)
+   (And n+2 crossings overall.) Now we need to think about the signs 
+   of these interlacements. The numbered crossing signs alternate-- 
+   assuming the straight section happens first and is the "e1" tangent
+   vector, the "e2" tangent vector is going to be going up or down 
+   depending on which crossing number we're on. 
 
+   The crossings A and B have opposite signs as well, for the same
+   reason.
+
+   So we have the following interlacement signs:
+
+   AB (if interlaced), is always a -1 interlacement
+   A(numbers) and B(numbers) must cancel, since A and B have opposite signs.
+
+   So the overall score should be -1 (if AB are interlaced),
+   0 (otherwise).
 */		      
        	       	       	       	       	       	       	       	       	      
 {							   
@@ -163,8 +177,8 @@ bool twist_interlacement_test(pd_idx_t ntwist)
   printf("pass (expected %d, got %d)\n",
 	 ntwist+2,pdA->ncross);
   
-  printf("checking number of interlaced crossing pairs...");
-  unsigned int *interlacements = pd_interlaced_crossings(pdA);
+  printf("checking signed number of interlaced crossing pairs...");
+  int *interlacements = pd_interlaced_crossings(pdA);
 
   if (interlacements == NULL) {
 
@@ -175,27 +189,27 @@ bool twist_interlacement_test(pd_idx_t ntwist)
 
   if (ntwist % 2 == 0) { 
 
-    if (interlacements[0] != 2*ntwist) {
+    if (interlacements[0] != 0) {
 
-      printf("FAIL (expected %d interlacements, got %u)\n",
-	     2*ntwist,interlacements[0]);
+      printf("FAIL (expected %d signed interlacements, got %d)\n",
+	     0,interlacements[0]);
       return false;
 
     }
 
-    printf("pass (expected %d, got %u)\n",2*ntwist,interlacements[0]);
+    printf("pass (expected %d, got %u)\n",0,interlacements[0]);
 
   } else {
 
-    if (interlacements[0] != 2*ntwist+1) {
+    if (interlacements[0] != -1) {
 
-      printf("FAIL (expected %d interlacements, got %u)\n",
-	     2*ntwist+1,interlacements[0]);
+      printf("FAIL (expected %d interlacements, got %d)\n",
+	     -1,interlacements[0]);
       return false;
 
     }
 
-    printf("pass (expected %d, got %u)\n",2*ntwist+1,interlacements[0]);
+    printf("pass (expected %d, got %d)\n",-1,interlacements[0]);
 
   }
 
@@ -214,8 +228,27 @@ bool twist_interlacement_test(pd_idx_t ntwist)
 bool torusknot_interlacement_test(pd_idx_t q)
 
 /* 
-   In the 2-q torus knot, ALL pairs of crossings are interlaced.
-   So the answer should be q(q+1)/2.
+   In the 2-q torus knot, where q = 2n + 1, ALL pairs of crossings are
+   interlaced.  So the answer should be q(q-1)/2. However, you have to
+   think about the sign convention.
+
+   Looking at the diagram, you see that the crossings alternate
+   -+-+-
+   and so forth. Now there are an odd number of crossings, so 
+   generally you have (n+1) - signs and n (+) signs. This means
+   that we have to split up the (2n+1)(2n)/2 crossings in a 
+   careful way to make sure that we understand how the sign 
+   convention is going to play out.
+
+   I think that we should get n(n+1) interlacements which are -+,
+   and so have sign - overall. Which means that we should have 
+   
+   ((2n+1)n - (n)(n+1)) - (n(n+1))
+
+   as the overall signed sum. Using Mathematica, this simplies to -n.
+   Putting this in terms of q, we see n = (q-1)/2, so -n = -(q-1)/2,
+   and that should be the answer. It's comforting that this agrees with 
+   our hand calculation of -1 for the trefoil diagram.
 
    In the 2-q torus link, NO pairs of crossings are interlaced.
    So the answer should be (0,0).
@@ -229,10 +262,10 @@ bool torusknot_interlacement_test(pd_idx_t q)
   printf("-------------------------------------------\n");
 
   pdA = pd_build_torus_knot(2,q);
-  printf("built (2,%d) twist knot...done\n",q);
+  printf("built (2,%d) torus knot...done\n",q);
   
-  printf("checking number of interlaced crossing pairs...");
-  unsigned int *interlacements = pd_interlaced_crossings(pdA);
+  printf("checking signed number of interlaced crossing pairs...");
+  int *interlacements = pd_interlaced_crossings(pdA);
 
   if (interlacements == NULL) {
 
@@ -249,7 +282,7 @@ bool torusknot_interlacement_test(pd_idx_t q)
 
       if (interlacements[i] != 0) {
 
-	printf("FAIL (expected 0 interlacements on component %d, got %u)\n",
+	printf("FAIL (expected 0 interlacements on component %d, got %d)\n",
 	       i,interlacements[0]);
 	return false;
 
@@ -257,20 +290,20 @@ bool torusknot_interlacement_test(pd_idx_t q)
 
     }
 
-    printf("pass (expected {0,0}, got {%u,%u})\n",
+    printf("pass (expected {0,0}, got {%d,%d})\n",
 	   interlacements[0],interlacements[1]);
 
   } else {
 
-    if (interlacements[0] != (q*(q-1))/2) {
+    if (interlacements[0] != -((int)(q)-1)/2) {
       
-      printf("FAIL (expected %d interlacements, got %u)\n",
-	     (q*(q-1))/2,interlacements[0]);
+      printf("FAIL (expected %d interlacements, got %d)\n",
+	     -((int)(q)-1)/2,interlacements[0]);
       return false;
 
     }
 
-    printf("pass (expected %d, got %u)\n",(q*(q-1))/2,interlacements[0]);
+    printf("pass (expected %d, got %d)\n",-((int)(q)-1)/2,interlacements[0]);
 
   }
 
