@@ -479,7 +479,7 @@ pd_code_t *pd_search_pdstor_by_isomorphism(pd_stor_t *pdstor,pd_code_t *pd,
 
     }
 
-    free(stored_pd); /* If we don't use the pd, we need to free it */
+    pd_code_free(&stored_pd); /* If we don't use the pd, we need to free it */
 
     JLN(PValue_uid,PJLArray,Index); /* Iterate to the next uid. */
     /* This will destroy "Index" if we are at the end of the list */
@@ -576,7 +576,7 @@ void pd_display_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representatio
 
     }
 
-    free(pd); /* Remember that pd_stor_firstelt and nextelt allocate memory */
+    pd_code_free(&pd); /* Remember that pd_stor_firstelt and nextelt allocate memory */
 
   }
 

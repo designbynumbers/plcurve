@@ -70,7 +70,7 @@ bool insert_torusknots(int nknots,pd_stor_t **pdstor,pd_equivalence_t eq)
     pd_code_t *pd;
     pd = pd_build_torus_knot(2,i+3);
     pd_addto_pdstor(*pdstor,pd,eq); /* Do the insert. */
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -128,12 +128,12 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor,pd_equivalence_t 
 
     pd = pd_build_torus_knot(2,i+3);
     pd_addto_pdstor(*pdstor,pd,eq); /* Do the insert. */
-    free(pd);
+    pd_code_free(&pd);
     added++;
 
     pd = pd_build_torus_knot(2,i+3);
     pd_addto_pdstor(*pdstor,pd,eq); /* Do a repeat insert. */
-    free(pd);
+    pd_code_free(&pd);
     added++;
 
   }
@@ -144,12 +144,12 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor,pd_equivalence_t 
 
     pd = pd_build_torus_knot(2,i+3);
     pd_addto_pdstor(*pdstor,pd,eq); /* Do the insert. */
-    free(pd);
+    pd_code_free(&pd);
     added++;
     
     pd = pd_build_torus_knot(2,i+3);
     pd_addto_pdstor(*pdstor,pd,eq); /* Do a repeat insert. */
-    free(pd);
+    pd_code_free(&pd);
     added++;
 
   }
@@ -337,7 +337,7 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor,pd_equivalence_t eq)
       pd_code_t *pd;
       pd = pd_build_unknot_wye(a,m-a,n-m);
       pd_addto_pdstor(*pdstor,pd,eq); /* Do the insert. */
-      free(pd);
+      pd_code_free(&pd);
       added++;
 
       if (n < 4) {
@@ -597,7 +597,7 @@ bool should_succeed_iso_search(pd_code_t *pd,pd_stor_t *pdstor)
 
   pd_free_isos(&nisos,&isos);
   pd_free_isos(&check_nisos,&check_isos);
-  free(retpd); /* This was a new allocation */
+  pd_code_free(&retpd); /* This was a new allocation */
   return true;
   
 }
@@ -622,7 +622,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3); 
     if (!should_fail_iso_search(pd,*pdstor)) { return false; }
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -638,7 +638,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3);
     pd_addto_pdstor(*pdstor,pd,ISOMORPHISM); /* Do the insert. */
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -668,7 +668,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
 
     pd = pd_build_torus_knot(2,i+3); 
     if (!should_succeed_iso_search(pd,*pdstor)) { return false; }
-    free(pd);
+    pd_code_free(&pd);
     
   }
 
@@ -683,7 +683,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
     if (!should_fail_iso_search(pd,*pdstor)) {
       printf("FAIL (found twist_knot %d)\n",i);
       return false; }
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -694,7 +694,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
     if (!should_fail_iso_search(pd,*pdstor)) {
       printf("FAIL (found simple_chain %d)\n",i);
       return false; }
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -705,7 +705,7 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
     if (!should_fail_iso_search(pd,*pdstor)) {
       printf("FAIL (found unknot %d)\n",i);
       return false; }
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -769,7 +769,7 @@ bool read_write_test()
     }
 
     pd_addto_pdstor(pdstor,pd,ISOMORPHISM);
-    free(pd);
+    pd_code_free(&pd);
 
   }
 
@@ -792,7 +792,7 @@ bool read_write_test()
 	  }
 	  
 	  pd_addto_pdstor(pdstor,pd,ISOMORPHISM);
-	  free(pd);
+	  pd_code_free(&pd);
 
 	}
 
@@ -911,7 +911,7 @@ bool read_write_test()
 
     }
 
-    free(cmp_pd); free(pd); /* These are new-memory allocations from the 
+    pd_code_free(&cmp_pd); pd_code_free(&pd); /* These are new-memory allocations from the 
 			       search functions. */
 
   }
