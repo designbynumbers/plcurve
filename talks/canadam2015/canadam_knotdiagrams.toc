@@ -1,0 +1,6 @@
+\beamer@endinputifotherversion {3.26pt}
+\beamer@sectionintoc {1}{Introduction}{2}{0}{1}
+\beamer@subsectionintoc {1}{1}{Natural questions}{2}{0}{1}
+\beamer@subsectionintoc {1}{2}{Background}{11}{0}{1}
+\beamer@subsectionintoc {1}{3}{Tabulation}{15}{0}{1}
+\beamer@subsectionintoc {1}{4}{Further questions}{49}{0}{1}

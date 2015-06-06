@@ -74,10 +74,10 @@ struct arg_rem  *ncomps;
 struct arg_rem  *uid;
 struct arg_rem  *ncross;
 struct arg_rem  *hash;
+struct arg_rem  *nauts;
+struct arg_rem  *unsigned_interlacements;
 struct arg_rem  *interlacements;
-
 struct arg_file *outfile;
-
 
 struct arg_lit  *help;
 struct arg_end  *end;
@@ -99,7 +99,9 @@ int main(int argc,char *argv[])
      uid = arg_rem(NULL,"  uid : unsigned int unique id (among codes with same hash)"),
      ncomps = arg_rem(NULL,"  ncomps : # of components"),
      ncross = arg_rem(NULL,"  ncross : # of crossings"),
+     nauts = arg_rem(NULL,"  nauts : size of automorphism group"),
      interlacements = arg_rem(NULL, "  interlacements : # of interlaced crossing pairs (by component)"),
+     unsigned_interlacements = arg_rem(NULL, "  unsigned-interlacements : # of unsigned interlacements"),
      outfile = arg_file1("o","output","<file>","output csv file"),
      help = arg_lit0(NULL,"help","display help message"),
      end = arg_end(20)};
@@ -260,6 +262,21 @@ int main(int argc,char *argv[])
 	}
 	
 	free(interlacements);
+
+      } else if (!strcmp(tocompute->sval[ntc],"nauts")) {
+
+	unsigned int nauts;
+	pd_iso_t **isobuf = pd_build_isos(pd,pd,&nauts);
+	
+	int i;
+	for(i=0;i<nauts;i++) {
+
+	  pd_free_iso(&(isobuf[i]));
+	  
+	}
+		
+	fprintf(of,",%u ",nauts);
+	free(isobuf);
 
       }
 

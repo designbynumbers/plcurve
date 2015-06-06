@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    132602,       2495]
-NotebookOptionsPosition[    130691,       2428]
-NotebookOutlinePosition[    131052,       2444]
-CellTagsIndexPosition[    131009,       2441]
+NotebookDataLength[    149718,       2919]
+NotebookOptionsPosition[    146930,       2825]
+NotebookOutlinePosition[    147288,       2841]
+CellTagsIndexPosition[    147245,       2838]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -2415,19 +2415,416 @@ correct count.
 
 We argue that this isn\[CloseCurlyQuote]t going to matter \
 \[OpenCurlyDoubleQuote]in the end\[CloseCurlyDoubleQuote]. But it would be \
-nice to explain the situation we actually HAVE. 
-
-So let\[CloseCurlyQuote]s take an \
+nice to explain the situation we actually have data for. \
 \>", "Text",
  CellChangeTimes->{{3.641928764587528*^9, 3.641928772868649*^9}, {
   3.641928901851069*^9, 3.6419289117324553`*^9}, {3.6419289769716053`*^9, 
   3.641929015680335*^9}, {3.641930597605288*^9, 3.641930675557377*^9}, {
-  3.641989676010998*^9, 3.6419896941959753`*^9}}]
+  3.641989676010998*^9, 3.6419896941959753`*^9}, {3.642094335504051*^9, 
+  3.642094341608309*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Ignore the edge structure?", "Subchapter",
+ CellChangeTimes->{{3.642094344839789*^9, 3.642094349327628*^9}}],
+
+Cell["\<\
+Here\[CloseCurlyQuote]s an even cruder underestimate: every connect sum with \
+different summands is different. This means that we ought to be able to \
+underestimate the number of connect sum diagrams in terms of the number of \
+prime diagrams in the following way.
+
+Suppose P(n) is the number of prime diagrams. Then the number of composite \
+diagrams of n crossings is at least something like the product of the numbers \
+of prime diagrams in every partition of n. We can check this out as:\
+\>", "Text",
+ CellChangeTimes->{{3.642094351087471*^9, 3.642094424675014*^9}, {
+  3.6420947693253107`*^9, 3.642094801452084*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"CompositeDiagrams", "[", 
+    RowBox[{"P_", ",", "n_"}], "]"}], " ", ":=", " ", 
+   RowBox[{"Total", "[", 
+    RowBox[{"Times", " ", "@@@", " ", 
+     RowBox[{
+      RowBox[{"Map", "[", 
+       RowBox[{"P", ",", 
+        RowBox[{"IntegerPartitions", "[", "n", "]"}], ",", 
+        RowBox[{"{", "2", "}"}]}], "]"}], "[", 
+      RowBox[{"[", 
+       RowBox[{"2", ";;"}], "]"}], "]"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6420944375130043`*^9, 3.642094475848168*^9}, {
+   3.642094520173766*^9, 3.6420945632188272`*^9}, {3.6420946131795387`*^9, 
+   3.642094638213874*^9}, 3.6420947205465803`*^9, {3.642094825685586*^9, 
+   3.642094827987722*^9}, {3.64209488017813*^9, 3.6420948838413897`*^9}}],
+
+Cell["\<\
+(Keep in mind that {n} is the first partition, so that\[CloseCurlyQuote]s the \
+number of prime guys again.) \
+\>", "Text",
+ CellChangeTimes->{{3.642094837554248*^9, 3.642094902424058*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"CompositeDiagrams", "[", 
+  RowBox[{"P", ",", "10"}], "]"}]], "Input",
+ CellChangeTimes->{{3.642094477385046*^9, 3.642094512311556*^9}, {
+  3.642094729898836*^9, 3.642094719935602*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  SuperscriptBox[
+   RowBox[{"P", "[", "1", "]"}], "10"], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "8"], " ", 
+   RowBox[{"P", "[", "2", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "6"], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "2"]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "4"], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "3"]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "2"], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "4"]}], "+", 
+  SuperscriptBox[
+   RowBox[{"P", "[", "2", "]"}], "5"], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "7"], " ", 
+   RowBox[{"P", "[", "3", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "5"], " ", 
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   RowBox[{"P", "[", "3", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "3"], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "3", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "1", "]"}], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "3"], " ", 
+   RowBox[{"P", "[", "3", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "4"], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "3", "]"}], "2"]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "3", "]"}], "2"]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "2"], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "3", "]"}], "2"]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "1", "]"}], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "3", "]"}], "3"]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "6"], " ", 
+   RowBox[{"P", "[", "4", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "4"], " ", 
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   RowBox[{"P", "[", "4", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "2"], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "4", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "3"], " ", 
+   RowBox[{"P", "[", "4", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "3"], " ", 
+   RowBox[{"P", "[", "3", "]"}], " ", 
+   RowBox[{"P", "[", "4", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "1", "]"}], " ", 
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   RowBox[{"P", "[", "3", "]"}], " ", 
+   RowBox[{"P", "[", "4", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "3", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "4", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "2"], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "4", "]"}], "2"]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "4", "]"}], "2"]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "5"], " ", 
+   RowBox[{"P", "[", "5", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "3"], " ", 
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   RowBox[{"P", "[", "5", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "1", "]"}], " ", 
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "5", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "3", "]"}], " ", 
+   RowBox[{"P", "[", "5", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   RowBox[{"P", "[", "3", "]"}], " ", 
+   RowBox[{"P", "[", "5", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "1", "]"}], " ", 
+   RowBox[{"P", "[", "4", "]"}], " ", 
+   RowBox[{"P", "[", "5", "]"}]}], "+", 
+  SuperscriptBox[
+   RowBox[{"P", "[", "5", "]"}], "2"], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "4"], " ", 
+   RowBox[{"P", "[", "6", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   RowBox[{"P", "[", "6", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "2", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "6", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "1", "]"}], " ", 
+   RowBox[{"P", "[", "3", "]"}], " ", 
+   RowBox[{"P", "[", "6", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "4", "]"}], " ", 
+   RowBox[{"P", "[", "6", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "3"], " ", 
+   RowBox[{"P", "[", "7", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "1", "]"}], " ", 
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   RowBox[{"P", "[", "7", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "3", "]"}], " ", 
+   RowBox[{"P", "[", "7", "]"}]}], "+", 
+  RowBox[{
+   SuperscriptBox[
+    RowBox[{"P", "[", "1", "]"}], "2"], " ", 
+   RowBox[{"P", "[", "8", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "2", "]"}], " ", 
+   RowBox[{"P", "[", "8", "]"}]}], "+", 
+  RowBox[{
+   RowBox[{"P", "[", "1", "]"}], " ", 
+   RowBox[{"P", "[", "9", "]"}]}]}]], "Output",
+ CellChangeTimes->{{3.64209449153512*^9, 3.642094565444586*^9}, {
+   3.642094615189433*^9, 3.642094639389997*^9}, {3.6420947220447397`*^9, 
+   3.6420947202748423`*^9}, {3.6420948040399323`*^9, 3.642094829594391*^9}, 
+   3.642094886242798*^9}]
+}, Open  ]],
+
+Cell["\<\
+So we can think about the prime/composite ratio in particular cases: say, \
+P[n_] := n^2:\
+\>", "Text",
+ CellChangeTimes->{{3.6420949088078833`*^9, 3.6420949360306063`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"PCRatio", "[", 
+    RowBox[{"P_", ",", "n_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"P", "[", "n", "]"}], "/", 
+    RowBox[{"CompositeDiagrams", "[", 
+     RowBox[{"P", ",", "n"}], "]"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.64209462329736*^9, 3.642094634632224*^9}, {
+  3.642094944243128*^9, 3.6420949577267437`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PCRatio", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"#", "^", "2"}], "&"}], ",", "20"}], "]"}]], "Input",
+ CellChangeTimes->{{3.642094960321876*^9, 3.642094985605546*^9}}],
+
+Cell[BoxData[
+ FractionBox["100", "22825389"]], "Output",
+ CellChangeTimes->{{3.642094970814394*^9, 3.6420949859504967`*^9}}]
+}, Open  ]],
+
+Cell["In other words, tiny. Suppose we try 2^n?", "Text",
+ CellChangeTimes->{{3.642095001277247*^9, 3.642095017235718*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PCRatio", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"2", "^", "#"}], "&"}], ",", "20"}], "]"}]], "Input",
+ CellChangeTimes->{{3.64209501932535*^9, 3.642095030931869*^9}}],
+
+Cell[BoxData[
+ FractionBox["1", "626"]], "Output",
+ CellChangeTimes->{{3.642095028707397*^9, 3.642095031318578*^9}}]
+}, Open  ]],
+
+Cell["Still going to zero! Maybe 2^2^n?", "Text",
+ CellChangeTimes->{{3.642095046170515*^9, 3.642095129895452*^9}, 
+   3.642102857560513*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PCRatio", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"2", "^", 
+     RowBox[{"(", 
+      RowBox[{"2", "^", "#"}], ")"}]}], "&"}], ",", "11"}], "]"}]], "Input",
+ CellChangeTimes->{{3.642095059843479*^9, 3.642095088305686*^9}}],
+
+Cell[BoxData[
+ RowBox[{"38524873341692694784062953816258850050501945817131381073153430733114\
+069865784515015121938480762140111552140666153309368484162758768190051430568876\
+727161744976795765599371190180480715930926385053153106735210499248834600709250\
+712104036615007327170575226046616854710942557916135658670742283591690539269364\
+339735405842530332019830566614611821853512354106945188429424855477403796942463\
+765693085372756234245511432559422974250867196747777880611779267673973676697293\
+862380060107332123303663402983071478523401581857851243801948946769234261933563\
+51639691015051536242430639521531251621800103006196612375759310228062994432", 
+  "/", "8572068857490138567587400392480014484491238493644268859550003106962808\
+408999488979945587030525566865020757383340425174601497162285538512348787662059\
+758864957820479057581056683945760977173572252005560288011170747629628203222975\
+8968813785596998962084318917556654687380680992795889040176860028863420502117"}\
+]], "Output",
+ CellChangeTimes->{{3.642095068597638*^9, 3.642095088699749*^9}}]
+}, Open  ]],
+
+Cell[TextData[{
+ "Ok, that seems to have broken it. So we need to show something like: as \
+long as the number of prime diagrams grows exponentially (but not \
+super-exponentially), we\[CloseCurlyQuote]re good. Got to change gates now. \
+Let\[CloseCurlyQuote]s make it official.\n\nConjecture: If f(n) is \
+monotonically increasing, but f(n) < a^n for some fixed a, then the function \
+p(n) = f(n)/\[Sum]_{x_i partition n} (\[Product] f(x_i)) \[RightArrow] 0 as n \
+\[RightArrow] \[Infinity]. \n\nThis seems like a perfectly reasonable thing \
+to want to prove. So what do we need? Well, suppose we set a to 2 for now, \
+and consider the trivial partition of all 1\[CloseCurlyQuote]s. Then we have \
+2^1 * 2^1 ... 2^1 (n times), and hence 2^n for certain in the denominator. So \
+the fraction is already < 1. Oh! I see. In fact, for any partition, we\
+\[CloseCurlyQuote]ve already got \n\n2^a1 2^a2 ... 2^ak = 2^(a1 + ... + ak) = \
+2^n.\n\nThis holds for any a^n, actually: if the function is actually, \
+literally, exponential, then the function is just 1/(# partitions of n), and \
+we know that drops like a stone. So what if f(n) is not exponential, but \
+grows at some smaller rate? Well, you can see how this is basically supposed \
+to work. \n\nSuppose that \[OpenCurlyDoubleQuote]grows slower than a^n\
+\[CloseCurlyDoubleQuote] means f(n)/a^n \[RightArrow] 0 (monotonically?) as n \
+\[RightArrow] \[Infinity]. So suppose we consider the p(n) function. In the \
+first place, suppose that the fraction \[Lambda](n) := f(n)/a^n. Then f(n) = \
+a^n \[Lambda](n), and the \[Lambda](i) are decreasing. So we have in the \
+numerator \n\na^n \[Lambda](n)\n\nand in the denominator the product of a \
+bunch of \[Lambda](ai) a^n, so the question is, basically, how does that \
+work? So we\[CloseCurlyQuote]re going to sum these products over all \
+partitions, and get something bounded below by \[Sum]_{partitions} \
+\[Lambda](n-1)^{# of guys in the partition}. So if \[Lambda](n-1) is really, \
+really small, you presume that this could be bad. But of course, \[Lambda](i) \
+> 1/a^i, so we get something like \n\n1/a^{# guys in partition * (n-1)} \n\n\
+Now this is at ",
+ StyleBox["most",
+  FontSlant->"Italic"],
+ " something like (n-1)^2, so we have a lower bound on the denominator of \
+something like\n\n(# partitions)/(a^((n-1)^2)),\n\nso our overall bound is \n\
+\np(n) < a^(n^3)/(# partitions).\n\nThis is not good enough -- the \
+Hardy/Ramanujan partition formula is roughly e^{sqrt{n}}/n (mod constants). \
+But of course, these were the crudest and stupidest estimates we could come \
+up with on the fly, so it\[CloseCurlyQuote]s not surprising that we need \
+sharper knives to make this work.\n\nSo let\[CloseCurlyQuote]s try to \
+identify the difficulty. Of course, being \[OpenCurlyDoubleQuote]less than \
+e^n\[CloseCurlyDoubleQuote] leaves a lot of room for flat periods and periods \
+of arbitrarily rapid increase. So it\[CloseCurlyQuote]s possible that the \
+p(n) function is going to wiggle around, and even have increasing periods, \
+before eventually descending to zero. That may not be a problem, since we\
+\[CloseCurlyQuote]re probably going to bound p(n) by a monotone decreasing \
+function; it\[CloseCurlyQuote]s just that the bound won\[CloseCurlyQuote]t \
+always be tight. \n\nf(a_1) * ... * f(a_k) < e^{a_1 + ... + a_k} < e^{n}\n\n\
+The problem is that this is the wrong bound; we want a LOWER bound on the \
+denominator (we already have an upper bound on the numerator). This feels \
+like log-concavity or something similar. Now of course we know some kind of \
+increasing/decreasing thing, like \n\nf(a_1) * ... * f(a_k) > f(a_1) * f(a_1) \
+*.... * f(a_1)  = f(a_1)^k.\n\nOk, so we probably actually know something \
+about the low f\[CloseCurlyQuote]s. For instance, f(1) = 1, and f(2) = 0, and \
+f(3) = 2, so we might have something like\n\nf(a_1) * ... * f(a_k) > 2^{k}, \
+for all partitions involving only numbers 3 and larger. \n\nso we have a \
+bound like the denominator is greater than \n\nSum_{partitions involving \
+numbers 3 and larger} 2^{# of guys in the partition}.\n\nSo now we need an \
+analysis moment. I have a collection of numbers S, and I\[CloseCurlyQuote]m \
+going to sum 2^s over each s in S. Is the result at least |S| 2^{mean S}? Um, \
+we have the function \n\n2^x1 + 2^x2 + 2^x3 .... + 2^{x|S|}\n\nand we\
+\[CloseCurlyQuote]re asking to compare the value at x = (x1, ... x|S|) to the \
+value at (\[Mu](xi),...,\[Mu](xi)). That\[CloseCurlyQuote]s theoretically a \
+doable thing.\n\nOk, screw all this! The analytic combinatorics method just \
+kills it, I think!\n\n\n\n"
+}], "Text",
+ CellChangeTimes->{{3.6420951363844843`*^9, 3.642095139142983*^9}, {
+   3.642102860879293*^9, 3.642103205591395*^9}, {3.642103291556055*^9, 
+   3.642103521555655*^9}, {3.642103556260873*^9, 3.642103625119982*^9}, {
+   3.642103669824449*^9, 3.6421040049848957`*^9}, {3.642162649839061*^9, 
+   3.642162863045169*^9}, {3.642163559242885*^9, 3.642163579954094*^9}, {
+   3.642163639455947*^9, 3.642163660382827*^9}, {3.642163698021634*^9, 
+   3.642163722245079*^9}, {3.642163769490987*^9, 3.642163831607623*^9}, {
+   3.6421638775751677`*^9, 3.642163925517439*^9}, {3.6421640346255083`*^9, 
+   3.642164052008974*^9}, {3.642164099839122*^9, 3.642164211075222*^9}, {
+   3.642164403740097*^9, 3.6421644207313547`*^9}, {3.642164470863284*^9, 
+   3.6421646139161158`*^9}, {3.6421646462338963`*^9, 3.642164712894484*^9}, {
+   3.642164769686281*^9, 3.642164903105608*^9}, {3.642164974031048*^9, 
+   3.642164987215603*^9}, {3.642165035332672*^9, 3.6421652130621653`*^9}, 
+   3.642165288155261*^9, {3.642165332969648*^9, 3.642165397663309*^9}, {
+   3.642204502351008*^9, 3.642204549900002*^9}, {3.6424538816089897`*^9, 
+   3.6424538972384777`*^9}}]
 }, Open  ]]
 }, Open  ]]
 },
-WindowSize->{1122, 1074},
-WindowMargins->{{Automatic, 296}, {Automatic, 80}},
+WindowSize->{1122, 792},
+WindowMargins->{{Automatic, 94}, {Automatic, 0}},
 FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September 9, \
 2014)",
 StyleDefinitions->"Default.nb"
@@ -2458,7 +2855,7 @@ Cell[89141, 1533, 631, 18, 43, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[89809, 1556, 130, 2, 43, "Input"],
-Cell[89942, 1560, 876, 27, 108, "Output"]
+Cell[89942, 1560, 876, 27, 91, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[90855, 1592, 263, 4, 43, "Input"],
@@ -2475,11 +2872,11 @@ Cell[CellGroupData[{
 Cell[124647, 2255, 358, 11, 43, "Input"],
 Cell[125008, 2268, 104, 1, 43, "Output"]
 }, Open  ]],
-Cell[125127, 2272, 834, 15, 194, "Text"],
+Cell[125127, 2272, 834, 15, 164, "Text"],
 Cell[CellGroupData[{
 Cell[125986, 2291, 113, 1, 91, "Subchapter"],
-Cell[126102, 2294, 596, 13, 312, "Text"],
-Cell[126701, 2309, 832, 25, 94, "Input"],
+Cell[126102, 2294, 596, 13, 253, "Text"],
+Cell[126701, 2309, 832, 25, 69, "Input"],
 Cell[CellGroupData[{
 Cell[127558, 2338, 283, 6, 43, "Input"],
 Cell[127844, 2346, 287, 7, 45, "Output"]
@@ -2494,7 +2891,34 @@ Cell[CellGroupData[{
 Cell[129340, 2395, 194, 4, 43, "Input"],
 Cell[129537, 2401, 126, 2, 43, "Output"]
 }, Open  ]],
-Cell[129678, 2406, 985, 18, 282, "Text"]
+Cell[129678, 2406, 1007, 17, 164, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[130722, 2428, 114, 1, 91, "Subchapter"],
+Cell[130839, 2431, 634, 11, 164, "Text"],
+Cell[131476, 2444, 750, 17, 44, "Input"],
+Cell[132229, 2463, 199, 4, 46, "Text"],
+Cell[CellGroupData[{
+Cell[132453, 2471, 209, 4, 43, "Input"],
+Cell[132665, 2477, 5572, 180, 214, "Output"]
+}, Open  ]],
+Cell[138252, 2660, 183, 4, 46, "Text"],
+Cell[138438, 2666, 382, 10, 44, "Input"],
+Cell[CellGroupData[{
+Cell[138845, 2680, 194, 5, 43, "Input"],
+Cell[139042, 2687, 125, 2, 66, "Output"]
+}, Open  ]],
+Cell[139182, 2692, 123, 1, 46, "Text"],
+Cell[CellGroupData[{
+Cell[139330, 2697, 193, 5, 43, "Input"],
+Cell[139526, 2704, 116, 2, 66, "Output"]
+}, Open  ]],
+Cell[139657, 2709, 141, 2, 46, "Text"],
+Cell[CellGroupData[{
+Cell[139823, 2715, 247, 7, 43, "Input"],
+Cell[140073, 2724, 1051, 14, 369, "Output"]
+}, Open  ]],
+Cell[141139, 2741, 5763, 80, 2377, "Text"]
 }, Open  ]]
 }, Open  ]]
 }
