@@ -535,11 +535,11 @@ extern "C" {
 
   /* PD storage. We define a flexible container type. It can be
      queried by isomorphism type and inserted in almost linear time,
-     and comfortably holds millions of pd_code_t objects in memory. 
+     and comfortably holds millions of pd_code_t objects in memory.
 
      The container holds pd_code_t's up to an equivalence relation,
      and can be searched with respect to this relation. */
-  
+
   typedef struct pdstorage_struct pd_stor_t;
   typedef enum {NONE, ISOMORPHISM, DIAGRAM_ISOTOPY} pd_equivalence_t;
 
@@ -550,17 +550,17 @@ extern "C" {
   /* Delete pdstor (and all associated memory) */
 
   void pd_addto_pdstor(pd_stor_t *pdstor, pd_code_t *pd,pd_equivalence_t eq);
-  /* Add a new-memory copy of pd to pdstor, unless an equivalent pd_code_t 
-     is already stored. Note: If eq == NONE, then we always stored, even if 
+  /* Add a new-memory copy of pd to pdstor, unless an equivalent pd_code_t
+     is already stored. Note: If eq == NONE, then we always stored, even if
      this is an exact duplicated of a previous entry. */
-  
-  pd_code_t *pd_stor_firstelt(pd_stor_t *pdstor); 
-  
+
+  pd_code_t *pd_stor_firstelt(pd_stor_t *pdstor);
+
   /* Finds the first element of pdstor, and initializes the internal
      state of pdstor. Note that this internal state will go stale if an
      insert or delete operation is performed, and so it's reset if we do
      an insert. */
-  
+
   pd_code_t *pd_stor_nextelt(pd_stor_t *pdstor);
   /* Can be repeatedly called until it returns NULL to iterate over a
      pdstor. As with pdstor_firstelt, this depends on an internal state
@@ -573,9 +573,9 @@ extern "C" {
   /* Reads pdstor from file, storing elements up to equivalence relation eq.*/
 
 
-  /* TOPOLOGICAL OPERATIONS. 
+  /* TOPOLOGICAL OPERATIONS.
 
-     Perform various knot-theoretic operations on a pd_code_t. 
+     Perform various knot-theoretic operations on a pd_code_t.
 
   */
 
@@ -640,41 +640,41 @@ extern "C" {
 
     outpd[1] contains the pd code of the component "on the bottom"
     in the bigon. Again, it might be a 0-crossing diagram.
-				
+
   */
 
   pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
 			    pd_code_t *pdB, pd_idx_t edgeB);
 
-  /* 
-  	  +----+	       +-------+	   
-       	  |    |       	   +-<-|---+   |       	   
-       	  |    |  edgeA	   |   |   |   |	   
-       	+-|------<---+ 	   |   |   |   |       	   
-      	| |    |     | 	   v   +-------+    	   
-      	| +------>---+ 	   +-->----+   	       	   
-       	+------+       	   edgeB	  
-   				  
+  /*
+  	  +----+	       +-------+
+       	  |    |       	   +-<-|---+   |
+       	  |    |  edgeA	   |   |   |   |
+       	+-|------<---+ 	   |   |   |   |
+      	| |    |     | 	   v   +-------+
+      	| +------>---+ 	   +-->----+
+       	+------+       	   edgeB
+
             pdA	       	       pdB
 
                       ||
                       vv
 
-  	  +----+      	       +-------+	   
-       	  |    |       	   +-<-|---+   |       	   
-       	  |    |       	   |   |   |   |	   
-       	+-|------<---------+   |   |   |       	   
-      	| |    |       	       +-------+    	   
-      	| +------>------------>----+   	       	   
-       	+------+       	       		  
-       	       	       	       	  
-                  (output pd)  	  
-		      	     
-  */		      	   
-		      	   
-		      
+  	  +----+      	       +-------+
+       	  |    |       	   +-<-|---+   |
+       	  |    |       	   |   |   |   |
+       	+-|------<---------+   |   |   |
+      	| |    |       	       +-------+
+      	| +------>------------>----+
+       	+------+
+
+                  (output pd)
+
+  */
+
+
   pd_code_t *pd_simplify(pd_code_t *pd);
-		      
+
   /* Simplify the pd code using combinations of the moves above to
      reduce crossing number as far as possible. */
 
@@ -990,6 +990,7 @@ extern "C" {
   /* Compute the HOMFLY polynomial of a pd_code (returned as string) */
 
   char *pd_homfly( pd_code_t *pdC);
+  char *pd_homfly_timeout( pd_code_t *pdC, int timeout);
 
   /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
 

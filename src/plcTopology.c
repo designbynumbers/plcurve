@@ -63,9 +63,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include<polynomials.h>
 
-/* 
+/*
    Convert to a Millett/Ewing representation and then compute HOMFLY
-   using the venerable lmpoly code. 
+   using the venerable lmpoly code.
 
    The Millett/Ewing representation of a knot diagram numbers the
    crossings from 1 to ncrossings and then stores for each crossing
@@ -81,8 +81,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
        |
        c
 
-   Note that the crossings are ordered CLOCKWISE, and that the +/- convention is 
-   the same as our usual one (see the Millett/Ewing paper, goddamn it!).   
+   Note that the crossings are ordered CLOCKWISE, and that the +/- convention is
+   the same as our usual one (see the Millett/Ewing paper, goddamn it!).
 
        d                    a
        ^                    ^
@@ -91,14 +91,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
        |                    |
        |                    |
        b                    c
-   + crossing            - crossing         
- 
-   So a crossing code representation of a plCurve is a char buffer 
+   + crossing            - crossing
+
+   So a crossing code representation of a plCurve is a char buffer
    containing lines of the form
 
    17+2b10c11c31a
 
-   meaning that crossing 17 is a positive crossing 
+   meaning that crossing 17 is a positive crossing
 
    connected in the a position to the b position of crossing 2,
    connected in the b position to the c position of crossing 10,
@@ -107,7 +107,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
    In order to simplify communication with the lmpoly code of Ewing
    and Millett, we store the crossing code as a standard (0
-   terminated) string, including newlines. We will read from 
+   terminated) string, including newlines. We will read from
    that string using a replacement version of the "read" primitive.
 
    We first need a primitive which tells us which of the four positions
@@ -128,17 +128,17 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
   pd_overstrand_pos(pd,pd->edge[edge].head,&oip,&oop);
   pd_understrand_pos(pd,pd->edge[edge].head,&uip,&uop);
 
-  if (pd->cross[pd->edge[edge].head].edge[oip] == edge) { 
+  if (pd->cross[pd->edge[edge].head].edge[oip] == edge) {
 
-    /* We found it coming IN as an overstrand -- this is position c */    
+    /* We found it coming IN as an overstrand -- this is position c */
     *headpos = 'c';
 
-  } else if (pd->cross[pd->edge[edge].head].edge[uip] == edge) { 
+  } else if (pd->cross[pd->edge[edge].head].edge[uip] == edge) {
 
     /* We found it coming IN as an understrand. This is either b or d,
        depending on the sign of the crossing. */
 
-    if (pd->cross[pd->edge[edge].head].sign == PD_POS_ORIENTATION) { 
+    if (pd->cross[pd->edge[edge].head].sign == PD_POS_ORIENTATION) {
 
       *headpos = 'b';
 
@@ -148,7 +148,7 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
 
     }
 
-  } else { 
+  } else {
 
     pd_error(SRCLOC,
 	     "in pd \n"
@@ -162,21 +162,21 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
   }
 
   /* Now we deal with the tail position */
-    
+
   pd_overstrand_pos(pd,pd->edge[edge].tail,&oip,&oop);
   pd_understrand_pos(pd,pd->edge[edge].tail,&uip,&uop);
 
-  if (pd->cross[pd->edge[edge].tail].edge[oop] == edge) { 
+  if (pd->cross[pd->edge[edge].tail].edge[oop] == edge) {
 
-    /* We found it going OUT as an overstrand -- this is position a */    
+    /* We found it going OUT as an overstrand -- this is position a */
     *tailpos = 'a';
 
-  } else if (pd->cross[pd->edge[edge].tail].edge[uop] == edge) { 
+  } else if (pd->cross[pd->edge[edge].tail].edge[uop] == edge) {
 
     /* We found it going OUT as an understrand. This is either b or d,
        depending on the sign of the crossing. */
 
-    if (pd->cross[pd->edge[edge].tail].sign == PD_POS_ORIENTATION) { 
+    if (pd->cross[pd->edge[edge].tail].sign == PD_POS_ORIENTATION) {
 
       *tailpos = 'd';
 
@@ -186,7 +186,7 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
 
     }
 
-  } else { 
+  } else {
 
     pd_error(SRCLOC,
 	     "in pd \n"
@@ -203,7 +203,7 @@ void pd_millet_ewing_positions(pd_code_t *pd, pd_idx_t edge, char *headpos, char
 
 /* We can now write the translator: */
 
-char *pdcode_to_ccode(pd_code_t *pd) 
+char *pdcode_to_ccode(pd_code_t *pd)
 
 {
   char *ccode;
@@ -215,14 +215,14 @@ char *pdcode_to_ccode(pd_code_t *pd)
   char    *ccode_buf = ccode;
   int      thiscr_used,total_used=0;
 
-  for(cr=0;cr<pd->ncross;cr++) { 
+  for(cr=0;cr<pd->ncross;cr++) {
 
     char or = pd->cross[cr].sign == PD_POS_ORIENTATION ? '+':'-';
 
     /* Notice that we're SWAPPING orientations here because the M/E
        code uses the OTHER convention. -- trying it the other way*/
 
-    thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c",cr+1,or);    
+    thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c",cr+1,or);
     total_used += thiscr_used;
     ccode_buf += thiscr_used;
 
@@ -231,7 +231,7 @@ char *pdcode_to_ccode(pd_code_t *pd)
     pd_idx_t a_to, b_to, c_to, d_to;
     char a_to_pos, b_to_pos, c_to_pos, d_to_pos;
     char scratch;
-    
+
     pd_overstrand(pd,cr,&c_edge,&a_edge);
 
     a_to = pd->edge[a_edge].head + 1;  /* The +1 is because M/E codes are 1-based */
@@ -242,16 +242,16 @@ char *pdcode_to_ccode(pd_code_t *pd)
 
     b_is_in = (pd->cross[cr].sign == PD_POS_ORIENTATION);
 
-    if (b_is_in) { 
+    if (b_is_in) {
 
       pd_understrand(pd,cr,&b_edge,&d_edge);
-      
+
       b_to = pd->edge[b_edge].tail + 1;
       pd_millet_ewing_positions(pd,b_edge,&scratch,&b_to_pos);
-      
+
       d_to = pd->edge[d_edge].head + 1;
       pd_millet_ewing_positions(pd,d_edge,&d_to_pos,&scratch);
-    
+
     } else { /* b is going OUT */
 
       pd_understrand(pd,cr,&d_edge,&b_edge);
@@ -264,7 +264,7 @@ char *pdcode_to_ccode(pd_code_t *pd)
 
     }
 
-    /* Having gathered all the information, we can write it to 
+    /* Having gathered all the information, we can write it to
        the buffer now. */
 
     thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c%d%c%d%c%d%c\n",
@@ -272,50 +272,50 @@ char *pdcode_to_ccode(pd_code_t *pd)
 			   b_to,b_to_pos,
 			   c_to,c_to_pos,
 			   d_to,d_to_pos
-			   );    
+			   );
 
     total_used += thiscr_used;
     ccode_buf += thiscr_used;
 
-    if (total_used >= ccode_size) { /* This shouldn't result in a write to unsafe memory because 
-				       we used snprintf, but is a sign that something's gone 
+    if (total_used >= ccode_size) { /* This shouldn't result in a write to unsafe memory because
+				       we used snprintf, but is a sign that something's gone
 				       horribly wrong. */
 
       pd_error(SRCLOC,"conversion to millet-ewing code failed for %PD at Millet-Ewing code\n %s",pd,ccode_buf);
-      
+
     }
 
   }
 
-  thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"\n\n");    
+  thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"\n\n");
 
   total_used += thiscr_used;
   ccode_buf += thiscr_used;
 
   return ccode;
-    
+
 }
-      
+
 
 char *plc_lmpoly(char *ccode,int timeout); // This is in pllmpoly02.c.
-char *pd_homfly(pd_code_t *pd) 
+char *pd_homfly_timeout(pd_code_t *pd, int timeout)
 {
   char *ccode;
   char *homfly_lmpoly;
 
   ccode = pdcode_to_ccode(pd);
-  
-  if (PD_VERBOSE > 50) { 
+
+  if (PD_VERBOSE > 50) {
 
     pd_printf("pd_homfly: Converted pd code\n %PD \n to crossing code \n %s \n",
 	     pd,ccode);
 
   }
 
-  homfly_lmpoly = plc_lmpoly(ccode,300); /* Maximum of 5 minutes */
+  homfly_lmpoly = plc_lmpoly(ccode,timeout);
 
-  if (PD_VERBOSE > 50) { 
-    
+  if (PD_VERBOSE > 50) {
+
     printf("got (raw) HOMFLY string %s\n",homfly_lmpoly);
 
   }
@@ -325,7 +325,7 @@ char *pd_homfly(pd_code_t *pd)
   char *homfly = lmpoly_to_latex(homfly_lmpoly);
   free(homfly_lmpoly);
 
-  if (PD_VERBOSE > 50) { 
+  if (PD_VERBOSE > 50) {
 
     printf("got finished HOMFLY string %s\n",homfly);
 
@@ -337,6 +337,9 @@ char *pd_homfly(pd_code_t *pd)
   return homfly;
 
 }
+char *pd_homfly(pd_code_t *pd) {
+    return pd_homfly_timeout(pd, 300); /* Maximum of 5 minutes */
+}
 
 char *plc_homfly( gsl_rng *rng, plCurve *L)
 
@@ -347,7 +350,7 @@ char *plc_homfly( gsl_rng *rng, plCurve *L)
   return homfly;
 }
 
-/* Convert plCurve to pd_code_t, projecting along a direction and 
+/* Convert plCurve to pd_code_t, projecting along a direction and
    resolving geometric degeneracies as needed. */
 
 /* Plan:
@@ -973,15 +976,15 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
 
 }
 
-enum height_t { lower, upper }; 
+enum height_t { lower, upper };
 
 typedef struct crossing_strand_struct {
-  
+
   pd_idx_t crossingnumber;
   pd_idx_t cmp;
   double   s;
   enum height_t height;
-  
+
 } crossing_strand_t;
 
 int crossing_strand_cmp(const void *A,const void *B)
@@ -996,7 +999,7 @@ int crossing_strand_cmp(const void *A,const void *B)
   }
 
   if (fabs(a->s - b->s) < 1e-8) { return 0; } /* These are the same guy! */
-  
+
   return (a->s < b->s) ? -1 : 1;
 
 }
@@ -1055,7 +1058,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
 
   }
 
-  /* void qsort (void *array, size_t count, size_t size, 
+  /* void qsort (void *array, size_t count, size_t size,
                  comparison_fn_t compare) */
   qsort(cs,2*cc->used,sizeof(crossing_strand_t),crossing_strand_cmp);
 
@@ -1084,7 +1087,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
 
     pd_idx_t head;
     pd_idx_t tail;
-    
+
     enum height_t head_height;
     enum height_t tail_height;
 
@@ -1112,10 +1115,10 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
 	 but not the head crossing or over/under data.  However, we
 	 can get this by matching the data we have to the cs array,
 	 using
-	 
-	 void * bsearch (const void *key, const void *array, 
+
+	 void * bsearch (const void *key, const void *array,
 	 size_t count, size_t size, comparison_fn_t compare)
-  
+
       */
 
       assert(edge < total_edges); /* Make sure we don't overrun the buffer */
@@ -1126,7 +1129,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
 
       /* First, we search for the head data (which is easier, because
 	 this is the head) */
-      
+
       key.s = crc[cmp].buf[i].s;
       csrec = bsearch(&key,cs,2*cc->used,
 		      sizeof(crossing_strand_t),crossing_strand_cmp);
@@ -1140,7 +1143,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
 	 need to wrap around if i == 0). Note: The tail of the edge is
 	 part of the same component, so we don't need to reset
 	 key.cmp. */
-      
+
       key.s =
 	(i == 0) ? crc[cmp].buf[crc[cmp].size-1].s : crc[cmp].buf[i-1].s;
       csrec =
@@ -1161,15 +1164,15 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
   }
 
   free(cs); cs = NULL;
-      
+
   /* We now need to assign positions for the edges at each crossing,
      and come up with crossing records which are compatible with the
      given headpos and tailpos positions and with the signs of the
      crossings.  We're going to use something like the KnotTheory
-     conventions to do this in a consistent way: note that we can 
+     conventions to do this in a consistent way: note that we can
      determine position uniquely from the combination of crossing sign,
      strand height (lower/upper) and head/tail.
-      
+
             3                 3
             ^		      ^
             |		      |
@@ -1184,10 +1187,10 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
   */
 
   pd_code_t *pd = pd_code_new(cc->used > 1 ? cc->used : 2);
-  /* Clear as much space as we need */ 
+  /* Clear as much space as we need */
   assert(pd != NULL);
-  
-  pd->ncross = cc->used; 
+
+  pd->ncross = cc->used;
   pd->nedges = 2*pd->ncross;
   assert(pd->nedges == total_edges);
   assert(pd->nedges <= pd->MAXEDGES);
@@ -1213,7 +1216,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
     pd_idx_t tail = pd->edge[i].tail;
 
     /* Recall our rules:
-       
+
             2                 2
             ^		      ^
             |		      |
@@ -1248,7 +1251,7 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
     }
 
      /* Recall our rules:
-       
+
             2                 2
             ^		      ^
             |		      |
@@ -1283,31 +1286,31 @@ pd_code_t *assemble_pdcode(plCurve *L,crossing_reference_container crc[],
     }
 
   }
-    
+
   /* At this point, we've shed the tempedges, too. */
   free(tempedges);
   tempedges = NULL;
 
-  pd_regenerate(pd); 
+  pd_regenerate(pd);
 
   /* Now we know how many components we should have found from the
      plCurve data. */
 
-  assert(pd->ncomps == L->nc); 
+  assert(pd->ncomps == L->nc);
 
   /* This is the most important test: */
 
-  if (!pd_ok(pd)) { 
+  if (!pd_ok(pd)) {
 
       fprintf(stderr,"pd_code_from_plCurve: Algorithm produced "
-	      "the invalid pd_code\n"); 
-      pd_write(stderr,pd); 
-      fprintf(stderr,"\n" 
+	      "the invalid pd_code\n");
+      pd_write(stderr,pd);
+      fprintf(stderr,"\n"
 	      "from plCurve input. This is a bug in the library,"
-	      "or a truly singular example polygon.\n"); 
-      exit(1); 
+	      "or a truly singular example polygon.\n");
+      exit(1);
 
-  } 
+  }
 
   return pd;
 
@@ -1624,7 +1627,7 @@ plc_knottype *plc_classify(gsl_rng *rng, plCurve *L, int *nposs)
    but it's so fast that the time penalty is negligible in practice and more than offset by the coding
    clarity of having the under and over information returned separately! */
 
- /* The convention used to determine sign is this: 
+ /* The convention used to determine sign is this:
 
             ^
             |
@@ -1632,7 +1635,7 @@ plc_knottype *plc_classify(gsl_rng *rng, plCurve *L, int *nposs)
             |
             |
 
-      positive crossing 
+      positive crossing
       (upper tangent vector) x (lower tangent vector) points OUT of screen.
 
             ^
@@ -1646,24 +1649,24 @@ plc_knottype *plc_classify(gsl_rng *rng, plCurve *L, int *nposs)
 
  */
 
-void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr, 
-			   pd_idx_t *over_in_pos, pd_idx_t *over_out_pos, 
+void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
+			   pd_idx_t *over_in_pos, pd_idx_t *over_out_pos,
 			   pd_idx_t *under_in_pos, pd_idx_t *under_out_pos)
 
 {
   pd_check_cr(SRCLOC,pd,cr);
   pd_check_notnull(SRCLOC,"over_in_pos",over_in_pos); pd_check_notnull(SRCLOC,"over_out_pos",over_out_pos);
   pd_check_notnull(SRCLOC,"under_in_pos",under_in_pos); pd_check_notnull(SRCLOC,"under_out_pos",under_out_pos);
-  
+
   if (pd->edge[pd->cross[cr].edge[0]].head == cr &&
       pd->edge[pd->cross[cr].edge[0]].headpos == 0) { /* The edge at position 0 is incoming */
 
     if (pd->edge[pd->cross[cr].edge[1]].head == cr &&
 	pd->edge[pd->cross[cr].edge[1]].headpos == 1) { /* The edge at position 1 is incoming */
 
-      if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
+      if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
 
-	/* We're in the case: 
+	/* We're in the case:
 
 	          3
                   ^
@@ -1680,7 +1683,7 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
 
       } else { /* The sign of the crossing is negative */
 
-	/* We're in the case: 
+	/* We're in the case:
 
 	          3
                   ^
@@ -1691,17 +1694,17 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
                   1
 
 	*/
-	
+
 	*over_in_pos = 1; *over_out_pos = 3;
 	*under_in_pos = 0; *under_out_pos = 2;
 
       }
 
     } else { /* The edge at position 1 is outgoing */
-      
-       if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
 
-	/* We're in the case: 
+       if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
+
+	/* We're in the case:
 
 	          3
                   |
@@ -1719,7 +1722,7 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
 
       } else { /* The sign of the crossing is negative */
 
-	/* We're in the case: 
+	/* We're in the case:
 
 	          3
                   |
@@ -1731,7 +1734,7 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
                   1
 
 	*/
-	
+
 	*over_in_pos = 0; *over_out_pos = 2;
 	*under_in_pos = 3; *under_out_pos = 1;
 
@@ -1743,10 +1746,10 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
 
     if (pd->edge[pd->cross[cr].edge[1]].head == cr &&
 	pd->edge[pd->cross[cr].edge[1]].headpos == 1) { /* The edge at position 1 is incoming */
-      
-      if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
 
-	  /* We're in the case: 
+      if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
+
+	  /* We're in the case:
 
 	          3
 	          ^
@@ -1760,10 +1763,10 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
 
 	*over_in_pos = 1; *over_out_pos = 3;
 	*under_in_pos = 2; *under_out_pos = 0;
-	
+
       } else { /* The sign of the crossing is negative */
 
-	/* We're in the case: 
+	/* We're in the case:
 
 	          3
                   ^
@@ -1774,17 +1777,17 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
                   1
 
 	*/
-	
+
 	*over_in_pos = 2; *over_out_pos = 0;
 	*under_in_pos = 1; *under_out_pos = 3;
-	
+
       }
-	
+
     } else { /* The edge at position 1 is outgoing */
-	
-      if (pd->cross[cr].sign == PD_POS_ORIENTATION) { 
-	
-	/* We're in the case: 
+
+      if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
+
+	/* We're in the case:
 
 	          3
                   |
@@ -1799,10 +1802,10 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
 
 	*over_in_pos = 2; *over_out_pos = 0;
 	*under_in_pos = 3; *under_out_pos = 1;
-	  
+
       } else { /* The sign of the crossing is negative */
-	  
-	/* We're in the case: 
+
+	/* We're in the case:
 
 	          3
                   |
@@ -1814,14 +1817,14 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
                   1
 
 	  */
-	
+
 	*over_in_pos = 3; *over_out_pos = 1;
 	*under_in_pos = 2; *under_out_pos = 0;
 
       }
-	
+
     }
-    
+
   }
 
 }
@@ -1829,7 +1832,7 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
 void pd_overstrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos)
 
 /* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
-   edges of the strand going over at this crossing, using the crossing sign data 
+   edges of the strand going over at this crossing, using the crossing sign data
    and edge orientations in order to compute the answer. */
 {
   pd_idx_t oip,oop;
@@ -1843,7 +1846,7 @@ void pd_overstrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_
 void pd_understrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd_idx_t *outgoing_edgepos)
 
 /* Returns the position in crossing cr of pd (that is, a number in 0..3) of the incoming and outgoing
-   edges of the strand going under at this crossing, using the crossing sign data 
+   edges of the strand going under at this crossing, using the crossing sign data
    and edge orientations in order to compute the answer. */
 
 {
@@ -1857,7 +1860,7 @@ void pd_understrand_pos(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgepos, pd
 
 void pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum)
 
-/*  Returns the edge number  (that is, a number in 0..pd->nedges) 
+/*  Returns the edge number  (that is, a number in 0..pd->nedges)
     of the incoming and outgoing edges of the strand going OVER at crossing cr of pd,
     using the sign of the crossing to determine. */
 
@@ -1871,7 +1874,7 @@ void pd_overstrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_
 
 void pd_understrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx_t *outgoing_edgenum)
 
-/*  Returns the edge number  (that is, a number in 0..pd->nedges) 
+/*  Returns the edge number  (that is, a number in 0..pd->nedges)
     of the incoming and outgoing edges of the strand going UNDER at crossing cr of pd,
     using the sign of the crossing to determine. */
 {
@@ -1881,4 +1884,3 @@ void pd_understrand(pd_code_t *pd,pd_idx_t cr,pd_idx_t *incoming_edgenum, pd_idx
   *incoming_edgenum = pd->cross[cr].edge[uip];
   *outgoing_edgenum = pd->cross[cr].edge[uop];
 }
-

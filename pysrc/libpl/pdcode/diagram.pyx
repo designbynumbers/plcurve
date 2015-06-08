@@ -1136,7 +1136,6 @@ cdef class PlanarDiagram:
             if pd != NULL:
                 pd_code_free(&pd)
             pd = pd_code_new(n_crossings+2)
-            newobj.p = pd
 
             pd.ncross = n_crossings
             pd.nedges = n_crossings*2
@@ -1181,6 +1180,10 @@ cdef class PlanarDiagram:
             if max_att and att_N >= max_att:
                 pd_code_free(&pd)
                 return None
+
+        uniform_mask = [random.randint(0,1) for _ in range(n_crossings)]
+        newobj.p = pd
+        newobj.set_all_crossing_signs(uniform_mask)
 
         return newobj
 
