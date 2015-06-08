@@ -11,7 +11,7 @@ extensions = [
     Extension("pdcode.*", [os.path.join(ROOT_DIR, "libpl/pdcode/*.pyx")],
               include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],
               library_dirs = ["../src/.libs"],
-              libraries = ["gsl", "plCurve", "gsl", "gslcblas"]),
+              libraries = ["gsl", "plCurve", "gsl", "gslcblas", "planarmap"]),
 
     Extension("*", [os.path.join(ROOT_DIR, "libpl/*.pyx")],
               include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],

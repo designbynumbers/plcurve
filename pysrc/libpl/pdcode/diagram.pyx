@@ -23,6 +23,7 @@ from .plctopology cimport *
 
 from .components cimport *
 from .homfly cimport *
+from .planarmap cimport *
 
 #from cython.view cimport array
 cimport cython
@@ -1090,6 +1091,98 @@ cdef class PlanarDiagram:
                 return i
         pdstor_f.seek(bof)
         return None
+
+    @classmethod
+    def random_diagram(cls, n_crossings, n_components=None, max_att=50):
+        import os
+        cdef pmMap plmap
+        cdef pmSize size
+        cdef pmMethod meth
+        cdef pmMemory mem
+        cdef pm_edge *cur_e
+        cdef pm_vertex *cur_v
+        cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
+        cdef pd_code_t *pd = NULL
+
+        size.m = 4
+        size.b = 4
+        size.e = 0
+        size.v = n_crossings
+        size.f = 0
+        size.r = 0
+        size.g = 0
+        size.d = 0
+        size.t = 0
+        size.dgArr = NULL
+
+        meth.core = 0
+        meth.pic = 0
+        meth.seed = int(os.urandom(5).encode('hex'), 16) # TODO: Make randomish, 0 for testing
+        meth.verbose = 0
+
+        if not pmInitRND(&meth):
+            raise Exception("Failure during init RND")
+        if not pmSetParameters(&size, &meth):
+            raise Exception("Failure during set size")
+
+        att_N = 0
+        while (pd == NULL or
+               (pd != NULL and (n_components is not None and n_components != pd.ncomps))):
+            if not pmMemoryInit(&size, &meth, &mem):
+                raise Exception("Failure during memory init")
+            if not pmPlanMap(&size, &meth, &mem, &plmap):
+                raise Exception("Failure during map generation")
+
+            if pd != NULL:
+                pd_code_free(&pd)
+            pd = pd_code_new(n_crossings+2)
+            newobj.p = pd
+
+            pd.ncross = n_crossings
+            pd.nedges = n_crossings*2
+            pd.nfaces = n_crossings+2
+
+            cur_v = plmap.root.from_v
+            v_idx = cur_v.label-1
+            #print cur_v.label,
+            cur_e = cur_v.root
+            pos = 0
+            while cur_e != cur_v.root.prev_e:
+                e_idx = abs(cur_e.label)-1
+                pd.cross[v_idx].edge[pos] = e_idx
+                #print cur_e.label,
+                cur_e = cur_e.next_e
+                pos += 1
+            e_idx = abs(cur_e.label)-1
+            pd.cross[v_idx].edge[pos] = e_idx
+            #print cur_e.label
+
+            while cur_v.next_v != NULL:
+                cur_v = cur_v.next_v
+                v_idx = cur_v.label-1
+                #print cur_v.label,
+                cur_e = cur_v.root
+                pos = 0
+                while cur_e != cur_v.root.prev_e:
+                    e_idx = abs(cur_e.label)-1
+                    pd.cross[v_idx].edge[pos] = e_idx
+                    #print cur_e.label,
+                    cur_e = cur_e.next_e
+                    pos += 1
+                e_idx = abs(cur_e.label)-1
+                pd.cross[v_idx].edge[pos] = e_idx
+                #print cur_e.label
+            pmFreeMap(&plmap)
+
+            pd_regenerate_edges(pd)
+            pd_regenerate(pd)
+            att_N += 1
+            meth.seed += 1
+            if max_att and att_N >= max_att:
+                pd_code_free(&pd)
+                return None
+
+        return newobj
 
     @classmethod
     def from_dt_code(cls, dt_code):

@@ -1,4 +1,4 @@
-SUBDIRS = judy src pysrc tools test
+SUBDIRS = judy src planarmap pysrc tools test
 
 dist_data_DATA = data/plCurve.typemap
 

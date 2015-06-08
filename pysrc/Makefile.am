@@ -31,7 +31,8 @@ CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
 all-local:
-	$(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src -L"$(abs_top_builddir)"/src/.libs
+	$(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src:$(top_srcdir)/planarmap \
+	-L"$(abs_top_builddir)"/src/.libs:"$(abs_top_builddir)"/planarmap/.libs
 
 PYLIBS = tsmcmc.so pdcode.so plcurve.so
 

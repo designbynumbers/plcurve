@@ -173,6 +173,7 @@ AC_C_CONST
 # Output
 AC_CONFIG_FILES([Makefile
 		src/Makefile
+                planarmap/Makefile
                 pysrc/Makefile
                 tools/Makefile
 		test/Makefile])
