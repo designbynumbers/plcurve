@@ -1,8 +1,18 @@
-\documentclass[amsmath,longbibliography,secnumarabic,floatfix,amssymb,nofootinbib,nobibnotes,letterpaper,11pt,notitlepage,preprint]{revtex4-1}
+\documentclass[amsmath,longbibliography,secnumarabic,floatfix,amssymb,nofootinbib,nobibnotes,letterpaper,11pt,notitlepage,tightenlines]{revtex4-1}
 
-\usepackage[svgnames]{xcolor} \usepackage{latexsym, amsmath, amscd, amsthm} \usepackage{mathrsfs}
-\usepackage{tikz} \usepackage{pgfplots} \usepackage{graphicx} \usepackage{brunnian}
-\usepackage{mathtools} \usepackage{hyperref} \usetikzlibrary{decorations.markings,backgrounds,hobby}
+\usepackage[svgnames]{xcolor}
+\usepackage{latexsym, amsmath, amscd, amsthm}
+\usepackage{mathrsfs}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{graphicx}
+\usepackage{brunnian}
+\usepackage{mathtools}
+\usepackage{hyperref}
+
+\setlength{\parskip}{.1cm}
+
+\usetikzlibrary{decorations.markings,backgrounds,hobby}
 
 \newcommand{\Z}{\mathbb{Z}} \newcommand{\N}{\mathbb{N}}
 
@@ -57,6 +67,9 @@ the limit, knot diagrams behave similarly to rooted diagrams, so that these resu
 
 \section{Definitions}
 \label{sec:defns}
+
+\subsection{Preliminaries}
+\label{sec:prelimdefs}
 
 A \emph{knot} is an isotopy class of embeddings of the circle into $S^3$. A \emph{link} is an
 isotopy class of embeddings of one or more circles into $S^3$. Both of the prior are considered up
@@ -179,6 +192,8 @@ $M = (V, E, F)$ has dual $M^* = (F, E^*, V)$, where there is an edge $(f_1, f_2)
 is adjacent to $f_2$ in $M$. The dual graph of a 4-regular planar map is a \emph{planar
   quadrangulation}.
 
+\subsection{Diagrams and shadows}
+\label{sec:shadowdefs}
 
 By breaking symmetries with a root, we may study certain classes of planar maps by way of the
 celebrated bijection with \emph{blossom trees}\cite{bouttier2003geodist}. We carry this idea to link
@@ -295,6 +310,19 @@ if their underlying shadow structure is.
   \label{fig:prime2legprime}
 \end{figure}
 
+There is a bijection between blossom trees and rooted link shadows.
+
+Is a canonical way to order crossings, components, edges, and direct edges consistently for a rooted
+link shadow:
+\begin{enumerate}
+\item Root vertex is vertex 1, root edge is edge 1.
+\item Empty stack of components to label; add root component.
+\item Pop component $C$ from stack, labelling vertices and edges in order.
+\item Add components to stack; orient the positive edge at first appearance of component away from
+  crossing.
+\item Repeat until stack empty.
+\end{enumerate}
+
 \section{Asymptotic structure theorems for diagrams}
 \label{sec:structure}
 
@@ -306,6 +334,9 @@ diagram.
 \label{sec:patternthm}
 
 \newcommand{\MapClass}{\mathscr{M}}
+
+\subsubsection{A pattern theorem}
+\label{sec:weakpatternthm}
 
 We will show that different classes of link diagrams (really, their duals) satisfy the requirements
 for the following theorem from \cite{Bender1992104}. We reproduce the theorem below:
@@ -326,9 +357,28 @@ for the following theorem from \cite{Bender1992104}. We reproduce the theorem be
     are uniquely determined.
   \end{enumerate} If $c > 0$ is sufficiently small, then $r(M) < r(H)$. The maps may be rooted or
   not.
+  \label{thr:weakpattern}
 \end{theorem}
 
-We can define attachment operations for different kinds of tangles:
+The conclusion is about radii of convergence of two power series, and may appear an esoteric
+result. However, application of the Cauchy-Hadamard theorem, together with one additional
+hypothesis, gives a more familiar tune:
+
+\begin{corollary}[\cite{Bender1992104}]
+  Suppose all of the hypotheses of theorem \ref{thr:weakpattern} and additionally that $\MapClass$
+  grows smoothly, i.e.\ that $\lim_{n\to\infty}{m_n^{1/n}}$ exists. Then there exists constants $c >
+  0$ and $d < 1$ and $N > 0$ so that for all $n \ge N$,
+  \[ \frac{h_n}{m_n} < d^n. \]
+  I.e., the pattern $P$ is \emph{ubiquitous}.
+\end{corollary}
+
+Because of Euler's formula, the number of vertices, edges, or faces in a link shadow or planar
+quadrangulation is entirely determined by choosing any one cardinality. Hence, we can size shadows
+by the number of vertices and still keep the above results.
+
+The crux of applying this theorem to link shadows then falls upon determining an ``attachment''
+operation which satisfies the hypotheses, along with patterns valid for a given class of shadows.
+We can generally define attachment operations for different kinds of tangles:
 \begin{enumerate}
 \item \textbf{Connect sum.} Let $L$ be dual to a rooted link shadow, and $Q$ be the dual to a rooted
   2-tangle shadow. Orient the remaining edges of $L$ canonically using the bijection with blossom
@@ -393,12 +443,18 @@ We can define attachment operations for different kinds of tangles:
       boundaries are appropriately identified.}
     \label{fig:cs_topology}
   \end{figure}
-\item \textbf{4-tangle replacement.} Let $L$ be a rooted link shadow, and $Q$ be the dual to a
-  rooted link shadow.
+\item \textbf{4-tangle replacement.} Let $L$ and $Q$ be duals to
+  rooted link shadows. Canonically index and direct the edges of $L$
+  via the blossom tree bijection. Given a face $f$ in $L$ with
+  lowest-index edge $e$, define the 4-tangle replacement as
+  follows. Delete $f$ from $L$ and the root face of $Q$ to create two
+  quadrangulations $L'$, $Q'$ with quadrangle boundary. Then glue $Q'$
+  to $L'$ along their boundary faces so that the root of $Q'$ is glued
+  to $e$ with directions matching.
 \end{enumerate}
 
 
-Consider the following applications of this theorem to classes of link diagrams:
+We can then consider the following applications of this theorem to classes of link diagrams:
 \begin{enumerate}
 \item Let $\KnotShad$ be the class of all rooted knot shadows (so that $\KnotShad^*$ is the class of
   quadrangulations which are dual to knot shadows), and $P$ be the dual of a prime 2-tangle shadow
@@ -416,6 +472,8 @@ Consider the following applications of this theorem to classes of link diagrams:
   tangle. It is possible that many new crossings are introduced in this step, but the resultant
   $2$-tangle will have only one component. This proves the pattern theorem for arbitrary
   $2k$-tangles.
+\item Consider the class of reduced knot shadows (i.e.\ those with no isthmi). Then gluing an
+  alternating, reduced 4-tangle of one component keeps us in.
 \end{enumerate}
 
 \begin{figure}[h!]  \centering
@@ -427,14 +485,19 @@ Consider the following applications of this theorem to classes of link diagrams:
 \subsubsection{Strategy for proving smooth growth}
 \label{sec:smoothstratproof}
 
+The theorem in the prior section by itself does not sufficiently prove \emph{ubiquity} as required
+to prove asymmetry. One may worry about bad cases; e.g., one in which . Indeed, we require that the class of maps \emph{grow smoothly}, i.e.\ that (for
+$m_n = |\MapClass_n|$) the limit
+\[ \lim_{n\to\infty}{m_n^{1/n}} \] exists.
+
 Bender, et al.\ \cite{Bender1992104} give a powerful proof strategy for proving smooth growth of a
 sequence. Let $\ArbClass$ be a class of combinatorial objects with generating function
 $\sum_{n=0}^{\infty}{\arbclass_n~z^n}$; let the radius of convergence of the OGF be $r$, and
-$\ArbSubClass$ some other class with generating function
-$\sum_{n=0}^{\infty}{\arbsubclass_n~z^n}$ to be specified later. Suppose we have some preliminary,
-loose bound away from zero on $r$ (there are at most $12^n$ planar maps, and so in our cases we have
-$r \ge 1/12$) and that $r \le 1$ Let $C_i > 0$ and $1-r>\delta>0$ be
-arbitrary. The method involves three steps;
+$\ArbSubClass$ some other class with generating function $\sum_{n=0}^{\infty}{\arbsubclass_n~z^n}$
+to be specified later ($\ArbSubClass$ will be some sufficiently nice class of objects indecomposable
+under a composition operation we will define). Suppose we have some preliminary, loose bound away
+from zero on $r$ (there are at most $12^n$ planar maps, and so in our cases we have $r \ge 1/12$)
+and that $r \le 1$ Let $C_i > 0$ and $1-r>\delta>0$ be arbitrary. The method involves three steps;
 
 \begin{enumerate}
 \item \emph{Show that there exists some $n \ge 0$ with $\arbclass_n > C_1(r + \delta)^{-n}$.} This
@@ -493,10 +556,7 @@ $\lim_{n\to\infty}{\arbclass_n^{1/n}} = r^{-1}$ follows.
 \subsubsection{Smooth growth for knot and link diagrams}
 \label{sec:smoothgrowth}
 
-Now, theorem in the prior section by itself does not sufficiently prove \emph{ubiquity} as required
-to prove asymmetry. Indeed, we require that the class of maps \emph{grow smoothly}, i.e.\ that (for
-$m_n = |\MapClass_n|$) the limit
-\[ \lim_{n\to\infty}{m_n^{1/n}} \] exists. The class $\LinkShad$ of rooted link shadows has been
+The class $\LinkShad$ of rooted link shadows has been
 counted exactly. Rooted link shadows are in bijection with rooted 4-regular planar maps and the
 coefficients of the generating function are known~\cite{chapman2011surveys}. If $l_n =
 |\LinkShad_n|$, then:
@@ -508,98 +568,82 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
   $\lim_{n\to\infty}{k_n^{1/n}}$ exists (and is equal to $1/r(K)$).
 \end{theorem}
 
-\begin{proof} A very loose bound on $r = r(K)$ is $1/12 \le r \le 1$ as the number of planar maps in
-  general is bounded by $12^n$. Let $C_i > 0$ and $1-r > \delta > 0$ be arbitrary.
+\begin{proof}
+  A very loose bound on $r = r(K)$ is $1/12 \le r \le 1$ as the number of planar maps in
+  general is bounded by $12^n$. Let $C_i > 0$ and $1-r > \delta > 0$
+  be arbitrary.
 
-  The result will follow from that for a power series (by the Cauchy-Hadamard theorem)
-  \[ \limsup_{n\to\infty}{k_n^{1/n}} = 1/r(K) = r^{-1} \] so long as we can find some $N$ so that
-  for all $n \ge N$, $k_n > C(r + \delta)^{-n}$.
+  \begin{enumerate}
+  \item \emph{Show that there exists some $n \ge 0$ with $k_n > C_1(r
+      + \delta)^{-n}$.} This follows immediately from the
+    Cauchy-Hadamard theorem.
+  \item \emph{Show that there is a subclass $\ArbSubClass$ of $\KnotShad$ for which there exists
+      some $m \ge 0$ with $\arbsubclass_m > C_2(r + \delta)^{-m}$ and $\arbsubclass_{m+1} > C_2(r +
+      \delta)^{-(m+1)}$.} Recall that we want to pick $\ArbSubClass$ so that its objects are
+    \emph{indecomposable} under a composition operation $+$. Hence to motivate our upcoming choice
+    of $\ArbSubClass$, we will first define $+$: Define the concatenation $K = K_1+K_2$ on
+    shadows by gluing the front leg of $K_1$ to the hind leg of $K_2$.
+    \begin{figure}[h!]  \centering
+      \[
+      \begin{aligned}
+        \begin{tikzpicture}[every path/.style={very thick}]
+          \node[draw,circle,minimum size=40pt] (A) at (0,0) {$K_1$};
+          \node (L) at (-1.5,0) {};
+          \node (R) at (1.5,0) {};
 
-  By the definition of lim sup, we have that if $a < r^{-1}$, then for any $M$ we have that there is
-  some $n \ge M$ with $k_n^{1/n} > a$. For instance, we know that $(r + \delta/2)^{-1} < r^{-1}$,
-  hence for any $M$ we have some $n \ge M$ with $k_n > (r+\delta/2)^{-n}$. Notice now that as
-  \[ \left( \frac{r+\delta}{r + \delta/2} \right) > 1, \] there must be some $M$ so that for all $m
-  \ge M$
-  \[ \left( \frac{r+\delta}{r + \delta/2} \right) > C_1^{1/m}, \text{ implying that } (r +
-  \delta/2)^{-m} > C_1(r + \delta)^{-m}, \] whence we then have (by lim sup) some $n \ge M$ with
-  $k_n > (r+\delta/2)^{-n} > C_1(r+\delta)^{-n}$.
+          \draw[>-] (L.center) -- (A);
+          \draw[->] (A) -- (R.center);
+        \end{tikzpicture}
+      \end{aligned} +
+      \begin{aligned}
+        \begin{tikzpicture}[every path/.style={very thick}]
+          \node[draw,circle,minimum size=40pt] (A) at (0,0) {$K_2$};
+          \node (L) at (-1.5,0) {};
+          \node (R) at (1.5,0) {};
 
-  Let $\varphi$ be the map which twists the root edge, making the loop the new root (using the
-  appropriate induced orientation). Then $\varphi: \KnotShad_* \hookrightarrow \KnotShad_{*+1}$ is
-  an injection into the knot shadows which are at least 2-connected as 2-leg diagrams.
-  \begin{figure}[h!]  \centering
-    \includegraphics[height=1.5in]{rooted_composite_knot}
-    \caption{The map $\varphi$ adds a vertex and ensures that the new map is 2-leg-prime.}
-    \label{fig:phi_example}
-  \end{figure} Then if $p_n$ counts knot shadows which are at least 2-connected as 2-leg diagrams,
-  and since $\varphi^2$ acts similarly while increasing the number of crossings by 2, we have that:
-  \[ p_{n+1} > k_{n} > C_1(r + \delta)^{-n} \text{ and } p_{n+2} > k_{n} > C_1(r + \delta)^{-n},\]
-  whence setting $C_1 = C_2(r + \delta)^{-2}$, $m = n+1$ and observing that since $(r + \delta) < 1$
-  we know $(r+\delta)^{-\ell} < (r+\delta)^{-(\ell+1)}$, we get
-  \[ p_{m} > C_2(r + \delta)^{-m-1} > C_2(r + \delta)^{-m} \text{ and } p_{m+1} > C_2(r +
-  \delta)^{-(m+1)}.\] Now define a concatenation $K = K_1+K_2$ on shadows counted by $p_n$ by gluing
-  the front leg of $K_1$ to the hind leg of $K_2$. Since $K_1$ and $K_2$ are ``prime'' as 2-leg
-  diagrams, any diagram $K$ has at most one (possibly no!)  decompositions into the ordered pair
-  $(K_1, K_2)$ as $K_1 + K_2$. Notice that $|K_1 + K_2| = |K_1| + |K_2|$ exactly.
-  \begin{figure}[h!]  \centering
-    \[
-    \begin{aligned}
-      \begin{tikzpicture}[every path/.style={very thick}]
-        \node[draw,circle,minimum size=40pt] (A) at (0,0) {A};
-        \node (L) at (-1.5,0) {};
-        \node (R) at (1.5,0) {};
+          \draw[>-] (L.center) -- (A);
+          \draw[->] (A) -- (R.center);
+        \end{tikzpicture}
+      \end{aligned} =
+      \begin{aligned}
+        \begin{tikzpicture}[every path/.style={very thick}]
+          \node[draw,circle,minimum size=40pt] (A) at (0,0) {$K_1$};
+          \node[draw,circle,minimum size=40pt] (B) at (2,0) {$K_2$};
+          \node (L) at (-1.5,0) {};
+          \node (R) at (3.5,0) {};
 
-        \draw[>-] (L.center) -- (A);
-        \draw[->] (A) -- (R.center);
-      \end{tikzpicture}
-    \end{aligned} +
-    \begin{aligned}
-      \begin{tikzpicture}[every path/.style={very thick}]
-        \node[draw,circle,minimum size=40pt] (A) at (0,0) {B};
-        \node (L) at (-1.5,0) {};
-        \node (R) at (1.5,0) {};
+          \draw[>-] (L.center) -- (A);
+          \draw (A) -- (B);
+          \draw[->] (B) -- (R.center);
+        \end{tikzpicture}
+      \end{aligned}
+      \]
+      \caption{The two-leg sum operation $+$. If both $A$ and $B$ are two-leg-prime, then $A + B$ has
+        exactly one separating edge.}
+      \label{fig:legsum_example}
+    \end{figure}
+    Hence, we will take $\ArbSubClass$ to be the class of knot shadows which remain connected after
+    removing the root edge and any additional non-root edge.
 
-        \draw[>-] (L.center) -- (A);
-        \draw[->] (A) -- (R.center);
-      \end{tikzpicture}
-    \end{aligned} =
-    \begin{aligned}
-      \begin{tikzpicture}[every path/.style={very thick}]
-        \node[draw,circle,minimum size=40pt] (A) at (0,0) {A};
-        \node[draw,circle,minimum size=40pt] (B) at (2,0) {B};
-        \node (L) at (-1.5,0) {};
-        \node (R) at (3.5,0) {};
-
-        \draw[>-] (L.center) -- (A);
-        \draw (A) -- (B);
-        \draw[->] (B) -- (R.center);
-      \end{tikzpicture}
-    \end{aligned}
-    \]
-    \caption{The two-leg sum operation $+$. If both $A$ and $B$ are two-leg-prime, then $A + B$ has
-      exactly one separating edge.}
-    \label{fig:legsum_example}
-  \end{figure}
-
-  Now, let $C_2$ be the maximum of $C_3$ and $1$. By iterating this construction, it follows from
-  that $C_2^k \ge C_2 \ge 1$ that $k_n > C_2(r + \delta)^{-n}$ whenever $n > 0$ can be written as a
-  linear combination of $m$ and $m+1$ with non-negative integer coefficients, as then
-  \[ k_n > p_m^ap_{m+1}^b > (C_2(r + \delta)^{-m})^a(C_2(r + \delta)^{-(m+1)})^b =
-  C_2^{a+b}(r+\delta)^{-(am + b(m + 1)} > C_2(r + \delta)^{-n}. \] Hence, given $N = m(m+1)$ we are
-  assured that for any $n \ge N$, $k_n > C_2(r+\delta)^{-n}$.
-
-  To finish the proof we realize that this last statement implies that the lim inf is $r^{-1}$ and
-  hence the limit result follows. Observe that $\liminf_{n\to\infty}{k_n^{1/n}} = r^{-1}$ if for any
-  $\epsilon > 0$, there exists $N$ so that for all $n \ge N$, $k_n^{1/n} > r^{-1} - \epsilon =
-  \frac{1 - r\epsilon}r$. We may assume that $\epsilon > 1$ since otherwise the inequality is clear
-  since $k_n \ge 0$ always. So we are done if we can choose $\delta$ so that
-  \[ \frac{(C^{1/n}-1)r + r^2\epsilon}{1 - r\epsilon} > \delta, \] as then we have from our prior
-  result that $k_n^{1/n} > C^{1/n}(r + \delta)^{-1} > r^{-1} - \epsilon$. Indeed, if $M$ is
-  sufficiently large then for any $n \ge M$ we have $r(C^{1/n} - 1 + r\epsilon) > 0$ (if $C \ge 1$
-  it is immediate, otherwise take $M > \frac{\ln C}{\ln{(1-r\epsilon)}}$) and $1 > 1 - r\epsilon >
-  0$ so that the left hand side of the inequality is positive; but we may choose $\delta >0$ as
-  small as we desire. Hence for $N$ being the maximum of $M$ and $N$ from our prior statement about
-  the growth of $k_n$, the result that $\lim_{n\to\infty}{k_n^{1/n}} = r^{-1}$ follows.
+    Let $\varphi$ be the map which twists the root edge, making the loop the new root (using the
+    appropriate induced orientation). Then $\varphi: \KnotShad_* \hookrightarrow \ArbSubClass_{*+1}$,
+    since deleting the root and smoothing the pointed edge produces a knot shadow, which must be at
+    least 2-connected.
+    \begin{figure}[h!]  \centering
+      \includegraphics[height=1.5in]{rooted_composite_knot}
+      \caption{The map $\varphi$ adds a vertex and ensures that the new map is 2-leg-prime.}
+      \label{fig:phi_example}
+    \end{figure} Then as $d_n$ counts knot shadows which are at least 2-connected as 2-leg diagrams,
+    and since $\varphi^2$ acts similarly while increasing the number of crossings by 2, we obtain
+    step 2 as by the discussion in the prior section.
+  \item \emph{Show that there exists some $N$ so that for any $n \ge N$, $k_n > (r + \delta)^{-n}$.}
+    We only need show that $+$ satisfies the appropriate properties laid out in the previous
+    section. Certainly $A + B \in \KnotShad$ as we obtain a new 2-leg shadow. As $+$ introduces no
+    crossings, we have $k = 0$ and $|A + B| = |A| + |B|$. Finally, a 2-leg shadow $K$ either lies in
+    $\ArbSubClass$ or has $\ell-1$ disconnecting edges. Cutting these edges produces the disjoint
+    union $\ell$ well-ordered 2-leg shadows (well ordered from their position in the long curve $K$)
+    which is the unique ordered $+$-decomposition of $K$ into elements of $\ArbSubClass$.
+  \end{enumerate}
 \end{proof}
 
 \begin{corollary}
