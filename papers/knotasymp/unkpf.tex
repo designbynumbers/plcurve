@@ -268,7 +268,49 @@ furthermore, the class of rooted planar quadrangulations is dual to $\LinkShad_n
 
   The class of maps which represent rooted \emph{knot shadows} in $n$ crossings are denoted
   $\KnotShad_n$.
-\end{definition} Knot shadows $\KnotShad_n$ represent a curious, small subclass of $\LinkShad_n$.
+\end{definition} Knot shadows $\KnotShad_n$ represent a curious, small
+subclass of $\LinkShad_n$.
+
+To prove asymptotics for shadows, diagrams, and arbitrary other
+flavors, we introduce the idea of a labeled map;
+\begin{definition}
+  Given a triple of label sets $S = (S_V, S_E, S_F)$, an
+  \emph{$S$-map} or \emph{$S$-labeled map} is a map $M = (V,E,F)$ together with a triple of maps
+  $(s_V, s_E, s_F)$, $s_*: * \to S_*$ which label each vertex, edge,
+  and face of $M$ with an element of $S$.
+\end{definition}
+Unless mentioned otherwise, we will only consider vertex-labeled maps,
+and so abuse notation with $S := S(S, \{0\}, \{0\})$. Call a link
+(resp. knot) shadow labeled with a set $S$ as link (knot)
+$S$-shadow. We will show in corollary~\ref{cor:linkdiaaresshadows} that link
+(resp. knot) diagrams are exactly link (knot) $\{+, -\}$-shadows. With
+this in mind we can define other useful classes of $S$-shadows, like
+pseudodiagrams:
+\begin{definition}
+  A link (resp. knot) pseudodiagram is a link (knot) shadow, together with
+  over-under information at some subset of vertices in the
+  shadow. Equivalently (c.f.\ corollary \ref{cor:linkdiaaresshadows}), a
+  pseudodiagram is a $\{+, 0, -\}$-shadow.
+\end{definition}
+
+\begin{definition}
+  A link \emph{HOMFLY skein resolution diagram} is a link shadow where each
+  vertex is either of crossing type (and has over-under information),
+  or of smooth type, where it represents the valid skein tangency
+  which keeps edge orientations consistent. Equivalently, it is a
+  $\{+,-,s\}$-shadow.
+\end{definition}
+The number of link components in a HOMFLY skein resolution diagram
+may differ by one from the number of link components in the
+shadow. Hence the class of knot HOMFLY skein resolution diagrams is
+\emph{different} from the class of knot pseudodiagrams, despite having
+the same labeling set.
+
+TODO: I'd like to be able to say here (or later) that we can include
+labels which correspond to tangencies (rather than crossings!). I
+argue that from a consistent orientation on the edges of the shadow,
+labels which represent either skein a or skein b can be consistently
+parsed.
 
 Rooted (knot or link) diagrams are equivalently viewed as \emph{two-leg diagrams} or
 \emph{2-tangles} as illustrated below.
@@ -351,13 +393,14 @@ There is a bijection between blossom trees and rooted link shadows.
 
 \begin{corollary}
   Rooted link diagrams are in bijection with rooted link shadows
-  labelled with $\{+, -\}$.
+  labelled with $S = \{+, -\}$.
+  \label{cor:linkdiaaresshadows}
 \end{corollary}
 
 \begin{proof}
   Given a rooted link diagram, there is a consistent orientation of
   its components. There is hence a labelling of the underlying rooted
-  shadow with $\{+, -\}$ (they are the standard crossing signs). This
+  shadow with $S = \{+, -\}$ (they are the standard crossing signs). This
   process is reversible since the consistent component orientation for
   the diagram is identical to that of the shadow.
 \end{proof}
@@ -381,13 +424,6 @@ Theorem 2 in \cite{Bender1992104} provides a pattern theorem for knot and link s
 strategy of attaching a desired pattern. However, care is required in the case of knot or link
 \emph{diagrams}, in which each vertex takes a value in the set $\{+, -\}$. In fact, we turn our
 attention to the dual case in which \emph{faces} are labelled with an arbitrary set.
-
-\begin{definition}
-  Given a triple of label sets $S = (S_V, S_E, S_F)$, an
-  \emph{$S$-map} is a map $M = (V,E,F)$ together with a triple of maps
-  $(s_V, s_E, s_F)$, $s_*: * \to S_*$ which label each vertex, edge,
-  and face of $M$ with an element of $S$.
-\end{definition}
 
 \begin{theorem}Let $S$ be a set and $\MapClass[S]$ be some class of
   $S$-maps on a surface of type $g$ and let $P$ be a planar $S$-map
@@ -773,35 +809,6 @@ diagrams, which only have labeled vertices).
   \end{enumerate}
 \end{enumerate}
 
-
-We can then consider the following applications of this theorem to classes of link diagrams:
-\begin{enumerate}
-\item Let $\KnotShad$ be the class of all rooted knot shadows (so that $\KnotShad^*$ is the class of
-  quadrangulations which are dual to knot shadows), and $P$ be the dual of a prime 2-tangle shadow
-  of only one component. Define the attachment operation of $P$ into $\KnotShad^*$ as follows. Let
-  $Q$ be $P$ with a rooted edge and embed $P$ identically, and take the connect sum attachment
-  operation. Since $P$ was chosen to have one component, only maps in $K^*$ are created (the
-  attachment operation is just the connect sum).
-\item Again consider $\KnotShad^*$, but let $P$ be the dual of a prime 4-tangle shadow of one
-  component with \emph{alternating} loose strands and let attachment be 4-tangle replacement.
-\item If we consider a tangle $P^*$ which consists of more than one component, we obtain another
-  proof that link diagrams almost surely have more than one component.
-\item Consider again connect summation. Given a pattern $P^*$ representing a $2k$-tangle, we can
-  obtain a rooted two-leg-prime diagram $Q^*$ as follows. Connect $2(k-1)$ of the loose tangle
-  strands into pairs iteratively if the two strands correspond to different components of the
-  tangle. It is possible that many new crossings are introduced in this step, but the resultant
-  $2$-tangle will have only one component. This proves the pattern theorem for arbitrary
-  $2k$-tangles.
-\item Consider the class of reduced knot shadows (i.e.\ those with no isthmi). Then gluing an
-  alternating, reduced 4-tangle of one component keeps us in.
-\end{enumerate}
-
-\begin{figure}[h!]  \centering
-  \includegraphics[width=1.5in]{alt_4_tangle}
-  \caption{A 4-tangle with alternating strands}
-  \label{fig:alt4tangle}
-\end{figure}
-
 \subsubsection{Strategy for proving smooth growth}
 \label{sec:smoothstratproof}
 
@@ -1027,7 +1034,9 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
 
   For any prime 2-tangle $P$, there exists $N \ge 0$ and constants $d < 1$, $c > 0$ so that for
   $n \ge N$,
-  \[\Prb(\text{a knot diagram $K$ contains $\le cn$ copies of $P$ as connect summands}) < d^n.\]
+  \[\Prb(\text{a knot diagram $K$ contains $\le cn$ copies of $P$ as
+    connect summands}) < d^n.\]
+  \label{cor:patternthm}
 \end{corollary}
 
 \begin{proof}
@@ -1101,7 +1110,9 @@ quadrangulations of the sphere. Specifically, we will take $M_1$ to be the dual 
 planar map of the following 2-tangle:
 \begin{figure}[h!]
   \centering
-  \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
+  \begin{tikzpicture}
+    \begin{scope}
+    [every path/.style={string, thick, gray}, every node/.style={transform shape,
       knot crossing, inner sep=1.5pt}]
     \node (tl) at (-.7,0) {};
     \node (tr) at (.7,0) {};
@@ -1125,13 +1136,116 @@ planar map of the following 2-tangle:
     .. (tr.center);
     \draw[->] (tr.center) .. controls (tr.4 south east) and (er.4 west)
     .. (er.center);
+  \end{scope}
+  \begin{scope}[every path/.style={very thick}, every node/.style={circle,fill=black, inner sep=2pt}]
+    \node (T) at (0,2.5) {};
+    \node (B) at (0,-1) {};
+    \node (O) at (0,.2) {};
+    \node (X) at (-.6,.7) {};
+    \node (Y) at (.6, .7) {};
+    \node (Z) at (.9, 1.7) {};
+
+    \draw (T) -- (Z) {};
+    \draw (T) -- (Y) -- (O) -- (X) -- (T) {};
+    \draw (Y) .. controls (2.1, 1.7) and (1.2, 2) .. (T);
+    \draw (O) -- (B);
+    \draw (T) .. controls (-3,2) and (-1.5,-.5) .. (B);
+    \draw (T) .. controls (3,2) and (1.5,-.5) .. (B);
+  \end{scope}
   \end{tikzpicture}
-  \caption{The dual 2-tangle $M_1$, and its representation as a 2-tangle.}
+  \caption{The dual 2-leg curve $M_1$ (black), and one of its representations as
+    a 2-tangle (gray).}
   \label{fig:treflegs2}
 \end{figure}
 Clearly $M_1$ has no reflective symmetry by inspection, and certainly any of the ways of replacing
 $M_1$ keep the object in the class of quadrangulations dual to knot maps. Finally, the ubiquity
-condition is exactly the pattern theorem for 2-tangles proved in the prior section!
+condition is exactly the pattern theorem for 2-tangles proved in the
+prior section!
+
+For reduced diagrams, we must pick a slightly different $M_1$, such as
+the one in figure ???
+
+Additionally, we can use our 4-tangle replacement scheme to create a
+$M_1$ which shows asymmetry of prime knot (link) diagrams. Take $M_1$
+as in figure~\ref{fig:primeknotasymm}.
+\begin{figure}[h!]
+  \centering
+  % \includegraphics[width=2in]{dual_to_fig8twist}
+  \begin{tikzpicture}
+    \begin{scope}[every path/.style={string, thick, gray}, every node/.style={transform shape,
+        knot crossing, circle, fill=gray, inner sep=1.5pt}]
+      % \draw[red,step=.5] (-2,-2) grid (2,2);
+      \useasboundingbox (-2,-2) rectangle (2,2);
+      \node (O) at (.6,.6) {};
+      \node (O2) at (.1,.25) {};
+      \node (Q) at (-.4,-.4) {};
+      \node (K) at (.4,-.4) {};
+
+      \node[fill=none] (LL) at (-2,0) {};
+      \node (L) at (-1.15,-.2){};
+      \node (R) at (1.15,.4) {};
+      \node[fill=none] (RR) at (2,0) {};
+      \node[fill=none] (UU) at (0,2) {};
+      \node (U) at (.2,1.15) {};
+      \node (D) at (-.4,-1.15) {};
+      \node[fill=none] (DD) at (0,-2) {};
+
+      \draw (LL) -- (L) -- (Q) -- (K) edge[out=0, in=-90] (R);
+      \draw (R) edge[out=90, in=0,looseness=1.5] (U);
+      \draw (U) edge[out=180,in=90,looseness=1.8] (L);
+      \draw (L) edge[out=-90,in=180,looseness=1.5] (D);
+      \draw (UU) -- (U) -- (O) edge[out=180,in=90,looseness=1.5] (O2);
+      \draw (O) -- (R) -- (RR);
+      \draw (D) edge[out=0,in=-90] (K);
+      \draw (O) edge[out=-90,in=0,looseness=1.8] (O2);
+      \draw (O2) -- (K);
+      \draw (Q) edge[out=90, in=190,looseness=1.8] (O2);
+      \draw (Q) -- (D) -- (DD);
+    \end{scope}
+    \begin{scope}[every path/.style={string, very thick, black}, every
+      node/.style={transform shape, knot crossing, circle, fill=black,
+        inner sep=2pt}, decoration={markings, mark=at position 0.4 with
+        {\arrow{<}}}]
+      \useasboundingbox (-2,-2) rectangle (2,2);
+      \node (a) at (-1.5,1.5) {};
+      \node (b) at (1.5,1.5) {};
+      \node (c) at (1.5,-1.5) {};
+      \node (d) at (-1.5,-1.5) {};
+      \draw (a) -- (b) -- (c);
+      \draw (c) -- (d);
+      \draw (d) -- (a);
+
+      \node (e) at (-.8,.8) {};
+      \node (f) at (.8,.8) {};
+      \node (g) at (.8,0) {};
+      \node (h) at (0,0) {};
+      \node (i) at (0,-.8) {};
+      \node (j) at (-.8,-.8) {};
+
+      \node (x) at (.4,.4) {};
+
+      \draw (e) -- (f) -- (g) -- (h) -- (i) -- (j) -- (e);
+      \draw (e) -- (h);
+
+      \draw (a) -- (e);
+      \draw (b) -- (f);
+      \draw (i) -- (c) -- (g);
+      \draw (d) -- (j);
+
+      \draw (e) -- (x) -- (g);
+
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Choice of $M_1$ for proving that prime knot shadows
+    are asymmetric}
+  \label{fig:primeknotasymm}
+\end{figure}
+Then $M_1$ consists of exactly two link components and is of abab
+type; any way of replacing a vertex in a knot shadow with a 4-leg
+curve of abab type keeps the number of link components
+constant. Furthermore, $M_1$ is ubiquitous in prime (knot) diagrams as
+it is an application of corollary~\ref{cor:patternthm} to $P$, the
+square with an additional 2-path joining two of its opposite vertices.
 
 Application of the above theorems provides us with the following corollary which enables us to
 transfer any asymptotic results on rooted diagrams to unrooted diagrams.
