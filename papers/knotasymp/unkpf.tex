@@ -1,5 +1,6 @@
-\documentclass[amsmath,longbibliography,secnumarabic,floatfix,amssymb,nofootinbib,nobibnotes,letterpaper,11pt,notitlepage,tightenlines]{revtex4-1}
+\documentclass[amsmath,longbibliography,secnumarabic,floatfix,amssymb,nofootinbib,nobibnotes,letterpaper,11pt,tightenlines,notitlepage,showkeys,showlabels]{revtex4-1}
 
+\usepackage{showlabels}
 \usepackage[svgnames]{xcolor}
 \usepackage{latexsym, amsmath, amscd, amsthm}
 \usepackage{mathrsfs}
@@ -28,6 +29,7 @@
 \newcommand{\LinkShad}{\mathscr{L}}
 \newcommand{\ArbMaps}{\mathscr{M}}
 \newcommand{\PrimeShad}{\mathscr{P}}
+\newcommand{\ArbSurf}{\Sigma}
 \newcommand{\ArbClass}{\mathscr{C}}
 \newcommand{\ArbObj}{C}
 \newcommand{\ArbSubClass}{\mathscr{D}}
@@ -37,6 +39,7 @@
 \newcommand{\Prb}{\mathbb{P}}
 \newcommand{\Shad}[1]{\tilde{#1}}
 \newcommand{\FourTang}{\&}
+\newcommand{\GraphOf}[1]{\Gamma(#1)}
 
 \newcommand{\Expand}{T}
 \DeclareMathOperator{\Aut}{aut}
@@ -47,7 +50,7 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem*{lemma*}{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{definition}{Definition} \tikzset{->-/.style={decoration={ markings, mark=at position #1
+\newtheorem*{definition}{Definition} \tikzset{->-/.style={decoration={ markings, mark=at position #1
       with {\arrow{>}}},postaction={decorate}}}
 
 \begin{document}
@@ -59,20 +62,34 @@
 \date{\today}
 %%%
 
+
+\begin{abstract}
+  We study random knotting by considering knot and link diagrams as
+  decorated, (rooted) combinatorial maps on spheres, and pulling them
+  uniformly from among sets of a given number of vertices $n$. We
+  prove some asymptotic results and examine how quickly this behavior
+  occurs in practice. En route, we show how some asymptotic laws for
+  unlabeled maps apply to decorated maps as well.
+\end{abstract}
 \maketitle
+
 \section{Introduction}
 \label{sec:intro}
 
-There is a dearth of models for drawing random knots; self avoiding lattice walks [cite], random
-space polygons [cite], random braid words [cite], \emph{Petaluma} [cite], et.\ al. In this paper we
-will discuss the \emph{random diagram model} under which \emph{knot diagrams} are drawn uniformly
-from the set of all diagrams with a given number of crossings. Alternating knot and link diagrams
-have been studied [cite] but little is published about the knottiness of arbitrary random diagrams
-of large size.
+There is a dearth of models for drawing random knots; self avoiding
+lattice walks [cite], random space polygons [cite], random braid words
+[cite], \emph{Petaluma} [cite], et.\ al. In this paper we will discuss
+the \emph{random diagram model} under which \emph{knot diagrams} are
+drawn uniformly from the set of all diagrams with a given number of
+crossings. Alternating knot and link diagrams have been studied [cite]
+but little is published about the knottiness of arbitrary random
+diagrams of large size.
 
-In this paper we begin by considering a slightly different object, \emph{rooted diagrams}, which
-break symmetries (as opposed to in \cite{CCMknotdiagrams2015}). We are then able to prove that in
-the limit, knot diagrams behave similarly to rooted diagrams, so that these results carry over.
+In this paper we begin by considering a slightly different object,
+\emph{rooted diagrams}, which break symmetries (as opposed to in
+\cite{CCMknotdiagrams2015}). We are then able to prove that in the
+limit, knot diagrams behave similarly to rooted diagrams, so that
+these results carry over.
 
 \section{Definitions}
 \label{sec:defns}
@@ -80,19 +97,84 @@ the limit, knot diagrams behave similarly to rooted diagrams, so that these resu
 \subsection{Preliminaries}
 \label{sec:prelimdefs}
 
-A \emph{knot} is an isotopy class of embeddings of the circle into $S^3$. A \emph{link} is an
-isotopy class of embeddings of one or more circles into $S^3$. Both of the prior are considered up
-to \emph{ambient isotopy} of the embedded circles. The study of links and knots is well known to be
-equivalent to the study of \emph{link diagrams} and \emph{knot diagrams} (more formally defined
-below) up to the so-called \emph{Reidemeister moves}. We wish to examine the underlying \emph{planar
-  map} structure of knot and link diagrams;
+\subsubsection{Knots, links, and tangles}
+\label{sec:knotlinktangledef}
+
+A \emph{knot} is an isotopy class of embedding of the circle into
+$S^3$. A \emph{link} is an isotopy class of embedding of one or more
+circles into $S^3$. Both of the prior are considered up to
+\emph{ambient isotopy} of the embedded circles. A \emph{knot diagram}
+(resp. \emph{link diagram}) is a generic immersion of a circle
+(resp. any number of circles) into the sphere $S^2$ (generic in that
+all intersection points are double points) together with over-under
+information at each double strand. The study of links and knots is
+well known to be equivalent to the study of link diagrams and knot
+diagrams (more formally defined below) up to the so-called
+\emph{Reidemeister moves}, shown in figure~\ref{fig:reidemeister}.
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
+      knot crossing, inner sep=1.5pt}]
+    \begin{scope}
+      \node (X) at (0,0) {};
+
+      \node (A) at (-.5,-.5) {};
+      \node (B) at (.5,-.5) {};
+
+      \draw (A) -- (X.center);
+      \draw (X.center) .. controls (X.16 north east) and (X.16 north west) .. (X);
+      \draw (X) -- (B);
+    \end{scope}
+    \begin{scope}[xshift=1in]
+      \node (A) at (-.5,-.5) {};
+      \node (B) at (.5,-.5) {};
+
+      \node (X) at (0,.7) {};
+
+      \draw (A)        .. controls (A.8 north east) and (X.4 west) .. (X.center);
+      \draw (X.center) .. controls (X.4 east) and (B.8 north west) .. (B);
+    \end{scope}
+  \end{tikzpicture}
+  \caption{The three Reidemeister moves.}
+  \label{fig:reidemeister}
+\end{figure}
+
+A \emph{$2k$-leg curve} is a generic immersion of $k$ intervals into
+the sphere so that all $2k$ interval ends lie in the same face of
+the sphere. A \emph{$2k$-tangle} is a $2k$-leg curve together with
+over-under information at each double point.
+\begin{figure}[h!]
+  \centering
+  \caption{A $6$-leg curve, and a $6$-tangle with its underlying structure.}
+  \label{fig:2klegcurve}
+\end{figure}
+
+\subsubsection{Combinatorial maps}
+\label{sec:combmapdefs}
+
+We wish to examine the underlying \emph{map} structure of knot and
+link diagrams. If $\ArbSurf$ is a surface, then its Euler
+characteristic $\chi(\ArbSurf)$ is a topological invariant. The type
+$g$ of a surface is defined by $\chi(\ArbSurf) = 2 - 2g$ (this
+definition agrees with the genus $g$ of orientable surfaces).
 
 \begin{definition}
-  A \emph{planar map with $n$ vertices} $P$ is a graph $\tilde P$ embedded in the sphere. The planar
-  map $P$ is \emph{4-regular} or \emph{quartic} if every vertex in the underlying graph $\tilde P$
-  has degree 4. A \emph{rooted planar map} is a planar map together with a single edge marked with a
+  A \emph{map with $n$ vertices} $M$ is a graph $\GraphOf M$ embedded on
+  a surface $\ArbSurf$ of type $g$ so that every connected component
+  of $\ArbSurf \setminus M$ is a topological disk. The connected
+  components of $\ArbSurf \setminus M$ are called the \emph{faces} of
+  $M$. The map $M$ is \emph{4-regular} or \emph{quartic} if every
+  vertex in the underlying graph $\GraphOf M$ has degree 4. A
+  \emph{rooted map} is a map together with a single edge marked with a
   direction.
+
+  If $\ArbSurf$ is the sphere, then the map $M$ is called \emph{planar}.
 \end{definition}
+
+In this paper we will only consider $\ArbSurf$ to be an orientable
+surface (of genus $g$). Considering $g \ne 0$ extends results to
+\emph{virtual} diagrams, but we will be most concerned with results
+for classical knot theory, where $\ArbSurf = S^2$.
 
 \begin{figure}[h!]
   \centering
@@ -196,10 +278,36 @@ below) up to the so-called \emph{Reidemeister moves}. We wish to examine the und
   \caption{Planar quadrangulation which is dual to a knot shadow.}
   \label{fig:dualquadeg}
 \end{figure}
-Planar maps (indeed, maps on any surface) have a well defined notion of the \emph{dual map}; a map
-$M = (V, E, F)$ has dual $M^* = (F, E^*, V)$, where there is an edge $(f_1, f_2) \in E^*$ if $f_1$
-is adjacent to $f_2$ in $M$. The dual graph of a 4-regular planar map is a \emph{planar
-  quadrangulation}.
+There are alternate, equivalent definitions of rooting a map. Let $M$
+be a rooted map with root edge $\rho$ which points from vertices $v_1$
+to $v_2$. Then the unique face $f$ which $\rho$ goes counterclockwise
+around is the \emph{root face}. The root face is the \emph{exterior
+  face}, and is typically drawn as such. The vertex $v_2$ at the tip
+of $\rho$ is the \emph{root vertex}.
+
+Maps have a well defined notion of the \emph{dual map}; a map $M = (V,
+E, F)$ has dual $M^* = (F, E^*, V)$, where there is an edge $(f_1,
+f_2) \in E^*$ if $f_1$ is adjacent to $f_2$ in $M$ (faces are adjacent
+if they share an edge on their boundaries). The dual graph of a
+4-regular map is a \emph{quadrangulation}, i.e.\ a map for which every
+face has four bounding edges. A map is \emph{simple} if it contains no
+parallel edges or self loops (its underlying graph is simple). Given a
+rooted map $M$, its dual is rooted as follows. Let $\rho$ be the root
+edge of $M$ pointing from $v_1$ to the root vertex $v_2$ be adjacent
+to the face $f_1$ and the root face $f_2$. Then $(f_1, f_2)$ is the
+dual root edge and directed from $f_1$ to $f_2$, and $f_2$, $v_2$ are
+the dual root vertex and root face, respectively (and the dual of a
+dual rooted map is the original rooted map).
+
+A map $M$ is a CW-complex for the surface in which it embeds. Given a
+cycle $\gamma$ of edges in $M$,
+
+\begin{definition}
+  A rooted map $P$ is a \emph{submap} of a larger (possibly unrooted)
+  map $M$ if there exists a cycle of $k$ (possibly repeated) edges in
+  $M$ so that one of the two halves of $M$ separated by the cycle is
+  identical
+\end{definition}
 
 \subsection{Diagrams and shadows}
 \label{sec:shadowdefs}
@@ -301,7 +409,7 @@ pseudodiagrams:
   $\{+,-,s\}$-shadow.
 \end{definition}
 The number of link components in a HOMFLY skein resolution diagram
-may differ by one from the number of link components in the
+may differ from the number of link components in the
 shadow. Hence the class of knot HOMFLY skein resolution diagrams is
 \emph{different} from the class of knot pseudodiagrams, despite having
 the same labeling set.
@@ -478,14 +586,17 @@ be necessary in defining attachment.
       z^{q-1} \right)^{\lfloor n/k \rfloor}} = \mathscr{L}(H(w)).\]
   Let $g_n$ be the coefficients of $G(z)$.
 
-  Suppose $M \in \MapClass[S]$ contains $m$ copies of $Q$. By property (3) of our attachment, $m \le
-  n$. If $M$ had been produced from some $S$-map $K$ in $\mathscr{H}[S]$ by our attachment
-  process, we can find all possible $K$ by removing at least $m - cn$ copies of $Q$ from $M$. It is
-  possible to bound from above the number of ways to do this by
-  \[ \sum_{j \ge m-cn}{\binom m j} = \sum_{k < cn}{\binom m k} < \sum_{k < cn}{\binom n k} \le
-  {n\binom n{cn}} \le \frac{n(ne)^{cn}}{{cn}^{cn}} = n\left(\frac ec\right)^{cn} =: t_n.\] If $M(x)
-  = \sum{m_nx^n}$, then $m_n \ge g_n$ and $t_n > 1$ for sufficiently large $n$, so $m_n \ge
-  g_n/t_n$. Hence,
+  Suppose $M \in \MapClass[S]$ contains $m$ copies of $Q$. By property
+  (3) of our attachment, $m \le n$. If $M$ had been produced from some
+  $S$-map $K$ in $\mathscr{H}[S]$ by our attachment process, we can
+  find all possible $K$ by removing at least $m - cn$ copies of $Q$
+  from $M$. It is possible to bound from above the number of ways to
+  do this by
+  \[ \sum_{j \ge m-cn}{\binom m j} = \sum_{k < cn}{\binom m k} <
+  \sum_{k < cn}{\binom n k} \le {n\binom n{cn}} \le
+  \frac{n(ne)^{cn}}{{cn}^{cn}} = n\left(\frac ec\right)^{cn} =: t_n.\]
+  If $M(x) = \sum{m_nx^n}$, then $m_n \ge g_n$ and $t_n > 1$ for
+  sufficiently large $n$, so $m_n \ge g_n/t_n$. Hence,
   \[1/r(M) \ge \limsup_{n \to \infty}{(g_n/t_n)^{1/n}} = \lim_{n \to \infty}{(t_n)^{-1/n}}\limsup_{n
     \to \infty}{(g_n)^{1/n}} \ge (c/e)^c/r(G).\]
   By the prior lemma, $r(H)^k = r(G)^k(1 + r(G)^{q-1})$ so that
@@ -504,6 +615,7 @@ hypothesis, gives a more familiar tune:
   0$ and $d < 1$ and $N > 0$ so that for all $n \ge N$,
   \[ \frac{h_n}{m_n} < d^n. \]
   I.e., the pattern $P$ is \emph{ubiquitous}.
+  \label{thr:strongpattern}
 \end{corollary}
 
 Because of Euler's formula, the number of vertices, edges, or faces in a link shadow or planar
@@ -821,23 +933,26 @@ Bender, et al.\ \cite{Bender1992104} give a powerful proof strategy for proving 
 sequence. We adapt that to prove the following theorem.
 
 \begin{theorem}
-  Let $\ArbClass$ be a class of combinatorial objects with generating function
-  $\sum_{n=0}^{\infty}{\arbclass_n~z^n}$; let the radius of convergence of the OGF be $r$, and
-  $\ArbSubClass$ some other class with generating function
-  $\sum_{n=0}^{\infty}{\arbsubclass_n~z^n}$. Suppose that $0 > r \le 1$ and let $C_i > 0$ and
-  $1-r>\delta>0$ be arbitrary.
+  Let $\ArbClass$ be a class of combinatorial objects with generating
+  function $\sum_{n=0}^{\infty}{\arbclass_n~z^n}$; let the radius of
+  convergence of the OGF be $r$, and $\ArbSubClass$ some other class
+  with generating function
+  $\sum_{n=0}^{\infty}{\arbsubclass_n~z^n}$. Suppose that $0 > r \le
+  1$ and let $C_i > 0$ and $1-r>\delta>0$ be arbitrary.
 
-  Suppose there is a product operation $\times$ on elements $A, B \in
-  \ArbClass \cup \ArbSubClass$ so that,
+  Suppose there is a composition operation $\times$ on elements $A, B
+  \in \ArbClass \cup \ArbSubClass$ so that,
   \begin{enumerate}
   \item $A \times B \in \ArbClass$,
-  \item there exists some fixed $k \in \Z_{\ge 0}$ so that $|A \times B| = |A| + |B| + k$, and
-  \item given any $C \in \ArbClass$, there is at most one maximal factorization $D_1 \times D_2 \times
-    \cdots \times D_s = C$ with $D_i \in \ArbSubClass$.
-  \end{enumerate}
-  Suppose there exists $R \ge 0$ so that for $n \ge R$ there exists $\ell \in \Z_{\ge 0}$ and maps $\psi_0:
-  \ArbClass_n \hookrightarrow \ArbSubClass_{n+\ell}$ and $ \psi_1: \ArbClass_n \hookrightarrow
-  \ArbSubClass_{n+\ell+1}$. Then the limit
+  \item there exists some fixed $k \in \Z_{\ge 0}$ so that $|A \times
+    B| = |A| + |B| + k$, and
+  \item given any $C \in \ArbClass$, there is at most one maximal
+    factorization $D_1 \times D_2 \times \cdots \times D_s = C$ with $D_i
+    \in \ArbSubClass$.
+  \end{enumerate} Suppose there exists $R \ge 0$ so that for $n \ge R$
+  there exists $\ell \in \Z_{\ge 0}$ and maps $\psi_0: \ArbClass_n
+  \hookrightarrow \ArbSubClass_{n+\ell}$ and $ \psi_1: \ArbClass_n
+  \hookrightarrow \ArbSubClass_{n+\ell+1}$. Then the limit
   \[ \lim_{n\to\infty}{\arbclass_n^{1/n}} \] exists.
 \end{theorem}
 
@@ -851,31 +966,39 @@ The proof breaks down into 3 steps;
   step follows from the Cauchy-Hadamard theorem, which says that
   \[ \limsup_{n\to\infty}{\arbclass_n^{1/n}} = r^{-1}. \]
 
-  By the definition of lim sup, we have that if $a < r^{-1}$, then for any $M \ge R$ we have that there is
-  some $n \ge M$ with $\arbclass_n^{1/n} > a$. For instance, we know that $(r + \delta/2)^{-1} < r^{-1}$,
-  hence for any $M$ we have some $n \ge M$ with $\arbclass_n > (r+\delta/2)^{-n}$. Notice now that as
-  \[ \left( \frac{r+\delta}{r + \delta/2} \right) > 1, \] there must be some $M \ge R$ so that for all $m
-  \ge M$
-  \[ \left( \frac{r+\delta}{r + \delta/2} \right) > C_1^{1/m}, \text{ implying that } (r +
-  \delta/2)^{-m} > C_1(r + \delta)^{-m}, \] whence we then have (by lim sup) some $n \ge M$ with
-  $c_n > (r+\delta/2)^{-n} > C_1(r+\delta)^{-n}$.
-\item \emph{Show that there exists some $m \ge 0$ with $\arbsubclass_m > C_2(r + \delta)^{-m}$ and
-    $\arbsubclass_{m+1} > C_2(r + \delta)^{-(m+1)}$.} Notice that $(r + \delta) < 1$ and so for any
-  $m \ge 0$, $(r + \delta)^{-m} < (r+\delta)^{-(m+1 )}$. As there exist injections $\psi_0, \psi_1$
-  from $\ArbClass_n$ into $\ArbSubClass_{n+\ell}$ and $\ArbSubClass_{n+\ell+1}$, setting $m = n +
-  \ell$ and $C_1 = C_2(r+\delta)^{-(m+n-1)}$ we have that
-  \[ \arbsubclass_m \ge |\im \psi_0| = \arbclass_n > C_1(r+\delta)^{-n} = C_2(r+\delta)^{-(m+1)} >
-  C_2(r+\delta)^{-m} \]
+  By the definition of lim sup, we have that if $a < r^{-1}$, then for
+  any $M \ge R$ we have that there is some $n \ge M$ with
+  $\arbclass_n^{1/n} > a$. For instance, we know that $(r +
+  \delta/2)^{-1} < r^{-1}$, hence for any $M$ we have some $n \ge M$
+  with $\arbclass_n > (r+\delta/2)^{-n}$. Notice now that as
+  \[ \left( \frac{r+\delta}{r + \delta/2} \right) > 1, \] there must
+  be some $M \ge R$ so that for all $m \ge M$
+  \[ \left( \frac{r+\delta}{r + \delta/2} \right) > C_1^{1/m}, \text{
+    implying that } (r + \delta/2)^{-m} > C_1(r + \delta)^{-m}, \]
+  whence we then have (by lim sup) some $n \ge M$ with $c_n >
+  (r+\delta/2)^{-n} > C_1(r+\delta)^{-n}$.
+\item \emph{Show that there exists some $m \ge 0$ with $\arbsubclass_m
+    > C_2(r + \delta)^{-m}$ and $\arbsubclass_{m+1} > C_2(r +
+    \delta)^{-(m+1)}$.} Notice that $(r + \delta) < 1$ and so for any
+  $m \ge 0$, $(r + \delta)^{-m} < (r+\delta)^{-(m+1 )}$. As there
+  exist injections $\psi_0, \psi_1$ from $\ArbClass_n$ into
+  $\ArbSubClass_{n+\ell}$ and $\ArbSubClass_{n+\ell+1}$, setting $m =
+  n + \ell$ and $C_1 = C_2(r+\delta)^{-(m+n-1)}$ we have that
+  \[ \arbsubclass_m \ge |\im \psi_0| = \arbclass_n >
+  C_1(r+\delta)^{-n} = C_2(r+\delta)^{-(m+1)} > C_2(r+\delta)^{-m} \]
   and
   \[ \arbsubclass_{m+1} \ge |\im \psi_1| = \arbclass_n > C_1(r+\delta)^{-n} =
   C_2(r+\delta)^{-(m+1)}. \]
-\item \emph{Show that there exists some $N$ so that for any $n \ge N$, $\arbclass_n > (r +
-    \delta)^{-n}$.} Consider $k$ from the hypothesis. Let $C_2 = (r + \delta)^{-k}$. Let $N = (m +
-  k)(m + k + 1)$. Then if $n \ge N$, we can write $n$ as a linear combination $a(m + k) + b(m + k +
-  1) = am + b(m + 1) + (a+b)k$, with $a, b \ge 0$. Observe that $c_n >
-  \arbsubclass_m^a\arbsubclass_{m+1}^b$ as there exists a subset of objects $S \subset \ArbClass_n$
-  which can be expressed uniquely as a product of $a$ elements of $\ArbSubClass_m$ and $b$ elements
-  of $\ArbSubClass_{m+1}$ (and $|S| > \arbsubclass_m^a\arbsubclass_{m+1}^b$). Then
+\item \emph{Show that there exists some $N$ so that for any $n \ge N$,
+    $\arbclass_n > (r + \delta)^{-n}$.} Consider $k$ from the
+  hypothesis. Let $C_2 = (r + \delta)^{-k}$. Let $N = (m + k)(m + k +
+  1)$. Then if $n \ge N$, we can write $n$ as a linear combination
+  $a(m + k) + b(m + k + 1) = am + b(m + 1) + (a+b)k$, with $a, b \ge
+  0$. Observe that $c_n > \arbsubclass_m^a\arbsubclass_{m+1}^b$ as
+  there exists a subset of objects $S \subset \ArbClass_n$ which can
+  be expressed uniquely as a product of $a$ elements of
+  $\ArbSubClass_m$ and $b$ elements of $\ArbSubClass_{m+1}$ (and $|S|
+  > \arbsubclass_m^a\arbsubclass_{m+1}^b$). Then
   \[ c_n > d_m^ad_{m+1}^b > C_2^a(r+\delta)^{-am}C_2^b(r+\delta)^{-b(m+1)} = (r+\delta)^{-(am +b(m+1)+(a+b)k)} = (r+\delta)^{-n}.\]
 \end{enumerate}
 
@@ -905,6 +1028,7 @@ On the other hand, asymptotics of knot shadows are as of yet unknown. We are sti
 prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
 \begin{theorem} The class $\KnotShad$ of rooted knot shadows grows smoothly. I.e., the limit
   $\lim_{n\to\infty}{k_n^{1/n}}$ exists (and is equal to $1/r(K)$).
+  \label{thr:smoothgrowth}
 \end{theorem}
 
 \begin{proof}
@@ -972,8 +1096,7 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
     \begin{figure}[h!]  \centering
       \[
       \begin{aligned}
-        \begin{tikzpicture}[every path/.style={very thick},decoration={markings, mark=at position 0.5 with
-        {\arrow{>}}}]
+        \begin{tikzpicture}[every path/.style={very thick},decoration={markings, mark=at position 0.5 with {\arrow{>}}}]
           \node[draw,circle,minimum size=15pt] (A) at (0,0) {$K_1$};
           \node[draw,circle,minimum size=15pt] (B) at (1,0) {$K_2$};
           \node[draw,circle,minimum size=15pt] (C) at (2.5,0) {$K_\ell$};
@@ -993,7 +1116,7 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
           \node[draw,circle,minimum size=15pt] (A) at (0,0) {$K_1$};
           \node[draw,circle,minimum size=15pt] (B) at (1,0) {$K_2$};
           \node[draw,circle,minimum size=15pt] (C) at (2.5,0) {$K_\ell$};
-          \node[draw,circle,fill=black,minimum size=8pt,inner sep=0pt] (X) at (1.25,-1) {};
+          \node[draw,circle,fill=black,inner sep=2pt] (X) at (1.25,-1) {};
 
           \draw (X) edge[in=-70,out=90+45] (A);
           \draw (A) -- (B);
@@ -1008,8 +1131,8 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
           \node[draw,circle,minimum size=15pt] (A) at (0,0) {$K_1$};
           \node[draw,circle,minimum size=15pt] (B) at (1,0) {$K_2$};
           \node[draw,circle,minimum size=15pt] (C) at (2.5,0) {$K_\ell$};
-          \node[draw,circle,fill=black,minimum size=8pt,inner sep=0pt] (X) at (1.25,-1) {};
-          \node[draw,circle,fill=black,minimum size=8pt,inner sep=0pt] (Y) at (1.25,-1.8) {};
+          \node[draw,circle,fill=black,inner sep=2pt] (X) at (1.25,-1) {};
+          \node[draw,circle,fill=black,inner sep=2pt] (Y) at (1.25,-1.8) {};
 
           \draw (X) edge[in=-70,out=90+45] (A);
           \draw (A) -- (B);
@@ -1022,7 +1145,7 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
       \end{aligned}
       \]
       \caption{The map $\varphi$ adds a vertex and ensures that the new map is 2-leg-prime.}
-      \label{fig:phi_example}
+      \label{fig:phi_e xample}
     \end{figure}
     Then we take $\psi_0 = \varphi$ and $\psi_1 = \varphi^2$. This setup satisfies the hypotheses
     and hence proves the theorem.
@@ -1036,35 +1159,40 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
   $n \ge N$,
   \[\Prb(\text{a knot diagram $K$ contains $\le cn$ copies of $P$ as
     connect summands}) < d^n.\]
-  \label{cor:patternthm}
+  \label{thr:patternthm}
 \end{corollary}
 
 \begin{proof}
-  The first statement will follow immediately from the second.
-
-  %%% this won't work, probably should prove everything for rooted diagrams
-  Let $k_n$ count the number of knot shadows with $n$ vertices and
-  $h_n$ count the number of knot shadows in $n$ vertices which contain
-  $\le c'n$ copies of $\Shad{P}$, where $c' > 0, d < 1, N$ are chosen
-  by the corollary so that for all $n \ge N$, $h_n/k_n < d^n$. Then
-  the number of rooted knot diagrams in $n$ crossings is $2^{n}$,
-  and the number of rooted knot diagrams that contain $\le c'n$
-  copies of $P$ is $2^{n-c'n}$ (there are two choices of orientation
-  and $2^n$ choices of crossing sign, but $c'n$ of those are fixed if
-  $P$)
+  The first statement will follow immediately from the second, given a
+  prime 2-tangle corresponding to a prime knot diagram which is not an
+  unknot. The second is a corollary of
+  theorems~\ref{thr:strongpattern} and~\ref{thr:smoothgrowth}: Let $P$
+  be a prime 2-tangle which can be found as a connect summand of a knot
+  diagram (i.e., it has one link component). If $m_n$ is the number of
+  knot diagrams, then there exists $c > 0$, $d > 1$, and $N > 0$ so
+  that for all $n \ge N$, $\frac {h_n}{m_n} < d^n$, where $h_n$ is the
+  number of knot diagrams which contain at most $cn$ copies of $P$ as
+  connect summands. This ratio is precisely the probability in the
+  second statement.
 \end{proof}
 
 \subsubsection{Smooth growth for prime knot and link diagrams}
 \label{sec:smoothprime}
 
-If, however, we are considering a class $\PrimeShad$ of prime or reduced rooted diagrams, the method
-of proof for smoothness does not immediately carry over; it is possible that $\varphi$ introduces
-numerous isthmi, in which case our diagrams created in the final step would not even be reduced. If
-$\PrimeShad$ is the case of prime rooted link shadows exact counts are known from their bijection
-with simple quadrangulations~\cite{AlbenqueSQT};
+If, however, we are considering a class $\PrimeShad$ of prime or
+reduced rooted diagrams, the method of proof for smoothness does not
+immediately carry over; it is possible that $\varphi$ introduces
+numerous isthmi, in which case our diagrams created in the final step
+would not even be reduced. In the case where $\PrimeShad$ is the class
+of prime rooted link shadows, exact counts are known from their
+bijection with simple quadrangulations~\cite{AlbenqueSQT};
 \[ s_n = \frac{4(3n)!}{n!(2n + 2)!}.\]
 In other cases again smoothness is more complicated to prove, although we can use a similar argument
 to that in the case of all knot shadows.
+
+\begin{proposition}
+  Prime knots
+\end{proposition}
 
 \begin{proof}
   Step i is again immediate, so we begin with step ii. Let $\psi, \psi'$ respectively be maps which
@@ -1089,6 +1217,7 @@ to that in the case of all knot shadows.
 
 The following theorem of Richmond and Wormald \cite{Richmond19951} provides a sufficient set of
 criteria for almost all elements of $\FlatKnotDia$ to have trivial automorphism group.
+
 \begin{theorem}[Richmond-Wormald 1996]
   Let $\mathscr C$ be a class of rooted maps on a surface. Suppose that there is an outer-cyclic
   rooted planar map $M_1$ such that in all maps in $\mathscr C$, all copies of $M_1$ are pairwise
@@ -1105,65 +1234,77 @@ criteria for almost all elements of $\FlatKnotDia$ to have trivial automorphism 
   exponentially small.
 \end{theorem}
 
-We will prove this for $\FlatKnotDia$ by proving it for its dual $\FlatKnotDia^*$, a class of
-quadrangulations of the sphere. Specifically, we will take $M_1$ to be the dual of the underlying
-planar map of the following 2-tangle:
+It has been suggested without proof in~\cite{zuber2015mapsimsperms,pzjschaeff2004planecurveasymp} that classes of knot shadows
+are almost surely asymmetric. We will prove this for $\FlatKnotDia$ by
+proving it for its dual $\FlatKnotDia^*$, a class of quadrangulations
+of the sphere. Specifically, we will take $M_1$ to be the dual of the
+underlying planar map of the following 2-tangle:
 \begin{figure}[h!]
   \centering
   \begin{tikzpicture}
     \begin{scope}
     [every path/.style={string, thick, gray}, every node/.style={transform shape,
       knot crossing, inner sep=1.5pt}]
-    \node (tl) at (-.7,0) {};
-    \node (tr) at (.7,0) {};
-    \node (tc) at (0,1) {};
-    \node (el) at (-1.7,0) {};
-    \node (er) at (1.7,0) {};
-    \node (r1) at (.9,1.2) {};
-    \draw[>-] (el.center) .. controls (el.4 east) and (tl.4 south west) .. (tl);
-    \draw (tl) .. controls (tl.4 north east) and (tc.4 south west) ..  (tc.center);
-    \draw (tc.center) .. controls (tc.4 north east) and (r1.4 south
-    west) .. (r1);
-    \draw (r1) .. controls (r1.16 north east) and (r1.16 north west)
-    .. (r1.center);
-    \draw (r1.center) ..controls (r1.4 south east) and (tr.4 north
-    east) .. (tr);
-    \draw (tr) .. controls (tr.4 south west) and (tl.4 south east)
-    .. (tl.center);
-    \draw (tl.center) .. controls (tl.8 north west) and (tc.8 north
-    west) .. (tc);
-    \draw (tc) .. controls (tc.4 south east) and (tr.4 north west)
-    .. (tr.center);
-    \draw[->] (tr.center) .. controls (tr.4 south east) and (er.4 west)
-    .. (er.center);
+    %\draw[help lines,step=.5] (-3,-2) grid (3, 3);
+    \node (a) at (-1.5,.5) {};
+    \node (b) at (1,0) {};
+
+    \node (x) at (-1,1) {};
+    \node (y) at (.5,1.5) {};
+    \node (z) at (.25,.7) {};
+
+    \node (el) at (-2.7,0) {};
+    \node (er) at (2.7,0) {};
+
+    \draw[>-] (el.center) .. controls (el.4 east) and (a.4 south west) .. (a);
+
+    \draw (a) -- (x.center);
+    \draw (x.center) .. controls (x.8 north east)  and (y.4 north west)  .. (y);
+    \draw (y)        .. controls (y.16 south east) and (z.2 east)        .. (z.center);
+    \draw (z.center) .. controls (z.2 west)        and (x.4 south east)  .. (x);
+    \draw (x)        .. controls (x.16 north west) and (a.8 north west)  .. (a.center);
+    \draw (a.center) .. controls (a.16 south east) and (b.16 south west) .. (b);
+    \draw (b)        .. controls (b.32 north east) and (y.4 north east)  .. (y.center);
+    \draw (y.center) .. controls (y.8 south west)  and (z.2 north)       .. (z);
+    \draw (z)        .. controls (z.2 south)       and (b.4 north west)  .. (b.center);
+
+    \draw[->] (b.center) .. controls (b.4 south east) and (er.4 west) .. (er.center);
   \end{scope}
   \begin{scope}[every path/.style={very thick}, every node/.style={circle,fill=black, inner sep=2pt}]
     \node (T) at (0,2.5) {};
     \node (B) at (0,-1) {};
-    \node (O) at (0,.2) {};
-    \node (X) at (-.6,.7) {};
-    \node (Y) at (.6, .7) {};
-    \node (Z) at (.9, 1.7) {};
 
-    \draw (T) -- (Z) {};
-    \draw (T) -- (Y) -- (O) -- (X) -- (T) {};
-    \draw (Y) .. controls (2.1, 1.7) and (1.2, 2) .. (T);
-    \draw (O) -- (B);
-    \draw (T) .. controls (-3,2) and (-1.5,-.5) .. (B);
-    \draw (T) .. controls (3,2) and (1.5,-.5) .. (B);
+    \node (X) at (-1.5, 1) {};
+    \node (Y) at (-.5,1) {};
+    \node (Z) at (.5, 1) {};
+    \node (W) at (1.5, 1) {};
+
+    \node (O) at (0,0) {};
+
+    \path (T) edge (X)
+               edge (Y)
+               edge (W)
+          (O)  edge (X)
+               edge (Y)
+               edge (W)
+               edge (B)
+          (Z)  edge (Y)
+               edge (W);
+
+    \draw (T) .. controls (-3,2) and (-3,-.5) .. (B);
+    \draw (T) .. controls (3,2) and (3,-.5) .. (B);
   \end{scope}
   \end{tikzpicture}
   \caption{The dual 2-leg curve $M_1$ (black), and one of its representations as
     a 2-tangle (gray).}
   \label{fig:treflegs2}
 \end{figure}
-Clearly $M_1$ has no reflective symmetry by inspection, and certainly any of the ways of replacing
-$M_1$ keep the object in the class of quadrangulations dual to knot maps. Finally, the ubiquity
-condition is exactly the pattern theorem for 2-tangles proved in the
-prior section!
-
-For reduced diagrams, we must pick a slightly different $M_1$, such as
-the one in figure ???
+Clearly $M_1$ has no reflective symmetry by inspection, and certainly
+any of the ways of replacing $M_1$ keep the object in the class of
+quadrangulations dual to knot maps. Finally, the ubiquity condition is
+exactly the pattern theorem for 2-tangles proved in the prior section!
+The same pattern proves asymmetry for certain other classes of knots
+or links; for example, reduced diagrams.
 
 Additionally, we can use our 4-tangle replacement scheme to create a
 $M_1$ which shows asymmetry of prime knot (link) diagrams. Take $M_1$
@@ -1244,7 +1385,7 @@ Then $M_1$ consists of exactly two link components and is of abab
 type; any way of replacing a vertex in a knot shadow with a 4-leg
 curve of abab type keeps the number of link components
 constant. Furthermore, $M_1$ is ubiquitous in prime (knot) diagrams as
-it is an application of corollary~\ref{cor:patternthm} to $P$, the
+it is an application of corollary~\ref{thr:patternthm} to $P$, the
 square with an additional 2-path joining two of its opposite vertices.
 
 Application of the above theorems provides us with the following corollary which enables us to
