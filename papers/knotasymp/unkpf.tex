@@ -11,6 +11,7 @@
 \usepackage{hyperref}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
+\usepackage{enumerate}
 
 \setlength{\parskip}{.1cm}
 
@@ -395,7 +396,7 @@ attention to the dual case in which \emph{faces} are labelled with an arbitrary 
   edges for $\MapClass$. Let $H(x)$ be the generating function by
   number of edges for those maps $M$ in $\MapClass[S]$ that contain
   less than $ce(M)$ pairwise disjoint copies of $P$. Suppose that we
-  can embed $P$ in a possibly larger rooted planar $S$-map with
+  can embed $P$ in a possibly larger rooted planar labeled map with
   boundary $Q$ and attach copies of $Q$ to each map $K$
   counted by $H(x)$ in such a way that
   \begin{enumerate}
@@ -406,7 +407,7 @@ attention to the dual case in which \emph{faces} are labelled with an arbitrary 
     are all pairwise disjoint, and
   \item given the copies that have been added, the original map and associated places of attachment
     are uniquely determined.
-  \end{enumerate} If $c > 0$ is sufficiently small, then $r(M) < r(H)$. The maps may be rooted or
+  \end{enumerate} If $1 > c > 0$ is sufficiently small, then $r(M) < r(H)$. The maps may be rooted or
   not.
   \label{thr:weakpattern}
 \end{theorem}
@@ -479,7 +480,7 @@ hypotheses, along with patterns valid for a given class of shadows.
 We can generally define attachment operations for different kinds of
 tangles in the dual. By abuse of notation, let $S = (\{0\}, \{0\}, S)$ be a set of
 labels for the faces of the dual (for now, we are concerned about
-diagrams, which only have labelled vertices).
+diagrams, which only have labeled vertices).
 \begin{enumerate}
 \item \textbf{Connect sum.} Let $L$ and $Q'$ be rooted $S$-quadrangulations. Orient the
   remaining edges of $L$ canonically by proposition~\ref{prop:canonicalori}. Define the
@@ -546,49 +547,230 @@ diagrams, which only have labelled vertices).
     \label{fig:cs_topology}
   \end{figure}
   If $L^*$ and $(Q')^*$ each consist of only one link component, then
-  $(L\#_eQ')^* =: L^*\#_e(Q')^*$ will as well. In fact,
-  this attachment into the quadrangulation is precisely dual to the usual link connect sum from knot
-  theory.
+  $(L\#_eQ')^* =: L^*\#_e(Q')^*$ will as well. In fact, this
+  attachment into the quadrangulation is precisely dual to the usual
+  link connect sum from knot theory. If $Q$ is 2-leg prime, then no
+  two copies of $Q$ can intersect (as in this case there are precisely
+  two paths of length 1 in $Q$ between its two boundary vertices).
 
-\item \textbf{4-tangle twist replacement.} Let $L$ be a rooted
+\item \textbf{4-tangle replacement.} Let $L$ be a rooted
   $S$-quadrangulation, and $Q$ a rooted $S$-quadrangulation with
-  square boundary. Then given a face $f \in L$, we can define the
-  \emph{4-tangle twist replacement}, $L \FourTang_f Q$ by,
+  square boundary. Then given a face $f \in L$, we can define a
+  \emph{4-tangle replacement} of $f$ with $Q$ by identifying the
+  boundary of $Q$ with the boundary of $f$ in some manner. Precisely
+  how to equate the boundaries will depend on the case at hand; what
+  matters is that there be at least one valid way to glue $Q$ into any
+  face $f$ and produce a new $S$-quadrangulation in the chosen
+  class. Indeed, the result will always be a new
+  $S$-quadrangulation. Any $S$-quadrangulation in $2n$ edges has $n$ faces, and hence at
+  least $n$ non-conflicting attachment locations (i.e., $k = 2$).
 
+  To make the process reversible for all $S$ (not just $S = \{0\}$),
+  we must pick slightly different $Q$. Given a non-trivial $S$-map
+  $P$, choose a planar rooted labeled map with boundary $Q$ which cannot
+  intersect with a copy of itself so that $P$ is a unique copy of
+  itself in $Q$, where all faces which are not in $P$ are labeled
+  with a special label $*$. Attachment of $Q$ into the face $f$ of an
+  $S$-quadrangulation $L$ then consists first of the actual attachment
+  operation described above, and then relabeling all faces with label
+  $*$ with the original label of $f$. The process is then reversed by
   \begin{enumerate}
-  \item Canonically index the vertices of $L$ via proposition
-    \ref{prop:canonicalori} and let the vertex of lowest index around
-    $f$ be $v_1$. Name the remaining edges and vertices from a walk
-    around the face $f$ clockwise from $v_1$ by $v_1, e_1, v_2, e_2,
-    v_3, e_3, v_4, e_4$ (an edge or vertex may have more than one
-    name under this scheme).
-  \item Divide face $f$ into two new faces $f_1, f_2$ with induced
-    $S$-labelling from $f$ by inserting a new vertex $o$ in the center
-    of $f$ and adding two new edges; $a$ from $o$ to $v_1$
-    between $e_4$ and $e_1$ and $b$ from $o$ to $v_3$ between
-    $e_2$ and $e_3$. Let $f_1$ be the face adjacent to the vertex
-    $v_2$ and $f_2$ be the face adjacent to $v_4$.
-  \item Cut along edges $a$, $b$ and open to create a new ``exterior''
-    face $x$. Let $a_1, b_1, o_1$ be the edges and vertex adjacent to
-    $f_1$ and $a_2, b_2, o_2$ be the edges and vertex adjacent to
-    $f_2$. Orient the edge $a_1$ to point from $o_1$ to $v_1$; the
-    edge will point counter-clockwise around the face $x$.
-  \item Glue $Q$ into the face $x$ by gluing the root of $Q$ to $a_1$
-    with directions in agreement, and the rest of the edges to $a_2,
-    b_2, b_1$.
+  \item Given a 4-cycle bounding a (relabeled) copy $Q'$ of $Q$ in
+    $L$, tentatively delete the copy and replace it with a bare face
+    $f$.
+  \item Identify the unique copy of $P$ inside of $Q$.
+  \item If every face of $Q \setminus P$ does not have the same
+    label $x$, then this would not in fact have been a place of attachment
+    (hence reversal needn't be possible). If they do, then label the
+    new face $f$ with the label $x$.
   \end{enumerate}
-  The result will be a new $S$-quadrangulation. Any
-  $S$-quadrangulation in $2n$ edges has $n$ faces, and hence $n$
-  attachment locations (i.e., $k = 2$). Observe that after this
-  attachment, vertex $v_1$ still has the lowest index out of $\{v_1,
-  v_2, v_3, v_4\}$ and for any face $f$ in $L$, its lowest-index
-  vertex $v$ remains fixed. This process is reversible ?????;
-  given a quadrangle $v_1e_1v_2e_2v_3e_3v_4e_4$ (where $v_1$ has the
-  lowest canonical index) with interior diamond
-  $v_1a_1o_1b_1v_3b_2o_2a_2$ bounding $Q$ as a submap and faces $f_1 =
-  v_1e_1v_2e_2v_3a_1o_1b_1$, $f_2 = v_1a_2o_2b_2v_3e_3v_4e_4$ with the
-  same label $s$, remove the interior diamond and join $f_1$ and $f_2$
-  into a face $f$ with label $s$;
+
+  Care must be taken in choice of $Q$ in which to embed arbitrary $P$
+  here; an important fact to remember is that submap insertion of any
+  $S$-quadrangulation with boundary $P$ will not introduce any shorter
+  paths through $Q$, else there would be a $3$-cycle in $P$ (which is
+  impossible as it is a quadrangulation).
+
+  If one is dealing with 4-tangle replacement within a class of knot
+  $S$-shadow duals, the following lemma is helpful;
+  \begin{lemma}
+    Given a link $S$-shadow $L$, a vertex $v$ in $L$, and an 4-leg
+    $S$-curve $T$ with 2 link components, it is always possible to
+    replace $v$ by $T$ in at least one way so that the result has the
+    same number of components as $L$.
+  \end{lemma}
+  \begin{proof}
+    TODO: This proof needs work
+
+    The vertex $v$ in $L$ and the tangle $T$ are each either of
+    crossing (abab) type or tangency (aabb) type. If they agree in
+    type, replace $v$ by $T$ so that the strands agree. If they differ
+    and $L \setminus v$ is of type abab, replace $T$ in with type
+    abba. If they differ and $L \setminus v$ is of type aabb, replace
+    $T$ with type abab. In all cases, the number of components is
+    preserved.
+  \end{proof}
+
+
+  There are applications of this attachment in proving the weak
+  pattern theorem for certain classes of maps:
+  \begin{enumerate}[i.]
+  \item Given arbitrary face labels $S$, a prime link dual $S$-shadow $L$
+    and a prime 4-leg dual $S$-curve $P$,
+    define $Q$ as in figure~\ref{fig:linktangrep}.
+    \begin{figure}[h!]
+      \centering
+      % \includegraphics[width=2in]{dual_to_fig8twist}
+      \begin{tikzpicture}[every path/.style={string, thick, gray}, every node/.style={transform shape,
+          knot crossing, circle, fill=gray, inner sep=2pt}]
+        \begin{scope}
+          % \draw[red,step=.5] (-2,-2) grid (2,2);
+          \useasboundingbox (-2,-2) rectangle (2,2);
+          \node[fill=none,draw=gray,minimum size=20pt] (O) at (0,0) {};
+          \node[fill=none] (LL) at (-2,0) {};
+          \node (L) at (-1,0){};
+          \node (R) at (1,0) {};
+          \node[fill=none] (RR) at (2,0) {};
+          \node[fill=none] (UU) at (0,2) {};
+          \node (U) at (0,1) {};
+          \node (D) at (0,-1) {};
+          \node[fill=none] (DD) at (0,-2) {};
+
+          \draw (LL) -- (L) -- (O) -- (R) -- (RR);
+          \draw (UU) -- (U) -- (O) -- (D) -- (DD);
+          \draw (L) edge[out=90,in=180] (U);
+          \draw (U) edge[out=0,in=90] (R);
+          \draw (R) edge[out=-90,in=0] (D);
+          \draw (D) edge[out=180,in=-90] (L);
+        \end{scope}
+        \begin{scope}[every path/.style={string, very thick, black}, every
+          node/.style={transform shape, knot crossing, circle, fill=black,
+            inner sep=2pt}, decoration={markings, mark=at position 0.4 with
+            {\arrow{<}}}]
+          \useasboundingbox (-2,-2) rectangle (2,2);
+          \node (a) at (-1.5,1.5) {};
+          \node (b) at (1.5,1.5) {};
+          \node (c) at (1.5,-1.5) {};
+          \node (d) at (-1.5,-1.5) {};
+          \draw (a) -- (b) -- (c);
+          \draw[postaction={decorate}] (c) -- (d);
+          \draw (d) -- (a);
+
+          \node (e) at (-.5,.5) {};
+          \node (f) at (.5,.5) {};
+          \node (g) at (.5,-.5) {};
+          \node (h) at (-.5,-.5) {};
+          \draw (e) -- (f) -- (g) -- (h) -- (e);
+
+          \draw (a) -- (e);
+          \draw (b) -- (f);
+          \draw (c) -- (g);
+          \draw (d) -- (h);
+
+          \node[fill=none,draw=none] (P) at (0,0) {$P$};
+        \end{scope}
+      \end{tikzpicture}
+      \caption{The labeled quadrangulation $Q$ (in black) is dual to
+        encircling the 4-leg curve $P$ with a link component. The four
+        faces bounding $P$ have the distinguished label $*$.}
+      \label{fig:linktangrep}
+    \end{figure}
+    Observe that if there exist two copies $Q'$ and $Q''$ of $Q$ in a
+    prime link dual shadow $L$, then they cannot intersect: All paths
+    between boundary vertices of $Q$ are either of length $3$, or
+    greater. If there is an intersection between $Q'$ and $Q''$, then
+    without loss of generality one of two things happens: (1) There is
+    a path along the root face of $Q''$ of 3 edges lies in $Q'$ (since
+    there are no paths of length 1 or 2) and runs between two adjacent
+    vertices $a$ and $b$ of $Q'$; but then the remaining boundary edge
+    of $Q''$ must run from $a$ to $b$; but this gives the existence of
+    a 2-cycle in $L$ which we said was prime and hence has no
+    2-cycles. (2) The entire boundary cycle of $Q''$ lies within $Q'$
+    and necessarily runs between two opposing vertices $a$ and $c$ of
+    $Q'$. But then these two opposing vertices must be the same vertex
+    in $L$; but then there is the 2-cycle $a$ to $b$ to $c=a$ in $L$,
+    which again was chosen to have no 2-cycles.
+  \item Given face labels $S$, a prime \emph{knot} dual $S$-shadow
+    $K$, and a nontrivial prime 4-leg dual $S$-curve with $2$ components $P$,
+    define $Q$ as in figure \ref{fig:knottangrep}, embedding $P$ in
+    such a way that $Q$ has precisely 2 link components.
+    \begin{figure}[h!]
+      \centering
+      % \includegraphics[width=2in]{dual_to_fig8twist}
+      \begin{tikzpicture}[every path/.style={string, thick, gray}, every node/.style={transform shape,
+          knot crossing, circle, fill=gray, inner sep=2pt}]
+        \begin{scope}
+          % \draw[red,step=.5] (-2,-2) grid (2,2);
+          \useasboundingbox (-2,-2) rectangle (2,2);
+          \node[fill=none,draw=gray,minimum size=15pt] (O) at (.4,.4) {};
+          \node (Q) at (-.4,-.4) {};
+          \node (K) at (.4,-.4) {};
+
+          \node[fill=none] (LL) at (-2,0) {};
+          \node (L) at (-1.15,-.2){};
+          \node (R) at (1.15,.4) {};
+          \node[fill=none] (RR) at (2,0) {};
+          \node[fill=none] (UU) at (0,2) {};
+          \node (U) at (.2,1.15) {};
+          \node (D) at (-.4,-1.15) {};
+          \node[fill=none] (DD) at (0,-2) {};
+
+          \draw (LL) -- (L) -- (Q) -- (K) edge[out=0, in=-90] (R);
+          \draw (R) edge[out=90, in=0,looseness=1.5] (U);
+          \draw (U) edge[out=180,in=90,looseness=1.8] (L);
+          \draw (L) edge[out=-90,in=180,looseness=1.5] (D);
+          \draw (UU) -- (U) -- (O) edge[out=180,in=90] (Q);
+          \draw (O) -- (R) -- (RR);
+          \draw (D) edge[out=0,in=-90] (K);
+          \draw (K) -- (O);
+          \draw (Q) -- (D) -- (DD);
+        \end{scope}
+        \begin{scope}[every path/.style={string, very thick, black}, every
+          node/.style={transform shape, knot crossing, circle, fill=black,
+            inner sep=2pt}, decoration={markings, mark=at position 0.4 with
+            {\arrow{<}}}]
+          \useasboundingbox (-2,-2) rectangle (2,2);
+          \node (a) at (-1.5,1.5) {};
+          \node (b) at (1.5,1.5) {};
+          \node (c) at (1.5,-1.5) {};
+          \node (d) at (-1.5,-1.5) {};
+          \draw (a) -- (b) -- (c);
+          \draw[postaction={decorate}] (c) -- (d);
+          \draw (d) -- (a);
+
+          \node (e) at (-.8,.8) {};
+          \node (f) at (.8,.8) {};
+          \node (g) at (.8,0) {};
+          \node (h) at (0,0) {};
+          \node (i) at (0,-.8) {};
+          \node (j) at (-.8,-.8) {};
+
+          \draw (e) -- (f) -- (g) -- (h) -- (i) -- (j) -- (e);
+          \draw (e) -- (h);
+
+          \draw (a) -- (e);
+          \draw (b) -- (f);
+          \draw (i) -- (c) -- (g);
+          \draw (d) -- (j);
+
+          \node[fill=none,draw=none] (P) at (.4,.4) {$P$};
+        \end{scope}
+      \end{tikzpicture}
+      \caption{The labeled quadrangulation $Q$ (in black) in which to
+        embed $P$. The remaining
+        faces bounding $P$ have the distinguished label $*$.}
+      \label{fig:knottangrep}
+    \end{figure}
+    Observe that, as in the case above, the shortest paths which both
+    start and end on the boundary of $Q$ are of length 3 between
+    adjacent vertices, or length 4 between opposite vertices. As we
+    are taking $K$ to be prime, the same reasoning shows that copies
+    of $Q$ in $K$ can not overlap. On the other hand, we must now be
+    careful that the 4-tangle replacement into a knot dual $S$-shadow
+    does not introduce new link components. Fortunately, there is
+    always at least one way to insert a 4-leg dual $S$-curve while
+    keeping constant the number of link components.
+  \end{enumerate}
 \end{enumerate}
 
 
