@@ -35,6 +35,7 @@
 \newcommand{\PatCount}{E}
 \newcommand{\Prb}{\mathbb{P}}
 \newcommand{\Shad}[1]{\tilde{#1}}
+\newcommand{\FourTang}{\&}
 
 \newcommand{\Expand}{T}
 \DeclareMathOperator{\Aut}{aut}
@@ -42,6 +43,8 @@
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem*{lemma*}{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{definition}{Definition} \tikzset{->-/.style={decoration={ markings, mark=at position #1
       with {\arrow{>}}},postaction={decorate}}}
@@ -324,6 +327,7 @@ There is a bijection between blossom trees and rooted link shadows.
   link shadow. There is a consistent way to index and orient the edges
   of a rooted link shadow so that the directed edges meet head-to-tail
   across the vertices of the shadow.
+  \label{prop:canonicalori}
 \end{proposition}
 
 \begin{proof}
@@ -372,19 +376,32 @@ diagram.
 \subsubsection{A pattern theorem}
 \label{sec:weakpatternthm}
 
-We will show that different classes of link diagrams (really, their duals) satisfy the requirements
-for the following theorem from \cite{Bender1992104}. We reproduce the theorem below:
+Theorem 2 in \cite{Bender1992104} provides a pattern theorem for knot and link shadows, provided a
+strategy of attaching a desired pattern. However, care is required in the case of knot or link
+\emph{diagrams}, in which each vertex takes a value in the set $\{+, -\}$. In fact, we turn our
+attention to the dual case in which \emph{faces} are labelled with an arbitrary set.
 
-\begin{theorem}[Bender, Gao, Richmond 1989] Let $\MapClass$ be some class of maps on a surface of
-  type $g$ and let $P$ be a planar map that can be found as a submap of maps in $\MapClass$. Let
-  $M(x)$ be the generating function by number of edges for $\MapClass$. Let $H(x)$ be the generating
-  function by number of edges for those maps $M$ in $\MapClass$ that contain less than $ce(M)$
-  pairwise disjoint copies of $P$. Suppose that we can embed $P$ in a larger rooted map $Q$ and
-  attach copies of $Q$ to each map $K$ counted by $H(x)$ in such a way that
+\begin{definition}
+  Given a triple of label sets $S = (S_V, S_E, S_F)$, an
+  \emph{$S$-map} is a map $M = (V,E,F)$ together with a triple of maps
+  $(s_V, s_E, s_F)$, $s_*: * \to S_*$ which label each vertex, edge,
+  and face of $M$ with an element of $S$.
+\end{definition}
+
+\begin{theorem}Let $S$ be a set and $\MapClass[S]$ be some class of
+  $S$-maps on a surface of type $g$ and let $P$ be a planar $S$-map
+  with boundary that can be found as a submap of maps in
+  $\MapClass[S]$. Let $M(x)$ be the generating function by number of
+  edges for $\MapClass$. Let $H(x)$ be the generating function by
+  number of edges for those maps $M$ in $\MapClass[S]$ that contain
+  less than $ce(M)$ pairwise disjoint copies of $P$. Suppose that we
+  can embed $P$ in a possibly larger rooted planar $S$-map with
+  boundary $Q$ and attach copies of $Q$ to each map $K$
+  counted by $H(x)$ in such a way that
   \begin{enumerate}
   \item for some fixed positive integer $k$, at least $\lfloor e(K)/k \rfloor$ possible
     non-conflicting places of attachment exist,
-  \item only maps in $\MapClass$ are produced,
+  \item only $S$-maps in $\MapClass[S]$ are produced,
   \item for any map produced as such we can identify the copies of $Q$ that have been added and they
     are all pairwise disjoint, and
   \item given the copies that have been added, the original map and associated places of attachment
@@ -394,12 +411,58 @@ for the following theorem from \cite{Bender1992104}. We reproduce the theorem be
   \label{thr:weakpattern}
 \end{theorem}
 
+The method of attachment is vague, but flexible. We will provide some examples which we use in our
+results for knot diagrams. The proof extends the proof of the original theorem for maps, and makes
+use of a lemma:
+
+
+\begin{lemma*}[\cite{Bender1992104}, lemma 3]
+ If
+ \begin{enumerate}
+ \item $F(z) \ne 0$ is a polynomial with non-negative coefficients and $F(0) = 0$,
+ \item $H(w)$ has a power series expansion with non-negative coefficients and $0 < r(H) < \infty$,
+ \item for some positive integer $k$ the linear operator $\mathscr{L}$ is given by $\mathscr{L}(w^n)
+   = z^n(F(z)/z)^{\lfloor n/k \rfloor}$, and
+ \item $G(z) = \mathscr{L}(H(w))$,
+ \end{enumerate}
+ then $r(H)^k = r(G)^{k-1}F(r(G))$.
+\end{lemma*}
+
+The proof of the theorem then remains almost unchanged from the original theorem, although care will
+be necessary in defining attachment.
+
+\begin{proof}[Proof of theorem \ref{thr:weakpattern}.]
+  Let $G(z)$ be the generating function which counts $S$-maps $\mathscr{G}[S]$ which are the
+  result of attaching some number between $0$ and $\lfloor n/k \rfloor$ copies of $Q$ to $S$-face
+  maps $\mathscr{H}[S]$ counted by $H(x)$. The method of
+  attachment leads to the relation $G(z) = \mathscr{L}(H(w))$, where $F(z) = z + z^q$ and $q$ is the
+  number of edges added when a copy of $Q$ is attached, as
+  \[ G(z) = \sum_{X \in \mathscr{G}[S]}{z^{e(X)}} = \sum_{Y \in \mathscr{H}[S]}{z^{e(Y)}\left( 1 +
+      z^{q-1} \right)^{\lfloor n/k \rfloor}} = \mathscr{L}(H(w)).\]
+  Let $g_n$ be the coefficients of $G(z)$.
+
+  Suppose $M \in \MapClass[S]$ contains $m$ copies of $Q$. By property (3) of our attachment, $m \le
+  n$. If $M$ had been produced from some $S$-map $K$ in $\mathscr{H}[S]$ by our attachment
+  process, we can find all possible $K$ by removing at least $m - cn$ copies of $Q$ from $M$. It is
+  possible to bound from above the number of ways to do this by
+  \[ \sum_{j \ge m-cn}{\binom m j} = \sum_{k < cn}{\binom m k} < \sum_{k < cn}{\binom n k} \le
+  {n\binom n{cn}} \le \frac{n(ne)^{cn}}{{cn}^{cn}} = n\left(\frac ec\right)^{cn} =: t_n.\] If $M(x)
+  = \sum{m_nx^n}$, then $m_n \ge g_n$ and $t_n > 1$ for sufficiently large $n$, so $m_n \ge
+  g_n/t_n$. Hence,
+  \[1/r(M) \ge \limsup_{n \to \infty}{(g_n/t_n)^{1/n}} = \lim_{n \to \infty}{(t_n)^{-1/n}}\limsup_{n
+    \to \infty}{(g_n)^{1/n}} \ge (c/e)^c/r(G).\]
+  By the prior lemma, $r(H)^k = r(G)^k(1 + r(G)^{q-1})$ so that
+  \[ r(H)/r(M)\ \ge (1 + r(G)^{q-1})^{1/k} (c/e)^c. \]
+  As $\lim_{c \to 0^+}{(c/e)^c} = 1$ and $r(G)^k(1 + r(G)^{q-1}) = r(H)^k \ge 1/12^k$, it follows
+  that $r(H)/r(M) > 1$ for sufficiently small $c$, completing the proof of the theorem.
+\end{proof}
+
 The conclusion is about radii of convergence of two power series, and may appear an esoteric
 result. However, application of the Cauchy-Hadamard theorem, together with one additional
 hypothesis, gives a more familiar tune:
 
 \begin{corollary}[\cite{Bender1992104}]
-  Suppose all of the hypotheses of theorem \ref{thr:weakpattern} and additionally that $\MapClass$
+  Suppose all of the hypotheses of theorem \ref{thr:weakpattern} and additionally that $\MapClass[S]$
   grows smoothly, i.e.\ that $\lim_{n\to\infty}{m_n^{1/n}}$ exists. Then there exists constants $c >
   0$ and $d < 1$ and $N > 0$ so that for all $n \ge N$,
   \[ \frac{h_n}{m_n} < d^n. \]
@@ -410,30 +473,35 @@ Because of Euler's formula, the number of vertices, edges, or faces in a link sh
 quadrangulation is entirely determined by choosing any one cardinality. Hence, we can size shadows
 by the number of vertices and still keep the above results.
 
-The crux of applying this theorem to link shadows then falls upon determining an ``attachment''
-operation which satisfies the hypotheses, along with patterns valid for a given class of shadows.
-We can generally define attachment operations for different kinds of tangles:
+The crux of applying this theorem to link diagrams then falls upon
+determining an ``attachment'' operation which satisfies the
+hypotheses, along with patterns valid for a given class of shadows.
+We can generally define attachment operations for different kinds of
+tangles in the dual. By abuse of notation, let $S = (\{0\}, \{0\}, S)$ be a set of
+labels for the faces of the dual (for now, we are concerned about
+diagrams, which only have labelled vertices).
 \begin{enumerate}
-\item \textbf{Connect sum.} Let $L$ be dual to a rooted link shadow, and $Q$ be the dual to a rooted
-  2-tangle shadow. Orient the remaining edges of $L$ canonically using the bijection with blossom
-  trees. Define the \emph{connect sum} of $Q$ into $L$ at an edge $e \in L$, $Q \#_e L$, by
+\item \textbf{Connect sum.} Let $L$ and $Q'$ be rooted $S$-quadrangulations. Orient the
+  remaining edges of $L$ canonically by proposition~\ref{prop:canonicalori}. Define the
+  \emph{connect sum} of $Q'$ into $L$ at an edge $e \in L$, $L \#_e Q'$, by
   \begin{enumerate}
   \item Cut and split the edge $e$, creating a map $L'$ and leaving a distinguished, oriented bigon
     $f$. Denote the two edges formed by splitting $e$ by $e_1$, $e_2$, so that the loop $e_1(-e_2)$
     is a counterclockwise cycle around $f$. If $e$ was the root of $L$, make $e_1$ the new root of
     $L'$.
-  \item Cut and split the root edge $\epsilon$ of $Q$, creating a map $Q'$ and leaving a
+  \item Cut and split the root edge $\epsilon$ of $Q'$, creating a map $Q$ and leaving a
     distinguished, oriented bigon $g$. Denote the two edges formed by splitting $\epsilon$ by
     $\epsilon_1, \epsilon_2$, so that the loop $\epsilon_1(-\epsilon_2)$ is a counterclockwise cycle
-    around $g$. Make $\epsilon_2$ the new root of $Q'$.
-  \item Glue the map $Q'$ into the map $L'$'s distinguished face $f$ along the boundary of the
+    around $g$. Make $\epsilon_2$ the new root of $Q$.
+  \item Glue the map $Q$ into the map $L'$'s distinguished face $f$ along the boundary of the
     distinguished bigon $g$ so that $e_1$ and $\epsilon_2$ are mapped to the same edge and so that
     the orientations of the boundaries align.
   \item Forget about all edge orientations except for the root edge of $L$.
-  \end{enumerate} The result is a new rooted link shadow. Any given link shadow in $n$ edges has
-  precisely $n$ different non-conflicting sites for connect summation (i.e. $k = 1$ for this
-  attachment operation). If $L^*$ is a knot shadow and $Q^*$ consists of only one link component,
-  then $Q \#_e L$ will also be a knot shadow.
+  \end{enumerate} Notice that none of the original faces in $L$ and $Q'$ are changed; hence the
+  result is a new rooted $S$-quadrangulation. Any given $S$-quadrangulation in $2n$ edges
+  has precisely $2n$ different non-conflicting sites for connect summation (i.e. $k = 1$ for this
+  attachment operation). This process is reversible, given a 2-cycle which bounds an instance of
+  $Q'$ (collapse the disk to a single edge).
   \begin{figure}[h!]  \centering
     \begin{tikzpicture}
       % \node[anchor=south west, inner sep=0] (img) at (0,0)
@@ -469,7 +537,7 @@ We can generally define attachment operations for different kinds of tangles:
         \draw (Q_B) .. controls (.15,.7) and (.05,.7) .. (0.05,.5)
         .. controls (.05,.3) and (.1,.4) .. (.1,.2) .. controls
         (.17,.1) and (.2,.4) .. (Q_A);
-        \node[fill=none] (Q_Q') at (.12,.5) {$Q'$};
+        \node[fill=none] (Q_Q') at (.12,.5) {$Q$};
 
       \end{scope}
     \end{tikzpicture}
@@ -477,14 +545,50 @@ We can generally define attachment operations for different kinds of tangles:
       boundaries are appropriately identified.}
     \label{fig:cs_topology}
   \end{figure}
-\item \textbf{4-tangle replacement.} Let $L$ and $Q$ be duals to
-  rooted link shadows. Canonically index and direct the edges of $L$
-  via the blossom tree bijection. Given a face $f$ in $L$ with
-  lowest-index edge $e$, define the 4-tangle replacement as
-  follows. Delete $f$ from $L$ and the root face of $Q$ to create two
-  quadrangulations $L'$, $Q'$ with quadrangle boundary. Then glue $Q'$
-  to $L'$ along their boundary faces so that the root of $Q'$ is glued
-  to $e$ with directions matching.
+  If $L^*$ and $(Q')^*$ each consist of only one link component, then
+  $(L\#_eQ')^* =: L^*\#_e(Q')^*$ will as well. In fact,
+  this attachment into the quadrangulation is precisely dual to the usual link connect sum from knot
+  theory.
+
+\item \textbf{4-tangle twist replacement.} Let $L$ be a rooted
+  $S$-quadrangulation, and $Q$ a rooted $S$-quadrangulation with
+  square boundary. Then given a face $f \in L$, we can define the
+  \emph{4-tangle twist replacement}, $L \FourTang_f Q$ by,
+
+  \begin{enumerate}
+  \item Canonically index the vertices of $L$ via proposition
+    \ref{prop:canonicalori} and let the vertex of lowest index around
+    $f$ be $v_1$. Name the remaining edges and vertices from a walk
+    around the face $f$ clockwise from $v_1$ by $v_1, e_1, v_2, e_2,
+    v_3, e_3, v_4, e_4$ (an edge or vertex may have more than one
+    name under this scheme).
+  \item Divide face $f$ into two new faces $f_1, f_2$ with induced
+    $S$-labelling from $f$ by inserting a new vertex $o$ in the center
+    of $f$ and adding two new edges; $a$ from $o$ to $v_1$
+    between $e_4$ and $e_1$ and $b$ from $o$ to $v_3$ between
+    $e_2$ and $e_3$. Let $f_1$ be the face adjacent to the vertex
+    $v_2$ and $f_2$ be the face adjacent to $v_4$.
+  \item Cut along edges $a$, $b$ and open to create a new ``exterior''
+    face $x$. Let $a_1, b_1, o_1$ be the edges and vertex adjacent to
+    $f_1$ and $a_2, b_2, o_2$ be the edges and vertex adjacent to
+    $f_2$. Orient the edge $a_1$ to point from $o_1$ to $v_1$; the
+    edge will point counter-clockwise around the face $x$.
+  \item Glue $Q$ into the face $x$ by gluing the root of $Q$ to $a_1$
+    with directions in agreement, and the rest of the edges to $a_2,
+    b_2, b_1$.
+  \end{enumerate}
+  The result will be a new $S$-quadrangulation. Any
+  $S$-quadrangulation in $2n$ edges has $n$ faces, and hence $n$
+  attachment locations (i.e., $k = 2$). Observe that after this
+  attachment, vertex $v_1$ still has the lowest index out of $\{v_1,
+  v_2, v_3, v_4\}$ and for any face $f$ in $L$, its lowest-index
+  vertex $v$ remains fixed. This process is reversible ?????;
+  given a quadrangle $v_1e_1v_2e_2v_3e_3v_4e_4$ (where $v_1$ has the
+  lowest canonical index) with interior diamond
+  $v_1a_1o_1b_1v_3b_2o_2a_2$ bounding $Q$ as a submap and faces $f_1 =
+  v_1e_1v_2e_2v_3a_1o_1b_1$, $f_2 = v_1a_2o_2b_2v_3e_3v_4e_4$ with the
+  same label $s$, remove the interior diamond and join $f_1$ and $f_2$
+  into a face $f$ with label $s$;
 \end{enumerate}
 
 
