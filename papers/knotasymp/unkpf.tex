@@ -9,6 +9,8 @@
 \usepackage{brunnian}
 \usepackage{mathtools}
 \usepackage{hyperref}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
 
 \setlength{\parskip}{.1cm}
 
@@ -32,12 +34,15 @@
 \newcommand{\arbclass}{c}
 \newcommand{\PatCount}{E}
 \newcommand{\Prb}{\mathbb{P}}
+\newcommand{\Shad}[1]{\tilde{#1}}
 
 \newcommand{\Expand}{T}
 \DeclareMathOperator{\Aut}{aut}
 \DeclareMathOperator{\im}{im}
 
-\newtheorem{theorem}{Theorem} \newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{definition}{Definition} \tikzset{->-/.style={decoration={ markings, mark=at position #1
       with {\arrow{>}}},postaction={decorate}}}
 
@@ -306,22 +311,51 @@ if their underlying shadow structure is.
 
 \begin{figure}[h!]  \centering
   \includegraphics[height=1.5in]{2leg_vs_reg_prime}
-  \caption{A shadow which is not prime (left). A composite shadow which is two-leg-prime (right).}
+  \caption{A composite shadow which is two-leg-prime (left). A shadow
+    which is not two-leg-prime (right). }
   \label{fig:prime2legprime}
 \end{figure}
 
 There is a bijection between blossom trees and rooted link shadows.
 
-Is a canonical way to order crossings, components, edges, and direct edges consistently for a rooted
-link shadow:
-\begin{enumerate}
-\item Root vertex is vertex 1, root edge is edge 1.
-\item Empty stack of components to label; add root component.
-\item Pop component $C$ from stack, labelling vertices and edges in order.
-\item Add components to stack; orient the positive edge at first appearance of component away from
-  crossing.
-\item Repeat until stack empty.
-\end{enumerate}
+\begin{proposition}
+  There is a consistent way to order the components of a rooted link
+  shadow. There is a consistent way to index the vertices of a rooted
+  link shadow. There is a consistent way to index and orient the edges
+  of a rooted link shadow so that the directed edges meet head-to-tail
+  across the vertices of the shadow.
+\end{proposition}
+
+\begin{proof}
+  Let $L$ be a rooted link shadow. Begin by labelling the edges of $L$
+  with the link component in which they lie. Index the root vertex and
+  the root edge by 1.
+\end{proof}
+
+\begin{corollary}
+  There is a consistent way to order and orient the components of a
+  rooted link diagram. There is a consistent way to index the
+  crossings of a rooted link diagram. There is a consistent way to
+  index the edges of a rooted link diagram. These are the same as
+  those for the underlying shadow.
+\end{corollary}
+
+\begin{proof}
+  These are all induced on the diagram from its shadow.
+\end{proof}
+
+\begin{corollary}
+  Rooted link diagrams are in bijection with rooted link shadows
+  labelled with $\{+, -\}$.
+\end{corollary}
+
+\begin{proof}
+  Given a rooted link diagram, there is a consistent orientation of
+  its components. There is hence a labelling of the underlying rooted
+  shadow with $\{+, -\}$ (they are the standard crossing signs). This
+  process is reversible since the consistent component orientation for
+  the diagram is identical to that of the shadow.
+\end{proof}
 
 \section{Asymptotic structure theorems for diagrams}
 \label{sec:structure}
@@ -491,57 +525,68 @@ $m_n = |\MapClass_n|$) the limit
 \[ \lim_{n\to\infty}{m_n^{1/n}} \] exists.
 
 Bender, et al.\ \cite{Bender1992104} give a powerful proof strategy for proving smooth growth of a
-sequence. Let $\ArbClass$ be a class of combinatorial objects with generating function
-$\sum_{n=0}^{\infty}{\arbclass_n~z^n}$; let the radius of convergence of the OGF be $r$, and
-$\ArbSubClass$ some other class with generating function $\sum_{n=0}^{\infty}{\arbsubclass_n~z^n}$
-to be specified later ($\ArbSubClass$ will be some sufficiently nice class of objects indecomposable
-under a composition operation we will define). Suppose we have some preliminary, loose bound away
-from zero on $r$ (there are at most $12^n$ planar maps, and so in our cases we have $r \ge 1/12$)
-and that $r \le 1$ Let $C_i > 0$ and $1-r>\delta>0$ be arbitrary. The method involves three steps;
+sequence. We adapt that to prove the following theorem.
 
+\begin{theorem}
+  Let $\ArbClass$ be a class of combinatorial objects with generating function
+  $\sum_{n=0}^{\infty}{\arbclass_n~z^n}$; let the radius of convergence of the OGF be $r$, and
+  $\ArbSubClass$ some other class with generating function
+  $\sum_{n=0}^{\infty}{\arbsubclass_n~z^n}$. Suppose that $0 > r \le 1$ and let $C_i > 0$ and
+  $1-r>\delta>0$ be arbitrary.
+
+  Suppose there is a product operation $\times$ on elements $A, B \in
+  \ArbClass \cup \ArbSubClass$ so that,
+  \begin{enumerate}
+  \item $A \times B \in \ArbClass$,
+  \item there exists some fixed $k \in \Z_{\ge 0}$ so that $|A \times B| = |A| + |B| + k$, and
+  \item given any $C \in \ArbClass$, there is at most one maximal factorization $D_1 \times D_2 \times
+    \cdots \times D_s = C$ with $D_i \in \ArbSubClass$.
+  \end{enumerate}
+  Suppose there exists $R \ge 0$ so that for $n \ge R$ there exists $\ell \in \Z_{\ge 0}$ and maps $\psi_0:
+  \ArbClass_n \hookrightarrow \ArbSubClass_{n+\ell}$ and $ \psi_1: \ArbClass_n \hookrightarrow
+  \ArbSubClass_{n+\ell+1}$. Then the limit
+  \[ \lim_{n\to\infty}{\arbclass_n^{1/n}} \] exists.
+\end{theorem}
+
+It is known that there are at most $12^n$ planar maps, and so in our cases we will always have $r
+\ge 1/12$.
+
+\begin{proof}
+The proof breaks down into 3 steps;
 \begin{enumerate}
 \item \emph{Show that there exists some $n \ge 0$ with $\arbclass_n > C_1(r + \delta)^{-n}$.} This
   step follows from the Cauchy-Hadamard theorem, which says that
   \[ \limsup_{n\to\infty}{\arbclass_n^{1/n}} = r^{-1}. \]
 
-  By the definition of lim sup, we have that if $a < r^{-1}$, then for any $M$ we have that there is
+  By the definition of lim sup, we have that if $a < r^{-1}$, then for any $M \ge R$ we have that there is
   some $n \ge M$ with $\arbclass_n^{1/n} > a$. For instance, we know that $(r + \delta/2)^{-1} < r^{-1}$,
   hence for any $M$ we have some $n \ge M$ with $\arbclass_n > (r+\delta/2)^{-n}$. Notice now that as
-  \[ \left( \frac{r+\delta}{r + \delta/2} \right) > 1, \] there must be some $M$ so that for all $m
+  \[ \left( \frac{r+\delta}{r + \delta/2} \right) > 1, \] there must be some $M \ge R$ so that for all $m
   \ge M$
   \[ \left( \frac{r+\delta}{r + \delta/2} \right) > C_1^{1/m}, \text{ implying that } (r +
   \delta/2)^{-m} > C_1(r + \delta)^{-m}, \] whence we then have (by lim sup) some $n \ge M$ with
-  $k_n > (r+\delta/2)^{-n} > C_1(r+\delta)^{-n}$.
+  $c_n > (r+\delta/2)^{-n} > C_1(r+\delta)^{-n}$.
 \item \emph{Show that there exists some $m \ge 0$ with $\arbsubclass_m > C_2(r + \delta)^{-m}$ and
-    $\arbsubclass_{m+1} > C_2(r + \delta)^{-(m+1)}$.} This step will depend on the classes
-  $\ArbClass$ and $\ArbSubClass$. Notice that $(r + \delta) < 1$ and so $(r + \delta)^{-m} <
-  (r+\delta)^{-(m+1 )}$. If there exist injections $\psi_0, \psi_1$ from $\ArbClass_n$ into
-  $\ArbSubClass_{n+\ell}$ and $\ArbSubClass_{n+\ell+1}$, then setting $m = n + \ell$ and $C_1 =
-  C_2(r+\delta)^{-m+n-1)}$ we have that
+    $\arbsubclass_{m+1} > C_2(r + \delta)^{-(m+1)}$.} Notice that $(r + \delta) < 1$ and so for any
+  $m \ge 0$, $(r + \delta)^{-m} < (r+\delta)^{-(m+1 )}$. As there exist injections $\psi_0, \psi_1$
+  from $\ArbClass_n$ into $\ArbSubClass_{n+\ell}$ and $\ArbSubClass_{n+\ell+1}$, setting $m = n +
+  \ell$ and $C_1 = C_2(r+\delta)^{-(m+n-1)}$ we have that
   \[ \arbsubclass_m \ge |\im \psi_0| = \arbclass_n > C_1(r+\delta)^{-n} = C_2(r+\delta)^{-(m+1)} >
   C_2(r+\delta)^{-m} \]
   and
   \[ \arbsubclass_{m+1} \ge |\im \psi_1| = \arbclass_n > C_1(r+\delta)^{-n} =
   C_2(r+\delta)^{-(m+1)}. \]
 \item \emph{Show that there exists some $N$ so that for any $n \ge N$, $\arbclass_n > (r +
-    \delta)^{-n}$.} To show this, we define a product operation $\times$ on elements $A, B \in
-  \ArbClass \cup \ArbSubClass$ so that,
-  \begin{enumerate}
-  \item $A \times B \in \ArbClass$,
-  \item there exists some fixed $k \in \Z$ so that $|A \times B| = |A| + |B| + k$, and
-  \item given any $C \in \ArbClass$, there is at most one maximal factorization $A_1 \times A_2 \times
-    \cdots \times A_s = C$ with $A_i \in \ArbSubClass_m \cup \ArbSubClass_{m+1}$.
-  \end{enumerate}
-  Let $C_2 = (r + \delta)^{-k}$. Let $N = (m + k)(m + k + 1)$. Then if $n \ge N$, we can write $n$
-  as a linear combination $a(m + k) + b(m + k + 1) = am + b(m + 1) + (a+b)k$, with $a, b \ge
-  0$. Observe that $c_n > \arbsubclass_m^a\arbsubclass_{m+1}^b$ as there exists a subset of objects
-  $S \subset \ArbClass_n$ which can be expressed uniquely as a product of $a$ elements of
-  $\ArbSubClass_m$ and $b$ elements of $\ArbSubClass_{m+1}$ (and $|S| >
-  \arbsubclass_m^a\arbsubclass_{m+1}^b$). Then
+    \delta)^{-n}$.} Consider $k$ from the hypothesis. Let $C_2 = (r + \delta)^{-k}$. Let $N = (m +
+  k)(m + k + 1)$. Then if $n \ge N$, we can write $n$ as a linear combination $a(m + k) + b(m + k +
+  1) = am + b(m + 1) + (a+b)k$, with $a, b \ge 0$. Observe that $c_n >
+  \arbsubclass_m^a\arbsubclass_{m+1}^b$ as there exists a subset of objects $S \subset \ArbClass_n$
+  which can be expressed uniquely as a product of $a$ elements of $\ArbSubClass_m$ and $b$ elements
+  of $\ArbSubClass_{m+1}$ (and $|S| > \arbsubclass_m^a\arbsubclass_{m+1}^b$). Then
   \[ c_n > d_m^ad_{m+1}^b > C_2^a(r+\delta)^{-am}C_2^b(r+\delta)^{-b(m+1)} = (r+\delta)^{-(am +b(m+1)+(a+b)k)} = (r+\delta)^{-n}.\]
 \end{enumerate}
 
-To finish the proof we realize that this last statement implies that the lim inf is $r^{-1}$ and
+To finish the proof we realize that this last step implies that the lim inf is $r^{-1}$ and
 hence the limit result follows. Observe that $\liminf_{n\to\infty}{\arbclass_n^{1/n}} = r^{-1}$ if for any
 $\epsilon > 0$, there exists $N$ so that for all $n \ge N$, $\arbclass_n^{1/n} > r^{-1} - \epsilon =
 \frac{1 - r\epsilon}r$. We may assume that $\epsilon < 1$ since otherwise the inequality is clear
@@ -551,6 +596,7 @@ $\arbclass_n^{1/n} > (r + \delta)^{-1} > r^{-1} - \epsilon$. Indeed, we have $r^
 $1 > 1 - r\epsilon > 0$ so that the left hand side of the inequality is positive; but we may choose
 $\delta > 0$ as small as we desire. Hence for $N = (m+k)(m+k+1)$, the result that
 $\lim_{n\to\infty}{\arbclass_n^{1/n}} = r^{-1}$ follows.
+\end{proof}
 
 
 \subsubsection{Smooth growth for knot and link diagrams}
@@ -569,20 +615,15 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
 \end{theorem}
 
 \begin{proof}
-  A very loose bound on $r = r(K)$ is $1/12 \le r \le 1$ as the number of planar maps in
-  general is bounded by $12^n$. Let $C_i > 0$ and $1-r > \delta > 0$
-  be arbitrary.
+  As mentioned above, a very loose bound on $r = r(K)$ is $1/12 \le r
+  \le 1$ as the number of planar maps in general is bounded by
+  $12^n$. Let $C_i > 0$ and $1-r > \delta > 0$ be arbitrary. We need
+  to define a composition $\times$ and subclass $\ArbSubClass$ of
+  shadows which are prime under $\times$.
 
-  \begin{enumerate}
-  \item \emph{Show that there exists some $n \ge 0$ with $k_n > C_1(r
-      + \delta)^{-n}$.} This follows immediately from the
-    Cauchy-Hadamard theorem.
-  \item \emph{Show that there is a subclass $\ArbSubClass$ of $\KnotShad$ for which there exists
-      some $m \ge 0$ with $\arbsubclass_m > C_2(r + \delta)^{-m}$ and $\arbsubclass_{m+1} > C_2(r +
-      \delta)^{-(m+1)}$.} Recall that we want to pick $\ArbSubClass$ so that its objects are
-    \emph{indecomposable} under a composition operation $+$. Hence to motivate our upcoming choice
-    of $\ArbSubClass$, we will first define $+$: Define the concatenation $K = K_1+K_2$ on
-    shadows by gluing the front leg of $K_1$ to the hind leg of $K_2$.
+  Define the concatenation $K = K_1\times K_2$ on shadows in
+  $\KnotShad$ by gluing the front leg of $K_1$ to the hind leg of
+  $K_2$.
     \begin{figure}[h!]  \centering
       \[
       \begin{aligned}
@@ -594,7 +635,7 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
           \draw[>-] (L.center) -- (A);
           \draw[->] (A) -- (R.center);
         \end{tikzpicture}
-      \end{aligned} +
+      \end{aligned} \times
       \begin{aligned}
         \begin{tikzpicture}[every path/.style={very thick}]
           \node[draw,circle,minimum size=40pt] (A) at (0,0) {$K_2$};
@@ -618,38 +659,105 @@ prove that they grow smoothly, as to prove our result of asymptotic asymmetry.
         \end{tikzpicture}
       \end{aligned}
       \]
-      \caption{The two-leg sum operation $+$. If both $A$ and $B$ are two-leg-prime, then $A + B$ has
+      \caption{The two-leg sum operation $\times$. If both $A$ and $B$ are two-leg-prime, then $A \times B$ has
         exactly one separating edge.}
       \label{fig:legsum_example}
     \end{figure}
-    Hence, we will take $\ArbSubClass$ to be the class of knot shadows which remain connected after
-    removing the root edge and any additional non-root edge.
+    Hence, we will take $\ArbSubClass$ to be the class of knot shadows
+    which remain at least 2-connected after removing the root edge.
+
+    Certainly $A \times B \in \KnotShad$ as we obtain a new 2-leg shadow. As $\times$ introduces no
+    crossings, we have $k = 0$ and $|A \times B| = |A| + |B|$. Finally, a 2-leg shadow $K$ either lies in
+    $\ArbSubClass$ or has $\ell-1$ disconnecting edges. Cutting these edges produces the disjoint
+    union of $\ell$ well-ordered 2-leg shadows (well ordered from their position in the long curve $K$)
+    which is the unique ordered $+$-decomposition of $K$ into elements of $\ArbSubClass$.
 
     Let $\varphi$ be the map which twists the root edge, making the loop the new root (using the
     appropriate induced orientation). Then $\varphi: \KnotShad_* \hookrightarrow \ArbSubClass_{*+1}$,
     since deleting the root and smoothing the pointed edge produces a knot shadow, which must be at
     least 2-connected.
     \begin{figure}[h!]  \centering
-      \includegraphics[height=1.5in]{rooted_composite_knot}
+      \[
+      \begin{aligned}
+        \begin{tikzpicture}[every path/.style={very thick},decoration={markings, mark=at position 0.5 with
+        {\arrow{>}}}]
+          \node[draw,circle,minimum size=15pt] (A) at (0,0) {$K_1$};
+          \node[draw,circle,minimum size=15pt] (B) at (1,0) {$K_2$};
+          \node[draw,circle,minimum size=15pt] (C) at (2.5,0) {$K_\ell$};
+          \node (L) at (0,-.8) {};
+          \node (R) at (2.5,-.8) {};
+
+          \draw (L.center) -- (A);
+          \draw (A) -- (B);
+          \draw[dotted] (B) -- (C);
+          \draw (C) -- (R.center);
+          \draw (R.center) edge[out=-90,in=-90,postaction={decorate}] (L.center);
+        \end{tikzpicture}
+      \end{aligned} \xmapsto{\varphi}
+      \begin{aligned}
+        \begin{tikzpicture}[every path/.style={very thick},decoration={markings, mark=at position 0.5 with
+        {\arrow{>}}}]
+          \node[draw,circle,minimum size=15pt] (A) at (0,0) {$K_1$};
+          \node[draw,circle,minimum size=15pt] (B) at (1,0) {$K_2$};
+          \node[draw,circle,minimum size=15pt] (C) at (2.5,0) {$K_\ell$};
+          \node[draw,circle,fill=black,minimum size=8pt,inner sep=0pt] (X) at (1.25,-1) {};
+
+          \draw (X) edge[in=-70,out=90+45] (A);
+          \draw (A) -- (B);
+          \draw[dotted] (B) -- (C);
+          \draw (C) edge[out=-110,in=90-45] (X);
+          \draw (X) edge[out=-135,in=-45,postaction={decorate},looseness=10] (X);
+        \end{tikzpicture}
+      \end{aligned} \xmapsto{\varphi}
+      \begin{aligned}
+        \begin{tikzpicture}[every path/.style={very thick},decoration={markings, mark=at position 0.5 with
+            {\arrow{>}}}]
+          \node[draw,circle,minimum size=15pt] (A) at (0,0) {$K_1$};
+          \node[draw,circle,minimum size=15pt] (B) at (1,0) {$K_2$};
+          \node[draw,circle,minimum size=15pt] (C) at (2.5,0) {$K_\ell$};
+          \node[draw,circle,fill=black,minimum size=8pt,inner sep=0pt] (X) at (1.25,-1) {};
+          \node[draw,circle,fill=black,minimum size=8pt,inner sep=0pt] (Y) at (1.25,-1.8) {};
+
+          \draw (X) edge[in=-70,out=90+45] (A);
+          \draw (A) -- (B);
+          \draw[dotted] (B) -- (C);
+          \draw (C) edge[out=-110,in=90-45] (X);
+          \draw (X) edge[bend right] (Y);
+          \draw (X) edge[bend left] (Y);
+          \draw (Y) edge[out=-45,in=-135,postaction={decorate},looseness=10] (Y);
+        \end{tikzpicture}
+      \end{aligned}
+      \]
       \caption{The map $\varphi$ adds a vertex and ensures that the new map is 2-leg-prime.}
       \label{fig:phi_example}
-    \end{figure} Then as $d_n$ counts knot shadows which are at least 2-connected as 2-leg diagrams,
-    and since $\varphi^2$ acts similarly while increasing the number of crossings by 2, we obtain
-    step 2 as by the discussion in the prior section.
-  \item \emph{Show that there exists some $N$ so that for any $n \ge N$, $k_n > (r + \delta)^{-n}$.}
-    We only need show that $+$ satisfies the appropriate properties laid out in the previous
-    section. Certainly $A + B \in \KnotShad$ as we obtain a new 2-leg shadow. As $+$ introduces no
-    crossings, we have $k = 0$ and $|A + B| = |A| + |B|$. Finally, a 2-leg shadow $K$ either lies in
-    $\ArbSubClass$ or has $\ell-1$ disconnecting edges. Cutting these edges produces the disjoint
-    union $\ell$ well-ordered 2-leg shadows (well ordered from their position in the long curve $K$)
-    which is the unique ordered $+$-decomposition of $K$ into elements of $\ArbSubClass$.
-  \end{enumerate}
+    \end{figure}
+    Then we take $\psi_0 = \varphi$ and $\psi_1 = \varphi^2$. This setup satisfies the hypotheses
+    and hence proves the theorem.
 \end{proof}
 
 \begin{corollary}
-  A random rooted knot diagram is knotted a.a.s. Indeed, given any 2-tangle $T$ and large enough $n$
-  a random rooted knot diagram with $n$ crossings contains $T$ as a connect summand.
+  There exists $N \ge 0$ and a constant $d < 1$ so that for $n \ge N$,
+  \[\Prb(\text{a knot diagram $K$ is an unknot}) < d^n.\]
+
+  For any prime 2-tangle $P$, there exists $N \ge 0$ and constants $d < 1$, $c > 0$ so that for
+  $n \ge N$,
+  \[\Prb(\text{a knot diagram $K$ contains $\le cn$ copies of $P$ as connect summands}) < d^n.\]
 \end{corollary}
+
+\begin{proof}
+  The first statement will follow immediately from the second.
+
+  %%% this won't work, probably should prove everything for rooted diagrams
+  Let $k_n$ count the number of knot shadows with $n$ vertices and
+  $h_n$ count the number of knot shadows in $n$ vertices which contain
+  $\le c'n$ copies of $\Shad{P}$, where $c' > 0, d < 1, N$ are chosen
+  by the corollary so that for all $n \ge N$, $h_n/k_n < d^n$. Then
+  the number of rooted knot diagrams in $n$ crossings is $2^{n}$,
+  and the number of rooted knot diagrams that contain $\le c'n$
+  copies of $P$ is $2^{n-c'n}$ (there are two choices of orientation
+  and $2^n$ choices of crossing sign, but $c'n$ of those are fixed if
+  $P$)
+\end{proof}
 
 \subsubsection{Smooth growth for prime knot and link diagrams}
 \label{sec:smoothprime}
