@@ -114,7 +114,7 @@
 \bibliographystyle{plain}
 
 \begin{document}
-\title[]{An Enumeration of Knot Diagrams}
+\title[]{Random Knot Diagrams}
 \author{Jason Cantarella, Harrison Chapman}
 \altaffiliation{University of Georgia, Mathematics Department, Athens GA}
 \noaffiliation
@@ -128,48 +128,17 @@
 
 There is currently a great deal of interest in the topic of random geometry and random topology. The study of random knots goes back to the 1960's, when polymer physicists realized that the knot type of a closed (or ring) polymer would play an important role in the statistical mechanics of the polymer~\cite{Edwards:1967hd}. Orlandini and Whittington give a comprehensive survey of the development of the field since~\cite{Orlandini:2007kn}. In this area, a random knot is usually modeled by a closed random walk, often on the integer lattice. For almost all of these models, certain phenomena have been rigorously established-- for instance, the probability of knotting goes to 1 exponentially fast as the size of the walk increases. However, it has been difficult to prove more informative theorems. 
 
-One way to look at the problem is that it is quite hard to relate the three-dimensional shape of a space curve to its knot type; one can in principle express the finite-type invariants as (very complicated) integrals in the spirit of \cite{Lin:1994wq}, but so far computing the expected value of these integrals has been too complicated to pull off. In experimental studies, one generates random curves, projects them to knot diagrams, and computes invariants from the diagrams. The point of this paper is to look at the set of knot diagrams not as convenient combinatorial representations of the shape of space curves, but as a probability space in their own right. 
+One way to look at the problem is that it is quite hard to relate the three-dimensional shape of a space curve to its knot type; one can in principle express the finite-type invariants as (complicated) integrals in the spirit of \cite{Lin:1994wq}, but so far computing the expected value of these integrals has been too difficult. In experimental studies, one generates random curves, projects them to knot diagrams, and computes invariants from the diagrams. The point of this paper is to look at the set of knot diagrams not as convenient combinatorial representations of the shape of space curves, but as a probability space in their own right. 
 
-The objects in our space will be equivalence classes of immersions of $S^1$ into $S^2$ as in Arnol'd~\cite{Arnold:1994wr}. We call this the set of knot shadows (or in Kauffman's language, knot universes~\cite{knots and physics}). We then write the $n$-crossing knot diagrams as the product of the $n$-crossing knot shadows and the hypercube ${\pm 1}^{n+1}$ representing assignment of global orientation and crossing signs. We carried out an enumeration of composite knot diagrams up to 11 crossings and prime knot diagrams up to 15 crossings using the graph theory software~\emph{plantri}~\cite{Brinkmann:2005um,Brinkmann:2007up}.
+The objects in our space will be equivalence classes of immersions of $S^1$ into $S^2$ as in Arnol'd~\cite{Arnold:1994wr}. We call this the set of knot shadows (or in Kauffman's language, knot universes~\cite{knots and physics}). We then write the $n$-crossing knot diagrams as the product of the $n$-crossing knot shadows and the hypercube $\{\pm 1\}^{n+1}$ representing assignment of global orientation and crossing signs. We carried out an enumeration of composite knot diagrams up to 11 crossings using the graph theory software~\emph{plantri}~\cite{Brinkmann:2005um,Brinkmann:2007up}. We checked our results by using~\emph{plantri} in two different ways to generate our graphs, as described below.
 
-Looking at this data, we are led to several conjectures:
-
-\begin{conjecture} 
-The fraction of knot shadows with nontrivial automorphism group approaches 0 exponentially fast as $n \rightarrow \infty$.
-\end{conjecture}
-
-\begin{conjecture}
-Most diagrams are highly composite. The mean number of prime factors of a diagram $\rightarrow \infty$ as $n \rightarrow \infty$ and the number of prime factors of a random diagram is strongly concentrated around this expectation.
-\end{conjecture}
-
-
-
-
-The analysis of closed random walks plays an important role in the physics of ring polymers. The configuration space of a ring polymer is divided into chambers corresponding to different knot types, and understanding the relative sizes and shapes of these chambers determines the statistics of the theory~,
-
-
- Certain features of these models, such as the limiting ratio of probabilities of different knot types~\cite{JANSEVANRENSBURG:2011jo}, or the fact that the probability of the unknot goes to zero, appear to be universal features of these models. Why?
-
-In practice, knot types are always computed in these studies by constructing a planar knot diagram and computing topological invariants from the combinatorics of the diagrams. This leads to the following idea: each model implicitly pushes forward a probability distribution on a space of curves to a probability measure on a space of diagrams and then to a probability measure on the space of knot types. Perhaps the pushforward distributions on knot space share common features becuause 
-
-Our overall goal is to introduce a middle ground between topology and geometry; a model of random knots as random combinatorial objects which is close enough to topology to prove theorems using the tools of classical knot theory and at the same time close enough to geometry to have a hope of understanding the induced distribution on random combinatorial objects generated by a given model of random curves. With these constraints in mind, the natural combinatorial object to consider is the knot diagram, which has well-developed links to both curves and invariants. So this point of this paper is to initiate a study of random knot diagrams. 
-
-Evan-Zohar, Hass, Linial, and Nowik~\cite{EvenZohar:2014ws} solve this problem by introducing a combinatorial model of knotting which converts permutations into knots directly. This allows them to prove powerful new theorems.
-
-We proceed as follows. There are a finite number of topologically distinct\footnote{We will make the equivalence relation on diagrams precise below.} immersions of circle into the sphere with a fixed number of transverse double points $n$. We tabulate these by computer. Assigning over/under information to the double points creates the set of knot diagrams with $n$ crossings. We then classify the knot type of each diagram using standard invariants. This allows us to provide exact answers to questions such as these: What fraction of 9 crossing knot diagrams are unknots? <FILL IN THE NUMBER HERE> How many crossings can be removed by performing only Reidemeister I moves on an average 10 crossing diagram? <FILL IN THE NUMBER HERE> What is the second moment of the $c_2$ invariant on random 11 crossing diagrams? <FILL IN THE NUMBER HERE> This is basically an experimental paper, though we devote some mathematical effort to formally proving that our algorithm for diagram tabulation is correct in Sections~<FILL IN SECTIONS>. 
+How many of these diagrams represent nontrivial knots? As in most models of random knotting, the fraction of unknots is very high for small crossing numbers and begins to decay as the number of crossings in the diagram increases. Interestingly, in this range, the unknot fraction is relatively easy to understand. For some diagrams (called ``tree-like'' curves), the knot type does not depend on the assignment of crossing information-- the resulting knot is \emph{always} the unknot (see Figure~\ref{fig:treelike}). These diagrams turn out be surprisingly common for low crossing numbers. For example, $42.05\%$ of 8-crossing diagrams are treelike, which explains about half of the unknots among 8-crossing diagrams ($84\%$). The remaining unknots are almost all connect sums of treelike diagrams with a single trefoil or figure-8 diagram. We will show that a simple analysis based on such diagrams gives a lower bound of $77\%$ for the unknot fraction in 8-crossing diagrams, explaining more than $90\%$ of all unknots in this class. Motivated by this, we then focus on the connect sum structure of random diagrams. This is extremely interesting, as our data shows that the vast majority of diagrams are highly composite. This is partially explained by the existence of pattern theorem for diagrams~\cite{harrison}, but more work remains to characterize the distribution of various sizes of summands in a random diagram. Counting knot diagrams is made significantly more complicated by diagram symmetries. Our data shows that symmetric diagrams are very rare among diagrams; the average size of the automorphism group for a random 10 crossing diagram, for instance, is $846929/823832 \simeq 1.028$. 
 
 There are many interesting connections between this project and the existing literature. The closest paper in spirit to ours that we have found is the very interesting work of Hua-Nguyen-Raghvan-Asuaga-Vasquez~\cite{Hua:2007fh} on random state transitions for knots. They are similarly interested in connecting topology and geometry through random diagrams, but their approach is very bold-- instead of establishing a baseline counting measure on diagrams (as we do here) and then relating it to the density introduced by projections of random curves (as we plan to later) they combine the stages and directly sample the empirical distribution on diagrams induced by projecting random closed lattice walks to the plane. They then conduct some interesting numerical experiments on the resulting distribution of diagrams. It is not completely clear what distribution on diagrams is actually constructed by their code (choices are involved both in projecting the lattice walks, and in simplifications which are then performed at the diagrammatic level), so it is difficult to make mathematical conjectures about more traditional models of random diagrams from their analysis. Nonetheless, their distribution is certainly close to the biological application they have in mind, and the results are extremely suggestive. 
 
-A more recent related work is that of , who introduced a fascinating random knot model where the underlying combinatorial object is a random permutation, using Adams' idea of a Petal diagram~(cite adams paper here). This model was designed to be analyzed, and they proved some very striking and beautiful results on the distribution of certain knot invariants in this model. If these are universal properties of all random knot models coming from combinatorics, they will prove very useful in polymer physics. However, that specific model is unlikely to solve our particular problems soon: it is hard to see much hope of connecting random curves to random Petal diagrams in way that's explicit enough to know much about the induced distribution on Petal diagrams. 
+A more recent related work is that of \cite{EvenZohar:2014ws}, who introduced a fascinating random knot model where the underlying combinatorial object is a random permutation, using Adams' idea of a Petal diagram~(cite adams paper here). This model was designed to be analyzed, and they proved some very striking and beautiful results on the distribution of certain knot invariants. If these are universal properties of all random knot models coming from combinatorics, they will prove very useful in polymer physics. However, that specific model is unlikely to solve our particular problems soon: it is hard to see much hope of connecting random curves to random Petal diagrams in way that's explicit enough to know much about the induced distribution on Petal diagrams. 
 
-There is also a long history of deep combinatorial results about counting knot diagrams, usually as a way of building knot tables or counting knot types. Conway's famous paper on knot tabulation~\cite{Conway:1970vr} gives a strategy for enumerating diagrams based on an enumeration of equivalence classes of rational tangles and the Tutte's enumeration of a class of planar ``c-nets''~\cite{Tutte:1963gz} which Conway used as a kind of skeleton for the diagrams. Thistlethwaite and Sundberg~\cite{Sundberg:1998hr} studied the asymptotics of this model to prove results about the number of alternating links. These papers don't directly count or enumerate diagrams in the same sense that we do (the tangle counts are up to additional equivalence relations coming from knot theory), but they could certainly be modified to address our case. 
-
-Similarly, Arnol'd's seminar studied the immersions of the circle into the plane in the 1990's as part of his general theory of finite type invariants of plane curves. Arnol'd's main paper actually provides an explicit count of the same immersions of $S^1$ into $S^2$ that we enumerate, but only for $n \leq 5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences~\cite{Untitled:vPCfHsyG}, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots below does match A008989 including the extension.
-
-More sophisticated counting procedures have been applied in recent years, particularly for diagrams of knots. Jacobsen and Zinn-Justin\cite{Jacobsen:2002kia} give a transfer matrix analysis for a combinatorial description of prime, reduced, weighted, marked planar diagrams for knots very similar to Gusein-Zade's enumeration~\cite{GusenZade:1994wl,GusenZade:1998jz}. Gusein-Zade's actual computer enumeration was carried out only to 10 crossings while Jacobsen and Zinn-Justin push the enumeration to the nearly unthinkable 22-crossing case, where they give an exact count of 40558226664529044000 knot diagrams. 
-
-Schaeffer~\cite{Schaeffer:1997wo} (see also~\cite{Bouttier:2002iu}) constructed a very insightful bijection between link diagrams where an edge stretches to infinity (``two-leg'' diagrams) and a class of decorated trees called ``blossom trees''. This has been used to great effect in constructing generating functions for the number of these diagrams, and we will use such a generating function due to Bouttier-Di Francesco-Guitter~\cite{Bouttier:2003ib} to check our work below. Unfortunately, the relationship between our count and theirs is not simple; symmetries of our diagrams confuse the counting procedure so that we must weight our diagrams by a factor derived from the size of their automorphism group to recover the counts of~\cite{Bouttier:2003ib}. 
-
+There is also a long history of deep combinatorial results about counting knot diagrams, usually as a way of building knot tables or counting knot types. Conway's famous paper on knot tabulation~\cite{Conway:1970vr} gives a strategy for enumerating diagrams based on an enumeration of equivalence classes of rational tangles and the Tutte's enumeration of a class of planar ``c-nets''~\cite{Tutte:1963gz} which Conway used as a kind of skeleton for the diagrams. Thistlethwaite and Sundberg~\cite{Sundberg:1998hr} studied the asymptotics of this model to prove results about the number of alternating links. These papers don't directly count or enumerate diagrams in the same sense that we do (the tangle counts are up to additional equivalence relations coming from knot theory), but they might be modified to address our case. Last, as we mentioned above, Arnol'd's seminar studied the immersions of the circle into the plane in the 1990's as part of his general theory of finite type invariants of plane curves. Arnol'd's main paper actually provides an explicit count of the same immersions of $S^1$ into $S^2$ that we enumerate, but only for $n \leq 5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences~\cite{Untitled:vPCfHsyG}, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots below does match A008989 including the extension.
 
 \section{Definitions}
 
@@ -186,11 +155,9 @@ Examples of link shadows are shown in Figure \ref{fig:ShadowExamples}.
 	\end{overpic}
 	\caption{\label{fig:ShadowExamples}Examples of links shadows.}
 \end{figure}
-It is well-understood that the equivalence relation preserves the (spherical) embedding of the planar graph; in fact, the left and right-most shadows are actually equivalent under embedded isomorphism-- we have just changed the ``exterior'' face of the projection from the sphere to the plane.
+It is well-understood that the equivalence relation preserves the (spherical) embedding of the planar graph; in fact, the left and right-most shadows are actually equivalent under embedded isomorphism-- we have just changed the ``exterior'' face of the projection from the sphere to the plane. We can partition the edges of a link diagram into \emph{components} by defining two edges to be equivalent if they meet at a vertex at positions which are not cyclicly adjacent. We will call shadows with a single component \emph{knot shadows}. They will be the focus of this paper.
 
-We can partition the edges of a link diagram into \emph{components} by defining two edges to be equivalent if they meet at a vertex at positions which are not cyclicly adjacent. We will call shadows with a single component \emph{knot shadows}. They will be the focus of this paper.
-
-It's standard in knot theory that
+It's standard that
 \begin{proposition}
 The finite set of knot shadows with $n$ vertices is bijective to the finite set of generic immersions of $S^1$ into $S^2$ up to orientation-preserving diffeomorphism of the sphere.
 \end{proposition}
@@ -200,210 +167,22 @@ We can define a link diagram by
 A \emph{link diagram} is a link shadow where each component is oriented and each vertex is decorated with over-under information for the edges meeting at the vertex. We call these vertices \emph{crossings}. The equivalence relation for these diagrams is the \emph{diagram automorphism}: a shadow isomorphism which also preserves orientation and over-under information.
 \end{definition}
 It is clear that there are at most $2^{\text{\# components}} 2^{\text{\# crossings}}$ link diagrams associated to a given link shadow, but that this number may be reduced if there are nontrivial diagram automorphisms.
-
-Various models of random knots have been proposed in the literature. In this paper, we will examine a quite natural one:
 \begin{definition}
 In the \emph{random diagram model}, a random $n$-crossing knot is selected uniformly from the counting measure on the finite set of one-component $n$-crossing link diagrams.
 \end{definition}
 We intend to compute knot probabilities directly in the random diagram model for (relatively) small $n$ by direct enumeration of the collection of $n$-crossing random knots. Having the entire collection of diagrams will in addition allow us to study transitions between diagrams, but we will discuss this in future work.
 
-\section{pdcodes and software architecture}
-
-One of us (Mastin) has given a detailed construction of a combinatorial object,  called a PD-code, bijective to the knot diagrams. A PD-code is a set comprised of quadruples, where each entry in a quadruple may be viewed as an edge in a link diagram and each quadruple corresponds to a crossing. PD-codes seem to have been first used by the KnotTheory Mathematica package **cite Knot Atlas** developed by Dror Bar-Natan and his students.
-
-%\begin{center}
-%\textbf{Matt summarizes pd codes, defines pd code isomorphism combinatorally, we pick up with the expected algorithm for determining pd isomorphism}
-%\end{center}
-
-\begin{definition}\label{def:PD}
-Given a link diagram with labeled edges we generate the set of quadruples of the \textbf{PD-code} representing this diagram by the following procedure. For each crossing we include the quadruple of edge labels involved beginning with the incoming under-edge and proceeding around the crossings in the positively oriented direction of $S$ (see Figure~\ref{fig:PD}). We give a positive sign to incoming edges and a negative sign to outgoing edges.
-
-\begin{figure}
-\begin{center}
-\begin{overpic}[height=4cm]{PD.pdf} %% TODO: Add PD.pdf to SVN
-\put(40,35){$1$}
-\put(28,15){$2$}
-\put(-3,30){$3$}
-\put(28,33){$4$}
-\put(35,-1){$5$}
-\put(16,21){$6$}
-\put(55,27){$\{ [+4,-2,-5,+1],[+2,-6,-3,+5],$}
-\put(67,21){$[+6,-4,-1,+3]\}$}
-\end{overpic}
-\end{center}
-\caption{\label{fig:PD} A diagram for $3_1$ and its PD-code. The labels are only single integers here as there is only one component. Note that we may omit directional arrows as the orientation can be inferred from the ordering of the edge labels.}
-\end{figure}
-
-%\begin{figure}
-%\begin{center}
-%\begin{overpic}[height=7cm]{PDLink.pdf}
-%\put(1,46){$(1,1)$}
-%\put(25,37){$(1,2)$}
-%\put(39,19){$(1,3)$}
-%\put(26,5){$(1,4)$}
-%\put(8.5,10){$(1,5)$}
-%\put(7,31){$(1,6)$}
-%\put(35,43){$(1,7)$}
-%\put(41,26){$(1,8)$}
-%\put(24,16){$(1,9)$}
-%\put(2,15){$(1,10)$}
-%\put(22,28){$(2,1)$}
-%\put(41,11){$(2,2)$}
-%\put(37,2){$(2,3)$}
-%\put(11,2){$(2,4)$}
-%\put(53,43){$\{[(1,+6),(1,-2),(1,-7),(1,+1)],$}
-%\put(55,38){$[(1,+2),(1,-8),(1,-3),(1,+7)],$}
-%\put(55,33){$[(2,+1),(1,-9),(2,-2),(1,+8)],$}
-%\put(55,28){$[(1,+9),(2,-1),(1,-10),(2,+4)],$}
-%\put(55,23){$[(1,+10),(1,-6),(1,-1),(1,+5)],$}
-%\put(55,18){$[(2,+2),(1,-4),(2,-3),(1,+3)],$}
-%\put(55,13){$[(1,+4),(2,-4),(1,-5),(2,+3)]\}$}
-%\end{overpic}
-%\end{center}
-%\caption{\label{fig:PDLink} A diagram of the link $7_7^2$ and the corresponding PD-code.}
-%\end{figure}
-
-%PD-codes that are obtained in the fashion will be called diagramatic PD-codes.
-
-\end{definition}
-
-The details of the bijection between the PD-codes and link diagrams can be found in **cite PD-code Paper**. We will presently include the construction of a cell decomposition of $S^2$ associated with a PD-code as it will play a central roll in our algorithm for enumerating diagrams. The vertices of the cell decomposition will correspond to the quadruples appearing in the PD-code and the edges will be the edges of the diagram. In order to defined the faces we will introduce the \textbf{successor map} which essentially gives the next edge to appear if one were to walk along an edge and turn right a vertex.
-
-\begin{definition}
- If we represent the quadruples in the a PD-code as $[e_i^0,e_i^1,e_i^2,e_i^3]$, then we define the successor map by $s(e_i^j)=-e_i^{j+1 \mod(4)}$.
-\end{definition}
-
-We can now define a cell complex associated to a PD-code which recovers the link diagram on $S^2$.
-
-\begin{definition}\label{def:surface}
-For each orbit of the successor map $s$ we construct an oriented polygon in the plane with sides given by the labels in each orbit where the labels are assigned clockwise around the polygon. The orientation of an edge agrees with the orientation inherited from the standard orientation of the plane for \emph{negative} labels and disagrees with this orientation for \emph{positive} labels. The orientations of the $2$-cells is inherited from the standard orientation on the plane. The orientations of the edges is induced by the orientation of the $2$-cells. This construction gives the \textbf{associated cell complex} to a given PD-code.
-\end{definition}
-
-This construction gives a collection of oriented polygons in the plane whose edges are labeled by the edge labels of the given link diagram. If these polygons are glued according to the edge labels and orientations then the link diagram is reconstructed as the $1$-skeleton of the resulting cell complex. The details of this construction can be found in **cite PD-code Paper**.
-
-\begin{definition}\label{def:PDIsom}
-	Given two PD-codes we say that a bijection between the edge labels is a \textbf{PD-code isomorphism} if it induces an isomorphism on the associated cell complexes.
-\end{definition}
-
-It is clear that a lot of data about a \pdcode is preserved by isomorphism: for instance, the number of crossings, edges, faces, and the numbers of edges around faces. We can use this information to rule out isomorphisms using a hashing scheme.
-
-\begin{definition}
-Suppose the \pdcode $P$ has $V$ crossings, $E$ edges, $F$ faces, and $C$ components. We assume that the faces are denoted $f_1, \dots, f_F$ and the components are denoted $c_1, \dots, c_C$. Further, let $\edges(x)$ give the number of edges on a face or component. Then the \emph{hash} of $P$ is given by the tuple
-\begin{equation*}
-\mathcal{H}(P) = (V,E,F,C,\{ \edges(f_1), \dots, \edges(f_F) \},
- \{ \edges(c_1), \dots, \edges(c_C) \}).
-\end{equation*}
-The last two are unordered sets of integers.
-\end{definition}
-
-It is clear that
-\begin{lemma}
-If two \pdcodes $P_1$ and $P_2$ are isomorphic, then $\mathcal{H}(P_1) = \mathcal{H}(P_2)$.
-\end{lemma}
-
-\begin{proof}
-The numbers $V$, $E$, $F$, and $C$ are clearly preserved by isomorphism. The indices of edges and faces may be permuted by an isomorphism, but the number of edges on each can't change. Thus the \emph{unordered sets} of edge counts for faces and component remain the same as well.
-\end{proof}
-
-We can now build up an isomorphism between pdcodes by a series of definitions:
-
-\begin{definition}
-Suppose we have two pdcodes $P$ and $P'$ with the same hash.
-\begin{itemize}
-\item A bijection $\gamma: \{c_1,\dots,c_C\} \rightarrow \{c'_1,\dots,c'_C\}$ between the components of $P$ and the components of $P'$ is called \emph{component-length preserving} if $\# \edges(c_i) = \# \edges(\gamma(c_i))$ for all $i$.
-\item Given such a component-length preserving bijection $\gamma$, a bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$ is called \emph{component-preserving} and \emph{compatible with $\gamma$} if $\epsilon$ maps the edges of each $c_i$ to the edges of $\gamma(c_i)$ by an element of the dihedral group $D_{\edges(c_i)}$. That is, the edges of $c_i$ are mapped in cyclic (or reverse-cyclic) order to the corresponding edges of $\gamma(c_i)$.
-\item Given a component-preserving bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$, we say that a bijection $\nu : \{v_1, \dots, v_V\} \rightarrow \{v'_1,\dots,v'_V\}$ between the vertices of $P$ and the vertices of $P'$ is \emph{compatible with $\epsilon$} if
-\begin{equation*}
-\nu(\head(e_i)) = \head(\epsilon(e_i)) \quad \text{ and } \quad \nu(\tail(e_i)) = \tail(\epsilon(e_i)
-\end{equation*}
-when $e_i$ is part of a component mapped by an orientation-preserving element of the dihedral group, and
-\begin{equation*}
-\nu(\head(e_i)) = \tail(\epsilon(e_i)) \quad \text{ and } \quad \nu(\tail(e_i)) = \head(\epsilon(e_i)
-\end{equation*}
-when $e_i$ is part of a component mapped by an orientation-reversing element of the dihedral group.
-\item Given $\gamma$, $\epsilon$, and $\nu$ that obey all the above conditions, we say that they are:
-\begin{itemize}
- \item \emph{globally orientation-preserving} if the set of edges $e_i, e_j, e_k, e_l$ incident to each vertex $v$ of $P$ (in counterclockwise cyclic order) is mapped to the set of edges $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ incident to $\nu(v)$ in counterclockwise cyclic order.
- \item \emph{globally orientation reversing} if the $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ are incident to $\nu(v)$ but in clockwise cyclic order (for each $v$),
- \item otherwise, the triple is \emph{inconsistent}.
-\end{itemize}
-\end{itemize}
-\end{definition}
-
-We then have
-\begin{proposition}
-Given a pair of pdcodes $P$ and $P'$ with the same hash, each isomorphism of $P$ to $P'$ is given by a set of bijections $\gamma$ between their components, $\epsilon$ between their edges, and $\nu$ between their vertices where
-\begin{itemize}
-\item $\gamma$ is component-length preserving,
-\item $\epsilon$ is component-preserving and compatible with $\gamma$,
-\item $\nu$ is compatible with $\epsilon$
-\end{itemize}
-and the triple is globally orientation preserving or reversing (not inconsistent).
-\end{proposition}
-
-\begin{proof}
-Basically, this is the definition of pd isomorphic.
-\end{proof}
-
-A few other observations are helpful:
-\begin{lemma}
-If $\mathcal{H}(P) = \mathcal{H}(P')$ for pdcodes $P$ and $P'$, there is at least one component-length preserving $\gamma : \{c_1,\dots,c_C\} \rightarrow \{c'_1,\dots,c'_C\}$. All component-length preserving $\gamma$ can be generated by iterating over a product of permutation groups.
-\end{lemma}
-
-\begin{proof}
-We can partition the components of $P$ (and $P'$) into subsets by component length. Since the hashes $\mathcal{H}(P)$ and $\mathcal{H}(P')$ match, these partitions correspond for $P$ and $P'$. The component-length preserving $\gamma$ are exactly those bijections which respect this partition: we can construct all such $\gamma$ by taking a product of permutation groups whose orders are the size of the subsets. At worst, all subsets have size 1 and there is a single such $\gamma$.
-\end{proof}
-
-\begin{lemma}
-Given a component-length preserving $\gamma$ and component-preserving and compatible $\epsilon$, and a set of orientations for the components of $P$, there is at most one $\nu : \{v_1, \dots, v_V\} \rightarrow \{v'_1,\dots,v'_V\}$ which is compatible with $\epsilon$ and consistently oriented on components and we can construct $\nu$ as below.
-\end{lemma}
-
-\begin{proof}
-Each vertex $v$ of $P$ is incident to four edges $e_i, e_j, e_k, e_l$. Without loss of generality, let's assume that $v = \tail(e_i)$, $\tail(e_j)$, $\head(e_k)$ and $\head(e_l)$. Then if $\nu$ is compatible with $\epsilon$, we must have
-\begin{equation*}
-\nu(v) = \tail(\epsilon(e_i)) = \tail(\epsilon(e_j)) = \head(\epsilon(e_k)) = \head(\epsilon(e_l)).
-\end{equation*}
-If the four terms on the right are equal, this uniquely defines $\nu(v)$. If not, there is no compatible $\nu$.
-\end{proof}
-
-We can now find all isomorphisms between two pdcodes computationally by a simple brute-force strategy:
-
-\begin{algorithm}
-\begin{algorithmic}[1]
-\Procedure{BuildIsomorphisms}{$P$,$P'$}
-\Comment{Build isomorphisms between pdcodes $P$ and $P'$}
-
-\If {the hashes $\mathcal{H}(P)$ and $\mathcal{H}(P')$ are different}
-	\State $P$ and $P'$ are not isomorphic. Return $\emptyset$.
-\EndIf
-
-\ForAll{component-length preserving $\gamma: \{c_1,\dots, c_C\} \rightarrow \{c'_1, \dots, c'_C\}$}
-	\ForAll{compatible and component-preserving $\epsilon$}
-		\If{a compatible $\nu$ exists}
-		\If{$\nu$ is globally orientation preserving or reversing}
-			\State $\epsilon$, $\nu$ define an isomorphism $P \rightarrow P'$
-		\EndIf
-		\EndIf
-	\EndFor
-\EndFor
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
-
-It should be immediately clear that there are smarter ways to organize this computation: for instance, we could build only part of $\gamma$ and $\epsilon$ before we start checking the consistency conditions for the existence of a compatible $\nu$. Or we could map faces to faces by elements of the dihedral group on the grounds that faces are smaller than components. Or we could try for a more complicated hashing scheme which took into account the adjacency relations between faces. These sorts of ideas are implemented with great insight and care in graph isomorphism packages like \nauty and \emph{saucy}. However, making these types of changes makes the code more intricate and difficult to debug: in this project, our overall strategy is to use simple, straightforward algorithms in the hopes of minimizing the chance of errors.
-
 \section{Constructing the database of diagrams}
 
-Our first goal is to enumerate the link shadows-- that is, the connected 4-regular embedded planar (multi)graphs-- computationally. Since this is the heart of our work, we describe two independent algorithms for the enumeration. One is quite simple while the other is much more complex. We implemented, tested, and ran both of them independently to generate the database of diagrams, verifying that the results of the computations were the same.
+Our first goal was to enumerate the link shadows-- that is, the connected 4-regular embedded planar (multi)graphs, up to embedded isomorphism-- computationally. This section describes our two enumeration algorithms. Each is built on the same computational foundation; a library which allows us to describe and manipulate diagrams as a combinatorial object called a \emph{pd-code}. In this library, we provide a data structure for shadow storage which rejects shadows which are isomorphic to ones already present in the database. This is done using a combination of hashing\footnote{We hash on a combination of features such as the number of faces with a given number of edges, which must agree in isomorphic diagrams.} and brute-force search. Details are provided in Appendix A for the curious reader. 
 
 \subsection{Dual quadrangulations and connect sums}
 \label{subsec:connect sum}
 
-Brinkmann et.\ al.~\cite{Brinkmann:2007up} provided an algorithm to enumerate all of the simple embedded planar quadrangulations of $S^2$, up to embedded isomorphism. A quadrangulation is a planar graph where each face has four edges, as in Figure \ref{fig:QuadExamples}.
+Brinkmann et al.~\cite{Brinkmann:2007up} provide an algorithm to enumerate all of the simple embedded planar quadrangulations of $S^2$, up to embedded isomorphism. A quadrangulation is a planar graph where each face has four edges, as in Figure \ref{fig:QuadExamples}.
 
 \begin{figure}
 	\begin{overpic}[width=4in]{quadrangulations-example.pdf}
-
 	\end{overpic}
 	\caption{\label{fig:QuadExamples} Examples of quadrangulations.}
 \end{figure}
@@ -418,9 +197,11 @@ The dual graph to a quadrangulation is a connected 4-regular embedded planar mul
 \hphantom{.}
 \caption{\label{fig:NonSimpleQuad} An example of a non-simple quadrangulation (right) and its dual graph (left).}
 \end{figure}
-The \plantri software of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa} can be used to generate the dual graphs of the planar simple quadrangulations of given number of vertices. Since an easy Euler characteristic argument shows that the number of vertices in the dual graph of a quadrangulation is 2 less than the number of vertices in the quadrangulation, we can use this to enumerate the connected 4-regular embedded planar multigraphs which are prime.
+The \plantri software of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa} can be used to generate the dual graphs of the planar simple quadrangulations of given number of vertices. Since the number of vertices in the dual graph of a quadrangulation is 2 less than the number of vertices in the quadrangulation, we can use this to enumerate the connected 4-regular embedded planar multigraphs which are prime link shadows.
 
-To enumerate all diagrams, we recall (as is standard in knot theory) that every composite diagram is uniquely expressed as a collection of prime diagrams joined along pairs of edges by the connect sum operation. Of course, this regularly generates isomorphic diagrams when the prime diagrams have a nontrivial automorphism group. It would be interesting and fun to predict when this happens and arrange to avoid generating duplicate diagrams by tracking edge orbits under the automorphism group of each diagram. However, in keeping with our strategy of simple, robust code, we simply construct all connect sums iteratively and check for isomorphisms with existing pdcodes using the hashing/brute force strategy for isomorphism checking detailed above. The process is shown below
+To enumerate all shadows, we recall (as is standard in knot theory) that every composite shadow is uniquely expressed as a collection of prime shadows joined along pairs of edges by the connect sum operation. Thus, our algorithm is simply a way to organize this process of taking connect sums. The results are hard to predict theoretically, because we can generate the same shadow in more than one way when one of its prime summands has a nontrivial automorphism group. The code is simple, however, since we need only come up with a process which must generate each shadow (eventually) and insert all the shadows we generate  into our isomorph-rejecting database.
+
+We can observe that any $n$-crossing shadow is obtained by connect summing prime diagrams whose crossing numbers partition $n$. However, order matters, as some connect sums of 3, 1, and 3 crossing diagrams have to be performed in the order $3 \# (1 \# 3)$ and will not appear if we connect sum in the order $1 \# (3 \# 3)$. A similar  
 
 \begin{center}
   \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
@@ -863,7 +644,199 @@ I think this should partially explain the unknot fraction; the idea is that we s
 
 \section{Future Directions}
 
+More sophisticated counting procedures have been applied in recent years, particularly for diagrams of knots. Jacobsen and Zinn-Justin\cite{Jacobsen:2002kia} give a transfer matrix analysis for a combinatorial description of prime, reduced, weighted, marked planar diagrams for knots very similar to Gusein-Zade's enumeration~\cite{GusenZade:1994wl,GusenZade:1998jz}. Gusein-Zade's actual computer enumeration was carried out only to 10 crossings while Jacobsen and Zinn-Justin push the enumeration to the nearly unthinkable 22-crossing case, where they give an exact count of 40558226664529044000 knot diagrams. 
+
+Schaeffer~\cite{Schaeffer:1997wo} (see also~\cite{Bouttier:2002iu}) constructed a very insightful bijection between link diagrams where an edge stretches to infinity (``two-leg'' diagrams) and a class of decorated trees called ``blossom trees''. This has been used to great effect in constructing generating functions for the number of these diagrams, and we will use such a generating function due to Bouttier-Di Francesco-Guitter~\cite{Bouttier:2003ib} to check our work below. Unfortunately, the relationship between our count and theirs is not simple; symmetries of our diagrams confuse the counting procedure so that we must weight our diagrams by a factor derived from the size of their automorphism group to recover the counts of~\cite{Bouttier:2003ib}. 
+
+
 transitions, unknotting number and so forth.
+
+\appendix
+\section{PD-codes and isomorphisms}
+\label{app:pdcodes}
+
+One of us (Mastin) has given a detailed construction of a combinatorial object,  called a PD-code, bijective to the knot diagrams. A PD-code is a set comprised of quadruples, where each entry in a quadruple may be viewed as an edge in a link diagram and each quadruple corresponds to a crossing. PD-codes seem to have been first used by the KnotTheory Mathematica package **cite Knot Atlas** developed by Dror Bar-Natan and his students, but they are very close to the combinatorial description of diagrams used by Millett and Ewing's \emph{lmpoly} code\cite{MR98k:57010}.
+
+%\begin{center}
+%\textbf{Matt summarizes pd codes, defines pd code isomorphism combinatorally, we pick up with the expected algorithm for determining pd isomorphism}
+%\end{center}
+
+\begin{definition}\label{def:PD}
+Given a link diagram with labeled edges we generate the set of quadruples of the \textbf{PD-code} representing this diagram by the following procedure. For each crossing we include the quadruple of edge labels involved beginning with the incoming under-edge and proceeding around the crossings in the positively oriented direction of $S$ (see Figure~\ref{fig:PD}). We give a positive sign to incoming edges and a negative sign to outgoing edges.
+
+\begin{figure}
+\begin{center}
+\begin{overpic}[height=4cm]{PD.pdf} %% TODO: Add PD.pdf to SVN
+\put(40,35){$1$}
+\put(28,15){$2$}
+\put(-3,30){$3$}
+\put(28,33){$4$}
+\put(35,-1){$5$}
+\put(16,21){$6$}
+\put(55,27){$\{ [+4,-2,-5,+1],[+2,-6,-3,+5],$}
+\put(67,21){$[+6,-4,-1,+3]\}$}
+\end{overpic}
+\end{center}
+\caption{\label{fig:PD} A diagram for $3_1$ and its PD-code. The labels are only single integers here as there is only one component. Note that we may omit directional arrows as the orientation can be inferred from the ordering of the edge labels.}
+\end{figure}
+
+%\begin{figure}
+%\begin{center}
+%\begin{overpic}[height=7cm]{PDLink.pdf}
+%\put(1,46){$(1,1)$}
+%\put(25,37){$(1,2)$}
+%\put(39,19){$(1,3)$}
+%\put(26,5){$(1,4)$}
+%\put(8.5,10){$(1,5)$}
+%\put(7,31){$(1,6)$}
+%\put(35,43){$(1,7)$}
+%\put(41,26){$(1,8)$}
+%\put(24,16){$(1,9)$}
+%\put(2,15){$(1,10)$}
+%\put(22,28){$(2,1)$}
+%\put(41,11){$(2,2)$}
+%\put(37,2){$(2,3)$}
+%\put(11,2){$(2,4)$}
+%\put(53,43){$\{[(1,+6),(1,-2),(1,-7),(1,+1)],$}
+%\put(55,38){$[(1,+2),(1,-8),(1,-3),(1,+7)],$}
+%\put(55,33){$[(2,+1),(1,-9),(2,-2),(1,+8)],$}
+%\put(55,28){$[(1,+9),(2,-1),(1,-10),(2,+4)],$}
+%\put(55,23){$[(1,+10),(1,-6),(1,-1),(1,+5)],$}
+%\put(55,18){$[(2,+2),(1,-4),(2,-3),(1,+3)],$}
+%\put(55,13){$[(1,+4),(2,-4),(1,-5),(2,+3)]\}$}
+%\end{overpic}
+%\end{center}
+%\caption{\label{fig:PDLink} A diagram of the link $7_7^2$ and the corresponding PD-code.}
+%\end{figure}
+
+%PD-codes that are obtained in the fashion will be called diagramatic PD-codes.
+
+\end{definition}
+
+The details of the bijection between the PD-codes and link diagrams can be found in **cite PD-code Paper**. We will presently include the construction of a cell decomposition of $S^2$ associated with a PD-code as it will play a central roll in our algorithm for enumerating diagrams. The vertices of the cell decomposition will correspond to the quadruples appearing in the PD-code and the edges will be the edges of the diagram. In order to defined the faces we will introduce the \textbf{successor map} which essentially gives the next edge to appear if one were to walk along an edge and turn right a vertex.
+
+\begin{definition}
+ If we represent the quadruples in the a PD-code as $[e_i^0,e_i^1,e_i^2,e_i^3]$, then we define the successor map by $s(e_i^j)=-e_i^{j+1 \mod(4)}$.
+\end{definition}
+
+We can now define a cell complex associated to a PD-code which recovers the link diagram on $S^2$.
+
+\begin{definition}\label{def:surface}
+For each orbit of the successor map $s$ we construct an oriented polygon in the plane with sides given by the labels in each orbit where the labels are assigned clockwise around the polygon. The orientation of an edge agrees with the orientation inherited from the standard orientation of the plane for \emph{negative} labels and disagrees with this orientation for \emph{positive} labels. The orientations of the $2$-cells is inherited from the standard orientation on the plane. The orientations of the edges is induced by the orientation of the $2$-cells. This construction gives the \textbf{associated cell complex} to a given PD-code.
+\end{definition}
+
+This construction gives a collection of oriented polygons in the plane whose edges are labeled by the edge labels of the given link diagram. If these polygons are glued according to the edge labels and orientations then the link diagram is reconstructed as the $1$-skeleton of the resulting cell complex. The details of this construction can be found in **cite PD-code Paper**.
+
+\begin{definition}\label{def:PDIsom}
+	Given two PD-codes we say that a bijection between the edge labels is a \textbf{PD-code isomorphism} if it induces an isomorphism on the associated cell complexes.
+\end{definition}
+
+It is clear that a lot of data about a \pdcode is preserved by isomorphism: for instance, the number of crossings, edges, faces, and the numbers of edges around faces. We can use this information to rule out isomorphisms using a hashing scheme.
+
+\begin{definition}
+Suppose the \pdcode $P$ has $V$ crossings, $E$ edges, $F$ faces, and $C$ components. We assume that the faces are denoted $f_1, \dots, f_F$ and the components are denoted $c_1, \dots, c_C$. Further, let $\edges(x)$ give the number of edges on a face or component. Then the \emph{hash} of $P$ is given by the tuple
+\begin{equation*}
+\mathcal{H}(P) = (V,E,F,C,\{ \edges(f_1), \dots, \edges(f_F) \},
+ \{ \edges(c_1), \dots, \edges(c_C) \}).
+\end{equation*}
+The last two are unordered sets of integers.
+\end{definition}
+
+It is clear that
+\begin{lemma}
+If two \pdcodes $P_1$ and $P_2$ are isomorphic, then $\mathcal{H}(P_1) = \mathcal{H}(P_2)$.
+\end{lemma}
+
+\begin{proof}
+The numbers $V$, $E$, $F$, and $C$ are clearly preserved by isomorphism. The indices of edges and faces may be permuted by an isomorphism, but the number of edges on each can't change. Thus the \emph{unordered sets} of edge counts for faces and component remain the same as well.
+\end{proof}
+
+We can now build up an isomorphism between pdcodes by a series of definitions:
+
+\begin{definition}
+Suppose we have two pdcodes $P$ and $P'$ with the same hash.
+\begin{itemize}
+\item A bijection $\gamma: \{c_1,\dots,c_C\} \rightarrow \{c'_1,\dots,c'_C\}$ between the components of $P$ and the components of $P'$ is called \emph{component-length preserving} if $\# \edges(c_i) = \# \edges(\gamma(c_i))$ for all $i$.
+\item Given such a component-length preserving bijection $\gamma$, a bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$ is called \emph{component-preserving} and \emph{compatible with $\gamma$} if $\epsilon$ maps the edges of each $c_i$ to the edges of $\gamma(c_i)$ by an element of the dihedral group $D_{\edges(c_i)}$. That is, the edges of $c_i$ are mapped in cyclic (or reverse-cyclic) order to the corresponding edges of $\gamma(c_i)$.
+\item Given a component-preserving bijection $\epsilon : \{e_1,\dots,e_E\} \rightarrow \{e'_1,\dots,e'_E\}$ between the edges of $P$ and the edges of $P'$, we say that a bijection $\nu : \{v_1, \dots, v_V\} \rightarrow \{v'_1,\dots,v'_V\}$ between the vertices of $P$ and the vertices of $P'$ is \emph{compatible with $\epsilon$} if
+\begin{equation*}
+\nu(\head(e_i)) = \head(\epsilon(e_i)) \quad \text{ and } \quad \nu(\tail(e_i)) = \tail(\epsilon(e_i)
+\end{equation*}
+when $e_i$ is part of a component mapped by an orientation-preserving element of the dihedral group, and
+\begin{equation*}
+\nu(\head(e_i)) = \tail(\epsilon(e_i)) \quad \text{ and } \quad \nu(\tail(e_i)) = \head(\epsilon(e_i)
+\end{equation*}
+when $e_i$ is part of a component mapped by an orientation-reversing element of the dihedral group.
+\item Given $\gamma$, $\epsilon$, and $\nu$ that obey all the above conditions, we say that they are:
+\begin{itemize}
+ \item \emph{globally orientation-preserving} if the set of edges $e_i, e_j, e_k, e_l$ incident to each vertex $v$ of $P$ (in counterclockwise cyclic order) is mapped to the set of edges $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ incident to $\nu(v)$ in counterclockwise cyclic order.
+ \item \emph{globally orientation reversing} if the $\epsilon(e_i), \epsilon(e_j), \epsilon(e_k), \epsilon(e_l)$ are incident to $\nu(v)$ but in clockwise cyclic order (for each $v$),
+ \item otherwise, the triple is \emph{inconsistent}.
+\end{itemize}
+\end{itemize}
+\end{definition}
+
+We then have
+\begin{proposition}
+Given a pair of pdcodes $P$ and $P'$ with the same hash, each isomorphism of $P$ to $P'$ is given by a set of bijections $\gamma$ between their components, $\epsilon$ between their edges, and $\nu$ between their vertices where
+\begin{itemize}
+\item $\gamma$ is component-length preserving,
+\item $\epsilon$ is component-preserving and compatible with $\gamma$,
+\item $\nu$ is compatible with $\epsilon$
+\end{itemize}
+and the triple is globally orientation preserving or reversing (not inconsistent).
+\end{proposition}
+
+\begin{proof}
+Basically, this is the definition of pd isomorphic.
+\end{proof}
+
+A few other observations are helpful:
+\begin{lemma}
+If $\mathcal{H}(P) = \mathcal{H}(P')$ for pdcodes $P$ and $P'$, there is at least one component-length preserving $\gamma : \{c_1,\dots,c_C\} \rightarrow \{c'_1,\dots,c'_C\}$. All component-length preserving $\gamma$ can be generated by iterating over a product of permutation groups.
+\end{lemma}
+
+\begin{proof}
+We can partition the components of $P$ (and $P'$) into subsets by component length. Since the hashes $\mathcal{H}(P)$ and $\mathcal{H}(P')$ match, these partitions correspond for $P$ and $P'$. The component-length preserving $\gamma$ are exactly those bijections which respect this partition: we can construct all such $\gamma$ by taking a product of permutation groups whose orders are the size of the subsets. At worst, all subsets have size 1 and there is a single such $\gamma$.
+\end{proof}
+
+\begin{lemma}
+Given a component-length preserving $\gamma$ and component-preserving and compatible $\epsilon$, and a set of orientations for the components of $P$, there is at most one $\nu : \{v_1, \dots, v_V\} \rightarrow \{v'_1,\dots,v'_V\}$ which is compatible with $\epsilon$ and consistently oriented on components and we can construct $\nu$ as below.
+\end{lemma}
+
+\begin{proof}
+Each vertex $v$ of $P$ is incident to four edges $e_i, e_j, e_k, e_l$. Without loss of generality, let's assume that $v = \tail(e_i)$, $\tail(e_j)$, $\head(e_k)$ and $\head(e_l)$. Then if $\nu$ is compatible with $\epsilon$, we must have
+\begin{equation*}
+\nu(v) = \tail(\epsilon(e_i)) = \tail(\epsilon(e_j)) = \head(\epsilon(e_k)) = \head(\epsilon(e_l)).
+\end{equation*}
+If the four terms on the right are equal, this uniquely defines $\nu(v)$. If not, there is no compatible $\nu$.
+\end{proof}
+
+We can now find all isomorphisms between two pdcodes computationally by a simple brute-force strategy:
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+\Procedure{BuildIsomorphisms}{$P$,$P'$}
+\Comment{Build isomorphisms between pdcodes $P$ and $P'$}
+
+\If {the hashes $\mathcal{H}(P)$ and $\mathcal{H}(P')$ are different}
+	\State $P$ and $P'$ are not isomorphic. Return $\emptyset$.
+\EndIf
+
+\ForAll{component-length preserving $\gamma: \{c_1,\dots, c_C\} \rightarrow \{c'_1, \dots, c'_C\}$}
+	\ForAll{compatible and component-preserving $\epsilon$}
+		\If{a compatible $\nu$ exists}
+		\If{$\nu$ is globally orientation preserving or reversing}
+			\State $\epsilon$, $\nu$ define an isomorphism $P \rightarrow P'$
+		\EndIf
+		\EndIf
+	\EndFor
+\EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+It should be immediately clear that there are smarter ways to organize this computation: for instance, we could build only part of $\gamma$ and $\epsilon$ before we start checking the consistency conditions for the existence of a compatible $\nu$. Or we could map faces to faces by elements of the dihedral group on the grounds that faces are smaller than components. Or we could try for a more complicated hashing scheme which took into account the adjacency relations between faces. These sorts of ideas are implemented with great insight and care in graph isomorphism packages like \nauty and \emph{saucy}. However, making these types of changes makes the code more intricate and difficult to debug: in this project, our overall strategy is to use simple, straightforward algorithms in the hopes of minimizing the chance of errors.
 
 \bibliography{knotprobabilitypapers}
 
