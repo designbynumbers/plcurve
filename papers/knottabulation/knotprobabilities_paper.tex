@@ -19,6 +19,7 @@
 %\usepackage{clrscode}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{siunitx}
 
 \def\figdir{figs/}
 \graphicspath{\figdir}
@@ -140,7 +141,7 @@ How many of these diagrams represent nontrivial knots? The fraction of unknots i
 
 Motivated by this, we then focus on the connect sum structure of random diagrams. This is extremely interesting, as our data shows that the vast majority of diagrams are highly composite. This is partially explained by the existence of pattern theorem for diagrams~\cite{harrison}, but more work remains to characterize the distribution of various sizes of summands in a random diagram. 
 
-Counting knot diagrams is made significantly more complicated by the existence of diagram symmetries; for instance, a correction factor due to symmetries is the main technical difference between this natural model and the model of \cite{Schaeffer:2004tt}. Our data shows that this difficulty rapidly disappears as the number of crossings increases; the average size of the automorphism group for a random 10 crossing diagram, for instance, is $846929/823832 \simeq 1.028$. 
+Counting knot diagrams is made significantly more complicated by the existence of diagram symmetries; for instance, a correction factor due to symmetries is the main technical difference between this natural model and the model of \cite{Schaeffer:2004tt}. Our data shows that this difficulty rapidly disappears as the number of crossings increases; the average size of the automorphism group for a random 10 crossing knot diagram, for instance, is $846929/823832 \simeq 1.028$. 
 
 %There are many interesting connections between this project and the existing literature. The closest paper in spirit to ours that we have found is the very interesting work of Hua-Nguyen-Raghvan-Asuaga-Vasquez~\cite{Hua:2007fh} on random state transitions for knots. They are similarly interested in connecting topology and geometry through random diagrams, but their approach is very bold-- instead of establishing a baseline counting measure on diagrams (as we do here) and then relating it to the density introduced by projections of random curves (as we plan to later) they combine the stages and directly sample the empirical distribution on diagrams induced by projecting random closed lattice walks to the plane. They then conduct some interesting numerical experiments on the resulting distribution of diagrams. It is not completely clear what distribution on diagrams is actually constructed by their code (choices are involved both in projecting the lattice walks, and in simplifications which are then performed at the diagrammatic level), so it is difficult to make mathematical conjectures about more traditional models of random diagrams from their analysis. Nonetheless, their distribution is certainly close to the biological application they have in mind, and the results are extremely suggestive. 
 %
@@ -211,7 +212,14 @@ We intend to compute knot probabilities directly in this model for (relatively) 
 
 \section{Enumerating shadows}
 
-Our first goal was to enumerate the link shadows computationally. This section describes our two enumeration algorithms. Each is built on the same computational foundation; a library which allows us to manipulate pd-codes. In this library, we provide a data structure for pd-code storage which rejects pd-codes which are pd-isomorphic to ones already present in the database. This is done using a combination of hashing\footnote{We hash on a combination of features such as the number of faces with a given number of edges, which must agree in isomorphic diagrams.} and brute-force comparison. Details are provided in Appendix A for the curious reader. We are left with the problem of creating a set of inputs to this data structure which are guaranteed to cover all $n$-vertex shadows.
+Our first goal was to enumerate the link shadows computationally. This section describes our two enumeration algorithms. Each is built on the same computational foundation; a library which allows us to manipulate pd-codes. In this library, we provide 
+\begin{definition}
+A \emph{pdstor} is a ordered collection of pd-isomorphism types of pd-codes. We define the operation of adding a pd-code to a pdstor as adding the pd-code if it does not belong to an existing pd-isomorphism type (that is, is not pd-isomorphic to a pd-code present in the pdstor) and ignoring the pd-code otherwise.
+\label{def:pdstor}
+\end{definition}
+Our implementation uses a combination of hashing and brute-force comparison to check whether a given pd-code is already pd-isomorphic to something in the database. 
+
+Details are provided in Appendix A for the curious reader. We are left with the problem of creating a set of input pd-codes to the pdstor which are guaranteed to cover all $n$-vertex shadows.
 
 \subsection{Dual quadrangulations and connect sums}
 \label{subsec:connect sum}
@@ -236,7 +244,7 @@ We need a familiar idea in a slightly new guise: prime and composite shadows.
 \begin{definition}
 Every pair of faces in a \emph{prime shadow} shares at most one edge; all other link shadows are \emph{composite shadows}.
 \end{definition}
-This is not the same thing as prime and composite knots-- we can assign crossings and get a prime diagram of a composite knot or a composite diagram of a prime knot, as in Figure~\ref{fig: prime and composite}-- but the theory is quite similar.
+This is not the same thing as prime and composite links-- we can assign crossings and get a prime diagram of a composite link or a composite diagram of a prime link-- but the theory is quite similar. The biggest difference, as we will see below, is that while connect sum for knot types is associative, connect sum for knot shadows is not.
 
 \begin{definition}
 Given edges $e$ and $e$ in pd-codes $\mathfrak{L}$ and $\mathfrak{L}'$, we can construct a new pd-code $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$. The edges of $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$ are the edges of $\mathfrak{L}$ together with the edges of $\mathfrak{L'}$. The vertices of $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$ are the vertices of $\mathfrak{L}$ together with the vertices of $\mathfrak{L'}$ with one change: $+e$ and $+e'$ are swapped ($-e$ and $-e'$ stay in their original positions).
@@ -264,7 +272,8 @@ Since number of vertices and edges of $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$ is 
 
 We now give a theorem corresponding to the prime decomposition of links~\cite{MR0102821}:
 \begin{proposition}
-Every composite link shadow can be created by connect sum operations on a well-defined set of prime link shadows. 
+Every composite link shadow can be created by connect sum operations on a well-defined set of prime link shadows.
+\label{prop:prime decomposition} 
 \end{proposition}
 
 \begin{proof} 
@@ -291,61 +300,70 @@ It's enough to show that the collection of subdiagrams produced by doing any two
 \end{figure}
 \end{proof}
 
-This much of the theory is simple and pleasant; and it leads to a natural guess for an algorithm-- since $n$ crossing link shadows must be assembled from collections of prime link shadows with numbers of crossings that sum to $n$, we can start by enumerating partitions of $p_1 + \dots p_k = n$ then take all choices of diagrams with $p_1, p_2, \dots, p_k$ crossings and then take all ways to connect sum these diagrams. The main problem here is in computationally specifying ``all ways'' to connect sum the diagrams. It is evident that in a composite diagram, some prime summands are connect summed and others are not. It turns out that the graph of incidences looks like a tree of complete graphs, where the order of the complete graph gives the number of adjacent edge pairs on each pair of faces sharing more than one edge. Building the connect sums this way would be interesting, but intricate and difficult to verify. Further, it would be wasteful, because we'd be unable to reuse common smaller composite diagrams that recurred in different $n$ crossing diagrams.
+We now know that every $n$ vertex composite shadow $L$ is the connect sum of prime shadows $L_1, \dots, L_k$ and that 
+the numbers of vertices $V_1, \dots, V_k$ form an integer partition of $n$. Therefore, we need to enumerate ``all connect sums of all link shadows with numbers of vertices that partition $n$''. This is not as trivial as it sounds. Writing the connect sum as $L_1 \# \dots \# L_k$ is dangerously misleading-- though connect sum is associative (and even commutative) on isotopy classes of knots, the same is not true for links and for diagrams. Figure~\ref{fig:not associative} gives an example of a  link shadow $L$ is a connect sum of diagrams $L_1$, $L_2$ and $L_3$, which \emph{can} be written $(L_1 \# L_2) \# L_3$ but \emph{can't} be written $L_1 \# (L_2 \# L_3)$.
+\begin{figure}
+\hphantom{.}
+\hfill
+\includegraphics[height=1.25in]{not-associative}\hfill
+\hphantom{.}
+\caption{\label{fig:not associative} $L$ can be written as $L = (L_1 \# L_2) \# L_3$ but not as $L_1 \# (L_2 \# L_3)$.}
+\end{figure}
+It is easy to see the following.
 
-Instead, we can proceed iteratively without too much waste using some simple observations: We are interested in relatively low $n$, so the partitions of $n$ can be enumerated without difficulty. We can choose where to end the construction, so we might as well add the largest prime diagram last. Symmetries can lead us to construct the same composite diagram by connecting different edges of diagrams.
+\begin{lemma}
+The set of prime summands $\{L_1, \dots, L_k\}$ of a composite link shadow $L$ can be renumbered so that $L = (((L_1 \# L_2) \# L_3) \# \cdots L_k)$ and $L_1$ has the largest number of vertices among all the $L_1, \dots, L_k$. The numbers of vertices $V_2, \dots, V_k$ in the other prime summands are \emph{not} guaranteed to be in sorted order.
+\end{lemma}
 
+\begin{proof} 
+Since the overall shadow is connected, we can start connect-summing at any prime summand and build the rest of the shadow from there by undoing the cut-and-splice operations of Proposition~\ref{prop:prime decomposition}. Therefore, we are free to choose $L_1$ to have a maximal number of vertices. 
+\end{proof}
 
+\begin{lemma}
+The set of (diagram-isomorphism classes) $\{L_1, \dots, L_k\}$ of the prime summands of $L$ is a shadow-isomorphism invariant of $L$. In particular, the set of numbers of vertices $\{V_1, \dots, V_k\}$ is a shadow isomorphism invariant of $L$.
+\label{lem:prime summands invariant}
+\end{lemma}
 
-Instead, 
+\begin{proof} This follows directly from the fact that the set $\{L_1, \dots, L_k\}$ is well-defined. \end{proof}
 
-now we face some difficulties. The most obvious one is that the connect sum a given set of prime link diagrams requires us to specify 
+Now recall that a pdstor (Definition~\ref{def:pdstor}) is an ordered collection of canonical pd-codes which represent pd-isomorphism classes. We can define connect sum for pdstors by saying that $P_1 \# P_2$ is the pdstor constructed by adding all $\mathfrak{L_1} \#_{e1,e2} \mathfrak{L_2}$ where $e_i$ is an edge of some $\mathfrak{L_i} \in P_i$. We now generate composite link shadows iteratively as follows:
 
- and particular edges to cut-and-splice at each stage. 
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{BuildCompositeShadows}{$n$}
+\Comment{Build all link shadows with $\leq n$ vertices}
 
-an example of a non-simple quadrangulation and its (composite) dual graph are shown inThe \plantri software of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa} can be used to generate the dual graphs of the planar simple quadrangulations of given number of vertices. Since the number of vertices in the dual graph of a quadrangulation is 2 less than the number of vertices in the quadrangulation, we can use this to enumerate the connected 4-regular embedded planar multigraphs which are prime link shadows. The question is then how to go from prime diagrams to composite ones.
+\State Use \emph{plantri} to build pdstors $P_1, \dots, P_n$ containing all oriented prime link shadows with $1$ to $n$ vertices.
 
+\ForAll{$1 \leq k \leq n$}
+ 	
+ \State Define an empty pdstor $P_k$.
+ \ForAll{partially sorted partitions $k_1k_2 \dots k_\ell$ of $k$ with $k_1 \geq k_i$}
+    \State  Build the pdstor $P_{k_1k_2\cdots k_\ell} = ((P_{k_1} \# P_{k_2}) \# P_{k_3}) \# \cdots P_{k_\ell}$.
+    \State  (If $((P_{k_1} \# P_{k_2}) \# P_{k_3}) \# \cdots P_{k_{\ell-1}}$ was already computed, we can reuse it.)
+ \EndFor
 
-To enumerate all shadows, we recall (as is standard in knot theory) that every composite shadow is uniquely expressed as a collection of prime shadows joined along pairs of edges by the connect sum operation. Thus, our algorithm is simply a way to organize this process of taking connect sums. The results are hard to predict theoretically, because we can generate the same shadow in more than one way when one of its prime summands has a nontrivial automorphism group. The code is simple, however, since we need only come up with a process which must generate each shadow (eventually) and insert all the shadows we generate  into our isomorph-rejecting database.
+ \ForAll{\emph{fully} sorted partitions $k_1k_2 \dots k_\ell$ of $k$ with $k_1 \geq k_2 \geq \dots \geq k_\ell$}   
+    \State Define an empty pdstor $P$.
+    \ForAll{\emph{partially} sorted partitions $k'_1k'_2\cdots k'_\ell$ with the same \emph{set} of $k_i$}
+       \State Add all elements of $P_{k'_1k'_2\cdots k'_\ell}$ to $P$.
+      \State (Some of these will be isomorphic to one another.) 
+    \EndFor
+    \State Add all elements of $P$ to $P_k$. 
+    \State (By Lemma~\ref{lem:prime summands invariant}, these aren't isomorphic to anything previously computed,
+    \State so we don't need to check for isomorphism with existing elements of $P_k$.)
+ \EndFor
 
-We can observe that any $n$-crossing shadow is obtained by connect summing prime diagrams whose crossing numbers partition $n$. However, order matters, as some connect sums of 3, 1, and 3 crossing diagrams have to be performed in the order $3 \# (1 \# 3)$ and will not appear if we connect sum in the order $1 \# (3 \# 3)$. A similar  
-
-\begin{center}
-  \begin{tikzpicture}[->,,shorten >=1pt,semithick,align=center]
-    %\tikzstyle{every node}=[align=center]
-    \node                  (prime2)
-    {Prime diagrams\\\tt{(plantri)}};
-    \node[left=1in of prime2]  (prime1) 
-    {Prime diagrams\\\tt{(plantri)}};
-    \node[right=1in of prime2] (all)    
-    {All diagrams\\of $n$ crossings};
-
-    \node[below=.7cm of prime2] (sum2) {2-summand\\diagrams};
-    \node[below=.7cm of sum2]   (sum3) {3-summand\\diagrams};
-    \node[below=1.4cm of sum3]    (sumn) {$n$-summand\\diagrams};
-
-    \path (prime1)    edge (prime2)
-                      edge (sum2.west)
-                      edge (sum3.west)
-                      edge (sumn.west)
-          (prime2)    edge (sum2)
-                      edge (all)
-          (sum2)      edge (sum3)
-          (sum2.east) edge (all)
-          (sum3)      edge[dashed] (sumn)
-          (sum3.east) edge (all)
-          (sumn.east) edge (all);
-  \end{tikzpicture}
-%\includegraphics[width=3in]{composite-workflow}
-\end{center}
-
-\noindent where the arrows indicate ``all possible connect sums (and entry into the database with isomorphic copies of an existing diagram rejected)'' or simply ``entry into the database with isomorphic copies rejected''.
+\EndFor      
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Expansions of embedded planar simple graphs}
 
 Our next strategy will be much more complicated (and somewhat slower to run), but it serves as crucial check on the previous computation. The basic idea is to define a smaller class of graphs so that the graphs we are interested in can be obtained from the base class of graphs by various expansion moves. Lehel~\cite{JGT:JGT3190050412} gave a strategy for generating all 4-regular graphs in this way from the octahedral graph. Instead of using Lehel's strategy directly, we build on the method of Brinkmann and McKay~\cite{Brinkmann:2007up,McKay:1998wa} for enumerating isomorph-free embedded planar graphs; we extend their work here to generate the class of graphs that we're interested in.
 
-We now define four expansion moves of embedded planar graphs with vertex degree $\leq 4$ which generate new embedded planar graphs of vertex degree $\leq 4$ with the same number of vertices, but additional edges:
+We observed above that the link shadows are embedded isomorphism classes of $4$-regular embedded planar multigraphs. We now define four expansion moves of embedded planar graphs with vertex degree $\leq 4$ which generate embedded planar multigraphs of vertex degree $\leq 4$ with the same number of vertices, but additional edges:
 \begin{definition}
 The four expansion operations that we will use are the following:
 \begin{itemize}
@@ -372,12 +390,11 @@ keeps the counterclockwise order of the edges the same on each at each of the tw
 We can now show
 
 \begin{proposition}
-Every connected $4$-regular embedded planar (multi)graph $G$ can be obtained from a connected, embedded planar simple graph of vertex degree $\leq 4$ $G_0$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ expansions.
+Every link shadow $L$ can be obtained from a connected, embedded planar simple graph of vertex degree $\leq 4$ $G_0$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ expansions.
 
-Equivalently, any connected $4$-regular embedded planar (multi)graph $G$ can be reduced to a connected embedded planar simple graph $G_0$ of vertex degree $\leq 4$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ reductions. The embedded isomorphism type of $G_0$ is determined by the  embedded isomorphism type of $G$ (the order in which the reductions are performed doesn't matter).
+Equivalently, any link shadow $L$ can be reduced to a connected embedded planar simple graph $L_0$ of vertex degree $\leq 4$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ reductions. The embedded isomorphism type of $L_0$ is determined uniquely by the (unoriented) shadow isomorphism type of $L$ (the order in which the reductions are performed doesn't matter).
 \label{prop:reduce}
 \end{proposition}
-
 
 An illustration of the process we describe is shown below.
 
@@ -386,30 +403,37 @@ An illustration of the process we describe is shown below.
 %\caption{\label{fig:Expansion} An illustration of the process described in Proposition \ref{prop:reduce}}
 \end{center}
 
-The proof appears in Appendix B.
+The proof appears in Appendix B. We can now build the link shadows by applying expansions to the graphs produced by~\emph{plantri}. This is not trivial. First, not all sequences of expansion moves lead to link shadows. Second,
+different sequences of expansion moves may produce isomorphic link shadows. Some examples are shown in Figure~\ref{fig:expansion woes}.
+\begin{center}
+\includegraphics[width=4in]{isomorphic-expansions.pdf}
+\end{center}
+We can think of this as the problem of searching for collections of expansion moves which obey various equations, such as the fact that the total vertex degree must be 4 in any complete solution (there are less obvious equations as well-- the complete system is specified in Appendix B). 
 
+We find all of the solutions using a standard branch-and-bound algorithm and add the results to a pdstor to eliminate isomorphic pd-codes. We can save a lot of time in this process by noting that~\label{prop:reduce} tells us that we need only check expansions of the same graph (and their reorientations) against each other for potential pd-isomorphisms. 
 
 \section{Computing and verifying the results}
 
 We implemented the above algorithms in C and used them to generate a database of knot diagrams up to 10 crossings. The longest run took several days on a desktop computer. The most important question, of course, is how the computation was checked. Of course, our implementation was careful and involved quite a bit of internal self-checks as well as testing against \valgrind for memory problems, and writing a suite of unit tests for the codebase. However, good programming practices can only provide a limited measure of confidence in the results, so we continued to test our work. The first and most important test was to verify that the databases obtained by connect summing and by expansions were identical. 
 
-We were also able to check against some existing enumerations. K\'apolnai et.\ al. classified spherical ``multiquadrangulations''\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \plantri, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours.
+We were also able to check against some existing enumerations. K\'apolnai et.\ al. classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension. These counts are given in the table below:
 
-A less obvious and more theoretical check comes from the work of Bouttier et.\ al.\ , who provide an explicit generating function for the number of ``tetravalent two-leg diagrams with geodesic distance 0 between the two legs''\cite[(4.13)]{Bouttier:2003ib}:
-\begin{equation*}
-\frac{24g - 1 + \sqrt{1 - 12g}}{9g(1+\sqrt{1-12g}} = 1 + 2g + 9 g^2 + 54 g^3 + 378 g^4 + 2916 g^5 + \dots
-\end{equation*}
-Basically, these are isomorphism classes of oriented ``long curves'' in the plane. One of our spherical curves can generate as many as $4n$ of these curves by choosing an edge and orientation. However, the resulting planar long curves are not all distinct if the spherical curve has a nontrivial automorphism group. Thus, there is no simple way to translate from this count to ours. However, we do know the automorphism group of each diagram, so we can predict the number of marked-edge planar diagrams by the following procedure:
-
-<insert procedure>
-
-Our counts of spherical diagrams (of all numbers of components) then produce the data below, which matches the prediction from the generating function above.
-
-For knot diagrams in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension. These counts are given in the table below:
-
-<insert table of counts here>
-
-
+\begin{table}
+\begin{ruledtabular}
+\begin{tabular}{llllll} 
+Crossings & Prime Shadows & Link Shadows & Link Diagrams & Knot Shadows & Knot Diagrams \\ \hline
+3  & $\num{1}$   & $\num{7}$           & -- & $\num{6}$       & -- \\
+4  & $\num{2}$   & $\num{30}$          & -- & $\num{19}$      & -- \\
+5  & $\num{3}$   & $\num{124}$         & -- & $\num{76}$      & -- \\
+6  & $\num{9}$   & $\num{733}$         & -- & $\num{376}$     & -- \\
+7  & $\num{18}$  & $\num{4586}$        & -- & $\num{2194}$    & -- \\
+8  & $\num{62}$  & $\num{33373}$       & -- & $\num{14614}^*$  & -- \\
+9  & $\num{198}$ & $\num{259434}^*$    & -- & $\num{106421}^*$ & -- \\
+10 & $\num{803}$ & $\num{2152298}^*$   & -- & $\num{823832}^*$ & -- \\ 
+\end{tabular}
+\end{ruledtabular}
+\caption{The number of link (including knots) and knot shadows and diagrams through 10 crossings. The unstarred numbers in the left hand column match those of K\'apolnai et.\ al.~\cite{Kapolnai:2012hs}, while the unstarred numbers on the right are sequence A008989 in the OEIS. The starred numbers are new.}
+\end{table}
 
 \section{Classifying knot types}
 

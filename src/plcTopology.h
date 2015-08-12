@@ -672,7 +672,6 @@ extern "C" {
 
   */
 
-
   pd_code_t *pd_simplify(pd_code_t *pd);
 
   /* Simplify the pd code using combinations of the moves above to
