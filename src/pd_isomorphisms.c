@@ -2651,8 +2651,7 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
 	  new_iso->crossmap = pd_copy_crossmap(crossmaps[map]);
 	  new_iso->facemap  = pd_copy_facemap(facemaps[map]);
 	  
-	  assert(pd_iso_consistent(pdA,pdB,new_iso)); /* Check ok-ness as we generate */
-      
+	  assert(pd_diagram_isotopy_ok(new_iso,pdA,pdB)); /* Check ok-ness as we generate */
 	  pd_addto_container(isos,new_iso);
 
 	}
