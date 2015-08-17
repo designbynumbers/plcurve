@@ -505,25 +505,33 @@ extern "C" {
 
 
   bool pd_diagram_isotopic(pd_code_t *A, pd_code_t *B);
-  /* Detect whether two pd_codes correspond to diagrams of labelled, oriented
-     components related by an isotopy of the 2-sphere or an isotopy of the 2-sphere
-     composed with a reflection ("reshaping the diagram" or "turning the diagram inside out").
+  
+  /* Detect whether two pd_codes correspond to diagrams of labelled,
+     oriented components related by an isotopy of the 2-sphere or an
+     isotopy of the 2-sphere composed with a reflection ("reshaping
+     the diagram" or "turning the diagram inside out").
 
-     1. Corresponding crossings are required to have the same sign (positive, negative, or unset).
-     2. Corresponding components are required to have the same tag.
+     1. Corresponding crossings are required to have the same sign
+     (positive, negative, or unset).  
+     2. Corresponding components are required to have the same tag.  
      3. Corresponding edges are required to have the same orientation.
+
+     In particular, this means that the orientations of each component
+     of the pd-codes have to be the same. 
 
      This is the strongest kind of diagram equivalence.
   */
 
   bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
-  /* Detect whether two pd codes are correspond to the same polyhedral decomposition of the
-     3-sphere (or are mirror images of each other). This is much weaker than being diagram-isotopic;
+  /* Detect whether two pd codes are correspond to the same polyhedral
+     decomposition of the 3-sphere (or are mirror images of each
+     other). This is much weaker than being diagram-isotopic;
 
-     1. Crossing signs are ignored.
+     1. Crossing signs are ignored.  
      2. Component tags are ignored.
-     3. The orientations of all edges in each component are either (all) preserved or (all) reversed.
-        However, some component orientations may be preserved while others are reversed.
+     3. The orientations of all edges in each component are either
+     (all) preserved or (all) reversed.  However, some component
+     orientations may be preserved while others are reversed.
 
      This is the weakest kind of diagram equivalence.
   */
