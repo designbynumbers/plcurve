@@ -1031,7 +1031,8 @@ pd_crossmap_t *pdint_build_oriented_crossmap(pd_code_t *pdA,pd_code_t *pdB,
 pd_crossmap_t *pdint_build_oriented_signed_crossmap(pd_code_t *pdA,pd_code_t *pdB,
 						    pd_edgemap_t *edgemap,pd_or_t or)
 
-/* Try to generate a crossing map _with the given orientation_. Return crossmap or NULL. */
+/* Try to generate a crossing map _with the given orientation_ for the plane. 
+   Return crossmap or NULL. */
 
 
 {
@@ -1062,12 +1063,14 @@ pd_crossmap_t *pdint_build_oriented_signed_crossmap(pd_code_t *pdA,pd_code_t *pd
 
     pd_canonorder_cross(&mapcross,or);
 
-    /* Step 1. Search for that crossing in pdB's crossing list */
+    /* Step 1. Search for that crossing in pdB's crossing list. This SHOULD be sorted, 
+       but we use lfind (instead of bsearch) just in case it isn't. */
 
     pd_crossing_t *bptr;
     bptr = bsearch(&mapcross,pdB->cross,pdB->ncross,sizeof(pd_crossing_t),pd_cross_cmp);
 
-    /* Step 2. If found, translate to index, continue, if not found, return (and we'll try the other orientation). */
+    /* Step 2. If found, translate to index, continue, 
+       if not found, return (and we'll try the other orientation). */
 
     if (bptr == NULL) {
 
@@ -2315,16 +2318,16 @@ bool pd_is_diagram_isotopy(pd_iso_t *A, pd_code_t *pdA, pd_code_t *pdB)
 
   }
 
-  /* Check whether we're flipping plane or not. */
+  /* Check whether we're flipping plane or not; the facemap orientation
+     and the crossmap orientation should be the same. */
 
   assert(A->crossmap->or == A->facemap->or); 
-  pd_or_t plane_or = A->crossmap->or;
 
-  /* All the edge orientations should agree (and agree with plane_or). */
+  /* All the edge orientations should be positive. */
 
   for(i=0;i<A->edgemap->perm->n;i++) { 
 
-    if (A->edgemap->or[i] != plane_or) { 
+    if (A->edgemap->or[i] != PD_POS_ORIENTATION) { 
 
       return false; 
 
