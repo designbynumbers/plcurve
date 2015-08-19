@@ -40,6 +40,7 @@ struct arg_lit  *verbose;
 struct arg_lit  *help;
 struct arg_lit  *quiet;
 struct arg_lit  *KnotTheory;
+struct arg_lit  *countonly;
 struct arg_lit  *simplify;
 struct arg_end  *end;
 struct arg_end  *helpend;
@@ -137,6 +138,7 @@ int main(int argc,char *argv[]) {
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"),
       KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory"),
+      countonly = arg_lit0(NULL,"count-only","count diagrams, but don't write them to disk"),
       ccodes = arg_lit0("C","ccodes","print pd codes in Millett/Ewing ccode format"),
       help = arg_lit0(NULL,"help","display help message"),
       end = arg_end(20)
@@ -237,7 +239,7 @@ int main(int argc,char *argv[]) {
       }	
 	
       printf("opening output file %s...",ofname);
-      out = fopen(ofname,"w");
+      out = fopen(ofname,"rw");
 
       if (out == NULL) {
 
@@ -286,10 +288,12 @@ int main(int argc,char *argv[]) {
     int j;
     int codes_added = 0;
 
-    pd_stor_t *diagrams = pd_new_pdstor();
+    pd_start_incremental_pdstor(out);
+    unsigned int total_nhashes = 0, total_nelts = 0;
     
     for(j=0;!feof(in);j++) {
 
+      pd_stor_t *diagrams = pd_new_pdstor();
       pd_code_t *inpd;
       inpd = pd_read(in);
 
@@ -304,7 +308,7 @@ int main(int argc,char *argv[]) {
    
       pd_multidx_t *orientation_idx;
       pd_idx_t*    *comp_orientations;
-      pd_idx_t      one = 1, two = 2;
+      pd_idx_t      two = 2;
       comp_orientations = calloc(inpd->ncomps,sizeof(pd_idx_t *));
       
       for(i=0;i<inpd->ncomps;i++) { comp_orientations[i] = &two; }
@@ -449,47 +453,49 @@ int main(int argc,char *argv[]) {
 
       pd_code_free(&inpd);
 
-    }
-    
-    printf("done\n");
+      /* How we update depends on the flags... */
 
-    unsigned int diagram_nhashes, diagram_nelts;
-    pd_stor_stats(diagrams,&diagram_nhashes,&diagram_nelts);
-    
-    printf("added %d diagram pdcodes/%d diagram-isotopy types.\n",
-	   codes_added,diagram_nelts);
-
-    printf("writing output file %s...",ofname);
-
-    if (KnotTheory->count > 0 || ccodes->count > 0) {
-
-      pd_code_t *popcode;
-      for(popcode = pd_stor_firstelt(diagrams);
-	  popcode != NULL;
-	  popcode = pd_stor_nextelt(diagrams)) {
-
-	if (KnotTheory->count > 0) {
-	  
-	  pd_write_KnotTheory(out,popcode);
-
-	} else if (ccodes->count > 0) {
-
-	  fprintf(out,"%s",pdcode_to_ccode(popcode));
-
-	}
+      if (KnotTheory->count > 0 || ccodes->count > 0) {
 	
-	pd_code_free(&popcode);
+	pd_code_t *popcode;
+	for(popcode = pd_stor_firstelt(diagrams);
+	    popcode != NULL;
+	    popcode = pd_stor_nextelt(diagrams)) {
+	  
+	  if (KnotTheory->count > 0) {
+	    
+	    pd_write_KnotTheory(out,popcode);
+	    
+	  } else if (ccodes->count > 0) {
+	    
+	    fprintf(out,"%s",pdcode_to_ccode(popcode));
+	    
+	  }
+	
+	  pd_code_free(&popcode);
+	
+	}
+
+      } else {
+      
+	pd_addto_incremental_pdstor(out,diagrams,
+				    &total_nhashes,
+				    &total_nelts);
 
       }
-
-    } else {
-
-      pd_write_pdstor(out,diagrams);
-
+      
+      pd_free_pdstor(&diagrams);
+     
+      
     }
     
-    fclose(out);
     printf("done\n");
+    
+    printf("wrote %d diagram pdcodes/%d diagram-isotopy types.\n",
+	   codes_added,total_nelts);
+
+    pd_finish_incremental_pdstor(out,total_nhashes,total_nelts);
+    fclose(out);    
 
   }
 

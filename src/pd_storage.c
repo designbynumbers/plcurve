@@ -644,39 +644,123 @@ void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representation 
 
 }
 
-pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq) 
+void pd_start_incremental_pdstor(FILE *stream)
+/* Prints a generic header to stream. The stream has to 
+   be opened read/write for this to work.*/
+{
+
+  fprintf(stream,
+	  "pdstor\n"
+	  "nelts (in-progress)/(in-progress) (claimed/actual)\n"
+	  "nhashes (in-progress)\n\n");
+}
+
+void pd_addto_incremental_pdstor(FILE *stream,pd_stor_t *pdstor,
+				 unsigned int *total_nhashes,
+				 unsigned int *total_nelts)
+
+/* Used to write incrementally to a large pdstor */
+  
+{
+  assert(stream != NULL);
+  assert(pdstor != NULL);
+
+  unsigned int nhashes, nelts;
+  pd_stor_stats(pdstor,&nhashes,&nelts);
+  *total_nhashes = nhashes + (unsigned int)(*total_nhashes);
+  *total_nelts   = nelts + (unsigned int)(*total_nelts);
+
+  /* Now iterate through the pdstor, writing each pd to disk */
+
+  pd_uid_t uid = 0;
+  pd_code_t *pd;
+  for(pd = pd_stor_firstelt(pdstor);
+      pd != NULL;
+      pd = pd_stor_nextelt(pdstor),uid++) {
+
+    pd->uid = uid;
+    pd_write(stream,pd);
+    fprintf(stream,"\n");
+    pd_code_free(&pd); /* Remember, these are allocated by pd_stor_firstelt and nextelt */
+
+  }
+
+  fflush(stream);
+}
+
+void pd_finish_incremental_pdstor(FILE *stream,
+				  unsigned int nhashes,
+				  unsigned int nelts)
+/* The stream has to have been opened read/write. */
+{
+  rewind(stream);
+  fprintf(stream,
+	  "pdstor\n"
+	  "nelts %013u/%013u (claimed/actual)\n"
+	  "nhashes %013u\n",
+	  nelts,nelts,nhashes);
+  fflush(stream);
+}
+
+pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq)
+
+/* We're going to introduce a new syntax for pdstors where you don't 
+   know the number of elements at the beginning. For these, we ignore
+   the stats line and just read until EOF. */
 
 {
   assert(stream != NULL);
 
   /* First, try to clear the metadata line */
-
   /* Now read the header */
 
   unsigned int nelts_claimed,nelts_actual;
-  unsigned int nhashes; 
+  unsigned int nhashes;
+  unsigned int nelts;
   
-  if (fscanf(stream,"pdstor nelts %u/%u (claimed/actual) nhashes %u",&nelts_claimed,&nelts_actual,&nhashes) != 3) { 
+  if (fscanf(stream,"pdstor nelts %u/%u (claimed/actual) nhashes %u",
+	     &nelts_claimed,&nelts_actual,&nhashes) != 3) {
 
-    if (PD_VERBOSE > 20) {
+    /* if we're in incremental format, we failed to match on  
+       
+       pdstor
+       nelts ?/? (claimed/actual) nhashes ?
 
-      printf("pd_read_pdstor: Couldn't parse header.\n");
+       so we should have terminated with ? as the next character to read.
+
+    */
+
+    char c = '.';
+    if (fscanf(stream,"?/? (claimed/actual) nhashes %c",&c) != 1 || c != '?') {
+
+      if (PD_VERBOSE > 20) {
+
+	printf("pd_read_pdstor: Couldn't parse header.\n");
       
+      }
+
+      return NULL;
+
     }
 
-    return NULL;
+    nelts = 10000000000; /* Very large number! */
+
+  } else { /* fscanf worked! */
+
+    if (nelts_claimed != nelts_actual) { 
+
+      if (PD_VERBOSE > 20) {
+
+	printf("pd_read_pdstor: Header of pdstor file appears corrupt.\n");
+	return NULL;
+
+      }
+
+    }
+
+    nelts = nelts_claimed;
 
   }
-
-  unsigned int nelts;
-
-  if (nelts_claimed != nelts_actual) { 
-
-    if (PD_VERBOSE > 20) { printf("pd_read_pdstor: Header of pdstor file appears corrupt.\n"); return NULL; }
-
-  }
-
-  nelts = nelts_claimed;
 
   /* Now we go into a loop to build the pdstor */
 

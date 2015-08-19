@@ -89,9 +89,25 @@ pd_code_t      *pd_search_pdstor_by_hash_uid(pd_stor_t *pdstor,char *hash, pd_ui
 
 /* File I/O */
 
-void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor);
+/* We store pdstors in a text file format which is read by */
+
 pd_stor_t *pd_read_pdstor(FILE *stream,pd_equivalence_t eq);
 
+/* There are two ways to write: all-at-once, with : */
+
+void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor);
+
+/* and incrementally constructing pdstor from many pd_stor_t objects with */
+
+void pd_start_incremental_pdstor(FILE *stream);
+
+void pd_addto_incremental_pdstor(FILE *stream,pd_stor_t *pdstor,
+				 unsigned int *nhashes,
+				 unsigned int *nelts);
+
+void pd_finish_incremental_pdstor(FILE *stream,
+				  unsigned int nhashes,
+				  unsigned int nelts);
 /* Debugging code */
 
 void pd_stor_stats(pd_stor_t *pdstor,unsigned int *nhashes,unsigned int *nelts);
