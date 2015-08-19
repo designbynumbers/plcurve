@@ -77,6 +77,7 @@ struct arg_rem  *hash;
 struct arg_rem  *nauts;
 struct arg_rem  *unsigned_interlacements;
 struct arg_rem  *interlacements;
+struct arg_rem  *homfly;
 struct arg_file *outfile;
 
 struct arg_lit  *help;
@@ -102,6 +103,7 @@ int main(int argc,char *argv[])
      nauts = arg_rem(NULL,"  nauts : size of automorphism group"),
      interlacements = arg_rem(NULL, "  interlacements : # of interlaced crossing pairs (by component)"),
      unsigned_interlacements = arg_rem(NULL, "  unsigned-interlacements : # of unsigned interlacements"),
+     homfly = arg_rem(NULL, "  homfly : HOMFLY (according to Millett/Ewing definitions)"),
      outfile = arg_file1("o","output","<file>","output csv file"),
      help = arg_lit0(NULL,"help","display help message"),
      end = arg_end(20)};
@@ -277,6 +279,12 @@ int main(int argc,char *argv[])
 		
 	fprintf(of,",%u ",nauts);
 	free(isobuf);
+
+      } else if (!strcmp(tocompute->sval[ntc],"homfly")) {
+
+	char *homfly = pd_homfly(pd);
+	fprintf(of,",%s ",homfly);
+	free(homfly);
 
       }
 
