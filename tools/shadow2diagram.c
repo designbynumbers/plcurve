@@ -476,8 +476,15 @@ int main(int argc,char *argv[]) {
 	
 	}
 
-      } else {
-      
+      } else if (countonly->count == 1) {
+
+	unsigned int nhashes, nelts;
+	pd_stor_stats(diagrams,&nhashes,&nelts);
+	total_nhashes += nhashes;
+	total_nelts += nelts;
+
+      } else { /* We are counting only */
+	
 	pd_addto_incremental_pdstor(out,diagrams,
 				    &total_nhashes,
 				    &total_nelts);
@@ -495,8 +502,11 @@ int main(int argc,char *argv[]) {
 	   codes_added,total_nelts);
 
     pd_finish_incremental_pdstor(out,total_nhashes,total_nelts);
-    fclose(out);    
+    fclose(out);
 
+    free(ofname);
+    ofname = NULL;
+    
   }
 
   arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
