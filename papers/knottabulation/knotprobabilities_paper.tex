@@ -416,40 +416,30 @@ We find all of the solutions using a standard branch-and-bound algorithm and add
 
 We implemented the above algorithms in C and used them to generate a database of knot diagrams up to 10 crossings. The longest run took several days on a desktop computer. The most important question, of course, is how the computation was checked. Of course, our implementation was careful and involved quite a bit of internal self-checks as well as testing against \valgrind for memory problems, and writing a suite of unit tests for the codebase. However, good programming practices can only provide a limited measure of confidence in the results, so we continued to test our work. The first and most important test was to verify that the databases obtained by connect summing and by expansions were identical. 
 
-We were also able to check against some existing enumerations. K\'apolnai et.\ al. classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension. These counts are given in the table below:
+We were also able to check against some existing enumerations. K\'apolnai et.\ al. classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension. These counts are given in Table~\ref{tab:counts}.
 
 \begin{table}
 \begin{ruledtabular}
 \begin{tabular}{llllll} 
-Crossings & Prime Shadows & Link Shadows & Link Diagrams & Knot Shadows & Knot Diagrams \\ \hline
-3  & $\num{1}$   & $\num{7}$           & -- & $\num{6}$       & -- \\
-4  & $\num{2}$   & $\num{30}$          & -- & $\num{19}$      & -- \\
-5  & $\num{3}$   & $\num{124}$         & -- & $\num{76}$      & -- \\
-6  & $\num{9}$   & $\num{733}$         & -- & $\num{376}$     & -- \\
-7  & $\num{18}$  & $\num{4586}$        & -- & $\num{2194}$    & -- \\
-8  & $\num{62}$  & $\num{33373}$       & -- & $\num{14614}^*$  & -- \\
+Cr & Prime Shadows & Link Shadows & Link Diagrams & Knot Shadows & Knot Diagrams \\ \hline
+3  & $\num{1}$   & $\num{7}$           & -- & $\num{6}$        & $\num{36}^*$ \\
+4  & $\num{2}$   & $\num{30}$          & -- & $\num{19}$       & $\num{276}^*$ \\
+5  & $\num{3}$   & $\num{124}$         & -- & $\num{76}$       & $\num{2936}^*$ \\
+6  & $\num{9}$   & $\num{733}$         & -- & $\num{376}$      & $\num{35872}^*$ \\
+7  & $\num{18}$  & $\num{4586}$        & -- & $\num{2194}$     & $\num{484088}^*$ \\
+8  & $\num{62}$  & $\num{33373}$       & -- & $\num{14614}^*$  & $\num{6967942}^*$ \\
 9  & $\num{198}$ & $\num{259434}^*$    & -- & $\num{106421}^*$ & -- \\
 10 & $\num{803}$ & $\num{2152298}^*$   & -- & $\num{823832}^*$ & -- \\ 
 \end{tabular}
 \end{ruledtabular}
-\caption{The number of link (including knots) and knot shadows and diagrams through 10 crossings. The unstarred numbers in the left hand column match those of K\'apolnai et.\ al.~\cite{Kapolnai:2012hs}, while the unstarred numbers on the right are sequence A008989 in the OEIS. The starred numbers are new.}
+\caption{The number of link (including knots) and knot shadows and diagrams through 10 crossings. The unstarred numbers in the column of prime shadows are sequence A113201 in the OEIS. The unstarred numbers in the table of link shadows matches K\'apolnai et.\ al.~\cite{Kapolnai:2012hs}, while the unstarred numbers in the column of knot shadows are sequence A008989 in the OEIS. The starred numbers are new.}
+\label{tab:counts}
 \end{table}
 
-\section{Classifying knot types}
-
-Our database of diagrams contains all diagrams of knots and links with $n$ crossings. Though very few of these are knot diagrams (the subject of this paper), there seems to be no obvious graph-theoretic way to avoid generating link diagrams. So our next move is to simply compute the number of components in each diagram and throw out the diagrams with more than one component. This gives us the following table of the number of diagrams we've found:
-
-<data>
-
-\begin{center}
-Matt and Harrison write something about assigning crossings and orientations, and give data on expansions
-\end{center}
-
-\begin{center}
-Matt and Harrison write something about their respective knot identification strategies and the verification that they match
-\end{center}
-
 \section{Results}
+
+The database of diagrams is a large data set, and it would be impractical to point out everything interesting about it. However, it is worth giving an overview of the 
+
 
 giant pictures, compared with tait's classification
 our distributions
