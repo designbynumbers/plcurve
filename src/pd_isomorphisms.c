@@ -2319,9 +2319,21 @@ bool pd_is_diagram_isotopy(pd_iso_t *A, pd_code_t *pdA, pd_code_t *pdB)
   }
 
   /* Check whether we're flipping plane or not; the facemap orientation
-     and the crossmap orientation should be the same. */
+     and the crossmap orientation should be the same. This has a special 
+     case-- if the diagrams have 0 crossings, there is no crosssmap, and 
+     so no crossmap orientation! */
 
-  assert(A->crossmap->or == A->facemap->or); 
+  if (pdA->ncross != pdB->ncross) {
+
+    return false; /* It can't be a diagram isotopy if the pd_codes aren't isomorphic! */
+
+  }
+
+  if (pdA->ncross > 0) { /* We only have a crossmap orientation if there's a crossmap */
+
+    assert(A->crossmap->or == A->facemap->or);
+
+  }
 
   /* All the edge orientations should be positive. */
 
@@ -2335,13 +2347,17 @@ bool pd_is_diagram_isotopy(pd_iso_t *A, pd_code_t *pdA, pd_code_t *pdB)
 
   }
 
-  /* Finally, all the crossing signs should match. */
+  /* Finally, all the crossing signs should match, if there are crossings in the first place! */
 
-  for(i=0;i<A->crossmap->perm->n;i++) { 
+  if (pdA->ncross > 0) { 
 
-    if (pdA->cross[i].sign != pdB->cross[A->crossmap->perm->map[i]].sign) {
+    for(i=0;i<A->crossmap->perm->n;i++) { 
 
-      return false;
+      if (pdA->cross[i].sign != pdB->cross[A->crossmap->perm->map[i]].sign) {
+
+	return false;
+
+      }
 
     }
 

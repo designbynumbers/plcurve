@@ -743,7 +743,7 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq)
 
     }
 
-    nelts = 10000000000; /* Very large number! */
+    nelts = UINT_MAX; /* Very large number! */
 
   } else { /* fscanf worked! */
 
