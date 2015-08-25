@@ -311,6 +311,21 @@ unsigned int count_unknotwye_isomorphism_types(int n)
 
 }
 
+unsigned int count_unknotwye_diagram_isotopy_types(int n)
+
+/* # diagram_isotopy types == # of (cyclically ordered) triples which sum to ntwists */
+
+/* 
+   This is a Mathematica calculation; see diagram_wye_isotopy_types.nb (this directory)
+
+*/
+{
+  int dwye_isotopy[16] = {1,1,2,4,5,7,10,12,15,19,22,26,31,35,40,46};
+
+  assert(n <= 15);
+  return dwye_isotopy[n];  
+}
+
 bool insert_unknotwyes(int n,pd_stor_t **pdstor,pd_equivalence_t eq)
 
 /* Insert all of the unknotted wyes with n twists into the pdstor. */
@@ -356,7 +371,17 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor,pd_equivalence_t eq)
   unsigned int nhashes, nelts;
   pd_stor_stats(*pdstor,&nhashes,&nelts);
 
-  unsigned int expected_nelts = count_unknotwye_isomorphism_types(n);
+  unsigned int expected_nelts;
+
+  if (eq == ISOMORPHISM) {
+
+    expected_nelts = count_unknotwye_isomorphism_types(n);
+
+  } else {
+
+    expected_nelts = count_unknotwye_diagram_isotopy_types(n);
+
+  }
 
   if (eq == ISOMORPHISM || eq == DIAGRAM_ISOTOPY) { 
   
