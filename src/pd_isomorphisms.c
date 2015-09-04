@@ -2506,7 +2506,7 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
   if (pdA->ncomps != pdB->ncomps) { return NULL; } else {ncomps = pdA->ncomps;}
   if (pdA->nfaces != pdB->nfaces) { return NULL; } else {nfaces = pdA->nfaces;}
   
-  pd_idx_t comp,face;
+  pd_idx_t comp,face,cross;
 
   /* Remember that # of edges is a primary sort criterion
      for both comps and faces, and that these buffers are
@@ -2523,6 +2523,18 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
      we liked. There's a danger of losing isomorphisms
      here if those have bugs, so there's some risk to
      implementing this.  */
+
+  /* We will check the sum of crossing signs, because crossing signs have to be preserved. */
+
+  int wrA=0,wrB=0;
+  for(cross=0;cross<ncross;cross++) {
+
+    wrA += (pdA->cross[cross].sign == PD_POS_ORIENTATION) ? +1 : -1;
+    wrB += (pdB->cross[cross].sign == PD_POS_ORIENTATION) ? +1 : -1;
+
+  }
+
+  if (wrA != wrB) { return NULL; }
 
   /* At this point, there may BE isomorphisms and we'll
      have to check all the possibilities before ruling

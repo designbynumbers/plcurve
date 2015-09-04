@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      6929,        220]
-NotebookOptionsPosition[      6458,        198]
-NotebookOutlinePosition[      6814,        214]
-CellTagsIndexPosition[      6771,        211]
+NotebookDataLength[     11457,        361]
+NotebookOptionsPosition[     10501,        323]
+NotebookOutlinePosition[     10857,        339]
+CellTagsIndexPosition[     10814,        336]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -193,10 +193,135 @@ Cell[BoxData[
    RowBox[{"{", 
     RowBox[{"10", ",", "0", ",", "0"}], "}"}]}], "}"}]], "Output",
  CellChangeTimes->{{3.6495078717462883`*^9, 3.649507886968081*^9}}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"CyclicEquivalent", "[", 
+    RowBox[{"A_", ",", "B_"}], "]"}], " ", ":=", " ", 
+   RowBox[{"Or", "[", 
+    RowBox[{
+     RowBox[{"A", " ", "\[Equal]", " ", "B"}], ",", " ", 
+     RowBox[{"A", " ", "\[Equal]", " ", 
+      RowBox[{"RotateRight", "[", "B", "]"}]}], ",", " ", 
+     RowBox[{"A", " ", "\[Equal]", " ", 
+      RowBox[{"RotateRight", "[", 
+       RowBox[{"B", ",", "2"}], "]"}]}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6495079304528713`*^9, 3.649507970170788*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"CyclicEquivalent", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0", ",", "4", ",", "6"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"4", ",", "4", ",", "1"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.6495079716510468`*^9, 3.649508002633565*^9}}],
+
+Cell[BoxData["False"], "Output",
+ CellChangeTimes->{{3.6495079817093153`*^9, 3.649508002975095*^9}}]
+}, Open  ]],
+
+Cell["We can now eliminate the duplicate entries in the list:", "Text",
+ CellChangeTimes->{{3.649508288741158*^9, 3.649508295892996*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DeleteDuplicates", "[", 
+  RowBox[{
+   RowBox[{"GenTriples", "[", "10", "]"}], ",", "CyclicEquivalent"}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.6495082445924664`*^9, 3.6495082843283653`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0", ",", "0", ",", "10"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "1", ",", "9"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "2", ",", "8"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "3", ",", "7"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "4", ",", "6"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "5", ",", "5"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "6", ",", "4"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "7", ",", "3"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "8", ",", "2"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "9", ",", "1"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "8"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "2", ",", "7"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "3", ",", "6"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "4", ",", "5"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "5", ",", "4"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "6", ",", "3"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "7", ",", "2"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "2", ",", "6"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "3", ",", "5"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "4", ",", "4"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "5", ",", "3"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "3", ",", "4"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.649508256592211*^9, 3.649508284641749*^9}}]
+}, Open  ]],
+
+Cell["and finally generate the table of test data:", "Text",
+ CellChangeTimes->{{3.649508299652183*^9, 3.6495083056763687`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"UnknottedWyes", "[", "n_", "]"}], " ", ":=", " ", 
+   RowBox[{"Length", "[", 
+    RowBox[{"DeleteDuplicates", "[", 
+     RowBox[{
+      RowBox[{"GenTriples", "[", "n", "]"}], ",", "CyclicEquivalent"}], "]"}],
+     "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6495083126369257`*^9, 3.64950833580413*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Table", "[", 
+  RowBox[{
+   RowBox[{"UnknottedWyes", "[", "i", "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0", ",", "15"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.64950833731814*^9, 3.6495083512754717`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "1", ",", "1", ",", "2", ",", "4", ",", "5", ",", "7", ",", "10", ",", "12",
+    ",", "15", ",", "19", ",", "22", ",", "26", ",", "31", ",", "35", ",", 
+   "40", ",", "46"}], "}"}]], "Output",
+ CellChangeTimes->{3.649508351694364*^9}]
 }, Open  ]]
 }, Open  ]]
 },
-WindowSize->{808, 710},
+WindowSize->{808, 778},
 WindowMargins->{{4, Automatic}, {Automatic, 4}},
 FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September 9, \
 2014)",
@@ -220,6 +345,22 @@ Cell[1003, 34, 591, 17, 94, "Input"],
 Cell[CellGroupData[{
 Cell[1619, 55, 130, 2, 43, "Input"],
 Cell[1752, 59, 4678, 135, 369, "Output"]
+}, Open  ]],
+Cell[6445, 197, 533, 13, 69, "Input"],
+Cell[CellGroupData[{
+Cell[7003, 214, 278, 7, 43, "Input"],
+Cell[7284, 223, 100, 1, 43, "Output"]
+}, Open  ]],
+Cell[7399, 227, 137, 1, 46, "Text"],
+Cell[CellGroupData[{
+Cell[7561, 232, 219, 5, 43, "Input"],
+Cell[7783, 239, 1638, 47, 144, "Output"]
+}, Open  ]],
+Cell[9436, 289, 128, 1, 46, "Text"],
+Cell[9567, 292, 353, 9, 94, "Input"],
+Cell[CellGroupData[{
+Cell[9945, 305, 249, 6, 43, "Input"],
+Cell[10197, 313, 276, 6, 77, "Output"]
 }, Open  ]]
 }, Open  ]]
 }
@@ -227,4 +368,3 @@ Cell[1752, 59, 4678, 135, 369, "Output"]
 *)
 
 (* End of internal cache information *)
-

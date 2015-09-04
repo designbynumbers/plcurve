@@ -92,6 +92,7 @@
 \newcommand{\edges}{\operatorname{edges}}
 \newcommand{\head}{\operatorname{head}}
 \newcommand{\tail}{\operatorname{tail}}
+\newcommand{\Cr}{\operatorname{cr}}
 
 \graphicspath{{../../figs/}{figs/}}
 
@@ -115,7 +116,7 @@
 \bibliographystyle{plain}
 
 \begin{document}
-\title[]{Random Knot Diagrams through 10 crossings}
+\title[]{Knot Probabilities in Random Diagrams}
 \author{Jason Cantarella, Harrison Chapman}
 \altaffiliation{University of Georgia, Mathematics Department, Athens GA}
 \noaffiliation
@@ -418,33 +419,68 @@ We implemented the above algorithms in C and used them to generate a database of
 
 We were also able to check against some existing enumerations. K\'apolnai et.\ al. classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension. These counts are given in Table~\ref{tab:counts}.
 
+The previous authors have tabulated knot shadows. To pass from shadows to diagrams, we must assign crossing signs and an orientation to the diagram. In principle, there are as many as $2^{\cr + 1}$ distinct ways to do this, but symmetries of the diagram may reduce this number-- for instance, the three crossing shadow of the trefoil knot $\tref$ has a 3-fold symmetry cyclically permuting the crossings, so the crossing assignments $+--$, $-+-$, and $--+$ are all the same.
+
 \begin{table}
 \begin{ruledtabular}
 \begin{tabular}{llllll} 
-Cr & Prime Shadows & Link Shadows & Link Diagrams & Knot Shadows & Knot Diagrams \\ \hline
-3  & $\num{1}$   & $\num{7}$           & -- & $\num{6}$        & $\num{36}^*$ \\
-4  & $\num{2}$   & $\num{30}$          & -- & $\num{19}$       & $\num{276}^*$ \\
-5  & $\num{3}$   & $\num{124}$         & -- & $\num{76}$       & $\num{2936}^*$ \\
-6  & $\num{9}$   & $\num{733}$         & -- & $\num{376}$      & $\num{35872}^*$ \\
-7  & $\num{18}$  & $\num{4586}$        & -- & $\num{2194}$     & $\num{484088}^*$ \\
-8  & $\num{62}$  & $\num{33373}$       & -- & $\num{14614}^*$  & $\num{6967942}^*$ \\
-9  & $\num{198}$ & $\num{259434}^*$    & -- & $\num{106421}^*$ & -- \\
-10 & $\num{803}$ & $\num{2152298}^*$   & -- & $\num{823832}^*$ & -- \\ 
+Cr & Prime Shadows & Link Shadows    & Knot Shadows     & Knot Diagrams \\ \hline
+3  & $\num{1}$   & $\num{7}$         & $\num{6}$        & $\num{36}^*$ \\
+4  & $\num{2}$   & $\num{30}$        & $\num{19}$       & $\num{276}^*$ \\
+5  & $\num{3}$   & $\num{124}$       & $\num{76}$       & $\num{2936}^*$ \\
+6  & $\num{9}$   & $\num{733}$       & $\num{376}$      & $\num{35872}^*$ \\
+7  & $\num{18}$  & $\num{4586}$      & $\num{2194}$     & $\num{484088}^*$ \\
+8  & $\num{62}$  & $\num{33373}$     & $\num{14614}^*$  & $\num{6967942}^*$ \\
+9  & $\num{198}$ & $\num{259434}^*$  & $\num{106421}^*$ & -- \\
+10 & $\num{803}$ & $\num{2152298}^*$ & $\num{823832}^*$ & -- \\ 
 \end{tabular}
 \end{ruledtabular}
 \caption{The number of link (including knots) and knot shadows and diagrams through 10 crossings. The unstarred numbers in the column of prime shadows are sequence A113201 in the OEIS. The unstarred numbers in the table of link shadows matches K\'apolnai et.\ al.~\cite{Kapolnai:2012hs}, while the unstarred numbers in the column of knot shadows are sequence A008989 in the OEIS. The starred numbers are new.}
 \label{tab:counts}
 \end{table}
 
+Looking at Table~\ref{tab:counts}, one is struck by how close the number of distinct knot diagrams is to the maximum number $2^{\Cr+1} \times (\# \text{ knot shadows})$.
 \section{Results}
 
-The database of diagrams is a large data set, and it would be impractical to point out everything interesting about it. However, it is worth giving an overview of the 
+The database of diagrams is a large data set, and it would be impractical to point out everything interesting about it. However, it is worth giving an overview of some important points. Figure~\ref{fig:knot grid} shows the first 42 shadows obtained in the enumeration.
+\begin{figure}
+\includegraphics[width=6in]{knotgrid.pdf}
+\caption{The first 42 knot shadows.}
+\label{fig:knot grid}
+\end{figure}
+It is immediately clear from Figure~\ref{fig:knot grid} that many of the shadows can be simplified by a Reidemeister I move; they have a face with only one edge (a monogon). In fact, we can see from Table~\ref{tab:monogons and bigons} that almost every diagram has at least one monogon and that the mean number of monogons seems to be rising linearly with $n$.  
+\begin{table}
+\begin{ruledtabular}
+\begin{tabular}{lllllllll}
+Cr                 & $3$ & $4$             & $5$            & $6$                        & $7$ & $8$ & $9$ & $10$ \\ \hline
+Mean $\#$ monogons & $\frac{\num{12}}{\num{6}}$ & $\frac{\num{48}}{\num{19}}$ & $\frac{\num{213}}{\num{76}}$ & $\frac{\num{1196}}{\num{376}}$ & $\frac{\num{7714}}{\num{2194}}$ & $\frac{\num{56540}}{\num{14614}}$ & $\frac{\num{448584}}{\num{106421}}$ & $\frac{\num{3758456}}{\num{823832}}$\\
+\hphantom{Mean} --- (decimal) & $2.$ & $2.53$ & $2.8$ & $3.18$ & $3.52$ & $3.87$ & $4.22$ & $4.56$ \\
+Monogon fraction   & $\frac{\num{5}}{\num{6}}$ & $\frac{\num{18}}{\num{19}}$ & 
+$\frac{\num{74}}{\num{76}}$ & $\frac{\num{371}}{\num{376}}$ & 
+$\frac{\num{2178}}{\num{2194}}$ & 
+$\frac{\num{14562}}{\num{14614}}$ & 
+$\frac{\num{106216}}{\num{106421}}$ & 
+$\frac{\num{822989}}{\num{823832}}$ \\ 
+\hphantom{Mean} -- (decimal) & $0.833$ & $0.947$ & $0.974$ & $0.987$ & $0.993$ & $0.996$ & $0.998$ \
+& $0.999$ \\ \hline
+Mean $\#$ bigons & $\frac{\num{6}}{\num{6}}$ & $\frac{\num{18}}{\num{19}}$ & 
+$\frac{\num{88}}{\num{76}}$ & $\frac{\num{470}}{\num{376}}$ & 
+$\frac{\num{3037}}{\num{2194}}$ & $\frac{\num{21925}}{\num{14614}}$ & 
+$\frac{\num{173342}}{\num{106421}}$ & $\frac{\num{1450209}}{\num{823832}}$ \\
+\hphantom{Mean} --- (decimal) & $1.$ & $0.947$ & $1.16$ & $1.25$ & $1.38$ & $1.5$ & $1.63$ & $1.76$ \\
+Bigon fraction & $\frac{\num{3}}{\num{6}}$ & $\frac{\num{11}}{\num{19}}$ & 
+$\frac{\num{52}}{\num{76}}$ & $\frac{\num{275}}{\num{376}}$ & 
+$\frac{\num{1714}}{\num{2194}}$ & $\frac{\num{11892}}{\num{14614}}$ & 
+$\frac{\num{89627}}{\num{106421}}$ & $\frac{\num{712961}}{\num{823832}}$ \\
+\hphantom{Mean} --- (decimal) & $0.5$ & $0.579$ & $0.684$ & $0.731$ & $0.781$ & $0.814$ & $0.842$ & $0.865$ \\
+\end{tabular}
+\end{ruledtabular}
+\caption{The distribution of monogons among shadows of $n$ crossings. The mean number of monogons in an $n$-crossing diagram fits very well to $1.01927 + 0.356111 n$, while the mean number of bigons fits well to $0.563245 + 0.117749 n$ It would be interesting to know the asymptotic growth rate.}
+\label{tab:monogons and bigons}
+\end{table}
+It is interesting to note that almost every diagram contains either a monogon or a bigon-- there are only three diagrams in our dataset without one or the other! These turn out to be the shadows of torus knots and links that Conway designated as $8^*$, $9^*$, and $10^*$.
 
 
-giant pictures, compared with tait's classification
-our distributions
-monogon and bigon fractions
-degree of alternatingness
 universal properties? comparison with distribution from ERPs, lattice walks, and petaluma.
 
 Matt will read about polynomials, graph polynomials, and such and try to relate average invariants to graph theoretic properties.

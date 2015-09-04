@@ -393,7 +393,18 @@ int main(int argc,char *argv[]) {
 	    
 	  }
 
-	  pd_addto_pdstor(diagrams,working_pd,DIAGRAM_ISOTOPY);
+	  if (no_orientation_preserving_automorphisms &&
+	      no_orientation_reversing_automorphisms) {
+
+	    pd_addto_pdstor(diagrams,working_pd,NONE);
+	    /* This is faster, if we know there are no symmetries. */
+
+	  } else {
+	    
+	    pd_addto_pdstor(diagrams,working_pd,DIAGRAM_ISOTOPY);
+
+	  }
+	  
 	  pd_code_free(&working_pd);
 
 	  codes_added++;
