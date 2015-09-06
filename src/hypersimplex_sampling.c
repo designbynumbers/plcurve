@@ -1,10 +1,7 @@
 /*
 
-  hypersimplex_sampling.c : This file provides an efficient way to
-                            sample the (k,n)th hypersimplex using
-                            Stanley's triangulation and the methods in
-                            kascentpermutation.c, plus the GSL random
-                            number generators.
+  hypersimplex_sampling.c : This file samples the middle hypersimplex
+                            using DeSalvo's rejection sampling algorithm.
 
 */
 
@@ -184,6 +181,53 @@ double *hypersimplex_sample(int k, int n,gsl_rng *rng)
 }
 
 double *hypercube_slice_sample(int n,gsl_rng *rng)
+
+/* Use rejection sampling to sample the slice of [-1,1]^n 
+   where Sum z_i = 0. Returns a newly allocated buffer;
+   it's the caller's responsibility to free it. 
+
+   This algorithm is incredibly simple-- we simply sample
+   buffers of n-1 random variates until we get one with 
+   a sum between [-1,1] and then set the last variable 
+   accordingly. 
+
+   The magic of the local limit theorem says that this should 
+   work 
+
+   Sqrt[6/(pi(n-1))] ~ Sqrt[2/n]
+
+   of the time (which is quite often!). If we get to 1,000,000 tries,
+   we assume that something is very wrong and quit. 
+*/
+{
+  double *buffer = (double *)(malloc(n*sizeof(double)));
+  double sum;
+  int k,tries=0;
+  bool rejected = true;
+
+  while (rejected) { 
+
+    for(k=0,sum=0.0;k<n-1;k++) {
+
+      buffer[k] = 2.0*gsl_rng_uniform(rng)-1.0;
+      sum += buffer[k];
+    
+    }
+
+    rejected = (sum < -1.0 || sum > 1.0);
+
+    /* A bit of safety code to make sure everything's ok.*/
+    tries++;
+    assert(tries <= 1000000);
+    
+  }
+
+  buffer[n-1] = -sum;
+  return buffer;
+}
+  
+
+double *hypercube_slice_sample_old(int n,gsl_rng *rng)
 
 /* Use hypersimplex sampling to sample the slice of [-1,1]^n where
 

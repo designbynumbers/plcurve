@@ -37,14 +37,263 @@
 #include<gsl/gsl_rng.h>
 #endif
 
+gsl_rng *rng; /* The global random number generator */
 gsl_rng *r;  /* The global random number generator */
 
 bool PAPERMODE;
 FILE *outfile;
 
+double   plc_equilateral_expectation(gsl_rng *rng,
+				     double integrand(plCurve *L, void *args),
+				     void *args,
+				     int nedges,
+				     int nsamples,
+				     int max_seconds,
+				     double *error,
+				     double *time,
+				     int *steps)
+/*
+   This is the "master" driver function for computing an expectation
+   over equilateral (unconfined) polygons. It uses standard estimators 
+   to compute error bars. 
+
+   It will compute the mean value of "integrand", and then use the sample
+   variance to provide a 95% confidence interval.
+*/
+
+
+{
+  clock_t start,end;
+  double  cpu_seconds_used = 0;
+
+  start = clock();
+  assert(nedges > 3); assert(max_seconds > 0);
+  assert(integrand != NULL);
+  assert(error != NULL);
+
+  double sample_mean = 0, raw_second_moment = 0;
+  plCurve *L;
+  int i;
+
+  for(i=0;i<nsamples && cpu_seconds_used < max_seconds;i++) {
+
+    double ival;
+    
+    L    = plc_random_equilateral_closed_polygon(rng,nedges);
+    ival = integrand(L, args);
+    
+    sample_mean += ival;
+    raw_second_moment += ival*ival;
+
+    plc_free(L);
+    
+    if (i%1000 == 0) {
+      /* Check the time every 1,000 steps */
+      
+      end = clock();
+      cpu_seconds_used = ((double)(end - start))/CLOCKS_PER_SEC;
+
+    }
+
+  }
+
+  sample_mean /= (double)(i);
+  raw_second_moment /= (double)(i);
+
+  end = clock();
+  if (time != NULL) {
+    *time = ((double)(end - start))/CLOCKS_PER_SEC;
+  }
+
+  if (steps != NULL) {
+    *steps = i;
+  } 
+
+  double sample_variance
+    = sqrt(raw_second_moment - pow(sample_mean,2.0));
+  if (error != NULL) {
+    *error = 1.96*sample_variance/sqrt((double)(i));
+  }
+  
+  return sample_mean;
+}
+
+
+
 
 plCurve *fantriangulation_action_angle(int n,double *theta, double *d);
 plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges);
+
+bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L, void *args),double expected,char *prediction_name)
+{
+  printf("---------------------------------------"
+	 "-----------------------------------\n"
+	 "Testing %s for equilateral %d-gons.\n"
+	 "Running for 10 seconds...",prediction_name,n);
+
+  double error,result,time;
+  int steps;
+
+  result = plc_equilateral_expectation(rng,integrand,NULL,
+				       n,500000,10,
+				       &error,&time,&steps);
+
+  printf("done.\n"
+         "Run statistics: \n"
+	 "\tstep count  : %d\n"
+	 "\ttotal time  : %2.2g sec\n",
+	 steps,time);
+
+  printf("checking expected value (%g) within error bounds...",expected);
+
+  if (fabs(expected - result) < error) {
+
+    printf("pass\n"
+	   "Details:\n"
+	   "\tComputed expectation: %4.4g\n"
+	   "\tExact expectation   : %4.4g\n"
+	   "\tActual Error        : %4.2g\n"
+	   "\tError Bound         : %4.2g\n",
+	   result,
+	   expected,
+	   fabs(expected-result),error);
+
+  } else if (fabs(expected - result) < 4*error) {
+
+    printf("conditional pass\n"
+	   "Details:\n"
+	   "\tComputed expectation: %4.4g\n"
+	   "\tExact expectation   : %4.4g\n"
+	   "\tActual Error        : %4.2g\n"
+	   "\t95%% Error Bound    : %4.2g\n"
+	   "\tNever Error Bound   : %4.2g\n",
+	   result,
+	   expected,
+	   fabs(expected-result),error,4*error);
+
+    printf("Test will continue. The 95%% confidence interval fails 5%% of the time\n"
+	   "so you are likely to observe this from time to time. However, we \n"
+	   "should NEVER exceed the error bound above.\n");
+    return true;
+
+  } else {
+
+    printf("FAIL\n"
+	   "Details:\n"
+	   "\tComputed expectation: %4.4g\n"
+	   "\tExact expectation   : %4.4g\n"
+	   "\tActual Error        : %4.2g\n"
+	   "\t95%% Error Bound     : %4.2g\n"
+	   "\tNever Error Bound   : %4.2g\n",
+	   result,
+	   expected,
+	   fabs(expected-result),error,4*error);
+    
+    printf("This failure means the sampler is not random(or there\n"
+	   "is a serious bug somewhere in the library). In either case, it's\n"
+	   "a reportable failure, and I'd like to know your platform so that\n"
+	   "I can try to reproduce the failure.\n");
+    return false;
+
+  }
+
+  printf("result...pass\n");
+  printf("------------------------------------------"
+	 "-----------------------"
+	 "--------\n");
+  return true;
+
+}
+
+int glob_skip;
+int glob_start;
+double skip_squared_chordlength(plCurve *L, void *args) {
+
+  /* Uses the global glob_skip to set the skip length,
+     then computes the average squared length of chords skipping
+     glob_skip edges in the plCurve L. */
+
+  return plc_sq_dist(L->cp[0].vt[glob_start],L->cp[0].vt[glob_start + glob_skip]);
+}
+
+double eq_pol_prediction(int n,int k) {
+  return (double)((n-k)*k)/(double)((n-1));
+}
+char eq_pol_predstring[256] = "((n-k)/(n-1)) k";
+
+bool equilateral_chordlength_tests(gsl_rng *rng)
+{
+  int nvals[10] = {50,100,200,250};
+  int kvals[10] = {10,20,30};
+  
+  int num_n = 4, num_k = 3;
+  int n,k;
+  char predname[2048];
+
+  for(n=0;n<num_n;n++) {
+
+    for(k=0;k<num_k;k++) {
+
+      glob_skip = kvals[k];
+      glob_start = (int)((double)(nvals[n])/3.0);
+      sprintf(predname,"avg squared length of skip %d chords",kvals[k]);
+
+      if (!test_equilateral_prediction(rng,nvals[n],skip_squared_chordlength,eq_pol_prediction(nvals[n],kvals[k]),predname)) {
+
+	return false;
+
+      }
+
+    }
+
+  }
+
+  return true;
+
+}
+
+/* Equilateral total curvature tests. */
+
+double eqtotalcurv[14] = {0,0,0,6.28319,8,9.30527,
+			  10.8496,12.369,13.9143,
+			  15.463,17.0175,18.5751,
+			  20.1351,21.6969};
+
+double eq_pol_prediction(int n,int k) {
+  return (double)((n-k)*k)/(double)((n-1));
+}
+char eq_pol_predstring[256] = "((n-k)/(n-1)) k";
+
+bool equilateral_chordlength_tests(gsl_rng *rng)
+{
+  int nvals[10] = {50,100,200,250};
+  int kvals[10] = {10,20,30};
+  
+  int num_n = 4, num_k = 3;
+  int n,k;
+  char predname[2048];
+
+  for(n=0;n<num_n;n++) {
+
+    for(k=0;k<num_k;k++) {
+
+      glob_skip = kvals[k];
+      glob_start = (int)((double)(nvals[n])/3.0);
+      sprintf(predname,"avg squared length of skip %d chords",kvals[k]);
+
+      if (!test_equilateral_prediction(rng,nvals[n],skip_squared_chordlength,eq_pol_prediction(nvals[n],kvals[k]),predname)) {
+
+	return false;
+
+      }
+
+    }
+
+  }
+
+  return true;
+
+}
 
 bool test_fantriangulation_action_angle(int n,double *theta,double *d,bool verbose)
 
@@ -372,12 +621,32 @@ bool assembly_test()
 
 int main() {
 
+  const gsl_rng_type * rng_T;
+
+  gsl_rng_env_setup();
+  rng_T = gsl_rng_default;
+  rng = gsl_rng_alloc(rng_T);
+
+  int seedi = time(0);
+
+  //if (seed->count > 0) { seedi = seed->ival[0]; }
+  //else { seedi = time(0); }
+
+  gsl_rng_set(rng,seedi);
+
   printf("test_csu_randompolygon generation (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"
 	 "Unit tests for direct sampler of equilateral random polygons. \n"
-	 "========================================================\n");
+	 "This test suite code is using the random number generator %s \n"
+	 "with seed %d.\n"
+	 "\n"
+	 "This program tests the polygons generated against theoretical calculations\n"
+	 "==========================================================================\n"
+	 ,gsl_rng_name(rng),seedi);
 
-  if (!assembly_test() /*|| !randompoly_quality_test() */) {
+  if (!assembly_test() ||
+      !equilateral_chordlength_tests(rng)
+      /*|| !randompoly_quality_test() */) {
 
     printf("=======================================================\n");
     printf("test_csu_randompolygon generation:  FAIL.\n");

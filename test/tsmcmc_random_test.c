@@ -137,7 +137,7 @@ int glob_skip;
 double skip_squared_chordlength(plCurve *L, void *args) {
 
   /* Uses the global glob_skip to set the skip length,
-     then computes the average sqaured length of chords skipping
+     then computes the average squared length of chords skipping
      glob_skip edges in the plCurve L. */
 
   double total = 0;

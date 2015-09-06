@@ -58,6 +58,7 @@ int main(int argc,char *argv[]) {
     {
       n = arg_int1("n","nedges","<int>","number of edges in walk"),
       samples = arg_int1("s","samples","<int>","number of samples to generate"),
+      
       radius = arg_dbl0("r","radius","<float>","radius of confinement sphere (optional)"),
       ftc = arg_dbl0(NULL,"failure-to-close","<float>","distance between first and last vertex (optional, don't use for closed polygons"),
 
@@ -103,8 +104,11 @@ int main(int argc,char *argv[]) {
 		 asked for help or gave nothing */
   
       fprintf(stderr,"rwalk compiled " __DATE__ " " __TIME__ "\n");
-      printf("rwalk generates closed (or fixed failure-to-close) and possibly confined equilateral random walks using the toric-symplectic moment polytope algorithm.\n"
-           "usage: \n\n");
+      printf("rwalk generates closed (or fixed failure-to-close) \n"
+	     "and possibly confined equilateral random walks using\n"
+	     "the toric-symplectic moment polytope algorithm or\n"
+	     "the csu rejection sampling algorithm.\n"
+	     "usage: \n\n");
       arg_print_glossary(stdout, argtable," %-25s %s\n");
       exit(0);
 
@@ -251,6 +255,9 @@ int main(int argc,char *argv[]) {
     }
 
   }
+
+  if (ftc->count == 0 && radius->count == 0) { runskip = 1; }
+  /* There's no need to skip samples with the direct sampler */
  
   printf("rwalk closed/confined equilateral random walk generator\n");   
   printf("with %s random number gen, seeded with %d.\n",gsl_rng_name(rng),seedi);
@@ -265,17 +272,26 @@ int main(int argc,char *argv[]) {
 
   if (verbose->count > 0) { 
 
-    printf("Algorithm Parameters\n"
-	   "-------------------------------------------------\n"
-	   "# of walks to skip between recorded samples: %04d\n"
-	   "# of walks to discard during burnin period : %04d\n"
-	   "# of times to repeat moment polytope steps : %04d\n"
-	   "fraction of permutation steps (delta)      : %04g\n"
-	   "fraction of moment polytope steps \n"
-	   "  among non-permutation steps (beta)       : %04g\n"
-	   "failure to close                           : %04g\n"
-	   "-------------------------------------------------\n",
-	   runskip,runburnin,runmpr,rundelta,runbeta,runftc);
+    if (radius->count > 0 || ftc->count > 0) {
+      
+      printf("Algorithm Parameters\n"
+	     "-------------------------------------------------\n"
+	     "# of walks to skip between recorded samples: %04d\n"
+	     "# of walks to discard during burnin period : %04d\n"
+	     "# of times to repeat moment polytope steps : %04d\n"
+	     "fraction of permutation steps (delta)      : %04g\n"
+	     "fraction of moment polytope steps \n"
+	     "  among non-permutation steps (beta)       : %04g\n"
+	     "failure to close                           : %04g\n"
+	     "-------------------------------------------------\n",
+	     runskip,runburnin,runmpr,rundelta,runbeta,runftc);
+
+    } else {
+
+      printf("Algorithm Parameters\n"
+	     "--------------------------------------------------\n"
+	     "Using CSU direct sampling algorithm \n");
+    }
   }
 
   fflush(stdout);
@@ -329,7 +345,9 @@ int main(int argc,char *argv[]) {
 
   /* Now initialize the sampler. */
 
-  double *diagonal_lengths, *edge_lengths, *dihedral_angles;
+  double *diagonal_lengths = NULL,
+    *edge_lengths = NULL,
+    *dihedral_angles = NULL;
 
   if (radius->count > 0) { 
 
@@ -342,7 +360,7 @@ int main(int argc,char *argv[]) {
 
   } else {
 
-    tsmcmc_equilateral_ngon(rng,T,&edge_lengths,&diagonal_lengths,&dihedral_angles);
+    /* The direct sampler requires no initialization */
 
   }
 
@@ -362,16 +380,28 @@ int main(int argc,char *argv[]) {
       tsmcmc_confined_dihedral_diagonal_step(rng,T,runradius,edge_lengths,
 					     diagonal_lengths,dihedral_angles,runbeta,runmpr);
 
-    } else { 
+    } else if (ftc->count > 0) { 
 
-      tsmcmc_dihedral_diagonal_permute_step(rng,T,edge_lengths,diagonal_lengths,dihedral_angles,runbeta,rundelta,runmpr);
+      tsmcmc_dihedral_diagonal_permute_step(rng,T,edge_lengths,
+					    diagonal_lengths,
+					    dihedral_angles,
+					    runbeta,rundelta,runmpr);
 
     }
 
     if (i > runburnin && (i - runburnin) % (runskip+1) == 0) { 
 
       plCurve *L;
-      L = tsmcmc_embed_polygon(T,edge_lengths,diagonal_lengths,dihedral_angles);
+
+      if (radius->count > 0 || ftc->count > 0) {
+	
+	L = tsmcmc_embed_polygon(T,edge_lengths,diagonal_lengths,dihedral_angles);
+
+      } else {
+
+	L = plc_random_equilateral_closed_polygon(rng,runn);
+
+      }
      
       char filename[2048];
 
@@ -386,7 +416,10 @@ int main(int argc,char *argv[]) {
       }
 
       FILE *sample_outfile = fopen(filename,"w");
-      if (sample_outfile == NULL) { fprintf(stderr,"rwalk: Couldn't open output filename %s.\n",filename); exit(1); }
+      if (sample_outfile == NULL) {
+	fprintf(stderr,"rwalk: Couldn't open output filename %s.\n",filename);
+	exit(1);
+      }
 
       if (runof == VECT) { 
 
@@ -414,7 +447,7 @@ int main(int argc,char *argv[]) {
       
   bigend = clock();
   cpu_time_used = ((double)(bigend - bigstart))/CLOCKS_PER_SEC;
-  printf("done (%-5.3g sec/%-5.3g sec/polygon)\n\n",cpu_time_used,cpu_time_used/samps);
+  printf("done (%-5.3g sec/%-5.3g sec/polygon/%-5.3f polygons/sec)\n\n",cpu_time_used,cpu_time_used/samps,samps/cpu_time_used);
  
   /***************************************/
 
@@ -425,9 +458,9 @@ int main(int argc,char *argv[]) {
   arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
   arg_freetable(helpendtable,sizeof(helpendtable)/sizeof(helpendtable[0]));
 
-  free(edge_lengths);
-  free(diagonal_lengths);
-  free(dihedral_angles);
+  if (edge_lengths != NULL) { free(edge_lengths); edge_lengths = NULL; }
+  if (diagonal_lengths != NULL) { free(diagonal_lengths); diagonal_lengths = NULL; }
+  if (dihedral_angles != NULL) { free(dihedral_angles); dihedral_angles = NULL; }
 
   printf("done\n");
 

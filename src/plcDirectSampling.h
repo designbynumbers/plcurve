@@ -53,10 +53,7 @@ extern "C" {
 
     -*/
 
-  double *plc_sample_hypercube_section(int n, gsl_rng *rng);
-  /* R
-
-  
+  double *plc_sample_hypercube_section(int n, gsl_rng *rng);  
   /*-
 
     The equilateral polygon sampling algorithms are not direct sampling

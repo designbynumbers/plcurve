@@ -903,10 +903,11 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
   int i;
   int safety_check = 0;
 
-  assert(n <= 1000);
-  if (n > 1000) {
+  assert(n <= 3000);
+  if (n > 3000) {
 
-    printf("Error. Can't call plc_random_equilateral_closed polygon with n > 1000\n");
+    printf("Error. Can't call plc_random_equilateral_closed_polygon\n"
+	   "with n > 3000\n");
     exit(1);
 
   }
@@ -967,7 +968,7 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
 
   return L;
 }
-    
+
 
 plCurve *plc_random_equilateral_open_polygon(gsl_rng *r,int nEdges) 
 {
