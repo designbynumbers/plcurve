@@ -259,12 +259,12 @@ double eqtotalcurv[14] = {0,0,0,6.28319,8,9.30527,
 			  15.463,17.0175,18.5751,
 			  20.1351,21.6969};
 
-double eq_pol_prediction(int n,int k) {
+double eq_tk_prediction(int n,int k) {
   return (double)((n-k)*k)/(double)((n-1));
 }
-char eq_pol_predstring[256] = "((n-k)/(n-1)) k";
+char eq_tk_predstring[256] = "((n-k)/(n-1)) k";
 
-bool equilateral_chordlength_tests(gsl_rng *rng)
+bool equilateral_tk_tests(gsl_rng *rng)
 {
   int nvals[10] = {50,100,200,250};
   int kvals[10] = {10,20,30};
