@@ -26,7 +26,7 @@ class PrimeFactor(object):
                            self.filepos, self.pdcode, self.compmask,
                            not self.mirror)
 
-    def concise(self):
+    def concise(self, mirror_char="*"):
         if self.ktname == "Unknot[]":
             return "0_1"
 
@@ -40,7 +40,7 @@ class PrimeFactor(object):
         return "%s%s%s%s"%(
             "L" if self.ncomps > 1 else "",
             "%s_%s"%(self.ncross, index_name),
-            "*" if self.mirror else "",
+            mirror_char if self.mirror else "",
             "_%s"%"".join(str(i) for i in self.compmask) if self.ncomps > 1 else ""
         )
 
@@ -590,7 +590,7 @@ class PDStorage:
         Create a new PDStorage object. If isotopy is True,
         then equivalence among diagrams will be diagram isotopy,
         rather than diagram isomorphism."""
-        
+
         self.hashes = defaultdict(list)
         self.isotopy = isotopy
 
@@ -600,7 +600,7 @@ class PDStorage:
         for hash_, bucket in self.hashes.iteritems():
             pdstor.hashes[hash_] = bucket.copy()
         return pdstor
-            
+
     @classmethod
     def read(cls, f, read_header=False, isotopy=False):
         """read(isotopy=False) -> new PDStorage
@@ -608,7 +608,7 @@ class PDStorage:
         Read a PDStorage object from a file. If isotopy is True,
         then equivalence among diagrams will be diagram isotopy,
         rather than diagram isomorphism."""
-        
+
         ret = cls(isotopy=isotopy)
         for pdcode in PlanarDiagram.read_all(f, read_header=read_header):
             ret.hashes[pdcode.hash].append(pdcode)
@@ -620,16 +620,16 @@ class PDStorage:
 
         if len(self.hashes) > len(other.hashes):
             return False
-        
+
         for hash_, bucket in self.hashes.iteritems():
             if hash_ in other.hashes:
                 if len(bucket) > len(other.hashes[hash_]):
                     return False
-                
+
                 for pdcode in bucket:
                     if not True in (pdcode.isomorphic(opd) for
                                     opd in other.hashes[hash_]):
-                        
+
                         return False
             else:
                 return False
@@ -653,7 +653,7 @@ class PDStorage:
             raise TypeError
 
         pdstor = self.__class__(isotopic=self.isotopic)
-        
+
         for hash_, bucket in self.hashes.iteritems():
             newbucket = bucket.copy()
             if hash_ in other.hashes:
