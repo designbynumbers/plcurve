@@ -6,9 +6,9 @@ int main(int argc, char** argv) {
     plCurve* K;
     gsl_rng *r;
     const gsl_rng_type *T;
-    int i =0;
+    //    int i =0;
     int j =0;
-    double theta;
+    //double theta;
 
     //f = fopen("r2_testG_before.pdstor", "r");
     //L = pd_read(f);
