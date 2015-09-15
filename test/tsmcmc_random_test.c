@@ -68,7 +68,7 @@ bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L,
   double error,result;
 
   tsmcmc_triangulation_t T = tsmcmc_spiral_triangulation(n);
-  result = tsmcmc_equilateral_expectation(rng,integrand,NULL,500000,10,T,run_params,&run_stats,&error);
+  result = tsmcmc_equilateral_expectation(rng,integrand,NULL,50000,2,T,run_params,&run_stats,&error);
 
   printf("done.\n"
          "Run statistics: \n"
@@ -163,7 +163,7 @@ bool equilateral_unconfined_chordlength_tests(gsl_rng *rng)
 {
   int nvals[10] = {50,100,200,250};
   int kvals[10] = {10,20,30};
-  int num_n = 4, num_k = 3;
+  int num_n = 2, num_k = 1;
   int n,k;
   char predname[2048];
 
@@ -202,7 +202,7 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
   double error,result;
 
   tsmcmc_triangulation_t T = tsmcmc_fan_triangulation(n);
-  result = tsmcmc_fixed_ftc_expectation(rng,integrand,NULL,ftc,500000,10,T,run_params,&run_stats,&error);
+  result = tsmcmc_fixed_ftc_expectation(rng,integrand,NULL,ftc,50000,2,T,run_params,&run_stats,&error);
 
   printf("done.\n"
          "Run statistics: \n"

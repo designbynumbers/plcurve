@@ -37,7 +37,6 @@ check_PROGRAMS = test_invariants \
 	         test_operations \
 	         test_orientation \
 		 test_homfly \
-		 tsmcmc_random_test \
 		 nn_test \
 	         symmetry_test \
 	         randompolygon_test \
@@ -75,7 +74,6 @@ TESTS = test_invariants \
 	test_operations \
 	test_orientation \
 	test_homfly  \
-	tsmcmc_random_test \
 	nn_test \
 	symmetry_test \
 	eq_primitives_test \
