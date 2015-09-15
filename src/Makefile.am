@@ -2,14 +2,14 @@ AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
 AM_CPPFLAGS = -I $(top_srcdir)/judy/src      # We'll need to find Judy.h here. 
 ACLOCAL_AMFLAGS = -I m4
 
-include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.h
+include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.h 
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
-if HAVE_ARGTABLE2
-bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs plcrwalk momentpolytope carbonizepd connectsum filterpd joinpd computepd
-else
-bin_PROGRAMS = knot_diagram
-endif
+#if HAVE_ARGTABLE2
+bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs plcrwalk momentpolytope carbonizepd connectsum filterpd joinpd computepd splitpd
+#else
+#bin_PROGRAMS = knot_diagram
+#endif
 
 noinst_PROGRAMS = spline_view # gcov_tests
 noinst_HEADERS = homfly.h
@@ -79,7 +79,20 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	pd_storage.h \
 	pd_storage.c \
 	pd_invariants.h \
-	pd_invariants.c
+	pd_invariants.c \
+	arg_date.c \
+	arg_dbl.c \
+	arg_end.c \
+	arg_file.c \
+	arg_int.c \
+	arg_lit.c \
+	arg_rem.c \
+	arg_str.c \
+	argtable2.c \
+	argtable2.h \
+	getopt.c \
+	getopt.h \
+	getopt1.c 
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -150,7 +163,20 @@ libplCurve_la_SOURCES = plCurve.c \
 	pd_storage.h \
 	pd_storage.c \
 	pd_invariants.h \
-	pd_invariants.c
+	pd_invariants.c \
+	arg_date.c \
+	arg_dbl.c \
+	arg_end.c \
+	arg_file.c \
+	arg_int.c \
+	arg_lit.c \
+	arg_rem.c \
+	arg_str.c \
+	argtable2.c \
+	argtable2.h \
+	getopt.c \
+	getopt.h \
+	getopt1.c 
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
@@ -162,11 +188,11 @@ libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 knot_diagram_SOURCES = knot_diagram.c
 knot_diagram_LDADD = -lplCurve
-if HAVE_ARGTABLE2
+#if HAVE_ARGTABLE2
 knot_diagram_LDFLAGS = -static
-else
-knot_diagram_LDFLAGS = -static
-endif
+#else
+#knot_diagram_LDFLAGS = -static
+#endif
 
 #ccode_test_SOURCES = ccode_test.c
 #ccode_test_LDADD = -lplCurve
@@ -189,6 +215,11 @@ filterpd_SOURCES = filterpd.c
 filterpd_LDADD = -lplCurve
 filterpd_LDFLAGS = -static
 filterpd_CFLAGS = -I${top_builddir}/src
+
+splitpd_SOURCES = splitpd.c
+splitpd_LDADD = -lplCurve
+splitpd_LDFLAGS = -static
+splitpd_CFLAGS = -I${top_builddir}/src
 
 computepd_SOURCES = computepd.c
 computepd_LDADD = -lplCurve

@@ -68,21 +68,21 @@ AC_PROG_LIBTOOL
 # if you find it, it will be automatically added to paths and the link commands
 # for the project.
 AC_SEARCH_LIBS([sqrt],[m])
-AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
+#AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
 AC_SEARCH_LIBS([cblas_dgemm],[gslcblas])
 AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x and higher require gsl (for random number generation)]),[-lgslcblas])
 
-if test "x${have_argtable2}" = xtrue; then
-   AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
-fi
+#if test "x${have_argtable2}" = xtrue; then
+#   AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
+#fi
 
-if test "x${have_argtable2}" = xfalse; then
-   AC_MSG_WARN([
-  -----------------------------------------------------------
-  Unable to find argtable2 on this system. Some demo programs
-  will not be installed in this build of plCurve.
-  -----------------------------------------------------------])
-fi
+#if test "x${have_argtable2}" = xfalse; then
+#   AC_MSG_WARN([
+#  -----------------------------------------------------------
+#  Unable to find argtable2 on this system. Some demo programs
+#  will not be installed in this build of plCurve.
+#  -----------------------------------------------------------])
+#fi
 
 # Check for SWIG and Python if old wrappers are enabled.
 AC_ARG_ENABLE([swig],
@@ -152,7 +152,7 @@ AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
 
 # Signal to AUTOMAKE if we have argtable2
 
-AM_CONDITIONAL([HAVE_ARGTABLE2],[test "x${have_argtable2}" = xtrue])
+# AM_CONDITIONAL([HAVE_ARGTABLE2],[test "x${have_argtable2}" = xtrue])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -191,7 +191,6 @@ echo \
   Compiler: '${CC} ${CFLAGS} ${CPPFLAGS}'
 
   Package Features:
-      Found argtable2 to install demo programs: ${have_argtable2}
       Found SWIG to build python interface: ${have_swig}
 
   Now type 'make @<:@<target>@:>@'

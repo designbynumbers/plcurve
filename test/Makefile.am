@@ -18,7 +18,7 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 	thistlethwaitetable.txt
 #	make_hopf
 
-if HAVE_ARGTABLE2
+#if HAVE_ARGTABLE2
 check_PROGRAMS = test_invariants \
 	         test_pdstorage \
 		 test_pdpack \
@@ -91,68 +91,7 @@ TESTS = test_invariants \
 	test_dihedral \
 	test_perm \
 	ccode_test
-else
-check_PROGRAMS = test_invariants \
-		 test_pdstorage \
-		 test_pdpack \
-		 csu_random_polygon_test \
-		 test_hypersimplex_sampling \
-		 test_k_ascent_permutations \
-		 test_tangle_slide_ops \
-		 test_splitdiagram \
-	         test_readkt \
-	         test_tangle_regenerate \
-		 test_tangle_slide_input \
-		 test_bad_homfly \
-		 test_diagram_isotopic \
-		 test_2crossing \
-		 test_crossingops \
-	         test_operations \
-		 test_homfly \
-	         tsmcmc_random_test \
-		 nn_test \
-	         symmetry_test \
-	         randompolygon_test \
-	         eq_primitives_test \
-	         loopclosure_test \
-	         exit_failure_tests  \
-	         test_struts \
-                 test_minrad \
-                 test_findpoca \
-		 test_dihedral \
-                 call_check \
-                 hopf_test \
-		 ccode_test
 
-TESTS = test_invariants \
-	test_pdstorage \
-	test_pdpack \
-	csu_random_polygon_test \
-	test_hypersimplex_sampling \
-	test_k_ascent_permutations \
-	test_tangle_slide_ops \
-	test_splitdiagram \
-	test_readkt \
-	test_tangle_regenerate \
-	test_tangle_slide_input \
-	test_bad_homfly \
-	test_diagram_isotopic \
-	test_2crossing \
-	test_crossingops \
-	test_operations \
-	test_homfly \
-	tsmcmc_random_test \
-	nn_test \
-	symmetry_test \
-	eq_primitives_test \
-	loopclosure_test \
-	test_findpoca \
-        test_struts \
-        call_check \
-        hopf_test \
-	test_dihedral \
-	ccode_test
-endif
 
 test_homfly_SOURCES = test_homfly.c 
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic

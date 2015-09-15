@@ -40,6 +40,10 @@
   #include<argtable2.h>
 #endif
 
+#ifdef HAVE_TIME_H
+  #include<time.h>
+#endif
+
 #ifdef HAVE_GSL_GSL_RNG_H
 #include <gsl/gsl_rng.h>
 #endif

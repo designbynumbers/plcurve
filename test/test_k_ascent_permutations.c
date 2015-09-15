@@ -36,8 +36,8 @@
    #include<stdbool.h>
 #endif
 
-#ifdef HAVE_ARGTABLE2_H
-  #include<argtable2.h>
+#ifdef HAVE_TIME_H
+   #include<time.h>
 #endif
 
 #ifdef HAVE_GSL_GSL_RNG_H
@@ -47,6 +47,8 @@
 #ifdef HAVE_GSL_GSL_RANDIST_H
 #include <gsl/gsl_randist.h>
 #endif
+
+#include<argtable2.h>
 
 
 /* Most of the functions in kascentpermutation.c aren't exposed, so we 

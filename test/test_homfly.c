@@ -33,10 +33,11 @@
    #include<stdbool.h>
 #endif
 
-#ifdef HAVE_ARGTABLE2_H
-  #include<argtable2.h>
+#ifdef HAVE_TIME_H
+   #include<time.h>
 #endif
 
+#include<argtable2.h>
 #include<plcTopology.h>
 
 #include<pd_multidx.h>

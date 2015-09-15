@@ -412,7 +412,7 @@ different sequences of expansion moves may produce isomorphic link shadows. Some
 \end{center}
 We can think of this as the problem of searching for collections of expansion moves which obey various equations, such as the fact that the total vertex degree must be 4 in any complete solution (there are less obvious equations as well-- the complete system is specified in Appendix B). 
 
-We find all of the solutions using a standard branch-and-bound algorithm and add the results to a pdstor to eliminate isomorphic pd-codes. We can save a lot of time in this process by noting that~\label{prop:reduce} tells us that we need only check expansions of the same graph (and their reorientations) against each other for potential pd-isomorphisms. 
+We find all of the solutions using a standard branch-and-bound algorithm and add the results to a pdstor to eliminate isomorphic pd-codes. We can save a lot of time in this process by noting that~Proposition~\ref{prop:reduce} tells us that we need only check expansions of the same graph (and their reorientations) against each other for potential pd-isomorphisms. 
 
 \section{Computing and verifying the results}
 
@@ -429,9 +429,9 @@ Cr & Prime Shadows & Link Shadows    & Knot Shadows     & Knot Diagrams \\ \hlin
 5  & $\num{3}$   & $\num{124}$       & $\num{76}$       & $\num{2936}^*$ \\
 6  & $\num{9}$   & $\num{733}$       & $\num{376}$      & $\num{35872}^*$ \\
 7  & $\num{18}$  & $\num{4586}$      & $\num{2194}$     & $\num{484088}^*$ \\
-8  & $\num{62}$  & $\num{33373}$     & $\num{14614}$  & $\num{6967942}^*$ \\
-9  & $\num{198}$ & $\num{259434}^*$  & $\num{106421}$ & -- \\
-10 & $\num{803}$ & $\num{2152298}^*$ & $\num{823832}$ & -- \\ 
+8  & $\num{62}$  & $\num{33373}$     & $\num{14614}$    & $\num{6967942}^*$ \\
+9  & $\num{198}$ & $\num{259434}^*$  & $\num{106421}$   & -- \\
+10 & $\num{803}$ & $\num{2152298}^*$ & $\num{823832}$   & -- \\ 
 \end{tabular}
 \end{ruledtabular}
 \caption{The number of link (including knots) and knot shadows and diagrams through 10 crossings. The unstarred numbers in the column of prime shadows are sequence A113201 in the OEIS. The unstarred numbers in the table of link shadows matches K\'apolnai et.\ al.~\cite{Kapolnai:2012hs}. The numbers in the column of knot shadows are sequence A008989 in the OEIS. They match the ``UU, $g=0$'' row on page 43 of the the recent preprint of Coquereaux et al.~\cite{Coquereaux:2015wv}, including the value $\num{823832}$ for $\Cr=10$ which they give as ``should be confirmed''. The starred numbers are new.}
