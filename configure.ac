@@ -176,7 +176,8 @@ AC_CONFIG_FILES([Makefile
                 planarmap/Makefile
                 pysrc/Makefile
                 tools/Makefile
-		test/Makefile])
+		test/Makefile
+		tools/pdstor_classify/Makefile])
 
 AC_CONFIG_SUBDIRS([judy])
 AC_OUTPUT
