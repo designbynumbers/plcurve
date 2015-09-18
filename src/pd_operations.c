@@ -199,9 +199,6 @@ void pd_renumber_component(pd_code_t *pd, pd_idx_t cmp,pd_idx_t ofs)
     /* Now renumber the edges of THIS COMPONENT ONLY. */
     
     pd_idx_t cmp_edges = pd->comp[cmp].nedges;
-    pd_idx_t first_edge;
-    first_edge = pd->comp[cmp].edge[0];
-    
     pd_idx_t new_e;
 
     for(e=0;e<cmp_edges;e++) { 

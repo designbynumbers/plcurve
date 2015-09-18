@@ -264,7 +264,7 @@ int main(int argc,char *argv[]) {
 	
 	/* Compute ending tangents */
 
-	plc_vector tans[4],z;
+	plc_vector tans[4];
 	bool ok;
 
 	tans[0] = plc_mean_tangent(L,0,1,&ok);
@@ -272,7 +272,7 @@ int main(int argc,char *argv[]) {
 	tans[2] = plc_mean_tangent(L,1,1,&ok);
 	tans[3] = plc_mean_tangent(L,1,L->cp[1].nv-1,&ok);
 
-	z = plc_build_vect(0,0,1);
+	//z = plc_build_vect(0,0,1);
 	
 	double taus[2],tavg;
 
@@ -289,14 +289,12 @@ int main(int argc,char *argv[]) {
 	}
 
 
-	double tau, theta;  /* tau = sin theta */
+	double tau;  /* tau = sin theta */
 
 	tau = tavg;
 
 	printf("%s:tau %g ",
 	       knotfiles->filename[filecnt], tau);
-
-	theta = asin(tau);
 
 	/* 3. Compute the inradius. */
 

@@ -163,7 +163,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix *A, plCurve *L)
 {
   int cp,afterAcp;
   int vt,afterAvt;
-  plc_vector afterA,nearest;
+  plc_vector afterA;
   bool *used;
 
   struct plc_nearest_vertex_pc_data *pc_data = NULL;
@@ -184,7 +184,7 @@ plc_symmetry *plc_build_symmetry(plc_matrix *A, plCurve *L)
     for(vt=0;vt<L->cp[cp].nv;vt++) {
 
       afterA = plc_matrix_vector_multiply(A,L->cp[cp].vt[vt]);
-      nearest = plc_nearest_vertex(afterA,L,&afterAcp,&afterAvt,&pc_data,NULL);
+      plc_nearest_vertex(afterA,L,&afterAcp,&afterAvt,&pc_data,NULL);
       
       build->target[cp][vt].cp = afterAcp;
       build->target[cp][vt].vt = afterAvt;

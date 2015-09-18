@@ -502,12 +502,11 @@ double plc_tetrahedron_inradius(plc_vector A,plc_vector B,plc_vector C,plc_vecto
    vectors a, b, c. */
 {
   double inradius;
-  plc_vector a,b,c,o;
+  plc_vector a,b,c;
 
   a = plc_vect_diff(A,D);
   b = plc_vect_diff(B,D);
   c = plc_vect_diff(C,D);
-  o = plc_vect_diff(D,D);
   
   double V;
   

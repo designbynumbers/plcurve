@@ -1480,10 +1480,10 @@ pd_iso_t **pdint_build_isos(pd_code_t *pdA,pd_code_t *pdB,
   pd_idx_t i;  
   for(i=0;i<PD_HASHSIZE;i++) { if (pdA->hash[i] != pdB->hash[i]) { return NULL; } }
 
-  pd_idx_t ncross,nedges,ncomps,nfaces;
+  pd_idx_t ncomps,nfaces;
 
-  if (pdA->ncross != pdB->ncross) { return NULL; } else {ncross = pdA->ncross;}
-  if (pdA->nedges != pdB->nedges) { return NULL; } else {nedges = pdA->nedges;}
+  if (pdA->ncross != pdB->ncross) { return NULL; } 
+  if (pdA->nedges != pdB->nedges) { return NULL; } 
   if (pdA->ncomps != pdB->ncomps) { return NULL; } else {ncomps = pdA->ncomps;}
   if (pdA->nfaces != pdB->nfaces) { return NULL; } else {nfaces = pdA->nfaces;}
   
@@ -2499,10 +2499,10 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
   pd_idx_t i;  
   for(i=0;i<PD_HASHSIZE;i++) { if (pdA->hash[i] != pdB->hash[i]) { return NULL; } }
 
-  pd_idx_t ncross,nedges,ncomps,nfaces;
+  pd_idx_t ncross,ncomps,nfaces;
 
   if (pdA->ncross != pdB->ncross) { return NULL; } else {ncross = pdA->ncross;}
-  if (pdA->nedges != pdB->nedges) { return NULL; } else {nedges = pdA->nedges;}
+  if (pdA->nedges != pdB->nedges) { return NULL; } 
   if (pdA->ncomps != pdB->ncomps) { return NULL; } else {ncomps = pdA->ncomps;}
   if (pdA->nfaces != pdB->nfaces) { return NULL; } else {nfaces = pdA->nfaces;}
   

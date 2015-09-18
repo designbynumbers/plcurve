@@ -1340,7 +1340,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
   int        attempt_number;
   bool       pd_created = false;
   plCurve    *workingL = plc_copy(L);
-  pd_code_t  *pd;
+  pd_code_t  *pd = NULL;
   plc_vector new_axis = {{0,0,1}};
 
   for(attempt_number=0;attempt_number < 3 && !pd_created;attempt_number++) {

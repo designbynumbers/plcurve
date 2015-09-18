@@ -1680,7 +1680,7 @@ pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3])
 
   /* Now we make sure that everybody is on the same component. */
 
-  pd_idx_t comp[3], pos[3],common_comp;
+  pd_idx_t comp[3], pos[3];
   pd_idx_t i,j;
 
   for(i=0;i<3;i++) { 
@@ -1697,9 +1697,7 @@ pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3])
 
   }
 
-  common_comp = comp[0];
-
-   /* Now we check for the existence of the faces f[0] and f[1] defining the clump.
+  /* Now we check for the existence of the faces f[0] and f[1] defining the clump.
       By definition, f[0] is going to be the face on which e[0] and e[1] occur positively
       and f[1] is going to be the face on which they occur negatively. 
 
@@ -1732,6 +1730,12 @@ pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3])
 	     pd,e[0],e[1],negface[0],negface[1]);
     exit(1);
   }
+
+  if (f[0] == f[1]) {
+    pd_error(SRCLOC,"faces f[0] = %FACE and f[1] = %FACE defining a clump are the same face. %PD is corrupted",
+	     pd,f[0],f[1]);
+  }
+    
    
   pd_code_t *out;
   out = pd_code_new(pd->ncross);
