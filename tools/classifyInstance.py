@@ -30,7 +30,8 @@ if __name__ == "__main__":
         'piecename',   
         help='.pdstor file to classify')    # by default this is a string argument; it should be
                                             # in the form "/inputs/<n>/<n>b-ddddd.pdstor", which
-                                            # is the location of the file in the s3 bucket.                                        
+                                            # is the location of the file in the s3 bucket.
+
     args = parser.parse_args()
 
     # task 0 is to check that the input matches this form.
@@ -195,7 +196,4 @@ if __name__ == "__main__":
     # task 6 is garbage collection (delete the temp directory)
 
     shutil.rmtree(tempdir)
-    
-    # task 7, if we were called with the --shutdown-on-completion flag, is to kill this machine
-    
     
