@@ -567,13 +567,15 @@ extern "C" {
   /* Finds the first element of pdstor, and initializes the internal
      state of pdstor. Note that this internal state will go stale if an
      insert or delete operation is performed, and so it's reset if we do
-     an insert. */
+     an insert. This returns a new-memory copy of the element in the 
+     pdstor, which is the caller's responsibility to free.*/
 
   pd_code_t *pd_stor_nextelt(pd_stor_t *pdstor);
   /* Can be repeatedly called until it returns NULL to iterate over a
      pdstor. As with pdstor_firstelt, this depends on an internal state
      which goes stale and is reset whenever an insert or delete
-     operation is performed. */
+     operation is performed. This returns a new-memory copy of the element
+     in the pdstor, which is the caller's responsibility to free.*/
 
   void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor);
 
