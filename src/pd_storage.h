@@ -37,6 +37,9 @@
 
 pd_stor_t      *pd_new_pdstor();
 void            pd_free_pdstor(pd_stor_t **pdstor);
+/* This is the only way to delete elements from a pdstor;
+   the accessor functions below return pointers to copies
+   of elements in the pdstor. */
 
 unsigned int    pd_stor_nelts(pd_stor_t *pdstor);
 
@@ -54,34 +57,51 @@ void            pd_copyinto_cass(pd_code_t *pd);
 
 /* Access Functions.
 
-   There are three ways to access elements in a pdstor. First, we can simply loop over
-   everything. This is mostly useful for writing to disk or freeing the entries, but
-   it's needed for those purposes.
+   There are three ways to access elements in a pdstor. First, we can
+   simply loop over everything. This is mostly useful for writing to
+   disk or freeing the entries, but it's needed for those purposes.
 
-   Next, we can search by isomorphism type. This returns both a pointer to the entry
-   in the pdstor (if found) and a list of explicit isomorphisms between the given pd_code and
-   the entry in the pdstor.
+   Next, we can search by isomorphism type. This returns both a
+   pointer to the entry in the pdstor (if found) and a list of
+   explicit isomorphisms between the given pd_code and the entry in
+   the pdstor.
 
-   Last, we can search by hash and uid. This method simply locates a particular uid in the
-   structure (if we need to refer back to it later).
+   Last, we can search by hash and uid. This method simply locates a
+   particular uid in the structure (if we need to refer back to it
+   later).
 */
 
 pd_code_t      *pd_stor_firstelt(pd_stor_t *pdstor);
 
-/* Finds the first element of pdstor, and initializes the internal state of pdstor */
-/* Note that this internal state will go stale if an insert or delete operation is performed,
-   and so it's reset if we do an insert. */
+/* Finds the first element of pdstor, and initializes the internal
+   state of pdstor Note that this internal state will go stale if an
+   insert or delete operation is performed, and so it's reset if we do
+   an insert.
+
+   This returns a new-memory copy of the element in the pdstor
+   (actually, what's stored in the pdstor is a compressed
+   representation of the element). It's the caller's responsibility to
+   free the pd_code_t after use.
+*/
 
 pd_code_t      *pd_stor_nextelt(pd_stor_t *pdstor);
-/* Can be repeatedly called until it returns NULL to iterate over a pdstor */
-/* As with pdstor_firstelt, this depends on an internal state which goes stale and
-   is reset whenever an insert or delete operation is performed. */
+/* Can be repeatedly called until it returns NULL to iterate over a
+   pdstor. As with pdstor_firstelt, this depends on an internal state
+   which goes stale and is reset whenever an insert or delete
+   operation is performed.
+
+   As before, this returns a new-memory copy of the element in the
+   pdstor (actually, what's stored in the pdstor is a compressed
+   representation of the element). It's the caller's responsibility to
+   free the pd_code_t after use.
+*/
 
 pd_code_t      *pd_search_pdstor_by_isomorphism(pd_stor_t *pdstor,pd_code_t *pd,
 						pd_iso_t ***isos,unsigned int *nisos);
-/* Return a pointer to the actual stored copy of the unique pd in pdstor which is
-   isomorphic to the given pd, along with a buffer of all the isomorphisms from pd
-   to the stored copy. Returns NULL if we can't find such a pd in storage. */
+/* Return a pointer to the actual stored copy of the unique pd in
+   pdstor which is isomorphic to the given pd, along with a buffer of
+   all the isomorphisms from pd to the stored copy. Returns NULL if we
+   can't find such a pd in storage. */
 
 pd_code_t      *pd_search_pdstor_by_hash_uid(pd_stor_t *pdstor,char *hash, pd_uid_t uid);
 
