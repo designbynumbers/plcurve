@@ -5,15 +5,15 @@
 #include <stdio.h>
 
 int main(int argc, char** argv) {
-    pd_code_t *K, *L;
+  pd_code_t *K;// *L;
     pd_code_t **results;
-    pd_code_t ***neighbors;
-    int nn = 0;
-    int *nd;
-    int ndias = 0;
+    //pd_code_t ***neighbors;
+    // int nn = 0;
+    //int *nd;
+    //int ndias = 0;
     int i =0;
     int j =0;
-    FILE *f;
+    //FILE *f;
     //f = fopen("r2_testG_before.pdstor", "r");
     //L = pd_read(f);
     //fclose(f);

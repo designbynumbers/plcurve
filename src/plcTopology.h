@@ -996,22 +996,23 @@ extern "C" {
 
   pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L);
 
+  /************************ Topological Invariants ********************/
+
   /* Compute the HOMFLY polynomial of a pd_code (returned as string) */
 
   char *pd_homfly( pd_code_t *pdC);
   char *pd_homfly_timeout( pd_code_t *pdC, int timeout);
 
+  /* Compute the linking number of two components of a plcurve. */
+  /* (Requires that crossing signs be set; otherwise, fails out.) */
+
+  int pd_linking_number(pd_code_t *L,pd_idx_t c1,pd_idx_t c2);
+
   /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
 
   char *plc_homfly( gsl_rng *rng, plCurve *L);
 
-  /************************ plCurve Topology Library ********************/
-
-  /* This contains some functionality designed to work with plCurves as knots,
-     including converting them to an abstract ``crossing'' representation,
-     computing their HOMFLY polynomials (using lmpoly) and identifying their
-     knot types (by HOMFLY). */
-
+  
 #define MAXPRIMEFACTORS 10
 #define MAXHOMFLY       1024
 
