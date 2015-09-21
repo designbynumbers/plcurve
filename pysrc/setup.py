@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 from Cython.Distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy
