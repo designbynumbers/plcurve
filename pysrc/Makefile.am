@@ -41,7 +41,11 @@ clean-local:
 	rm -r built_doc 2> /dev/null || true
 
 install-exec-local:
-	$(PYTHON) $(SETUP_PY) install --prefix=$(prefix)
+	if test -z "$$EC2_HOME"; then \
+	$(PYTHON) $(SETUP_PY) install --prefix=$(prefix); \
+	else \
+	$(PYTHON) $(SETUP_PY) install; \
+	fi;
 
 check-local:
 	pushd $(srcdir)/test ; $(PYTHON) suite.py ; popd
