@@ -57,3 +57,10 @@ INSTALL
 *\.blg
 *\.log
 auto/
+*\.toc
+*eps-converted-to\.pdf
+*\.ambig\.pdstor
+*\.counts\.tsv
+*\.nav
+*\.pdf\.orig
+*\.snm

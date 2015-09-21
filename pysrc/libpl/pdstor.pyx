@@ -583,13 +583,11 @@ class PDStoreExpander(object):
                                     orient_all=orient_all, thin=thin, homflys=homflys)
         f.close()
 
-"""
-Going to use C pdstorage
-class PDStorage:
+class PyPDStorage:
     def __init__(self, isotopy=False):
-        """PDStorage(isotopy=False)
+        """PyPDStorage(isotopy=False)
 
-        Create a new PDStorage object. If isotopy is True,
+        Create a new PyPDStorage object. If isotopy is True,
         then equivalence among diagrams will be diagram isotopy,
         rather than diagram isomorphism."""
 
@@ -605,9 +603,9 @@ class PDStorage:
 
     @classmethod
     def read(cls, f, read_header=False, isotopy=False):
-        """read(isotopy=False) -> new PDStorage
+        """read(isotopy=False) -> new PyPDStorage
 
-        Read a PDStorage object from a file. If isotopy is True,
+        Read a PyPDStorage object from a file. If isotopy is True,
         then equivalence among diagrams will be diagram isotopy,
         rather than diagram isomorphism."""
 
@@ -617,7 +615,7 @@ class PDStorage:
         return ret
 
     def __le__(self, other):
-        if not isinstance(other, PDStorage):
+        if not isinstance(other, PyPDStorage):
             return False
 
         if len(self.hashes) > len(other.hashes):
@@ -651,7 +649,7 @@ class PDStorage:
         return not self == other
 
     def __sub__(self, other):
-        if not isinstance(other, PDStorage):
+        if not isinstance(other, PyPDStorage):
             raise TypeError
 
         pdstor = self.__class__(isotopic=self.isotopic)
@@ -665,7 +663,6 @@ class PDStorage:
                                  (not self.isotopic and subpd.isomorphic(pdcode))]
             pdstor.hashes[hash_] = newbucket
         return pdstor
-"""
 
 class PDDatabase(PDStoreExpander):
     def save(self, fname):

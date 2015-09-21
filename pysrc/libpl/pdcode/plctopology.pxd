@@ -14,7 +14,7 @@ cdef extern from "plcTopology.h":
         PD_NOT_OK = 1
         PD_BAD_FORMAT = 2
         PD_EOF = 3
-    cdef enum:
+    ctypedef enum pd_equivalence_t:
         NONE = 0
         ISOMORPHISM = 1
         DIAGRAM_ISOTOPY = 2

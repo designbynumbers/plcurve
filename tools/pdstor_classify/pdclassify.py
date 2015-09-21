@@ -8,6 +8,7 @@ import itertools
 
 from libpl.pdcode import *
 from libpl.pdstor import *
+from libpl.pdcode.pdstor import *
 from libpl import data
 
 MAX_CROSS = 10
@@ -146,60 +147,60 @@ class PDStorClassifier(object):
         print
         n_dia_total = 0
         i = 0
-        for shadow in PlanarDiagram.read_all(pdstor_f, read_header=read_header):
-            i += 1
-            if (i-1)%100 == 0:
-                print "Now classifying shadow %d"%(i-1)
-            if shadow.ncomps > 1:
-                continue
-
-            iso_classes = defaultdict(set)
-            for comp_pd, cmask in PDStoreExpander.component_combinations(
-                    shadow, amortize=True, thin=False):
-                for pd, xmask in PDStoreExpander.crossing_combinations(comp_pd):
-                    sign_count = sum(x*2-1 for x in xmask)
-                    if not (sign_count in iso_classes and pd in iso_classes[sign_count]):
-                        # Do classify magic
-                        homfly = pd.homfly()
-                        if (homfly in self.ambiguous_homflys and
-                            pd.ncross >= self.ambiguous_homflys[homfly]):
-                            ambiguous[homfly].append(pd)
-                        elif homfly == P_unk:
-                            kt_counts["Unknot[]"] += 1
-                        else:
-                            kts = self.kt_by_homfly[homfly]
-                            #print kts
-                            if len(kts) == 1:
-                                kt, = kts
-                            else:
-                                kts_nx = [k.n_cross for k in kts]
-                                kt = kts[kts_nx.index(min(kts_nx))]
-
-                            #print kt
-                            kt_counts[str(kt)] += 1
-
-                        iso_classes[sign_count].add(pd)
-
-            new_n = sum(len(sign_iso) for sign_iso in iso_classes.itervalues())
-            n_dia_total += new_n
-            #print new_n
-        print "~~~"
-        print n_dia_total
-        print kt_counts
-        print ambiguous
 
         fname_prefix = os.path.basename(pdstor_f.name)
+        with open("%s.ambig.pdstor"%fname_prefix, "w") as ambig_out:
+            PDStorage.start_incremental(ambig_out)
+            n_amb_hash, n_amb_elt = 0, 0
 
-        with open("%s.ambig.pdstor"%fname_prefix, "wb") as ambig_out:
-            for pd in itertools.chain(*ambiguous.values()):
-                pd.write(ambig_out)
-                ambig_out.write("\n")
+            for shadow in PlanarDiagram.read_all(pdstor_f, read_header=read_header):
+                i += 1
+                if (i-1)%100 == 0:
+                    print "Now classifying shadow %d"%(i-1)
+                if shadow.ncomps > 1:
+                    continue
 
-        with open("%s.counts.tsv"%fname_prefix, "wb") as counts_out:
-            countwriter = csv.writer(counts_out, delimiter="\t")
-            for row in kt_counts.iteritems():
-                countwriter.writerow(row)
+                iso_classes = defaultdict(set)
+                for comp_pd, cmask in PDStoreExpander.component_combinations(
+                        shadow, amortize=True, thin=False):
+                    for pd, xmask in PDStoreExpander.crossing_combinations(comp_pd):
+                        sign_count = sum(x*2-1 for x in xmask)
+                        if not (sign_count in iso_classes and pd in iso_classes[sign_count]):
+                            # Do classify magic
+                            homfly = pd.homfly()
+                            if (homfly in self.ambiguous_homflys and
+                                pd.ncross >= self.ambiguous_homflys[homfly]):
+                                ambiguous[homfly].append(pd)
+                                ambig_stor = PDStorage()
+                                ambig_stor.add(pd)
+                                n_amb_hash, n_amb_elt = ambig_stor.add_to_incremental(
+                                    ambig_out, n_amb_hash, n_amb_elt)
 
+                            elif homfly == P_unk:
+                                kt_counts["Unknot[]"] += 1
+                            else:
+                                kts = self.kt_by_homfly[homfly]
+                                #print kts
+                                if len(kts) == 1:
+                                    kt, = kts
+                                else:
+                                    kts_nx = [k.n_cross for k in kts]
+                                    kt = kts[kts_nx.index(min(kts_nx))]
+
+                                #print kt
+                                kt_counts[str(kt)] += 1
+
+                            iso_classes[sign_count].add(pd)
+
+                new_n = sum(len(sign_iso) for sign_iso in iso_classes.itervalues())
+                n_dia_total += new_n
+
+            with open("%s.counts.tsv"%fname_prefix, "wb") as counts_out:
+                countwriter = csv.writer(counts_out, delimiter="\t")
+                for row in kt_counts.iteritems():
+                    countwriter.writerow(row)
+
+            PDStorage.finish_incremental(ambig_out, n_amb_hash, n_amb_elt)
 
 if __name__ == "__main__":
     import argparse
