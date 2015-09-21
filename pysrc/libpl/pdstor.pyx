@@ -583,6 +583,8 @@ class PDStoreExpander(object):
                                     orient_all=orient_all, thin=thin, homflys=homflys)
         f.close()
 
+"""
+Going to use C pdstorage
 class PDStorage:
     def __init__(self, isotopy=False):
         """PDStorage(isotopy=False)
@@ -663,6 +665,7 @@ class PDStorage:
                                  (not self.isotopic and subpd.isomorphic(pdcode))]
             pdstor.hashes[hash_] = newbucket
         return pdstor
+"""
 
 class PDDatabase(PDStoreExpander):
     def save(self, fname):
