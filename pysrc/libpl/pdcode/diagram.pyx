@@ -822,6 +822,17 @@ cdef class PlanarDiagram:
         else:
             return HOMFLYPolynomial(homflybytes)
 
+    def linking_number(self, unsigned int c1=0, unsigned int c2=0):
+        """linking_number([pd_idx_t c1, [pd_idx_t c2]]) -> int
+
+        Return the linking number of the two numbered components. If no
+        arguments are supplied, checks the first component with
+        itself. If one argument is supplied, the other defaults to the
+        first component.
+
+        """
+        return pd_linking_number(self.p, c1, c2)
+
     def unique_code(self):
         """unique_code() -> str
 
