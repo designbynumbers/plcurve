@@ -1,1 +1,1 @@
-bin_SCRIPTS = pdclassify
+bin_SCRIPTS = pdclassify.py

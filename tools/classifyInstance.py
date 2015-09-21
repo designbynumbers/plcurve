@@ -83,7 +83,7 @@ if __name__ == "__main__":
     print "cI: running pdclassify on " + inputpd + "...",
 
     try:
-        classifyOutput = subprocess.check_output("pdclassify " + inputpd,
+        classifyOutput = subprocess.check_output("pdclassify.py " + inputpd,
                                                  stderr=subprocess.STDOUT,
                                                  shell=True)
     except subprocess.CalledProcessError as e:

@@ -796,7 +796,7 @@ void pd_regenerate_tangle_err(pd_code_t *pd, pd_tangle_t *t, int *err)
 	   try to find this particular edge j. Since edges are supposed
 	   to be unique, this should not happen more than once!*/
 
-	pd_idx_t si,nfound=0,tpos;
+	pd_idx_t si,nfound=0,tpos = PD_UNSET_IDX;
 
 	for(si=0;si<t->nedges;si++) {
 	  if (t->edge[si] == j) {
@@ -819,6 +819,8 @@ void pd_regenerate_tangle_err(pd_code_t *pd, pd_tangle_t *t, int *err)
 
 	if (nfound!=0) {
 
+	  assert(tpos != PD_UNSET_IDX);
+	  
 	  if (t->edge_bdy_or[tpos] == out) { /* This is the end */
 
 	    found_end = true;
