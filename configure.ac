@@ -72,6 +72,8 @@ AC_SEARCH_LIBS([sqrt],[m])
 AC_SEARCH_LIBS([cblas_dgemm],[gslcblas])
 AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x and higher require gsl (for random number generation)]),[-lgslcblas])
 
+AM_GNU_GETTEXT()
+
 #if test "x${have_argtable2}" = xtrue; then
 #   AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
 #fi
