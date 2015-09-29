@@ -147,7 +147,7 @@ AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
                   time.h sys/times.h sys/types.h fcntl.h signal.h complex.h \
 		  gsl/gsl_rng.h gsl/gsl_randist.h gsl/gsl_combination.h gsl/gsl_permutation.h \
-		  libintl.h limits.h strings.h stdint.h ])
+		  libintl.h limits.h strings.h stdint.h libintl.h strings.h ])
 
 
 # Signal to AUTOMAKE if we have argtable2
@@ -158,13 +158,26 @@ AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
 AC_C_CONST
 AC_TYPE_MODE_T
 AC_TYPE_SIZE_T
+AC_STRUCT_TM
 
 # Checks for library functions.
 #AC_FUNC_MALLOC
 #AC_FUNC_REALLOC
 AC_FUNC_STRTOD
+AC_FUNC_STRFTIME
+
 AC_CHECK_FUNCS([strcasestr mkstemp strcasecmp time floor sqrt ceil srandomdev sranddev random srandom])
 AC_CHECK_FUNCS([bzero memset mkdir regcomp strchr strcspn strerror strrchr strstr strtol getline fstat64 memcpy])
+
+AC_CHECK_FUNCS([bzero strchr strcspn strrchr strtol])
+AC_CHECK_FUNC(getopt_long, SYS_GETOPTLONG=1, SYS_GETOPTLONG=0)
+AC_CHECK_FUNC(regcomp,     SYS_REGEX=1,      SYS_REGEX=0)
+AC_CHECK_FUNC(strptime,    SYS_STRPTIME=1,   SYS_STRPTIME=0)
+
+# Define automake conditionals
+AM_CONDITIONAL(USE_SYS_GETOPTLONG, test "$SYS_GETOPTLONG" = "1")
+AM_CONDITIONAL(USE_ARGREX,         test "$SYS_REGEX" = "1")
+AM_CONDITIONAL(USE_ARGDATE,        test "$SYS_STRPTIME" = "1")
 
 # Can we inline and/or const?
 AC_C_INLINE
