@@ -2313,14 +2313,14 @@ bool pd_edges_ok(pd_code_t *pd)
       if (pd->edge[hc->edge[nextpos]].tail != e->head ||
 	  pd->edge[hc->edge[nextpos]].tailpos != nextpos) {
 
-	return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n",pd,edge,hc->edge[nextpos]);
+	return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n in pd %PD",pd,edge,hc->edge[nextpos]);
 
       }
 
       if (pd->edge[tc->edge[prevpos]].head != e->tail ||
 	  pd->edge[tc->edge[prevpos]].headpos != prevpos) {
 
-	return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n",pd,edge,tc->edge[prevpos]);
+	return pd_error(SRCLOC,"%EDGE is supposed to be followed by %EDGE at %CROSS, but orientations disagree\n in pd %PD",pd,edge,tc->edge[prevpos]);
 
       }
 

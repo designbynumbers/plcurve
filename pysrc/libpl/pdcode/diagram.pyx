@@ -661,6 +661,9 @@ cdef class PlanarDiagram:
             raise Exception("Error in R1 loopdeletion")
         return ret
 
+    def R1_loop_addition(self, pd_idx_t f, pd_idx_t e_on_f):
+        return PlanarDiagram_wrap(pd_R1_loop_addition(self.p, f, e_on_f))
+
     def R2_bigon_elimination(self, Face f):
         """R2_bigon_elimination(crossing_or_index, crossing_or_index)
         -> (Upper pdcode, [Lower pdcode])

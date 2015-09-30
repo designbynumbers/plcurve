@@ -663,6 +663,60 @@ pd_code_t *pd_R1_loopdeletion(pd_code_t *pd,pd_idx_t cr)
 
 }
 
+pd_code_t *pd_R1_loop_addition(pd_code_t *pd,
+                               pd_idx_t f, pd_idx_t e_on_f)
+{
+    if (pd->ncross == 0) {
+        return pd_build_unknot(1);
+    }
+
+    pd_code_t *ret = pd_copy_newsize(pd, pd->ncross+2);
+    pd_idx_t c = ret->ncross++;
+    pd_idx_t e = pd->face[f].edge[e_on_f];
+    pd_or_t eo = pd->face[f].or[e_on_f];
+    pd_idx_t ea, eb;
+
+    ea = ret->nedges++; eb = ret->nedges++;
+
+    if (eo == PD_POS_ORIENTATION) {
+        ret->cross[c].edge[0] = ea; ret->cross[c].edge[1] = eb;
+        ret->cross[c].edge[2] = e; ret->cross[c].edge[3] = e;
+
+        ret->edge[ea].head = c; ret->edge[ea].headpos = 0;
+        ret->edge[eb].tail = c; ret->edge[eb].tailpos = 1;
+
+        ret->edge[e].tail = c; ret->edge[e].tailpos = 2;
+        ret->edge[e].head = c; ret->edge[e].headpos = 3;
+
+    } else if (eo == PD_NEG_ORIENTATION) {
+        ret->cross[c].edge[0] = eb; ret->cross[c].edge[1] = ea;
+        ret->cross[c].edge[2] = e; ret->cross[c].edge[3] = e;
+
+        ret->edge[ea].head = c; ret->edge[ea].headpos = 1;
+        ret->edge[eb].tail = c; ret->edge[eb].tailpos = 0;
+
+        ret->edge[e].tail = c; ret->edge[e].tailpos = 3;
+        ret->edge[e].head = c; ret->edge[e].headpos = 2;
+    }
+    ret->cross[c].sign = PD_UNSET_ORIENTATION;
+
+    ret->edge[ea].tail = pd->edge[e].tail;
+    ret->edge[ea].tailpos = pd->edge[e].tailpos;
+    ret->cross[pd->edge[e].tail].edge[pd->edge[e].tailpos] = ea;
+
+    ret->edge[eb].head = pd->edge[e].head;
+    ret->edge[eb].headpos = pd->edge[e].headpos;
+    ret->cross[pd->edge[e].head].edge[pd->edge[e].headpos] = eb;
+
+    pd_regenerate_crossings(ret);
+    pd_regenerate_comps(ret);
+    pd_regenerate_faces(ret);
+    pd_regenerate_hash(ret);
+
+    return ret;
+
+}
+
 
 void pd_R2_bigon_elimination(pd_code_t *pd,pd_idx_t cr[2],
 			     pd_idx_t  *noutpd,
@@ -1828,7 +1882,7 @@ pd_code_t *pd_R2_bigon_addition(pd_code_t *pd, pd_idx_t f,
 
         ret->cross[c1].edge[0] = e2;  ret->cross[c1].edge[2] = e2b;
         ret->edge[e2].head  = c1; ret->edge[e2].headpos  = 0;
-        ret->edge[e2a].tail = c1; ret->edge[e2a].tailpos = 2;
+        ret->edge[e2b].tail = c1; ret->edge[e2b].tailpos = 2;
 
         ret->cross[c1].edge[1] = e1; ret->cross[c1].edge[3] = e1b;
         ret->edge[e1].head  = c1; ret->edge[e1].headpos  = 1;

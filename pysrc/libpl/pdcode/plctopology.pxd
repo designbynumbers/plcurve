@@ -204,6 +204,9 @@ cdef extern from "plcTopology.h":
 
     # Knot-isomorphic modifications
     pd_code_t* pd_R1_loopdeletion(pd_code_t *pd, pd_idx_t cr)
+    pd_code_t *pd_R1_loop_addition(pd_code_t *pd,
+                               pd_idx_t f, pd_idx_t e_on_f)
+
     void pd_R2_bigon_elimination(pd_code_t *pd,
                                  pd_idx_t cr[2],
                                  pd_idx_t *outpd,
