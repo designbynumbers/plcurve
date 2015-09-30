@@ -179,6 +179,7 @@ cdef extern from "plcTopology.h":
 
     bool pd_diagram_isotopic(pd_code_t *pdA,pd_code_t *pdB)
     bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB)
+    bool pd_map_isomorphic(pd_code_t *pdA,pd_code_t *pdB)
     bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB)
 
     pd_code_t *pd_copy(pd_code_t *pd)

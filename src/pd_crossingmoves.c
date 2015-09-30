@@ -1951,9 +1951,10 @@ pd_code_t *pd_R3_triangle_flip(pd_code_t *pd, pd_idx_t f)
         ret->cross[pd->edge[eb[i]].tail].edge[pd->edge[eb[i]].tailpos] = e[i];
     }
 
-    pd_regenerate_crossings(pd);
-    pd_regenerate_comps(pd);
-    pd_regenerate_faces(pd);
+    pd_regenerate_crossings(ret);
+    pd_regenerate_comps(ret);
+    pd_regenerate_faces(ret);
+    pd_regenerate_hash(ret);
     return ret;
 
 

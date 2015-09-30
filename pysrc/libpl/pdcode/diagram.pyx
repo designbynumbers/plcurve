@@ -16,7 +16,7 @@ import weakref
 
 from .pdisomorphism cimport (
     pd_iso_t, pd_build_diagram_isotopies,
-    pd_build_isos)
+    pd_build_isos, pd_build_map_isomorphisms)
 from .isomorphism cimport PlanarIsomorphism
 from .pd_invariants cimport *
 
@@ -249,6 +249,14 @@ cdef class PlanarDiagram:
         """
         return pd_diagram_isotopic(self.p, other_pd.p)
 
+    def map_isomorphic(self, PlanarDiagram other_pd):
+        """map_isomorphic(PlanarDiagram other_pd) -> bool
+
+        Returns whether or not this pdcode is S2-oriented-isotopic to the
+        input pdcode ``other_pd``.
+        """
+        return pd_map_isomorphic(self.p, other_pd.p)
+
     def build_isotopies(self, PlanarDiagram other_pd):
         cdef unsigned int nisos
         cdef pd_iso_t **isos
@@ -259,6 +267,18 @@ cdef class PlanarDiagram:
             (<PlanarIsomorphism>ret[i]).p = isos[i]
 
         return ret
+
+    def build_map_isomorphisms(self, PlanarDiagram other_pd):
+        cdef unsigned int nisos
+        cdef pd_iso_t **isos
+
+        isos = pd_build_map_isomorphisms(self.p, other_pd.p, &nisos)
+        ret = tuple(PlanarIsomorphism() for _ in range(nisos))
+        for i in range(nisos):
+            (<PlanarIsomorphism>ret[i]).p = isos[i]
+
+        return ret
+
 
     def build_autoisotopies(self):
         return self.build_isotopies(self)

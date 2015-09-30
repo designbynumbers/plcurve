@@ -288,4 +288,7 @@ bool pd_diagram_isotopic(pd_code_t *A, pd_code_t *B);
    or unlabelled equivalence) using pd_isomorphic.
 */
 
+bool pd_map_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
+pd_iso_t **pd_build_map_isomorphisms(pd_code_t *pdA, pd_code_t *pdB, unsigned int *nisos);
+
 #endif

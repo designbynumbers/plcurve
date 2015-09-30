@@ -522,6 +522,8 @@ extern "C" {
      This is the strongest kind of diagram equivalence.
   */
 
+    bool pd_map_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
+
   bool pd_isomorphic(pd_code_t *pdA,pd_code_t *pdB);
   /* Detect whether two pd codes are correspond to the same polyhedral
      decomposition of the 3-sphere (or are mirror images of each

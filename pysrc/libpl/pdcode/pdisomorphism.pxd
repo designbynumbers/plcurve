@@ -49,3 +49,5 @@ cdef extern from "pd_isomorphisms.h":
         pd_code_t *pdA, pd_code_t *pdB, unsigned int *nisos)
     cdef pd_iso_t **pd_build_isos(
         pd_code_t *pdA, pd_code_t *pdB, unsigned int *nisos)
+    cdef pd_iso_t **pd_build_map_isomorphisms(
+        pd_code_t *pdA, pd_code_t *pdB, unsigned int *nisos)
