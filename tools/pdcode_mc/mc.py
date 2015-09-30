@@ -2,10 +2,14 @@ import random
 
 from libpl.pdcode import *
 
-def shadow_r1_plus(pd, edge, face_pm):
-    return pd.R1_loop_addition(*edge.face_index_pos()[face_pm])
+def shadow_r1_plus(pd, edge, face_pm, z):
+    alpha = random.random()
+    if alpha < z:
+        return pd.R1_loop_addition(*edge.face_index_pos()[face_pm])
+    else:
+        return pd
 
-def shadow_r1_minus(pd, edge, face_pm):
+def shadow_r1_minus(pd, edge, face_pm, z):
     if pd.ncross < 2:
         return pd
 
@@ -17,7 +21,11 @@ def shadow_r1_minus(pd, edge, face_pm):
 
     return pd
 
-def shadow_r2a_plus(pd, edge, face_pm):
+def shadow_r2a_plus(pd, edge, face_pm, z):
+    alpha = random.random()
+    if alpha > z*z:
+        return pd
+
     face, edge_1p = edge.face_pos()[face_pm]
     if face.nedges < 3:
         return pd
@@ -25,22 +33,22 @@ def shadow_r2a_plus(pd, edge, face_pm):
     face_delta = random.randint(1, len(face)-1)
     edge_2p = (edge_1p+face_delta)%len(face)
 
-    print face, face.signs
-    print edge_1p, edge_2p
+    #print face, face.signs
+    #print edge_1p, edge_2p
     return pd.R2_bigon_addition(face.index, edge_1p, edge_2p, 2)
 
-def shadow_r2a_minus(pd, edge, face_pm):
+def shadow_r2a_minus(pd, edge, face_pm, z):
     if pd.ncross < 3:
         return pd
     face = edge.face_pos()[face_pm][0]
 
-    print face, face.signs
+    #print face, face.signs
     if len(face.vertices) == 2:
         return pd.R2_bigon_elimination_vertices(*face.vertices)[0]
 
     return pd
 
-def shadow_r3(pd, edge, face_pm):
+def shadow_r3(pd, edge, face_pm, z):
     return pd
 
     face = edge.face_pos()[face_pm][0]
@@ -68,7 +76,7 @@ def shadow_r3(pd, edge, face_pm):
         c = tail_x.edges[(tail_p+3)%4]
 
 
-        print
+        #print
     else:
         return pd
 
@@ -96,8 +104,8 @@ class PDMarkovState(object):
         face_pm = random.choice((0,1))
         p = random.random()
         transition = random.choice(self.transitions)
-        print transition
+        #print transition
 
-        self._diagram = transition(self._diagram, edge, face_pm)
+        self._diagram = transition(self._diagram, edge, face_pm, z)
 
 state = PDMarkovState()
