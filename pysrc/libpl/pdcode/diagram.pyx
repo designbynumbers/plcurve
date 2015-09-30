@@ -689,6 +689,9 @@ cdef class PlanarDiagram:
             raise Exception("Error on R2 bigonelimination")
         return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
 
+    def R3_triangle_flip(self, pd_idx_t f):
+        return PlanarDiagram_wrap(pd_R3_triangle_flip(self.p, f))
+
     def _R3_strand_swap(self, Face f, Edge e):
         # Stub for wrapping C implementation of tangle slide
         cdef pd_idx_t *strand_edges = <pd_idx_t*>malloc(3 * sizeof(pd_idx_t))
@@ -1266,6 +1269,10 @@ cdef class PlanarDiagram:
         newobj.set_all_crossing_signs(uniform_mask)
 
         return newobj
+
+    def randomly_assign_crossings(self):
+        uniform_mask = [random.randint(0,1) for _ in range(self.ncross)]
+        self.set_all_crossing_signs(uniform_mask)
 
     @classmethod
     def from_dt_code(cls, dt_code):

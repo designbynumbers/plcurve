@@ -4,10 +4,10 @@ from libpl.pdcode import *
 
 def shadow_r1_plus(pd, edge, face_pm, z):
     alpha = random.random()
-    if alpha < z:
-        return pd.R1_loop_addition(*edge.face_index_pos()[face_pm])
-    else:
+    if alpha > z:
         return pd
+
+    return pd.R1_loop_addition(*edge.face_index_pos()[face_pm])
 
 def shadow_r1_minus(pd, edge, face_pm, z):
     if pd.ncross < 2:
@@ -27,7 +27,7 @@ def shadow_r2a_plus(pd, edge, face_pm, z):
         return pd
 
     face, edge_1p = edge.face_pos()[face_pm]
-    if face.nedges < 3:
+    if face.nedges < 2:
         return pd
 
     face_delta = random.randint(1, len(face)-1)
@@ -49,39 +49,13 @@ def shadow_r2a_minus(pd, edge, face_pm, z):
     return pd
 
 def shadow_r3(pd, edge, face_pm, z):
-    return pd
-
     face = edge.face_pos()[face_pm][0]
-    if face.nedges != 3:
+    if len(set(face.vertices)) != 3 or face.nedges != 3:
         return pd
 
-    tail_x = edge.prev_crossing()
-    tail_p = edge.tailpos
-    head_x = edge.next_crossing()
-    head_p = edge.headpos
-
-    opp_x, = [x for x in face.get_vertices() if not
-              (x == tail_x or x == head_x)]
-
-    outer_f, outer_p = edge.face_pos()[(face_pm+1)%2]
-
-    if face_pm == PD_POS_ORIENTATION:
-        e = edge.index
-        b = head_x.edges[(head_p+1)%4]
-        a = head_x.edges[(head_p+2)%4]
-        f = head_x.edges[(head_p+3)%4]
-
-        g = tail_x.edges[(tail_p+1)%4]
-        d = tail_x.edges[(tail_p+2)%4]
-        c = tail_x.edges[(tail_p+3)%4]
-
-
-        #print
-    else:
-        return pd
-
-    pd.regenerate()
-    return pd
+    #print repr(pd)
+    #print edge, face, face.nedges
+    return pd.R3_triangle_flip(face.index)
 
 class PDMarkovState(object):
     transitions = (
@@ -109,3 +83,14 @@ class PDMarkovState(object):
         self._diagram = transition(self._diagram, edge, face_pm, z)
 
 state = PDMarkovState()
+mix_n = 400
+for i in range(40000):
+    if not state._diagram.is_ok():
+        break
+    print state._diagram.ncross
+    state.step(z=0.17)
+    state._diagram.regenerate()
+    knot = state._diagram.copy()
+    knot.randomly_assign_crossings()
+    print knot.homfly()
+    #print repr(state._diagram)

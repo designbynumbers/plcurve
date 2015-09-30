@@ -1917,6 +1917,50 @@ pd_code_t *pd_R2_bigon_addition(pd_code_t *pd, pd_idx_t f,
     return ret;
 }
 
+pd_code_t *pd_R3_triangle_flip(pd_code_t *pd, pd_idx_t f)
+// Do an R3 move. Right now we're only going to worry about shadows...
+{
+    pd_code_t *ret = pd_copy(pd);
+    pd_idx_t ea[3], eb[3];
+    pd_idx_t *e = pd->face[f].edge;
+    int i;
+
+    if (pd->face[f].nedges != 3) {
+        // Should also check for 3 vertices... hmm
+        return NULL;
+    }
+
+    for (i = 0; i < 3; i++) {
+        ea[i] = pd_previous_edge(pd, e[i]);
+        eb[i] = pd_next_edge(pd, e[i]);
+
+        ret->edge[ea[i]].headpos = pd->edge[e[i]].headpos;
+        ret->edge[ea[i]].head = pd->edge[e[i]].head;
+        ret->cross[pd->edge[e[i]].head].edge[pd->edge[e[i]].headpos] = ea[i];
+
+        ret->edge[e[i]].headpos = pd->edge[ea[i]].headpos;
+        ret->edge[e[i]].head = pd->edge[ea[i]].head;
+        ret->cross[pd->edge[ea[i]].head].edge[pd->edge[ea[i]].headpos] = e[i];
+
+        ret->edge[eb[i]].tailpos = pd->edge[e[i]].tailpos;
+        ret->edge[eb[i]].tail = pd->edge[e[i]].tail;
+        ret->cross[pd->edge[e[i]].tail].edge[pd->edge[e[i]].tailpos] = eb[i];
+
+        ret->edge[e[i]].tailpos = pd->edge[eb[i]].tailpos;
+        ret->edge[e[i]].tail = pd->edge[eb[i]].tail;
+        ret->cross[pd->edge[eb[i]].tail].edge[pd->edge[eb[i]].tailpos] = e[i];
+    }
+
+    pd_regenerate_crossings(pd);
+    pd_regenerate_comps(pd);
+    pd_regenerate_faces(pd);
+    return ret;
+
+
+
+
+}
+
 
 pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3])
 

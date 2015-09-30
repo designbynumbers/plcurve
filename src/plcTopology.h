@@ -661,6 +661,8 @@ extern "C" {
                                     pd_or_t e1_over_e2_or);
 
 
+    pd_code_t *pd_R3_triangle_flip(pd_code_t *pd, pd_idx_t f);
+
   pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
 			    pd_code_t *pdB, pd_idx_t edgeB);
 

@@ -215,7 +215,8 @@ cdef extern from "plcTopology.h":
                                     pd_idx_t e1_on_f, pd_idx_t e2_on_f,
                                     pd_or_t e1_over_e2_or)
 
-    pd_code_t* pd_
+    pd_code_t *pd_R3_triangle_flip(pd_code_t *pd, pd_idx_t f)
+
     void pd_tangle_slide(pd_code_t *pd, pd_tangle_t *tangle,
                          pd_idx_t strand_n_edges,
                          pd_idx_t *strand_edges,
