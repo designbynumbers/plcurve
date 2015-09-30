@@ -1320,7 +1320,7 @@ pd_idx_t *pd_canonicalorder(pd_idx_t *buf,pd_idx_t len)
 
 /* Given a buffer of <len> pd_idx_t, try all cyclic reorderings
    and reversals to see which is the least in dictionary order. */
-  
+
 {
   pd_idx_t *curbuf, *bestbuf;
   pd_idx_t i,j;
@@ -1330,7 +1330,7 @@ pd_idx_t *pd_canonicalorder(pd_idx_t *buf,pd_idx_t len)
 
   /* We start by setting curbuf and bestbuf to buf,
      then loop over the possible cyclic reorderings. */
-  
+
   memcpy(bestbuf,buf,len*sizeof(pd_idx_t));
 
   /* First, try the forward reorderings. */
@@ -1348,7 +1348,7 @@ pd_idx_t *pd_canonicalorder(pd_idx_t *buf,pd_idx_t len)
       memcpy(bestbuf,curbuf,len*sizeof(pd_idx_t));
 
     }
-    
+
   }
 
   /* Next, try the backwards reorderings. */
@@ -1366,12 +1366,12 @@ pd_idx_t *pd_canonicalorder(pd_idx_t *buf,pd_idx_t len)
       memcpy(bestbuf,curbuf,len*sizeof(pd_idx_t));
 
     }
-    
+
   }
 
   free(curbuf);
   return bestbuf;
-  
+
 }
 
 
@@ -1402,9 +1402,9 @@ void pd_regenerate_hash(pd_code_t *pd)
    bigons in the dual graph (this is measure of how composite the diagram is)
 
    IF there is a unique largest face, we then list the numbers of
-   edges on the faces going around the largest face. This vector can 
-   be canonicalized by reordering it clockwise and counterwise, and 
-   with all cyclic shifts, and then taking the first element in the 
+   edges on the faces going around the largest face. This vector can
+   be canonicalized by reordering it clockwise and counterwise, and
+   with all cyclic shifts, and then taking the first element in the
    (dictionary order) sort of these possibilities. Call this vector v.
 
    v (canonical vector of largest-face adjacent face degrees)
@@ -1428,11 +1428,11 @@ void pd_regenerate_hash(pd_code_t *pd)
    #edges joining trigon faces to pentagonal faces
    #edges joining trigon faces to hexagonal faces
 
-   Once we've built the array, we condense it by combining 
+   Once we've built the array, we condense it by combining
    consecutive runs of zeros into numbers in the form 255 - (#zeros).
 
-   and then base64encode to make it printable. 
-   
+   and then base64encode to make it printable.
+
 */
 
 {
@@ -1443,7 +1443,7 @@ void pd_regenerate_hash(pd_code_t *pd)
 			    0,0,0,0,0,0,
 			    0,0,0,0,0,0};
   int i,face,comp;
-  
+
   data[0] = (unsigned char)(pd->ncross);
   data[1] = (unsigned char)(pd->nedges);
   data[2] = (unsigned char)(pd->nfaces);
@@ -1455,15 +1455,15 @@ void pd_regenerate_hash(pd_code_t *pd)
   }
 
   if(i < 24) { data[i++] = (unsigned char)(pd->ncomps); }
-  
+
   for(comp=0;comp<pd->ncomps && i < 24;i++,comp++) {
-    
+
     data[i] = (unsigned char)(pd->comp[comp].nedges);
-    
+
   }
-  
-  /* Now we calculate bigons in the dual graph. We're going to do this 
-     quickly, so we go ahead and cache the faces which each edge is 
+
+  /* Now we calculate bigons in the dual graph. We're going to do this
+     quickly, so we go ahead and cache the faces which each edge is
      incident to. */
 
   typedef struct incident_face_struct {
@@ -1482,7 +1482,7 @@ void pd_regenerate_hash(pd_code_t *pd)
     iface[edge].f[1] = PD_UNSET_IDX;
 
   }
-  
+
   for(face=0;face<pd->nfaces;face++) {
 
     for(edge=0;edge<pd->face[face].nedges;edge++) {
@@ -1520,7 +1520,7 @@ void pd_regenerate_hash(pd_code_t *pd)
      and search for repeated faces. */
 
   pd_idx_t dual_bigons = 0;
-  
+
   pd_idx_t monogon_joins[7] = {0,0,0,0,0,0,0};
   pd_idx_t bigon_joins[7] = {0,0,0,0,0,0,0};
   pd_idx_t trigon_joins[7] = {0,0,0,0,0,0,0};
@@ -1533,12 +1533,12 @@ void pd_regenerate_hash(pd_code_t *pd)
 				    0,0,0,0,0,0,0};
 
   pd_idx_t *V = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
- 
+
   for(face=0;face<pd->nfaces;face++) {
 
     pd_idx_t j;
     pd_idx_t *adjfaces = calloc(pd->face[face].nedges,sizeof(pd_idx_t));
-    
+
     for(j=0;j<pd->face[face].nedges;j++) {  /* Clear adjfaces */
 
       adjfaces[j] = PD_UNSET_IDX;
@@ -1611,13 +1611,13 @@ void pd_regenerate_hash(pd_code_t *pd)
       }
 
     }
-    
+
     free(adjfaces);
 
   }
 
   /* Now add the dual graph data to the "data" array. */
-    
+
   if (i < 24) {
 
     data[i++] = (unsigned char)(dual_bigons);
@@ -1647,7 +1647,7 @@ void pd_regenerate_hash(pd_code_t *pd)
 
     pd_idx_t *canonV = pd_canonicalorder(V,pd->face[0].nedges);
     pd_idx_t j;
-    
+
     for(j=0;i<24 && j<pd->face[0].nedges;i++,j++) {
 
       data[i] = (unsigned char)(canonV[j]);
@@ -1657,7 +1657,7 @@ void pd_regenerate_hash(pd_code_t *pd)
     free(canonV);
     free(V);
 
-  }   
+  }
 
   /* Now we assemble the combined and compressed vectors */
 
@@ -1691,7 +1691,7 @@ void pd_regenerate_hash(pd_code_t *pd)
 
       /* We have some number of zeros. Start counting. */
 
-      compressed_vector[k] = 255; 
+      compressed_vector[k] = 255;
 
       for(;j<21 && combined_vector[j] == 0;j++) {
 
@@ -1699,8 +1699,8 @@ void pd_regenerate_hash(pd_code_t *pd)
 
       }
 
-      /* We ended on a j that's NOT zero (or when j == 21). 
-	 We're about to increment j again, but we don't want to. 
+      /* We ended on a j that's NOT zero (or when j == 21).
+	 We're about to increment j again, but we don't want to.
 	 So it's ok to decrement it first, instead. */
 
       j--;
@@ -1709,7 +1709,7 @@ void pd_regenerate_hash(pd_code_t *pd)
 
   }
 
-  
+
   for(j=0;i < 24 && j < 21;i++,j++) {
 
     data[i] = (unsigned char)(compressed_vector[j]);
@@ -1717,13 +1717,13 @@ void pd_regenerate_hash(pd_code_t *pd)
   }
 
   free(iface);
-  
+
   for(;i < 24;i++) { data[i] = 0; } /* Pad any remaining space with zeros. */
 
   base64encode(data,pd->hash);
 
   pd->hash[31] = 0; /* Make sure that we end the string with a zero. */
-  
+
 }
 
 
@@ -2737,7 +2737,7 @@ bool pd_is_alternating(pd_code_t *pd)
 
 }
 
-pd_code_t *pd_copy(pd_code_t *pd)
+pd_code_t *pd_copy_newsize(pd_code_t *pd, pd_idx_t MAXVERTS)
 /* Make a new-memory copy of pd. This can require some care, for instance if the face and comp arrays aren't allocated yet. */
 {
   if (pd->ncross == 0) {
@@ -2747,7 +2747,12 @@ pd_code_t *pd_copy(pd_code_t *pd)
   }
 
   pd_code_t *pdA;
-  pdA = pd_code_new(pd->ncross);
+
+  if (MAXVERTS < pd->ncross){
+      MAXVERTS = pd->ncross;
+  }
+
+  pdA = pd_code_new(MAXVERTS);
 
   assert(pdA->MAXVERTS      >= pd->ncross);
   assert(pdA->MAXEDGES      >= pd->nedges);
@@ -2816,6 +2821,10 @@ pd_code_t *pd_copy(pd_code_t *pd)
   }
 
   return pdA;
+}
+
+pd_code_t *pd_copy(pd_code_t *pd){
+    return pd_copy_newsize(pd, pd->ncross);
 }
 
 void pd_write_KnotTheory(FILE *of, pd_code_t *pd)

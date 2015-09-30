@@ -505,19 +505,19 @@ extern "C" {
 
 
   bool pd_diagram_isotopic(pd_code_t *A, pd_code_t *B);
-  
+
   /* Detect whether two pd_codes correspond to diagrams of labelled,
      oriented components related by an isotopy of the 2-sphere or an
      isotopy of the 2-sphere composed with a reflection ("reshaping
      the diagram" or "turning the diagram inside out").
 
      1. Corresponding crossings are required to have the same sign
-     (positive, negative, or unset).  
-     2. Corresponding components are required to have the same tag.  
+     (positive, negative, or unset).
+     2. Corresponding components are required to have the same tag.
      3. Corresponding edges are required to have the same orientation.
 
      In particular, this means that the orientations of each component
-     of the pd-codes have to be the same. 
+     of the pd-codes have to be the same.
 
      This is the strongest kind of diagram equivalence.
   */
@@ -527,7 +527,7 @@ extern "C" {
      decomposition of the 3-sphere (or are mirror images of each
      other). This is much weaker than being diagram-isotopic;
 
-     1. Crossing signs are ignored.  
+     1. Crossing signs are ignored.
      2. Component tags are ignored.
      3. The orientations of all edges in each component are either
      (all) preserved or (all) reversed.  However, some component
@@ -567,7 +567,7 @@ extern "C" {
   /* Finds the first element of pdstor, and initializes the internal
      state of pdstor. Note that this internal state will go stale if an
      insert or delete operation is performed, and so it's reset if we do
-     an insert. This returns a new-memory copy of the element in the 
+     an insert. This returns a new-memory copy of the element in the
      pdstor, which is the caller's responsibility to free.*/
 
   pd_code_t *pd_stor_nextelt(pd_stor_t *pdstor);
@@ -592,6 +592,8 @@ extern "C" {
   bool pd_is_alternating(pd_code_t *pd);
   /* Tests whether the pd code is alternating. Assumes that all the crossing
      information is set. If some crossings aren't set, it will return a pd_error. */
+
+  pd_code_t *pd_copy_newsize(pd_code_t *pd, pd_idx_t MAXVERTS);
 
   pd_code_t *pd_copy(pd_code_t *pd);
   /* Make a new-memory copy of pd */
@@ -1012,7 +1014,7 @@ extern "C" {
 
   char *plc_homfly( gsl_rng *rng, plCurve *L);
 
-  
+
 #define MAXPRIMEFACTORS 10
 #define MAXHOMFLY       1024
 

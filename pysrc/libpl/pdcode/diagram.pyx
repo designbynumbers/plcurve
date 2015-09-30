@@ -335,6 +335,11 @@ cdef class PlanarDiagram:
 
         return True
 
+    def resize(self, pd_idx_t ncross):
+        cdef pd_code_t *oldpd = self.p
+        self.p = pd_copy_newsize(oldpd, ncross)
+        pd_code_free(&oldpd)
+
     def copy(self, thin=False):
         """copy() -> PlanarDiagram
 

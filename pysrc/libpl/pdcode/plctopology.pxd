@@ -14,10 +14,11 @@ cdef extern from "plcTopology.h":
         PD_NOT_OK = 1
         PD_BAD_FORMAT = 2
         PD_EOF = 3
-    ctypedef enum pd_equivalence_t:
+    cpdef enum pd_equivalence_enum:
         NONE = 0
         ISOMORPHISM = 1
         DIAGRAM_ISOTOPY = 2
+    ctypedef pd_equivalence_enum pd_equivalence_t
 
     cdef extern int PD_VERBOSE
     cdef extern int PD_LIVE_ON_ERROR
@@ -181,6 +182,7 @@ cdef extern from "plcTopology.h":
     bool pd_isomorphic_strings(char *pdcodeA, int nA, char*pdcodeB, int nB)
 
     pd_code_t *pd_copy(pd_code_t *pd)
+    pd_code_t *pd_copy_newsize(pd_code_t *pd, pd_idx_t MAXVERTS)
 
     void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp, pd_or_t ori)
 
