@@ -1688,6 +1688,181 @@ v         |                     |         ^
 
 }
 
+pd_code_t *pd_R2_bigon_addition(pd_code_t *pd, pd_idx_t f,
+                                pd_idx_t e1_on_f, pd_idx_t e2_on_f,
+                                pd_or_t e1_over_e2_or)
+// Adds an R2 bigon so that e1 is [[ presently only does shadow R2 ]]
+// doesn't account for case where e1 == e2
+{
+    pd_code_t *ret = pd_copy_newsize(pd, pd->ncross+2);
+    pd_idx_t c0, c1;
+    pd_idx_t e1, e2;
+    pd_or_t e1o, e2o;
+    pd_idx_t e1a, e1b, e2a, e2b;
+
+    c0 = ret->ncross; c1 = ret->ncross+1;
+    ret->ncross += 2;
+
+    // Alignment/division of edge 1 before R2 addition
+    //    (F if e1o == +)
+    // ------x------x------>
+    //  e1a cr0 e1 cr1 e1b
+    //    (F if e1o == -)
+    //
+    // e1o: sign of e1 along f at pos e1_on_f
+    // cr0 and cr1 numbered wrt direction of e1
+
+    e1 = ret->face[f].edge[e1_on_f];
+    e1o = ret->face[f].or[e1_on_f];
+    e1a = ret->nedges++; e1b = ret->nedges++;
+
+    // Alignment/division of edge 2 before R2 addition
+    //    (F if e2o == -)
+    // ------x------x------>
+    //  e2a crX e2 crY e2b
+    //    (F if e2o == -)
+    //
+    // e2o: sign of e1 along f at pos e1_on_f
+    // indices X and Y depend on rel. sign of e1o and e2o:
+    // (X,Y) = (0,1) if e1o*e2o == 1 else (1,0)
+
+    e2 = ret->face[f].edge[e2_on_f];
+    e2o = ret->face[f].or[e2_on_f];
+    e2a = ret->nedges++; e2b = ret->nedges++;
+
+    if (e1o == PD_POS_ORIENTATION && e2o == PD_POS_ORIENTATION) {
+        //       e1              e1b  e2    e1a
+        //  <------------       <--.   -   .----
+        //                          \1/ \0/
+        //         F      |--->   E  x F x  G
+        //                          / \ / \
+        //  ------------>       ---'   -   '--->
+        //       e2              e2a  e1    e2b
+
+        // Set the new crossings & plug in the edges
+        ret->cross[c0].edge[0] = e1a; ret->cross[c0].edge[2] = e1;
+        ret->edge[e1a].head = c0; ret->edge[e1a].headpos = 0;
+        ret->edge[e1].tail  = c0; ret->edge[e1].tailpos  = 2;
+
+        ret->cross[c0].edge[1] = e2;  ret->cross[c0].edge[3] = e2b;
+        ret->edge[e2].head  = c0; ret->edge[e2].headpos  = 1;
+        ret->edge[e2b].tail = c0; ret->edge[e2b].tailpos = 3;
+
+        ret->cross[c1].edge[0] = e2;  ret->cross[c1].edge[2] = e2a;
+        ret->edge[e2].tail  = c1; ret->edge[e2].tailpos  = 0;
+        ret->edge[e2a].head = c1; ret->edge[e2a].headpos = 2;
+
+        ret->cross[c1].edge[1] = e1b; ret->cross[c1].edge[3] = e1;
+        ret->edge[e1b].tail = c1; ret->edge[e1b].tailpos = 1;
+        ret->edge[e1].head  = c1; ret->edge[e1].headpos  = 3;
+
+    } else if (e1o == PD_POS_ORIENTATION && e2o == PD_NEG_ORIENTATION) {
+        //       e1              e1b  e2    e1a
+        //  <------------       <--.   -   .----
+        //                          \1/ \0/
+        //         F      |--->   E  x F x  G
+        //                          / \ / \
+        //  <------------       <--'   -   '----
+        //       e2              e2b  e1    e2a
+
+        // Set the new crossings & plug in the edges
+        ret->cross[c0].edge[0] = e1a; ret->cross[c0].edge[2] = e1;
+        ret->edge[e1a].head = c0; ret->edge[e1a].headpos = 0;
+        ret->edge[e1].tail  = c0; ret->edge[e1].tailpos  = 2;
+
+        ret->cross[c0].edge[1] = e2;  ret->cross[c0].edge[3] = e2a;
+        ret->edge[e2].tail  = c0; ret->edge[e2].tailpos  = 1;
+        ret->edge[e2a].head = c0; ret->edge[e2a].headpos = 3;
+
+        ret->cross[c1].edge[0] = e2;  ret->cross[c1].edge[2] = e2b;
+        ret->edge[e2].head  = c1; ret->edge[e2].headpos  = 0;
+        ret->edge[e2b].tail = c1; ret->edge[e2b].tailpos = 2;
+
+        ret->cross[c1].edge[1] = e1b; ret->cross[c1].edge[3] = e1;
+        ret->edge[e1b].tail = c1; ret->edge[e1b].tailpos = 1;
+        ret->edge[e1].head  = c1; ret->edge[e1].headpos  = 3;
+
+    } else if (e1o == PD_NEG_ORIENTATION && e2o == PD_NEG_ORIENTATION) {
+        //       e1              e1a  e2    e1b
+        //  ------------>       ---.   -   .--->
+        //                          \0/ \1/
+        //         F      |--->   E  x F x  G
+        //                          / \ / \
+        //  <------------       <--'   -   '----
+        //       e2              e2b  e1    e2a
+
+        // Set the new crossings & plug in the edges
+        ret->cross[c0].edge[0] = e1a; ret->cross[c0].edge[2] = e1;
+        ret->edge[e1a].head = c0; ret->edge[e1a].headpos = 0;
+        ret->edge[e1].tail  = c0; ret->edge[e1].tailpos  = 2;
+
+        ret->cross[c0].edge[1] = e2b; ret->cross[c0].edge[3] = e2;
+        ret->edge[e2b].tail = c0; ret->edge[e2b].tailpos = 1;
+        ret->edge[e2].head  = c0; ret->edge[e2].headpos  = 3;
+
+        ret->cross[c1].edge[0] = e2;  ret->cross[c1].edge[2] = e2a;
+        ret->edge[e2].tail  = c1; ret->edge[e2].tailpos  = 0;
+        ret->edge[e2a].head = c1; ret->edge[e2a].headpos = 2;
+
+        ret->cross[c1].edge[1] = e1; ret->cross[c1].edge[3] = e1b;
+        ret->edge[e1].head  = c1; ret->edge[e1].headpos  = 1;
+        ret->edge[e1b].tail = c1; ret->edge[e1b].tailpos = 3;
+
+    } else if (e1o == PD_NEG_ORIENTATION && e2o == PD_POS_ORIENTATION) {
+        //       e1              e1a  e2    e1b
+        //  ------------>       ---.   -   .--->
+        //                          \0/ \1/
+        //         F      |--->   E  x F x  G
+        //                          / \ / \
+        //  ------------>       ---'   -   '--->
+        //       e2              e2a  e1    e2b
+
+        // Set the new crossings & plug in the edges
+        ret->cross[c0].edge[0] = e1a; ret->cross[c0].edge[2] = e1;
+        ret->edge[e1a].head = c0; ret->edge[e1a].headpos = 0;
+        ret->edge[e1].tail  = c0; ret->edge[e1].tailpos  = 2;
+
+        ret->cross[c0].edge[1] = e2a; ret->cross[c0].edge[3] = e2;
+        ret->edge[e2a].head = c0; ret->edge[e2a].headpos = 1;
+        ret->edge[e2].tail  = c0; ret->edge[e2].tailpos  = 3;
+
+        ret->cross[c1].edge[0] = e2;  ret->cross[c1].edge[2] = e2b;
+        ret->edge[e2].head  = c1; ret->edge[e2].headpos  = 0;
+        ret->edge[e2a].tail = c1; ret->edge[e2a].tailpos = 2;
+
+        ret->cross[c1].edge[1] = e1; ret->cross[c1].edge[3] = e1b;
+        ret->edge[e1].head  = c1; ret->edge[e1].headpos  = 1;
+        ret->edge[e1b].tail = c1; ret->edge[e1b].tailpos = 3;
+    }
+
+    ret->cross[c0].sign = PD_UNSET_ORIENTATION;
+    ret->cross[c1].sign = PD_UNSET_ORIENTATION;
+
+    // This next step is independent of face-sign because we have
+    // already dealt with this by choosing e1..2a..b appropriately
+    // Plug in new edges to the old crossings
+    ret->edge[e1b].head    = pd->edge[e1].head;
+    ret->edge[e1b].headpos = pd->edge[e1].headpos;
+    ret->cross[pd->edge[e1].head].edge[pd->edge[e1].headpos] = e1b;
+    ret->edge[e1a].tail    = pd->edge[e1].tail;
+    ret->edge[e1a].tailpos = pd->edge[e1].tailpos;
+    ret->cross[pd->edge[e1].tail].edge[pd->edge[e1].tailpos] = e1a;
+
+    ret->edge[e2b].head    = pd->edge[e2].head;
+    ret->edge[e2b].headpos = pd->edge[e2].headpos;
+    ret->cross[pd->edge[e2].head].edge[pd->edge[e2].headpos] = e2b;
+    ret->edge[e2a].tail    = pd->edge[e2].tail;
+    ret->edge[e2a].tailpos = pd->edge[e2].tailpos;
+    ret->cross[pd->edge[e2].tail].edge[pd->edge[e2].tailpos] = e2a;
+
+    pd_regenerate_crossings(ret);
+    pd_regenerate_comps(ret);
+    pd_regenerate_faces(ret);
+    pd_regenerate_hash(ret);
+
+    return ret;
+}
+
 
 pd_code_t *pd_clump_slide(pd_code_t *pd,pd_idx_t e[3])
 

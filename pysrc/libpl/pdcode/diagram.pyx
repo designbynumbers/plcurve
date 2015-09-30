@@ -673,6 +673,10 @@ cdef class PlanarDiagram:
             raise Exception("Must R2 eliminate on a bigon, but f not a bigon")
         return self.R2_bigon_elimination_vertices(f[0].tail, f[0].head)
 
+    def R2_bigon_addition(self, pd_idx_t f, pd_idx_t e1_on_f,
+                          pd_idx_t e2_on_f, pd_or_t e1_over_e2_or):
+        return PlanarDiagram_wrap(pd_R2_bigon_addition(self.p, f, e1_on_f, e2_on_f, e1_over_e2_or))
+
     def R2_bigon_elimination_vertices(self, pd_idx_t cr1, pd_idx_t cr2):
         cdef pd_idx_t *cr = [cr1, cr2]
         cdef pd_idx_t nout

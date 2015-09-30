@@ -208,6 +208,11 @@ cdef extern from "plcTopology.h":
                                  pd_idx_t cr[2],
                                  pd_idx_t *outpd,
                                  pd_code_t ***outpd)
+    pd_code_t *pd_R2_bigon_addition(pd_code_t *pd, pd_idx_t f,
+                                    pd_idx_t e1_on_f, pd_idx_t e2_on_f,
+                                    pd_or_t e1_over_e2_or)
+
+    pd_code_t* pd_
     void pd_tangle_slide(pd_code_t *pd, pd_tangle_t *tangle,
                          pd_idx_t strand_n_edges,
                          pd_idx_t *strand_edges,
