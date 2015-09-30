@@ -232,6 +232,8 @@ cdef extern from "plcTopology.h":
 
     char *pd_homfly(pd_code_t *pdC)
     char *pd_homfly_timeout(pd_code_t *pdC, int timeout)
+
     int pd_linking_number(pd_code_t *L, pd_idx_t c1, pd_idx_t c2)
+    unsigned int pd_unsigned_linking_number(pd_code_t *L, pd_idx_t c1, pd_idx_t c2)
 
 cdef extern char* pdcode_to_ccode(pd_code_t *pdC)

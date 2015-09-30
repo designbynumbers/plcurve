@@ -1008,7 +1008,8 @@ extern "C" {
   /* Compute the linking number of two components of a plcurve. */
   /* (Requires that crossing signs be set; otherwise, fails out.) */
 
-  int pd_linking_number(pd_code_t *L,pd_idx_t c1,pd_idx_t c2);
+    int pd_linking_number(pd_code_t *L,pd_idx_t c1,pd_idx_t c2);
+    unsigned int pd_unsigned_linking_number(pd_code_t *L,pd_idx_t c1,pd_idx_t c2);
 
   /* Compute the HOMFLY polynomial of a plCurve (returned as string) */
 

@@ -100,12 +100,17 @@ cdef class Edge(_Disownable):
         The position is an index [0..3] in crossing record of head vertex."""
         def __get__(self):
             return (self.p.head, self.p.headpos)
+        def __set__(self, other):
+            self.p.head, self.p.headpos = other
+
     property tail_tuple:
         """A tuple (vertex, pos) describing where this edge leaves.
 
         The position is an index [0..3] in crossing record of tail vertex."""
         def __get__(self):
             return (self.p.tail, self.p.tailpos)
+        def __set__(self, other):
+            self.p.tail, self.p.tailpos = other
 
     def __cinit__(self):
         self.p = NULL

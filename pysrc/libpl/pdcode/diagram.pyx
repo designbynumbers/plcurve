@@ -18,6 +18,7 @@ from .pdisomorphism cimport (
     pd_iso_t, pd_build_diagram_isotopies,
     pd_build_isos)
 from .isomorphism cimport PlanarIsomorphism
+from .pd_invariants cimport *
 
 from .plctopology cimport *
 
@@ -336,9 +337,29 @@ cdef class PlanarDiagram:
         return True
 
     def resize(self, pd_idx_t ncross):
+        """resize(ncross)
+
+        Resizes the PlanarDiagram to fit more (or less, down to
+        ncross) vertices
+        """
+
         cdef pd_code_t *oldpd = self.p
         self.p = pd_copy_newsize(oldpd, ncross)
         pd_code_free(&oldpd)
+
+    def add_crossing(self, N=1):
+        cdef pd_idx_t old_n = self.p.ncross
+
+        self.p.ncross += N
+
+        if self.p.ncross > self.p.MAXVERTS:
+            self.resize(self.p.ncross)
+
+        for i in range(old_n, self.p.ncross):
+            for pos in range(4):
+                self.p.cross[i].edge[pos] = 0
+            self.p.cross[i].sign = 0
+        self.regenerate_py_os()
 
     def copy(self, thin=False):
         """copy() -> PlanarDiagram
@@ -837,6 +858,31 @@ cdef class PlanarDiagram:
 
         """
         return pd_linking_number(self.p, c1, c2)
+
+    def unsigned_linking_number(self, unsigned int c1=0, unsigned int c2=0):
+        """linking_number([pd_idx_t c1, [pd_idx_t c2]]) -> int
+
+        Return the linking number of the two numbered components. If no
+        arguments are supplied, checks the first component with
+        itself. If one argument is supplied, the other defaults to the
+        first component.
+
+        """
+        return pd_unsigned_linking_number(self.p, c1, c2)
+
+    def interlaced_crossings(self):
+        cdef int i
+        cdef int *c_ret = pd_interlaced_crossings(self.p)
+        ret = tuple(c_ret[i] for i in range(self.p.ncomps))
+        free(c_ret)
+        return ret
+
+    def interlaced_crossings_unsigned(self):
+        cdef int i
+        cdef unsigned int *c_ret = pd_interlaced_crossings_unsigned(self.p)
+        ret = tuple(c_ret[i] for i in range(self.p.ncomps))
+        free(c_ret)
+        return ret
 
     def unique_code(self):
         """unique_code() -> str

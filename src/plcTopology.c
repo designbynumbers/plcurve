@@ -1890,7 +1890,7 @@ int pd_linking_number(pd_code_t *pd,pd_idx_t c1,pd_idx_t c2)
 
 /* Computes the linking number of two components of the pdcode. */
 /* Requires that crossing signs be set; otherwise, fails out. */
-  
+
 {
   pd_check_cmp(SRCLOC,pd,c1);
   pd_check_cmp(SRCLOC,pd,c2);
@@ -1898,18 +1898,18 @@ int pd_linking_number(pd_code_t *pd,pd_idx_t c1,pd_idx_t c2)
   /* First, we check that all the crossing orientations are set. */
 
   pd_idx_t i;
-  
+
   for(i=0;i<pd->ncross;i++) {
 
     assert(pd->cross[i].sign != PD_UNSET_ORIENTATION);
 
   }
-  
+
   /* We'll loop over the shorter component. */
 
   pd_component_t *shortCmp;
   pd_idx_t longCmpNum;
-  
+
   if (pd->comp[c1].nedges < pd->comp[c2].nedges) {
 
     shortCmp = &(pd->comp[c1]);
@@ -1923,7 +1923,7 @@ int pd_linking_number(pd_code_t *pd,pd_idx_t c1,pd_idx_t c2)
   }
 
   /* Now we loop over shortCmp, identifying the other
-     component at each crossing and seeing if it's 
+     component at each crossing and seeing if it's
      longCmpNum. */
 
   int lk = 0;
@@ -1931,13 +1931,13 @@ int pd_linking_number(pd_code_t *pd,pd_idx_t c1,pd_idx_t c2)
   pd_idx_t cmpEdge,otherEdgeNum;
   pd_edge_t *e;
   pd_crossing_t *cr;
-  
+
   for(cmpEdge=0;cmpEdge<shortCmp->nedges;cmpEdge++) {
 
     e = &(pd->edge[shortCmp->edge[cmpEdge]]);
     cr = &(pd->cross[e->head]);
     otherEdgeNum = cr->edge[(e->headpos+1)%4]; /* Get the intersecting edge */
-   
+
     pd_idx_t otherComp,otherPos;
     pd_component_and_pos(pd,otherEdgeNum,&otherComp,&otherPos);
 
@@ -1958,11 +1958,68 @@ int pd_linking_number(pd_code_t *pd,pd_idx_t c1,pd_idx_t c2)
       }
 
     }
-    
+
   }
 
   lk /= 2;
   return lk;
-  
+
 }
-  
+
+unsigned int pd_unsigned_linking_number(pd_code_t *pd,pd_idx_t c1,pd_idx_t c2)
+
+/* Computes the linking number of two components of the pdcode. */
+/* Requires that crossing signs be set; otherwise, fails out. */
+
+{
+  pd_check_cmp(SRCLOC,pd,c1);
+  pd_check_cmp(SRCLOC,pd,c2);
+
+  pd_idx_t i;
+
+  /* We'll loop over the shorter component. */
+
+  pd_component_t *shortCmp;
+  pd_idx_t longCmpNum;
+
+  if (pd->comp[c1].nedges < pd->comp[c2].nedges) {
+
+    shortCmp = &(pd->comp[c1]);
+    longCmpNum = c2;
+
+  } else {
+
+    shortCmp = &(pd->comp[c2]);
+    longCmpNum = c1;
+
+  }
+
+  /* Now we loop over shortCmp, identifying the other
+     component at each crossing and seeing if it's
+     longCmpNum. */
+
+  int lk = 0;
+
+  pd_idx_t cmpEdge,otherEdgeNum;
+  pd_edge_t *e;
+  pd_crossing_t *cr;
+
+  for(cmpEdge=0;cmpEdge<shortCmp->nedges;cmpEdge++) {
+
+    e = &(pd->edge[shortCmp->edge[cmpEdge]]);
+    cr = &(pd->cross[e->head]);
+    otherEdgeNum = cr->edge[(e->headpos+1)%4]; /* Get the intersecting edge */
+
+    pd_idx_t otherComp,otherPos;
+    pd_component_and_pos(pd,otherEdgeNum,&otherComp,&otherPos);
+
+    if (otherComp == longCmpNum) { /* This crossing counts! */
+	lk++;
+    }
+
+  }
+
+  lk /= 2;
+  return lk;
+
+}

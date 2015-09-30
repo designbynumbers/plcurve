@@ -20,7 +20,7 @@ def terminate(signal, frame):
     sys.exit(0)
 signal.signal(signal.SIGINT, terminate)
 
-N_TRIES = 20000
+N_TRIES = 200
 
 A_0_1 = pdcode.HOMFLYPolynomial("1")
 M_3_1 = pdcode.HOMFLYPolynomial("-a^{-4} + -2a^{-2} + a^{-2}z^{2}")
@@ -49,7 +49,7 @@ counts = defaultdict(lambda:0.0)
 match = defaultdict(lambda:defaultdict(lambda:0.0))
 
 MIN_X = 3
-MAX_X = 100
+MAX_X = 10
 for ncross in range(MIN_X, MAX_X+1):
     print "Testing diagrams in %s"%ncross
     print counts[ncross]
