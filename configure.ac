@@ -186,7 +186,7 @@ AC_C_INLINE
 AC_C_CONST
 
 # Output
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([Makefile po/Makefile.in intl/Makefile
 		src/Makefile
                 planarmap/Makefile
                 pysrc/Makefile
