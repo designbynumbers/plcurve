@@ -1654,178 +1654,212 @@ void pd_overunder_internal(pd_code_t *pd, pd_idx_t cr,
 			   pd_idx_t *under_in_pos, pd_idx_t *under_out_pos)
 
 {
-  pd_check_cr(SRCLOC,pd,cr);
-  pd_check_notnull(SRCLOC,"over_in_pos",over_in_pos); pd_check_notnull(SRCLOC,"over_out_pos",over_out_pos);
-  pd_check_notnull(SRCLOC,"under_in_pos",under_in_pos); pd_check_notnull(SRCLOC,"under_out_pos",under_out_pos);
+    pd_check_cr(SRCLOC,pd,cr);
+    pd_check_notnull(SRCLOC,"over_in_pos",over_in_pos); pd_check_notnull(SRCLOC,"over_out_pos",over_out_pos);
+    pd_check_notnull(SRCLOC,"under_in_pos",under_in_pos); pd_check_notnull(SRCLOC,"under_out_pos",under_out_pos);
 
-  if (pd->edge[pd->cross[cr].edge[0]].head == cr &&
-      pd->edge[pd->cross[cr].edge[0]].headpos == 0) { /* The edge at position 0 is incoming */
+    if (pd->edge[pd->cross[cr].edge[0]].head == cr &&
+        pd->edge[pd->cross[cr].edge[0]].headpos == 0) { /* The edge at position 0 is incoming */
 
-    if (pd->edge[pd->cross[cr].edge[1]].head == cr &&
-	pd->edge[pd->cross[cr].edge[1]].headpos == 1) { /* The edge at position 1 is incoming */
+        if (pd->edge[pd->cross[cr].edge[1]].head == cr &&
+            pd->edge[pd->cross[cr].edge[1]].headpos == 1) { /* The edge at position 1 is incoming */
 
-      if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
+            if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
 
-	/* We're in the case:
+                // We're in the case:
+                //
+                //        3
+                //        ^
+                //        |
+                //  0 -----------> 2
+                //        |
+                //        |
+                //        1
+                //
+                //
 
-	          3
-                  ^
-                  |
-	    0 -----------> 2
-                  |
-                  |
-                  1
+                *over_in_pos = 0; *over_out_pos = 2;
+                *under_in_pos = 1; *under_out_pos = 3;
 
-	*/
+            } else if (pd->cross[cr].sign == PD_NEG_ORIENTATION) { /* The sign of the crossing is negative */
 
-	*over_in_pos = 0; *over_out_pos = 2;
-	*under_in_pos = 1; *under_out_pos = 3;
+                // We're in the case:
+                //
+                //        3
+                //        ^
+                //        |
+                //  0 ----|------> 2
+                //        |
+                //        |
+                //        1
+                //
+                //
 
-      } else { /* The sign of the crossing is negative */
+                *over_in_pos = 1; *over_out_pos = 3;
+                *under_in_pos = 0; *under_out_pos = 2;
 
-	/* We're in the case:
+            } else if (pd->cross[cr].sign == PD_UNSET_ORIENTATION) { /* The sign of the crossing is unset */
 
-	          3
-                  ^
-                  |
-	    0 ----|------> 2
-                  |
-                  |
-                  1
+                // We're in the case:
+                //
+                //       3
+                //       ^
+                //       |
+                // 0 ----+------> 2
+                //       |
+                //       |
+                //       1
+                //
+                // For an unset crossing... the over strand obeys "positive" sign rules
+                //
 
-	*/
+                *over_in_pos = 0; *over_out_pos = 2;
+                *under_in_pos = 1; *under_out_pos = 3;
 
-	*over_in_pos = 1; *over_out_pos = 3;
-	*under_in_pos = 0; *under_out_pos = 2;
+            }
 
-      }
+        } else { /* The edge at position 1 is outgoing */
 
-    } else { /* The edge at position 1 is outgoing */
+            if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
 
-       if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
+                // We're in the case:
+                //
+                //        3
+                //        |
+                //        |
+                //  0 ----|------> 2
+                //        |
+                //        |
+                //        v
+                //        1
+                //
+                //
 
-	/* We're in the case:
+                *over_in_pos = 3; *over_out_pos = 1;
+                *under_in_pos = 0; *under_out_pos = 2;
 
-	          3
-                  |
-                  |
-	    0 ----|------> 2
-                  |
-                  |
-		  v
-                  1
+            } else if (pd->cross[cr].sign == PD_NEG_ORIENTATION) { /* The sign of the crossing is negative */
+                // We're in the case:
+                //
+                //       3
+                //       |
+                // 0 ---------> 2
+                //       |
+                //       v
+                //       1
 
-	*/
+                *over_in_pos = 0; *over_out_pos = 2;
+                *under_in_pos = 3; *under_out_pos = 1;
 
-	*over_in_pos = 3; *over_out_pos = 1;
-	*under_in_pos = 0; *under_out_pos = 2;
+            } else if (pd->cross[cr].sign == PD_UNSET_ORIENTATION) {
+                // We're in the case:
+                //
+                //      3
+                //      |
+                // 0 ---+---> 2
+                //      |
+                //      v
+                //      1
 
-      } else { /* The sign of the crossing is negative */
+                *over_in_pos = 3; *over_out_pos = 1;
+                *under_in_pos = 0; *under_out_pos = 2;
 
-	/* We're in the case:
+            }
 
-	          3
-                  |
-                  |
-	    0 -----------> 2
-                  |
-                  |
-		  v
-                  1
+        }
 
-	*/
+    } else { /* the edge at position 0 is outgoing! */
 
-	*over_in_pos = 0; *over_out_pos = 2;
-	*under_in_pos = 3; *under_out_pos = 1;
+        if (pd->edge[pd->cross[cr].edge[1]].head == cr &&
+            pd->edge[pd->cross[cr].edge[1]].headpos == 1) { /* The edge at position 1 is incoming */
 
-       }
+            if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
+                // We're in the case:
+                //
+                //       3
+                //       ^
+                //       |
+                // 0 <---|---- 2
+                //       |
+                //       1
+
+                *over_in_pos = 1; *over_out_pos = 3;
+                *under_in_pos = 2; *under_out_pos = 0;
+
+            } else if (pd->cross[cr].sign == PD_NEG_ORIENTATION) { /* The sign of the crossing is negative */
+                // We're in the case:
+                //
+                //        3
+                //        ^
+                //        |
+                //  0 <------- 2
+                //        |
+                //        1
+
+                *over_in_pos = 2; *over_out_pos = 0;
+                *under_in_pos = 1; *under_out_pos = 3;
+
+            } else if (pd->cross[cr].sign == PD_UNSET_ORIENTATION) {
+                // We're in the case:
+                //
+                //       3
+                //       ^
+                //       |
+                // 0 <---+---- 2
+                //       |
+                //       1
+
+                *over_in_pos = 1; *over_out_pos = 3;
+                *under_in_pos = 2; *under_out_pos = 0;
+
+            }
+
+        } else { /* The edge at position 1 is outgoing */
+
+            if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
+                // We're in the case:
+                //
+                //       3
+                //       |
+                // 0 <-------- 2
+                //       |
+                //       v
+                //       1
+
+                *over_in_pos = 2; *over_out_pos = 0;
+                *under_in_pos = 3; *under_out_pos = 1;
+
+            } else if (pd->cross[cr].sign == PD_NEG_ORIENTATION) { /* The sign of the crossing is negative */
+                // We're in the case:
+                //
+                //       3
+                //       |
+                // 0 <---|--- 2
+                //       |
+                //       v
+                //       1
+
+                *over_in_pos = 3; *over_out_pos = 1;
+                *under_in_pos = 2; *under_out_pos = 0;
+
+            } else if (pd->cross[cr].sign == PD_UNSET_ORIENTATION) {
+                // We're in the case:
+                //
+                //       3
+                //       |
+                // 0 <---+---- 2
+                //       |
+                //       v
+                //       1
+
+                *over_in_pos = 2; *over_out_pos = 0;
+                *under_in_pos = 3; *under_out_pos = 1;
+
+            }
+
+        }
 
     }
-
-  } else { /* the edge at position 0 is outgoing! */
-
-    if (pd->edge[pd->cross[cr].edge[1]].head == cr &&
-	pd->edge[pd->cross[cr].edge[1]].headpos == 1) { /* The edge at position 1 is incoming */
-
-      if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
-
-	  /* We're in the case:
-
-	          3
-	          ^
-                  |
-	    0 <---|---- 2
-                  |
-                  |
-                  1
-
-	  */
-
-	*over_in_pos = 1; *over_out_pos = 3;
-	*under_in_pos = 2; *under_out_pos = 0;
-
-      } else { /* The sign of the crossing is negative */
-
-	/* We're in the case:
-
-	          3
-                  ^
-                  |
-	    0 <------- 2
-                  |
-                  |
-                  1
-
-	*/
-
-	*over_in_pos = 2; *over_out_pos = 0;
-	*under_in_pos = 1; *under_out_pos = 3;
-
-      }
-
-    } else { /* The edge at position 1 is outgoing */
-
-      if (pd->cross[cr].sign == PD_POS_ORIENTATION) {
-
-	/* We're in the case:
-
-	          3
-                  |
-                  |
-	    0 <-------- 2
-                  |
-                  |
-		  v
-                  1
-
-	  */
-
-	*over_in_pos = 2; *over_out_pos = 0;
-	*under_in_pos = 3; *under_out_pos = 1;
-
-      } else { /* The sign of the crossing is negative */
-
-	/* We're in the case:
-
-	          3
-                  |
-                  |
-	    0 <---|--- 2
-                  |
-                  |
-		  v
-                  1
-
-	  */
-
-	*over_in_pos = 3; *over_out_pos = 1;
-	*under_in_pos = 2; *under_out_pos = 0;
-
-      }
-
-    }
-
-  }
 
 }
 

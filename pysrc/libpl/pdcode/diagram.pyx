@@ -593,6 +593,10 @@ cdef class PlanarDiagram:
         for i, sign in enumerate(signature):
             self.p.cross[i].sign = sign
 
+    def unset_crossing_signs(self):
+        for x in self.crossings:
+            x.sign = PD_UNSET_ORIENTATION
+
     def reorient_component(self, pd_idx_t component, pd_or_t sign):
         """reorient_component(component, sign)
 
@@ -649,7 +653,7 @@ cdef class PlanarDiagram:
     def R1_loop_deletion(self, pd_idx_t cr):
         """R1_loop_deletion(crossing_or_index) -> result pdcode
 
-        Performs an (in-place) Reidemeister 1 loop deletion which
+        Performs a Reidemeister 1 loop deletion which
         removes the input crossing.
         """
         ret = PlanarDiagram_wrap(pd_R1_loopdeletion(self.p, cr))
@@ -657,7 +661,7 @@ cdef class PlanarDiagram:
             raise Exception("Error in R1 loopdeletion")
         return ret
 
-    def R2_bigon_elimination(self, pd_idx_t cr1, pd_idx_t cr2):
+    def R2_bigon_elimination(self, Face f):
         """R2_bigon_elimination(crossing_or_index, crossing_or_index)
         -> (Upper pdcode, [Lower pdcode])
 
@@ -665,6 +669,11 @@ cdef class PlanarDiagram:
         with vertices the two inputs. This is **not an in-place operation**
         as there may be more than one PlanarDiagram as a result of the move.
         """
+        if len(f) != 2:
+            raise Exception("Must R2 eliminate on a bigon, but f not a bigon")
+        return self.R2_bigon_elimination_vertices(f[0].tail, f[0].head)
+
+    def R2_bigon_elimination_vertices(self, pd_idx_t cr1, pd_idx_t cr2):
         cdef pd_idx_t *cr = [cr1, cr2]
         cdef pd_idx_t nout
         cdef pd_code_t **out_pds
@@ -979,7 +988,9 @@ cdef class PlanarDiagram:
         if self.ncross > 0:
             for face in self.faces:
                 verts = face.get_vertices()
-                if len(verts) == 2 and verts[0].sign != verts[1].sign:
+                if (len(verts) == 2
+                    and ((verts[0].sign != verts[1].sign) or
+                         (verts[0].sign == verts[1].sign == PD_UNSET_ORIENTATION))):
                     yield face
 
     def get_R3_triangles(self):
