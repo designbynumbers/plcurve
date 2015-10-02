@@ -133,7 +133,7 @@ class PDStorClassifier(object):
             n = len(kts)
             if n > 1:
                 N = max([kt.n_cross for kt in kts])
-                print "%s: %d, %d"%(kts, N, n)
+                print "%s: %d, %d %s"%(kts, N, n,homfly)
                 self.ambiguous_homflys[homfly] = N
 
         print self.ambiguous_homflys

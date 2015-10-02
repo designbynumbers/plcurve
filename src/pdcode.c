@@ -2828,11 +2828,48 @@ pd_code_t *pd_copy(pd_code_t *pd){
 }
 
 void pd_write_KnotTheory(FILE *of, pd_code_t *pd)
-/* Writes a pd code to file in the style of KnotTheory */
+/* Writes a pd code to file in the style of KnotTheory. This will 
+   be a single line in the form
+
+   PD[X[1, 6, 2, 7], X[3, 8, 4, 9], X[5, 10, 6, 1], X[7, 2, 8, 3], X[9, 4, 10, 5]]
+
+   Here each "X" denotes a crossing, with X[i,j,k,l] denoting a crossing in the form
+
+            k
+            ^
+            |
+     l <----------> j
+            |
+            |
+            i
+
+    the direction of the l,j strand is determined by the ordering of the edge numbers
+    l and j. Our crossing sign convention used to determine sign is this:
+
+            ^
+            |
+       ----------->
+            |
+            |
+
+    positive crossing
+    (upper tangent vector) x (lower tangent vector) points OUT of screen.
+
+            ^			    ^
+            |			    |
+       -----|----->    or      <----------   
+            |  	       		    |
+            |			    |
+	     
+    Negative-crossing
+    (upper tangent vector) x (lower tangent vector) points INTO screen.
+
+    so how we output each crossing depends on the sign of the crossing.
+
+*/
 {
   pd_idx_t cross,under_in,under_out;
   pd_pos_t pos;
-
 
   fprintf(of,"PD[");
 
