@@ -317,10 +317,12 @@ int main(int argc,char *argv[]) {
 	for(i=0;i<inpd->ncomps;i++) {
 	  component_orientations[i] = PD_POS_ORIENTATION;
 	}
-	for(i=0;i<inpd->ncross;i++) {
-	  inpd->cross[i].sign = PD_NEG_ORIENTATION;
-	}
-
+	if (allcrossings->count > 0) { 
+	  for(i=0;i<inpd->ncross;i++) {
+	    inpd->cross[i].sign = PD_NEG_ORIENTATION;
+	  }
+	} // Otherwise, we'll want to keep the original orientations.
+	  
 	pd_multidx_t *orientation_idx;
 	pd_idx_t*    *comp_orientations;
 	pd_idx_t      one = 1, two = 2;
@@ -388,14 +390,26 @@ int main(int argc,char *argv[]) {
 	      }
 	    }
 
-	    for(i=0;i<working_pd->ncross;i++) {
-	      if (crossing_idx->i[i] == 1) {
-		working_pd->cross[i].sign = PD_NEG_ORIENTATION;
-	      } else {
-		working_pd->cross[i].sign = PD_POS_ORIENTATION;
-	      }
-	    }
+	    if (allcrossings->count > 0) {
 
+	      for(i=0;i<working_pd->ncross;i++) {
+		if (crossing_idx->i[i] == 1) {
+		  working_pd->cross[i].sign = PD_NEG_ORIENTATION;
+		} else {
+		  working_pd->cross[i].sign = PD_POS_ORIENTATION;
+		}
+	      }
+
+	    } else { /* We're only doing one orientation; if we've 
+			GOT orientations, keep them. */
+
+	      for(i=0;i<working_pd->ncross;i++) {
+		if (working_pd->cross[i].sign == PD_UNSET_ORIENTATION) {
+		  working_pd->cross[i].sign = PD_POS_ORIENTATION;
+		}
+	      }
+	      
+	    }
 
 	    fprintf(out,"# %d crossing pd with UID %lu, crossings ",
 		    working_pd->ncross,working_pd->uid);
