@@ -19,7 +19,8 @@ EXTRA_DIST = bad_vects/bad_1.vect \
 #	make_hopf
 
 #if HAVE_ARGTABLE2
-check_PROGRAMS = test_invariants \
+check_PROGRAMS = test_knottheory \
+		 test_invariants \
 	         test_pdstorage \
 		 test_pdpack \
 		 csu_random_polygon_test \
@@ -56,7 +57,8 @@ check_PROGRAMS = test_invariants \
 	         test_perm \
 		 ccode_test 
 
-TESTS = test_invariants \
+TESTS = test_knottheory \
+	test_invariants \
 	test_pdstorage \
 	test_pdpack \
 	csu_random_polygon_test \
@@ -90,6 +92,10 @@ TESTS = test_invariants \
 	test_perm \
 	ccode_test
 
+test_knottheory_SOURCES = test_knottheory.c 
+test_knottheory_LDADD = -L$(top_builddir)/src -lplCurveStatic
+test_knottheory_LDFLAGS = -static
+test_knottheory_CFLAGS = -I$(top_srcdir)/src
 
 test_homfly_SOURCES = test_homfly.c 
 test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
