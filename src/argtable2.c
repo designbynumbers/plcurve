@@ -92,22 +92,22 @@ struct longoptions
     struct option *options;
     };
 
-#ifndef NDEBUG
-static
-void dump_longoptions(struct longoptions* longoptions)
-    {
-    int i;
-    printf("getoptval = %d\n", longoptions->getoptval);
-    printf("noptions  = %d\n", longoptions->noptions);
-    for (i=0; i<longoptions->noptions; i++)
-        {
-        printf("options[%d].name    = \"%s\"\n", i, longoptions->options[i].name);
-        printf("options[%d].has_arg = %d\n", i, longoptions->options[i].has_arg);
-        printf("options[%d].flag    = %p\n", i, longoptions->options[i].flag);
-        printf("options[%d].val     = %d\n", i, longoptions->options[i].val);
-        }
-    }
-#endif
+/* #ifndef NDEBUG */
+/* static */
+/* void dump_longoptions(struct longoptions* longoptions) */
+/*     { */
+/*     int i; */
+/*     printf("getoptval = %d\n", longoptions->getoptval); */
+/*     printf("noptions  = %d\n", longoptions->noptions); */
+/*     for (i=0; i<longoptions->noptions; i++) */
+/*         { */
+/*         printf("options[%d].name    = \"%s\"\n", i, longoptions->options[i].name); */
+/*         printf("options[%d].has_arg = %d\n", i, longoptions->options[i].has_arg); */
+/*         printf("options[%d].flag    = %p\n", i, longoptions->options[i].flag); */
+/*         printf("options[%d].val     = %d\n", i, longoptions->options[i].val); */
+/*         } */
+/*     } */
+/* #endif */
 
 static
 struct longoptions* alloc_longoptions(struct arg_hdr **table)

@@ -187,10 +187,10 @@ ccode_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 ccode_test_LDFLAGS = -static
 ccode_test_CFLAGS = -I$(top_srcdir)/src
 
-tsmcmc_random_test_SOURCES = tsmcmc_random_test.c
-tsmcmc_random_test_LDFLAGS = -static
-tsmcmc_random_test_LDADD = -L$(top_builddir)/src -lplCurve
-tsmcmc_random_test_CFLAGS = -I$(top_srcdir)/src 
+#tsmcmc_random_test_SOURCES = tsmcmc_random_test.c
+#tsmcmc_random_test_LDFLAGS = -static
+#tsmcmc_random_test_LDADD = -L$(top_builddir)/src -lplCurve
+#tsmcmc_random_test_CFLAGS = -I$(top_srcdir)/src 
 
 nn_test_SOURCES = nn_test.c
 nn_test_LDADD = -L$(top_builddir)/src -lplCurve
@@ -216,13 +216,13 @@ exit_failure_tests_SOURCES = exit_failure_tests.c
 exit_failure_tests_LDADD = -L$(top_builddir)/src -lplCurve
 exit_failure_tests_CFLAGS = -I$(top_srcdir)/src
 
-run_tests_SOURCES = run_tests.c
-run_tests_LDADD = -L$(top_builddir)/src -lplCurve
-run_tests_CFLAGS = -I$(top_srcdir)/src
+#run_tests_SOURCES = run_tests.c
+#run_tests_LDADD = -L$(top_builddir)/src -lplCurve
+#run_tests_CFLAGS = -I$(top_srcdir)/src
 
-runtest_wrapper.sh:
-	echo './run_tests $(top_srcdir)/test/' > runtest_wrapper.sh
-	chmod +x runtest_wrapper.sh
+#runtest_wrapper.sh:
+#	echo './run_tests $(top_srcdir)/test/' > runtest_wrapper.sh
+#	chmod +x runtest_wrapper.sh
 
 CLEANFILES = runtest_wrapper.sh hopftest.vect treftest.vect
 

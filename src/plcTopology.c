@@ -2009,8 +2009,6 @@ unsigned int pd_unsigned_linking_number(pd_code_t *pd,pd_idx_t c1,pd_idx_t c2)
   pd_check_cmp(SRCLOC,pd,c1);
   pd_check_cmp(SRCLOC,pd,c2);
 
-  pd_idx_t i;
-
   /* We'll loop over the shorter component. */
 
   pd_component_t *shortCmp;

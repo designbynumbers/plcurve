@@ -21,7 +21,7 @@ AC_COPYRIGHT(
 # wondering what the numbers mean.
 AC_INIT(libplCurve, 7.4.1, cantarel@math.uga.edu)
 #AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([])
+AM_INIT_AUTOMAKE()
 
 #
 # The version number below has a very specific meaning.  It is in the form
@@ -71,8 +71,6 @@ AC_SEARCH_LIBS([sqrt],[m])
 #AC_SEARCH_LIBS([arg_parse],[argtable2],[have_argtable2=true],[have_argtable2=false])
 AC_SEARCH_LIBS([cblas_dgemm],[gslcblas])
 AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x and higher require gsl (for random number generation)]),[-lgslcblas])
-
-AM_GNU_GETTEXT()
 
 #if test "x${have_argtable2}" = xtrue; then
 #   AC_CHECK_HEADERS([argtable2.h], [], [have_argtable2=false])
@@ -148,8 +146,9 @@ AC_HEADER_ASSERT
 AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
                   time.h sys/times.h sys/types.h fcntl.h signal.h complex.h \
-		  gsl/gsl_rng.h gsl/gsl_randist.h gsl/gsl_combination.h gsl/gsl_permutation.h \
-		  libintl.h limits.h strings.h stdint.h libintl.h strings.h ])
+		  gsl/gsl_rng.h gsl/gsl_randist.h gsl/gsl_combination.h \
+		  gsl/gsl_permutation.h \
+		  limits.h strings.h stdint.h strings.h ])
 
 
 # Signal to AUTOMAKE if we have argtable2
@@ -186,7 +185,7 @@ AC_C_INLINE
 AC_C_CONST
 
 # Output
-AC_CONFIG_FILES([Makefile po/Makefile.in intl/Makefile
+AC_CONFIG_FILES([Makefile
 		src/Makefile
                 planarmap/Makefile
                 pysrc/Makefile
