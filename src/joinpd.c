@@ -68,6 +68,9 @@ struct arg_lit  *verbose;
 struct arg_file *files;
 struct arg_file *outfile;
 struct arg_lit  *nochecking;
+struct arg_lit  *isomorphism;
+struct arg_lit  *isotopy;
+struct arg_rem  *mustdo;
 struct arg_lit  *help;
 struct arg_end  *end;
 struct arg_end  *helpend;
@@ -82,10 +85,13 @@ int main(int argc,char *argv[])
   void *argtable[] = 
     {
      verbose = arg_lit0("v","verbose","print debugging information"),
-     files   = arg_filen(NULL,NULL,"<files>",1,5000,"pdstor files to combine"),
+     files   = arg_filen(NULL,NULL,"<files>",1,100000,"pdstor files to combine"),
      outfile = arg_file1("o","output","<output filename>","output pdstor name"),
-     nochecking = arg_lit0(NULL,"no-checking","no isomorphism checking"),
      help = arg_lit0(NULL,"help","display help message"),
+     mustdo = arg_rem("\nUser must specify one:\n"," "),
+     nochecking = arg_lit0(NULL,"no-checking","no isomorphism checking"),
+     isomorphism = arg_lit0(NULL,"isomorphism-checking","structural isomorphism, ignores crossings"),
+     isotopy = arg_lit0(NULL,"isotopy-checking","diagram isotopy, uses crossing data"),
      end = arg_end(20)};
   
   void *helptable[] = {help,helpend = arg_end(20)};
@@ -114,7 +120,7 @@ int main(int argc,char *argv[])
 		 asked for help or gave nothing */
   
       printf("joinpd adds contents of one pdstor to another\n"
-	     "with isomorphism checking\n"
+	     "with isomorphism/isotopy/no checking\n"
 	     "usage: \n\n");
       arg_print_glossary(stdout, argtable," %-25s %s\n");
       exit(0);
@@ -123,6 +129,52 @@ int main(int argc,char *argv[])
     
   }
 
+  int isotypes = nochecking->count + isomorphism->count + isotopy->count;
+  
+  if (isotypes != 1) {
+
+      printf("joinpd adds contents of one pdstor to another\n"
+	     "with isomorphism/isotopy/no checking. Must specify\n"
+	     "type of checking\n"
+	     "usage: \n\n");
+      arg_print_glossary(stdout, argtable," %-25s %s\n");
+      exit(0);
+
+  }
+
+  pd_equivalence_t relation;
+  char relstring[256];
+  char relshort[256];
+
+  if (nochecking->count == 1) {
+
+    relation = NONE;
+    sprintf(relstring,"no checking");
+    sprintf(relshort,"(NONE)");
+
+  } else if (isomorphism->count == 1) {
+
+    relation = ISOMORPHISM;
+    sprintf(relstring,"isomorphism (ignoring crossing signs)");
+    sprintf(relshort,"(MORPH)");
+    
+  } else if (isotopy->count == 1) {
+
+    relation = DIAGRAM_ISOTOPY;
+    sprintf(relstring,"isotopy (using crossing signs)");
+    sprintf(relshort,"(TOPY)");
+    
+  } else {
+
+     printf("joinpd adds contents of one pdstor to another\n"
+	     "with isomorphism/isotopy/no checking. Must specify\n"
+	     "type of checking\n"
+	     "usage: \n\n");
+     arg_print_glossary(stdout, argtable," %-25s %s\n");
+     exit(0);
+
+  }
+  
   if (verbose->count > 0) {
 
     VERBOSE = 50;
@@ -142,19 +194,20 @@ int main(int argc,char *argv[])
   if (firstfile == NULL) {
     
     printf("joinpd adds contents of one pdstor to another\n"
-	   "with isomorphism checking\n"
+	   "with checking set to %s\n"
 	   "\n"
 	   "Couldn't open first file %s \n"	   
-	   "usage: \n\n",files->filename[0]);
+	   "usage: \n\n",relstring,files->filename[0]);
     arg_print_glossary(stdout, argtable," %-25s %s\n");
     exit(0);
     
   }
 
+  printf("joinpd: Checking set to %s\n",relstring);
   printf("joinpd: Loading %s...",files->filename[0]);
   fflush(stdout);
 
-  pd_stor_t *astor = pd_read_pdstor(firstfile,ISOMORPHISM);
+  pd_stor_t *astor = pd_read_pdstor(firstfile,relation);
 
   if (astor == NULL) {
 
@@ -217,7 +270,8 @@ int main(int argc,char *argv[])
     for(pdA = pd_stor_firstelt(bstor);pdA != NULL;pdA = pd_stor_nextelt(bstor),
 	  processed++) {
       
-      pd_addto_pdstor(astor,pdA,ISOMORPHISM);
+      pd_addto_pdstor(astor,pdA,relation);
+      pd_code_free(&pdA);
       
       /* We now report progress. */
       
@@ -227,8 +281,8 @@ int main(int argc,char *argv[])
 	    != percent_complete) { 
 	  
 	  percent_complete = (int)(floor(100.0*(double)(processed)/(double)(aelts)));
-	  printf("joinpd: %d/%d (%d%%) of pdcodes/main contains %d elts\r",
-		 processed,belts,percent_complete,pd_stor_nelts(astor)); 
+	  printf("joinpd %s: %d/%d (%d%%) of pdcodes/main contains %d elts\r",
+		 relshort,processed,belts,percent_complete,pd_stor_nelts(astor)); 
 	  
 	}
 	
@@ -236,13 +290,13 @@ int main(int argc,char *argv[])
       
     }
     
-    printf("joinpd: %d/%d (%d%%) of A pdcodes/B contains %d elts\r",
-	   processed,belts,100,pd_stor_nelts(astor));    
+    printf("joinpd %s: %d/%d (%d%%) of A pdcodes/B contains %d elts\r",
+	   relstring,processed,belts,100,pd_stor_nelts(astor));    
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     
-    printf("\njoinpd: %d pd codes added (%d total now) in %-4.5f seconds.\n",
-	   pd_stor_nelts(bstor),pd_stor_nelts(astor),cpu_time_used);
+    printf("\njoinpd %s: %d pd codes added (%d total now) in %-4.5f seconds.\n",
+	   relstring,pd_stor_nelts(bstor),pd_stor_nelts(astor),cpu_time_used);
     fflush(stdout);
 
     pd_free_pdstor(&bstor);
