@@ -5,6 +5,7 @@
 classifykt::loadKnotTheory = "Loaded KnotTheory";
 PrependTo[$Path, "/Users/cantarel/plcurve/data"];
 PrependTo[$Path, "/Users/cantarel/plCurve/data"];
+PrependTo[$Path, "/home/jason/plcurve/data"];
 << KnotTheory` 
 Message[classifykt::loadKnotTheory]
 
