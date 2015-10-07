@@ -3,7 +3,8 @@
 (* Classify KnotTheory format pd-codes from a file *)
 
 classifykt::loadKnotTheory = "Loaded KnotTheory";
-PrependTo[$Path, "../data"]; 
+PrependTo[$Path, "/Users/cantarel/plcurve/data"];
+PrependTo[$Path, "/Users/cantarel/plCurve/data"];
 << KnotTheory` 
 Message[classifykt::loadKnotTheory]
 
