@@ -6,6 +6,8 @@ classifykt::loadKnotTheory = "Loaded KnotTheory";
 PrependTo[$Path, "/Users/cantarel/plcurve/data"];
 PrependTo[$Path, "/Users/cantarel/plCurve/data"];
 PrependTo[$Path, "/home/jason/plcurve/data"];
+PrependTo[$Path, "/Users/cantarella/plcurve/data"];
+PrependTo[$Path, "/Users/cantarella/plCurve/data"];
 << KnotTheory` 
 Message[classifykt::loadKnotTheory]
 
@@ -1570,7 +1572,7 @@ Message[classifykt::datacheck,data[[1,1;;4]]]
 classifykt::filedatacheck = "data[[1]] classified as `1`";
 Message[classifykt::filedatacheck,ClassifyKnot[data[[1]]]]
 
-dataRaw = ClassifyKnot /@ data; 
+dataRaw = ParallelMap[ClassifyKnot,data,DistributedContexts->All]; 
 
 classifykt::ranclassify = "Ran classification on `1` pd codes"
 Message[classifykt::ranclassify,Length[data]]
