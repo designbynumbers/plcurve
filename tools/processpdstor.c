@@ -21,8 +21,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <Python.h>
-#include <pdcode/diagram_api.h>
+//#include <Python.h>
+//#include <pdcode/diagram_api.h>
 
 // Turn asserts ON.
 #define DEBUG 1
@@ -208,11 +208,11 @@ int main(int argc,char *argv[]) {
 
   /* If the simplify flag is set we need to intialize
      the python libraries*/
-  if(simplify->count != 0) {
-     printf("Initializing Python libraries.\n");
-     Py_Initialize();
-     import_libpl__pdcode__diagram();
-  }
+  //  if(simplify->count != 0) {
+  //  printf("Initializing Python libraries.\n");
+  //  Py_Initialize();
+  //  import_libpl__pdcode__diagram();
+  //}
 
   printf("processpdstor crossing code generator for pdstor files\n");
   printf("generating crossing codes for %d pdstor files\n",infile->count);
@@ -299,6 +299,15 @@ int main(int argc,char *argv[]) {
 
       pd_code_t *inpd;
       inpd = pd_read(in);
+
+      if (simplify->count > 0) {
+
+	pd_code_t *workpd = pd_simplify(inpd);
+	assert(pd_ok(workpd));
+	pd_code_free(&inpd);
+	inpd=workpd;
+
+      }
 
       assert(inpd != NULL);
 
@@ -423,25 +432,25 @@ int main(int argc,char *argv[]) {
 	    }
 	    fprintf(out,"\n");
 
-	    /* Simplify flag is set so we simplify the pdcode
-	       before writing*/
-	    if(simplify->count != 0){
-              pd_code_t **results;
-              int ndias = 0;
-              int results_index = 0;
+	    /* //	    /\* Simplify flag is set so we simplify the pdcode */
+	    /* //  before writing*\/ */
+	    /* if(simplify->count != 0){ */
+            /*   pd_code_t **results; */
+            /*   int ndias = 0; */
+            /*   int results_index = 0; */
 
-	      //printf("Calling pd_simplify\n");
+	    /*   //printf("Calling pd_simplify\n"); */
 
-	      results = pd_simplify(working_pd, &ndias);
-              pd_code_free(&working_pd);
-              working_pd = results[0];
+	    /*   results = pd_simplify(working_pd, &ndias); */
+            /*   pd_code_free(&working_pd); */
+            /*   working_pd = results[0]; */
 
-              // This won't handle split links properly
-              // TODO: Handle split links [so ndias > 1] properly
-              for(results_index = 1; results_index < ndias; results_index++){
-                pd_code_free(&results[results_index]);
-              }
-            }
+            /*   // This won't handle split links properly */
+            /*   // TODO: Handle split links [so ndias > 1] properly */
+            /*   for(results_index = 1; results_index < ndias; results_index++){ */
+            /*     pd_code_free(&results[results_index]); */
+            /*   } */
+            /* } */
 
 	    /*If the KnotTheory flag is set we use
 	      pd_write_KnotTheory to write codes*/
