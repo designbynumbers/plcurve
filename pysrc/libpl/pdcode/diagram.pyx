@@ -157,6 +157,9 @@ cdef PlanarDiagram PlanarDiagram_wrap(pd_code_t *pd, bool thin=False):
     newobj.regenerate_py_os()
     return newobj
 
+ISOTOPY = 0
+UO_ISOMORPHISM = 1
+
 cdef class PlanarDiagram:
 
     property ncomps:
@@ -212,6 +215,7 @@ cdef class PlanarDiagram:
         self.crossings = _CrossingList(self)
         self.components = _ComponentList(self)
         self.faces = _FaceList(self)
+        self.equiv_type = ISOTOPY
 
     def __init__(self, max_verts=15):
         """__init__([max_verts=15])
@@ -233,9 +237,15 @@ cdef class PlanarDiagram:
 
     def __richcmp__(PlanarDiagram self, PlanarDiagram other_pd, int op):
         if op == 2:
-            return pd_diagram_isotopic(self.p, other_pd.p)
+            if self.equiv_type == ISOTOPY:
+                return pd_diagram_isotopic(self.p, other_pd.p)
+            elif self.equiv_type == UO_ISOMORPHISM:
+                return pd_map_isomorphic(self.p, other_pd.p)
         elif op == 3:
-            return not pd_diagram_isotopic(self.p, other_pd.p)
+            if self.equiv_type == ISOTOPY:
+                return not pd_diagram_isotopic(self.p, other_pd.p)
+            elif self.equiv_type == UO_ISOMORPHISM:
+                return not pd_map_isomorphic(self.p, other_pd.p)
         else:
             raise NotImplementedError(
                 "PlanarDiagrams do not support relative comparisons.")
@@ -389,6 +399,7 @@ cdef class PlanarDiagram:
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(self.__class__)
         newobj.p = pd_copy(self.p)
         newobj.thin = thin
+        newobj.equiv_type = self.equiv_type
         newobj.regenerate_py_os()
         return newobj
 

@@ -1,8 +1,8 @@
 import random
 
-from libpl.pdcode import *
+from libpl.pdcode.diagram import *
 
-MAX_DIA_N = 3
+MAX_DIA_N = 16
 
 def shadow_r1_plus(pd, edge, face_pm, z):
     if MAX_DIA_N is not None:
@@ -81,14 +81,15 @@ class PDMarkovState(object):
     transitions = (
         shadow_r1_plus,
         shadow_r1_minus,
-        #shadow_r2a_plus,
-        #shadow_r2a_minus,
-        #shadow_r3,
+        shadow_r2a_plus,
+        shadow_r2a_minus,
+        shadow_r3,
     )
 
     def __init__(self, initial=None):
         if initial is None:
             initial = PlanarDiagram.unknot(1)
+            initial.equiv_type = UO_ISOMORPHISM
         for x in initial.crossings:
             x.sign = 2
         self._diagram = initial
@@ -127,17 +128,20 @@ def run(z, N=200000, n_cross=2, mix_steps=100):
         #if (i+1)%mix_n == 0:
             #knot = state._diagram.copy()
             #knot.randomly_assign_crossings()
-        if mix_n == MIX_N and state._diagram.ncross == n_cross:
-            print i+1, state._diagram.ncross
-            H = state._diagram.hash
-            hashes[H] += 1
-            if H not in dts:
-                dts[H] = state._diagram.copy()
+        if mix_n == MIX_N:
+            #and state._diagram.ncross == n_cross:
             mix_n = 0
-            #initial = PlanarDiagram.unknot(1)
-            #for x in initial.crossings:
-            #    x.sign = 2
-            #state._diagram = initial
+
+            if state._diagram.ncross == n_cross:
+                print i+1, state._diagram.ncross
+                H = state._diagram#.hash
+                hashes[H] += 1
+                if H not in dts:
+                    dts[H] = state._diagram.copy()
+                #initial = PlanarDiagram.unknot(1)
+                #for x in initial.crossings:
+                #    x.sign = 2
+                #state._diagram = initial
 
         elif mix_n < MIX_N:
             mix_n += 1
@@ -150,4 +154,4 @@ def run(z, N=200000, n_cross=2, mix_steps=100):
         n_roots = n_cross*2*2/len(D.build_map_isomorphisms(D))
         print hsh, hashes[hsh], n_roots, hashes[hsh]/n_roots
         #D.edit_copy()
-    return transitions
+    return hashes, transitions
