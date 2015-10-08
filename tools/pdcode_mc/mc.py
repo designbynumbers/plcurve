@@ -1,81 +1,82 @@
+from __future__ import division
 import random
 
 from libpl.pdcode.diagram import *
 
 MAX_DIA_N = 16
 
-def shadow_r1_plus(pd, edge, face_pm, z):
-    if MAX_DIA_N is not None:
-        if pd.ncross > MAX_DIA_N-1:
-            return pd
+def shadow_r1_plus(pd, edge, face_pm, z, max_n=None):
+    if max_n is not None:
+        if pd.ncross + 1 > max_n:
+            return pd, False
 
     alpha = random.random()
     if alpha > z:
-        return pd
+        return pd, False
 
-    return pd.R1_loop_addition(*edge.face_index_pos()[face_pm])
+    return pd.R1_loop_addition(*edge.face_index_pos()[face_pm]), True
 
-def shadow_r1_minus(pd, edge, face_pm, z):
+def shadow_r1_minus(pd, edge, face_pm, z, max_n=None):
     if pd.ncross < 2:
-        return pd
+        return pd, False
 
     face = edge.face_pos()[face_pm][0]
     if face.nedges == 1:
         loop_x = pd.crossings[face.vertices[0]]
         loop_x.sign = 0
-        return pd.R1_loop_deletion(loop_x.index)
+        return pd.R1_loop_deletion(loop_x.index), True
 
-    return pd
+    return pd, False
 
-def shadow_r2a_plus(pd, edge, face_pm, z):
-    if MAX_DIA_N is not None:
-        if pd.ncross > MAX_DIA_N-2:
-            return pd
+def shadow_r2a_plus(pd, edge, face_pm, z, max_n=None):
+    if max_n is not None:
+        if pd.ncross+2 > max_n:
+            return pd, False
 
     alpha = random.random()
     if alpha > z*z:
-        return pd
+        return pd, False
 
     face, edge_1p = edge.face_pos()[face_pm]
     if face.nedges < 3:
-        return pd
+        return pd, False
 
     face_delta = random.randint(1, len(face)-1)
     edge_2p = (edge_1p+face_delta)%len(face)
 
     #print face, face.signs
     #print edge_1p, edge_2p
-    return pd.R2_bigon_addition(face.index, edge_1p, edge_2p, 2)
+    return pd.R2_bigon_addition(face.index, edge_1p, edge_2p, 2), True
 
-def shadow_r2a_minus(pd, edge, face_pm, z):
+def shadow_r2a_minus(pd, edge, face_pm, z, max_n=None):
     if pd.ncross < 3:
-        return pd
+        return pd, False
     face = edge.face_pos()[face_pm][0]
 
     alpha = edge.prev_edge().face_pos()[(face_pm+1)%2][0].nedges
     beta = edge.next_edge().face_pos()[(face_pm+1)%2][0].nedges
 
     gamma = alpha + beta - 3
-    if gamma < 2:
-        return pd
+    if alpha == 1 or beta == 1 or gamma < 2:
+        return pd, False
     kappa = random.random()
     if kappa > 1./gamma:
-        return pd
+        return pd, False
 
     #print face, face.signs
     if len(face.vertices) == 2:
-        return pd.R2_bigon_elimination_vertices(*face.vertices)[0]
+        return pd.R2_bigon_elimination_vertices(*face.vertices)[0], True
 
-    return pd
+    return pd, False
 
-def shadow_r3(pd, edge, face_pm, z):
+def shadow_r3(pd, edge, face_pm, z, max_n=None):
     face = edge.face_pos()[face_pm][0]
     if face.nedges != 3 or len(set(face.vertices)) != 3:
-        return pd
+        return pd, False
 
     #print repr(pd)
     #print edge, face, face.nedges
-    return pd.R3_triangle_flip(face.index)
+    return pd.R3_triangle_flip(face.index), True
 
 class PDMarkovState(object):
     transitions = (
@@ -94,19 +95,21 @@ class PDMarkovState(object):
             x.sign = 2
         self._diagram = initial
 
-    def step(self, z=0.5):
+    def step(self, z=0.5, max_n=16):
         edge = random.choice(self._diagram.edges)
         face_pm = random.choice((0,1))
         #p = random.random()
         transition = random.choice(self.transitions)
         #print transition
 
-        self._diagram = transition(self._diagram, edge, face_pm, z)
+        self._diagram, success = transition(self._diagram, edge, face_pm, z, max_n)
+        self._diagram.equiv_type = UO_ISOMORPHISM
+        return transition, success
         #print self._diagram.is_ok()
 
 from collections import defaultdict
 
-def run(z, N=200000, n_cross=2, mix_steps=100):
+def run(z, N=200000, n_cross=2, mix_steps=100, max_n=16):
     state = PDMarkovState()
     MIX_N = mix_steps
     mix_n = 0
@@ -119,11 +122,11 @@ def run(z, N=200000, n_cross=2, mix_steps=100):
         if (i+1)%10000 == 0:
             print i
         #assert(state._diagram.ncross <= MAX_DIA_N)
-        from_hash = state._diagram.hash
-        state.step(z=z)
+        #from_hash = state._diagram.hash
+        state.step(z=z, max_n=max_n)
         state._diagram.regenerate_hash()
-        to_hash = state._diagram.hash
-        transitions[from_hash][to_hash] += 1
+        #to_hash = state._diagram.hash
+        #transitions[from_hash][to_hash] += 1
         #state._diagram.regenerate()
         #if (i+1)%mix_n == 0:
             #knot = state._diagram.copy()
