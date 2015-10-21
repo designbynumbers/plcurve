@@ -37,7 +37,7 @@
   #include<string.h>
 #endif
 
-#include<plcTopology.h>
+#include"plcTopology.h"
 
 /* int pd_idx_cmp(const void *A, const void *B) */
 /* { */

@@ -29,7 +29,7 @@
 #endif
 
 #include<ordie.h>
-#include<pd_container.h>
+#include"pd_container.h"
 
 pd_container_t *pd_new_container(pd_contidx_t initsize)
 /* Allocates space for a new pd_container holding initsize pointers. */

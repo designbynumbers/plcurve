@@ -7,7 +7,7 @@
 */
 
 #include<config.h>
-#include<plCurve.h>
+#include"plCurve.h"
 
 #ifdef HAVE_STDLIB_H
   #include <stdlib.h>

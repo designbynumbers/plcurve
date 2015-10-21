@@ -1,0 +1,1456 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     51209,       1447]
+NotebookOptionsPosition[     48513,       1360]
+NotebookOutlinePosition[     48869,       1376]
+CellTagsIndexPosition[     48826,       1373]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Build classifykt.m", "Title",
+ CellChangeTimes->{{3.6544205133388243`*^9, 3.654420518354491*^9}, {
+  3.654420829952737*^9, 3.654420835582996*^9}}],
+
+Cell["\<\
+--Jason, October 2015. 
+
+This code rebuilds the list of invariants incorporated into the WolframScript \
+classifykt.m script, using the file /data/knotchart-composite-only.txt to \
+classify the composites and incorporates this into a new build of the script.
+\[LineSeparator]This build should classify \[OpenCurlyDoubleQuote]ambiguous\
+\[CloseCurlyDoubleQuote] knots up to 12 crossings, including composites.\
+\>", "Text",
+ CellChangeTimes->{{3.6544206256557903`*^9, 3.654420644384905*^9}, {
+  3.654420718946574*^9, 3.654420797618079*^9}, {3.6544208383992853`*^9, 
+  3.6544208676752253`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"PrependTo", "[", 
+   RowBox[{"$Path", ",", " ", "\"\</Users/cantarel/plcurve/data\>\""}], "]"}],
+   ";"}], "\n", 
+ RowBox[{
+  RowBox[{"PrependTo", "[", 
+   RowBox[{"$Path", ",", " ", "\"\</Users/cantarel/plCurve/data\>\""}], "]"}],
+   ";"}], "\n", 
+ RowBox[{
+  RowBox[{"PrependTo", "[", 
+   RowBox[{"$Path", ",", " ", "\"\</home/jason/plcurve/data\>\""}], "]"}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"PrependTo", "[", 
+   RowBox[{"$Path", ",", " ", "\"\</Users/cantarella/plcurve/data\>\""}], 
+   "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"PrependTo", "[", 
+   RowBox[{"$Path", ",", " ", "\"\</Users/cantarella/plCurve/data\>\""}], 
+   "]"}], ";"}], "\n", 
+ RowBox[{"<<", " ", "KnotTheory`", " "}]}], "Input"],
+
+Cell[BoxData["\<\"Loading KnotTheory` version of April 3, 2014, \
+16:23:56.0784.\\nRead more at http://katlas.org/wiki/KnotTheory.\"\>"], \
+"Print",
+ CellChangeTimes->{3.654420927070545*^9, 3.654422828909358*^9, 
+  3.6544252184956408`*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"X", "::", "shdw"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Symbol \[NoBreak]\\!\\(\\\"X\\\"\\)\[NoBreak] appears in \
+multiple contexts \[NoBreak]\\!\\({\\\"KnotTheory`\\\", \\\"Global`\\\"}\\)\
+\[NoBreak]; definitions in context \[NoBreak]\\!\\(\\\"KnotTheory`\\\"\\)\
+\[NoBreak] may shadow or be shadowed by other definitions. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/shdw\\\", \
+ButtonNote -> \\\"KnotTheory`X::shdw\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.6544252185998898`*^9}]
+}, Open  ]],
+
+Cell["\<\
+We now import the composite list, doing some text processing to arrive at a \
+list of prime summands (with symmetry) for each class.\
+\>", "Text",
+ CellChangeTimes->{{3.6544212262459307`*^9, 3.654421268665578*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"CompositeList", " ", "=", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Drop", "[", 
+      RowBox[{"#", ",", 
+       RowBox[{"-", "1"}]}], "]"}], "&"}], "/@", 
+    RowBox[{"(", 
+     RowBox[{"StringSplit", " ", "/@", " ", 
+      RowBox[{"(", 
+       RowBox[{"StringSplit", "[", 
+        RowBox[{
+         RowBox[{"Import", "[", 
+          RowBox[{
+           RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
+           "\"\<../data/knotchart-composite-only.txt\>\""}], "]"}], ",", 
+         "\"\<\\n\>\""}], "]"}], ")"}]}], ")"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6544209328304577`*^9, 3.654420996011549*^9}, {
+  3.654421086943324*^9, 3.6544211971937637`*^9}}],
+
+Cell["\<\
+We now need to convert these lists to names in the pseudo-KnotTheory format \
+of the invariantlist.\
+\>", "Text",
+ CellChangeTimes->{{3.654421275906385*^9, 3.654421288923852*^9}, {
+  3.6544215773255672`*^9, 3.654421600214795*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"NameConvert", "[", "s_", "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"StringCases", "[", 
+     RowBox[{"s", ",", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"kcr", ":", "NumberString"}], " ", "~~", " ", "\"\<_\>\"", "~~", 
+        RowBox[{"ind", ":", "NumberString"}], "~~", "sym___"}], ":>", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Knot", "[", 
+          RowBox[{
+           RowBox[{"ToExpression", "[", "kcr", "]"}], ",", 
+           RowBox[{"ToExpression", "[", "ind", "]"}]}], "]"}], ",", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"Or", "[", 
+            RowBox[{
+             RowBox[{"TrueQ", "[", 
+              RowBox[{
+               RowBox[{"Head", "[", "sym", "]"}], "\[Equal]", "String"}], 
+              "]"}], ",", 
+             RowBox[{"TrueQ", "[", 
+              RowBox[{
+               RowBox[{"Head", "[", "sym", "]"}], "\[Equal]", "Symbol"}], 
+              "]"}]}], "]"}], ",", 
+           RowBox[{"ToString", "[", "sym", "]"}], ",", "\"\<\>\""}], "]"}]}], 
+        "}"}]}]}], "]"}], "[", 
+    RowBox[{"[", "1", "]"}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.654421602870428*^9, 3.65442171087547*^9}, {
+  3.654421753929317*^9, 3.654421880278864*^9}, {3.654422108409433*^9, 
+  3.654422109024549*^9}, {3.654422792230049*^9, 3.6544227974143*^9}, {
+  3.654424278023274*^9, 3.654424290272244*^9}, {3.65442456044855*^9, 
+  3.65442456551154*^9}, {3.654425723461557*^9, 3.654425805341036*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"CompositeNameList", " ", "=", " ", 
+   RowBox[{"Map", "[", 
+    RowBox[{"NameConvert", ",", "CompositeList", ",", 
+     RowBox[{"{", "2", "}"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.654422177760229*^9, 3.6544222143963737`*^9}, {
+  3.654422252808908*^9, 3.65442225407283*^9}}],
+
+Cell["\<\
+Now we need to generate a PD code and list of names for each of these lists \
+of prime summands/symmetry classes. For this, we need the Whitten.m package, \
+which will throw various warnings:\
+\>", "Text",
+ CellChangeTimes->{{3.654422466193399*^9, 3.654422549193997*^9}, {
+  3.654422773740375*^9, 3.654422782724498*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"PrependTo", "[", 
+   RowBox[{"$Path", ",", " ", "\"\</Users/cantarel/plcurve/src\>\""}], "]"}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"PrependTo", "[", 
+   RowBox[{"$Path", ",", " ", "\"\</Users/cantarel/plCurve/src\>\""}], "]"}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{{3.6544225778621893`*^9, 3.654422581933867*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"<<", "whitten`"}]], "Input",
+ CellChangeTimes->{{3.6544225380493803`*^9, 3.654422558226919*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"General", "::", "compat"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Combinatorica Graph and Permutations functionality has \
+been superseded by preloaded functionality. The package now being loaded may \
+conflict with this. Please see the Compatibility Guide for details.\"\>"}]], \
+"Message", "MSG",
+ CellChangeTimes->{{3.654422559090438*^9, 3.654422583687846*^9}, 
+   3.654422839984036*^9, 3.65442523597865*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Invariants", "::", "shdw"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Symbol \[NoBreak]\\!\\(\\\"Invariants\\\"\\)\[NoBreak] \
+appears in multiple contexts \[NoBreak]\\!\\({\\\"Combinatorica`\\\", \
+\\\"KnotTheory`KnotAtlas`ManagingKnotData`\\\"}\\)\[NoBreak]; definitions in \
+context \[NoBreak]\\!\\(\\\"Combinatorica`\\\"\\)\[NoBreak] may shadow or be \
+shadowed by other definitions. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/shdw\\\", ButtonNote -> \
+\\\"Combinatorica`Invariants::shdw\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{{3.654422559090438*^9, 3.654422583687846*^9}, 
+   3.654422839984036*^9, 3.6544252360445547`*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"General", "::", "obspkg"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"\[NoBreak]\\!\\(\\\"PlotLegends`\\\"\\)\[NoBreak] is now \
+obsolete. The legacy version being loaded may conflict with current \
+functionality. See the Compatibility Guide for updating information.\"\>"}]], \
+"Message", "MSG",
+ CellChangeTimes->{{3.654422559090438*^9, 3.654422583687846*^9}, 
+   3.654422839984036*^9, 3.654425236582773*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"t", "::", "shdw"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Symbol \[NoBreak]\\!\\(\\\"t\\\"\\)\[NoBreak] appears in \
+multiple contexts \[NoBreak]\\!\\({\\\"whitten`\\\", \\\"Global`\\\"}\\)\
+\[NoBreak]; definitions in context \[NoBreak]\\!\\(\\\"whitten`\\\"\\)\
+\[NoBreak] may shadow or be shadowed by other definitions. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/shdw\\\", \
+ButtonNote -> \\\"whitten`t::shdw\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{{3.654422559090438*^9, 3.654422583687846*^9}, 
+   3.654422839984036*^9, 3.6544252367596292`*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"ReadList", "::", "nffil"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"File not found during \
+\[NoBreak]\\!\\(ReadList[\\\"/Users/cantarel/plcurve/src/invariantlist_old.\
+txt\\\"]\\)\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/nffil\\\", ButtonNote -> \
+\\\"ReadList::nffil\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{{3.654422559090438*^9, 3.654422583687846*^9}, 
+   3.654422839984036*^9, 3.654425236817871*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"q", "::", "shdw"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Symbol \[NoBreak]\\!\\(\\\"q\\\"\\)\[NoBreak] appears in \
+multiple contexts \[NoBreak]\\!\\({\\\"whitten`\\\", \\\"Global`\\\"}\\)\
+\[NoBreak]; definitions in context \[NoBreak]\\!\\(\\\"whitten`\\\"\\)\
+\[NoBreak] may shadow or be shadowed by other definitions. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/shdw\\\", \
+ButtonNote -> \\\"whitten`q::shdw\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{{3.654422559090438*^9, 3.654422583687846*^9}, 
+   3.654422839984036*^9, 3.654425236883525*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"InvariantNames", "::", "shdw"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Symbol \[NoBreak]\\!\\(\\\"InvariantNames\\\"\\)\[NoBreak] \
+appears in multiple contexts \[NoBreak]\\!\\({\\\"whitten`\\\", \
+\\\"KnotTheory`KnotAtlas`ManagingKnotData`\\\"}\\)\[NoBreak]; definitions in \
+context \[NoBreak]\\!\\(\\\"whitten`\\\"\\)\[NoBreak] may shadow or be \
+shadowed by other definitions. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/shdw\\\", ButtonNote -> \
+\\\"whitten`InvariantNames::shdw\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{{3.654422559090438*^9, 3.654422583687846*^9}, 
+   3.654422839984036*^9, 3.65442523694704*^9}]
+}, Open  ]],
+
+Cell["\<\
+We first come up with code that will actually produce a Mirrored/Reoriented \
+PD codes from the KnotTheory versions.\
+\>", "Text",
+ CellChangeTimes->{{3.654424348367015*^9, 3.654424370632906*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"SymmetryProcess", "[", 
+    RowBox[{"{", 
+     RowBox[{"knot_", ",", "sym_"}], "}"}], "]"}], ":=", " ", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "K", "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"K", "=", " ", 
+       RowBox[{"Evaluate", "[", 
+        RowBox[{"ToExpression", "[", 
+         RowBox[{"ToString", "[", 
+          RowBox[{"PD", "[", "knot", "]"}], "]"}], "]"}], "]"}]}], ";", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"StringContainsQ", "[", 
+           RowBox[{"sym", ",", "\"\<m\>\""}], "]"}], ",", 
+          RowBox[{"Mirror", "[", "#", "]"}], ",", "#"}], "]"}], "&"}], " ", 
+       "@", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"StringContainsQ", "[", 
+          RowBox[{"sym", ",", "\"\<r\>\""}], "]"}], ",", 
+         RowBox[{"OrientComponent", "[", 
+          RowBox[{"K", ",", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"-", "1"}], ",", "1"}], "}"}]}], "]"}], ",", 
+         RowBox[{"OrientComponent", "[", 
+          RowBox[{"K", ",", 
+           RowBox[{"{", 
+            RowBox[{"1", ",", "1"}], "}"}]}], "]"}]}], "]"}]}]}]}], "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.65442293823247*^9, 3.6544229530451813`*^9}, {
+  3.6544234688276253`*^9, 3.654423504606509*^9}, {3.654423614427054*^9, 
+  3.6544237707972517`*^9}, {3.654424184381919*^9, 3.654424210415011*^9}, {
+  3.6544252930919523`*^9, 3.65442534884109*^9}}],
+
+Cell["\<\
+Now we need to do two things to each list of component/symmetry data: apply \
+this to each element and then ConnectedSum the components (probably by \
+Folding), and (separately) generate augumented names for each component and \
+Riffle them with \[OpenCurlyDoubleQuote]#\[CloseCurlyDoubleQuote]. Note that \
+due to some sort of Hold process in KnotTheory, we have to force evaluation \
+of PD[knot] by passing through ToExpression @ ToString, which we do above in \
+SymmetryProcess.\
+\>", "Text",
+ CellChangeTimes->{{3.654424381506028*^9, 3.654424447713991*^9}, {
+  3.654425449059793*^9, 3.654425501209957*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"GenerateConnectSumPD", "[", "L_", "]"}], " ", ":=", " ", 
+   RowBox[{"Fold", "[", 
+    RowBox[{"ConnectedSum", ",", 
+     RowBox[{"SymmetryProcess", " ", "/@", " ", "L"}]}], "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.654424456011611*^9, 3.654424501128003*^9}, {
+  3.6544246140699263`*^9, 3.654424616189064*^9}, {3.654425393759019*^9, 
+  3.654425400806488*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"GenerateConnectSumNames", "[", "L_", "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"StringContainsQ", "[", 
+        RowBox[{
+         RowBox[{"#", "[", 
+          RowBox[{"[", "2", "]"}], "]"}], ",", 
+         RowBox[{"\"\<m\>\"", "|", "\"\<r\>\""}]}], "]"}], ",", 
+       RowBox[{
+        RowBox[{"ToString", "[", 
+         RowBox[{"#", "[", 
+          RowBox[{"[", "1", "]"}], "]"}], "]"}], "<>", 
+        RowBox[{"#", "[", 
+         RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+       RowBox[{"ToString", "[", 
+        RowBox[{"#", "[", 
+         RowBox[{"[", "1", "]"}], "]"}], "]"}]}], "]"}], "&"}], " ", "/@", 
+    " ", "L"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.65442551169512*^9, 3.654425604270117*^9}}],
+
+Cell["We can now generate the list of combined Name, PD data.", "Text",
+ CellChangeTimes->{{3.654426610472621*^9, 3.654426625722465*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"CombinedCSList", " ", "=", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"GenerateConnectSumNames", "[", "#", "]"}], ",", 
+       RowBox[{"GenerateConnectSumPD", "[", "#", "]"}]}], "}"}], "&"}], " ", "/@",
+     " ", "CompositeNameList"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6544264921028547`*^9, 3.654426532521574*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"CombinedCSList", "[", 
+  RowBox[{"[", 
+   RowBox[{"-", "4"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.6544265354552298`*^9, 3.654426548921932*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[3, 1]\"\>", 
+     ",", "\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[3, 1]m\"\>"}], "}"}], ",", 
+   RowBox[{"PD", "[", 
+    RowBox[{
+     RowBox[{"X", "[", 
+      RowBox[{"19", ",", "22", ",", "20", ",", "23"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"21", ",", "24", ",", "22", ",", "1"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"23", ",", "20", ",", "24", ",", "21"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"1", ",", "4", ",", "2", ",", "5"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"3", ",", "6", ",", "4", ",", "7"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"5", ",", "2", ",", "6", ",", "3"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"7", ",", "10", ",", "8", ",", "11"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"9", ",", "12", ",", "10", ",", "13"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"11", ",", "8", ",", "12", ",", "9"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"13", ",", "17", ",", "14", ",", "16"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"15", ",", "19", ",", "16", ",", "18"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"17", ",", "15", ",", "18", ",", "14"}], "]"}]}], "]"}]}], 
+  "}"}]], "Output",
+ CellChangeTimes->{{3.6544265429500628`*^9, 3.6544265492770967`*^9}}]
+}, Open  ]],
+
+Cell["\<\
+Finally, we compute our two invariants (Kauffman and Signature) for all these \
+knots:\
+\>", "Text",
+ CellChangeTimes->{{3.654426630218772*^9, 3.654426650510727*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"CSListWithInvariants", " ", "=", " ", 
+   RowBox[{"ParallelMap", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"#", "[", 
+         RowBox[{"[", "1", "]"}], "]"}], ",", 
+        RowBox[{"#", "[", 
+         RowBox[{"[", "2", "]"}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Kauffman", "[", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}], "]"}], "[", 
+           RowBox[{"q", ",", "y"}], "]"}], ",", 
+          RowBox[{"KnotSignature", "[", 
+           RowBox[{"#", "[", 
+            RowBox[{"[", "2", "]"}], "]"}], "]"}]}], "}"}]}], "}"}], "&"}], 
+     " ", ",", " ", "CombinedCSList", ",", 
+     RowBox[{"DistributedContexts", "\[Rule]", "All"}]}], "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.654426652244679*^9, 3.6544266686876307`*^9}, {
+  3.6544267066936617`*^9, 3.654426744081728*^9}, {3.6544280019134283`*^9, 
+  3.654428036804965*^9}, {3.654428082722131*^9, 3.654428123574009*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"CSListWithInvariants", "[", 
+  RowBox[{"[", 
+   RowBox[{"-", "1"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.654428007334166*^9, 3.6544280107032557`*^9}, {
+  3.654428570601529*^9, 3.654428571616015*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[3, 1]m\"\>", 
+     ",", "\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[3, 1]m\"\>"}], "}"}], ",", 
+   RowBox[{"PD", "[", 
+    RowBox[{
+     RowBox[{"X", "[", 
+      RowBox[{"22", ",", "2", ",", "23", ",", "1"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"24", ",", "4", ",", "1", ",", "3"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"2", ",", "24", ",", "3", ",", "23"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"4", ",", "8", ",", "5", ",", "7"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"6", ",", "10", ",", "7", ",", "9"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"8", ",", "6", ",", "9", ",", "5"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"10", ",", "14", ",", "11", ",", "13"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"12", ",", "16", ",", "13", ",", "15"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"14", ",", "12", ",", "15", ",", "11"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"16", ",", "20", ",", "17", ",", "19"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"18", ",", "22", ",", "19", ",", "21"}], "]"}], ",", 
+     RowBox[{"X", "[", 
+      RowBox[{"20", ",", "18", ",", "21", ",", "17"}], "]"}]}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      FractionBox["1", 
+       SuperscriptBox["q", "16"]], "+", 
+      FractionBox["8", 
+       SuperscriptBox["q", "14"]], "+", 
+      FractionBox["24", 
+       SuperscriptBox["q", "12"]], "+", 
+      FractionBox["32", 
+       SuperscriptBox["q", "10"]], "+", 
+      FractionBox["16", 
+       SuperscriptBox["q", "8"]], "-", 
+      FractionBox[
+       RowBox[{"4", " ", "y"}], 
+       SuperscriptBox["q", "17"]], "-", 
+      FractionBox[
+       RowBox[{"28", " ", "y"}], 
+       SuperscriptBox["q", "15"]], "-", 
+      FractionBox[
+       RowBox[{"72", " ", "y"}], 
+       SuperscriptBox["q", "13"]], "-", 
+      FractionBox[
+       RowBox[{"80", " ", "y"}], 
+       SuperscriptBox["q", "11"]], "-", 
+      FractionBox[
+       RowBox[{"32", " ", "y"}], 
+       SuperscriptBox["q", "9"]], "+", 
+      FractionBox[
+       RowBox[{"6", " ", 
+        SuperscriptBox["y", "2"]}], 
+       SuperscriptBox["q", "18"]], "+", 
+      FractionBox[
+       RowBox[{"32", " ", 
+        SuperscriptBox["y", "2"]}], 
+       SuperscriptBox["q", "16"]], "+", 
+      FractionBox[
+       RowBox[{"50", " ", 
+        SuperscriptBox["y", "2"]}], 
+       SuperscriptBox["q", "14"]], "-", 
+      FractionBox[
+       RowBox[{"56", " ", 
+        SuperscriptBox["y", "2"]}], 
+       SuperscriptBox["q", "10"]], "-", 
+      FractionBox[
+       RowBox[{"32", " ", 
+        SuperscriptBox["y", "2"]}], 
+       SuperscriptBox["q", "8"]], "-", 
+      FractionBox[
+       RowBox[{"4", " ", 
+        SuperscriptBox["y", "3"]}], 
+       SuperscriptBox["q", "19"]], "-", 
+      FractionBox[
+       RowBox[{"8", " ", 
+        SuperscriptBox["y", "3"]}], 
+       SuperscriptBox["q", "17"]], "+", 
+      FractionBox[
+       RowBox[{"36", " ", 
+        SuperscriptBox["y", "3"]}], 
+       SuperscriptBox["q", "15"]], "+", 
+      FractionBox[
+       RowBox[{"128", " ", 
+        SuperscriptBox["y", "3"]}], 
+       SuperscriptBox["q", "13"]], "+", 
+      FractionBox[
+       RowBox[{"136", " ", 
+        SuperscriptBox["y", "3"]}], 
+       SuperscriptBox["q", "11"]], "+", 
+      FractionBox[
+       RowBox[{"48", " ", 
+        SuperscriptBox["y", "3"]}], 
+       SuperscriptBox["q", "9"]], "+", 
+      FractionBox[
+       SuperscriptBox["y", "4"], 
+       SuperscriptBox["q", "20"]], "-", 
+      FractionBox[
+       RowBox[{"8", " ", 
+        SuperscriptBox["y", "4"]}], 
+       SuperscriptBox["q", "18"]], "-", 
+      FractionBox[
+       RowBox[{"48", " ", 
+        SuperscriptBox["y", "4"]}], 
+       SuperscriptBox["q", "16"]], "-", 
+      FractionBox[
+       RowBox[{"68", " ", 
+        SuperscriptBox["y", "4"]}], 
+       SuperscriptBox["q", "14"]], "-", 
+      FractionBox[
+       RowBox[{"5", " ", 
+        SuperscriptBox["y", "4"]}], 
+       SuperscriptBox["q", "12"]], "+", 
+      FractionBox[
+       RowBox[{"48", " ", 
+        SuperscriptBox["y", "4"]}], 
+       SuperscriptBox["q", "10"]], "+", 
+      FractionBox[
+       RowBox[{"24", " ", 
+        SuperscriptBox["y", "4"]}], 
+       SuperscriptBox["q", "8"]], "+", 
+      FractionBox[
+       RowBox[{"4", " ", 
+        SuperscriptBox["y", "5"]}], 
+       SuperscriptBox["q", "19"]], "+", 
+      FractionBox[
+       RowBox[{"4", " ", 
+        SuperscriptBox["y", "5"]}], 
+       SuperscriptBox["q", "17"]], "-", 
+      FractionBox[
+       RowBox[{"36", " ", 
+        SuperscriptBox["y", "5"]}], 
+       SuperscriptBox["q", "15"]], "-", 
+      FractionBox[
+       RowBox[{"92", " ", 
+        SuperscriptBox["y", "5"]}], 
+       SuperscriptBox["q", "13"]], "-", 
+      FractionBox[
+       RowBox[{"80", " ", 
+        SuperscriptBox["y", "5"]}], 
+       SuperscriptBox["q", "11"]], "-", 
+      FractionBox[
+       RowBox[{"24", " ", 
+        SuperscriptBox["y", "5"]}], 
+       SuperscriptBox["q", "9"]], "+", 
+      FractionBox[
+       RowBox[{"6", " ", 
+        SuperscriptBox["y", "6"]}], 
+       SuperscriptBox["q", "18"]], "+", 
+      FractionBox[
+       RowBox[{"20", " ", 
+        SuperscriptBox["y", "6"]}], 
+       SuperscriptBox["q", "16"]], "+", 
+      FractionBox[
+       RowBox[{"16", " ", 
+        SuperscriptBox["y", "6"]}], 
+       SuperscriptBox["q", "14"]], "-", 
+      FractionBox[
+       RowBox[{"12", " ", 
+        SuperscriptBox["y", "6"]}], 
+       SuperscriptBox["q", "12"]], "-", 
+      FractionBox[
+       RowBox[{"22", " ", 
+        SuperscriptBox["y", "6"]}], 
+       SuperscriptBox["q", "10"]], "-", 
+      FractionBox[
+       RowBox[{"8", " ", 
+        SuperscriptBox["y", "6"]}], 
+       SuperscriptBox["q", "8"]], "+", 
+      FractionBox[
+       RowBox[{"4", " ", 
+        SuperscriptBox["y", "7"]}], 
+       SuperscriptBox["q", "17"]], "+", 
+      FractionBox[
+       RowBox[{"16", " ", 
+        SuperscriptBox["y", "7"]}], 
+       SuperscriptBox["q", "15"]], "+", 
+      FractionBox[
+       RowBox[{"24", " ", 
+        SuperscriptBox["y", "7"]}], 
+       SuperscriptBox["q", "13"]], "+", 
+      FractionBox[
+       RowBox[{"16", " ", 
+        SuperscriptBox["y", "7"]}], 
+       SuperscriptBox["q", "11"]], "+", 
+      FractionBox[
+       RowBox[{"4", " ", 
+        SuperscriptBox["y", "7"]}], 
+       SuperscriptBox["q", "9"]], "+", 
+      FractionBox[
+       SuperscriptBox["y", "8"], 
+       SuperscriptBox["q", "16"]], "+", 
+      FractionBox[
+       RowBox[{"4", " ", 
+        SuperscriptBox["y", "8"]}], 
+       SuperscriptBox["q", "14"]], "+", 
+      FractionBox[
+       RowBox[{"6", " ", 
+        SuperscriptBox["y", "8"]}], 
+       SuperscriptBox["q", "12"]], "+", 
+      FractionBox[
+       RowBox[{"4", " ", 
+        SuperscriptBox["y", "8"]}], 
+       SuperscriptBox["q", "10"]], "+", 
+      FractionBox[
+       SuperscriptBox["y", "8"], 
+       SuperscriptBox["q", "8"]]}], ",", "8"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.654428011010784*^9, 3.654428572120569*^9}]
+}, Open  ]],
+
+Cell["\<\
+Ok! Now that we\[CloseCurlyQuote]ve got that nailed down, \
+it\[CloseCurlyQuote]s time to add the knots to the picture. \
+\>", "Text",
+ CellChangeTimes->{{3.654428578913721*^9, 3.65442860288335*^9}, 
+   3.6544411214310093`*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"PrimeList", " ", "=", " ", 
+   RowBox[{"Flatten", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Drop", "[", 
+       RowBox[{"#", ",", 
+        RowBox[{"-", "1"}]}], "]"}], "&"}], "/@", 
+     RowBox[{"(", 
+      RowBox[{"StringSplit", " ", "/@", " ", 
+       RowBox[{"(", 
+        RowBox[{"StringSplit", "[", 
+         RowBox[{
+          RowBox[{"Import", "[", 
+           RowBox[{
+            RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
+            "\"\<../data/knotchart-prime.txt\>\""}], "]"}], ",", 
+          "\"\<\\n\>\""}], "]"}], ")"}]}], ")"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6544411242299557`*^9, 3.654441149253805*^9}, {
+  3.6544411839909267`*^9, 3.6544412080238247`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PrimeList", "[", 
+  RowBox[{"[", 
+   RowBox[{"1", ";;", "10"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.654441186445805*^9, 3.654441190053781*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"3_1\"\>", ",", "\<\"3_1m\"\>", ",", "\<\"4_1\"\>", 
+   ",", "\<\"5_1\"\>", ",", "\<\"5_1m\"\>", ",", "\<\"5_2\"\>", 
+   ",", "\<\"5_2m\"\>", ",", "\<\"6_1\"\>", ",", "\<\"6_1m\"\>", 
+   ",", "\<\"6_2\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{{3.654441190405488*^9, 3.654441209848177*^9}}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"PrimeNameList", " ", "=", " ", 
+   RowBox[{"NameConvert", " ", "/@", " ", "PrimeList"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.654441228424858*^9, 3.6544412473737717`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"PrimeListCombined", " ", "=", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"StringContainsQ", "[", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}], ",", 
+            RowBox[{"\"\<m\>\"", "|", "\"\<r\>\""}]}], "]"}], ",", 
+          RowBox[{
+           RowBox[{"ToString", "[", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "1", "]"}], "]"}], "]"}], "<>", 
+           RowBox[{"#", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+          RowBox[{"ToString", "[", 
+           RowBox[{"#", "[", 
+            RowBox[{"[", "1", "]"}], "]"}], "]"}]}], "]"}], "}"}], ",", 
+       RowBox[{"SymmetryProcess", "[", "#", "]"}]}], "}"}], "&"}], " ", "/@", 
+    " ", "PrimeNameList"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.654441403191114*^9, 3.6544414529235497`*^9}, {
+  3.654441528239225*^9, 3.654441532117175*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PrimeListCombined", "[", 
+  RowBox[{"[", 
+   RowBox[{"1", ";;", "3"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.654441458387182*^9, 3.654441463652454*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"\<\"Knot[3, 1]\"\>", ",", 
+     RowBox[{"PD", "[", 
+      RowBox[{
+       RowBox[{"X", "[", 
+        RowBox[{"1", ",", "4", ",", "2", ",", "5"}], "]"}], ",", 
+       RowBox[{"X", "[", 
+        RowBox[{"3", ",", "6", ",", "4", ",", "1"}], "]"}], ",", 
+       RowBox[{"X", "[", 
+        RowBox[{"5", ",", "2", ",", "6", ",", "3"}], "]"}]}], "]"}]}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Knot[3, 1]m\"\>", ",", 
+     RowBox[{"PD", "[", 
+      RowBox[{
+       RowBox[{"X", "[", 
+        RowBox[{"4", ",", "2", ",", "5", ",", "1"}], "]"}], ",", 
+       RowBox[{"X", "[", 
+        RowBox[{"6", ",", "4", ",", "1", ",", "3"}], "]"}], ",", 
+       RowBox[{"X", "[", 
+        RowBox[{"2", ",", "6", ",", "3", ",", "5"}], "]"}]}], "]"}]}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Knot[4, 1]\"\>", ",", 
+     RowBox[{"PD", "[", 
+      RowBox[{
+       RowBox[{"X", "[", 
+        RowBox[{"4", ",", "2", ",", "5", ",", "1"}], "]"}], ",", 
+       RowBox[{"X", "[", 
+        RowBox[{"8", ",", "6", ",", "1", ",", "5"}], "]"}], ",", 
+       RowBox[{"X", "[", 
+        RowBox[{"6", ",", "3", ",", "7", ",", "4"}], "]"}], ",", 
+       RowBox[{"X", "[", 
+        RowBox[{"2", ",", "7", ",", "3", ",", "8"}], "]"}]}], "]"}]}], 
+    "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.654441463878337*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"PrimeListWithInvariants", " ", "=", " ", 
+   RowBox[{"ParallelMap", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"#", "[", 
+         RowBox[{"[", "1", "]"}], "]"}], ",", 
+        RowBox[{"#", "[", 
+         RowBox[{"[", "2", "]"}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Kauffman", "[", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}], "]"}], "[", 
+           RowBox[{"q", ",", "y"}], "]"}], ",", 
+          RowBox[{"KnotSignature", "[", 
+           RowBox[{"#", "[", 
+            RowBox[{"[", "2", "]"}], "]"}], "]"}]}], "}"}]}], "}"}], "&"}], 
+     " ", ",", " ", "PrimeListCombined", ",", 
+     RowBox[{"DistributedContexts", "\[Rule]", "All"}]}], "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.65444155155221*^9, 3.654441564584391*^9}}],
+
+Cell["Now we can combine the two to get the master list:", "Text",
+ CellChangeTimes->{{3.654441754030098*^9, 3.65444176147815*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"MasterList", " ", "=", " ", 
+   RowBox[{"Join", "[", 
+    RowBox[{"PrimeListWithInvariants", ",", "CSListWithInvariants"}], "]"}]}],
+   ";"}]], "Input",
+ CellChangeTimes->{{3.654441763934853*^9, 3.6544417877383823`*^9}, {
+  3.6544429145063066`*^9, 3.654442922239807*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Length", "[", "MasterList", "]"}]], "Input",
+ CellChangeTimes->{{3.654441789346072*^9, 3.654441791810816*^9}}],
+
+Cell[BoxData["1087"], "Output",
+ CellChangeTimes->{3.654441792082876*^9}]
+}, Open  ]],
+
+Cell["\<\
+It\[CloseCurlyQuote]s worth checking to make sure that there aren\
+\[CloseCurlyQuote]t any unexpected duplicates in the list of invariants-- we \
+know that we can\[CloseCurlyQuote]t distinguish reversible knots from their \
+reverses with the methods available to us at this point.\
+\>", "Text",
+ CellChangeTimes->{{3.654441797931177*^9, 3.654441839070665*^9}, {
+  3.654442343680978*^9, 3.654442345103406*^9}, {3.654442375618733*^9, 
+  3.65444239982164*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ByInvariants", " ", "=", " ", 
+   RowBox[{"GroupBy", "[", 
+    RowBox[{"MasterList", ",", 
+     RowBox[{
+      RowBox[{"#", "[", 
+       RowBox[{"[", "3", "]"}], "]"}], "&"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.654441842719637*^9, 3.654441904542369*^9}, {
+  3.654441935451302*^9, 3.654441962445013*^9}, {3.6544419997147007`*^9, 
+  3.654442000297153*^9}, {3.654442030342349*^9, 3.65444206812846*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"#", "[", 
+       RowBox[{"[", "1", "]"}], "]"}], "&"}], "/@", " ", "#"}], ")"}], "&"}], 
+  " ", "/@", " ", 
+  RowBox[{"Select", "[", 
+   RowBox[{
+    RowBox[{"Values", "[", "ByInvariants", "]"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Length", "[", "#", "]"}], ">", " ", "1"}], "&"}]}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.654442073503518*^9, 3.6544420771709213`*^9}, {
+  3.6544421389140263`*^9, 3.6544421471453257`*^9}, {3.6544421878395853`*^9, 
+  3.6544422703112*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[8, 17]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[8, 17]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[9, 32]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[9, 32]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[9, 32]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[9, 32]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[9, 33]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[9, 33]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[9, 33]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[9, 33]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 67]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 67]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 67]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 67]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 71]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 71]m\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 79]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 79]m\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 80]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 80]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 80]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 80]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 81]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 81]m\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 82]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 82]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 82]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 82]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 83]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 83]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 83]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 83]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 84]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 84]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 84]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 84]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 85]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 85]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 85]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 85]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 86]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 86]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 86]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 86]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 87]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 87]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 87]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 87]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 88]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 88]m\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 90]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 90]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 90]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 90]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 91]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 91]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 91]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 91]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 92]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 92]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 92]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 92]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 93]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 93]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 93]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 93]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 94]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 94]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 94]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 94]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 95]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 95]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 95]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 95]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 98]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 98]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 98]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 98]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 102]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 102]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 102]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 102]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 106]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 106]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 106]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 106]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 107]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 107]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 107]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 107]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 109]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 109]m\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 110]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 110]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 110]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 110]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 115]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 115]m\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 117]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 117]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 117]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 117]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 118]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 118]m\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 119]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 119]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 119]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 119]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 147]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 147]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 147]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 147]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 148]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 148]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 148]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 148]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 149]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 149]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 149]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 149]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 150]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 150]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 150]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 150]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 151]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 151]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 151]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 151]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 153]\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 153]r\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "\<\"Knot[10, 153]m\"\>", "}"}], ",", 
+     RowBox[{"{", "\<\"Knot[10, 153]rm\"\>", "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[8, 17]\"\>"}], "}"}], ",", 
+     
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[8, 17]r\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[8, 17]\"\>"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[8, 17]r\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[9, 32]\"\>"}], "}"}], ",", 
+     
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[9, 32]r\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[9, 32]m\"\>"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[9, 32]rm\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[9, 33]\"\>"}], "}"}], ",", 
+     
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[9, 33]r\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[9, 33]m\"\>"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]\"\>", ",", "\<\"Knot[9, 33]rm\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[9, 32]\"\>"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[9, 32]r\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[9, 32]m\"\>"}], "}"}], 
+     ",", 
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[9, 32]rm\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[9, 33]\"\>"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[9, 33]r\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[9, 33]m\"\>"}], "}"}], 
+     ",", 
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[3, 1]m\"\>", ",", "\<\"Knot[9, 33]rm\"\>"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[4, 1]\"\>", ",", "\<\"Knot[8, 17]\"\>"}], "}"}], ",", 
+     
+     RowBox[{"{", 
+      RowBox[{"\<\"Knot[4, 1]\"\>", ",", "\<\"Knot[8, 17]r\"\>"}], "}"}]}], 
+    "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.6544420781228733`*^9, 3.6544421479105997`*^9, {3.6544421929396877`*^9, 
+   3.654442222181967*^9}, 3.6544422710608473`*^9}]
+}, Open  ]],
+
+Cell["\<\
+Looks good! Now we\[CloseCurlyQuote]re going to try some classifications \
+using the MasterList data:\
+\>", "Text",
+ CellChangeTimes->{{3.6544424108708277`*^9, 3.65444243779397*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ClassifyKnot", "[", "PD_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"Invariants", ",", "PossibleKnots"}], "}"}], ",", "\n", "\t", 
+    RowBox[{
+     RowBox[{"Invariants", "=", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Expand", "[", 
+         RowBox[{
+          RowBox[{"Kauffman", "[", "PD", "]"}], "[", 
+          RowBox[{"q", ",", "y"}], "]"}], "]"}], ",", 
+        RowBox[{"KnotSignature", "[", "PD", "]"}]}], "}"}]}], ";", "\n", "\t", 
+     RowBox[{"PossibleKnots", "=", 
+      RowBox[{"Select", "[", 
+       RowBox[{"MasterList", ",", 
+        RowBox[{
+         RowBox[{"Invariants", "==", 
+          RowBox[{"#", "[", 
+           RowBox[{"[", "3", "]"}], "]"}]}], "&"}]}], "]"}]}], ";", "\n", 
+     "\t", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{"Print", "[", "Invariants", "]"}], ";", "\n", "\t", 
+       RowBox[{"Print", "[", "PossibleKnots", "]"}], ";"}], "*)"}], "\n", 
+     "\t", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Length", "[", "PossibleKnots", "]"}], "\[Equal]", "0"}], ",", 
+       RowBox[{"{", "\"\<Unclassfied\>\"", "}"}], ",", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"PossibleKnots", "[", 
+           RowBox[{"[", "i", "]"}], "]"}], "[", 
+          RowBox[{"[", "1", "]"}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "1", ",", 
+           RowBox[{"Length", "[", "PossibleKnots", "]"}]}], "}"}]}], "]"}]}], 
+      "]"}]}]}], "\n", "]"}]}]], "Input",
+ CellChangeTimes->{{3.6544428108134947`*^9, 3.654442859865391*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ClassifyKnot", "[", 
+  RowBox[{"PD", "[", 
+   RowBox[{"Knot", "[", 
+    RowBox[{"10", ",", "153"}], "]"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.654442866216456*^9, 3.654442874746423*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", "\<\"Knot[10, 153]\"\>", "}"}], ",", 
+   RowBox[{"{", "\<\"Knot[10, 153]r\"\>", "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.654442875504281*^9}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1097, 1184},
+WindowMargins->{{684, Automatic}, {Automatic, 0}},
+FrontEndVersion->"10.2 for Mac OS X x86 (32-bit, 64-bit Kernel) (July 29, \
+2015)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 152, 2, 137, "Title"],
+Cell[735, 26, 602, 11, 223, "Text"],
+Cell[CellGroupData[{
+Cell[1362, 41, 744, 21, 169, "Input"],
+Cell[2109, 64, 239, 4, 54, "Print"],
+Cell[2351, 70, 650, 12, 59, "Message"]
+}, Open  ]],
+Cell[3016, 85, 224, 4, 76, "Text"],
+Cell[3243, 91, 703, 19, 169, "Input"],
+Cell[3949, 112, 240, 5, 46, "Text"],
+Cell[4192, 119, 1511, 36, 144, "Input"],
+Cell[5706, 157, 323, 7, 43, "Input"],
+Cell[6032, 166, 330, 6, 105, "Text"],
+Cell[6365, 174, 354, 9, 69, "Input"],
+Cell[CellGroupData[{
+Cell[6744, 187, 120, 2, 43, "Input"],
+Cell[6867, 191, 468, 10, 84, "Message"],
+Cell[7338, 203, 791, 14, 84, "Message"],
+Cell[8132, 219, 463, 10, 84, "Message"],
+Cell[8598, 231, 713, 13, 59, "Message"],
+Cell[9314, 246, 580, 12, 34, "Message"],
+Cell[9897, 260, 711, 13, 59, "Message"],
+Cell[10611, 275, 782, 14, 84, "Message"]
+}, Open  ]],
+Cell[11408, 292, 206, 4, 76, "Text"],
+Cell[11617, 298, 1528, 40, 144, "Input"],
+Cell[13148, 340, 620, 10, 164, "Text"],
+Cell[13771, 352, 415, 10, 44, "Input"],
+Cell[14189, 364, 816, 23, 95, "Input"],
+Cell[15008, 389, 137, 1, 46, "Text"],
+Cell[15148, 392, 394, 10, 69, "Input"],
+Cell[CellGroupData[{
+Cell[15567, 406, 177, 4, 43, "Input"],
+Cell[15747, 412, 1411, 33, 119, "Output"]
+}, Open  ]],
+Cell[17173, 448, 176, 4, 46, "Text"],
+Cell[17352, 454, 1045, 27, 119, "Input"],
+Cell[CellGroupData[{
+Cell[18422, 485, 232, 5, 43, "Input"],
+Cell[18657, 492, 7116, 217, 445, "Output"]
+}, Open  ]],
+Cell[25788, 712, 237, 5, 46, "Text"],
+Cell[26028, 719, 742, 20, 169, "Input"],
+Cell[CellGroupData[{
+Cell[26795, 743, 177, 4, 43, "Input"],
+Cell[26975, 749, 335, 6, 43, "Output"]
+}, Open  ]],
+Cell[27325, 758, 210, 4, 43, "Input"],
+Cell[27538, 764, 1019, 27, 95, "Input"],
+Cell[CellGroupData[{
+Cell[28582, 795, 184, 4, 43, "Input"],
+Cell[28769, 801, 1374, 38, 94, "Output"]
+}, Open  ]],
+Cell[30158, 842, 900, 25, 119, "Input"],
+Cell[31061, 869, 131, 1, 46, "Text"],
+Cell[31195, 872, 306, 7, 101, "Input"],
+Cell[CellGroupData[{
+Cell[31526, 883, 134, 2, 43, "Input"],
+Cell[31663, 887, 73, 1, 43, "Output"]
+}, Open  ]],
+Cell[31751, 891, 467, 8, 105, "Text"],
+Cell[32221, 901, 449, 10, 43, "Input"],
+Cell[CellGroupData[{
+Cell[32695, 915, 582, 18, 43, "Input"],
+Cell[33280, 935, 12907, 352, 1119, "Output"]
+}, Open  ]],
+Cell[46202, 1290, 192, 4, 46, "Text"],
+Cell[46397, 1296, 1636, 44, 219, "Input"],
+Cell[CellGroupData[{
+Cell[48058, 1344, 220, 5, 43, "Input"],
+Cell[48281, 1351, 204, 5, 101, "Output"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

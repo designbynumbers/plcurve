@@ -38,8 +38,8 @@
    #include<math.h>
 #endif
 
-#include<plcTopology.h>
-#include<pd_container.h>
+#include"plcTopology.h"
+#include"pd_container.h"
 
 #include<pd_multidx.h>
 #include<pd_dihedral.h>

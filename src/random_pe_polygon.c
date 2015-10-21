@@ -4,7 +4,7 @@
 
 */
 
-#include<plCurve.h>
+#include"plCurve.h"
 #include<config.h>
 
 #ifdef HAVE_MATH_H

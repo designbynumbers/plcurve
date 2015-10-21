@@ -7,7 +7,7 @@
 #ifndef __tsmcmc_h__
 #define __tsmcmc_h__ 1
 
-#include<plCurve.h>
+#include"plCurve.h"
 
 /*
    We will need some sort of framework for handling arbitrary

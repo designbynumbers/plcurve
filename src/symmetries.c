@@ -7,7 +7,7 @@
 
 */
 
-#include<plCurve.h>
+#include"plCurve.h"
 #include<matrix.h>
 
 #include<config.h>

@@ -46,7 +46,7 @@
   #include<string.h>
 #endif
 
-#include<plcTopology.h>
+#include"plcTopology.h"
 #include<pd_multidx.h>
 #include<pd_perm.h>
 #include<pd_permdata.h> /* Precomputed permutation data */
