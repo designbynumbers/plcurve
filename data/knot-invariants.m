@@ -1,24 +1,4 @@
-#!/usr/local/bin/WolframScript -script
-
-classifykt::Usage = 
-"<path>/WolframScript -script classifykt.m input.txt output.csv\n" \
-    <> "Process KnotTheory pdcodes on alternating lines of input.txt\n" <> "Write the results to output.csv";
-If[Length[$ScriptCommandLine] != 3,Message[classifykt::Usage];Quit[]];
-   
-(* Classify KnotTheory format pd-codes from a file *)
-
-classifykt::loadKnotTheory = "Loaded KnotTheory";
-PrependTo[$Path, "/Users/cantarel/plcurve/data"];
-PrependTo[$Path, "/Users/cantarel/plCurve/data"];
-PrependTo[$Path, "/home/jason/plcurve/data"];
-PrependTo[$Path, "/Users/cantarella/plcurve/data"];
-PrependTo[$Path, "/Users/cantarella/plCurve/data"];
-<< KnotTheory` 
-Message[classifykt::loadKnotTheory]
-
-(*KnotsWithInvariants = ReadList["../data/invariantlist_old.txt"];*)
-
-KnotsWithInvariants = {{{"Knot[3, 1]"}, PD[X[1, 4, 2, 5], X[3, 6, 4, 1], 
+MasterList = {{{"Knot[3, 1]"}, PD[X[1, 4, 2, 5], X[3, 6, 4, 1], 
        X[5, 2, 6, 3]], {-2*q^2 - q^4 + q^3*y + q^5*y + q^2*y^2 + q^4*y^2, 
        -2}}, {{"Knot[3, 1]m"}, PD[X[4, 2, 5, 1], X[6, 4, 1, 3], 
        X[2, 6, 3, 5]], {-q^(-4) - 2/q^2 + y/q^5 + y/q^3 + y^2/q^4 + y^2/q^2, 
@@ -12613,69 +12593,5 @@ KnotsWithInvariants = {{{"Knot[3, 1]"}, PD[X[1, 4, 2, 5], X[3, 6, 4, 1],
         (6*y^6)/q^18 + (20*y^6)/q^16 + (16*y^6)/q^14 - (12*y^6)/q^12 - 
         (22*y^6)/q^10 - (8*y^6)/q^8 + (4*y^7)/q^17 + (16*y^7)/q^15 + 
         (24*y^7)/q^13 + (16*y^7)/q^11 + (4*y^7)/q^9 + y^8/q^16 + 
-        (4*y^8)/q^14 + (6*y^8)/q^12 + (4*y^8)/q^10 + y^8/q^8, 8}}};
-
-classifykt::loadInvariants = "KnotsWithInvariants starts `1`";
-Message[classifykt::loadInvariants,TeXForm[KnotsWithInvariants[[1]]]]
-
-ClassifyKnot[PD_] := Module[{Invariants, PossibleKnots}, 
-   Invariants = {Expand[Kauffman[PD][q, y]], KnotSignature[PD]}; 
-   PossibleKnots = 
-     Select[KnotsWithInvariants, Invariants == #[[3]] &]; 
-   If[Length[PossibleKnots]==0,{"Unclassified"},                                     
-     Table[PossibleKnots[[i]][[1]], {i, 1, Length[PossibleKnots]}]] 
-];
-
-classifykt::testclass = "test 9_42m knot appears to be `1`";
-Message[classifykt::testclass,Quiet[ClassifyKnot[PD[X[1, 6, 2, 7], 
-   X[13, 18, 14, 1], X[2, 11, 3, 12], X[16, 4, 17, 3], 
-   X[9, 4, 10, 5], X[5, 15, 6, 14], X[7, 12, 8, 13], 
-   X[17, 9, 18, 8], X[10, 16, 11, 15]]]]]  
-
-
-(*classifykt::unclass = "test 7_1#6_1 knot appears to be `1`"; *)
-(*Message[classifykt::unclass,Quiet[ClassifyKnot[PD[X[13, 20, 14, 21], X[15, 22, 16, 23], X[17, 24, 18, 25], *)
-(* X[19, 26, 20, 1], X[21, 14, 22, 15], X[23, 16, 24, 17], *)
-(* X[25, 18, 26, 19], X[1, 4, 2, 5], X[7, 10, 8, 11], X[3, 9, 4, 8], *)
-(* X[9, 3, 10, 2], X[5, 12, 6, 13], X[11, 6, 12, 7]]]]] *)
-
-classifykt::filename = "Received filename `1`";
-file  = ToString[$ScriptCommandLine[[2]]];
-Message[classifykt::filename,file]
-
-classifykt::datacheck = "data[[1]] starts `1`";
-
-data = ToExpression[StringSplit[Import[file], "\n"][[2 ;; ;; 2]]];   
-  
-Message[classifykt::datacheck,data[[1]]]
-
-classifykt::filedatacheck = "data[[1]] classified as `1`";
-Message[classifykt::filedatacheck,ClassifyKnot[data[[1]]]]
-
-dataRaw = ParallelMap[ClassifyKnot,data,DistributedContexts->All]; 
-
-classifykt::ranclassify = "Ran classification on `1` pd codes"
-Message[classifykt::ranclassify,Length[data]]
-
-FixSpace[s_] := 
-  StringReplace[s, "," ~~ x : DigitCharacter :>  ", " <> ToString[x]];
-ConnectSum[s_] := 
-  If[TrueQ[Head[s[[1]]] == List], StringJoin[Riffle[#, "#"]] & /@ s, s];
-
-ClassifyPDList[L_] := 
-  Length /@ GroupBy[FixSpace /@ ConnectSum /@ L, First]; 
-  
-classifyName = ClassifyPDList[dataRaw]; 
-
-classifykt::madeassoc = "Made association starting with `1` -> `2`";
-Message[classifykt::madeassoc,Keys[classifyName][[1]],classifyName[Keys[classifyName][[1]]]]
-
-classifykt::outfile = "outfilename is `1`";
-outfile = ToString[$ScriptCommandLine[[3]]];
-Message[classifykt::outfile,outfile]
-
-Export[outfile,Transpose[{Keys[classifyName],Values[classifyName]}]]; 
-classifykt::done = "wrote data to `1`";
-Message[classifykt::done,outfile]
-
-
+        (4*y^8)/q^14 + (6*y^8)/q^12 + (4*y^8)/q^10 + y^8/q^8, 8}}}
+ 
