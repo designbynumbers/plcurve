@@ -57,6 +57,7 @@
 \newcommand{\Q}{\mathbb{H}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\F}{\mathbb{F}}
+\newcommand{\unsim}{\mathord{\sim}}
 
 \newcommand{\arc}[1]{\gamma_{#1}}
 \newcommand{\len}[1]{\ell_{#1}}
@@ -416,9 +417,7 @@ We find all of the solutions using a standard branch-and-bound algorithm and add
 
 \section{Computing and verifying the results}
 
-We implemented the above algorithms in C and used them to generate a database of knot diagrams up to 10 crossings. The longest run took several days on a desktop computer. The most important question, of course, is how the computation was checked. Of course, our implementation was careful and involved quite a bit of internal self-checks as well as testing against \valgrind for memory problems, and writing a suite of unit tests for the codebase. However, good programming practices can only provide a limited measure of confidence in the results, so we continued to test our work. The first and most important test was to verify that the databases obtained by connect summing and by expansions were identical. 
-
-We were also able to check against some existing enumerations. K\'apolnai et.\ al. classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension.  Coquereaux et al.~\cite{Coquereaux:2015wv} have recently extended Valette's count, and our numbers also match those in that paper. These counts are given in Table~\ref{tab:counts}.
+We implemented the above algorithms in C and used them to generate a list of knot shadows up to 10 crossings, each unique up to pd-isomorphism. The longest run took several days on a desktop computer. We then assigned orientations and over-under information at the crossings to each shadow to make a list of diagrams. We eliminated diagram-isomorphic duplicates from this list to arrive at a database of diagrams. We classified the knot type of each diagram as it was generated using the Millett/Ewing HOMFLY-PT code (if possible), and stored diagrams with ambiguous knot types for further analysis using Bar-Natan and Morrison's KnotTheory Mathematica package. This part of the computation was significantly more costly-- the 10 crossing diagrams ran for several days on an average of 200 cores provided by the Amazon EC2 cloud computing environment. The counts of shadows and diagrams are given in Table~\ref{tab:counts}.
 
 \begin{table}
 \begin{ruledtabular}
@@ -430,17 +429,19 @@ Cr & Prime Shadows & Link Shadows    & Knot Shadows     & Knot Diagrams \\ \hlin
 6  & $\num{9}$   & $\num{733}$       & $\num{376}$      & $\num{35872}^*$ \\
 7  & $\num{18}$  & $\num{4586}$      & $\num{2194}$     & $\num{484088}^*$ \\
 8  & $\num{62}$  & $\num{33373}$     & $\num{14614}$    & $\num{6967942}^*$ \\
-9  & $\num{198}$ & $\num{259434}^*$  & $\num{106421}$   & -- \\
-10 & $\num{803}$ & $\num{2152298}^*$ & $\num{823832}$   & -- \\ 
+9  & $\num{198}$ & $\num{259434}^*$  & $\num{106421}$   & $\num{105555336}^*$ \\
+10 & $\num{803}$ & $\num{2152298}^*$ & $\num{823832}$   & $\num{1664142836}^*$ \\ 
 \end{tabular}
 \end{ruledtabular}
 \caption{The number of link (including knots) and knot shadows and diagrams through 10 crossings. The unstarred numbers in the column of prime shadows are sequence A113201 in the OEIS. The unstarred numbers in the table of link shadows matches K\'apolnai et.\ al.~\cite{Kapolnai:2012hs}. The numbers in the column of knot shadows are sequence A008989 in the OEIS. They match the ``UU, $g=0$'' row on page 43 of the the recent preprint of Coquereaux et al.~\cite{Coquereaux:2015wv}, including the value $\num{823832}$ for $\Cr=10$ which they give as ``should be confirmed''. The starred numbers are new.}
 \label{tab:counts}
 \end{table}
 
-\section{Results}
+The most important question, of course, is how the computation was checked. Our implementation was careful and involved quite a bit of internal self-checks as well as testing against \valgrind for memory problems, and writing a suite of unit tests for the codebase. However, good programming practices can only provide a limited measure of confidence in the results, so we continued to test our work. The first and most important test was to verify that the databases of shadows obtained by connect summing and by expansions were identical. 
 
-Looking at Table~\ref{tab:counts}, one is struck by how close the number of distinct knot diagrams is to the maximum number $2^{\Cr+1} \times (\# \text{ knot shadows})$. To take 8 crossing diagrams as an example, we would expect at most $\num{7482368} =\num{14614} \times 2^9$, and we have $\num{6967942}$-- about $93\%$ of the maximum possible number. We have fewer distinct diagrams only because some of the underlying knot diagrams have symmetries. For instance, the trefoil diagram $\tref$ has a 3-fold rotational symmetry, so the crossing sign assignments $+--$, $-+-$ and $--+$ are all the same. However, our computations reveal that such symmetries quickly become very rare as the number of crossings increases. Table~\ref{tab:automorphisms} shows the mean number of automorphisms of a knot shadow, which rapidly decreases to 1 (the trivial automorphism).
+We were also able to check against some existing enumerations. K\'apolnai et.\ al. classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension.  Coquereaux et al.~\cite{Coquereaux:2015wv} have recently extended Valette's count, and our numbers also match those in that paper. 
+
+Looking at Table~\ref{tab:counts}, one is struck by how close the number of distinct knot diagrams is to the maximum number $2^{\Cr+1} \times (\# \text{ knot shadows})$. To take 8 crossing diagrams as an example, we would expect at most $\num{7482368} =\num{14614} \times 2^9$, and we have $\num{6967942}$-- about $93\%$ of the maximum possible number. By the time we reach 10 crossing diagrams, the corresponding fraction is roughly $98.6\%$ of the maximum number. We have fewer distinct diagrams only because some of the underlying knot diagrams have symmetries. For instance, the trefoil diagram $\tref$ has a 3-fold rotational symmetry, so the crossing sign assignments $+--$, $-+-$ and $--+$ are all the same. However, our computations reveal that such symmetries quickly become very rare as the number of crossings increases. Table~\ref{tab:automorphisms} shows the mean number of automorphisms of a knot shadow, which rapidly decreases to 1 (the trivial automorphism).
 
 \begin{table}
 \begin{ruledtabular}
@@ -455,7 +456,69 @@ Mean Automorphisms   &  5  & $\frac{64}{19}$ & $\frac{44}{19}$ & $\frac{159}{94}
 \label{tab:automorphisms}
 \end{table}
 
-The database of diagrams is a large data set, and it would be impractical to point out everything interesting about it. However, it is worth giving an overview of some important points. Figure~\ref{fig:knot grid} shows the first 42 shadows obtained in the enumeration.
+\subsection{Knot Types and Inferred Counts}
+
+Counting knot types required us to be careful about knot symmetries. To review, mirroring crossings and reversing orientation yield a $\Z_2 \times \Z_2$ action on knot types. If a knot is isotopic to its image under a subgroup of this group, it is said to have a symmetry; there are five symmetry types corresponding to the five subgroups of this group: ``none'', ``mirror'', ``reversible'', ``amphichiral'' (the diagonal subgroup), and ``full''. We refer to a collection of knot types related by the group as a ``base knot type''. For instance, the base knot type $3_1$ consists of the two knot types $3_1$ and $3_1m$ (the mirror image of $3_1$). 
+
+We were able to use the HOMFLY-PT and Kauffmann polynomials and the knot signature to classify almost all of the knots whose base type had symmetry ``full'' or ``reversible'', since these invariants distinguish all knots with 10 crossings or less from their mirror images except the $10_{71}$ knot. There are 36 base types with one of the other three symmetries. These were more difficult to classify as classical invariants generally don't distinguish knots from their reversals. We relied on symmetry to infer the distribution of counts:
+
+\begin{lemma} 
+If a base knot type $K$ has symmetry type ``amphichiral'' ($K = K^{mr}$, $K^{m} = K^r$, but $K \neq K^r$) or ``mirror'' ($K = K^m$, $K^r = K^{mr}$, but $K \neq K^r$), then the number of diagrams of the two knot types are equal. If $K$ has symmetry type ``none" ($K \neq K^m \neq K^r \neq K^mr$) the number of diagrams of each of these four knot types are equal.
+\end{lemma}
+
+\begin{proof}
+In each case, there is a group action on diagrams (reverse all crossings of a diagram, reverse the orientation of a diagram, or take the 4-element group generated by both operations) which converts diagrams of one knot of these knot types to a diagrams of the other types. This action extends to diagram-isomorphism classes of diagrams because the action commutes with any given diagram-isomorphism. 
+
+It is not always the case that this action is free on diagram-isomorphism classes of diagrams of any knot type. For instance, taking the mirror image of this diagram of the $7_4$ knot \raisebox{-0.4 \height}{\includegraphics[height=0.25in]{74knot.png}} is equivalent to rotating it by 180 degrees (a diagram-isomorphism). But this merely shows that $7_4$ is a reversible knot, as diagram-isomorphisms are knot isotopies. By hypothesis, $K$ is \emph{not} isotopic to its images under the group action, and therefore it cannot by diagram-isomorphic either.
+
+Since the action of the group of order 2 (or 4) on this set of diagram-isomorphism classes is free and exchanges the various knot types, the number of diagram-isomorphism classes of diagrams in each knot type must be the same.
+\end{proof}
+
+Using this lemma, we could safely split our original count of $\num{5672}$ 10-crossing diagrams of base type $8_{17}$ into $\num{2836}$ diagrams of type $8_{17}$ and $\num{2836}$ diagrams of type $8_{17}^r$, even though we have no way of knowing which of our diagrams to assign to each of these knot types. 
+
+The relative frequencies of all the knot types appear in Figure~\ref{fig:knot frequency loglog} in a log-log plot. The figure also shows the 10 most frequent knot types, from the unknot (the most frequent knot type in all our data) and the trefoils $3_1$ and $3_1^m$ through the square knot $3_1 \# 3_1^m$ and the $6_3$ knot, which is the 10th most common knot in all our data. Though we know~\cite{chapman} that unknotted diagrams eventually become exponentially rare, and so that the rank-order of the knot types must eventually change, we do not see this effect in our data; the list of 10 most common knots is the same for crossing numbers 6-10. 
+
+More interestingly, the log-log plot of ranked knot frequencies for 10 crossing knots is roughly linear over 9 orders of magnitude (there are about $1.6 \times 10^9$ diagrams, with the most frequent knot type (the unknot) occurring $1.2 \times 10^9$ times and the least frequent knot types (a 98-way tie among various 10-crossing knots) observed exactly once. It is not clear to us why this phenomenon should occur in the data (and it may disappear for larger crossing numbers), but it certainly seems worthy of further investigation!
+
+\begin{figure}[ht]
+\hfill
+\begin{overpic}[width=3in]{combined_rank_graphic.pdf}
+\put(8,59){$0_1$}
+\put(16.5,59){$3_1$}
+\put(25,59){$3_1^m$}
+\put(34,59){$4_1$}
+\put(44,59){$5_2$}
+\put(53,59){$5_2^m$}
+\put(62,59){$5_1$}
+\put(71,59){$5_1^m$}
+\put(78,59){$3_1 \# 3_1^m$}
+\put(98,59){$6_3$}
+\end{overpic}
+\hfill
+\begin{minipage}[b]{1.5in}
+\begin{ruledtabular}
+\begin{tabular}{ccc}
+$\Cr$ & Unknots & (decimal) \\ \hline 
+\\ [-0.15in]
+ 3 & $\frac{\num{17}}{\num{18}}$ & 0.94 \\ [0.05in]
+ 4 & $\frac{\num{265}}{\num{276}}$ & 0.96 \\[0.05in]
+ 5 & $\frac{\num{343}}{\num{367}}$ & 0.93 \\[0.05in]
+ 6 & $\frac{\num{4057}}{\num{4484}}$ & 0.90 \\[0.05in]
+ 7 & $\frac{\num{105583}}{\num{121022}}$ & 0.87 \\[0.05in]
+ 8 & $\frac{\num{2926416}}{\num{3483971}}$ & 0.84  \\[0.05in]
+ 9 & $\frac{\num{42626767}}{\num{52777668}}$ & 0.81 \\[0.05in]
+ 10 & $\frac{\num{1291291155}}{\num{1664142836}}$ & 0.78
+\end{tabular}
+\end{ruledtabular}
+\end{minipage}
+\hfill
+\hphantom{.}
+
+\caption{A log-log plot of knot frequencies in rank order for crossing numbers 3 through 10, with the 10 most common knot types identified. These knot types have the same rank ordering in all the crossing numbers computed. The data show some evidence of power-law behavior. At right, we see the unknot fraction in table form.} 
+\label{fig:knot frequency loglog}
+\end{figure}
+
+At right in Figure~\ref{fig:knot frequency loglog} we give the unknot fraction explicitly in tabular form. We now try to understand this fraction. Of course, for any shadow we can set the crossings to produce an unknot by going ``downhill'' from some distinguished edge, but this effect can only account for a tiny fraction of the unknots-- there are at most $n$ ways to assign crossings in this manner but there are $~2^n$ different crossing assignments overall. It turns out, however, that structural properties of the set of shadows explain most of the unknot fraction. To see how, we start with Figure~\ref{fig:knot grid}, which shows the first 42 shadows obtained in the enumeration.
 \begin{figure}
 \includegraphics[width=6in]{knotgrid.pdf}
 \caption{The first 42 knot shadows.}
@@ -492,23 +555,46 @@ $\frac{\num{89627}}{\num{106421}}$ & $\frac{\num{712961}}{\num{823832}}$ \\
 \caption{The distribution of monogons among shadows of $n$ crossings. The mean number of monogons in an $n$-crossing diagram fits very well to $1.01927 + 0.356111 n$, while the mean number of bigons fits well to $0.563245 + 0.117749 n$ It would be interesting to know the asymptotic growth rate.}
 \label{tab:monogons and bigons}
 \end{table}
-It is interesting to note that almost every diagram contains either a monogon or a bigon-- there are only three diagrams in our dataset without one or the other! These turn out to be the shadows of torus knots and links that Conway designated as $8^*$, $9^*$, and $10^*$.
+It is interesting to note that almost every diagram contains either a monogon or a bigon-- there are only three diagrams in our dataset without one or the other! These turn out to be the shadows of torus knots and links that Conway designated as $8^*$, $9^*$, and $10^*$. This means that we can expect to reduce the complexity of an average shadow substantially just by eliminating monogons, which can be done regardless of crossing signs.
 
-Another observation from Figure~\ref{fig:knot grid} is that most diagrams are composite. 
+Put another way, almost all knot shadows are composite with the one-crossing diagram $8$ as a (diagrammatically) prime factor. Figure~\ref{fig:proportiongraphic} shows the fraction of shadows of a given crossing number with a given number of prime summands. If the number of prime summands is equal to the crossing number $n$, the shadow is a connect sum of one-crossing $8$ diagrams-- these diagrams are called ``tree-like'' by Aicardi~\cite{Aicardi:1994uq}.
+Tree-like diagrams are colored in dark on the left-hand side of Figure~\ref{fig:proportiongraphic}. There are no $n$-crossing shadows with $n-1$ prime summands (as there are no 2-crossing prime knot diagrams). 
 
-An experiment to do: make a histogram of the number of diagrams which are all unknots, those that are mostly unknots, those that are partially unknots, and so forth.
+\begin{figure}
+\hfill
+\begin{overpic}[width=2in]{proportion-connect-sums.pdf}
+\end{overpic}
+\hfill
+\hphantom{stuff}
+\hfill
+\hphantom{.}
+\caption{The chart at left shows the (proportional) breakdown of shadows with 3 through 10 crossings into collections of shadows with the same number of prime summands. We see in the far left rectangle, for instance, that more than $80\%$ of 3-crossing shadows are composed of connect sums of 3 one-crossing $8$ diagrams (these are colored dark-gray and labelled '3'), while on the right, only about $25\%$ of 10-crossing diagrams are connect sums of 10 one-crossing $8$ diagrams. The diagrams where the number of crossings and summands are equal are called tree-like~(cf.~\cite{Aicardi:1994uq})-- they are always unknotted regardless of crossing assignments, and are shaded dark grey throughout. At right, we see several tree-like shadows with 8 crossings.}
+\label{fig:proportiongraphic}
+\end{figure}
 
-I think this should partially explain the unknot fraction; the idea is that we should be able to count diagrams which can't possibly be knots (that is, stuff with only R1's) and see that while they eventually become exponentially scarce, they are (in this data) quite prevalent. Of course, it would be better if we also knew an upper bound on the total number of diagrams (maybe from Thistlethwaite's paper?), so that we could get an asymptotic bound on the decay rate.
+We will call the $n$-crossing shadows with $n-2$ prime summands ``3-almost tree-like'' as they are the connect sum of a tree-like diagram and a 3-crossing prime diagram, and similarly call the $n$-crossing diagrams with $n-3$ prime summands ``4-almost tree-like'' as they are the connect sum of a tree-like diagram and a 4-crossing prime diagram. These diagrams are colored in on Figure~\ref{fig:proportiongraphic} in a lighter color. 
 
+\begin{proposition}
+If a shadow is tree-like, all assignments of crossings result in the unknot; these are the only knot shadows with this property. If a shadow is 3-almost tree-like, $3/4$ of crossing assignments produce unknots. If a shadow is 4-almost tree-like, $7/8$ of crossing assignments produce unknots.
+\end{proposition}
+
+\begin{proof}
+The calculations of unknot fractions are easy; a tree-like diagram can be reduced to the unknot by Reidemeister I moves regardless of crossing assignment. Further, there is only one prime knot shadow of 3 or 4 crossings; the assignment of all $+$ or all $-$ crossings yields a $3_1$ or $4_1$ knot, while all other assignments result in unknots.
+
+The statement that the tree-like shadows are the only shadows with the property that all crossing assignments produce unknots is more interesting. Polyak~\cite{Polyak:1998wa} shows that the average value of the Vassiliev $v_2$ invariant (which is $0$ for unknots) over all crossing assignments for a shadow is given by the formula $\frac{1}{8}(\operatorname{J}^+ + 2 \operatorname{St})$ where $\operatorname{J}^+$ and $\operatorname{St}$ are Arnol'd invariants of the shadow (cf. \cite{Arnold:1994wr}). Further, both he and Aicardi~\cite{Aicardi:1994uq} show that tree-like shadows are the only shadows with $\operatorname{J}^+ + 2 \operatorname{St} = 0$. 
+\end{proof}
+
+Doing the requisite sums, this analysis predicts that roughly $77\%$ of 8-crossing diagrams, $70\%$ of 9-crossing diagrams, and $63\%$ of 10-crossing diagrams should be tree-like or almost tree-like unknots. We can compare these figures to the actual unknot fractions from Figure~\ref{fig:knot frequency loglog}: roughly $83\%$ of 8-crossing diagrams, $80\%$ of 9-crossing diagrams, and $78\%$ of 10-crossing diagrams are unknots of any kind. This suggests that the treelike phenomenon explains much of the unknot fraction. We note that these figures are not entirely comparable; while the Proposition shows that at least $63\%$ of crossing assignments of 10-crossing diagrams result in unknots, some of these crossing assignments might result in diagram-isomorphic diagrams if the underlying shadow has a symmetry, and so the unknot fraction could be smaller in practice. 
 
 \section{Future Directions}
 
+All of collections of knot shadows are included as supplementary data with this paper, including files of grid embeddings of the shadows. In addition, we include the actual counts of diagrams of various knots types as CSV files, and the files of diagrams with 8 crossings and fewer. We did not assemble files of diagrams for 9 and 10 crossing diagrams, but classified diagrams on-the-fly as we generated them (we estimate the file of 10-crossing diagrams to be about 1.6 tb in size if generated). Our source code is also available publicly. 
+
+Once in possession of an enumeration of diagrams, it is tempting to compute knot distances (cf.~\cite{DARCY:2001fi,MoonHyeyoung:2010tm}) and unknotting numbers. We have carried out some preliminary experiments along these lines and are disappointed to report that it does not seem to resolve any of the remaining uncertainties in the knot distance tables.
+
 More sophisticated counting procedures have been applied in recent years, particularly for diagrams of knots. Jacobsen and Zinn-Justin\cite{Jacobsen:2002kia} give a transfer matrix analysis for a combinatorial description of prime, reduced, weighted, marked planar diagrams for knots very similar to Gusein-Zade's enumeration~\cite{GusenZade:1994wl,GusenZade:1998jz}. Gusein-Zade's actual computer enumeration was carried out only to 10 crossings while Jacobsen and Zinn-Justin push the enumeration to the nearly unthinkable 22-crossing case, where they give an exact count of 40558226664529044000 knot diagrams. 
 
-Schaeffer~\cite{Schaeffer:1997wo} (see also~\cite{Bouttier:2002iu}) constructed a very insightful bijection between link diagrams where an edge stretches to infinity (``two-leg'' diagrams) and a class of decorated trees called ``blossom trees''. This has been used to great effect in constructing generating functions for the number of these diagrams, and we will use such a generating function due to Bouttier-Di Francesco-Guitter~\cite{Bouttier:2003ib} to check our work below. Unfortunately, the relationship between our count and theirs is not simple; symmetries of our diagrams confuse the counting procedure so that we must weight our diagrams by a factor derived from the size of their automorphism group to recover the counts of~\cite{Bouttier:2003ib}. 
-
-
-transitions, unknotting number and so forth.
+Schaeffer~\cite{Schaeffer:1997wo} (see also~\cite{Bouttier:2002iu}) constructed a very insightful bijection between link diagrams where an edge stretches to infinity (``two-leg'' diagrams) and a class of decorated trees called ``blossom trees''. One of us (Chapman), uses this identification to analyze the asymptotic behavior of our model in further work, proving 
 
 \appendix
 \section{PD-codes and isomorphisms}
@@ -864,12 +950,9 @@ It takes only a moment longer to realize that the embedding of $G_0$ is determin
 One might worry that the choice of \emph{which}\footnote{Remember that the choice of ``base edge'' was arbitrary.} copy of an edge of multiplicity two to delete could affect the embedded isomorphism type after an $\edgedouble$ or $\cutedgedouble$ reduction, but it's easy to check that the two possible reduced configurations are (embedded) graph isomorphic by looking at the pictures above. Formally, the point is that the two copies of the edge are adjacent in the cyclic ordering of edges at each vertex, so the surviving copy is always in the same cyclic position relative to surviving edges incident to the vertex.
 \end{proof}
 
-We can use this theorem to come up with a strategy for generating diagrams. Basically, we will start by enumerating embedded planar simple graphs of vertex degree $\leq 4$ using \plantri, then expand them to $4$-regular embedded planar graphs using the moves above. Afterwards, we will see that we can generate embedded isomorphic graphs with different expansion sequences, so we will have to filter the graphs into isomorphism classes. We start with two lemmas:
-
-\begin{lemma}
-If the embedded planar graph of vertex degree $\leq 4$ $G_0$ is obtained from a $4$-regular embedded planar multigraph $G$ by the reduction process of Proposition~\ref{prop:reduce} then either every vertex of degree one in $G_0$ has exactly one loop edge in $G$ and one multiedge of multiplicity two obtained by $\edgedouble$ or $\cutedgedouble$ or the graph is \hopfgraph.
+We can use this theorem to come up with a strategy for generating diagrams. Basically, we will start by enumerating embedded planar simple graphs of vertex degree $\leq 4$ using \plantri, then expand them to $4$-regular embedded planar graphs using the moves above. Afterwards, we will see that we can generate embedded isomorphic graphs with different expansion sequences, so we will have to filter the graphs into isomorphism classes. We start with tbedded planar graph of vertex degree $\leq 4$ $G_0$ is obtained from a $4$-regular embedded planar multigraph $G$ by the reduction process of Proposition~\ref{prop:reduce} then either every vertex of degree one in $G_0$ has exactly one loop edge in $G$ and one multiedge of multiplicity two obtained by $\edgedouble$ or $\cutedgedouble$ or the graph is \hopfgraph.
 \label{lem:degreeone}
-\end{lemma}
+%\end{lemma}
 
 \begin{proof}
 If we expand $G_0$ to $G$ using the four moves, three empty connections on the vertex must be filled during the process. If they are filled by redoubling the existing edge, then the degree of the vertex at the other end of the edge was also one, and we get \hopfgraph. Otherwise, we must fill two by adding a loop edge, and the other by doubling the existing edge.
