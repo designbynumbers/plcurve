@@ -149,10 +149,10 @@
 
 
 \title{Random Knot Diagrams}
-\author[Cantarella, Chapman, Mastin]{Jason Cantarella (UGA)\\
-joint w/ Harrison Chapman (UGA), Matt Mastin (Wake Forest)\\
+\author[Cantarella, Chapman, Mastin]{Harrison Chapman (UGA)\\
+joint w/ Jason Cantarella (UGA),\\ Matt Mastin (MailChimp, Inc.)\\
 Crucial Assist: Eric Rawdon (St. Thomas)}
-\date[CanaDAM 2015]{CanaDAM Conference, June 2, 2015}
+\date{AMS Fall Western Section Meeting, 10/24/15}
 
 %\allowdisplaybreaks
 %\usepackage[bookmarks,bookmarksopen,bookmarksdepth=4]{hyperref}
@@ -201,8 +201,8 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
 \newcommand{\ShSet}{\mathcal S}
 \newcommand{\LnSet}{\mathcal L}
 \newcommand{\sr}{/\!\!/}
-\newtheorem{observationfirst}[theorem]{Observation (known to all combinatoricists, but new to me)}
-\newtheorem{observation}[theorem]{Observation (ktacbntm)}
+\newtheorem{observationfirst}[theorem]{Observation}
+\newtheorem{observation}[theorem]{Observation}
 \newtheorem{plan}[theorem]{Plan to Enumerate Diagrams}
 
 \begin{frame}
@@ -522,7 +522,7 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
   \begin{definition}
     In the \emph{random diagram model} of random knotting, a
     $n$-crossing diagram is drawn uniformly from the finite set of
-    $n$-crossing knot diagrams.
+    $n$-crossing knot diagrams (cf. Dunfield).
   \end{definition}
   \begin{figure}
     \centering
@@ -604,6 +604,7 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
 
 \begin{frame}
   \frametitle{Verifying against existing shadow counts}
+  \vspace{-0.15in}
   \begin{columns}
     \begin{column}[T]{.6\columnwidth}
       \centering
@@ -643,6 +644,10 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
           %\end{table}
         \end{column}
   \end{columns}
+  \begin{center}
+  \includegraphics[width=4in]{../../figs/coqueraux.png}\\
+  Coqueraux, Zuber, arxiv:1507.03163
+  \end{center}
   \vspace{.3in}
   We have not found any existing counts of \emph{diagrams}.
 \end{frame}
@@ -669,7 +674,7 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
       7  & 2,194           & 561,664          & 484,088              \\
       8  & 14,614          & 7,482,368        & 6,967,942            \\
       9  & 106,421         & 108,975,104      & 105,555,336          \\
-      10 & 823,832         & 1,687,207,936      & \colorbox{yellow}{$\sim$ 1,687,207,936}     \\
+      10 & 823,832         & 1,687,207,936      & 1,664,142,836     \\
     \end{tabular}
     \label{tab:counts}
   \end{table}
@@ -1026,7 +1031,7 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Yup.}
+	\frametitle{Yes.}
 	
 	\begin{center}
 	\includegraphics[width=4in]{../figs/obvious-unknots.pdf}
@@ -1446,21 +1451,21 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
 %  \end{columns}
 %\end{frame}
 %
-\begin{frame}
-  \frametitle{Future Direction: How to enumerate diagrams\\ (like a \sout{BOSS} combinatoricist)}
-  \begin{figure}
-    \centering
-    \includegraphics[width=.7\columnwidth]{legdias.pdf}
-    \label{fig:legdia}
-  \end{figure}
-
-  Two-leg diagrams counted by generating function (Bouttier,
-  et al.\ 2003):
-  \[ G_0 = \frac{24g - 1 + \sqrt{1-12g}}{9g(1+\sqrt{1-12g})} = 1 + 2g
-  + 9g^2 + 54g^3 + 378g^4 +  \cdots \]
-  
-  We can enumerate two-leg diagrams using blossom trees (Schaeffer). 
-\end{frame}
+%\begin{frame}
+%  \frametitle{Future Direction: How to enumerate diagrams\\ (like a \sout{BOSS} combinatoricist)}
+%  \begin{figure}
+%    \centering
+%    \includegraphics[width=.7\columnwidth]{legdias.pdf}
+%    \label{fig:legdia}
+%  \end{figure}
+%
+%  Two-leg diagrams counted by generating function (Bouttier,
+%  et al.\ 2003):
+%  \[ G_0 = \frac{24g - 1 + \sqrt{1-12g}}{9g(1+\sqrt{1-12g})} = 1 + 2g
+%  + 9g^2 + 54g^3 + 378g^4 +  \cdots \]
+%  
+%  We can enumerate two-leg diagrams using blossom trees (Schaeffer). 
+%\end{frame}
 
 \begin{frame}
   \frametitle{Future Direction: Uniform sampling of large diagrams}

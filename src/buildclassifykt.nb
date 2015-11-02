@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     69778,       1959]
-NotebookOptionsPosition[     66534,       1854]
-NotebookOutlinePosition[     66890,       1870]
-CellTagsIndexPosition[     66847,       1867]
+NotebookDataLength[     69399,       1948]
+NotebookOptionsPosition[     66203,       1844]
+NotebookOutlinePosition[     66559,       1860]
+CellTagsIndexPosition[     66516,       1857]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -31,11 +31,15 @@ This code rebuilds the list of invariants incorporated into the WolframScript \
 classifykt.m script, using the file /data/knotchart-composite-only.txt to \
 classify the composites and incorporates this into a new build of the script.
 \[LineSeparator]This build should classify \[OpenCurlyDoubleQuote]ambiguous\
-\[CloseCurlyDoubleQuote] knots up to 12 crossings, including composites.\
+\[CloseCurlyDoubleQuote] knots up to 12 crossings, including composites, with \
+the exception of the \[OpenCurlyDoubleQuote]reversed\[CloseCurlyDoubleQuote] \
+versions of the knots, which we have no ability to detect, and the pair \
+Knot[10,71] and Knot[10,71]m which we can\[CloseCurlyQuote]t distinguish with \
+KnotTheory.\
 \>", "Text",
  CellChangeTimes->{{3.6544206256557903`*^9, 3.654420644384905*^9}, {
   3.654420718946574*^9, 3.654420797618079*^9}, {3.6544208383992853`*^9, 
-  3.6544208676752253`*^9}}],
+  3.6544208676752253`*^9}, {3.654857247432102*^9, 3.6548572951899433`*^9}}],
 
 Cell[CellGroupData[{
 
@@ -66,21 +70,7 @@ Cell[BoxData["\<\"Loading KnotTheory` version of April 3, 2014, \
 16:23:56.0784.\\nRead more at http://katlas.org/wiki/KnotTheory.\"\>"], \
 "Print",
  CellChangeTimes->{3.654420927070545*^9, 3.654422828909358*^9, 
-  3.6544252184956408`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"X", "::", "shdw"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"Symbol \[NoBreak]\\!\\(\\\"X\\\"\\)\[NoBreak] appears in \
-multiple contexts \[NoBreak]\\!\\({\\\"KnotTheory`\\\", \\\"Global`\\\"}\\)\
-\[NoBreak]; definitions in context \[NoBreak]\\!\\(\\\"KnotTheory`\\\"\\)\
-\[NoBreak] may shadow or be shadowed by other definitions. \
-\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
-ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/shdw\\\", \
-ButtonNote -> \\\"KnotTheory`X::shdw\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.6544252185998898`*^9}]
+  3.6544252184956408`*^9, 3.654856688215994*^9}]
 }, Open  ]],
 
 Cell["\<\
@@ -1853,7 +1843,7 @@ Cell[BoxData[
 }, Open  ]]
 },
 WindowSize->{1097, 1184},
-WindowMargins->{{684, Automatic}, {Automatic, 0}},
+WindowMargins->{{174, Automatic}, {Automatic, 4}},
 FrontEndVersion->"10.2 for Mac OS X x86 (32-bit, 64-bit Kernel) (July 29, \
 2015)",
 StyleDefinitions->"Default.nb"
@@ -1870,95 +1860,94 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[580, 22, 152, 2, 137, "Title"],
-Cell[735, 26, 602, 11, 223, "Text"],
+Cell[580, 22, 152, 2, 92, "Title"],
+Cell[735, 26, 902, 15, 144, "Text"],
 Cell[CellGroupData[{
-Cell[1362, 41, 744, 21, 169, "Input"],
-Cell[2109, 64, 239, 4, 54, "Print"],
-Cell[2351, 70, 650, 12, 59, "Message"]
+Cell[1662, 45, 744, 21, 114, "Input"],
+Cell[2409, 68, 261, 4, 38, "Print"]
 }, Open  ]],
-Cell[3016, 85, 224, 4, 76, "Text"],
-Cell[3243, 91, 703, 19, 169, "Input"],
-Cell[3949, 112, 240, 5, 46, "Text"],
-Cell[4192, 119, 1511, 36, 144, "Input"],
-Cell[5706, 157, 323, 7, 43, "Input"],
-Cell[6032, 166, 330, 6, 105, "Text"],
-Cell[6365, 174, 354, 9, 69, "Input"],
+Cell[2685, 75, 224, 4, 30, "Text"],
+Cell[2912, 81, 703, 19, 46, "Input"],
+Cell[3618, 102, 240, 5, 30, "Text"],
+Cell[3861, 109, 1511, 36, 80, "Input"],
+Cell[5375, 147, 323, 7, 28, "Input"],
+Cell[5701, 156, 330, 6, 49, "Text"],
+Cell[6034, 164, 354, 9, 46, "Input"],
 Cell[CellGroupData[{
-Cell[6744, 187, 120, 2, 43, "Input"],
-Cell[6867, 191, 468, 10, 84, "Message"],
-Cell[7338, 203, 791, 14, 84, "Message"],
-Cell[8132, 219, 463, 10, 84, "Message"],
-Cell[8598, 231, 713, 13, 59, "Message"],
-Cell[9314, 246, 580, 12, 34, "Message"],
-Cell[9897, 260, 711, 13, 59, "Message"],
-Cell[10611, 275, 782, 14, 84, "Message"]
+Cell[6413, 177, 120, 2, 28, "Input"],
+Cell[6536, 181, 468, 10, 42, "Message"],
+Cell[7007, 193, 791, 14, 42, "Message"],
+Cell[7801, 209, 463, 10, 24, "Message"],
+Cell[8267, 221, 713, 13, 24, "Message"],
+Cell[8983, 236, 580, 12, 24, "Message"],
+Cell[9566, 250, 711, 13, 24, "Message"],
+Cell[10280, 265, 782, 14, 42, "Message"]
 }, Open  ]],
-Cell[11408, 292, 206, 4, 76, "Text"],
-Cell[11617, 298, 1528, 40, 144, "Input"],
-Cell[13148, 340, 620, 10, 164, "Text"],
-Cell[13771, 352, 415, 10, 44, "Input"],
-Cell[14189, 364, 816, 23, 95, "Input"],
-Cell[15008, 389, 137, 1, 46, "Text"],
-Cell[15148, 392, 394, 10, 69, "Input"],
+Cell[11077, 282, 206, 4, 30, "Text"],
+Cell[11286, 288, 1528, 40, 80, "Input"],
+Cell[12817, 330, 620, 10, 68, "Text"],
+Cell[13440, 342, 415, 10, 28, "Input"],
+Cell[13858, 354, 816, 23, 31, "Input"],
+Cell[14677, 379, 137, 1, 30, "Text"],
+Cell[14817, 382, 394, 10, 28, "Input"],
 Cell[CellGroupData[{
-Cell[15567, 406, 177, 4, 43, "Input"],
-Cell[15747, 412, 1411, 33, 119, "Output"]
+Cell[15236, 396, 177, 4, 28, "Input"],
+Cell[15416, 402, 1411, 33, 63, "Output"]
 }, Open  ]],
-Cell[17173, 448, 176, 4, 46, "Text"],
-Cell[17352, 454, 1045, 27, 119, "Input"],
+Cell[16842, 438, 176, 4, 30, "Text"],
+Cell[17021, 444, 1045, 27, 46, "Input"],
 Cell[CellGroupData[{
-Cell[18422, 485, 232, 5, 43, "Input"],
-Cell[18657, 492, 7116, 217, 445, "Output"]
+Cell[18091, 475, 232, 5, 28, "Input"],
+Cell[18326, 482, 7116, 217, 206, "Output"]
 }, Open  ]],
-Cell[25788, 712, 237, 5, 46, "Text"],
-Cell[26028, 719, 742, 20, 169, "Input"],
+Cell[25457, 702, 237, 5, 46, "Text"],
+Cell[25697, 709, 742, 20, 169, "Input"],
 Cell[CellGroupData[{
-Cell[26795, 743, 177, 4, 43, "Input"],
-Cell[26975, 749, 335, 6, 43, "Output"]
+Cell[26464, 733, 177, 4, 43, "Input"],
+Cell[26644, 739, 335, 6, 43, "Output"]
 }, Open  ]],
-Cell[27325, 758, 210, 4, 43, "Input"],
-Cell[27538, 764, 1019, 27, 95, "Input"],
+Cell[26994, 748, 210, 4, 43, "Input"],
+Cell[27207, 754, 1019, 27, 95, "Input"],
 Cell[CellGroupData[{
-Cell[28582, 795, 184, 4, 43, "Input"],
-Cell[28769, 801, 1374, 38, 94, "Output"]
+Cell[28251, 785, 184, 4, 43, "Input"],
+Cell[28438, 791, 1374, 38, 94, "Output"]
 }, Open  ]],
-Cell[30158, 842, 900, 25, 119, "Input"],
-Cell[31061, 869, 131, 1, 46, "Text"],
-Cell[31195, 872, 306, 7, 43, "Input"],
+Cell[29827, 832, 900, 25, 119, "Input"],
+Cell[30730, 859, 131, 1, 46, "Text"],
+Cell[30864, 862, 306, 7, 43, "Input"],
 Cell[CellGroupData[{
-Cell[31526, 883, 134, 2, 43, "Input"],
-Cell[31663, 887, 73, 1, 43, "Output"]
+Cell[31195, 873, 134, 2, 43, "Input"],
+Cell[31332, 877, 73, 1, 43, "Output"]
 }, Open  ]],
-Cell[31751, 891, 467, 8, 105, "Text"],
-Cell[32221, 901, 449, 10, 43, "Input"],
+Cell[31420, 881, 467, 8, 105, "Text"],
+Cell[31890, 891, 449, 10, 43, "Input"],
 Cell[CellGroupData[{
-Cell[32695, 915, 582, 18, 43, "Input"],
-Cell[33280, 935, 12907, 352, 1119, "Output"]
+Cell[32364, 905, 582, 18, 43, "Input"],
+Cell[32949, 925, 12907, 352, 1119, "Output"]
 }, Open  ]],
-Cell[46202, 1290, 192, 4, 46, "Text"],
-Cell[46397, 1296, 1632, 42, 219, "Input"],
+Cell[45871, 1280, 192, 4, 46, "Text"],
+Cell[46066, 1286, 1632, 42, 219, "Input"],
 Cell[CellGroupData[{
-Cell[48054, 1342, 220, 5, 43, "Input"],
-Cell[48277, 1349, 204, 5, 101, "Output"]
+Cell[47723, 1332, 220, 5, 43, "Input"],
+Cell[47946, 1339, 204, 5, 101, "Output"]
 }, Open  ]],
-Cell[48496, 1357, 263, 5, 76, "Text"],
-Cell[48762, 1364, 309, 8, 43, "Input"],
+Cell[48165, 1347, 263, 5, 76, "Text"],
+Cell[48431, 1354, 309, 8, 43, "Input"],
 Cell[CellGroupData[{
-Cell[49096, 1376, 381, 10, 43, "Input"],
-Cell[49480, 1388, 1279, 30, 94, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[50796, 1423, 1155, 27, 119, "Input"],
-Cell[CellGroupData[{
-Cell[51976, 1454, 2916, 100, 123, "Print"],
-Cell[54895, 1556, 110, 2, 30, "Print"]
-}, Open  ]],
-Cell[55020, 1561, 159, 3, 43, "Output"]
+Cell[48765, 1366, 381, 10, 43, "Input"],
+Cell[49149, 1378, 1279, 30, 94, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[55216, 1569, 183, 4, 43, "Input"],
-Cell[55402, 1575, 11104, 275, 234, "Output"]
+Cell[50465, 1413, 1155, 27, 119, "Input"],
+Cell[CellGroupData[{
+Cell[51645, 1444, 2916, 100, 123, "Print"],
+Cell[54564, 1546, 110, 2, 30, "Print"]
+}, Open  ]],
+Cell[54689, 1551, 159, 3, 43, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[54885, 1559, 183, 4, 43, "Input"],
+Cell[55071, 1565, 11104, 275, 234, "Output"]
 }, Open  ]]
 }, Open  ]]
 }
