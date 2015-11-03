@@ -1,0 +1,53 @@
+\documentclass{standalone}
+
+\usepackage{brunnian}
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings,backgrounds,hobby}
+
+\tikzset{->-/.style={decoration={ markings, mark=at position #1
+      with {\arrow{>}}},postaction={decorate}}}
+
+\begin{document}
+  \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
+      knot crossing, inner sep=1.5pt}]
+    \begin{scope}
+      \node (lC) at (.5,0) {};
+
+      \node (A1) at (-.6,-.2) {};
+      \node (A2) at (.6,-.2) {};
+      \node (B1) at (-.5,-.5) {};
+      \node (B2) at (.2,.7) {};
+      \node (C1) at (.5,-.5) {};
+      \node (C2) at (-.2,.7) {};
+
+      \node (X1) at (-.3,-.2) {};
+      \node (X2) at (.3,-.2) {};
+      \node (X3) at (0,.3) {};
+
+      \draw (A1) -- (X1.center) -- (X2.center) -- (A2);
+      \draw (B1) -- (X1);
+      \draw (X1) -- (X3.center) -- (B2);
+      \draw (C1) -- (X2) -- (X3) -- (C2);
+    \end{scope}
+    \begin{scope}[xshift=.8in]
+      \node (A1) at (-.6,.4) {};
+      \node (A2) at (.6,.4) {};
+      \node (B1) at (-.5,.7) {};
+      \node (B2) at (.2,-.5) {};
+      \node (C1) at (.5,.7) {};
+      \node (C2) at (-.2,-.5) {};
+
+      \node (X1) at (-.3,.4) {};
+      \node (X2) at (.3,.4) {};
+      \node (X3) at (0,-.1) {};
+
+      \draw (A1) -- (X1.center) -- (X2.center) -- (A2);
+      \draw (B1) -- (X1);
+      \draw (X1) -- (X3) -- (B2);
+      \draw (C1) -- (X2) -- (X3.center) -- (C2);
+
+      \node (rC) at (-.5,0) {};
+    \end{scope}
+    \draw[<->] (lC) -- (rC);
+  \end{tikzpicture}
+\end{document}

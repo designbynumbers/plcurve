@@ -1,5 +1,6 @@
 \documentclass[amsmath,longbibliography,secnumarabic,floatfix,amssymb,nofootinbib,nobibnotes,letterpaper,11pt,tightenlines,notitlepage,showkeys,showlabels]{amsart}%{revtex4-1}
 
+\usepackage{standalone}
 \usepackage[utf8]{inputenc}
 \usepackage[
 style=ieee,
@@ -78,7 +79,7 @@ backend=biber]{biblatex}
 \newtheorem*{lemma*}{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{definition}
-\newtheorem*{definition}{Definition} 
+\newtheorem*{definition}{Definition}
 
 \tikzset{->-/.style={decoration={ markings, mark=at position #1
       with {\arrow{>}}},postaction={decorate}}}
@@ -86,7 +87,7 @@ backend=biber]{biblatex}
 \begin{document}
 %%% HEAD MATTER
 \title[]{On the asymptotics of uniformly random knot diagrams} \author{Harrison Chapman}
-\email{hchapman@math.uga.edu} 
+\email{hchapman@math.uga.edu}
 \address{Department of Mathematics\\
 University of Georgia, Athens GA}
 % \noaffiliation{}
@@ -152,114 +153,9 @@ theorem of Reidemeister.
 \begin{figure}[h!]
   \begin{tabular}{c@{\hspace{4em}}c@{\hspace{4em}}c}
   \centering
-  \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
-      knot crossing, inner sep=1.5pt}]
-    \begin{scope}
-      \node (X) at (0,0) {};
-      \node (L) at (0,.7) {};
-      \node (lC) at (.5,0) {};
-
-      \node (A) at (-.5,-.5) {};
-      \node (B) at (.5,-.5) {};
-
-      \draw (A) -- (X.center);
-      \draw (X.center) .. controls (X.4 north east) and (L.4 east) .. (L.center);
-      \draw (X) .. controls (X.4 north west) and (L.4 west) .. (L.center);
-      \draw (X) -- (B);
-    \end{scope}
-    \begin{scope}[xshift=.8in]
-      \node (A) at (-.5,-.5) {};
-      \node (B) at (.5,-.5) {};
-
-      \node (X) at (0,.7) {};
-      \node (rC) at (-.5,0) {};
-
-      \draw (A)        .. controls (A.8 north east) and (X.4 west) .. (X.center);
-      \draw (X.center) .. controls (X.4 east) and (B.8 north west) .. (B);
-    \end{scope}
-    \draw[<->] (lC) -- (rC);
-  \end{tikzpicture}
-    &
-  \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
-      knot crossing, inner sep=1.5pt}]
-    \begin{scope}
-      \node (X1) at (0,-.2) {};
-      \node (X2) at (0,.4) {};
-      \node (lC) at (.5,0) {};
-
-      \node (A1) at (-.5,-.5) {};
-      \node (A2) at (-.5,.7) {};
-      \node (B1) at (.5,-.5) {};
-      \node (B2) at (.5,.7) {};
-
-      \draw (A1) -- (X1.center);
-      \draw (X1.center) .. controls (X1.2 north east) and (X2.2 south east) .. (X2.center);
-      \draw (X2.center) -- (A2);
-
-      \draw (B1) -- (X1);
-      \draw (X1) .. controls (X1.2 north west) and (X2.2 south west) .. (X2);
-      \draw (X2) -- (B2);
-    \end{scope}
-    \begin{scope}[xshift=.8in]
-      \node (A1) at (-.5,-.5) {};
-      \node (A2) at (-.5,.7) {};
-      \node (B1) at (.5,-.5) {};
-      \node (B2) at (.5,.7) {};
-
-      \node (X1) at (-.2,.1) {};
-      \node (X2) at (.2,.1) {};
-      \node (rC) at (-.5,0) {};
-
-      \draw (A1) .. controls (A1.2 north east) and (X1.2 south) .. (X1.center);
-      \draw (A2) .. controls (A2.2 south east) and (X1.2 north) .. (X1.center);
-      \draw (B1) .. controls (B1.2 north west) and (X2.2 south) .. (X2.center);
-      \draw (B2) .. controls (B2.2 south west) and (X2.2 north) .. (X2.center);
-    \end{scope}
-    \draw[<->] (lC) -- (rC);
-  \end{tikzpicture}
-      & \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
-      knot crossing, inner sep=1.5pt}]
-    \begin{scope}
-      \node (lC) at (.5,0) {};
-
-      \node (A1) at (-.6,-.2) {};
-      \node (A2) at (.6,-.2) {};
-      \node (B1) at (-.5,-.5) {};
-      \node (B2) at (.2,.7) {};
-      \node (C1) at (.5,-.5) {};
-      \node (C2) at (-.2,.7) {};
-
-      \node (X1) at (-.3,-.2) {};
-      \node (X2) at (.3,-.2) {};
-      \node (X3) at (0,.3) {};
-
-      \draw (A1) -- (X1.center) -- (X2.center) -- (A2);
-      \draw (B1) -- (X1);
-      \draw (X1) -- (X3.center) -- (B2);
-      \draw (C1) -- (X2) -- (X3) -- (C2);
-    \end{scope}
-    \begin{scope}[xshift=.8in]
-      \node (A1) at (-.6,.4) {};
-      \node (A2) at (.6,.4) {};
-      \node (B1) at (-.5,.7) {};
-      \node (B2) at (.2,-.5) {};
-      \node (C1) at (.5,.7) {};
-      \node (C2) at (-.2,-.5) {};
-
-      \node (X1) at (-.3,.4) {};
-      \node (X2) at (.3,.4) {};
-      \node (X3) at (0,-.1) {};
-
-      \draw (A1) -- (X1.center) -- (X2.center) -- (A2);
-      \draw (B1) -- (X1);
-      \draw (X1) -- (X3) -- (B2);
-      \draw (C1) -- (X2) -- (X3.center) -- (C2);
-
-      \node (rC) at (-.5,0) {};
-    \end{scope}
-    \draw[<->] (lC) -- (rC);
-  \end{tikzpicture}
-
+    \input{reidemeister_1.brun}
+    & \input{reidemeister_2.brun}
+    & \input{reidemeister_3.brun}
   \end{tabular}
   \caption{The three Reidemeister moves.}
   \label{fig:reidemeister}
@@ -316,7 +212,7 @@ single edge.
   A \emph{rooted map} is a map
   together with a single edge marked with a direction, called a
   \emph{root edge}.
-  
+
   An automorphism of a rooted map $M$ would be required to fix the
   root edge and its direction; hence $\Aut(M)$ is the trivial group.
 \end{definition}
@@ -446,10 +342,10 @@ dual rooted map is the original rooted map).
 Maps have a notion of substructure,
 
 \begin{definition}
-  A map $P$ is a \emph{submap} of a larger (possibly rooted) map $M$
-  if there exists a cycle of $k$ (possibly repeated) edges in $M$ so
-  that one of the two halves of $M$ separated by the cycle is
-  identical to $P$.
+  A map $P$ with distinguished exterior face is a \emph{submap} of a
+  larger (possibly rooted) map $M$ if there exists a cycle of $k$
+  (possibly repeated) edges in $M$ so that one of the two halves of
+  $M$ separated by the cycle is identical to $P$.
 \end{definition}
 
 \subsubsection{Diagrams and shadows}
@@ -459,7 +355,7 @@ From here on, maps, shadows, and diagrams will be assumed rooted
 unless otherwise noted. Notice that we will use the word
 \emph{crossings} to refer to the vertices of shadows and diagrams.
 
-\begin{definition} 
+\begin{definition}
   A \emph{map decorated by a set $S$}, $(M, s)$ is a (possibly unrooted)
   map $M$ together with a mapping $s: V(M) \to S$ which associates to
   each vertex of $M$ an element of $S$.
@@ -535,7 +431,7 @@ as well. If $\linkdia_n = |\LinkDia_n|$, then
 
 Restricting the number of ``link components'' complicates counting.
 
-\begin{definition} 
+\begin{definition}
   A \emph{link component} of a (possibly unrooted) link shadow or
   diagram $D$ is an equivalence class of edges modulo meeting across a
   vertex in $D$
@@ -547,7 +443,7 @@ Restricting the number of ``link components'' complicates counting.
   A \emph{(unrooted) knot diagram} is a (unrooted) link diagram which
   consists of precisely one link component. The class of knot
   shadows with $n$ crossings is denoted by $\KnotDia_n$.
-\end{definition} 
+\end{definition}
 
 Knot shadows $\KnotShad_n$ represent a curious, small
 subclass of $\LinkShad_n$. Indeed, exact counts for $\knotshad_n =
@@ -558,7 +454,7 @@ not known except by experiments and conjectures\cite{PZJasympconj2004}
   There exist constants $\knotgrowth$ and $c$ such that
   \[\frac{\knotdia_n}{2^n} = \knotshad_n \mathop{\sim}\limits_{n \to \infty} c\knotgrowth^n \cdot
   n^{\gamma - 2},\]
-  where 
+  where
   \[\gamma = -\frac{1 + \sqrt{13}}{6},\]
   and $\knotgrowth \approx 11.4...$.
 \end{conjecture}
@@ -566,27 +462,22 @@ not known except by experiments and conjectures\cite{PZJasympconj2004}
 Finally, we can define tangles using maps.
 
 \begin{definition}
-  A \emph{(unrooted) $2k$-tangle shadow} is a (unrooted) planar map
-  with $2k$ degree 1 \emph{leg vertices} and any number of 4-valent vertices. We
-  will only consider tangle shadows in which all $2k$ leg vertices lie
-  on the same ``exterior'' face. In this case, the shadow can be
-  viewed as embedded in $D^2$ with leg vertices embedded in $\partial
-  D^2$.
+  A \emph{(unrooted) $2k$-tangle shadow} is an unrooted map embedded
+  on a surface with boundary $\Sigma$ with $2k$ degree 1 \emph{leg
+    vertices} lying on the boundary $\partial \Sigma$ and any number
+  of 4-valent vertices. In this paper we consider only tangles on the
+  disk $D^2$.
 
-  A \emph{(unrooted) $2k$-tangle diagram} is a (unrooted) $2k$-tangle
+  When dualizing a tangle $T$, all leg vertices on each boundary component
+  are identified, so that the dual $T^*$ is a quadrangulation with boundary.
+
+  A \emph{(unrooted) $2k$-tangle diagram} is an unrooted $2k$-tangle
   shadow decorated (at non-leg vertices) with signs $\{+,-\}$. We
   restrict ourselves to tangles which can be embedded into the disk.
 
-  A tangle shadow (resp. diagram) $T$ is \emph{contained} in a link shadow
-  (diagram) $D$ if there exists some disk $B$ on the surface into
-  which $D$ is embedded such that
-  \begin{enumerate}
-  \item The boundary $\partial B$ intersects no vertices of $D$,
-  \item The boundary $\partial B$ intersects edges of $D$ either
-    transversally or not at all, and
-  \item The interior of the intersection $B \cap D$ is isomorphic to
-    the interior of $T$.
-  \end{enumerate}
+  A tangle shadow (resp. diagram) $T$ with fat vertex at infinity is
+  \emph{contained} in a link shadow (diagram) $D$ if $T^*$ (with
+  exterior face the dual of the fat vertex) is a submap of $D^*$.
 \end{definition}
 
 Rooted (knot or link) diagrams are equivalently viewed as \emph{two-leg diagrams} or
@@ -636,7 +527,7 @@ well;
 
   A rooted shadow is \emph{two-leg-prime} if it cannot
   be disconnected by removing two edges, \textit{one being the root
-    edge}. 
+    edge}.
 
   Diagrams are (two-leg-)prime if their underlying shadow
   structure is.
@@ -711,7 +602,7 @@ unrooted knot diagrams:
 
 \begin{theorem}
   Almost all unrooted knot diagrams are unknotted, i.e. they are in
-  the same equivalence class as the unknoy $0_1$.
+  the same equivalence class as the unknot $0_1$.
 \end{theorem}
 
 \section{Asymptotic structure theorems for diagrams}
