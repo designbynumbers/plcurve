@@ -1318,7 +1318,8 @@ If $G_0$ is obtained from a $4$-regular embedded planar multigraph $G$ by the re
 If we expand $G_0$ to $G$ using the four moves, three empty connections on the vertex must be filled during the process. If they are filled by redoubling the existing edge, then the degree of the vertex at the other end of the edge was also one, and we get \hopfgraph. Otherwise, we must fill two by adding a loop edge, and the other by doubling the existing edge.
 \end{proof}
 
-We also observe that two pairs of vertices $ab$ and $cd$ on the unit circle may be joined by nonintersecting chords inside the circle if and only if the pairs are unlinked on the circle (\raisebox{-0.032in}{\includegraphics[width=0.15in]{unlinked-on-circle.pdf}} instead of \raisebox{-0.032in}{\includegraphics[width=0.15in]{linked-on-circle.pdf}}). This happens when the order of the vertices around the circle is $abcd$ instead of $acbd$ or $adbc$. 
+We also observe that two pairs of vertices $ab$ and $cd$ on the unit circle may be joined by nonintersecting chords inside the circle if and only if the pairs are unlinked on the circle (\raisebox{-0.032in}{\includegraphics[width=0.15in]{unlinked-on-circle.pdf}} 
+instead of \raisebox{-0.032in}{\includegraphics[width=0.15in]{linked-on-circle.pdf}}). This happens when the order of the vertices around the circle is $abcd$ instead of $acbd$ or $adbc$. 
 
 We can now design an algorithm to produce all possible expansions of $G_0$, a given connected embedded planar simple graph of vertex degree $\leq 4$ as an integer constraint satisfaction problem. By Lemma~\ref{lem:degreeone}, we must add a loop to each vertex of degree one in $G_0$ eventually. We can save time by doing so at the start of the computation. We will therefore assume that loops have been added to create a \emph{prepared} graph $G_1$, and each vertex has degree $2$, $3$, or $4$.
 
