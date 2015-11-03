@@ -1,5 +1,13 @@
-\documentclass[amsmath,longbibliography,secnumarabic,floatfix,amssymb,nofootinbib,nobibnotes,letterpaper,11pt,tightenlines,notitlepage,showkeys,showlabels]{revtex4-1}
+\documentclass[amsmath,longbibliography,secnumarabic,floatfix,amssymb,nofootinbib,nobibnotes,letterpaper,11pt,tightenlines,notitlepage,showkeys,showlabels]{amsart}%{revtex4-1}
 
+\usepackage[utf8]{inputenc}
+\usepackage[
+style=ieee,
+backend=biber]{biblatex}
+
+\addbibresource{sources.bib}
+
+\usepackage[top=1in, left=1in, right=1in, bottom=1in]{geometry}
 \usepackage{showlabels}
 \usepackage[svgnames]{xcolor}
 \usepackage{latexsym, amsmath, amscd, amsthm}
@@ -56,7 +64,7 @@
 \begin{document}
 %%% HEAD MATTER
 \title[]{On the asymptotics of uniformly random knot diagrams} \author{Harrison Chapman}
-\email{hchapman@math.uga.edu} \affiliation{Department of Mathematics\\University of Georgia, Athens
+\email{hchapman@math.uga.edu} \address{Department of Mathematics\\University of Georgia, Athens
   GA}
 % \noaffiliation{}
 \date{\today}
@@ -77,13 +85,17 @@
 \label{sec:intro}
 
 There is a dearth of models for drawing random knots; self avoiding
-lattice walks [cite], random space polygons [cite], random braid words
-[cite], \emph{Petaluma} [cite], et.\ al. In this paper we will discuss
-the \emph{random diagram model} under which \emph{knot diagrams} are
-drawn uniformly from the set of all diagrams with a given number of
-crossings. Alternating knot and link diagrams have been studied [cite]
-but little is published about the knottiness of arbitrary random
-diagrams of large size.
+lattice walks \cite{Sumners_1988}, random space polygons
+\cite{Cantarella_2015,Cantarella_2013}, random braid words [cite],
+\emph{Petaluma} \cite{1411.3308v2}, et.\ al. In this paper we will
+discuss the \emph{random diagram model} under which \emph{knot
+  diagrams} are drawn uniformly from the set of all diagrams with a
+given number of crossings. There has been some work on sampling random
+diagrams\cite{doi:10.1142/9789812703460_0023}, but the distributions
+are not precisely understood.  As well, alternating knot and link
+diagrams have been studied \cite{PZJasympconj2004} but little is
+published about the knottiness of arbitrary random diagrams of large
+size.
 
 In this paper we begin by considering a slightly different object,
 \emph{rooted diagrams}, which break symmetries (as opposed to in
@@ -112,29 +124,117 @@ well known to be equivalent to the study of link diagrams and knot
 diagrams (more formally defined below) up to the so-called
 \emph{Reidemeister moves}, shown in figure~\ref{fig:reidemeister}.
 \begin{figure}[h!]
+  \begin{tabular}{c@{\hspace{4em}}c@{\hspace{4em}}c}
   \centering
   \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
       knot crossing, inner sep=1.5pt}]
     \begin{scope}
       \node (X) at (0,0) {};
+      \node (L) at (0,.7) {};
+      \node (lC) at (.5,0) {};
 
       \node (A) at (-.5,-.5) {};
       \node (B) at (.5,-.5) {};
 
       \draw (A) -- (X.center);
-      \draw (X.center) .. controls (X.16 north east) and (X.16 north west) .. (X);
+      \draw (X.center) .. controls (X.4 north east) and (L.4 east) .. (L.center);
+      \draw (X) .. controls (X.4 north west) and (L.4 west) .. (L.center);
       \draw (X) -- (B);
     \end{scope}
-    \begin{scope}[xshift=1in]
+    \begin{scope}[xshift=.8in]
       \node (A) at (-.5,-.5) {};
       \node (B) at (.5,-.5) {};
 
       \node (X) at (0,.7) {};
+      \node (rC) at (-.5,0) {};
 
       \draw (A)        .. controls (A.8 north east) and (X.4 west) .. (X.center);
       \draw (X.center) .. controls (X.4 east) and (B.8 north west) .. (B);
     \end{scope}
+    \draw[<->] (lC) -- (rC);
   \end{tikzpicture}
+    &
+  \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
+      knot crossing, inner sep=1.5pt}]
+    \begin{scope}
+      \node (X1) at (0,-.2) {};
+      \node (X2) at (0,.4) {};
+      \node (lC) at (.5,0) {};
+
+      \node (A1) at (-.5,-.5) {};
+      \node (A2) at (-.5,.7) {};
+      \node (B1) at (.5,-.5) {};
+      \node (B2) at (.5,.7) {};
+
+      \draw (A1) -- (X1.center);
+      \draw (X1.center) .. controls (X1.2 north east) and (X2.2 south east) .. (X2.center);
+      \draw (X2.center) -- (A2);
+
+      \draw (B1) -- (X1);
+      \draw (X1) .. controls (X1.2 north west) and (X2.2 south west) .. (X2);
+      \draw (X2) -- (B2);
+    \end{scope}
+    \begin{scope}[xshift=.8in]
+      \node (A1) at (-.5,-.5) {};
+      \node (A2) at (-.5,.7) {};
+      \node (B1) at (.5,-.5) {};
+      \node (B2) at (.5,.7) {};
+
+      \node (X1) at (-.2,.1) {};
+      \node (X2) at (.2,.1) {};
+      \node (rC) at (-.5,0) {};
+
+      \draw (A1) .. controls (A1.2 north east) and (X1.2 south) .. (X1.center);
+      \draw (A2) .. controls (A2.2 south east) and (X1.2 north) .. (X1.center);
+      \draw (B1) .. controls (B1.2 north west) and (X2.2 south) .. (X2.center);
+      \draw (B2) .. controls (B2.2 south west) and (X2.2 north) .. (X2.center);
+    \end{scope}
+    \draw[<->] (lC) -- (rC);
+  \end{tikzpicture}
+      & \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
+      knot crossing, inner sep=1.5pt}]
+    \begin{scope}
+      \node (lC) at (.5,0) {};
+
+      \node (A1) at (-.6,-.2) {};
+      \node (A2) at (.6,-.2) {};
+      \node (B1) at (-.5,-.5) {};
+      \node (B2) at (.2,.7) {};
+      \node (C1) at (.5,-.5) {};
+      \node (C2) at (-.2,.7) {};
+
+      \node (X1) at (-.3,-.2) {};
+      \node (X2) at (.3,-.2) {};
+      \node (X3) at (0,.3) {};
+
+      \draw (A1) -- (X1.center) -- (X2.center) -- (A2);
+      \draw (B1) -- (X1);
+      \draw (X1) -- (X3.center) -- (B2);
+      \draw (C1) -- (X2) -- (X3) -- (C2);
+    \end{scope}
+    \begin{scope}[xshift=.8in]
+      \node (A1) at (-.6,.4) {};
+      \node (A2) at (.6,.4) {};
+      \node (B1) at (-.5,.7) {};
+      \node (B2) at (.2,-.5) {};
+      \node (C1) at (.5,.7) {};
+      \node (C2) at (-.2,-.5) {};
+
+      \node (X1) at (-.3,.4) {};
+      \node (X2) at (.3,.4) {};
+      \node (X3) at (0,-.1) {};
+
+      \draw (A1) -- (X1.center) -- (X2.center) -- (A2);
+      \draw (B1) -- (X1);
+      \draw (X1) -- (X3) -- (B2);
+      \draw (C1) -- (X2) -- (X3.center) -- (C2);
+
+      \node (rC) at (-.5,0) {};
+    \end{scope}
+    \draw[<->] (lC) -- (rC);
+  \end{tikzpicture}
+
+  \end{tabular}
   \caption{The three Reidemeister moves.}
   \label{fig:reidemeister}
 \end{figure}
@@ -528,10 +628,24 @@ diagram.
 \subsubsection{A pattern theorem}
 \label{sec:weakpatternthm}
 
-Theorem 2 in \cite{Bender1992104} provides a pattern theorem for knot and link shadows, provided a
-strategy of attaching a desired pattern. However, care is required in the case of knot or link
-\emph{diagrams}, in which each vertex takes a value in the set $\{+, -\}$. In fact, we turn our
-attention to the dual case in which \emph{faces} are labelled with an arbitrary set.
+In the 1960's it was conjectured by Frisch and
+Wasserman\cite{Frisch_1961} and Delbr\"uck\cite{10.1090/psapm/014}
+separately that knotting should be almost certain as the size of a
+circle embedding increases. The question was originally posed in the
+view of lattice polygons, but we ask a similar question here for knot
+diagrams. For self avoiding polygons on the lattice, the conjecture
+was proved in the affirmative decades later by Sumners and
+Whittington\cite{Sumners_1988} who made use of Kesten's pattern
+theorem\cite{Kesten_1964,Kesten_1963} which states that patterns,
+(relatively) short walk configurations, appear linearly often in long
+self-avoiding walks.
+
+We make use of a similar strategy: theorem 2 in \cite{Bender1992104}
+provides a pattern theorem for knot and link shadows, provided a
+strategy of attaching a desired pattern. However, care is required in
+the case of knot or link \emph{diagrams}, in which each vertex takes a
+value in the set $\{+, -\}$. In fact, we turn our attention to the
+dual case in which \emph{faces} are labelled with an arbitrary set.
 
 \begin{theorem}Let $S$ be a set and $\MapClass[S]$ be some class of
   $S$-maps on a surface of type $g$ and let $P$ be a planar $S$-map
@@ -960,6 +1074,10 @@ It is known that there are at most $12^n$ planar maps, and so in our cases we wi
 \ge 1/12$.
 
 \begin{proof}
+  For some classes which can be shown to be subadditive, this follows
+  by Fekete's lemma. However, there is a framework to show this result
+  in more complicated cases.
+
 The proof breaks down into 3 steps;
 \begin{enumerate}
 \item \emph{Show that there exists some $n \ge 0$ with $\arbclass_n > C_1(r + \delta)^{-n}$.} This
@@ -1410,8 +1528,10 @@ we have that in the limit,
   diagram.
 \end{corollary}
 
-\section{Numerical results on knotting}
+\section{Some numerical results}
 \label{sec:randres}
+
+[[Blurb about pattern appearances; counts of monogons in diagrams]]
 
 One may be concerned that the ``asymptotic'' behavior proved in the prior section only applies to
 knot diagrams with an absurd number of crossings (in the sense that no physical knot should be
@@ -1419,7 +1539,7 @@ expected to be so complicated). However, exact and numerical results show that t
 attained very quickly. For example, almost all 10-crossing knot diagrams have no nontrivial
 automorphisms!
 
-\bibliography{sources.bib}
+\printbibliography
 
 \end{document}
 

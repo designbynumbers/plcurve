@@ -1,0 +1,287 @@
+\documentclass[12pt]{amsart}
+\usepackage{setspace}
+\usepackage{amsthm,bbm}
+\usepackage[margin=1in]{geometry}
+
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\C}{\mathcal{C}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Prb}{\mathbb{P}}
+
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+\newtheorem*{notat}{Notation}
+\newtheorem*{example}{Example}
+\newtheorem*{fact}{Fact}
+\newtheorem*{theorem}{Theorem}
+\newtheorem*{corollary}{Corollary}
+\theoremstyle{plain}
+
+\title{Asymptotic laws for knot diagrams}
+\author{Harrison Chapman}
+
+\begin{document}
+\begin{abstract}
+  We consider a model of random knots akin to the one proposed by
+Dunfield et.\ al.; a random knot diagram is a random immersion of the
+circle into the sphere with randomly assigned crossings. By studying
+diagrams as annotated planar maps, we are able to show that any given ``tangle
+diagram'' almost certainly occurs many times in a random knot diagram
+with sufficiently many crossings. Thus, in this model, it is
+exponentially unlikely for a diagram with $n$ crossings to represent
+an unknot as $n \rightarrow \infty$. This asymptotic behavior is
+similar to that seen in other models of random knots such as random
+lattice walks and random polygons.
+\end{abstract}
+\maketitle
+
+\doublespacing
+
+\section{Knot diagrams}
+
+A \emph{knot} is an embedding of the circle into $\R^3$, modulo
+\emph{ambient isotopy}, wherein the knot is allowed to move around in
+space, but not pass through itself.
+
+For the sake of this talk note that there is a knot which is
+``trivial,'' the \emph{unknot}. The unknot class of knots contains the
+closed ring-shaped loop. We'll only really care whether or not something is
+\emph{knotted}, i.e., not representing the unknot.
+
+Knots provide a model for physical polymers, so we would like to know
+how to sample a knot \emph{randomly}.
+
+\textbf{Different methods}.
+\begin{enumerate}
+\item \textbf{Geometric}. Random space curves, random lattice walks
+\item \textbf{Combinatorial}. Random 'braid words,' the
+  \emph{Petaluma} model in which a knot is associated to any given permutation.
+\end{enumerate}
+ [[ describe Petaluma and its results, they're cool. ]]
+
+\vspace{2in}
+
+There's no clear way to go from one model to another, and it is harder
+to ``cross worlds;'' there is no clear connection between a geometric
+model and a combinatorial model.
+
+The idea was to study ``pictures'' of knots called \emph{knot
+  diagrams}, but they're actually \textbf{tough} to study because of
+their symmetries. So... we'll break the symmetry, and do some magic!
+
+This idea comes from the study of combinatorial objects called
+\emph{maps} (in the sense of ``cartography''):
+\begin{definition}
+  A \emph{map} $M = (V, E, F)$ is a particular embedding of a graph $G = (V, E)$ on a
+  surface $\Sigma$, such that all faces are disks.
+
+  A \emph{map isomorphism} is an orientation preserving homeomorphism of the
+  surfaces which maps vertices to vertices, edges to edges, and faces to
+  faces.
+
+  A \emph{rooted map} is a map together with a choice of edge and a
+  choice of a face adjacent that edge.
+
+  Rooted map isomorphism additionally requires that the roots map to
+  the roots. This ensures a rooted map has only trivial automorphism group.
+\end{definition}
+[[ draw maps, rooted maps, explain notation... root face is exterior ]]
+
+\vspace{2in}
+
+\textbf{Idea}: Knot diagrams are just a subset of spherical maps whose vertices
+are colored with a choice of \emph{sign} (over-under information).
+
+\begin{definition}
+  A \emph{rooted knot diagram}, or \emph{knot diagram} (for the scope
+  of this talk), $K$ is a rooted map $(V, E, F)$ of the sphere $S^2$
+  together with a map $\chi: V \to \{+, -\}$ which has only one
+  \emph{link component}.
+\end{definition}
+[[ draw what link component means.. edges across vertices.. ]]
+
+\vspace{1in}
+
+By then extending definitions appropriately, we can answer the
+questions which follow for specific subsets of knot diagrams as well,
+provided apt constructions. The biggest subset of interest is
+\emph{prime knot diagrams}, which have no pair of edges which
+disconnect a diagram:
+
+\vspace{1in}
+
+\section{A pattern theorem}
+
+The primary thing that I wanted to ascertain in the diagram model
+(rooted \emph{or unrooted}), is that, like random space curves or
+random combinatorial models, the probability of being unknotted tends
+to zero as the size of the object increases.
+
+This results from a ``pattern theorem,'' which says that in a
+sufficiently large object any substructure which can appear often
+will. The proof of this however requires that we even know that there
+\emph{are} enough knot diagrams!
+
+\begin{theorem}[C- 2015]
+  (Extension of a theorem of Bender, Gao, Richmond 1992) The set of
+  rooted knot diagrams grows ``smoothly,'' i.e.,
+  $\lim_{n\to\infty} k_n^{1/n}$ exists.
+\end{theorem}
+
+\begin{proof}[Key construction used in proof]
+  The proof boils essentially down to providing a construction where
+  \begin{enumerate}
+  \item given some specific size $n$, there exists $n < m$ and
+    injections $\phi_0, \phi_1$ from diagrams of size $n$ into
+    diagrams of size $m$ and diagrams of size $m+1$ and
+  \item there exists a ``product'' operation on diagrams constructed
+    by $\phi_*$, combining two diagrams with their sizes changing
+    additively, so that any diagram has at most one ``prime
+    decomposition.''
+  \end{enumerate}
+[[ draw construction for arb knot diagrams ]]
+
+\vspace{3in}
+\end{proof}
+
+This lets us show a ``pattern theorem,'' that shows that, in the
+limit, any nice substructure appears often in a given knot
+diagram. The substructure for knot diagrams are tangles;
+
+\begin{definition}
+  A \emph{$2k$-tangle} is the interior of a generic dual cycle of a
+  knot diagram.
+
+  A knot diagram contains a tangle if there is an appropriate
+  homeomorphism from the surface with boundary of the tangle to the
+  surface of the knot diagram
+\end{definition}
+[[ draw pictures, give intuition... is basically just if you cut out a
+disk from a knot diagram ]]
+
+\vspace{1in}
+
+\newcommand{\KnotShad}{\mathcal{K}}
+\newcommand{\KDefShad}{\mathcal{H}}
+
+\begin{theorem}[C- 2015]
+  (Porism of a theorem of BGR 1992) Let $\KnotShad$ be some set of
+  knot diagrams, and let $P$ be a tangle (on a surface of genus
+  0). Let $\KDefShad$ be the subset of diagrams in $\KnotShad$ with
+  $n$ crossings that contain less than $cn$ pairwise disjoint copies
+  of $P$ as a subtangle.
+
+  Suppose there exists a method of ``attachment'' of $P$ into a knot
+  diagram $D \in \KDefShad$ such that
+  \begin{enumerate}
+  \item for some fixed positive integer $\ell$, if $n$ is the number
+    of crossings in $D$, at least $\lfloor
+    n/\ell \rfloor$ possible non-conflicting places of attachment
+    exist,
+  \item only knot diagrams in $\KnotShad$ are produced,
+  \item for any diagram produced as such we can identify the copies of
+    $P$ that have been added and they are all pairwise disjoint, and
+  \item given the copies that have been added, the original map and
+    the associated places of attachment are uniquely determined.
+  \end{enumerate}
+  If $1 > c > 0$ is sufficiently small and $\KnotShad$ grows
+  ``smoothly,'' then there exist constants $d < 1$ and $N > 0$ so that
+  for all $n \ge N$,
+  \[ \Prb(\text{a $n$-k.d. has fewer than $cn$ copies of $P$}) = \frac{\#\KDefShad_n}{\#\KnotShad_n} < d^n.\]
+\end{theorem}
+
+\begin{proof}[Viable attachments for knot diagrams]
+  Again the proof relies on the construction of an attachment. The
+  obvious attachment for diagrams which are allowed to not be prime is
+  \emph{connect sum}, wherein a $2$-tangle is added to a diagram by a
+  ``cut and splice'' procedure.
+  \vspace{1in}
+
+  For prime subclasses of diagrams, it is possible to work with an
+  attachment in which a vertex of the original knot diagram is
+  replaced by a $4$-tangle in an appropriate way. There are
+  \emph{extra considerations for this}, namely that $P$ must be
+  packaged in a ``capsid'' that eliminates the ambiguity for
+  requirement (3).
+  \vspace{1in}
+
+\end{proof}
+
+The pattern theorem proves first-off that almost every knot diagram (in the
+limit) is knotted, in many different ``classes'' of knot diagrams. For
+example in the case of all knot diagrams, take $P$ to be a trefoil
+connect summand---so almost every knot diagram cannot be the unknot
+since it has a trefoil component.
+
+\section{Asymmetry and unrooted diagrams}
+
+The pattern theorem also provides a result which I've found cited as
+``probable fact'' in (Zinn Justin 2004, Coqueraux-Zuber 2015) but
+never quite proved properly for knot diagrams:
+
+\begin{theorem}[Richmond-Wormald 1995] (Application to certain classes
+  of knot diagrams: C- 2015). Let $\KnotShad$ be one of several
+  classes of rooted knot diagrams for which there is a pattern theorem
+  for a tangle $P$ so that
+  \begin{enumerate}
+  \item $P$ has no reflective symmetry in the plane preserving its
+    boundary and,
+  \item For any diagram $D$ containing a copy of $P$, all diagrams
+    obtainable by removing $P$ and gluing it back in are in
+    $\KnotShad$.
+  \end{enumerate}
+  Then the proportion of $n$-crossing diagrams in $\KnotShad$ with nontrivial
+  automorphisms is exponentially small.
+\end{theorem}
+\begin{proof}[Construction for arbitrary knot diagrams]
+  \vspace{1in}
+
+\end{proof}
+\begin{corollary}
+  Asymptotically, unrooted diagrams behave like rooted diagrams.
+\end{corollary}
+\begin{corollary}
+  Unrooted diagrams have the pattern theorem
+\end{corollary}
+\begin{corollary}
+  An unrooted diagram is almost surely knotted.
+\end{corollary}
+
+\section{Future directions}
+
+\subsection{Random sampling}
+There is a beautiful bijection between rooted 4-valent maps and
+blossom trees (Schaeffer 2003?).
+\vspace{2in}
+
+Knot diagrams without crossing information look like 4-valent maps,
+but not all 4-valent maps with crossing information look like knot
+diagrams. Can write rejection sampler--but asymptotically most
+diagrams produced this way are \emph{not knot diagrams}!
+
+Connected to this is the problem of actual \emph{counts} for diagrams
+in certain classes. This problem is \emph{hard}! (ZinnJustin,
+Schaeffer, Jacobsen, Zuber, et. al. et al)
+
+\subsection{Other classes of diagrams}
+Provided constructions, this toolkit can prove asymptotics for other
+classes of knot diagrams. Diagrams without disconnecting vertices?
+Etc...
+
+On that note---what about diagrams with different kinds of signs? Can
+consider a ``skein'' tangency,
+\vspace{1in}
+
+Then what about skein knot diagrams (maps together with a map from
+vertices into $\{+, -, s\}$)? What about other kinds of tangencies
+(e.g. Jones/Khovanov type tangencies)?
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

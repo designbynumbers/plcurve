@@ -1,0 +1,537 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[presentation,t]{beamer}
+%\usetheme{Antibes}
+%\usetheme{Boadilla}
+\usetheme{default}
+\usecolortheme{dolphin}
+\useinnertheme{rectangles}
+%\useoutertheme{infolines}
+%\input{header}
+
+
+%\input{globalmacros}
+%% Good old "not sure if equal"
+\newcommand{\qe}{\stackrel{?}{=}}
+
+\makeatletter
+\DeclareRobustCommand{\em}{%
+  \@nomath\em \if b\expandafter\@car\f@series\@nil
+  \normalfont \else \bfseries \fi}
+\makeatother
+\renewcommand<>{\emph}[1]{{\em #1}}
+
+%% Some quickies for the big groups
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\F}{\mathbb F}
+\newcommand{\Qp}{\mathbb Q^+}
+\newcommand{\Qn}{\mathbb Q^-}
+\newcommand{\Qs}{\mathbb Q^*}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Rp}{\mathbb R^+}
+\newcommand{\Rn}{\mathbb R^-}
+\newcommand{\Rs}{\mathbb R^*}
+\newcommand{\Z}{\mathbb Z}
+%\newcommand{\N}{\mathbb N}
+%\newcommand{\C}{\mathbb C}
+
+\newcommand{\Af}{\mathbb A}
+\newcommand{\PP}{\mathbb P}
+
+\newcommand{\GF}{\mathbb GF}
+
+\newcommand{\gl}{\mathfrak g}
+\newcommand{\bl}{\mathfrak b}
+\newcommand{\tl}{\mathfrak t}
+\newcommand{\pl}{\mathfrak p}
+\newcommand{\nl}{\mathfrak n}
+
+\DeclareMathOperator{\sh}{sh}
+
+\newcommand{\Orb}{\mathcal O}
+\newcommand{\Var}{\mathcal V}
+
+\newcommand{\Irr}{\operatorname{Irr}}
+
+\newcommand{\Brak}{[\cdot,\cdot]}
+
+\newcommand{\NWN}{\nl \cap {^w\nl}}
+\newcommand{\closeGNWN}{\overline{G \cdot (\NWN)}}
+
+\newcommand{\N}{\mathbb N}
+\newcommand{\C}{\mathbb C}
+
+\newcommand{\GLn}{GL_n(\C)}
+\newcommand{\gln}{\mathfrak {gl}_n}
+
+\newcommand{\rank}{\operatorname{Rank}}
+
+
+\newcommand{\loopinsert}{E_1}
+\newcommand{\edgedouble}{E_2}
+\newcommand{\cutedgedouble}{E_3}
+\newcommand{\pairinsert}{E_4}
+\newcommand{\plantri}{\textit{plantri} }
+\newcommand{\nauty}{\textit{nauty} }
+\newcommand{\saucy}{\textit{saucy} }
+\newcommand{\valgrind}{\textit{valgrind} }
+
+
+\usepackage{overpic}
+%\usepackage{svg}
+\usepackage{graphicx}
+%\usepackage{mathrsfs}
+%\usepackage{setspace}
+%\usepackage{showkeys}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{array}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{positioning,arrows,knots,calc,decorations.markings}
+\usepgfplotslibrary{colorbrewer}
+
+\definecolor{beamerblue}{RGB}{234,233,243}
+\definecolor{beamerviolet}{RGB}{47,23,132}
+\definecolor{beamerliteviolet}{RGB}{137,127,207}
+
+\tikzset{onslide/.code args={<#1>#2}{%
+  \only<#1>{\pgfkeysalso{#2}} % \pgfkeysalso doesn't change the path
+}}
+\tikzset{temporal/.code args={<#1>#2#3#4}{%
+  \temporal<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}{\pgfkeysalso{#4}} % \pgfkeysalso doesn't change the path
+}}
+
+\tikzset{
+  invisible/.style={opacity=0},
+  visible on/.style={alt={#1{}{invisible}}},
+  alt/.code args={<#1>#2#3}{%
+    \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+  },
+}
+
+\pgfplotsset{
+  /pgfplots/bar cycle list/.style={/pgfplots/cycle list={%
+      {RdBu-10-1!50!black,fill=RdBu-10-1!80!white,mark=none},%
+      {RdBu-10-2!50!black,fill=RdBu-10-2!80!white,mark=none},%
+      {RdBu-10-3!50!black,fill=RdBu-10-3!80!white,mark=none},%
+      {RdBu-10-4!50!black,fill=RdBu-10-4!80!white,mark=none},%
+      {RdBu-10-5!50!black,fill=RdBu-10-5!80!white,mark=none},%
+      {RdBu-10-6!50!black,fill=RdBu-10-6!80!white,mark=none},%
+      {RdBu-10-7!50!black,fill=RdBu-10-7!80!white,mark=none},%
+      {RdBu-10-8!50!black,fill=RdBu-10-8!80!white,mark=none},%
+      {RdBu-10-9!50!black,fill=RdBu-10-9!80!white,mark=none},%
+      {RdBu-10-10!50!black,fill=RdBu-10-10!80!white,mark=none},%
+    }
+  },
+}
+
+\pgfplotsset{
+  /pgfplots/area cycle list/.style={/pgfplots/cycle list={%
+      {RdBu-10-1!50!black,fill=RdBu-10-1!80!white,mark=none},%
+      {RdBu-10-2!50!black,fill=RdBu-10-2!80!white,mark=none},%
+      {RdBu-10-3!50!black,fill=RdBu-10-3!80!white,mark=none},%
+      {RdBu-10-4!50!black,fill=RdBu-10-4!80!white,mark=none},%
+      {RdBu-10-5!50!black,fill=RdBu-10-5!80!white,mark=none},%
+      {RdBu-10-6!50!black,fill=RdBu-10-6!80!white,mark=none},%
+      {RdBu-10-7!50!black,fill=RdBu-10-7!80!white,mark=none},%
+      {RdBu-10-8!50!black,fill=RdBu-10-8!80!white,mark=none},%
+      {RdBu-10-9!50!black,fill=RdBu-10-9!80!white,mark=none},%
+      {RdBu-10-10!50!black,fill=RdBu-10-10!80!white,mark=none},%
+    }
+  },
+}
+
+
+% \pgfplotsset{
+%   /pgfplots/bar cycle list/.style={/pgfplots/cycle list={%
+%       {red!80!black,fill=red!30!white,mark=none},%
+%       {orange!80!black,fill=orange!30!white,mark=none},%
+%       {yellow!80!black,fill=yellow!30!white,mark=none},%
+%       {lime!80!black,fill=lime!30!white,mark=none},%
+%       {green!80!black,fill=green!30!white,mark=none},%
+%       {teal!80!black,fill=teal!30!white,mark=none},%
+%       {cyan!80!black,fill=cyan!30!white,mark=none},%
+%       {blue!80!black,fill=blue!30!white,mark=none},%
+%       {violet!80!black,fill=violet!30!white,mark=none},%
+%       {purple!80!black,fill=purple!30!white,mark=none},%
+%     }
+%   },
+% }
+
+
+\newcommand{\Uhyp}{\mathcal U} \newcommand{\Vhyp}{\mathcal V}
+\newcommand{\Rhyp}{\mathcal R}
+
+%\allowdisplaybreaks
+%\usepackage[bookmarks,bookmarksopen,bookmarksdepth=4]{hyperref}
+
+\newcommand{\so}[1]{\mathfrak {so}(#1)}
+
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{definition}[theorem]{Definition}
+\newtheorem{proposition}[theorem]{Proposition}
+%\newtheorem{corollary}[theorem]{Corollary}
+
+%\renewcommand*\showkeyslabelformat[1]{\normalfont\tiny\ttfamily(#1)}
+
+\graphicspath{{../../figs/}{figs/}}
+
+\let\oldemptyset\emptyset
+\let\emptyset\varnothing
+
+\DeclareMathOperator{\Arm}{Arm}
+\DeclareMathOperator{\Pol}{Pol}
+\DeclareMathOperator{\UP}{UP}
+\DeclareMathOperator{\VP}{VP}
+\DeclareMathOperator{\APol}{APol}
+\DeclareMathOperator{\Diff}{Diff}
+\DeclareMathOperator{\Sympl}{Sympl}
+\DeclareMathOperator{\ev}{ev}
+\DeclareMathOperator{\Ad}{Ad}
+\DeclareMathOperator{\crit}{crit}
+\DeclareMathOperator{\ind}{ind}
+\DeclareMathOperator{\intr}{int}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\Ext}{Ext}
+\DeclareMathOperator{\codim}{codim}
+\DeclareMathOperator{\Ann}{Ann}
+\DeclareMathOperator{\im}{Im}
+\DeclareMathOperator{\Int}{int}
+
+%\usepackage[table]{xcolor}
+
+\begin{document}
+\rowcolors{2}{beamerblue!25}{white}
+\newcommand{\Oh}[1]{\mathcal O (#1)}
+\newcommand{\g}{\mathfrak g}
+\newcommand{\ShSet}{\mathcal S}
+\newcommand{\LnSet}{\mathcal L}
+\newcommand{\sr}{/\!\!/}
+
+\begin{frame}
+   \begin{center}
+    \only<1>{\includegraphics[width=4in]{../figs/random-70cr-1.png}}
+    \only<2>{\includegraphics[height=3in]{../figs/random-70cr-2.png}}
+    \only<3>{\includegraphics[height=3in]{../figs/random-70cr-3.png}}
+   \end{center}
+\end{frame}
+
+\begin{frame}
+  \vfill
+  \begin{center}
+    \includegraphics[width=4in]{knottypes.png}
+  \end{center}
+  %\vfill
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[every axis plot/.append style={line width=2pt}]
+      \begin{axis}[
+        %ymode=log,
+        %log ticks with fixed point,
+        title={(Exact) ratios of knots in $n$-crossing diagrams},
+        xlabel={\# crossings in diagram},
+        ylabel={ratios of knots},
+        cycle list name=Set1-9,
+        legend pos=outer north east,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $0_1$},
+        xmax=9,
+        ymin=0, ymax=0.15,
+        ]
+        \addplot table[x=n,y expr=\thisrow{3.1}*2] {knot_freq.tsv};
+        \addplot table[x=n,y=4.1] {knot_freq.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.1}*2] {knot_freq.tsv};
+        \addplot table[x=n,y=5.2] {knot_freq.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[%scale=1,
+      every axis plot/.append style={line width=2pt}]
+      \begin{axis}[
+        %ymode=log,
+        %log ticks with fixed point,
+        title={(Experimental) ratios of knots in $n$-crossing (rooted) diagrams},
+        xlabel={\# crossings in diagram},
+        ylabel={ratios of knots},
+        cycle list name=Set1-9,
+        legend pos=outer north east,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $3_1\#3_1$, $3_1\#3_1^*$},
+        xmax=9,
+        ymin=0, ymax=0.15,
+        ]
+        \addplot table[x=n,y expr=\thisrow{3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{4.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.2}/\thisrow{total}] {sample.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \vfill
+  \begin{center}
+    \includegraphics[width=1.6in]{granny.png}
+
+    \includegraphics[width=1.6in]{square.png}
+    \\
+    {Granny knot $3_1\#3_1$ (top) vs square knot $3_1\#3_1^*$ (bottom)}
+  \end{center}
+  %\vfill
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[%scale=1,
+      every axis plot/.append style={line width=2pt}]
+      \begin{axis}[
+        %ymode=log,
+        %log ticks with fixed point,
+        title={Ratios of knots in $n$-crossing diagrams},
+        xlabel={\# crossings in diagram},
+        ylabel={ratios of knots},
+        cycle list name=Set1-7,
+        legend pos=outer north east,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $3_1\#3_1$, $3_1\#3_1^*$, $0_1$},
+        xmin=0, xmax=70,
+        ymin=0, ymax=1,
+        ]
+        \addplot table[x=n,y expr=\thisrow{3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{4.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.2}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1m}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{0.1}/\thisrow{total}] {sample.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[%scale=1,
+      every axis plot/.append style={line width=2pt}]
+      \begin{axis}[
+        %ymode=log,
+        %log ticks with fixed point,
+        title={Ratios of knots in $n$-crossing diagrams},
+        xlabel={\# crossings in diagram},
+        ylabel={ratios of knots},
+        cycle list name=Set1-7,
+        legend pos=outer north east,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $3_1\#3_1$, $3_1\#3_1^*$, $0_1$},
+        xmin=0, xmax=70,
+        ymin=0, ymax=0.1,
+        ]
+        \addplot table[x=n,y expr=\thisrow{3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{4.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.2}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1m}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{0.1}/\thisrow{total}] {sample.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[%scale=1,
+      every axis plot/.append style={line width=2pt}]
+      \begin{axis}[
+        ymode=log,
+        log ticks with fixed point,
+        title={Ratios of knots in $n$-crossing diagrams (log plot)},
+        xlabel={\# crossings in diagram},
+        ylabel={log(ratios of knots)},
+        cycle list name=Set1-7,
+        legend pos=outer north east,
+        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $3_1\#3_1$, $3_1\#3_1^*$, $0_1$},
+        xmin=0, xmax=70,
+        ymin=0, ymax=1,
+        ]
+        \addplot table[x=n,y expr=\thisrow{3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{4.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.2}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1m}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{0.1}/\thisrow{total}] {sample.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+%%%%
+\makeatletter
+\def\pgfplots@getautoplotspec into#1{%
+    \begingroup
+    \let#1=\pgfutil@empty
+    \pgfkeysgetvalue{/pgfplots/cycle multi list/@dim}\pgfplots@cycle@dim
+    %
+    \let\pgfplots@listindex=\pgfplots@numplots
+    %%% Start new code
+    \pgfkeysgetvalue{/pgfplots/cycle list set}\pgfplots@listindex@set
+    \ifx\pgfplots@listindex@set\pgfutil@empty
+    \else
+        \c@pgf@counta=\pgfplots@listindex
+        \c@pgf@countb=\pgfplots@listindex@set
+        \advance\c@pgf@countb by -\c@pgf@counta
+        \globaldefs=1\relax
+        \edef\setshift{%
+            \noexpand\pgfkeys{
+                /pgfplots/cycle list shift=\the\c@pgf@countb,
+                /pgfplots/cycle list set=
+            }
+        }%
+        \setshift%
+    \fi
+    %%% End new code
+    \pgfkeysgetvalue{/pgfplots/cycle list shift}\pgfplots@listindex@shift
+    \ifx\pgfplots@listindex@shift\pgfutil@empty
+    \else
+        \c@pgf@counta=\pgfplots@listindex\relax
+        \advance\c@pgf@counta by\pgfplots@listindex@shift\relax
+        \ifnum\c@pgf@counta<0
+            \c@pgf@counta=-\c@pgf@counta
+        \fi
+        \edef\pgfplots@listindex{\the\c@pgf@counta}%
+    \fi
+    \ifnum\pgfplots@cycle@dim>0
+        % use the 'cycle multi list' feature.
+        %
+        % it employs a scalar -> multiindex map like
+        % void fromScalar( size_t d, size_t scalar, size_t* Iout, const size_t* N )
+        % {
+        %   size_t ret=scalar;
+        %   for( int i = d-1; i>=0; --i ) {
+        %       Iout[i] = ret % N[i];
+        %       ret /= N[i];
+        %   }
+        % }
+        % to get the different indices into the cycle lists.
+        %--------------------------------------------------
+        \c@pgf@counta=\pgfplots@cycle@dim\relax
+        \c@pgf@countb=\pgfplots@listindex\relax
+        \advance\c@pgf@counta by-1
+        \pgfplotsloop{%
+            \ifnum\c@pgf@counta<0
+                \pgfplotsloopcontinuefalse
+            \else
+                \pgfplotsloopcontinuetrue
+            \fi
+        }{%
+            \pgfkeysgetvalue{/pgfplots/cycle multi list/@N\the\c@pgf@counta}\pgfplots@cycle@N
+            % compute list index:
+            \pgfplotsmathmodint{\c@pgf@countb}{\pgfplots@cycle@N}%
+            \divide\c@pgf@countb by \pgfplots@cycle@N\relax
+            %
+            \expandafter\pgfplots@getautoplotspec@
+                \csname pgfp@cyclist@/pgfplots/cycle multi list/@list\the\c@pgf@counta @\endcsname
+                {\pgfplots@cycle@N}%
+                {\pgfmathresult}%
+            \t@pgfplots@toka=\expandafter{#1,}%
+            \t@pgfplots@tokb=\expandafter{\pgfplotsretval}%
+            \edef#1{\the\t@pgfplots@toka\the\t@pgfplots@tokb}%
+            \advance\c@pgf@counta by-1
+        }%
+    \else
+        % normal cycle list:
+        \pgfplotslistsize\autoplotspeclist\to\c@pgf@countd
+        \pgfplots@getautoplotspec@{\autoplotspeclist}{\c@pgf@countd}{\pgfplots@listindex}%
+        \let#1=\pgfplotsretval
+    \fi
+    \pgfmath@smuggleone#1%
+    \endgroup
+}
+
+\pgfplotsset{
+    cycle list set/.initial=
+}
+\makeatother
+%%%%
+
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[%scale=1,
+      every axis plot/.append style={line width=2pt}]
+      \begin{axis}[
+        %ymode=log,
+        %log ticks with fixed point,
+        stack plots=y,
+        title={Ratios of knots in $n$-crossing diagrams (stacked)},
+        xlabel={\# crossings in diagram},
+        ylabel={ratios of knots},
+        cycle list name=Set1-7,
+        legend pos=outer north east,
+        legend entries={$0_1$, $3_1$, $4_1$, $5_1$, $5_2$, $3_1\#3_1$, $3_1\#3_1^*$},
+        xmin=0, xmax=70,
+        ymin=0, ymax=1,
+        ]
+        \pgfplotsset{cycle list set=6}
+        \addplot table[x=n,y expr=\thisrow{0.1}/\thisrow{total}] {sample.tsv};
+        \pgfplotsset{cycle list set=0}
+        \addplot table[x=n,y expr=\thisrow{3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{4.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{5.2}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1}/\thisrow{total}] {sample.tsv};
+        \addplot table[x=n,y expr=\thisrow{3.1c3.1m}/\thisrow{total}] {sample.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[%scale=1,
+      every axis plot/.append style={line width=2pt}]
+      \begin{axis}[
+        %ymode=log,
+        %log ticks with fixed point,
+        title={Average Vassiliev-2 invariant for $n$ crossing immersions $S^1 \hookrightarrow S^3$},
+        xlabel={\# crossings in diagram},
+        ylabel={average $v_2^{avg}$},
+        cycle list name=Set1-7,
+        legend pos=outer north east,
+        legend entries={$v_2^{avg}$},
+        xmin=0, xmax=70,
+        ymin=0, ymax=8,
+        ]
+        \addplot table[x=n,y expr=\thisrow{v2}] {sample.tsv};
+      \end{axis}
+    \end{tikzpicture}
+    \label{fig:kgrow1}
+  \end{figure}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
