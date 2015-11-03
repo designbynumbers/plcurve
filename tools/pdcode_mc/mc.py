@@ -57,11 +57,11 @@ def shadow_r2a_minus(pd, edge, face_pm, z, max_n=None):
     beta = edge.next_edge().face_pos()[(face_pm+1)%2][0].nedges
 
     gamma = alpha + beta - 3
-    if alpha == 1 or beta == 1 or gamma < 2:
-        return pd, False
+    #if alpha == 1 or beta == 1 or gamma < 2:
+    #    return pd, False
     kappa = random.random()
-    if kappa > 1./gamma:
-        return pd, False
+    #if kappa > 1./gamma:
+    #    return pd, False
 
     #print face, face.signs
     if len(face.vertices) == 2:
@@ -95,11 +95,14 @@ class PDMarkovState(object):
             x.sign = 2
         self._diagram = initial
 
-    def step(self, z=0.5, max_n=16):
+    def step(self, z=0.5, max_n=16, transitions="all"):
         edge = random.choice(self._diagram.edges)
         face_pm = random.choice((0,1))
         #p = random.random()
-        transition = random.choice(self.transitions)
+        if transitions == "all":
+            transition = random.choice(self.transitions)
+        elif transitions == "R3":
+            transition = shadow_r3
         #print transition
 
         self._diagram, success = transition(self._diagram, edge, face_pm, z, max_n)
