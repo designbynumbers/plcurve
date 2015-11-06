@@ -141,27 +141,27 @@ We consider a natural model of random knotting-- choose a knot diagram at random
 
 \section{Introduction}
 
-The study of random knots goes back to the 1960's, when polymer physicists realized that the knot type of a closed (or ring) polymer would play an important role in the statistical mechanics of the polymer~\cite{Edwards:1967hd}. Orlandini and Whittington~\cite{Orlandini:2007kn} give a comprehensive survey of the development of the field in the subsequent years. Most random knot models are based on closed random walks, and there are many variants corresponding to different types of walks (lattice walks, random walks with fixed edgelengths, random walks with variable edgelengths, random walks with different types of geometric constraints such as fixed turning angles). For almost all of these models, certain phenomena have been rigorously established-- for instance, the probability of knotting goes to 1 exponentially fast as the size of the walk increases\cite{Pippenger:1989ft,Sumners:1999cd,Diao:2001db}. However, it has been difficult to prove more informative theorems. 
+The study of random knots goes back to the 1960's, when polymer physicists realized that the knot type of a closed (or ring) polymer would play an important role in the statistical mechanics of the polymer~\cite{Edwards:1967hd}. Orlandini and Whittington~\cite{Orlandini:2007kn} give a comprehensive survey of the development of the field in the subsequent years. Most random knot models are based on closed random walks, and there are many variants corresponding to different types of walks (lattice walks, random walks with fixed edgelengths, random walks with variable edgelengths, random walks with different types of geometric constraints such as fixed turning angles). For almost all of these models, certain phenomena have been rigorously established-- for instance, the probability of knotting goes to 1 exponentially fast as the size of the walk increases\cite{Pippenger:1989ft,Sumners:1999cd,Diao:2001db}. However, it has been difficult to prove more informative theorems.
 
-One way to look at the problem is these knot models are all models of random space curves, and it is quite hard to relate the three-dimensional shape of a space curve to its knot type. One can in principle express the finite-type invariants as (complicated) integrals in the spirit of \cite{Lin:1994wq}, but so far computing the expected value of these integrals has been too difficult. 
+One way to look at the problem is these knot models are all models of random space curves, and it is quite hard to relate the three-dimensional shape of a space curve to its knot type. One can in principle express the finite-type invariants as (complicated) integrals in the spirit of \cite{Lin:1994wq}, but so far computing the expected value of these integrals has been too difficult.
 
-The point of this paper is to look at knot diagrams not as convenient combinatorial representations of space curves, but as a probability space in their own right. This is basically the same model of random knotting as \cite{Dunfield:mdWrGjny} or \cite{Diao:2005tp}: the objects are equivalence classes of immersions of $S^1$ into $S^2$ (as in Arnol'd~\cite{Arnold:1994wr}) paired with assignments of orientation and crossing signs. There are other quite different combinatorial models of random knotting in the literature-- see \cite{Cohen:2015wz}, \cite{EvenZohar:2014ws}, or \cite{Nechaev:1996gv}. 
+The point of this paper is to look at knot diagrams not as convenient combinatorial representations of space curves, but as a probability space in their own right. This is basically the same model of random knotting as \cite{Dunfield:mdWrGjny} or \cite{Diao:2005tp}: the objects are equivalence classes of immersions of $S^1$ into $S^2$ (as in Arnol'd~\cite{Arnold:1994wr}) paired with assignments of orientation and crossing signs. There are other quite different combinatorial models of random knotting in the literature-- see \cite{Cohen:2015wz}, \cite{EvenZohar:2014ws}, or \cite{Nechaev:1996gv}.
 
-Previous authors~\cite{Diao:2005tp} have sampled a slightly different version of this space by using an algorithm of Schaeffer and Zinn-Justin~\cite{Schaeffer:2004tt} to uniformly sample a space of marked link diagrams and keeping only the knots. We wanted to get exact values for probabilities and also to study the probability of very rare knots, so a sampling approach was not appropriate for our purposes. Instead, we carried out a complete enumeration of knot diagrams up to 10 crossings using the graph theory software~\emph{plantri}~\cite{Brinkmann:2005um,Brinkmann:2007up}. 
+Previous authors~\cite{Diao:2005tp} have sampled a slightly different version of this space by using an algorithm of Schaeffer and Zinn-Justin~\cite{Schaeffer:2004tt} to uniformly sample a space of marked link diagrams and keeping only the knots. We wanted to get exact values for probabilities and also to study the probability of very rare knots, so a sampling approach was not appropriate for our purposes. Instead, we carried out a complete enumeration of knot diagrams up to 10 crossings using the graph theory software~\emph{plantri}~\cite{Brinkmann:2005um,Brinkmann:2007up}.
 
-This paper is primarily computational. While we give a proof that our algorithm for enumerating diagrams is correct, our main contribution is the data set of diagrams itself. To generate the diagrams, we first enumerated the unoriented immersions of $S^1$ into $S^2$ in two different ways, as described below. We call these immersions knot shadows\footnote{Kauffman~\cite{Kauffman:1988td} calls these knot \emph{universes}.}.  The sets of shadows generated in each way were identical, and we checked the number of shadows against counts by Arnol'd for $n \leq 5$~\cite[page 79]{Arnold:1994wr}, sequence A008989 in the Online Encyclopedia of Integer Sequences~\cite{Untitled:vPCfHsyG}, and later enumerations of Kapoln\'ai et al.~\cite{Kapolnai:2012hs} and Coqueraux et al.~\cite{Coquereaux:2015wv}. We then enumerate assignments of crossing information and orientation for each shadow up to diffeomorphisms of $S^2$ preserving the orientation of the curve. (This is more complicated than it first seems; if the diagram has a symmetry, not all assignments of crossing information are different.) Finally, we compute the knot type for each assignment of crossing and orientation. These computations are new and fairly substantial. Enumerating the 1.6 billion 10-crossing knot diagrams and computing their HOMFLY-PT polynomial took several thousand hours of CPU time on the Amazon EC2 cloud computing service. 
+This paper is primarily computational. While we give a proof that our algorithm for enumerating diagrams is correct, our main contribution is the data set of diagrams itself. To generate the diagrams, we first enumerated the unoriented immersions of $S^1$ into $S^2$ in two different ways, as described below. We call these immersions knot shadows\footnote{Kauffman~\cite{Kauffman:1988td} calls these knot \emph{universes}.}.  The sets of shadows generated in each way were identical, and we checked the number of shadows against counts by Arnol'd for $n \leq 5$~\cite[page 79]{Arnold:1994wr}, sequence A008989 in the Online Encyclopedia of Integer Sequences~\cite{Untitled:vPCfHsyG}, and later enumerations of Kapoln\'ai et al.~\cite{Kapolnai:2012hs} and Coqueraux et al.~\cite{Coquereaux:2015wv}. We then enumerate assignments of crossing information and orientation for each shadow up to diffeomorphisms of $S^2$ preserving the orientation of the curve. (This is more complicated than it first seems; if the diagram has a symmetry, not all assignments of crossing information are different.) Finally, we compute the knot type for each assignment of crossing and orientation. These computations are new and fairly substantial. Enumerating the 1.6 billion 10-crossing knot diagrams and computing their HOMFLY-PT polynomial took several thousand hours of CPU time on the Amazon EC2 cloud computing service.
 
 Figure~\ref{fig:knot frequency loglog} shows the relative frequency of all the knot types we observed, sorted by rank order among knots. When plotted on a log-log plot, we see that the plot is roughly linear across 9 orders of magnitude-- giving some evidence for a roughly Zipfian distribution of knot types. In such a distribution, the $k$-th most frequent knot type would have a probability proportional to $k^{-s}$ for some $s$. It would be very interesting to know what happens for large $n$.
 
-How many of these diagrams represent nontrivial knots? Relatively few. Even for 10-crossing diagrams, the proportion of unknots is about $77\%$. For these crossing numbers, this is largely explained by the surprising frequency of ``tree-like'' knot shadows, studied by Aicardi~\cite{Aicardi:1994uq}, (Figure~\ref{fig:proportiongraphic}) for which the knot type does not depend on the assignment of crossing information-- the resulting knot is \emph{always} the unknot. These diagrams are surprisingly common: $42.05\%$ of 8-crossing diagrams are treelike, which explains about half of the unknots among 8-crossing diagrams ($84\%$ of 8-crossing diagrams are unknots). The remaining unknots are almost all connect sums of treelike diagrams with the unique prime 3- or 4-crossing shadow. We will show that a simple analysis (Proposition~\ref{prop:almost treelike mostly unknots}) based on such diagrams gives a lower bound of $77\%$ for the unknot fraction in 8-crossing diagrams, explaining more than $90\%$ of all unknots in this class. 
+How many of these diagrams represent nontrivial knots? Relatively few. Even for 10-crossing diagrams, the proportion of unknots is about $77\%$. For these crossing numbers, this is largely explained by the surprising frequency of ``tree-like'' knot shadows, studied by Aicardi~\cite{Aicardi:1994uq}, (Figure~\ref{fig:proportiongraphic}) for which the knot type does not depend on the assignment of crossing information-- the resulting knot is \emph{always} the unknot. These diagrams are surprisingly common: $42.05\%$ of 8-crossing diagrams are treelike, which explains about half of the unknots among 8-crossing diagrams ($84\%$ of 8-crossing diagrams are unknots). The remaining unknots are almost all connect sums of treelike diagrams with the unique prime 3- or 4-crossing shadow. We will show that a simple analysis (Proposition~\ref{prop:almost treelike mostly unknots}) based on such diagrams gives a lower bound of $77\%$ for the unknot fraction in 8-crossing diagrams, explaining more than $90\%$ of all unknots in this class.
 
 Tree-like diagrams are composite diagrams where each prime summand is one-crossing knot diagram $\infty$. In fact, random diagrams are in general highly composite~\cite{Chapman2015knotasymp} (Figure~\ref{fig:proportiongraphic}) with many simple summands. It remains an interesting open question to try to characterize the asymptotic distribution of sizes and numbers of connect summands in a random diagram for large $n$.
 
 In general, counting knot diagrams is made significantly more complicated by the existence of diagram symmetries; for instance, a correction factor due to symmetries is the main technical difference between this natural model and the model of~\cite{Schaeffer:2004tt}. Our data shows that this difficulty rapidly disappears as the number of crossings increases; the average size of the automorphism group for a random 10 crossing knot diagram, for instance, is $846929/823832 \simeq 1.028$. This means that we expect this model to behave very much like the ``rooted'' model of~\cite{Schaeffer:2004tt} for crossing numbers 11 and above; one of us (Chapman) has shown this is true for sufficiently many crossings~\cite{Chapman2015knotasymp}.
 
-%There are many interesting connections between this project and the existing literature. The closest paper in spirit to ours that we have found is the very interesting work of Hua-Nguyen-Raghvan-Asuaga-Vasquez~\cite{Hua:2007fh} on random state transitions for knots. They are similarly interested in connecting topology and geometry through random diagrams, but their approach is very bold-- instead of establishing a baseline counting measure on diagrams (as we do here) and then relating it to the density introduced by projections of random curves (as we plan to later) they combine the stages and directly sample the empirical distribution on diagrams induced by projecting random closed lattice walks to the plane. They then conduct some interesting numerical experiments on the resulting distribution of diagrams. It is not completely clear what distribution on diagrams is actually constructed by their code (choices are involved both in projecting the lattice walks, and in simplifications which are then performed at the diagrammatic level), so it is difficult to make mathematical conjectures about more traditional models of random diagrams from their analysis. Nonetheless, their distribution is certainly close to the biological application they have in mind, and the results are extremely suggestive. 
+%There are many interesting connections between this project and the existing literature. The closest paper in spirit to ours that we have found is the very interesting work of Hua-Nguyen-Raghvan-Asuaga-Vasquez~\cite{Hua:2007fh} on random state transitions for knots. They are similarly interested in connecting topology and geometry through random diagrams, but their approach is very bold-- instead of establishing a baseline counting measure on diagrams (as we do here) and then relating it to the density introduced by projections of random curves (as we plan to later) they combine the stages and directly sample the empirical distribution on diagrams induced by projecting random closed lattice walks to the plane. They then conduct some interesting numerical experiments on the resulting distribution of diagrams. It is not completely clear what distribution on diagrams is actually constructed by their code (choices are involved both in projecting the lattice walks, and in simplifications which are then performed at the diagrammatic level), so it is difficult to make mathematical conjectures about more traditional models of random diagrams from their analysis. Nonetheless, their distribution is certainly close to the biological application they have in mind, and the results are extremely suggestive.
 %
-%There is also a long history of deep combinatorial results about counting knot diagrams, usually as a way of building knot tables or counting knot types. Conway's famous paper on knot tabulation~\cite{Conway:1970vr} gives a strategy for enumerating diagrams based on an enumeration of equivalence classes of rational tangles and the Tutte's enumeration of a class of planar ``c-nets''~\cite{Tutte:1963gz} which Conway used as a kind of skeleton for the diagrams. Thistlethwaite and Sundberg~\cite{Sundberg:1998hr} studied the asymptotics of this model to prove results about the number of alternating links. These papers don't directly count or enumerate diagrams in the same sense that we do (the tangle counts are up to additional equivalence relations coming from knot theory), but they might be modified to address our case. Last, as we mentioned above, 
+%There is also a long history of deep combinatorial results about counting knot diagrams, usually as a way of building knot tables or counting knot types. Conway's famous paper on knot tabulation~\cite{Conway:1970vr} gives a strategy for enumerating diagrams based on an enumeration of equivalence classes of rational tangles and the Tutte's enumeration of a class of planar ``c-nets''~\cite{Tutte:1963gz} which Conway used as a kind of skeleton for the diagrams. Thistlethwaite and Sundberg~\cite{Sundberg:1998hr} studied the asymptotics of this model to prove results about the number of alternating links. These papers don't directly count or enumerate diagrams in the same sense that we do (the tangle counts are up to additional equivalence relations coming from knot theory), but they might be modified to address our case. Last, as we mentioned above,
 
 \section{Definitions}
 
@@ -175,34 +175,34 @@ Examples of link shadows are shown in Figure \ref{fig:ShadowExamples}.
 	\end{overpic}
 	\caption{\label{fig:ShadowExamples}Examples of link shadows.}
 \end{figure}
-In our experiments, each link shadow will be represented (non-uniquely) by a combinatorial object called a PD-code. 
+In our experiments, each link shadow will be represented (non-uniquely) by a combinatorial object called a PD-code.
 \begin{definition}\label{def:PD}
-A \textbf{pd-code} $\mathfrak{L}$ with $n$-vertices is a list of $n$ cyclically ordered quadruples called vertices which partition the set of signed edges $\{\pm 1,\dots, \pm 2n\}$ so that in each quadruple every pair of non-adjacent edges have opposite signs. 
+A \textbf{pd-code} $\mathfrak{L}$ with $n$-vertices is a list of $n$ cyclically ordered quadruples called vertices which partition the set of signed edges $\{\pm 1,\dots, \pm 2n\}$ so that in each quadruple every pair of non-adjacent edges have opposite signs.
 
-Two pd-codes are \textbf{pd-isomorphic} if there exists a bijection of vertices and edges which respects the partition of signed edges into vertices, including globally preserving or reversing the cyclic ordering of edges around vertices. A pd-isomorphism must take both signs of an edge $\pm i$ to both signs of another edge $\pm j$, but can take $+i$ to $-j$ and vice versa. 
+Two pd-codes are \textbf{pd-isomorphic} if there exists a bijection of vertices and edges which respects the partition of signed edges into vertices, including globally preserving or reversing the cyclic ordering of edges around vertices. A pd-isomorphism must take both signs of an edge $\pm i$ to both signs of another edge $\pm j$, but can take $+i$ to $-j$ and vice versa.
 \end{definition}
-For example $\mathfrak{L}_0 = ((+4,-2,-5,+1),(+2,-6,-3,+5),(+6,-4,-1,+3))$ is a valid pd-code of three vertices and six edges, as each of $\pm 1, \dots, \pm 6$ occurs once, and each pair of non-adjacent labels in a single quadruple (such as $+4,-5$ and $-2,+1$ in the first quadruple) has opposite signs. 
+For example $\mathfrak{L}_0 = ((+4,-2,-5,+1),(+2,-6,-3,+5),(+6,-4,-1,+3))$ is a valid pd-code of three vertices and six edges, as each of $\pm 1, \dots, \pm 6$ occurs once, and each pair of non-adjacent labels in a single quadruple (such as $+4,-5$ and $-2,+1$ in the first quadruple) has opposite signs.
 
 This definition is similar to the ``combinatorial maps'' of Walsh and Lehman~\cite{Walsh1972192}. Indeed, a pd-code $\mathfrak{L}$ describes an element $\sigma$ of the permutation group on the $4n$ letters $\{\pm1,\pm2,\cdots,\pm2n\}$ which is a product of $n$ disjoint cycles of size $4$, together with an implicit permutation $\tau = (+1 -1)(+2 -2)\cdots(+2n -2n)$ and a ``consistent'' choice of orientations on the edges. This (and other) formulations are explored by Coquereaux, et\ al.~\cite{Coquereaux:2015wv}.
 \begin{definition}
 Given a pd-code $\mathfrak{L}$ and a signed edge $e$, we can define the \emph{successor edge} $s(e)$ to be minus the edge immediately preceding $e$ in the cyclic ordering of the quadruple where $e$ occurs. The faces of a pd-code $\mathfrak{L}$ are the orbits of the successor map.
 \end{definition}
-In the pd-code $\mathfrak{L}_0$, for example, $-2$ occurs in the quadruple $(+4,-2,-5,+1)$, so $s(-2) = -(+4) = -4$. Similarly, $s(s(-2)) = s(-4) = -(+6) = -6$, and $s(s(s(-2)) = s(-6) = -(+2) = -2$. Thus $(-2,-4,-6)$ is a face of $\mathfrak{L}_0$. 
-\begin{proposition}[Mastin, \cite{Mastin:2015ii}] 
+In the pd-code $\mathfrak{L}_0$, for example, $-2$ occurs in the quadruple $(+4,-2,-5,+1)$, so $s(-2) = -(+4) = -4$. Similarly, $s(s(-2)) = s(-4) = -(+6) = -6$, and $s(s(s(-2)) = s(-6) = -(+2) = -2$. Thus $(-2,-4,-6)$ is a face of $\mathfrak{L}_0$.
+\begin{proposition}[Mastin, \cite{Mastin:2015ii}]
 The vertices, edges, and faces of $\mathfrak{L}$ form a cell-complex structure on a 2-dimensional surface $C(\mathfrak{L})$. Given two pd-codes $\mathfrak{L}$ and $\mathfrak{L'}$, the pd-codes are pd-isomorphic $\iff$ the cell-complexes $C(\mathfrak{L})$ and $C(\mathfrak{L}')$ are isomorphic (the isomorphism may reverse orientation).
 \end{proposition}
 We can then define
 \begin{definition}
 The \emph{genus} $g$ of a pd-code $\mathfrak{L}$ is the genus of the associated cell complex $C(\mathfrak{L})$. It is given by $V - E + F = 2 - 2g$, where $V$, $E$, and $F$ count the vertices, edges, and faces of $\mathfrak{L}$. If a pd-code has genus 0, it is \emph{planar}.
 \end{definition}
-It is another theorem of Mastin that 
+It is another theorem of Mastin that
 \begin{proposition}[Mastin~\cite{Mastin:2015ii}]
 There is a bijection between $n$-vertex link shadows and $n$-vertex \emph{planar} pd-codes up to pd-isomorphism.
 \end{proposition}
 The bijection itself is easy to construct: the vertices of the pd-code represent intersections of the circles, the edges represent the sections of circles between intersections (signs represent orientation along the circle), and the cyclic ordering of the vertices is the counterclockwise order of circle arcs at each intersection point. An example of a link shadow and the associated pd-code is shown in Figure~\ref{fig:PD}.
 \begin{figure}
 \begin{center}
-\begin{overpic}[height=4cm]{PD.pdf} 
+\begin{overpic}[height=4cm]{PD.pdf}
 \put(40,35){$1$}
 \put(28,15){$2$}
 \put(-3,30){$3$}
@@ -215,7 +215,7 @@ The bijection itself is easy to construct: the vertices of the pd-code represent
 \end{center}
 \caption{\label{fig:PD} A diagram for $3_1$ and its pd-code. There is only one component. Note that we may omit directional arrows as the orientation can be inferred from the ordering of the edge labels.}
 \end{figure}
-It is clear that there are finitely many $n$-vertex planar pd-codes, and so finitely many equivalence classes of pd-codes up to isomorphism. By the proposition, there are therefore finitely many $n$-vertex link shadows. This will be our initial probability space. 
+It is clear that there are finitely many $n$-vertex planar pd-codes, and so finitely many equivalence classes of pd-codes up to isomorphism. By the proposition, there are therefore finitely many $n$-vertex link shadows. This will be our initial probability space.
 
 Given a link shadow $\mathfrak{L}$ we can define a link diagram by
 \begin{definition}
@@ -225,16 +225,16 @@ It is clear that there are at most $2^{\text{\# crossings}}$ link diagrams assoc
 \begin{definition}
 In the \emph{random diagram model}, a random $n$-crossing knot is selected uniformly from the counting measure on the finite set of one-component $n$-crossing link diagrams.
 \end{definition}
-This is the smallest probability space including all the knot diagrams that one can define; however, note that we could expand the probability space by doing things like choosing planar, rather than spherical embeddings (hence labeling a face as the exterior) or choosing a basepoint on each component. These amount to making the rules for diagram and shadow isomorphism more strict, increasing the number of equivalence classes of diagrams. 
+This is the smallest probability space including all the knot diagrams that one can define; however, note that we could expand the probability space by doing things like choosing planar, rather than spherical embeddings (hence labeling a face as the exterior) or choosing a basepoint on each component. These amount to making the rules for diagram and shadow isomorphism more strict, increasing the number of equivalence classes of diagrams.
 
 \section{Enumerating shadows}
 
-Our first goal is to enumerate the link shadows. This section describes our two enumeration algorithms. Each is built on the same computational foundation; a library which allows us to manipulate pd-codes. In this library, we provide 
+Our first goal is to enumerate the link shadows. This section describes our two enumeration algorithms. Each is built on the same computational foundation; a library which allows us to manipulate pd-codes. In this library, we provide
 \begin{definition}
 A \emph{pdstor} is an ordered collection of pd-isomorphism types of pd-codes. We define the operation of adding a pd-code to a pdstor as adding the pd-code if it does not belong to an existing pd-isomorphism type (that is, is not pd-isomorphic to a pd-code present in the pdstor) and ignoring the pd-code otherwise.
 \label{def:pdstor}
 \end{definition}
-Our implementation uses a combination of hashing and brute-force comparison to check whether a given pd-code is already pd-isomorphic to something in the database. Details of the pd-isomorphism check are provided in Appendix A for the curious reader. 
+Our implementation uses a combination of hashing and brute-force comparison to check whether a given pd-code is already pd-isomorphic to something in the database. Details of the pd-isomorphism check are provided in Appendix A for the curious reader.
 
 We are left with the problem of creating a set of input pd-codes to the pdstor which are guaranteed to cover all $n$-vertex link shadows. We will then separate out the one-component knot shadows by searching the pdstor.
 
@@ -269,10 +269,10 @@ Given edges $e$ and $e'$ in pd-codes $\mathfrak{L}$ and $\mathfrak{L}'$, we can 
 The effect of the definition is to switch the positions of the heads of the edges $e$ and $e'$ in the crossings where they occur. We are not trying to be too specific about notation because the edges will need to be relabeled in the new pd-code (see our code for one possible implementation).
 We can then prove
 \begin{proposition}
-Connect sum is additive on genus. If $\mathfrak{L}$ has genus $g$ and $\mathfrak{L'}$ has genus $g'$, then the pd-code $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$ is a genus-$(g+g')$ pd-code where a pair of new faces share the edges $e$ and $e'$. Furthermore, if $\mathfrak{L}$ and $\mathfrak{L'}$ are planar, then so too is $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$.
+If $\mathfrak{L}$ and $\mathfrak{L'}$ are planar, then so is the pd-code $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$.
 \end{proposition}
 
-\begin{proof} The new collection of vertices clearly still partitions the new collection of signed edge labels, since the same edge labels occur in vertices as in the original pd-codes $\mathfrak{L}$ and $\mathfrak{L'}$. We are swapping a pair of $+$ labels, so the rule on non-adjacent signs is still obeyed in the new pd-code. This means that we need only check the genus. 
+\begin{proof} The new collection of vertices clearly still partitions the new collection of signed edge labels, since the same edge labels occur in vertices as in the original pd-codes $\mathfrak{L}$ and $\mathfrak{L'}$. We are swapping a pair of $+$ labels, so the rule on non-adjacent signs is still obeyed in the new pd-code. This means that we need only check the genus.
 
 \begin{figure}
 \hphantom{.}
@@ -284,19 +284,19 @@ Connect sum is additive on genus. If $\mathfrak{L}$ has genus $g$ and $\mathfrak
 
 If we think of faces of a pd-code as lists of signed edges, the effect of the connect sum operation is to concatenate two pairs of these lists. As Figure~\ref{fig:connect sum} shows, the successor of $+e$ in $\mathfrak{L}$ is replaced by the successor of $+e'$ in $\mathfrak{L'}$, and the chain of successors continues as before until returning eventually to the successor of $+e$ in $\mathfrak{L}$. This creates a new face in $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$ which is formed by merging two previous faces in $\mathfrak{L}$ and $\mathfrak{L'}$ and contains $+e$ and $+e'$. We can argue similarly that a second new face of $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$ is also created, containing $-e$ and $-e'$.
 
-Since number of vertices and edges of $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$ is the sum of the vertices and edges in $\mathfrak{L}$ and $\mathfrak{L'}$ and the number of faces is 2 less than the sum of the number of faces in $\mathfrak{L}$ and $\mathfrak{L'}$, $V - E + F = (2-2g) + (2-2g') - 2 = 2-2(g+g')$ for $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$, so the connect sum pd-code is of genus $(g+g')$ as desired.
+Since number of vertices and edges of $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$ is the sum of the vertices and edges in $\mathfrak{L}$ and $\mathfrak{L'}$ and the number of faces is 2 less than the sum of the number of faces in $\mathfrak{L}$ and $\mathfrak{L'}$, $V - E + F = 2$ for $\mathfrak{L} \#_{e,e'} \mathfrak{L'}$, so the connect sum pd-code is planar as desired.
 \end{proof}
 
 We now give a theorem corresponding to the prime decomposition of links~\cite{MR0102821}:
 \begin{proposition}
 Every composite link shadow can be created by connect sum operations on a well-defined set of prime link shadows called the prime factors of the composite shadow.
-\label{prop:prime decomposition} 
+\label{prop:prime decomposition}
 \end{proposition}
 
-\begin{proof} 
+\begin{proof}
 We proceed by induction on the number of pairs of edges shared by two faces. If no two faces share more than one edge, the number of pairs is zero and the diagram is already prime. This is the base case.
- 
-Observe that as in Figure~\ref{fig:undo connect sum}, if some pair of faces shares some number of edges, the shared edges occur in precisely opposite order on both faces (if not, the diagram isn't planar). This means that our diagram is the connect sum of two subdiagrams created by cutting and splicing a pair of adjacent shared edges, as on the right side of that Figure. 
+
+Observe that as in Figure~\ref{fig:undo connect sum}, if some pair of faces shares some number of edges, the shared edges occur in precisely opposite order on both faces (if not, the diagram isn't planar). This means that our diagram is the connect sum of two subdiagrams created by cutting and splicing a pair of adjacent shared edges, as on the right side of that Figure.
 \begin{figure}
 \hphantom{.}
 \hfill
@@ -305,7 +305,7 @@ Observe that as in Figure~\ref{fig:undo connect sum}, if some pair of faces shar
 \caption{\label{fig:undo connect sum} Two faces which share more than one edge must create an opportunity for a cut and splice.}
 \end{figure}
 
-Since each subdiagram has fewer pairs of edges shared by two faces, by induction we may write them as connect sums of collections of prime diagrams. But we made arbitrary choices when deciding which pair of adjacent edges to cut-and-splice, and so must check that the collection of prime diagrams did not depend on these choices. 
+Since each subdiagram has fewer pairs of edges shared by two faces, by induction we may write them as connect sums of collections of prime diagrams. But we made arbitrary choices when deciding which pair of adjacent edges to cut-and-splice, and so must check that the collection of prime diagrams did not depend on these choices.
 
 It's enough to show that the collection of subdiagrams produced by doing any two such cut-and-splices in one order is the same as the collection of subdiagrams produced by doing them in the other. But this is clear as the operations don't interfere with one another (Figure~\ref{fig:splices commute} illustrates the point.)
 \begin{figure}
@@ -317,7 +317,7 @@ It's enough to show that the collection of subdiagrams produced by doing any two
 \end{figure}
 \end{proof}
 
-We now know that every $n$ vertex composite shadow $L$ is the connect sum of prime shadows $L_1, \dots, L_k$ and that 
+We now know that every $n$ vertex composite shadow $L$ is the connect sum of prime shadows $L_1, \dots, L_k$ and that
 the numbers of vertices $V_1, \dots, V_k$ form an integer partition of $n$. Therefore, we need to enumerate ``all connect sums of all link shadows with numbers of vertices that partition $n$''. This is not as trivial as it sounds. Writing the connect sum as $L_1 \# \dots \# L_k$ is dangerously misleading-- though connect sum is associative (and even commutative) on isotopy classes of knots, the same is not true for links and for diagrams. Figure~\ref{fig:not associative} gives an example of a  link shadow $L$ which is a connect sum of diagrams $L_1$, $L_2$ and $L_3$, which \emph{can} be written $(L_1 \# L_2) \# L_3$ but \emph{can't} be written $L_1 \# (L_2 \# L_3)$.
 \begin{figure}
 \hphantom{.}
@@ -332,8 +332,8 @@ It is easy to see the following.
 The set of prime summands $\{L_1, \dots, L_k\}$ of a composite link shadow $L$ can be renumbered so that $L = (((L_1 \# L_2) \# L_3) \# \cdots L_k)$ and $L_1$ has the largest number of vertices among all the $L_1, \dots, L_k$. The numbers of vertices $V_2, \dots, V_k$ in the other prime summands are \emph{not} guaranteed to be in sorted order.
 \end{lemma}
 
-\begin{proof} 
-Since the overall shadow is connected, we can start connect-summing at any prime summand and build the rest of the shadow from there by undoing the cut-and-splice operations of Proposition~\ref{prop:prime decomposition}. Therefore, we are free to choose $L_1$ to have a maximal number of vertices. 
+\begin{proof}
+Since the overall shadow is connected, we can start connect-summing at any prime summand and build the rest of the shadow from there by undoing the cut-and-splice operations of Proposition~\ref{prop:prime decomposition}. Therefore, we are free to choose $L_1$ to have a maximal number of vertices.
 \end{proof}
 
 \begin{lemma}
@@ -343,7 +343,7 @@ The set $\{L_1, \dots, L_k\}$ of the prime summands of $L$ is a shadow-isomorphi
 
 \begin{proof} This follows directly from that the set $\{L_1, \dots, L_k\}$ is well-defined. \end{proof}
 
-Now recall that a pdstor (Definition~\ref{def:pdstor}) is an ordered collection of canonical pd-codes which represent pd-isomorphism classes. We can define connect sum for pdstors by saying that $P_1 \# P_2$ is the pdstor constructed by adding all $\mathfrak{L_1} \#_{e1,e2} \mathfrak{L_2}$ where $e_i$ is an edge of some $\mathfrak{L_i} \in P_i$. We now generate composite link shadows iteratively as shown in the pseudocode in Figure~\ref{alg:build composites}. 
+Now recall that a pdstor (Definition~\ref{def:pdstor}) is an ordered collection of canonical pd-codes which represent pd-isomorphism classes. We can define connect sum for pdstors by saying that $P_1 \# P_2$ is the pdstor constructed by adding all $\mathfrak{L_1} \#_{e1,e2} \mathfrak{L_2}$ where $e_i$ is an edge of some $\mathfrak{L_i} \in P_i$. We now generate composite link shadows iteratively as shown in the pseudocode in Figure~\ref{alg:build composites}.
 
 \begin{figure}[ht]
 \begin{algorithmic}
@@ -353,25 +353,25 @@ Now recall that a pdstor (Definition~\ref{def:pdstor}) is an ordered collection 
 \State Use \emph{plantri} to build pdstors $P_1, \dots, P_n$ containing all oriented prime link shadows with $1$ to $n$ vertices.
 
 \ForAll{$1 \leq k \leq n$}
- 	
+
  \State Define an empty pdstor $P_k$.
  \ForAll{partially sorted partitions $k_1k_2 \dots k_\ell$ of $k$ with $k_1 \geq k_i$}
     \State  Build the pdstor $P_{k_1k_2\cdots k_\ell} = ((P_{k_1} \# P_{k_2}) \# P_{k_3}) \# \cdots P_{k_\ell}$.
     \State  (If $((P_{k_1} \# P_{k_2}) \# P_{k_3}) \# \cdots P_{k_{\ell-1}}$ was already computed, we can reuse it.)
  \EndFor
 
- \ForAll{\emph{fully} sorted partitions $k_1k_2 \dots k_\ell$ of $k$ with $k_1 \geq k_2 \geq \dots \geq k_\ell$}   
+ \ForAll{\emph{fully} sorted partitions $k_1k_2 \dots k_\ell$ of $k$ with $k_1 \geq k_2 \geq \dots \geq k_\ell$}
     \State Define an empty pdstor $P$.
     \ForAll{\emph{partially} sorted partitions $k'_1k'_2\cdots k'_\ell$ with the same \emph{set} of $k_i$}
        \State Add all elements of $P_{k'_1k'_2\cdots k'_\ell}$ to $P$.
-      \State (Some of these will be isomorphic to one another.) 
+      \State (Some of these will be isomorphic to one another.)
     \EndFor
-    \State Add all elements of $P$ to $P_k$. 
+    \State Add all elements of $P$ to $P_k$.
     \State (By Lemma~\ref{lem:prime summands invariant}, these aren't isomorphic to anything previously computed,
     \State so we don't need to check for isomorphism with existing elements of $P_k$.)
  \EndFor
 
-\EndFor      
+\EndFor
 \EndProcedure
 \end{algorithmic}
 \caption{Our algorithm for generating composite link shadows proceeds in several rounds to save computational time. Comparing the generating composites to the existing database to eliminate duplicates can consume a considerable amount of time even when using a hashing scheme.}
@@ -438,7 +438,7 @@ An illustration of the process we describe is shown in Figure~\ref{fig:collapse 
 \end{figure}
 
 The proof appears in Appendix~\ref{app:reduction proof}. We can now build the link shadows by applying expansions to the graphs produced by~\emph{plantri}. This is not trivial. First, not all sequences of expansion moves lead to link shadows. Second,
-different sequences of expansion moves may produce isomorphic link shadows. Some examples are shown in 
+different sequences of expansion moves may produce isomorphic link shadows. Some examples are shown in
 Figure~\ref{fig:expansion woes}.
 \begin{figure}[ht]
 \begin{center}
@@ -448,9 +448,9 @@ Figure~\ref{fig:expansion woes}.
 \label{fig:expansion woes}
 \end{figure}
 
-We can think of this as the problem of searching for collections of expansion moves which obey various equations, such as the fact that the total vertex degree must be 4 in any complete solution (there are less obvious equations as well-- the complete system is specified in Appendix~\ref{app:branch and bound}). 
+We can think of this as the problem of searching for collections of expansion moves which obey various equations, such as the fact that the total vertex degree must be 4 in any complete solution (there are less obvious equations as well-- the complete system is specified in Appendix~\ref{app:branch and bound}).
 
-We find all of the solutions using a standard branch-and-bound algorithm and add the results to a pdstor to eliminate isomorphic pd-codes. We can save a lot of time in this process by noting that~Proposition~\ref{prop:reduce} tells us that we need only check expansions of the same graph (and their reorientations) against each other for potential pd-isomorphisms. 
+We find all of the solutions using a standard branch-and-bound algorithm and add the results to a pdstor to eliminate isomorphic pd-codes. We can save a lot of time in this process by noting that~Proposition~\ref{prop:reduce} tells us that we need only check expansions of the same graph (and their reorientations) against each other for potential pd-isomorphisms.
 
 \section{Computing and verifying the results}
 
@@ -460,7 +460,7 @@ This part of the computation was large enough to require organization; several t
 
 \begin{table}
 \begin{ruledtabular}
-\begin{tabular}{llllll} 
+\begin{tabular}{llllll}
 $\Cr$ & Prime Shadows & Link Shadows    & Knot Shadows     & Knot Diagrams \\ \hline
 3  & $\num{1}$   & $\num{7}$         & $\num{6}$        & $\num{36}^*$ \\
 4  & $\num{2}$   & $\num{30}$        & $\num{19}$       & $\num{276}^*$ \\
@@ -469,16 +469,16 @@ $\Cr$ & Prime Shadows & Link Shadows    & Knot Shadows     & Knot Diagrams \\ \h
 7  & $\num{18}$  & $\num{4586}$      & $\num{2194}$     & $\num{484088}^*$ \\
 8  & $\num{62}$  & $\num{33373}$     & $\num{14614}$    & $\num{6967942}^*$ \\
 9  & $\num{198}$ & $\num{259434}^*$  & $\num{106421}$   & $\num{105555336}^*$ \\
-10 & $\num{803}$ & $\num{2152298}^*$ & $\num{823832}$   & $\num{1664142836}^*$ \\ 
+10 & $\num{803}$ & $\num{2152298}^*$ & $\num{823832}$   & $\num{1664142836}^*$ \\
 \end{tabular}
 \end{ruledtabular}
 \caption{The number of link (including knots) and knot shadows and diagrams through 10 crossings. The unstarred numbers in the column of prime shadows are sequence A113201 in the OEIS. The unstarred numbers in the table of link shadows matche K\'apolnai et al.~\cite{Kapolnai:2012hs}. The numbers in the column of knot shadows are sequence A008989 in the OEIS. They match the ``UU, $g=0$'' row on page 43 of the the recent preprint of Coquereaux et al.~\cite{Coquereaux:2015wv}, including the value $\num{823832}$ for $\Cr=10$ which those authors give as ``should be confirmed''. The starred numbers are new.}
 \label{tab:counts}
 \end{table}
 
-The most important question, of course, is how the computation was checked. Our implementation was careful and involved quite a bit of internal self-checking as well as testing against \valgrind for memory problems, and writing a suite of unit tests for the codebase. However, good programming practices can only provide a limited measure of confidence in the results, so we continued to test our work. The first and most important test was to verify that the lists of knot and link shadows obtained by connect summing and by expansions were identical. 
+The most important question, of course, is how the computation was checked. Our implementation was careful and involved quite a bit of internal self-checking as well as testing against \valgrind for memory problems, and writing a suite of unit tests for the codebase. However, good programming practices can only provide a limited measure of confidence in the results, so we continued to test our work. The first and most important test was to verify that the lists of knot and link shadows obtained by connect summing and by expansions were identical.
 
-We were also able to check against some existing enumerations. K\'apolnai et al.\ classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension.  Coquereaux et al.~\cite{Coquereaux:2015wv} have recently extended Valette's count using other means (their count is independent of \emph{plantri}) and our numbers also match those in that paper. 
+We were also able to check against some existing enumerations. K\'apolnai et al.\ classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension.  Coquereaux et al.~\cite{Coquereaux:2015wv} have recently extended Valette's count using other means (their count is independent of \emph{plantri}) and our numbers also match those in that paper.
 
 Looking at Table~\ref{tab:counts}, one is struck by how close the number of distinct knot diagrams is to the maximum number $2^{\Cr+1} \times (\# \text{ knot shadows})$. To take 8 crossing diagrams as an example, we would expect at most $\num{7482368} =\num{14614} \times 2^9$, and we have $\num{6967942}$-- about $93\%$ of the maximum possible number. By the time we reach 10 crossing diagrams, the corresponding fraction is roughly $98.6\%$. We have fewer distinct diagrams only because some of the underlying knot diagrams have symmetries. For instance, the trefoil diagram $\tref$ has a 3-fold rotational symmetry, so the crossing sign assignments $+--$, $-+-$ and $--+$ are all the same. However, our computations reveal that such symmetries quickly become very rare as the number of crossings increases. Table~\ref{tab:automorphisms} shows the mean number of automorphisms of a knot shadow, which rapidly decreases to 1 (the identity map), as is known for sufficiently large numbers of crossings~\cite{Chapman2015knotasymp}.
 
@@ -497,23 +497,23 @@ Mean Automorphisms   &  5  & $\frac{64}{19}$ & $\frac{44}{19}$ & $\frac{159}{94}
 
 \subsection{Knot Types and Inferred Counts}
 
-Counting knot types required us to be careful about knot symmetries. To review, mirroring crossings and reversing orientation yield a $\Z_2 \times \Z_2$ action on knot types. If a knot is isotopic to its image under a subgroup of this group, it is said to have a symmetry; there are five symmetry types corresponding to the five subgroups of this group: ``none'', ``mirror'', ``reversible'', ``amphichiral'' (the diagonal subgroup), and ``full''. We refer to a collection of knot types related by the group as a ``base knot type''. For instance, the base knot type $3_1$ consists of the two knot types $3_1$ and $3_1^m$ (the mirror image of $3_1$). 
+Counting knot types required us to be careful about knot symmetries. To review, mirroring crossings and reversing orientation yield a $\Z_2 \times \Z_2$ action on knot types. If a knot is isotopic to its image under a subgroup of this group, it is said to have a symmetry; there are five symmetry types corresponding to the five subgroups of this group: ``none'', ``mirror'', ``reversible'', ``amphichiral'' (the diagonal subgroup), and ``full''. We refer to a collection of knot types related by the group as a ``base knot type''. For instance, the base knot type $3_1$ consists of the two knot types $3_1$ and $3_1^m$ (the mirror image of $3_1$).
 
 We were able to use the HOMFLY-PT and Kauffmann polynomials and the knot signature to classify almost all of the knots whose base type had symmetry ``full'' or ``reversible'', since these invariants distinguish all knots with 10 crossings or less from their mirror images except the $10_{71}$ knot. There are 36 base types with one of the other three symmetries. These were more difficult to classify as classical invariants don't distinguish knots from their reversals. We relied on symmetry to infer the distribution of counts:
 
-\begin{lemma} 
+\begin{lemma}
 If a base knot type $K$ has symmetry type ``amphichiral'' ($K = K^{mr}$, $K^{m} = K^r$, but $K \neq K^r$) or ``mirror'' ($K = K^m$, $K^r = K^{mr}$, but $K \neq K^r$), then the number of diagrams of the two knot types are equal. If $K$ has symmetry type ``none" ($K \neq K^m \neq K^r \neq K^{mr}$) the number of diagrams of each of these four knot types are equal.
 \end{lemma}
 
 \begin{proof}
-In each case, there is a group action on diagrams (reverse the orientation of a diagram or take the 4-element group generated by reversing crossing signs and orientation) which converts diagrams of one knot of these knot types to a diagrams of the other types. This action extends to diagram-isomorphism classes of diagrams because the action commutes with any given diagram-isomorphism. 
+In each case, there is a group action on diagrams (reverse the orientation of a diagram or take the 4-element group generated by reversing crossing signs and orientation) which converts diagrams of one knot of these knot types to a diagrams of the other types. This action extends to diagram-isomorphism classes of diagrams because the action commutes with any given diagram-isomorphism.
 
 It is not always the case that this action is free on diagram-isomorphism classes of diagrams of any knot type. For instance, taking the mirror image of this diagram of the $7_4$ knot \raisebox{-0.4 \height}{\includegraphics[height=0.25in]{74knot.png}} is equivalent to rotating it by 180 degrees (a diagram-isomorphism). This implies that $7_4$ is a reversible knot, as diagram-isomorphisms are knot isotopies. But by hypothesis, our $K$ is \emph{not} isotopic to its images under the group action, and therefore it cannot by diagram-isomorphic either.
 
 Since the action of the group on this set of diagram-isomorphism classes is free and exchanges the various knot types, the number of diagram-isomorphism classes of diagrams in each knot type must be the same.
 \end{proof}
 
-For example, using this lemma we split our original count of $\num{5672}$ 10-crossing diagrams of base type $8_{17}$ into $\num{2836}$ diagrams of type $8_{17}$ and $\num{2836}$ diagrams of type $8_{17}^r$, even though we had no way of knowing which of our diagrams was assigned to each knot type. 
+For example, using this lemma we split our original count of $\num{5672}$ 10-crossing diagrams of base type $8_{17}$ into $\num{2836}$ diagrams of type $8_{17}$ and $\num{2836}$ diagrams of type $8_{17}^r$, even though we had no way of knowing which of our diagrams was assigned to each knot type.
 
 The relative frequencies of all the knot types appear in Figure~\ref{fig:knot frequency loglog} in a log-log plot. The figure also shows the 10 most frequent knot types, from the unknot (the most frequent knot type in all our data) and the trefoils $3_1$ and $3_1^m$ through the square knot $3_1 \# 3_1^m$ and the $6_3$ knot, which is the 10th most common knot in all our data. Though we know~\cite{Chapman2015knotasymp} both that unknotted diagrams eventually become exponentially rare, and that the rank-order of the knot types must eventually change, we do not see this effect in our data; the list of 10 most common knots is the same for crossing numbers 6-10. Table~\ref{tab:knot frequency raw data} gives more detailed frequency data for the 40 most common knot types (among 10 crossing diagrams). This data does show some reordering of knot types as crossing number increases.
 
@@ -521,375 +521,375 @@ The relative frequencies of all the knot types appear in Figure~\ref{fig:knot fr
 \begin{ruledtabular}
 \begin{tabular}{ccccccccc}
 Crossing Number &
-3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ 
-Number of Diagrams & 
-$\num{36}$ & 
-$\num{276}$ & 
-$\num{2936}$ & 
-$\num{35872}$ & 
-$\num{484088}$ & 
-$\num{6967942}$ & 
-$\num{105555336}$ & 
+3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
+Number of Diagrams &
+$\num{36}$ &
+$\num{276}$ &
+$\num{2936}$ &
+$\num{35872}$ &
+$\num{484088}$ &
+$\num{6967942}$ &
+$\num{105555336}$ &
 $\num{1664142836}$\\ \hline
-$0_1$ & 
-$\num{34}$ & 
-$\num{265}$ & 
-$\num{2744}$ & 
-$\num{32456}$ & 
-$\num{422332}$ & 
-$\num{5852832}$ & 
-$\num{85253534}$ & 
-$\num{1291291155}$\\ 
-$3_{1}^{}$ & 
-$\num{1}$ & 
-$\num{5}$ & 
-$\num{85}$ & 
-$\num{1466}$ & 
-$\num{25432}$ & 
-$\num{440570}$ & 
-$\num{7696083}$ & 
-$\num{135702456}$\\ 
-$3_{1}^{m}$ & 
-$\num{1}$ & 
-$\num{5}$ & 
-$\num{85}$ & 
-$\num{1466}$ & 
-$\num{25432}$ & 
-$\num{440570}$ & 
-$\num{7696083}$ & 
-$\num{135702456}$\\ 
-$4_{1}^{}$ & 
--- & 
-$\num{1}$ & 
-$\num{18}$ & 
-$\num{412}$ & 
-$\num{8450}$ & 
-$\num{165791}$ & 
-$\num{3175612}$ & 
-$\num{60146706}$\\ 
-$5_{2}^{}$ & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{24}$ & 
-$\num{730}$ & 
-$\num{18075}$ & 
-$\num{415290}$ & 
-$\num{9025926}$\\ 
-$5_{2}^{m}$ & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{24}$ & 
-$\num{730}$ & 
-$\num{18075}$ & 
-$\num{415290}$ & 
-$\num{9025926}$\\ 
-$3_{1}^{}\#3_{1}^{m}$ & 
--- & 
--- & 
--- & 
-$\num{2}$ & 
-$\num{112}$ & 
-$\num{3953}$ & 
-$\num{113684}$ & 
-$\num{2923783}$\\ 
-$6_{3}^{}$ & 
--- & 
--- & 
--- & 
-$\num{2}$ & 
-$\num{106}$ & 
-$\num{3515}$ & 
-$\num{96666}$ & 
-$\num{2389180}$\\ 
-$6_{2}^{}$ & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{58}$ & 
-$\num{2027}$ & 
-$\num{58354}$ & 
-$\num{1493624}$\\ 
-$6_{2}^{m}$ & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{58}$ & 
-$\num{2027}$ & 
-$\num{58354}$ & 
-$\num{1493624}$\\ 
-$3_{1}^{}\#3_{1}^{}$ & 
--- & 
--- & 
--- & 
-$\num{2}$ & 
-$\num{58}$ & 
-$\num{2006}$ & 
-$\num{56893}$ & 
-$\num{1461498}$\\ 
-$3_{1}^{m}\#3_{1}^{m}$ & 
--- & 
--- & 
--- & 
-$\num{2}$ & 
-$\num{58}$ & 
-$\num{2006}$ & 
-$\num{56893}$ & 
-$\num{1461498}$\\ 
-$6_{1}^{m}$ & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{34}$ & 
-$\num{1267}$ & 
-$\num{38199}$ & 
-$\num{1015996}$\\ 
-$6_{1}^{}$ & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{34}$ & 
-$\num{1267}$ & 
-$\num{38199}$ & 
-$\num{1015996}$\\ 
-$3_{1}^{}\#4_{1}^{}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{8}$ & 
-$\num{516}$ & 
-$\num{20458}$ & 
-$\num{648362}$\\ 
-$3_{1}^{m}\#4_{1}^{}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{8}$ & 
-$\num{516}$ & 
-$\num{20458}$ & 
-$\num{648362}$\\ 
-$7_{6}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{3}$ & 
-$\num{193}$ & 
-$\num{7608}$ & 
-$\num{240121}$\\ 
-$7_{6}^{}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{3}$ & 
-$\num{193}$ & 
-$\num{7608}$ & 
-$\num{240121}$\\ 
-$7_{7}^{}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{2}$ & 
-$\num{124}$ & 
-$\num{4709}$ & 
-$\num{144455}$\\ 
-$7_{7}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{2}$ & 
-$\num{124}$ & 
-$\num{4709}$ & 
-$\num{144455}$\\ 
-$7_{5}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{2}$ & 
-$\num{102}$ & 
-$\num{4244}$ & 
-$\num{138467}$\\ 
-$7_{5}^{}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{2}$ & 
-$\num{102}$ & 
-$\num{4244}$ & 
-$\num{138467}$\\ 
-$7_{2}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{44}$ & 
-$\num{2103}$ & 
-$\num{74739}$\\ 
-$7_{2}^{}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{44}$ & 
-$\num{2103}$ & 
-$\num{74739}$\\ 
-$7_{3}^{}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{39}$ & 
-$\num{1793}$ & 
-$\num{62059}$\\ 
-$7_{3}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{39}$ & 
-$\num{1793}$ & 
-$\num{62059}$\\ 
-$4_{1}^{}\#4_{1}^{}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{20}$ & 
-$\num{1176}$ & 
-$\num{51526}$\\ 
-$7_{4}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{36}$ & 
-$\num{1516}$ & 
-$\num{49731}$\\ 
-$7_{4}^{}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{36}$ & 
-$\num{1516}$ & 
-$\num{49731}$\\ 
-$8_{20}^{}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{14}$ & 
-$\num{985}$ & 
-$\num{41843}$\\ 
-$8_{20}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{14}$ & 
-$\num{985}$ & 
-$\num{41843}$\\ 
-$3_{1}^{m}\#5_{2}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{10}$ & 
-$\num{784}$ & 
-$\num{36548}$\\ 
-$3_{1}^{}\#5_{2}^{}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{10}$ & 
-$\num{784}$ & 
-$\num{36548}$\\ 
-$3_{1}^{m}\#5_{2}^{}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{10}$ & 
-$\num{784}$ & 
-$\num{36544}$\\ 
-$3_{1}^{}\#5_{2}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{10}$ & 
-$\num{784}$ & 
-$\num{36544}$\\ 
-$8_{21}^{}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{9}$ & 
-$\num{574}$ & 
-$\num{24611}$\\ 
-$8_{21}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{9}$ & 
-$\num{574}$ & 
-$\num{24611}$\\ 
-$8_{14}^{}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{6}$ & 
-$\num{442}$ & 
-$\num{19412}$\\ 
-$8_{14}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
--- & 
-$\num{6}$ & 
-$\num{442}$ & 
-$\num{19412}$\\ 
-$7_{1}^{m}$ & 
--- & 
--- & 
--- & 
--- & 
-$\num{1}$ & 
-$\num{8}$ & 
-$\num{444}$ & 
+$0_1$ &
+$\num{34}$ &
+$\num{265}$ &
+$\num{2744}$ &
+$\num{32456}$ &
+$\num{422332}$ &
+$\num{5852832}$ &
+$\num{85253534}$ &
+$\num{1291291155}$\\
+$3_{1}^{}$ &
+$\num{1}$ &
+$\num{5}$ &
+$\num{85}$ &
+$\num{1466}$ &
+$\num{25432}$ &
+$\num{440570}$ &
+$\num{7696083}$ &
+$\num{135702456}$\\
+$3_{1}^{m}$ &
+$\num{1}$ &
+$\num{5}$ &
+$\num{85}$ &
+$\num{1466}$ &
+$\num{25432}$ &
+$\num{440570}$ &
+$\num{7696083}$ &
+$\num{135702456}$\\
+$4_{1}^{}$ &
+-- &
+$\num{1}$ &
+$\num{18}$ &
+$\num{412}$ &
+$\num{8450}$ &
+$\num{165791}$ &
+$\num{3175612}$ &
+$\num{60146706}$\\
+$5_{2}^{}$ &
+-- &
+-- &
+$\num{1}$ &
+$\num{24}$ &
+$\num{730}$ &
+$\num{18075}$ &
+$\num{415290}$ &
+$\num{9025926}$\\
+$5_{2}^{m}$ &
+-- &
+-- &
+$\num{1}$ &
+$\num{24}$ &
+$\num{730}$ &
+$\num{18075}$ &
+$\num{415290}$ &
+$\num{9025926}$\\
+$3_{1}^{}\#3_{1}^{m}$ &
+-- &
+-- &
+-- &
+$\num{2}$ &
+$\num{112}$ &
+$\num{3953}$ &
+$\num{113684}$ &
+$\num{2923783}$\\
+$6_{3}^{}$ &
+-- &
+-- &
+-- &
+$\num{2}$ &
+$\num{106}$ &
+$\num{3515}$ &
+$\num{96666}$ &
+$\num{2389180}$\\
+$6_{2}^{}$ &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{58}$ &
+$\num{2027}$ &
+$\num{58354}$ &
+$\num{1493624}$\\
+$6_{2}^{m}$ &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{58}$ &
+$\num{2027}$ &
+$\num{58354}$ &
+$\num{1493624}$\\
+$3_{1}^{}\#3_{1}^{}$ &
+-- &
+-- &
+-- &
+$\num{2}$ &
+$\num{58}$ &
+$\num{2006}$ &
+$\num{56893}$ &
+$\num{1461498}$\\
+$3_{1}^{m}\#3_{1}^{m}$ &
+-- &
+-- &
+-- &
+$\num{2}$ &
+$\num{58}$ &
+$\num{2006}$ &
+$\num{56893}$ &
+$\num{1461498}$\\
+$6_{1}^{m}$ &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{34}$ &
+$\num{1267}$ &
+$\num{38199}$ &
+$\num{1015996}$\\
+$6_{1}^{}$ &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{34}$ &
+$\num{1267}$ &
+$\num{38199}$ &
+$\num{1015996}$\\
+$3_{1}^{}\#4_{1}^{}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{8}$ &
+$\num{516}$ &
+$\num{20458}$ &
+$\num{648362}$\\
+$3_{1}^{m}\#4_{1}^{}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{8}$ &
+$\num{516}$ &
+$\num{20458}$ &
+$\num{648362}$\\
+$7_{6}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{3}$ &
+$\num{193}$ &
+$\num{7608}$ &
+$\num{240121}$\\
+$7_{6}^{}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{3}$ &
+$\num{193}$ &
+$\num{7608}$ &
+$\num{240121}$\\
+$7_{7}^{}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{2}$ &
+$\num{124}$ &
+$\num{4709}$ &
+$\num{144455}$\\
+$7_{7}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{2}$ &
+$\num{124}$ &
+$\num{4709}$ &
+$\num{144455}$\\
+$7_{5}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{2}$ &
+$\num{102}$ &
+$\num{4244}$ &
+$\num{138467}$\\
+$7_{5}^{}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{2}$ &
+$\num{102}$ &
+$\num{4244}$ &
+$\num{138467}$\\
+$7_{2}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{44}$ &
+$\num{2103}$ &
+$\num{74739}$\\
+$7_{2}^{}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{44}$ &
+$\num{2103}$ &
+$\num{74739}$\\
+$7_{3}^{}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{39}$ &
+$\num{1793}$ &
+$\num{62059}$\\
+$7_{3}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{39}$ &
+$\num{1793}$ &
+$\num{62059}$\\
+$4_{1}^{}\#4_{1}^{}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{20}$ &
+$\num{1176}$ &
+$\num{51526}$\\
+$7_{4}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{36}$ &
+$\num{1516}$ &
+$\num{49731}$\\
+$7_{4}^{}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{36}$ &
+$\num{1516}$ &
+$\num{49731}$\\
+$8_{20}^{}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{14}$ &
+$\num{985}$ &
+$\num{41843}$\\
+$8_{20}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{14}$ &
+$\num{985}$ &
+$\num{41843}$\\
+$3_{1}^{m}\#5_{2}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{10}$ &
+$\num{784}$ &
+$\num{36548}$\\
+$3_{1}^{}\#5_{2}^{}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{10}$ &
+$\num{784}$ &
+$\num{36548}$\\
+$3_{1}^{m}\#5_{2}^{}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{10}$ &
+$\num{784}$ &
+$\num{36544}$\\
+$3_{1}^{}\#5_{2}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{10}$ &
+$\num{784}$ &
+$\num{36544}$\\
+$8_{21}^{}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{9}$ &
+$\num{574}$ &
+$\num{24611}$\\
+$8_{21}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{9}$ &
+$\num{574}$ &
+$\num{24611}$\\
+$8_{14}^{}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{6}$ &
+$\num{442}$ &
+$\num{19412}$\\
+$8_{14}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+-- &
+$\num{6}$ &
+$\num{442}$ &
+$\num{19412}$\\
+$7_{1}^{m}$ &
+-- &
+-- &
+-- &
+-- &
+$\num{1}$ &
+$\num{8}$ &
+$\num{444}$ &
 $\num{17441}$
 \end{tabular}
 \end{ruledtabular}
@@ -918,7 +918,7 @@ More interestingly, the log-log plot of ranked knot frequencies for the 622 diff
 \begin{minipage}[b]{1.5in}
 \begin{ruledtabular}
 \begin{tabular}{ccc}
-$\Cr$ & Unknots & (decimal) \\ \hline 
+$\Cr$ & Unknots & (decimal) \\ \hline
 \\ [-0.15in]
  3 & $\frac{\num{17}}{\num{18}}$ & 0.94 \\ [0.05in]
  4 & $\frac{\num{265}}{\num{276}}$ & 0.96 \\[0.05in]
@@ -934,7 +934,7 @@ $\Cr$ & Unknots & (decimal) \\ \hline
 \hfill
 \hphantom{.}
 
-\caption{A log-log plot of knot frequencies in rank order for crossing numbers 3 through 10, with the 10 most common knot types identified. These knot types have the same rank ordering in all the crossing numbers computed. The data show some evidence of power-law behavior. At right, we see the unknot fraction in table form.} 
+\caption{A log-log plot of knot frequencies in rank order for crossing numbers 3 through 10, with the 10 most common knot types identified. These knot types have the same rank ordering in all the crossing numbers computed. The data show some evidence of power-law behavior. At right, we see the unknot fraction in table form.}
 \label{fig:knot frequency loglog}
 \end{figure}
 
@@ -944,7 +944,7 @@ At right in Figure~\ref{fig:knot frequency loglog} we give the unknot fraction e
 \caption{The first 42 knot shadows.}
 \label{fig:knot grid}
 \end{figure}
-It is immediately clear from Figure~\ref{fig:knot grid} that many of the shadows can be simplified by a Reidemeister I move; they have a face with only one edge (a monogon). In fact, we can see from Table~\ref{tab:monogons and bigons} that almost every diagram has at least one monogon and that the mean number of monogons seems to be rising linearly with $n$.  
+It is immediately clear from Figure~\ref{fig:knot grid} that many of the shadows can be simplified by a Reidemeister I move; they have a face with only one edge (a monogon). In fact, we can see from Table~\ref{tab:monogons and bigons} that almost every diagram has at least one monogon and that the mean number of monogons seems to be rising linearly with $n$.
 \begin{table}
 \begin{ruledtabular}
 \renewcommand{\arraystretch}{1.2}
@@ -952,22 +952,22 @@ It is immediately clear from Figure~\ref{fig:knot grid} that many of the shadows
 Cr                 & $3$ & $4$             & $5$            & $6$                        & $7$ & $8$ & $9$ & $10$ \\ \hline
 Mean $\#$ monogons & $\frac{\num{12}}{\num{6}}$ & $\frac{\num{48}}{\num{19}}$ & $\frac{\num{213}}{\num{76}}$ & $\frac{\num{1196}}{\num{376}}$ & $\frac{\num{7714}}{\num{2194}}$ & $\frac{\num{56540}}{\num{14614}}$ & $\frac{\num{448584}}{\num{106421}}$ & $\frac{\num{3758456}}{\num{823832}}$\\
 \hphantom{Mean} --- (decimal) & $2.$ & $2.53$ & $2.8$ & $3.18$ & $3.52$ & $3.87$ & $4.22$ & $4.56$ \\
-Monogon fraction   & $\frac{\num{5}}{\num{6}}$ & $\frac{\num{18}}{\num{19}}$ & 
-$\frac{\num{74}}{\num{76}}$ & $\frac{\num{371}}{\num{376}}$ & 
-$\frac{\num{2178}}{\num{2194}}$ & 
-$\frac{\num{14562}}{\num{14614}}$ & 
-$\frac{\num{106216}}{\num{106421}}$ & 
-$\frac{\num{822989}}{\num{823832}}$ \\ 
+Monogon fraction   & $\frac{\num{5}}{\num{6}}$ & $\frac{\num{18}}{\num{19}}$ &
+$\frac{\num{74}}{\num{76}}$ & $\frac{\num{371}}{\num{376}}$ &
+$\frac{\num{2178}}{\num{2194}}$ &
+$\frac{\num{14562}}{\num{14614}}$ &
+$\frac{\num{106216}}{\num{106421}}$ &
+$\frac{\num{822989}}{\num{823832}}$ \\
 \hphantom{Mean} --- (decimal) & $0.833$ & $0.947$ & $0.974$ & $0.987$ & $0.993$ & $0.996$ & $0.998$ \
 & $0.999$ \\ \hline
-Mean $\#$ bigons & $\frac{\num{6}}{\num{6}}$ & $\frac{\num{18}}{\num{19}}$ & 
-$\frac{\num{88}}{\num{76}}$ & $\frac{\num{470}}{\num{376}}$ & 
-$\frac{\num{3037}}{\num{2194}}$ & $\frac{\num{21925}}{\num{14614}}$ & 
+Mean $\#$ bigons & $\frac{\num{6}}{\num{6}}$ & $\frac{\num{18}}{\num{19}}$ &
+$\frac{\num{88}}{\num{76}}$ & $\frac{\num{470}}{\num{376}}$ &
+$\frac{\num{3037}}{\num{2194}}$ & $\frac{\num{21925}}{\num{14614}}$ &
 $\frac{\num{173342}}{\num{106421}}$ & $\frac{\num{1450209}}{\num{823832}}$ \\
 \hphantom{Mean} --- (decimal) & $1.$ & $0.947$ & $1.16$ & $1.25$ & $1.38$ & $1.5$ & $1.63$ & $1.76$ \\
-Bigon fraction & $\frac{\num{3}}{\num{6}}$ & $\frac{\num{11}}{\num{19}}$ & 
-$\frac{\num{52}}{\num{76}}$ & $\frac{\num{275}}{\num{376}}$ & 
-$\frac{\num{1714}}{\num{2194}}$ & $\frac{\num{11892}}{\num{14614}}$ & 
+Bigon fraction & $\frac{\num{3}}{\num{6}}$ & $\frac{\num{11}}{\num{19}}$ &
+$\frac{\num{52}}{\num{76}}$ & $\frac{\num{275}}{\num{376}}$ &
+$\frac{\num{1714}}{\num{2194}}$ & $\frac{\num{11892}}{\num{14614}}$ &
 $\frac{\num{89627}}{\num{106421}}$ & $\frac{\num{712961}}{\num{823832}}$ \\
 \hphantom{Mean} --- (decimal) & $0.5$ & $0.579$ & $0.684$ & $0.731$ & $0.781$ & $0.814$ & $0.842$ & $0.865$ \\
 \end{tabular}
@@ -978,7 +978,7 @@ $\frac{\num{89627}}{\num{106421}}$ & $\frac{\num{712961}}{\num{823832}}$ \\
 It is interesting to note that almost every diagram contains either a monogon or a bigon-- there are only three diagrams in our dataset without one or the other! These turn out to be the shadows of torus knots and links that Conway designated as $8^*$, $9^*$, and $10^*$. This means that we can expect to reduce the complexity of an average shadow substantially just by eliminating monogons, which can be done regardless of crossing signs. We note here that there are some adjustments to our enumeration scheme which may produce an interesting subset of shadows, but do not provide any proof: If the $\loopinsert$ loop insertion rule is removed from the graph expansion procedure, all shadows without monogons should be tabulated. Similarly, removing the one-crossing $\infty$ diagram from our connect-summing procedure should tabulate all diagrams without nugatory crossings.
 
 Put another way, almost all knot shadows are composite with the one-crossing diagram $\infty$ as a (diagrammatically) prime factor. Figure~\ref{fig:proportiongraphic} shows the fraction of shadows of a given crossing number with a given number of prime summands. If the number of prime summands is equal to the crossing number $n$, the shadow is a connect sum of one-crossing $8$ diagrams-- these diagrams are called ``tree-like'' by Aicardi~\cite{Aicardi:1994uq}.
-Tree-like diagrams are colored in dark on the left-hand side of Figure~\ref{fig:proportiongraphic}. There are no $n$-crossing shadows with $n-1$ prime summands (as there are no 2-crossing prime knot diagrams). 
+Tree-like diagrams are colored in dark on the left-hand side of Figure~\ref{fig:proportiongraphic}. There are no $n$-crossing shadows with $n-1$ prime summands (as there are no 2-crossing prime knot diagrams).
 
 \begin{figure}
 \hfill
@@ -996,7 +996,7 @@ Tree-like diagrams are colored in dark on the left-hand side of Figure~\ref{fig:
 \label{fig:proportiongraphic}
 \end{figure}
 
-We will call the $n$-crossing shadows with $n-2$ prime summands ``3-almost tree-like'' as they are the connect sum of a tree-like diagram and a 3-crossing prime diagram, and similarly call the $n$-crossing diagrams with $n-3$ prime summands ``4-almost tree-like'' as they are the connect sum of a tree-like diagram and a 4-crossing prime diagram. These diagrams are colored in on Figure~\ref{fig:proportiongraphic} in a lighter color. 
+We will call the $n$-crossing shadows with $n-2$ prime summands ``3-almost tree-like'' as they are the connect sum of a tree-like diagram and a 3-crossing prime diagram, and similarly call the $n$-crossing diagrams with $n-3$ prime summands ``4-almost tree-like'' as they are the connect sum of a tree-like diagram and a 4-crossing prime diagram. These diagrams are colored in on Figure~\ref{fig:proportiongraphic} in a lighter color.
 
 \begin{proposition}
 If a shadow is tree-like, all assignments of crossings result in the unknot; these are the only knot shadows with this property. If a shadow is 3-almost tree-like, $3/4$ of crossing assignments produce unknots. If a shadow is 4-almost tree-like, $7/8$ of crossing assignments produce unknots.
@@ -1006,14 +1006,14 @@ If a shadow is tree-like, all assignments of crossings result in the unknot; the
 \begin{proof}
 The calculations of unknot fractions are easy; a tree-like diagram can be reduced to the unknot by Reidemeister I moves regardless of crossing assignment. Further, there is only one prime knot shadow of 3 or 4 crossings; the assignment of all $+$ or all $-$ crossings yields a $3_1$ or $4_1$ knot, while all other assignments result in unknots.
 
-The statement that the tree-like shadows are the only shadows with the property that all crossing assignments produce unknots is more interesting. Polyak~\cite{Polyak:1998wa} shows that the average value of the Vassiliev $v_2$ invariant (which is $0$ for unknots) over all crossing assignments for a shadow is given by the formula $\frac{1}{8}(\operatorname{J}^+ + 2 \operatorname{St})$ where $\operatorname{J}^+$ and $\operatorname{St}$ are Arnol'd invariants of the shadow (cf. \cite{Arnold:1994wr}). (While $\operatorname{J}^+$ and $\operatorname{St}$ are not spherically invariant, the sum $\operatorname{J}^+ + 2\operatorname{St}$ is.) Further, both he and Aicardi~\cite{Aicardi:1994uq} show that tree-like shadows are the only shadows with $\operatorname{J}^+ + 2 \operatorname{St} = 0$. 
+The statement that the tree-like shadows are the only shadows with the property that all crossing assignments produce unknots is more interesting. Polyak~\cite{Polyak:1998wa} shows that the average value of the Vassiliev $v_2$ invariant (which is $0$ for unknots) over all crossing assignments for a shadow is given by the formula $\frac{1}{8}(\operatorname{J}^+ + 2 \operatorname{St})$ where $\operatorname{J}^+$ and $\operatorname{St}$ are Arnol'd invariants of the shadow (cf. \cite{Arnold:1994wr}). (While $\operatorname{J}^+$ and $\operatorname{St}$ are not spherically invariant, the sum $\operatorname{J}^+ + 2\operatorname{St}$ is.) Further, both he and Aicardi~\cite{Aicardi:1994uq} show that tree-like shadows are the only shadows with $\operatorname{J}^+ + 2 \operatorname{St} = 0$.
 \end{proof}
 
 Doing the requisite sums, this analysis predicts that roughly $77\%$ of 8-crossing diagrams, $70\%$ of 9-crossing diagrams, and $63\%$ of 10-crossing diagrams should be tree-like or almost tree-like unknots. We can compare these figures to the actual unknot fractions from Figure~\ref{fig:knot frequency loglog}: roughly $83\%$ of 8-crossing diagrams, $80\%$ of 9-crossing diagrams, and $78\%$ of 10-crossing diagrams are unknots of any kind. This suggests that the treelike phenomenon explains much of the unknot fraction. We note that these figures are not entirely comparable; while the Proposition shows that at least $63\%$ of crossing assignments to 10-crossing shadows result in unknots, some of these crossing assignments might result in diagram-isomorphic diagrams if the underlying shadow has a symmetry, and so the unknot fraction could be slightly smaller. This cannot make much difference to the estimate. The counts in Table~\ref{tab:counts} show that about $98.6\%$ of crossing assignments to 10 crossing shadows produce distinct diagrams, so the worst-case scenario is that this analysis shows that at least $61.4\%$ of 10-crossing diagrams are tree-like or almost tree-like unknots.
 
 \section{Future Directions}
 
-All of collections of knot shadows are included as supplementary data with this paper, including files of coordinates for planar embeddings of the shadows as well as their pd-codes. In addition, we include the actual counts of diagrams of various knot types as CSV files, and the files of diagrams with 8 crossings and fewer. We did not assemble files of diagrams for 9 and 10 crossing diagrams, but classified diagrams on-the-fly as we generated them (we estimate the file of 10-crossing diagrams to be about 1.6 tb in size if generated). Our source code is also available publicly. 
+All of collections of knot shadows are included as supplementary data with this paper, including files of coordinates for planar embeddings of the shadows as well as their pd-codes. In addition, we include the actual counts of diagrams of various knot types as CSV files, and the files of diagrams with 8 crossings and fewer. We did not assemble files of diagrams for 9 and 10 crossing diagrams, but classified diagrams on-the-fly as we generated them (we estimate the file of 10-crossing diagrams to be about 1.6 tb in size if generated). Our source code is also available publicly.
 
 Once in possession of an enumeration of diagrams, it is tempting to compute knot distances (cf.~\cite{DARCY:2001fi,MoonHyeyoung:2010tm}) and unknotting numbers. We have carried out some preliminary experiments along these lines and are disappointed to report that it does not seem to resolve any of the remaining uncertainties in the knot distance tables.
 
@@ -1136,7 +1136,7 @@ We can now find all isomorphisms between two pdcodes computationally by a simple
 \section{Proving Proposition~\ref{prop:reduce}}
 \label{app:reduction proof}
 
-In this section, we give the proof of 
+In this section, we give the proof of
 
 \setcounter{theorem}{16}
 
@@ -1311,7 +1311,7 @@ One might worry that the choice of \emph{which}\footnote{Remember that the choic
 \section{Branch and Bound Algorithm for Expansions}
 \label{app:branch and bound}
 
-Proposition~\ref{prop:reduce} suggests a strategy for generating diagrams: start by enumerating embedded planar simple graphs of vertex degree $\leq 4$ using \plantri, then expand them to $4$-regular embedded planar graphs using the moves above. We can generate embedded isomorphic graphs with different expansion sequences, so we will have to sort the graphs into isomorphism classes. We start with an embedded planar graph of vertex degree $\leq 4$. 
+Proposition~\ref{prop:reduce} suggests a strategy for generating diagrams: start by enumerating embedded planar simple graphs of vertex degree $\leq 4$ using \plantri, then expand them to $4$-regular embedded planar graphs using the moves above. We can generate embedded isomorphic graphs with different expansion sequences, so we will have to sort the graphs into isomorphism classes. We start with an embedded planar graph of vertex degree $\leq 4$.
 
 \begin{lemma}
 If $G_0$ is obtained from a $4$-regular embedded planar multigraph $G$ by the reduction process of Proposition~\ref{prop:reduce} then either every vertex of degree one in $G_0$ has exactly one loop edge in $G$ and one multiedge of multiplicity two obtained by $\edgedouble$ or $\cutedgedouble$ or the graph is \hopfgraph.
@@ -1322,8 +1322,8 @@ If $G_0$ is obtained from a $4$-regular embedded planar multigraph $G$ by the re
 If we expand $G_0$ to $G$ using the four moves, three empty connections on the vertex must be filled during the process. If they are filled by redoubling the existing edge, then the degree of the vertex at the other end of the edge was also one, and we get \hopfgraph. Otherwise, we must fill two by adding a loop edge, and the other by doubling the existing edge.
 \end{proof}
 
-We also observe that two pairs of vertices $ab$ and $cd$ on the unit circle may be joined by nonintersecting chords inside the circle if and only if the pairs are unlinked on the circle (\raisebox{-0.032in}{\includegraphics[width=0.15in]{unlinked-on-circle.pdf}} 
-instead of \raisebox{-0.032in}{\includegraphics[width=0.15in]{linked-on-circle.pdf}}). This happens when the order of the vertices around the circle is $abcd$ instead of $acbd$ or $adbc$. 
+We also observe that two pairs of vertices $ab$ and $cd$ on the unit circle may be joined by nonintersecting chords inside the circle if and only if the pairs are unlinked on the circle (\raisebox{-0.032in}{\includegraphics[width=0.15in]{unlinked-on-circle.pdf}}
+instead of \raisebox{-0.032in}{\includegraphics[width=0.15in]{linked-on-circle.pdf}}). This happens when the order of the vertices around the circle is $abcd$ instead of $acbd$ or $adbc$.
 
 We can now design an algorithm to produce all possible expansions of $G_0$, a given connected embedded planar simple graph of vertex degree $\leq 4$ as an integer constraint satisfaction problem. By Lemma~\ref{lem:degreeone}, we must add a loop to each vertex of degree one in $G_0$ eventually. We can save time by doing so at the start of the computation. We will therefore assume that loops have been added to create a \emph{prepared} graph $G_1$, and each vertex has degree $2$, $3$, or $4$.
 
@@ -1402,7 +1402,7 @@ If the next expansion is an $\edgedouble$ indicated by a positive $d_{i,j}$, it 
 
 If the next expansion is an $\edgedouble$ or $\cutedgedouble$ expansion indicated by a positive $c_{i,j}$ variable, it is (again) possible if the vertex degrees at $v_i$ and $v_j$ are small enough (which is again true by the vertex degree equations) \emph{and} if $e_{i,j}$ is a cut edge of $G_i$. We never apply these expansions more than once to an edge, so $e_{i,j}$ is a cut edge of $G_i$ since it was a cut edge of $G_1$. Choosing between $\edgedouble$ and $\cutedgedouble$ expansions will yield different embeddings of $G_{i+1}$ and we must follow both possibilities to generate the final family of embeddings of $G$.
 
-This much was easy. If the next expansion is of type $\pairinsert$, there is more to check. First, we note that there is no ambiguity in embeddings here: if we can do the $\pairinsert$ expansion, we can do it in only one way and we generate a unique embedding of the graph $G_{i+1}$. But can we do it at all? Each $\pairinsert$ indicated by a positive $p_{i,j}$ requires several conditions. First, vertex degrees at $v_i$, $v_j$ must be small enough, which is true as usual because the vertex degree equations are satisfied. 
+This much was easy. If the next expansion is of type $\pairinsert$, there is more to check. First, we note that there is no ambiguity in embeddings here: if we can do the $\pairinsert$ expansion, we can do it in only one way and we generate a unique embedding of the graph $G_{i+1}$. But can we do it at all? Each $\pairinsert$ indicated by a positive $p_{i,j}$ requires several conditions. First, vertex degrees at $v_i$, $v_j$ must be small enough, which is true as usual because the vertex degree equations are satisfied.
 
 %But the $v_i$ and $v_j$ must still be on two faces in the expansion $G_i$, which is not obvious, because previous $\pairinsert$ expansions have split faces of $G_1$ into smaller faces in $G_i$. However, a $\pairinsert$ expansion $p_{kl}$ at some $v_k$, $v_l$ can only separate $v_i$ and $v_j$ if $v_k$, $v_l$ and $v_i$, $v_j$ are linked on the boundary of $F_1$. But the fact that $p_{ij} = 1$ means that no such $\pairinsert$ expansion at $v_k$, $v_l$ takes place in this expansion, since the linking equation $p_{ij} + p_{kl} \leq 1$ must hold.
 %
@@ -1413,7 +1413,7 @@ This much was easy. If the next expansion is of type $\pairinsert$, there is mor
 %	\begin{overpic}[width=3in]{pair-interference.pdf}
 %	\put(34,53){$F_1$}
 %	\put(63,10){$F_2$}
-%	
+%
 %	\put(11.5,35){$v_i$}
 %	\put(33.5,35){$v_k$}
 %	\put(61.5,35){$v_j$}
@@ -1453,9 +1453,9 @@ We now consider the problem of dividing the results into embedded isomorphism cl
 %    \node[text width=1.3in,draw=black] (plantri)
 %    {\texttt{plantri}, set to produce planar simple graphs with max degree
 %    4 and connectivity $\geq 1$.};
-%    \node[text width=1.3in,right=.5in of plantri,draw=black]  (expand) 
+%    \node[text width=1.3in,right=.5in of plantri,draw=black]  (expand)
 %    {Expansions\\computed branch-and-bound.};
-%    \node[text width=1.3in,right=.5in of expand,draw=black] (isomch)    
+%    \node[text width=1.3in,right=.5in of expand,draw=black] (isomch)
 %    {Embedded\\isomorphism\\checking};
 %
 %    \path (plantri)    edge (expand)
@@ -1470,7 +1470,7 @@ We now consider the problem of dividing the results into embedded isomorphism cl
 %Table~\ref{tab:knot frequency raw data} gives the number of diagram of a given knot type among all $n$ crossing diagrams for $n$ between 3 and 10. The remaining data is given in the csv files attached to this paper as supplementary data in the files ``knotfreq-03.csv'' through ``knotfreq-10.csv''.
 %
 %
-%\newpage 
+%\newpage
 
 \bibliography{knotprobabilitypapers}
 
