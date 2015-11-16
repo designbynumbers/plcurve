@@ -9,30 +9,30 @@
 
 \begin{document}
   \begin{tikzpicture}
-  \begin{scope}[every path/.style={very thick, gray}, every node/.style={circle,fill=gray, inner sep=2pt}]
-    \node (T) at (0,2.5) {};
-    \node (B) at (0,-1) {};
+  % \begin{scope}[every path/.style={very thick, gray}, every node/.style={circle,fill=gray, inner sep=2pt}]
+  %   \node (T) at (0,2.5) {};
+  %   \node (B) at (0,-1) {};
 
-    \node (X) at (-1.5, 1) {};
-    \node (Y) at (-.5,1) {};
-    \node (Z) at (.5, 1) {};
-    \node (W) at (1.5, 1) {};
+  %   \node (X) at (-1.5, 1) {};
+  %   \node (Y) at (-.5,1) {};
+  %   \node (Z) at (.5, 1) {};
+  %   \node (W) at (1.5, 1) {};
 
-    \node (O) at (0,0) {};
+  %   \node (O) at (0,0) {};
 
-    \path (T) edge (X)
-               edge (Y)
-               edge (W)
-          (O)  edge (X)
-               edge (Y)
-               edge (W)
-               edge (B)
-          (Z)  edge (Y)
-               edge (W);
+  %   \path (T) edge (X)
+  %              edge (Y)
+  %              edge (W)
+  %         (O)  edge (X)
+  %              edge (Y)
+  %              edge (W)
+  %              edge (B)
+  %         (Z)  edge (Y)
+  %              edge (W);
 
-    \draw (T) .. controls (-3,2) and (-3,-.5) .. (B);
-    \draw (T) .. controls (3,2) and (3,-.5) .. (B);
-  \end{scope}
+  %   \draw (T) .. controls (-3,2) and (-3,-.5) .. (B);
+  %   \draw (T) .. controls (3,2) and (3,-.5) .. (B);
+  % \end{scope}
     \begin{scope}
     [every path/.style={string, very thick, black}, every node/.style={transform shape,
       knot crossing, inner sep=1.5pt}]
