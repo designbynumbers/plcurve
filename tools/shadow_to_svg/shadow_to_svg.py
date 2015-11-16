@@ -1,7 +1,7 @@
 import svgwrite
 from spherogram.links.orthogonal import OrthogonalLinkDiagram
 
-def shadow_to_svg(pd, fname="shadow.svg"):
+def pd_to_orth(pd):
     orth_dia = OrthogonalLinkDiagram(pd.as_spherogram())
     verts, arrows, xings = orth_dia.plink_data()
     arrows = dict(arrows)
@@ -29,6 +29,21 @@ def shadow_to_svg(pd, fname="shadow.svg"):
 
     assert(component == [])
 
+    return verts, [[(verts[i][0]/10, verts[i][1]/10) for i in component] for
+                   component in components]
+
+def pd_to_data(pd, fprefix="shadow"):
+    svgname = "%s.svg"%fprefix
+    datname = "%s.dat"%fprefix
+
+    verts, components = pd_to_orth(pd)
+    orth_to_svg(verts, components, svgname)
+
+def pd_to_svg(pd, fname="shadow.svg"):
+    verts, components = pd_to_orth(pd)
+    orth_to_svg(verts, components)
+
+def orth_to_svg(verts, components, fname="shadow.svg"):
     SCALE=4
 
     xs = [x*SCALE/10 for x,y in verts]
@@ -39,8 +54,7 @@ def shadow_to_svg(pd, fname="shadow.svg"):
 
     dwg = svgwrite.Drawing(size=(max_x,max_y))
     for component in components:
-        comp_verts = [verts[i] for i in component]
-        comp_verts = [(x*SCALE/10,y*SCALE/10) for x,y in comp_verts]
+        comp_verts = [(x*SCALE,y*SCALE) for x,y in component]
         poly = dwg.add(dwg.polygon(comp_verts,
                                    fill='none',
                                    stroke='black',
