@@ -1,0 +1,38 @@
+\documentclass{standalone}
+
+\usepackage{brunnian}
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings,backgrounds,hobby}
+
+\tikzset{->-/.style={decoration={ markings, mark=at position #1
+      with {\arrow{>}}},postaction={decorate}}}
+
+\begin{document}
+  \begin{tikzpicture}
+    \begin{scope}
+      [every path/.style={string, very thick, black}, every node/.style={transform shape,
+        knot crossing, inner sep=1.5pt}]
+      \node (x1) at (0,0) {};
+      \node (x2) at (0,.8) {};
+      \node (x3) at (-.3,1.4) {};
+      \node (x4) at (.3,1.4) {};
+
+      \draw (x1.center) .. controls (x1.4 north east) and (x2.4 south east) .. (x2.center);
+      \draw (x2.center) .. controls (x2.4 north west) and (x3.2 south) .. (x3.center);
+      \draw (x3.center) .. controls (x3.8 north) and (x4.8 north) .. (x4.center);
+      \draw (x4.center) .. controls (x4.2 south) and (x2.4 north east) .. (x2.center);
+      \draw (x2.center) .. controls (x2.4 south west) and (x1.4 north west) .. (x1.center);
+      \draw (x1.center) .. controls (x1.16 south east) and (x4.16 east) .. (x4.center);
+      \draw (x4.center) -- (x3.center);
+      \draw (x3.center) .. controls (x3.16 west) and (x1.16 south west) .. (x1.center);
+
+      \draw[fill=gray!30] (x1) circle (.2) node {$+$};
+      \draw[fill=gray!30] (x2) circle (.2) node {$+$};
+      \draw[fill=gray!30] (x3) circle (.2) node {$-$};
+      \draw[fill=gray!30] (x4) circle (.2) node {$-$};
+
+      \pgfresetboundingbox
+      \path[use as bounding box] (-1.75,2.04) rectangle (1.75,-.34);
+    \end{scope}
+  \end{tikzpicture}
+\end{document}

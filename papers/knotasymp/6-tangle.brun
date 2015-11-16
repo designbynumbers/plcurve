@@ -1,0 +1,59 @@
+\documentclass{standalone}
+
+\usepackage{brunnian}
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings,backgrounds,hobby}
+
+\tikzset{->-/.style={decoration={ markings, mark=at position #1
+      with {\arrow{>}}},postaction={decorate}}}
+
+\begin{document}
+  \begin{tikzpicture}
+    [every path/.style={string, very thick}, every node/.style={transform shape,
+      knot crossing, inner sep=1.5pt}]
+    \begin{scope}
+      \node (btl) at (120:1.2) {};
+      \node (bbr) at (300:1.2) {};
+      \node (btr) at (60:1.2) {};
+      \node (bbl) at (240:1.2) {};
+      \node (el) at (180:1.2) {};
+      \node (er) at (0:1.2) {};
+
+      \node (ct1) at (120:.9) {};
+      \node (ct2) at (60:.9) {};
+      \node (ct3) at (0:.9) {};
+      \node (ct4) at (300:.9) {};
+      \node (ct5) at (240:.9) {};
+      \node (ct6) at (180:.9) {};
+
+      \node (it1) at (-330:.6) {};
+      \node (it2) at (-210:.6) {};
+      \node (it3) at (-90:.6) {};
+
+      \node (tl) at (-150:.6) {};
+      \node (tr) at (-30:.6) {};
+      \node (tc) at (-270:.6) {};
+
+      \draw (btl.center) .. controls (ct1) .. (tc);
+      \draw (tc) .. controls (it1) .. (tr.center);
+      \draw (tr.center) .. controls (ct4) .. (bbr.center);
+      %\draw (btl.center) -- (tc) -- (tr.center) -- (bbr.center);
+      \draw (btr.center) .. controls (ct2) .. (tc.center);
+      \draw (tc.center) .. controls (it2) .. (tl);
+      \draw (tl) .. controls (ct5) .. (bbl.center);
+      %\draw (btr.center) -- (tc.center) -- (tl) -- (bbl.center);
+      \draw (el.center) .. controls (ct6) .. (tl.center);
+      \draw (tl.center) .. controls (it3) .. (tr);
+      \draw (tr) .. controls (ct3) .. (er.center);
+      %\draw (el.center) -- (tl.center) -- (tr) -- (er.center);
+      \draw[dashed] (0,0) circle (1.2);
+      %\draw (el.center) .. controls (el.4 east) and (tl.4 south west) .. (tl);
+      %\draw (tl) .. controls (tl.4 north east) and (tc.4 south west) ..  (tc.center);
+      %\draw (tc.center) .. controls (tc.8 north east) and (tr.8 north east) .. (tr);
+      %\draw (tr) .. controls (tr.4 south west) and (tl.4 south east) .. (tl.center);
+      %\draw (tl.center) .. controls (tl.8 north west) and (tc.8 north west) .. (tc);
+      %\draw (tc) .. controls (tc.4 south east) and (tr.4 north west) .. (tr.center);
+      %\draw (tr.center) .. controls (tr.4 south east) and (er.4 west) .. (er.center);
+    \end{scope}
+  \end{tikzpicture}
+\end{document}

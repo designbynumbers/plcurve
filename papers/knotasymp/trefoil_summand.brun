@@ -1,0 +1,30 @@
+\documentclass{standalone}
+
+\usepackage{brunnian}
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings,backgrounds,hobby}
+
+\tikzset{->-/.style={decoration={ markings, mark=at position #1
+      with {\arrow{>}}},postaction={decorate}}}
+
+\begin{document}
+  \begin{tikzpicture}
+    [every path/.style={string, very thick}, every node/.style={transform shape,
+      knot crossing, inner sep=1.5pt}]
+    \begin{scope}
+      \node (tl) at (-.7,0) {};
+      \node (tr) at (.7,0) {};
+      \node (tc) at (0,1) {};
+      \node (el) at (-1.7,0) {};
+      \node (er) at (1.7,0) {};
+
+      \draw (el.center) .. controls (el.4 east) and (tl.4 south west) .. (tl);
+      \draw (tl) .. controls (tl.4 north east) and (tc.4 south west) ..  (tc.center);
+      \draw (tc.center) .. controls (tc.8 north east) and (tr.8 north east) .. (tr);
+      \draw (tr) .. controls (tr.4 south west) and (tl.4 south east) .. (tl.center);
+      \draw (tl.center) .. controls (tl.8 north west) and (tc.8 north west) .. (tc);
+      \draw (tc) .. controls (tc.4 south east) and (tr.4 north west) .. (tr.center);
+      \draw (tr.center) .. controls (tr.4 south east) and (er.4 west) .. (er.center);
+    \end{scope}
+  \end{tikzpicture}
+\end{document}
