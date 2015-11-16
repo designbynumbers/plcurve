@@ -1,0 +1,48 @@
+\documentclass{standalone}
+
+\usepackage{brunnian}
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings,backgrounds,hobby}
+
+\tikzset{->-/.style={decoration={ markings, mark=at position #1
+      with {\arrow{>}}},postaction={decorate}}}
+
+\begin{document}
+  \begin{tikzpicture}[every path/.style={string, very thick}, every node/.style={transform shape,
+      knot crossing, inner sep=1.5pt}]
+    \begin{scope}
+      \node (X1) at (0,-.2) {};
+      \node (X2) at (0,.4) {};
+      \node (lC) at (.5,0) {};
+
+      \node (A1) at (-.5,-.5) {};
+      \node (A2) at (-.5,.7) {};
+      \node (B1) at (.5,-.5) {};
+      \node (B2) at (.5,.7) {};
+
+      \draw (A1) -- (X1.center);
+      \draw (X1.center) .. controls (X1.2 north east) and (X2.2 south east) .. (X2.center);
+      \draw (X2.center) -- (A2);
+
+      \draw (B1) -- (X1);
+      \draw (X1) .. controls (X1.2 north west) and (X2.2 south west) .. (X2);
+      \draw (X2) -- (B2);
+    \end{scope}
+    \begin{scope}[xshift=.8in]
+      \node (A1) at (-.5,-.5) {};
+      \node (A2) at (-.5,.7) {};
+      \node (B1) at (.5,-.5) {};
+      \node (B2) at (.5,.7) {};
+
+      \node (X1) at (-.2,.1) {};
+      \node (X2) at (.2,.1) {};
+      \node (rC) at (-.5,0) {};
+
+      \draw (A1) .. controls (A1.2 north east) and (X1.2 south) .. (X1.center);
+      \draw (A2) .. controls (A2.2 south east) and (X1.2 north) .. (X1.center);
+      \draw (B1) .. controls (B1.2 north west) and (X2.2 south) .. (X2.center);
+      \draw (B2) .. controls (B2.2 south west) and (X2.2 north) .. (X2.center);
+    \end{scope}
+    \draw[<->] (lC) -- (rC);
+  \end{tikzpicture}
+\end{document}

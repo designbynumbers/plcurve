@@ -1,0 +1,58 @@
+\documentclass{standalone}
+
+\usepackage{brunnian}
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings,backgrounds,hobby}
+
+\tikzset{->-/.style={decoration={ markings, mark=at position #1
+      with {\arrow{>}}},postaction={decorate}}}
+
+\begin{document}
+  \begin{tikzpicture}
+    [every path/.style={string, very thick}, every node/.style={transform shape,
+      knot crossing, inner sep=1.5pt}]
+    \begin{scope}
+      \node (bdry) at (0,0) {};
+
+      \node (l1) at (0:.6) {};
+      \node (l2) at (60:.6) {};
+      \node (l3) at (120:.6) {};
+      \node (l4) at (180:.6) {};
+      \node (l5) at (240:.6) {};
+      \node (l6) at (300:.6) {};
+
+      \node (x1) at (30:.9) {};
+      \node (x2) at (150:.9) {};
+      \node (x3) at (270:.9) {};
+
+      \node (b1a) at (50:1.3) {};
+      \node (b1) at (90:1) {};
+      \node (b1b) at (130:1.3) {};
+      \node (b2a) at (170:1.3) {};
+      \node (b2) at (210:1) {};
+      \node (b2b) at (250:1.3) {};
+      \node (b3a) at (290:1.3) {};
+      \node (b3) at (330:1) {};
+      \node (b3b) at (10:1.3) {};
+
+      \draw (bdry) .. controls (l1) .. (x1);
+      \draw (bdry) .. controls (l2) .. (x1.center);
+      \draw (x1) .. controls (b1a) .. (b1.center);
+      \draw (b1.center) .. controls (b1b) .. (x2.center);
+
+      \draw (bdry) .. controls (l3) .. (x2);
+      \draw (bdry) .. controls (l4) .. (x2.center);
+      \draw (x2) .. controls (b2a) .. (b2.center);
+      \draw (b2.center) .. controls (b2b) .. (x3.center);
+
+      \draw (bdry) .. controls (l5) .. (x3);
+      \draw (bdry) .. controls (l6) .. (x3.center);
+      \draw (x3) .. controls (b3a) .. (b3.center);
+      \draw (b3.center) .. controls (b3b) .. (x1.center);
+
+      \draw[fill=white,dashed] (bdry) circle (.3);
+      \draw[fill=black] (bdry) circle (.2);
+      %\draw[dashed] (0,0) circle (1.2);
+    \end{scope}
+  \end{tikzpicture}
+\end{document}

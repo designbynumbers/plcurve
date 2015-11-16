@@ -16,7 +16,7 @@
 \usepackage[latin1]{inputenc}
 \usepackage{subfigure}
 \usepackage{mathrsfs}
-\usepackage{../brunnian}
+\usepackage{brunnian}
 \usepackage{tikz}
 \usepackage{subfigure}
 \usepackage{pgfplots}
@@ -84,9 +84,6 @@
 \section{Introduction}
 \label{sec:in}
 
-\subsection{Definitions and motivations}
-\label{sec:defin-motiv}
-
 A \emph{planar map} (or simply \emph{map}) is a graph embedded in the
 sphere $S^2$ up to continuous deformation. It is \emph{4-valent} if
 the underlying graph is (\textit{i.e.}\ all vertices are of degree 4); we will
@@ -99,7 +96,7 @@ precisely one link component, it is called a \emph{knot shadow}.
 
 \begin{figure}[htbp]
   \centering
-  \input{../unrooted_planar_map.brun}
+  \input{unrooted_planar_map.brun}
   \caption{A planar map (left) and a planar map in the class of knot shadows (right).}
   \label{fig:planar-map-eg}
 \end{figure}
@@ -111,9 +108,9 @@ isotopy.'' Call a knot (resp.\ link) shadow decorated with $\{+,-\}$ a
 graphically as ``over-under'' information (Figure~\ref{fig:overunder}).
 \begin{figure}[htbp]
   \centering
-  \subfigure[A figure-eight diagram viewed as a decorated shadow]{\input{../figure-8-big-dshad.brun}}
+  \subfigure[A figure-eight diagram viewed as a decorated shadow]{\input{figure-8-big-dshad.brun}}
   \hfil
-  \subfigure[A figure-eight diagram viewed as a knot drawing]{\input{../figure-8-big.brun}}
+  \subfigure[A figure-eight diagram viewed as a knot drawing]{\input{figure-8-big.brun}}
   \caption{After choosing once and for all a way to view signs as
     ``over-under'' information (\textit{i.e.}\ orientation around the
     knot), knot diagrams can be drawn as usual.}
@@ -130,9 +127,9 @@ represented by the trivial loop in $S^3$. The unknot is
   \centering
   \begin{tabular}{c@{\hspace{4em}}c@{\hspace{4em}}c}
   \centering
-    \input{../reidemeister_1.brun}
-    & \input{../reidemeister_2.brun}
-    & \input{../reidemeister_3.brun}
+    \input{reidemeister_1.brun}
+    & \input{reidemeister_2.brun}
+    & \input{reidemeister_3.brun}
   \end{tabular}
   \caption{The three Reidemeister moves}
   \label{fig:reidemeister}
@@ -189,7 +186,7 @@ group. We will prove results for rooted knot diagrams, which will then
 extend (asymptotically) to the unrooted case then after proving,
 \begin{figure}[htbp]
   \centering
-  \input{../rooted_planar_map.brun}
+  \input{rooted_planar_map.brun}
   \caption{A rooted planar map (left) and a rooted knot shadow (right).}
   \label{fig:planar-map-eg}
 \end{figure}
@@ -236,7 +233,7 @@ using a ``pattern theorem,'' which states that knot diagrams almost
 surely contain appropriate substructure linearly often. Indeed,
 Sumners and Whittington's original proof of the
 Frisch-Wasserman-Delbr\"uck conjecture for self-avoiding lattice
-polygons makes use of Kesten's pattern theorem for substructure in
+polygons makes use of Kesten's Pattern Theorem for substructure in
 self avoiding walks. In the case of knot diagrams (or knot shadows),
 the appropriate substructure is that of \emph{tangle diagrams
   (shadows)}: A $2k$-tangle shadow with $n$ crossings is a map with
@@ -246,8 +243,8 @@ degree $2k$. A $2k$-tangle diagram is again a tangle shadow where all
 tangle diagram can be seen in Figure~\ref{fig:tangleex}
 \begin{figure}[hbtp]
   \centering
-  \subfigure{\input{../6-tangle-bdyvert.brun}}\hfil
-  \subfigure{\input{../6-tangle.brun}}
+  \subfigure{\input{6-tangle-bdyvert.brun}}\hfil
+  \subfigure{\input{6-tangle.brun}}
   \caption{A 6-tangle diagram with boundary vertex (left) and boundary
     vertex viewed as disk boundary (right).}
   \label{fig:tangleex}
@@ -256,7 +253,7 @@ A tangle
 diagram (resp.\ shadow) is contained in a link diagram (shadow) if
 there is some generic open disk on the sphere in which the diagram
 (shadow) is embedded that is map isomorphic (as maps on open disks) to
-the interior of the tangle diagram (shadow). The pattern theorem is
+the interior of the tangle diagram (shadow). The Pattern Theorem is
 then;
 
 \begin{theorem}
@@ -277,39 +274,18 @@ then;
 The above theorem is proven first for rooted knot diagrams; the
 asymmetry result of~\ref{thm:asymm} extends it immediately to unrooted
 knot diagrams as well. We will see by our attachment constructions
-that the pattern theorem is stronger than the bare result on
+that the Pattern Theorem is stronger than the bare result on
 unknotting (Theorem~\ref{thm:knotted}): Not only is every knot diagram
 (rooted or unrooted) knotted, it is a large, highly composite knot
 diagram of many factors.
 
-\subsection{Acknowledgements}
-\label{sec:acknowledgements}
-
-The author is extremely grateful to his advisor Jason Cantarella, for
-his support, advice, and for introducing him to the knot tabulation project
-(alongside Matt Mastin) and suggesting he prove
-Theorem~\ref{thm:knotted}. The author is also grateful to the summer
-school on applied combinatorics at the University of Saskatchewan and
-CanaDAM thereafter, where he met and had meaningful conversations with
-, and many others. The author also is indebted to funding from the NSF
-(grant DMS-1344994 of the RTG in Algebra, Algebraic Geometry, and
-Number Theory, at the University of Georgia), PIMS, the Simons Center,
-and the AMS with which he was able to introduce his work to
-others. The author is grateful for conversations with Julien Courtiel,
-Elizabeth Denne, Chris Duffy, Chaim Even-Zohar, \'Eric Fusy, Gary
-Iliev, Rafa\l{} Komendarczyk, Neal Madras, Kenneth Millett, Marni
-Mishna, Erik Panzer, Jason Parsley, Eric Rawdon, Andrew Rechnitzer,
-Clayton Shonkwiler, Chris Soteros, Karen Yeats, and many
-others. Lastly, the author is grateful to Jean Gutt for his assistance
-in translating the abstract into French.
-
 \section{Results}
 
-\subsection{The pattern theorem}
+\subsection{The Pattern Theorem}
 \label{sec:pattern}
 
-The attachment defined in the pattern theorem~\ref{thm:pattern} is
-rather technical. The pattern theorem itself is strongly based on
+The attachment defined in the Pattern Theorem~\ref{thm:pattern} is
+rather technical. The Pattern Theorem itself is strongly based on
 results of~\cite{Bender1992104} and the definition of attachment is
 nearly the same;
 
@@ -356,7 +332,7 @@ The proof of the proposition is nearly the same as that
 in~\cite{Bender1992104}; it follows through without much alteration
 for decorated maps. Appropriate attachment constructions however
 require that the counts of link components remain fixed. The
-proposition (and hence theorem~\ref{thm:pattern}) can be shown to
+proposition (and hence Theorem~\ref{thm:pattern}) can be shown to
 apply to subclasses of knot diagrams (and other classes of decorated
 maps), but in the case of $\KnotDiaClass$ the construction is
 illustrative and quite natural; it is analogous to the \emph{connect
@@ -376,11 +352,11 @@ exactly the connect sum of the two knot types of the diagram and the
 tangle (once closed and viewed as a diagram).
 \begin{figure}[hbtp]
   \centering
-  \subfigure[Diagram with marked edge]{\input{../figure-8-mkedge.brun}}
+  \subfigure[Diagram with marked edge]{\input{figure-8-mkedge.brun}}
   \hfil
-  \subfigure[A trefoil connect summand\label{fig:trefcs}]{\input{../trefoil_summand.brun}}
+  \subfigure[A trefoil connect summand\label{fig:trefcs}]{\input{trefoil_summand.brun}}
   \hfil
-  \subfigure[After connect summation]{\input{../figure-8-cs-tref.brun}}
+  \subfigure[After connect summation]{\input{figure-8-cs-tref.brun}}
   \caption{Connect sum of a figure eight knot to a trefoil}
   \label{fig:csexample}
 \end{figure}
@@ -477,7 +453,7 @@ We restate their theorem as it will apply to knot shadows;
   $\mathscr{C}$, all copies of $P$ are pairwise disjoint and such that $P$
   \begin{enumerate}
   \item has no reflective symmetry in the plane,
-  \item satisfies the hypotheses for the pattern
+  \item satisfies the hypotheses for the Pattern
     Theorem~\ref{thm:pattern} for $\mathscr{C}$, and
   \item is free in $\mathscr{C}$.
   \end{enumerate}
@@ -494,7 +470,7 @@ appropriate construction.
   connect summand tangle shadow and is appropriately asymmetric.
   \begin{figure}[htbp]
     \centering
-    \input{../asymmetric_2tangle_sh.brun}
+    \input{asymmetric_2tangle_sh.brun}
     \caption{A $2$-tangle shadow satisfying the hypotheses for the
       asymmetry theorem (black) and its dual (gray).}
     \label{fig:asymtangle}
@@ -523,7 +499,7 @@ times the tabulation strategy of~\cite{CCMknotdiagrams2015}:
   trees.
 \item Reject until the map is a rooted knot shadow (\textit{i.e.} it
   has one link component). This becomes exponentially unlikely to
-  succeed (because of the pattern theorem for link shadows).
+  succeed (because of the Pattern Theorem for link shadows).
 \item For each of the $n$ crossings of the shadow, sample a sign from
   $\{+, -\}$, yielding a rooted knot diagram. This is trivial.
 \end{enumerate}
@@ -533,7 +509,7 @@ Figure~\ref{fig:randomknot}. Notice that the embedding of the graphic
 is independent of the actual knot diagram object.
 \begin{figure}[htbp]
   \centering
-  \input{../randomknot.tikz}
+  \input{randomknot.tikz}
   \caption{A random knot diagram with 150 crossings}
   \label{fig:randomknot}
 \end{figure}
@@ -616,7 +592,7 @@ no one knot type is most common for all time.
 We have covered some of the results for general knot shadows and knot
 diagrams. However, the machinery permits more (provided appropriate
 constructions). For example, we provide a proof in the full
-version~\cite{chapman2015} of the pattern theorem (and beyond) for
+version (\cite{chapman2015}) of the Pattern Theorem (and beyond) for
 subclasses of knot diagrams; reduced diagrams, who are at least
 $2$-vertex connected, and prime diagrams, who are at least $4$-edge
 connected. Respectively these two subclasses refer to diagrams without
@@ -628,19 +604,41 @@ As well, the topological map language enables one to prove further
 results for different kinds of knot diagrams. For example, by instead
 considering knot shadows on orientable surfaces of arbitrary genus
 (rather than simply the sphere), one arrives at the class of
-\emph{virtual} knot diagrams. This is a different combinatorial way to
-approach the subject than that of Gauss diagrams, which may be easier
-to count.
+\emph{virtual} knot diagrams~\cite{Kauffman1999663}. We note that
+Gauss diagrams describe knot diagrams of arbitrary genus, while planar
+decorated planar link diagrams describe spherical diagrams of
+arbitrarily many link components. Trying to restrict either to
+spherical knot diagrams is difficult.
 
 As the Frisch-Wasserman-Delbr\"uck conjecture holds for the random
 diagram model, it is hoped that the powerful tools that exist for maps
 on surfaces can be applied to prove further results for the random
 diagram model which are physically relevant.
 
+\acknowledgements
+\label{sec:acknowledgements}
+
+The author is extremely grateful to his advisor Jason Cantarella, for
+his support, advice, and for introducing him to the knot tabulation project
+(alongside Matt Mastin) and suggesting he prove
+Theorem~\ref{thm:knotted}. The author is also grateful to the summer
+school on applied combinatorics at the University of Saskatchewan and
+CanaDAM thereafter. The author also is indebted to funding from the NSF
+(grant DMS-1344994 of the RTG in Algebra, Algebraic Geometry, and
+Number Theory, at the University of Georgia), PIMS, the Simons Center,
+and the AMS with which he was able to introduce his work to
+others. The author is grateful for conversations with Julien Courtiel,
+Elizabeth Denne, Chris Duffy, Chaim Even-Zohar, \'Eric Fusy, Gary
+Iliev, Rafa\l{} Komendarczyk, Neal Madras, Kenneth Millett, Marni
+Mishna, Erik Panzer, Jason Parsley, Eric Rawdon, Andrew Rechnitzer,
+Clayton Shonkwiler, Chris Soteros, Karen Yeats, and many
+others. Lastly, the author is grateful to Jean Gutt for his assistance
+in translating the abstract into French.
+
 \bibliographystyle{abbrvnat}
 % use the following instead if you encounter problems
 %\bibliographystyle{alpha}
-\bibliography{../sources}
+\bibliography{sources}
 \label{sec:biblio}
 
 \end{document}

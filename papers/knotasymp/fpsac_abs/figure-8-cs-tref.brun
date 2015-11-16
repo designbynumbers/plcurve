@@ -1,0 +1,53 @@
+\documentclass{standalone}
+
+\usepackage{brunnian}
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings,backgrounds,hobby,calc}
+
+\tikzset{->-/.style={decoration={ markings, mark=at position #1
+      with {\arrow{>}}},postaction={decorate}}}
+
+\begin{document}
+  \begin{tikzpicture}
+    \begin{scope}
+      [every path/.style={string, very thick, black}, every node/.style={transform shape,
+        knot crossing, inner sep=1.5pt}]
+      \node (x1) at (0,0) {};
+      \node (x2) at (0,.5) {};
+      \node (x3) at (-.3,1) {};
+      \node (x4) at (.3,1) {};
+
+      \node (mk) at (1.2,.5) {};
+
+      \node (tx1) at ($(mk)+(30:.2)$) {};
+      \node (tx2) at ($(mk)+(150:.2)$) {};
+      \node (tx3) at ($(mk)+(270:.2)$) {};
+
+      %\draw (tx1) circle (.05);
+      %\draw (tx2) circle (.05);
+      %\draw (tx3) circle (.05);
+
+      \draw (x1) .. controls (x1.4 north east) and (x2.4 south east) .. (x2.center);
+      \draw (x2.center) .. controls (x2.4 north west) and (x3.2 south) .. (x3);
+      \draw (x3) .. controls (x3.4 north) and (x4.4 north) .. (x4.center);
+      \draw (x4.center) .. controls (x4.2 south) and (x2.4 north east) .. (x2);
+      \draw (x2) .. controls (x2.4 south west) and (x1.4 north west) .. (x1.center);
+      \draw (x1.center) .. controls (x1.8 south east) and +(-120:.4) .. (tx3.center);
+
+      \draw (tx3.center) .. controls +(60:.2) and +(-120:.2) .. (tx1);
+      \draw (tx1) .. controls +(120:.2) and +(60:.2) .. (tx2.center);
+      \draw (tx2.center) .. controls +(240:.2) and +(180:.2) .. (tx3);
+      \draw (tx3) .. controls +(360:.2) and +(0:.2) .. (tx1.center);
+      \draw (tx1.center) .. controls +(180:.2) and +(0:.2) .. (tx2);
+
+      \draw (tx2) .. controls +(120:.2) and (x4.4 east) .. (x4);
+      \draw (x4) -- (x3.center);
+      \draw (x3.center) .. controls (x3.8 west) and (x1.8 south west) .. (x1);
+
+      \pgfresetboundingbox
+
+      \draw[dashed,draw=gray] (mk) circle (.5);
+      \path[use as bounding box] (-.72,1.35) rectangle (.78,-.27);
+    \end{scope}
+  \end{tikzpicture}
+\end{document}
