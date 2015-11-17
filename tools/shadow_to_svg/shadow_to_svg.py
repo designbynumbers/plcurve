@@ -41,7 +41,7 @@ def pd_to_data(pd, fprefix="shadow"):
 
 def pd_to_svg(pd, fname="shadow.svg"):
     verts, components = pd_to_orth(pd)
-    orth_to_svg(verts, components)
+    orth_to_svg(verts, components, fname)
 
 def orth_to_svg(verts, components, fname="shadow.svg"):
     SCALE=4
