@@ -92,7 +92,10 @@ be called \emph{crossings}. A map is \emph{decorated} by some set if
 there is a mapping from the vertices of the map to the set. A
 \emph{link component} of a link shadow is an equivalence class of
 edges meeting opposite across crossings. If a link shadow consists of
-precisely one link component, it is called a \emph{knot shadow}.
+precisely one link component, it is called a \emph{knot shadow}. We
+note that knot shadows are interesting in their own right; they are precisely curve
+immersions on the sphere studied by Gauss,~\cite{0036-0279-50-1-R01},
+and others.
 
 \begin{figure}[htbp]
   \centering
@@ -117,7 +120,8 @@ graphically as ``over-under'' information (Figure~\ref{fig:overunder}).
   \label{fig:overunder}
 \end{figure}
 Equivalently then, a knot type is an equivalence class of knot
-diagrams modulo the Reidemeister moves (Figure
+diagrams modulo the Reidemeister moves (essentially moves one can do
+with string, \textit{c.f.}\ Figure
 \ref{fig:reidemeister}). The \emph{unknot} is the unique knot type
 represented by the trivial loop in $S^3$. The unknot is
 \emph{trivial}, and diagrams representing another knot type are
@@ -135,17 +139,18 @@ represented by the trivial loop in $S^3$. The unknot is
   \label{fig:reidemeister}
 \end{figure}
 
-The \emph{random diagram model} of random knotting is then: Given a
-number $n$ of crossings, sample uniformly a knot diagram with $n$
+The study of random knotting arises in numerous areas, principal among
+which is polymer physics: Polymers (such as DNA or proteins) are
+considered to be strings in space and in many cases their function (or
+lack thereof) depends on any ``knots'' that appear within. The
+\emph{random diagram model} of random knotting is then: Given a number
+$n$ of crossings, sample uniformly an unlabeled knot diagram with $n$
 crossings and return its knot type. It is similar to models
 of~\cite{diaoernst2012pnmkt} and~\cite{Dunfield:mdWrGjny}, but these
 models do not sample from any well-understood measure on spaces of
-knot diagrams. On the other hand, knot shadows are precisely curve
-immersions on the sphere studied by~\cite{0036-0279-50-1-R01} and
-rooted knot shadows are the open immersed plane curves
-of~\cite{pzjschaeff2004planecurveasymp}.
+knot diagrams.
 
-In the context of DNA topology, \cite{Frisch_1961} and
+In the context of DNA topology,~\cite{Frisch_1961} and
 ~\cite{delbruck1962ams} independently conjectured;
 \begin{conjecture}[Frisch-Wasserman-Delbr\"uck]
   As the size $n$ of a randomly sampled knot grows large, the
@@ -177,7 +182,7 @@ conjecture holds in our model;
   exponentially quickly.
 \end{theorem}
 This result will follow from results on the structure of knot
-diagrams. However, as maps with symmetry are comparatively not well
+diagrams. However, as maps with symmetries are comparatively not well
 understood, we consider objects with broken symmetry: A map together
 with a choice of edge and a choice of direction is called
 \emph{rooted} and considered up to the group of automorphisms which
@@ -216,7 +221,7 @@ known precisely (they are in bijection with a class of blossom trees),
 the \emph{knot condition} of having precisely one knot component has
 made it difficult to count (or otherwise understand)
 $\KnotDiaClass$. Indeed, there are
-conjectures(\cite{pzjschaeff2004planecurveasymp}) and computer
+conjectures (\cite{pzjschaeff2004planecurveasymp}) and computer
 computations
 (\cite{zuber2015mapsimsperms,pzjtransfermtx,pzjmtxintchap}) of the
 size, but there is as of yet no closed formula for the sizes
@@ -259,8 +264,8 @@ then;
 \begin{theorem}
   \label{thm:pattern}
   Fix a constant $c$. Let $P$ be a tangle diagram which can be
-  appropriately attached to knot diagrams in $\KnotDiaClass$ (namely,
-  attachment produces only knot diagrams). Let $h_n$ be the counts of
+  appropriately attached to knot diagrams in $\KnotDiaClass$ (we will
+  define attachment soon). Let $h_n$ be the counts of
   diagrams in $\KnotDiaClass$ who are \emph{$P$-deficient}; they
   contain fewer than $cn$ pairwise disjoint copies of $P$. For $0 < c
   < 1$ sufficiently small, there exists $0 < d < 1$ so that,
@@ -275,8 +280,8 @@ The above theorem is proven first for rooted knot diagrams; the
 asymmetry result of~\ref{thm:asymm} extends it immediately to unrooted
 knot diagrams as well. We will see by our attachment constructions
 that the Pattern Theorem is stronger than the bare result on
-unknotting (Theorem~\ref{thm:knotted}): Not only is every knot diagram
-(rooted or unrooted) knotted, it is a large, highly composite knot
+unknotting (Theorem~\ref{thm:knotted}): Not only is every large knot diagram
+(rooted or unrooted) knotted, it is a highly composite knot
 diagram of many factors.
 
 \section{Results}
@@ -302,7 +307,7 @@ nearly the same;
     $\lfloor n/k \rfloor$ possible non-conflicting places of
     attachment exist,
   \item only diagrams in $\KnotDiaClass$ are produced,
-  \item for any diagram produced as such we can identify the copies of
+  \item for any diagram so produced we can identify the copies of
     $Q$ that have been added and they are all pairwise disjoint, and
   \item given the copies that have been added, the original diagram
     and the associated places of attachment are uniquely determined.
@@ -333,15 +338,14 @@ in~\cite{Bender1992104}; it follows through without much alteration
 for decorated maps. Appropriate attachment constructions however
 require that the counts of link components remain fixed. The
 proposition (and hence Theorem~\ref{thm:pattern}) can be shown to
-apply to subclasses of knot diagrams (and other classes of decorated
-maps), but in the case of $\KnotDiaClass$ the construction is
-illustrative and quite natural; it is analogous to the \emph{connect
-  sum} operation on knots.
+apply to subclasses of knot diagrams, but in the case of all of
+$\KnotDiaClass$ the construction is illustrative and quite natural; it
+is analogous to the \emph{connect sum} operation on knots.
 
 A $2$-tangle diagram is \emph{prime} if, after deleting the boundary
 vertex, the tangle diagram's underlying graph is at least 4-edge
-connected. Let $P =: Q$ be a prime $2$-tangle with at least $3$
-crossings and exactly one link component. Then the following
+connected. Let $P$ be a prime $2$-tangle with at least $3$
+crossings and exactly one link component; let $Q$ simply be $P$. Then the following
 attachment, ``connect sum,'' is admissible: Given a rooted diagram $K$
 a (non-root) edge $e$, and choice of direction, the attachment of $Q$
 into $K$ is given by deleting a (sufficiently small) open disk around
@@ -517,13 +521,20 @@ is independent of the actual knot diagram object.
 The following experiment produced the data of
 Figure~\ref{fig:knot-experiment}: For each $3 \le n \le 70$, sample
 $20000$ knot diagrams using the above procedure, skipping a sample if
-it does not produce a knot shadow after 150 attempts. Classify the
-knot type (ignoring chirality) by calculating the HOMFLY-PT polynomial
-of the diagram. The experiment took 3 hours to complete on an Intel
-Core2 Duo 2.5 Ghz laptop, while it took nearly 7 days with an Amazon
-Cloud Messaging set up (working in parallel on 20 or so machines) to
-classify precisely all of the 10-crossing diagrams
-in~\cite{CCMknotdiagrams2015}.
+it does not produce a knot shadow after 150 attempts (this number is
+chosen arbitrarily so that the experiment could complete in a
+reasonable amount of time). Classify the knot type (ignoring
+chirality) by calculating the HOMFLY-PT polynomial of the diagram. The
+experiment took 3 hours to complete on an Intel Core2 Duo 2.5 Ghz
+laptop, while it took nearly 7 days with an Amazon Cloud Messaging set
+up (working in parallel on 20 or so machines) to classify precisely
+all of the 1.6 billion 10-crossing diagrams
+in~\cite{CCMknotdiagrams2015}. We note that indeed we take fewer
+samples in this present experiment, but that it is regardless required
+of the tabulation scheme that \emph{every} diagram be tabulated (or
+else the sampling measure would not be uniform). The power is hence
+that we need not count the entire space (of rooted knot diagrams) to
+estimate results therein.
 
 \begin{figure}[htbp]
   \centering
@@ -626,7 +637,7 @@ school on applied combinatorics at the University of Saskatchewan and
 CanaDAM thereafter. The author also is indebted to funding from the NSF
 (grant DMS-1344994 of the RTG in Algebra, Algebraic Geometry, and
 Number Theory, at the University of Georgia), PIMS, the Simons Center,
-and the AMS with which he was able to introduce his work to
+and the AMS through which he was able to introduce his work to
 others. The author is grateful for conversations with Julien Courtiel,
 Elizabeth Denne, Chris Duffy, Chaim Even-Zohar, \'Eric Fusy, Gary
 Iliev, Rafa\l{} Komendarczyk, Neal Madras, Kenneth Millett, Marni
