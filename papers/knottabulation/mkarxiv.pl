@@ -162,7 +162,7 @@ if (-d $ancdir) {
 }
 mkdir($ancdir) or die("Couldn't make new $ancdir");
 
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/README.txt","${ancdir}/README.txt") or die("Couldn't copy to ${ancdir}");
+copy("/Users/cantarel/randomdiagram/data/README-arxiv.txt","${ancdir}/README.txt") or die("Couldn't copy to ${ancdir}");
 copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-table.csv","${ancdir}/knot-table.csv") or die("Couldn't copy knot table to ${ancdir}");
 copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-03.csv","${ancdir}/knot-frequency-03.csv") or die("Couldn't copy knot-frequency-03.csv to ${ancdir}");
 copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-04.csv","${ancdir}/knot-frequency-04.csv") or die("Couldn't copy knot-frequency-04.csv to ${ancdir}");

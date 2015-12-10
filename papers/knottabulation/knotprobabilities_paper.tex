@@ -1,4 +1,4 @@
-\documentclass[amsmath,secnumarabic,floatfix,amssymb,nofootinbib,nobibnotes,letterpaper,11pt,tightenlines,showkeys]{revtex4}
+\documentclass[amsmath,secnumarabic,amssymb,floatfix,nofootinbib,nobibnotes,letterpaper,11pt,tightenlines,showkeys]{revtex4}
 
 \usepackage{times}
 
@@ -10,7 +10,7 @@
 \usepackage[percent]{overpic}
 %\usepackage{pdfsync}
 \usepackage{units}
-\usepackage{hyperref}
+%\usepackage{hyperref}
 \PassOptionsToPackage{caption=false}{subfig}
 \usepackage[lofdepth]{subfig}
 \usepackage{tikz}
@@ -343,7 +343,7 @@ the numbers of vertices $V_1, \dots, V_k$ form an integer partition of $n$. Ther
 \begin{figure}
 \hphantom{.}
 \hfill
-\begin{overpic}{not-associative}
+\begin{overpic}{not-associative.pdf}
 \put(8.5,0){$L_1$}
 \put(28,0){$L_2$}
 \put(48,0){$L_3$}
@@ -1048,7 +1048,7 @@ More sophisticated counting procedures have been applied in recent years, partic
 
 Schaeffer~\cite{Schaeffer:1997wo} (see also~\cite{Bouttier:2002iu}) constructed a very insightful bijection between link shadows with a distinguished, directed edge (``rooted link shadows'') and a class of decorated trees called ``blossom trees''. One of us (Chapman), uses this identification to analyze the asymptotic behavior of our model in further work~\cite{Chapman2015knotasymp}, proving that most diagrams are heavily composite and hence represent nontrivial knots.
 
-\acknowledgements
+\acknowledgments
 The authors are incredibly grateful to Eric Rawdon, who graciously checked our computations of knot types for the various diagrams using his own knot classification code. We also would like to acknowledge the hospitality of the Issac Newton Institute, where much of the original code for this project was written, the support of the Simons Foundation (\#284066, Jason Cantarella), and the support of Amazon Web Services under the AWS Educate program. We would also like to acknowledge many helpful conversations with our friends and colleagues, including Clayton Shonkwiler, Ken Millett, Chris Soteros, Stu Whittington, Gary Iliev, Tetsuo Deguchi, Rafa\l{} Komendarczyk, Andrew Rechnitzer, Julien Courtiel, Marni Mishna, and \'Eric Fusy.
 
 \appendix
@@ -1131,9 +1131,8 @@ Each vertex $v$ of $\mathfrak{L}$ is incident to four edges $e_i, e_j, e_k, e_l$
 If the four terms on the right are equal, this defines $\nu(v)$. If not, there is no compatible $\nu$.
 \end{proof}
 
-We can now find all isomorphisms between two pdcodes computationally by a simple brute-force strategy given by the pseudocode in Figure~\ref{fig:pd isomorphic}.
+We can now find all isomorphisms between two pdcodes computationally by a simple brute-force strategy:
 
-\begin{figure}[ht]
 \begin{algorithmic}
 \Procedure{BuildIsomorphisms}{$\mathfrak{L}$,$\mathfrak{L}'$}
 \Comment{Build isomorphisms between pdcodes $\mathfrak{L}$ and $\mathfrak{L}'$}
@@ -1154,9 +1153,9 @@ We can now find all isomorphisms between two pdcodes computationally by a simple
 \EndProcedure
 \end{algorithmic}
 
-\caption{The code above outlines the algorithm for detecting pd-isomorphism between pd-codes. Aside from hashing, this is a simple brute-force search. It should be clear that there is a tradeoff between potentially more efficient ways to organize the computation (as do more general graph-isomorphism checkers like \emph{nauty}~\cite{McKay201494}) and the likelihood of introducing bugs into the code. This algorithm emphasizes simplicity .}
-\label{fig:pd isomorphic}
-\end{figure}
+%\caption{The code above outlines the algorithm for detecting pd-isomorphism between pd-codes. Aside from hashing, this is a simple brute-force search. It should be clear that there is a tradeoff between potentially more efficient ways to organize the computation (as do more general graph-isomorphism checkers like \emph{nauty}~\cite{McKay201494}) and the likelihood of introducing bugs into the code. This algorithm emphasizes simplicity .}
+%\label{fig:pd isomorphic}
+%\end{figure}
 
 %It should be immediately clear that there are smarter ways to organize this computation: for instance, we could build only part of $\gamma$ and $\epsilon$ before we start checking the consistency conditions for the existence of a compatible $\nu$. Or we could map faces to faces by elements of the dihedral group on the grounds that faces are smaller than components. Or we could try for a more complicated hashing scheme which took into account the adjacency relations between faces. These sorts of ideas are implemented with great insight and care in graph isomorphism packages like \nauty and \emph{saucy}. However, making these types of changes makes the code more intricate and difficult to debug: in this project, our overall strategy is to use simple, straightforward algorithms in the hopes of minimizing the chance of errors.
 
@@ -1382,9 +1381,7 @@ p_{i,j} + p_{k,l} \leq 1
 \end{equation*}
 \end{definition}
 
-These equations express the fact that the edges corresponding to a linked pair of endpoints along a face must intersect inside the face. Therefore, if two pair variables are linked, at most one of them can take the value $1$. For instance, in the situation shown in Figure~\ref{fig:pair linking equation} there are four vertices of degree two along a pair of faces, we have six pair variables, two of which obey an additional linking equation.
-
-\begin{figure}
+\begin{figure}[htp]
 \begin{center}
 	\begin{overpic}[height=1.7in]{linked-ghost-pairs.pdf}
 	\put(27,27){$a$}
@@ -1414,6 +1411,9 @@ These equations express the fact that the edges corresponding to a linked pair o
 \caption{Suppose that the four vertices $a$, $b$, $c$ and $d$ are on a pair of different faces of the graph. There are six potential edges connecting these vertices. The variables $p_{ab}$, $p_{bc}$, $p_{cd}$ and $p_{da}$ obey only vertex degree equations. But the variables $p_{ac}$ and $p_{bd}$ obey both vertex degree equations and the additional pair linking equation $p_{ac} + p_{bd} \leq 1$.}
 \label{fig:pair linking equation}
 \end{figure}
+
+These equations express the fact that the edges corresponding to a linked pair of endpoints along a face must intersect inside the face. Therefore, if two pair variables are linked, at most one of them can take the value $1$. For instance, in the situation shown in Figure~\ref{fig:pair linking equation} there are four vertices of degree two along a pair of faces, we have six pair variables, two of which obey an additional linking equation.
+
 
 \begin{proposition}
 Every assignment of $\{0,1\}$ to the variables $l_i$, $d_{i,j}$, $c_{i,j}$, and $p_{i,j}$ which obeys the vertex degree equations and linking equations corresponds to an expansion of the connected planar graph $G_1$ (with vertex degrees $2$, $3$, and $4$ and loop edges only) to a collection of embeddings for the connected planar $4$-regular multigraph $G$.
