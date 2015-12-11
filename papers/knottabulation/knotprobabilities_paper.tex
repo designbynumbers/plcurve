@@ -1172,7 +1172,6 @@ Every link shadow $L$ can be obtained from a connected, embedded planar simple g
 Equivalently, any link shadow $L$ can be reduced to a connected embedded planar simple graph $L_0$ of vertex degree $\leq 4$ by a series of $\loopinsert$, $\edgedouble$, $\cutedgedouble$, and $\pairinsert$ reductions. The embedded isomorphism type of $L_0$ is determined uniquely by the (unoriented) shadow isomorphism type of $L$ (the order in which the reductions are performed doesn't matter).
 \end{proposition}
 
-
 \begin{proof}
 We will prove the second statement, reducing in stages from some $G_n = G$ to $G_0$ by performing one reduction at each step. The number of steps we can perform is clearly finite, since each reduces the number of edges by at least one. So suppose we are at stage $G_i$. If there are no loop or multiple edges, we're done, and this is the simple graph $G_0$.
 
@@ -1184,14 +1183,12 @@ If the edge multiplicity is four, $G$ is \hopfgraph. This is obtained from the g
 
 If the edge multiplicity is three or two, there is at least one connection point on $v$ which is not occupied by a copy of the multiple edge followed immediately by a connection point which is occupied by a copy $e$ of the multiple edge. Without loss of generality, we'll call $e$ the \emph{base copy} of the multiple edge, and its connection point to at $v$ position $0$ around $v$. The remaining connection points will be numbered $1$, $2$, and $3$. By construction, the edge joined to $v$ at position $3$ (if any) is not connected to $w$. We can label the other end of the base copy $e$ position $a$ on the second vertex $w$, and label the other positions $b$, $c$, and $d$, again counterclockwise.
 
-If the edge multiplicity is three, only one of these positions is unoccupied by a copy of the multiple edge. Looking at the three cases (shown in Figure \ref{fig:MultThree}), we can see that by parity, it must be position $b$, and the pair of copies $0a$ and $2c$ of the multiple edge can be removed by a $\pairinsert$ operation. We have now disposed of the case where edge multiplicity is three.
+If the edge multiplicity is three, only one of these positions is unoccupied by a copy of the multiple edge. Looking at the three cases (shown in Figure~\ref{fig:MultThree}), we can see that by parity, it must be position $b$, and the pair of copies $0a$ and $2c$ of the multiple edge can be removed by a $\pairinsert$ operation. We have now disposed of the case where edge multiplicity is three.
 \begin{figure}
 \includegraphics[width=4in]{multiplicity-three.pdf}\\
-\caption{\label{fig:MultThree} By parity, because we came from a 4-regular embedded planar graph only the leftmost case can occur at any stage in the reduction process.}
+\caption{By parity, because we came from a 4-regular embedded planar graph only the leftmost case can occur at any stage in the reduction process.}
+\label{fig:MultThree}
 \end{figure}
-
-
-
 
 If edge multiplicity is two, there is one edge unaccounted for, which joins either position $1$ or $2$ on vertex $v$ to position $b$, $c$, or $d$ on vertex $w$. Therefore, there are six cases to address. We consider them in order, starting with the $1x$ configurations.
 \begin{itemize}
@@ -1381,7 +1378,7 @@ p_{i,j} + p_{k,l} \leq 1
 \end{equation*}
 \end{definition}
 
-\begin{figure}[htp]
+\begin{figure}
 \begin{center}
 	\begin{overpic}[height=1.7in]{linked-ghost-pairs.pdf}
 	\put(27,27){$a$}
@@ -1500,6 +1497,4 @@ We now consider the problem of dividing the results into embedded isomorphism cl
 %\newpage
 
 \bibliography{knotprobabilitypapers}
-
-
 \end{document}
