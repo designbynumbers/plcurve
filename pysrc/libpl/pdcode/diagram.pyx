@@ -1062,7 +1062,7 @@ cdef class PlanarDiagram:
         for loop in self.get_R1_loops():
             yield (self.R1_loop_deletion(loop.vertices[0]),)
         for bigon in self.get_R2_bigons():
-            yield self.R2_bigon_elimination(*bigon.vertices)
+            yield self.R2_bigon_elimination_vertices(*bigon.vertices)
 
     def simplify(self, seed=None):
         """simplify(seed=None) -> PlanarDiagram

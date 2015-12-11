@@ -1,0 +1,33 @@
+\documentclass{standalone}
+
+\usepackage{brunnian}
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings,backgrounds,hobby}
+
+\tikzset{->-/.style={decoration={ markings, mark=at position #1
+      with {\arrow{>}}},postaction={decorate}}}
+
+\begin{document}
+  \begin{tikzpicture}
+    \begin{scope}
+      [every path/.style={string, very thick, black}, every node/.style={transform shape,
+        knot crossing, inner sep=1.5pt}]
+      \node (x1) at (0,0) {};
+      \node (x2) at (0,.5) {};
+      \node (x3) at (-.3,1) {};
+      \node (x4) at (.3,1) {};
+
+      \draw (x1) .. controls (x1.4 north east) and (x2.4 south east) .. (x2.center);
+      \draw (x2.center) .. controls (x2.4 north west) and (x3.2 south) .. (x3);
+      \draw (x3) .. controls (x3.4 north) and (x4.4 north) .. (x4.center);
+      \draw (x4.center) .. controls (x4.2 south) and (x2.4 north east) .. (x2);
+      \draw (x2) .. controls (x2.4 south west) and (x1.4 north west) .. (x1.center);
+      \draw (x1.center) .. controls (x1.8 south east) and (x4.8 east) .. (x4);
+      \draw (x4) -- (x3.center);
+      \draw (x3.center) .. controls (x3.8 west) and (x1.8 south west) .. (x1);
+
+      \pgfresetboundingbox
+      \path[use as bounding box] (-1,1.35) rectangle (1,-.2);
+    \end{scope}
+  \end{tikzpicture}
+\end{document}

@@ -11,16 +11,16 @@ def pdstor_to_svg(pdstor_f, read_header, subdirize=True, prefix="pd"):
         nclaimed, n_pd = (int(i) for i in nelts.split("/"))
         pdstor_f.seek(0)
         ndigits = len(str(n_pd))
-        tens = -1
+        hunds = -1
 
     for i, pd in enumerate(PlanarDiagram.read_all(pdstor_f, read_header=read_header)):
         if subdirize:
-            new_tens = i/10
+            new_hunds = i/100
             si = str(i)
             si = "0"*(ndigits-len(si))+si
-            subdir = os.path.join(*[si[:z+1] for z in xrange(len(si)-1)])
-            if tens != new_tens:
-                tens = new_tens
+            subdir = os.path.join(prefix,*[si[:z+1] for z in xrange(len(si)-2)])
+            if hunds != new_hunds:
+                hunds = new_hunds
                 os.makedirs(subdir)
             pd_to_svg(pd, fname=os.path.join(subdir, "%s.%s.svg"%(prefix, si)))
         else:
