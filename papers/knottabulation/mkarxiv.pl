@@ -38,6 +38,7 @@ while (<TEXFILE>) {
   if ($line =~ /\\includegraphics\[.+\]\{(.+?)\}/ or $line =~ /\\includegraphics\{(.+?)\}/) { push(@figs,$1); }
   if ($line =~ /.+\\includegraphics\[.+\]\{(.+?)\}/) { push(@figs,$1); }
   if ($line =~ /\\begin\{overpic\}\[.+\]\{(.+?)\}/) { push(@figs,$1); }
+  if ($line =~ /\\begin\{overpic\}\{(.+?)\}/) { push(@figs,$1); }
 
 }
 
@@ -162,16 +163,16 @@ if (-d $ancdir) {
 }
 mkdir($ancdir) or die("Couldn't make new $ancdir");
 
-copy("/Users/cantarel/randomdiagram/data/README-arxiv.txt","${ancdir}/README.txt") or die("Couldn't copy to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-table.csv","${ancdir}/knot-table.csv") or die("Couldn't copy knot table to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-03.csv","${ancdir}/knot-frequency-03.csv") or die("Couldn't copy knot-frequency-03.csv to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-04.csv","${ancdir}/knot-frequency-04.csv") or die("Couldn't copy knot-frequency-04.csv to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-05.csv","${ancdir}/knot-frequency-05.csv") or die("Couldn't copy knot-frequency-05.csv to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-06.csv","${ancdir}/knot-frequency-06.csv") or die("Couldn't copy knot-frequency-06.csv to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-07.csv","${ancdir}/knot-frequency-07.csv") or die("Couldn't copy knot-frequency-07.csv to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-08.csv","${ancdir}/knot-frequency-08.csv") or die("Couldn't copy knot-frequency-08.csv to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-09.csv","${ancdir}/knot-frequency-09.csv") or die("Couldn't copy knot-frequency-09.csv to ${ancdir}");
-copy("/Users/cantarel/randomdiagram/data/supplementaldata/knot-frequency-10.csv","${ancdir}/knot-frequency-10.csv") or die("Couldn't copy knot-frequency-10.csv to ${ancdir}");
+copy("./arxivdata/README-arxiv.txt","${ancdir}/README.txt") or die("Couldn't copy to ${ancdir}");
+copy("./arxivdata/knot-table.csv","${ancdir}/knot-table.csv") or die("Couldn't copy knot table to ${ancdir}");
+copy("./arxivdata/knot-frequency-03.csv","${ancdir}/knot-frequency-03.csv") or die("Couldn't copy knot-frequency-03.csv to ${ancdir}");
+copy("./arxivdata/knot-frequency-04.csv","${ancdir}/knot-frequency-04.csv") or die("Couldn't copy knot-frequency-04.csv to ${ancdir}");
+copy("./arxivdata/knot-frequency-05.csv","${ancdir}/knot-frequency-05.csv") or die("Couldn't copy knot-frequency-05.csv to ${ancdir}");
+copy("./arxivdata/knot-frequency-06.csv","${ancdir}/knot-frequency-06.csv") or die("Couldn't copy knot-frequency-06.csv to ${ancdir}");
+copy("./arxivdata/knot-frequency-07.csv","${ancdir}/knot-frequency-07.csv") or die("Couldn't copy knot-frequency-07.csv to ${ancdir}");
+copy("./arxivdata/knot-frequency-08.csv","${ancdir}/knot-frequency-08.csv") or die("Couldn't copy knot-frequency-08.csv to ${ancdir}");
+copy("./arxivdata/knot-frequency-09.csv","${ancdir}/knot-frequency-09.csv") or die("Couldn't copy knot-frequency-09.csv to ${ancdir}");
+copy("./arxivdata/knot-frequency-10.csv","${ancdir}/knot-frequency-10.csv") or die("Couldn't copy knot-frequency-10.csv to ${ancdir}");
 
 #
 # Stage 6: Package for arxiv upload
