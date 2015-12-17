@@ -167,7 +167,7 @@ The point of this paper is to look at knot diagrams not as convenient combinator
 
 Previous authors~\cite{Diao:2005tp} have sampled a slightly different version of this space by using an algorithm of Schaeffer and Zinn-Justin~\cite{Schaeffer:2004tt} to uniformly sample a space of marked link diagrams and keeping only the knots. We wanted to get exact values for probabilities and also to study the probability of very rare knots, so a sampling approach was not appropriate for our purposes. Instead, we carried out a complete enumeration of knot diagrams up to 10 crossings using the graph theory software~\emph{plantri}~\cite{Brinkmann:2005um,Brinkmann:2007up}.
 
-This paper is primarily computational. While we give a proof that our algorithm for enumerating diagrams is correct, our main contribution is the data set of diagrams itself. To generate the diagrams, we first enumerated the unoriented immersions of $S^1$ into $S^2$ in two different ways, as described below. We call these immersions knot shadows\footnote{Kauffman~\cite{Kauffman:1988td} calls these knot \emph{universes}.}.  The sets of shadows generated in each way were identical, and we checked the number of shadows against counts by Arnol'd for $n \leq 5$~\cite[page 79]{Arnold:1994wr}, sequence A008989 in the Online Encyclopedia of Integer Sequences~\cite{Untitled:vPCfHsyG}, and later enumerations of Kapoln\'ai et al.~\cite{Kapolnai:2012hs} and Coqueraux et al.~\cite{Coquereaux:2015wv}. We then enumerate assignments of crossing information and orientation for each shadow up to diffeomorphisms of $S^2$ preserving the orientation of the curve. (This is more complicated than it first seems; if the diagram has a symmetry, not all assignments of crossing information are different.) Finally, we compute the knot type for each assignment of crossing and orientation. These computations are new and fairly substantial. Enumerating the 1.6 billion 10-crossing knot diagrams and computing their HOMFLY-PT polynomial took several thousand hours of CPU time on the Amazon EC2 cloud computing service.
+This paper is primarily computational. While we give a proof that our algorithm for enumerating diagrams is correct, our main contribution is the data set of diagrams itself. To generate the diagrams, we first enumerated the unoriented immersions of $S^1$ into $S^2$ in two different ways, as described below. We call these immersions knot shadows\footnote{Kauffman~\cite{Kauffman:1988td} calls these knot \emph{universes}.}.  The sets of shadows generated in each way were identical, and we checked the number of shadows against counts by Arnol'd for $n \leq 5$~\cite[page 79]{Arnold:1994wr}, sequence A008989 in the Online Encyclopedia of Integer Sequences~\cite{oeis}, and later enumerations of Kapoln\'ai et al.~\cite{Kapolnai:2012hs} and Coqueraux et al.~\cite{Coquereaux:2015wv}. We then enumerate assignments of crossing information and orientation for each shadow up to diffeomorphisms of $S^2$ preserving the orientation of the curve. (This is more complicated than it first seems; if the diagram has a symmetry, not all assignments of crossing information are different.) Finally, we compute the knot type for each assignment of crossing and orientation. These computations are new and fairly substantial. Enumerating the 1.6 billion 10-crossing knot diagrams and computing their HOMFLY-PT polynomial took several thousand hours of CPU time on the Amazon EC2 cloud computing service.
 
 Figure~\ref{fig:knot frequency loglog} shows the relative frequency of all the knot types we observed, sorted by rank order among knots. When plotted on a log-log plot, we see that the plot is roughly linear across 9 orders of magnitude-- giving some evidence for a roughly Zipfian distribution of knot types. In such a distribution, the $k$-th most frequent knot type would have a probability proportional to $k^{-s}$ for some $s$. It would be very interesting to know what happens for large $n$.
 
@@ -201,7 +201,7 @@ Two pd-codes are \textbf{pd-isomorphic} if there exists a bijection of vertices 
 \end{definition}
 For example $\mathfrak{L}_0 = ((+4,-2,-5,+1),(+2,-6,-3,+5),(+6,-4,-1,+3))$ is a valid pd-code of three vertices and six edges, as each of $\pm 1, \dots, \pm 6$ occurs once, and each pair of non-adjacent labels in a single quadruple (such as $+4,-5$ and $-2,+1$ in the first quadruple) has opposite signs.
 
-This definition is similar to the ``combinatorial maps'' of Walsh and Lehman~\cite{Walsh1972192}. Indeed, a pd-code $\mathfrak{L}$ describes an element $\sigma$ of the permutation group on the $4n$ letters $\{\pm1,\pm2,\cdots,\pm2n\}$ which is a product of $n$ disjoint cycles of size $4$, together with an implicit permutation $\tau = (+1 -1)(+2 -2)\cdots(+2n -2n)$ and a ``consistent'' choice of orientations on the edges. This (and other) formulations are explored by Coquereaux, et\ al.~\cite{Coquereaux:2015wv}.
+This definition is similar to the ``combinatorial maps'' of Walsh and Lehman~\cite{Walsh:1972ti}. Indeed, a pd-code $\mathfrak{L}$ describes an element $\sigma$ of the permutation group on the $4n$ letters $\{\pm1,\pm2,\cdots,\pm2n\}$ which is a product of $n$ disjoint cycles of size $4$, together with an implicit permutation $\tau = (+1 -1)(+2 -2)\cdots(+2n -2n)$ and a ``consistent'' choice of orientations on the edges. This (and other) formulations are explored by Coquereaux, et\ al.~\cite{Coquereaux:2015wv}.
 \begin{definition}
 Given a pd-code $\mathfrak{L}$ and a signed edge $e$, we can define the \emph{successor edge} $s(e)$ to be minus the edge immediately preceding $e$ in the cyclic ordering of the quadruple where $e$ occurs. The faces of a pd-code $\mathfrak{L}$ are the orbits of the successor map.
 \end{definition}
@@ -222,19 +222,21 @@ The bijection itself is easy to construct: the vertices of the pd-code represent
 \begin{center}
 \hphantom{.}
 \hfill
+\raisebox{-0.5\height}{
 \begin{overpic}[height=2cm]{PD.pdf}
-\put(40,35){$1$}
-\put(28,15){$2$}
-\put(-3,30){$3$}
-\put(28,33){$4$}
-\put(35,-1){$5$}
-\put(16,21){$6$}
-\end{overpic}
+\put(90,90){$1$}
+\put(40,50){$2$}
+\put(90,0){$3$}
+\put(60,55){$4$}
+\put(5,90){$5$}
+\put(55,35){$6$}
+\end{overpic}}
+\hfill
+$\{[+1,-5,-2,+4],[+2,+5,-3,-6],[-1,-4,+6,+3]\}$
 \hfill
 \hphantom{.}
-$\{[+4,-2,-5,+1],[+2,-6,-3,+5],[+6,-4,-1,+3]\}$
 \end{center}
-\caption{\label{fig:PD} A diagram for $3_1$ and its pd-code. There is only one component. Note that we may omit directional arrows as the orientation can be inferred from the ordering of the edge labels.}
+\caption{\label{fig:PD} A three-crossing shadow and its pd-code. There is only one component. Note that we may omit directional arrows as the orientation can be inferred from the ordering of the edge labels.}
 \end{figure}
 It is clear that there are finitely many $n$-vertex planar pd-codes, and so finitely many equivalence classes of pd-codes up to isomorphism. By the proposition, there are therefore finitely many $n$-vertex link shadows. This will be our initial probability space.
 
@@ -1068,7 +1070,7 @@ Doing the requisite sums, this analysis predicts that roughly $77\%$ of 8-crossi
 
 \section{Future Directions}
 
-All of collections of knot shadows are included as supplementary data with this paper, including files of coordinates for planar embeddings of the shadows as well as their pd-codes. In addition, we include the actual counts of diagrams of various knot types as CSV files, and the files of diagrams with 8 crossings and fewer. We did not assemble files of diagrams for 9 and 10 crossing diagrams, but classified diagrams on-the-fly as we generated them (we estimate the file of 10-crossing diagrams to be about 1.6 tb in size if generated). Our source code is also available publicly.
+All of our collections of knot shadows are available online~\cite{suppdata}, including files of coordinates for planar embeddings of the shadows as well as their pd-codes. In addition, we include the actual counts of diagrams of various knot types as CSV files, and the files of diagrams with 8 crossings and fewer. We did not assemble files of diagrams for 9 and 10 crossing diagrams, but classified diagrams on-the-fly as we generated them (we estimate the file of 10-crossing diagrams to be about 1.6 tb in size if generated). Our source code is also available.
 
 Once in possession of an enumeration of diagrams, it is tempting to compute knot distances (cf.~\cite{DARCY:2001fi,MoonHyeyoung:2010tm}) and unknotting numbers. We have carried out some preliminary experiments along these lines and are disappointed to report that it does not seem to resolve any of the remaining uncertainties in the knot distance tables.
 
@@ -1529,7 +1531,7 @@ We now consider the problem of dividing the results into embedded isomorphism cl
 %
 %\newpage
 
-\bibliography{knotprobabilitypapers}
+\bibliography{knotprobabilitypapers,knotprob_extra}
 
 
 \end{document}
