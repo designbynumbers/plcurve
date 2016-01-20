@@ -7,6 +7,7 @@ class TestPDCode(PlanarDiagramAssertMixin, unittest.TestCase):
     def setUp(self):
         pass
 
+    @unittest.skip("Requires protobuf from google")
     def test_serialize(self):
         test_cases = [
             PlanarDiagram.torus_knot(2,7),

@@ -17,6 +17,7 @@ class TestPDCodeFromPlink(PlanarDiagramAssertMixin, unittest.TestCase):
     def setUp(self):
         pass
 
+    @unittest.skip("Requires the ability to make a TK window")
     def test_plink_LinkManager(self):
         """ test_plink_LinkManager()
 

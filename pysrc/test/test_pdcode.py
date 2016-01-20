@@ -310,7 +310,7 @@ class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, uni
         before_pd_copy = before_pd.copy()
         face = before_pd.faces[face_n]
         edge = face[0]
-        result_pds = before_pd.R2_bigon_elimination(edge.head, edge.tail)
+        result_pds = before_pd.R2_bigon_elimination_vertices(edge.head, edge.tail)
 
         self.assertEqual(before_pd, before_pd_copy)
         self.assertEqual(len(result_pds), len(after_pds))
