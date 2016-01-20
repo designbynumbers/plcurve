@@ -1,4 +1,4 @@
-INCLUDES =  -I. -I.. -I../JudyCommon/ 
+INCLUDES =  -I$(srcdir)/. -I$(srcdir)/.. -I$(srcdir)/../JudyCommon/ 
 AM_CFLAGS = -DJUDY1 @WARN_CFLAGS@ 
 
 noinst_LTLIBRARIES = libJudy1.la libnext.la libprev.la libcount.la libinline.la
