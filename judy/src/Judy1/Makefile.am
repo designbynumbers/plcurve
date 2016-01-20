@@ -1,6 +1,7 @@
 INCLUDES =  -I$(srcdir)/. -I$(srcdir)/.. -I$(srcdir)/../JudyCommon/ 
 AM_CFLAGS = -DJUDY1 @WARN_CFLAGS@ 
 
+include_HEADERS = Judy1.h
 noinst_LTLIBRARIES = libJudy1.la libnext.la libprev.la libcount.la libinline.la
 
 libJudy1_la_SOURCES = Judy1Test.c Judy1Tables.c Judy1Set.c Judy1SetArray.c Judy1Unset.c Judy1Cascade.c Judy1Count.c Judy1CreateBranch.c Judy1Decascade.c Judy1First.c Judy1FreeArray.c Judy1InsertBranch.c Judy1MallocIF.c Judy1MemActive.c Judy1MemUsed.c 

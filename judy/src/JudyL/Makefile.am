@@ -1,6 +1,7 @@
 INCLUDES =  -I$(srcdir)/. -I$(srcdir)/.. -I$(srcdir)/../JudyCommon/ 
 AM_CFLAGS = -DJUDYL @WARN_CFLAGS@ 
 
+include_HEADERS = JudyL.h
 noinst_LTLIBRARIES = libJudyL.la libnext.la libprev.la libcount.la libinline.la
 
 libJudyL_la_SOURCES = JudyLCascade.c JudyLTables.c JudyLCount.c JudyLCreateBranch.c JudyLDecascade.c JudyLDel.c JudyLFirst.c JudyLFreeArray.c JudyLGet.c JudyLInsArray.c JudyLIns.c JudyLInsertBranch.c JudyLMallocIF.c JudyLMemActive.c JudyLMemUsed.c 
@@ -79,7 +80,7 @@ JudyLNextEmpty.c:../JudyCommon/JudyPrevNextEmpty.c
 
 JudyLPrevEmpty.c:../JudyCommon/JudyPrevNextEmpty.c
 	cp -f ../JudyCommon/JudyPrevNextEmpty.c		JudyLPrevEmpty.c
-	
+
 JudyLTablesGen.c:../JudyCommon/JudyTables.c
 	cp -f ../JudyCommon/JudyTables.c       	 	JudyLTablesGen.c
 

@@ -30,6 +30,12 @@ PXD_FILES = \
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
+EXTRA_DIST = libpl $(SETUP_PY) test
+
+if INSTALL_PYTHON_USER
+PY_INSTALL_FLAGS = --user
+endif
+
 all-local:
 	CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" $(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src:$(top_srcdir)/planarmap \
 	-L"$(abs_top_builddir)"/src/.libs:"$(abs_top_builddir)"/planarmap/.libs
@@ -41,11 +47,7 @@ clean-local:
 	rm -r built_doc 2> /dev/null || true
 
 install-exec-local:
-	if test -z "$$EC2_HOME"; then \
-	$(PYTHON) $(SETUP_PY) install --prefix=$(prefix); \
-	else \
-	$(PYTHON) $(SETUP_PY) install; \
-	fi;
+	$(PYTHON) $(SETUP_PY) install $(PY_INSTALL_FLAGS)
 
 check-local:
 	pushd $(srcdir)/test ; $(PYTHON) suite.py ; popd
