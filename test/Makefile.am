@@ -224,7 +224,8 @@ exit_failure_tests_CFLAGS = -I$(top_srcdir)/src
 #	echo './run_tests $(top_srcdir)/test/' > runtest_wrapper.sh
 #	chmod +x runtest_wrapper.sh
 
-CLEANFILES = runtest_wrapper.sh hopftest.vect treftest.vect
+CLEANFILES = runtest_wrapper.sh hopftest.vect treftest.vect \
+	3samples.csv 6a5and6n1.kt test.pdstor
 
 noinst_PROGRAMS = test_levels octrope_timing
 

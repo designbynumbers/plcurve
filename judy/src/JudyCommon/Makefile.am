@@ -3,10 +3,8 @@ AM_CFLAGS = @CFLAGS@ @WARN_CFLAGS@
 
 include_HEADERS = JudyPrivate.h \
 	JudyPrivate1L.h \
-	JudyPrivateBranch.h
-noinst_LTLIBRARIES = libJudyMalloc.la
-
-EXTRA_DIST = JudyByCount.c \
+	JudyPrivateBranch.h \
+	JudyByCount.c \
 	JudyDecascade.c \
 	JudyGet.c \
 	JudyPrevNext.c \
@@ -25,6 +23,8 @@ EXTRA_DIST = JudyByCount.c \
 	JudyFreeArray.c \
 	JudyInsertBranch.c \
 	JudyMemUsed.c
+
+noinst_LTLIBRARIES = libJudyMalloc.la
 
 libJudyMalloc_la_SOURCES = JudyMalloc.c
 
