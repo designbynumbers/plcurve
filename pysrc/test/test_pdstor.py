@@ -80,7 +80,7 @@ class TestPDDatabase(unittest.TestCase):
     def setUp(self):
         pass
     
-    #@unittest.skip("Test takes a long time")
+    @unittest.skip("Test takes a long time and requires pdstor files which are not in dist")
     def test_pd_dict_homflys(self):
         def assert_homfly(pd, homfly, uid):
             uid_pd = PDDatabase.pd_by_id(uid, dirloc=self.DATADIR)
