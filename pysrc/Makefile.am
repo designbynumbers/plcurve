@@ -38,7 +38,10 @@ CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
 EXTRA_DIST = $(SETUP_PY) tests $(CPY_FILES) $(CY_FILES) $(CY_H_FILES)
+
+if BUILD_CYTHON
 BUILT_SOURCES = $(CY_FILES) $(CY_H_FILES)
+endif
 
 if INSTALL_PYTHON_USER
 PY_INSTALL_FLAGS = --user
@@ -77,9 +80,11 @@ uninstall-local:
 html-local: install
 	pushd $(srcdir)/doc ; make html BUILDDIR="$(abs_builddir)"/built_doc ; popd
 
+if BUILD_CYTHON
 libpl/pdcode/diagram_api.h: $(srcdir)/libpl/pdcode/diagram.c
 libpl/pdcode/diagram.h: $(srcdir)/libpl/pdcode/diagram.c
 .pyx.c:
 	cython $<
+endif
 
 endif

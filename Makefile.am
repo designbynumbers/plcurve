@@ -1,6 +1,6 @@
 SUBDIRS = judy src planarmap pysrc tools test
 
-AM_DISTCHECK_CONFIGURE_FLAGS = --enable-python-otherdir=prefix
+AM_DISTCHECK_CONFIGURE_FLAGS = --enable-python-otherdir=prefix --disable-cython
 
 dist_data_DATA = data/plCurve.typemap
 
