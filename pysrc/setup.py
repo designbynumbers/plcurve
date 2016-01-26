@@ -26,12 +26,19 @@ class GetBuildDirectory(Command):
 print "Using Cython version "+Cython.__version__
 setup(
     name = "libpl",
-    packages = ["libpl", "libpl.pdcode"],
+    version = "1.0.0",
+    author = "Harrison Chapman",
+    author_email = "hchapman@uga.edu",
+    description = ("Python bindings for Jason Cantarella's libplCurve, "
+                   "a piecewise-linear curve and planar diagram library."),
+    keywords = "piecewise linear curves planar diagrams knot theory",
+    packages = ["libpl", "libpl.pdcode", "tests"],
+    url = "http://jasoncantarella.com/wordpress/software/plcurve",
     package_dir={'libpl': os.path.join(ROOT_DIR, 'libpl'),
                  'libpl.pdcode': os.path.join(ROOT_DIR, 'libpl', 'pdcode')},
     package_data={"libpl": ["*.pxd",
                             os.path.join("data", "*.txt"),
                             os.path.join("pdcode", "*.pxd")]},
     ext_modules = cythonize(extensions),
-    test_suite="test",
+    test_suite="tests",
 )

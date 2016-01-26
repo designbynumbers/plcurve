@@ -51,7 +51,7 @@ PYLIBS = tsmcmc.so pdcode.so plcurve.so
 clean-local:
 	$(PYTHON) $(SETUP_PY) clean -a
 	rm -r built_doc 2> /dev/null || true
-	rm -r $(builddir)/libpl.egg-info
+	rm -r $(builddir)/libpl.egg-info 2> /dev/null || true
 
 install-exec-local:
 	$(PYTHON) $(SETUP_PY) install $(PY_INSTALL_FLAGS) \
@@ -61,7 +61,7 @@ install-exec-local:
 
 uninstall-local:
 	cat $(builddir)/install_files.txt | xargs rm -rf
-	rm $(builddir)/install_files.txt
+	rm $(builddir)/install_files.txt >2 /dev/null || true
 
 #check-local:
 #	$(PYTHON) $(SETUP_PY) test
