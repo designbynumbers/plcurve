@@ -1,36 +1,39 @@
 if BUILD_PYTHON
 
 PY_FILES = \
-	__init__.py \
-	data.py \
-	graphs.py \
-	pdcode/__init__.py
+	libpl/__init__.py \
+	libpl/data.py \
+	libpl/graphs.py \
+	libpl/pdcode/__init__.py
 
 PYX_FILES = \
-	plcurve.pyx \
-	tsmcmc.pyx \
-	pdstor.pyx \
-	pdcode/diagram.pyx \
-	pdcode/components.pyx \
-	pdcode/homfly.pyx \
-	pdcode/pdisomorphism.pyx
+	libpl/plcurve.pyx \
+	libpl/tsmcmc.pyx \
+	libpl/pdstor.pyx \
+	libpl/pdcode/diagram.pyx \
+	libpl/pdcode/components.pyx \
+	libpl/pdcode/homfly.pyx \
+	libpl/pdcode/pdisomorphism.pyx
+
+CY_FILES = $(PYX_FILES:.pyx=.c)
 
 PXD_FILES = \
-	plcurve.pxd \
-	plCurve_h.pxd \
-	tsmcmc.pxd \
-	gsl_rng.pxd \
-	pdcode/__init__.pxd \
-	pdcode/diagram.pxd \
-	pdcode/components.pxd \
-	pdcode/homfly.pxd \
-	pdcode/plctopology.pxd \
-	pdcode/pdisomorphism.pxd
+	libpl/plcurve.pxd \
+	libpl/plCurve_h.pxd \
+	libpl/tsmcmc.pxd \
+	libpl/gsl_rng.pxd \
+	libpl/pdcode/__init__.pxd \
+	libpl/pdcode/diagram.pxd \
+	libpl/pdcode/components.pxd \
+	libpl/pdcode/homfly.pxd \
+	libpl/pdcode/plctopology.pxd \
+	libpl/pdcode/pdisomorphism.pxd
 
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
-EXTRA_DIST = libpl $(SETUP_PY) tests
+EXTRA_DIST = $(SETUP_PY) tests $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
+BUILT_SOURCES = $(CY_FILES)
 
 if INSTALL_PYTHON_USER
 PY_INSTALL_FLAGS = --user
@@ -75,11 +78,43 @@ pydir:
 	rsync --del -tapE $(srcdir)/libpl/ libpl/
 pdcode:
 	mkdir -p libpl/pdcode
-$(CPY_FILES): %: $(srcdir)/libpl/%
-	rsync -up $< libpl/$@
+$(CPY_FILES):
+	rsync -up $< $@
 data:
 	rsync -aup $(srcdir)/libpl/data libpl
 util:
 	rsync -aup $(srcdir)/libpl/util libpl
+
+cy-stamp: $(CY_FILES)
+	@rm -f cy-temp
+	@touch cy-temp
+	$(PYTHON) $(SETUP_PY) cythonize
+	@mv -f cy-temp $@
+
+$(CY_FILES): cy-stamp
+## Recover from the removal of $@
+	@dry=; for f in x $$MAKEFLAGS; do \
+	  case $$f in \
+	    *=*|--*);; \
+	    *n*) dry=:;; \
+	  esac; \
+	done; \
+	if test -f $@; then :; else \
+	  $$dry trap 'rm -rf cy-lock cy-stamp' 1 2 13 15; \
+	  if $$dry mkdir cy-lock 2>/dev/null; then \
+## This code is being executed by the first process.
+	    $$dry rm -f cy-stamp; \
+	    $(MAKE) $(AM_MAKEFLAGS) cy-stamp; \
+	    $$dry rmdir cy-lock; \
+	  else \
+## This code is being executed by the follower processes.
+## Wait until the first process is done.
+	    while test -d cy-lock && test -z "$$dry"; do \
+	      sleep 1; \
+	    done; \
+## Succeed if and only if the first process succeeded.
+	    $$dry test -f cy-stamp; exit $$?; \
+	  fi; \
+	fi
 
 endif
