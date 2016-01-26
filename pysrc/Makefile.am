@@ -36,7 +36,7 @@ if INSTALL_PYTHON_USER
 PY_INSTALL_FLAGS = --user
 else
 if INSTALL_PYTHON_PREFIX
-PY_INSTALL_FLAGS = --prefix=$(prefix)
+PY_INSTALL_FLAGS = --prefix=$(DESTDIR)/$(prefix)
 endif
 endif
 
@@ -51,12 +51,20 @@ PYLIBS = tsmcmc.so pdcode.so plcurve.so
 clean-local:
 	$(PYTHON) $(SETUP_PY) clean -a
 	rm -r built_doc 2> /dev/null || true
+	rm -r $(builddir)/libpl.egg-info
 
 install-exec-local:
-	$(PYTHON) $(SETUP_PY) install $(PY_INSTALL_FLAGS)
+	$(PYTHON) $(SETUP_PY) install $(PY_INSTALL_FLAGS) \
+		--single-version-externally-managed \
+		--verbose \
+		--record $(builddir)/install_files.txt
 
-check-local:
-	$(PYTHON) $(SETUP_PY) test
+uninstall-local:
+	cat $(builddir)/install_files.txt | xargs rm -rf
+	rm $(builddir)/install_files.txt
+
+#check-local:
+#	$(PYTHON) $(SETUP_PY) test
 
 html-local: install
 	pushd $(srcdir)/doc ; make html BUILDDIR="$(abs_builddir)"/built_doc ; popd
