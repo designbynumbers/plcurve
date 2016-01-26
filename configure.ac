@@ -84,29 +84,6 @@ AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x and higher
 #  -----------------------------------------------------------])
 #fi
 
-# Check for SWIG and Python if old wrappers are enabled.
-dnl AC_ARG_ENABLE([swig],
-dnl         [AS_HELP_STRING([--enable-swig],
-dnl         [build old swig Python bindings])],
-dnl         [enable_swig=$enableval],
-dnl         [enable_swig=no])
-
-dnl if test "x${enable_swig}" = xyes; then
-dnl    AX_PKG_SWIG(2.0.0,[have_swig=true],[AC_MSG_ERROR([SWIG interface is to be built (--enable-swig), but SWIG was not found.]); have_swig=false])
-dnl    if test "x${have_swig}" = xtrue; then
-dnl       AX_SWIG_PYTHON #I think this forces a dependency on python... TODO: make optional?
-dnl       AM_PATH_PYTHON(2.7)
-dnl       CIT_NUMPY_PYTHON_MODULE(1.8.0,[have_numpy=true],[have_numpy=false])
-dnl       if test "x${have_numpy}" = xtrue; then
-dnl          CIT_NUMPY_INCDIR
-dnl       else
-dnl         AC_MSG_WARN([An appropriate numpy installation was not found with Python. numpy functionality will not be included.])
-dnl       fi
-dnl    fi
-dnl fi
-
-dnl AM_CONDITIONAL([HAVE_SWIG],[test "x${have_swig}" = xtrue])
-
 # Python extension library checks (Python, Cython, numpy)
 AC_ARG_ENABLE([python],
         [AS_HELP_STRING([--disable-python],
@@ -125,13 +102,23 @@ if test "x${enable_python}" = xyes; then
    AX_PYTHON_DEVEL(>= '2.7')
    CYTHON_CHECK_VERSION([0.21.0],
         [have_cython=true],
-        [AC_MSG_FAILURE([Python bindings were not disabled but Cython was not found.]);
-         have_cython=false])
+        [have_cython=false])
    CIT_NUMPY_PYTHON_MODULE(1.8.0,
         [have_numpy=true;
          CIT_NUMPY_INCDIR],
         [AC_MSG_WARN([Python bindings were not disabled but Numpy was not found.]);
          have_numpy=false]])
+
+   # We might still be able to build if we're pre-cythonized
+   if test "x${have_cython}" = xfalse; then
+       # Check for a Cython-generated C file to see if build should succeed
+       AC_CHECK_FILE([${srcdir}/pysrc/libpl/pdcode/diagram.c],
+       [AC_MSG_RESULT([Cython was not found, but pre-Cythonized C files were.
+       Trying to build Python extensions without Cython.])],
+       [AC_MSG_FAILURE([Neither Cython nor pre-Cythonized C files were found.
+       You can omit building the Python extensions by passing --disable-python.]
+       )])
+   fi
 fi
 
 AM_CONDITIONAL([BUILD_PYTHON],[test "x${enable_python}" = xyes])
