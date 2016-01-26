@@ -12,10 +12,15 @@ PYX_FILES = \
 	libpl/pdstor.pyx \
 	libpl/pdcode/diagram.pyx \
 	libpl/pdcode/components.pyx \
+	libpl/pdcode/pdstor.pyx \
 	libpl/pdcode/homfly.pyx \
-	libpl/pdcode/pdisomorphism.pyx
+	libpl/pdcode/isomorphism.pyx \
+	libpl/pdcode/plctopology.pyx
 
 CY_FILES = $(PYX_FILES:.pyx=.c)
+CY_H_FILES = \
+	libpl/pdcode/diagram.h \
+	libpl/pdcode/diagram_api.h
 
 PXD_FILES = \
 	libpl/plcurve.pxd \
@@ -32,8 +37,8 @@ PXD_FILES = \
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
-EXTRA_DIST = $(SETUP_PY) tests $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
-BUILT_SOURCES = $(CY_FILES)
+EXTRA_DIST = $(SETUP_PY) tests $(CPY_FILES) $(CY_FILES) $(CY_H_FILES)
+BUILT_SOURCES = $(CY_FILES) $(CY_H_FILES)
 
 if INSTALL_PYTHON_USER
 PY_INSTALL_FLAGS = --user
@@ -72,49 +77,9 @@ uninstall-local:
 html-local: install
 	pushd $(srcdir)/doc ; make html BUILDDIR="$(abs_builddir)"/built_doc ; popd
 
-libpl:
-	mkdir -p libpl
-pydir:
-	rsync --del -tapE $(srcdir)/libpl/ libpl/
-pdcode:
-	mkdir -p libpl/pdcode
-$(CPY_FILES):
-	rsync -up $< $@
-data:
-	rsync -aup $(srcdir)/libpl/data libpl
-util:
-	rsync -aup $(srcdir)/libpl/util libpl
-
-cy-stamp: $(CY_FILES)
-	@rm -f cy-temp
-	@touch cy-temp
-	$(PYTHON) $(SETUP_PY) cythonize
-	@mv -f cy-temp $@
-
-$(CY_FILES): cy-stamp
-## Recover from the removal of $@
-	@dry=; for f in x $$MAKEFLAGS; do \
-	  case $$f in \
-	    *=*|--*);; \
-	    *n*) dry=:;; \
-	  esac; \
-	done; \
-	if test -f $@; then :; else \
-	  $$dry trap 'rm -rf cy-lock cy-stamp' 1 2 13 15; \
-	  if $$dry mkdir cy-lock 2>/dev/null; then \
-## This code is being executed by the first process.
-	    $$dry rm -f cy-stamp; \
-	    $(MAKE) $(AM_MAKEFLAGS) cy-stamp; \
-	    $$dry rmdir cy-lock; \
-	  else \
-## This code is being executed by the follower processes.
-## Wait until the first process is done.
-	    while test -d cy-lock && test -z "$$dry"; do \
-	      sleep 1; \
-	    done; \
-## Succeed if and only if the first process succeeded.
-	    $$dry test -f cy-stamp; exit $$?; \
-	  fi; \
-	fi
+libpl/pdcode/diagram_api.h: $(srcdir)/libpl/pdcode/diagram.c
+libpl/pdcode/diagram.h: $(srcdir)/libpl/pdcode/diagram.c
+.pyx.c:
+	cython $<
 
 endif
