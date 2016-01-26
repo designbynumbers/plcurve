@@ -1,9 +1,11 @@
 import unittest
 from libpl.pdcode import *
 from test_pdcode import BeforeAfterFileMixin, PlanarDiagramAssertMixin
+from suite import ROOT_DIR
+import os
 
 class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
-    DATA_DIR = "data"
+    DATA_DIR = os.path.join(ROOT_DIR, "data")
     DATA_BEFORE_TEMPLATE = "sr2_test%s_before.pdstor"
     DATA_AFTER_TEMPLATE = "sr2_test%s_after.pdstor"
 

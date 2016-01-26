@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, Command
 from Cython.Distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy
@@ -19,13 +19,19 @@ extensions = [
               libraries = ["gsl", "plCurve", "gsl", "gslcblas"]),
 ]
 
+class GetBuildDirectory(Command):
+    def run(self):
+        print self.distribution
+
 print "Using Cython version "+Cython.__version__
 setup(
     name = "libpl",
     packages = ["libpl", "libpl.pdcode"],
-    package_dir={'libpl': os.path.join(ROOT_DIR, 'libpl'), 'libpl.pdcode': os.path.join(ROOT_DIR, 'libpl', 'pdcode')},
+    package_dir={'libpl': os.path.join(ROOT_DIR, 'libpl'),
+                 'libpl.pdcode': os.path.join(ROOT_DIR, 'libpl', 'pdcode')},
     package_data={"libpl": ["*.pxd",
                             os.path.join("data", "*.txt"),
                             os.path.join("pdcode", "*.pxd")]},
     ext_modules = cythonize(extensions),
+    test_suite="test",
 )

@@ -3,6 +3,7 @@ from itertools import product, compress, izip
 from libpl.pdcode import PlanarDiagram, pd_debug_off
 import os, os.path
 from libpl.pdcode import Crossing, Edge
+from suite import ROOT_DIR
 
 class TestPDCode(unittest.TestCase):
     def setUp(self):
@@ -209,7 +210,7 @@ class TestPDCodeMethods(PlanarDiagramAssertMixin, unittest.TestCase):
         self.knot.ccode()
 
 class TestR1LoopDeletion(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
-    DATA_DIR = "data"
+    DATA_DIR = os.path.join(ROOT_DIR, "data")
     DATA_BEFORE_TEMPLATE = "r1_test%s_before.pdstor"
     DATA_AFTER_TEMPLATE = "r1_test%s_after.pdstor"
 
@@ -234,7 +235,7 @@ class TestR1LoopDeletion(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittes
         self.checkLoopDeletion("B", 2)
 
 class TestSimplify(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
-    DATA_DIR = os.path.join("data", "simplify")
+    DATA_DIR = os.path.join(ROOT_DIR, "data", "simplify")
     DATA_BEFORE_TEMPLATE = "%s_before.pdstor"
     DATA_AFTER_TEMPLATE = "%s_after.pdstor"
 
@@ -292,7 +293,7 @@ class TestSimplify(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.Test
         self.checkSimplify("deftref3")
 
 class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
-    DATA_DIR = "data"
+    DATA_DIR = os.path.join(ROOT_DIR, "data")
     DATA_BEFORE_TEMPLATE = "r2_test%s_before.pdstor"
     DATA_AFTER_TEMPLATE = "r2_test%s_after.pdstor"
 
@@ -381,7 +382,7 @@ class TestR2BigonElimination(BeforeAfterFileMixin, PlanarDiagramAssertMixin, uni
         self.checkBigonElimination("S", 7)
 
 class TestR3StrandSwap(BeforeAfterFileMixin, PlanarDiagramAssertMixin, unittest.TestCase):
-    DATA_DIR = os.path.join("data", "r3")
+    DATA_DIR = os.path.join(ROOT_DIR, "data", "r3")
     DATA_BEFORE_TEMPLATE = "%s_before.pdstor"
     DATA_AFTER_TEMPLATE = "%s_after.pdstor"
 

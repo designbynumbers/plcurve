@@ -114,11 +114,11 @@ AC_ARG_ENABLE([python],
         [enable_python=$enableval],
         [enable_python=yes])
 
-AC_ARG_ENABLE([python-userdir],
-        [AS_HELP_STRING([--enable-python-userdir],
-                [install Python module with --user argument])],
-        [enable_pythonuser=$enableval],
-        [enable_pythonuser=no])
+AC_ARG_ENABLE([python-otherdir],
+        [AS_HELP_STRING([--enable-python-otherdir],
+                [install Python to another directory (options: user, prefix)])],
+        [enable_pyotherdir=$enableval],
+        [enable_pyotherdir=global])
 
 if test "x${enable_python}" = xyes; then
    AM_PATH_PYTHON(2.7)
@@ -135,7 +135,12 @@ if test "x${enable_python}" = xyes; then
 fi
 
 AM_CONDITIONAL([BUILD_PYTHON],[test "x${enable_python}" = xyes])
-AM_CONDITIONAL([INSTALL_PYTHON_USER],[test "x${enable_pythonuser}" = xyes])
+AM_CONDITIONAL([INSTALL_PYTHON_USER],
+        [test "x${enable_pyotherdir}" = xyes || test "x${enable_pyotherdir}" = xuser])
+AM_CONDITIONAL([INSTALL_PYTHON_PREFIX],
+        [test "x${enable_pyotherdir}" = xprefix])
+AM_CONDITIONAL([INSTALL_PYTHON_GLOBAL],
+        [test "x${enable_pyotherdir}" = xglobal])
 
 # Checks for header files. Just add the name of the header file that you
 # require inside the [ ] in AC_CHECK_HEADERS. If you have it, you'll have
@@ -209,6 +214,7 @@ echo \
   ${PACKAGE_NAME} Version ${PACKAGE_VERSION}
 
   Installing to prefix: ${prefix}
+  Installing Python to directory: ${enable_pyotherdir}
 
   Compiler: '${CC} ${CFLAGS} ${CPPFLAGS}'
 

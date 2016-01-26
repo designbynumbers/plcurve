@@ -2,9 +2,10 @@ import unittest
 from libpl.pdstor import *
 import os.path
 import gzip
+from suite import ROOT_DIR
 
 class TestPDStorFiles(unittest.TestCase):
-    DATADIR = os.path.join("..", "..", "data", "pdstors")
+    DATADIR = os.path.join(ROOT_DIR, "..", "..", "data", "pdstors")
     
     def check_pdstor_isomorphism(self, n_cross):
         with open(os.path.join(self.DATADIR, "%s.pdstor"%n_cross), "rb") as pdstor_f:
@@ -75,7 +76,7 @@ class TestPDStorFiles(unittest.TestCase):
             self.check_prime_subpdstor(i)
             
 class TestPDDatabase(unittest.TestCase):
-    DATADIR = os.path.join("..", "..", "data", "pdstors")
+    DATADIR = os.path.join(ROOT_DIR, "..", "..", "data", "pdstors")
     def setUp(self):
         pass
     

@@ -34,11 +34,17 @@ EXTRA_DIST = libpl $(SETUP_PY) test
 
 if INSTALL_PYTHON_USER
 PY_INSTALL_FLAGS = --user
+else
+if INSTALL_PYTHON_PREFIX
+PY_INSTALL_FLAGS = --prefix=$(prefix)
+endif
 endif
 
 all-local:
-	CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" $(PYTHON) $(SETUP_PY) build_ext -I$(top_srcdir)/src:$(top_srcdir)/planarmap \
-	-L"$(abs_top_builddir)"/src/.libs:"$(abs_top_builddir)"/planarmap/.libs
+	CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" \
+		$(PYTHON) $(SETUP_PY) build_ext \
+			-I$(top_srcdir)/src:$(top_srcdir)/planarmap \
+			-L"$(abs_top_builddir)"/src/.libs:"$(abs_top_builddir)"/planarmap/.libs
 
 PYLIBS = tsmcmc.so pdcode.so plcurve.so
 
@@ -50,7 +56,7 @@ install-exec-local:
 	$(PYTHON) $(SETUP_PY) install $(PY_INSTALL_FLAGS)
 
 check-local:
-	pushd $(srcdir)/test ; $(PYTHON) suite.py ; popd
+	$(PYTHON) $(SETUP_PY) test
 
 html-local: install
 	pushd $(srcdir)/doc ; make html BUILDDIR="$(abs_builddir)"/built_doc ; popd

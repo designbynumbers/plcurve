@@ -2,9 +2,10 @@ from libpl.pdcode import PlanarDiagram, HOMFLYPolynomial
 from test_pdcode import PlanarDiagramAssertMixin
 import unittest
 from plink import *
+from suite import ROOT_DIR
 
 class TestPDCodeFromPlink(PlanarDiagramAssertMixin, unittest.TestCase):
-    DATA_DIR = os.path.join("data", "plink")
+    DATA_DIR = os.path.join(ROOT_DIR, "data", "plink")
     def _get_data_file_path(self, file_name):
         return os.path.join(self.DATA_DIR, file_name)
 
