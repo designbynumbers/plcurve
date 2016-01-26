@@ -562,7 +562,6 @@ bool randomwalk_test(gsl_rng *rng,int nedges,bool verbose,int reps) {
     
     plCurve *L = plc_random_equilateral_closed_polygon(rng,nedges);
     pd_code_t *projected_pd = pd_code_from_plCurve(rng,L);
-    totalcross += (double)(projected_pd->ncross);
 
     if (projected_pd == NULL) {
 
@@ -571,6 +570,8 @@ bool randomwalk_test(gsl_rng *rng,int nedges,bool verbose,int reps) {
       exit(1);
 
     }
+
+    totalcross += (double)(projected_pd->ncross);
 
     if (!pd_ok(projected_pd)) {
 
@@ -779,7 +780,8 @@ int main () {
   rng = gsl_rng_alloc(T);
   
   int seedi;
-  
+
+  // Test will fail for some seeds, e.g. 1453829786
   seedi = time(0); 
   gsl_rng_set(rng,seedi);
  
