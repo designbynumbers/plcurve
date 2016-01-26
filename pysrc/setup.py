@@ -56,40 +56,59 @@ LIBPL_PYX = (
     "plcurve.pyx",
     "tsmcmc.pyx")
 
-extensions = [
+EXTENSIONS = [
     Extension("pdcode.*", [os.path.join(ROOT_DIR, "libpl", "pdcode", pyx_filename) for
                            pyx_filename in LIBPL_PDCODE_PYX],
-              include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],
-              library_dirs = ["../src/.libs"],
-              libraries = ["gsl", "plCurve", "gsl", "gslcblas", "planarmap"]),
+              include_dirs=["../src", ".", os.path.join(numpy.__path__[0], "core", "include")],
+              library_dirs=["../src/.libs"],
+              libraries=["gsl", "plCurve", "gsl", "gslcblas", "planarmap"]),
 
     Extension("*", [os.path.join(ROOT_DIR, "libpl", pyx_filename) for
                     pyx_filename in LIBPL_PYX],
-              include_dirs = ["../src",".",os.path.join(numpy.__path__[0], "core", "include")],
-              library_dirs = ["../src/.libs"],
-              libraries = ["gsl", "plCurve", "gsl", "gslcblas"]),
+              include_dirs=["../src", ".", os.path.join(numpy.__path__[0], "core", "include")],
+              library_dirs=["../src/.libs"],
+              libraries=["gsl", "plCurve", "gsl", "gslcblas"]),
 ]
 
-class GetBuildDirectory(Command):
+class CythonizeSources(Command):
+    """Custom command which only Cythonizes .pyx into .c (and doesn't
+    build). Useful for, e.g., ``make dist``
+
+    """
+
+    description = "Cythonize sources (i.e. compile .pyx to .c)"
+
+    user_options = [
+    ]
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
     def run(self):
-        print self.distribution
+        cythonize(EXTENSIONS)
 
 if __name__ == "__main__":    
     setup(
-        name = "libpl",
-        version = "1.0.0",
-        author = "Harrison Chapman",
-        author_email = "hchapman@uga.edu",
-        description = ("Python bindings for Jason Cantarella's libplCurve, "
-                       "a piecewise-linear curve and planar diagram library."),
-        keywords = "piecewise linear curves planar diagrams knot theory",
-        packages = ["libpl", "libpl.pdcode"],
-        url = "http://jasoncantarella.com/wordpress/software/plcurve",
+        name="libpl",
+        version="1.0.0",
+        author="Harrison Chapman",
+        author_email="hchapman@uga.edu",
+        description=("Python bindings for Jason Cantarella's libplCurve, "
+                     "a piecewise-linear curve and planar diagram library."),
+        keywords="piecewise linear curves planar diagrams knot theory",
+        packages=["libpl", "libpl.pdcode"],
+        url="http://jasoncantarella.com/wordpress/software/plcurve",
         package_dir={'libpl': os.path.join(ROOT_DIR, 'libpl'),
                      'libpl.pdcode': os.path.join(ROOT_DIR, 'libpl', 'pdcode')},
         package_data={"libpl": ["*.pxd",
                                 os.path.join("data", "*.txt"),
                                 os.path.join("pdcode", "*.pxd")]},
-        ext_modules = yes_or_no_cythonize(extensions),
+        ext_modules=yes_or_no_cythonize(EXTENSIONS),
+        cmdclass={
+            "cythonize": CythonizeSources,
+        },
         test_suite="tests",
     )
