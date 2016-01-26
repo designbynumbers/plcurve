@@ -1,3 +1,4 @@
+cimport cython
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libc.string cimport memcpy, strncpy
 from libc.stdlib cimport calloc, malloc, free
@@ -1207,6 +1208,7 @@ cdef class PlanarDiagram:
         return None
 
     @classmethod
+    @cython.embedsignature(True)
     def random_diagram(cls, n_crossings, n_components=None, max_att=50):
         import os
         cdef pmMap plmap
