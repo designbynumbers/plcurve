@@ -30,7 +30,7 @@ PXD_FILES = \
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
-EXTRA_DIST = libpl $(SETUP_PY) test
+EXTRA_DIST = libpl $(SETUP_PY) tests
 
 if INSTALL_PYTHON_USER
 PY_INSTALL_FLAGS = --user
@@ -61,7 +61,7 @@ install-exec-local:
 
 uninstall-local:
 	cat $(builddir)/install_files.txt | xargs rm -rf
-	rm $(builddir)/install_files.txt >2 /dev/null || true
+	rm $(builddir)/install_files.txt 2> /dev/null || true
 
 #check-local:
 #	$(PYTHON) $(SETUP_PY) test
