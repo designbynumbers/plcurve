@@ -39,9 +39,7 @@ SETUP_PY = $(srcdir)/setup.py
 
 EXTRA_DIST = $(SETUP_PY) tests $(CPY_FILES) $(CY_FILES) $(CY_H_FILES)
 
-if BUILD_CYTHON
-BUILT_SOURCES = $(CY_FILES) $(CY_H_FILES)
-endif
+PY_INSTALL_FLAGS =
 
 if INSTALL_PYTHON_USER
 PY_INSTALL_FLAGS = --user
@@ -51,10 +49,17 @@ PY_INSTALL_FLAGS = --prefix=$(DESTDIR)/$(prefix)
 endif
 endif
 
+if BUILD_CYTHON
+BUILT_SOURCES = $(CY_FILES) $(CY_H_FILES)
+else
+PY_BUILD_FLAGS = --no-cython
+PY_INSTALL_FLAGS += --no-cython
+endif
+
 all-local:
 	CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" \
-		$(PYTHON) $(SETUP_PY) build_ext \
-			-I$(top_srcdir)/src:$(top_srcdir)/planarmap \
+		$(PYTHON) $(SETUP_PY) build_ext $(PY_BUILD_FLAGS) \
+			-I$(abs_top_srcdir)/src:$(abs_top_srcdir)/planarmap \
 			-L"$(abs_top_builddir)"/src/.libs:"$(abs_top_builddir)"/planarmap/.libs
 
 PYLIBS = tsmcmc.so pdcode.so plcurve.so
@@ -64,7 +69,7 @@ clean-local:
 	rm -r built_doc 2> /dev/null || true
 	rm -r $(builddir)/libpl.egg-info 2> /dev/null || true
 
-install-exec-local:
+install-exec-local: all
 	$(PYTHON) $(SETUP_PY) install $(PY_INSTALL_FLAGS) \
 		--single-version-externally-managed \
 		--verbose \

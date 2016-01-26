@@ -23,12 +23,18 @@ def no_cythonize(extensions, **_ignore):
     print extensions
     return extensions
 
-try:
-    import Cython
-    print "Using Cython version "+Cython.__version__
-    USE_CYTHON = True
-except ImportError:
+USE_CYTHON = None
+if "--no-cython" in sys.argv:
     USE_CYTHON = False
+    sys.argv.remove("--no-cython")
+
+if USE_CYTHON is None:
+    try:
+        import Cython
+        print "Using Cython version "+Cython.__version__
+        USE_CYTHON = True
+    except ImportError:
+        USE_CYTHON = False
 
 if USE_CYTHON:
     #from Cython.Distutils.extension import Extension
@@ -56,19 +62,26 @@ LIBPL_PYX = (
     "plcurve.pyx",
     "tsmcmc.pyx")
 
-EXTENSIONS = [
-    Extension("pdcode.*", [os.path.join(ROOT_DIR, "libpl", "pdcode", pyx_filename) for
-                           pyx_filename in LIBPL_PDCODE_PYX],
-              include_dirs=["../src", ".", os.path.join(numpy.__path__[0], "core", "include")],
-              library_dirs=["../src/.libs"],
-              libraries=["gsl", "plCurve", "gsl", "gslcblas", "planarmap"]),
+INCLUDE_DIRS = ["../src", ".", os.path.join(numpy.__path__[0], "core", "include")]
+LIBRARY_DIRS = ["../src/.libs"]
+PLCURVE_LIBRARIES = ["gsl", "plCurve", "gsl", "gslcblas"]
+PDCODE_LIBRARIES = ["gsl", "plCurve", "gsl", "gslcblas", "planarmap"]
 
-    Extension("*", [os.path.join(ROOT_DIR, "libpl", pyx_filename) for
-                    pyx_filename in LIBPL_PYX],
-              include_dirs=["../src", ".", os.path.join(numpy.__path__[0], "core", "include")],
-              library_dirs=["../src/.libs"],
-              libraries=["gsl", "plCurve", "gsl", "gslcblas"]),
-]
+LIBPL_PDCODE_EXTENSIONS = [
+    Extension("libpl.pdcode.%s"%os.path.splitext(pyx_filename)[0],
+              [os.path.join(ROOT_DIR, "libpl", "pdcode", pyx_filename)],
+              include_dirs=INCLUDE_DIRS, library_dirs=LIBRARY_DIRS,
+              libraries=PDCODE_LIBRARIES) for
+    pyx_filename in LIBPL_PDCODE_PYX]
+
+LIBPL_EXTENSIONS = [
+    Extension("libpl.%s"%os.path.splitext(pyx_filename)[0],
+              [os.path.join(ROOT_DIR, "libpl", pyx_filename)],
+              include_dirs=INCLUDE_DIRS, library_dirs=LIBRARY_DIRS,
+              libraries=PLCURVE_LIBRARIES) for
+    pyx_filename in LIBPL_PYX]
+
+EXTENSIONS = LIBPL_EXTENSIONS + LIBPL_PDCODE_EXTENSIONS
 
 class CythonizeSources(Command):
     """Custom command which only Cythonizes .pyx into .c (and doesn't
@@ -90,7 +103,7 @@ class CythonizeSources(Command):
     def run(self):
         cythonize(EXTENSIONS)
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     setup(
         name="libpl",
         version="1.0.0",
