@@ -622,10 +622,22 @@ cdef class PlanarDiagram:
     from_unknot_wye = unknot_wye # Deprecated
 
     def set_all_crossing_signs(self, signature):
+        """
+        set_all_crossing_signs(signature)
+
+        Set all signs of the crossings in this diagram to match
+        signature; i.e. set ``self.crossing.sign[i] = signature[i]``.
+        """
         for i, sign in enumerate(signature):
             self.p.cross[i].sign = sign
 
     def unset_crossing_signs(self):
+        """
+        unset_crossing_signs()
+
+        Unset all signs on this PlanarDiagram to
+        ``PD_UNSET_ORIENTATION``, i.e. make this diagram a shadow.
+        """
         for x in self.crossings:
             x.sign = PD_UNSET_ORIENTATION
 
@@ -1208,8 +1220,21 @@ cdef class PlanarDiagram:
         return None
 
     @classmethod
-    @cython.embedsignature(True)
     def random_diagram(cls, n_crossings, n_components=None, max_att=50):
+        """
+        random_diagram(n_crossings, [n_components=None, max_att=50]) -> new
+        PlanarDiagram
+
+        Create a new PlanarDiagram with ``n_crossings`` crossings by
+        uniformly sampling a rooted 4-regular map using Giles
+        Schaeffer's PlanarMap and uniformly sampling a sign at each
+        crossing. If ``n_components`` is a positive integer rather
+        than ``None,`` then we will attempt up to ``max_att`` times to
+        create a diagram with precisely ``n_components``, and ``None``
+        otherwise. If ``max_att=0`` then there is no limit on the
+        number of attempts to satisfy ``n_components``.
+        """
+
         import os
         cdef pmMap plmap
         cdef pmSize size
@@ -1304,6 +1329,12 @@ cdef class PlanarDiagram:
         return newobj
 
     def randomly_assign_crossings(self):
+        """
+        randomly_assigned_crossings()
+
+        Randomly assign a sign in {+,-} to each of the crossings of
+        this PlanarDiagram.
+        """
         uniform_mask = [random.randint(0,1) for _ in range(self.ncross)]
         self.set_all_crossing_signs(uniform_mask)
 
@@ -1417,6 +1448,13 @@ cdef class PlanarDiagram:
         return newobj
 
     def ccode(self):
+        """
+        ccode() -> str
+
+        Convert this PlanarDiagram to its Ewing-Millet ccode
+        format. Wraps ``pdcode_to_ccode``.
+        """
+
         return copy_and_free(pdcode_to_ccode(self.p))
 
     def serialize(self):
