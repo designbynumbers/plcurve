@@ -1193,6 +1193,8 @@ cdef class PlanarDiagram:
 
         Open a plink editor for this PlanarDiagram. On
         completion, returns a new PlanarDiagram object.
+
+        Requires package ``plink`` and TKinter interface
         """
         from Tkinter import mainloop as _tk_mainloop
         editor = self.as_spherogram().view()
@@ -1220,9 +1222,9 @@ cdef class PlanarDiagram:
         return None
 
     @classmethod
-    def random_diagram(cls, n_crossings, n_components=None, max_att=50):
+    def random_diagram(cls, n_crossings, n_components=None, max_att=50, dia_type=None):
         """
-        random_diagram(n_crossings, [n_components=None, max_att=50]) -> new
+        random_diagram(n_crossings, [n_components=None, max_att=50,] [dia_type=None]) -> new
         PlanarDiagram
 
         Create a new PlanarDiagram with ``n_crossings`` crossings by
@@ -1233,6 +1235,9 @@ cdef class PlanarDiagram:
         create a diagram with precisely ``n_components``, and ``None``
         otherwise. If ``max_att=0`` then there is no limit on the
         number of attempts to satisfy ``n_components``.
+
+        Presently, `dia_type` is one of `'all'`, `'prime'`,
+        `'6conn'`, or `'biquart'`. (`dia_type=None` defaults to all)
         """
 
         import os
@@ -1245,8 +1250,6 @@ cdef class PlanarDiagram:
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         cdef pd_code_t *pd = NULL
 
-        size.m = 4
-        size.b = 4
         size.e = 0
         size.v = n_crossings
         size.f = 0
@@ -1255,6 +1258,25 @@ cdef class PlanarDiagram:
         size.d = 0
         size.t = 0
         size.dgArr = NULL
+
+        if dia_type is None or dia_type == 'all':
+            # 4-edge-connected quartic map
+            size.m = 4
+            size.b = 4
+        elif dia_type == 'prime':
+            # 4-edge-connected quartic map
+            size.m = 5
+            size.b = 5
+        elif dia_type == '6conn':
+            # 6-edge-connected quartic map
+            size.m = 6
+            size.b = 5
+        elif dia_type == 'biquart':
+            # bi-quartic map
+            size.m = 9
+            size.b = 9
+        else:
+            raise Exception("dia_type is not an expected value")
 
         meth.core = 0
         meth.pic = 0
@@ -1343,7 +1365,7 @@ cdef class PlanarDiagram:
         """from_dt_code() -> new PlanarDiagram
 
         Creates a new PlanarDiagram from a DT code (Dowker-Thistlethwaite).
-        Requires Spherogram
+        Requires ``Spherogram`` package
 
         Warning: Currently depends on from_pdcode, which has bugs with
         components of length 2
@@ -1356,7 +1378,10 @@ cdef class PlanarDiagram:
     def from_editor(cls, **kwargs):
         """from_editor() -> new PlanarDiagram
 
-        Creates a new PlanarDiagram using a new plink LinkEditor"""
+        Creates a new PlanarDiagram using a new plink LinkEditor
+
+        Requires package ``plink`` and Tkinter interface
+        """
         from plink import LinkEditor
         from Tkinter import mainloop as _tk_mainloop
 
@@ -1369,7 +1394,10 @@ cdef class PlanarDiagram:
     def from_plink(cls, editor, thin=False):
         """from_plink(editor) -> new PlanarDiagram
 
-        Creates a new PlanarDiagram from a plink LinkManager object."""
+        Creates a new PlanarDiagram from a plink LinkManager object.
+
+        Requires package ``plink``
+        """
 
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         cdef pd_code_t* pd
