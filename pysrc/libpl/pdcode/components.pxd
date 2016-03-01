@@ -12,7 +12,7 @@ cdef class Edge(_Disownable):
     Once you are finished setting any of the properties ``head``,
     ``headpos``, ``tail``, and ``tailpos``, you **must** call
     :py:meth:`PlanarDiagram.regenerate` on the parent so that sanity
-    can be checked and faces and components regenerated.
+    can be checked and faces and components regenerated.  
     """
     cdef pd_edge_t *p
     cdef readonly PlanarDiagram parent
@@ -59,6 +59,11 @@ cdef class Crossing(_Disownable):
     ``headpos``, ``tail``, and ``tailpos``, you **must** call
     :py:meth:`PlanarDiagram.regenerate` on the parent so that sanity
     can be checked and faces and components regenerated.
+
+    Accessing crossing information
+    ==============================
+    
+    Crossings support two methods of viewing their child edge data,
 
     """
 

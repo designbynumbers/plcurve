@@ -61,14 +61,7 @@ class NoParentException(Exception):
     pass
 
 cdef class Edge(_Disownable):
-    """An oriented edge, joining two verts tail -> head
-
-    Once you are finished setting any of the properties ``head``,
-    ``headpos``, ``tail``, and ``tailpos``, you **must** call
-    :py:meth:`PlanarDiagram.regenerate` on the parent so that sanity
-    can be checked and faces and components regenerated.
-    """
-
+    
     property head:
         """The index of the crossing towards which this edge points."""
         def __get__(self):
@@ -138,7 +131,7 @@ cdef class Edge(_Disownable):
         PD_POS_EDGE_ORIENTATION``, or a new reversed edge if ``sign ==
         PD_NEG_EDGE_ORIENTATION``.
 
-        The ``Edge`` returned is not connected to any
+        The :class`Edge` returned is not connected to any
         :py:class:`PlanarDiagram` until it is attached.
         """
         cdef Edge ret = self.__new__(self.__class__)
@@ -152,7 +145,7 @@ cdef class Edge(_Disownable):
     cpdef component_index_pos(self):
         """component_index_pos() -> (component index, edge pos)
 
-        Returns the component on which this edge resides and this
+        Returns the index of the component on which this edge resides and this
         edge's position on that component.
         """
         cdef pd_idx_t comp, comp_pos
@@ -165,7 +158,7 @@ cdef class Edge(_Disownable):
     cpdef component_pos(self):
         """component_pos() -> (Component, edge pos)
 
-        Returns the component on which this edge resides and this
+        Returns the :class:`Component` on which this edge resides and this
         edge's position on that component. If you just want the index
         of the component, use :py:meth:`component_index_pos`
         """
@@ -176,7 +169,7 @@ cdef class Edge(_Disownable):
     cpdef face_index_pos(self):
         """face_index_pos() -> ((pos_face, pos), (neg_face, pos))
 
-        Returns the faces on which this edge resides and this
+        Returns the face indices on which this edge resides and this
         edge's position on those faces.
         """
         cdef pd_idx_t plus, plus_pos, minus, minus_pos
@@ -190,7 +183,7 @@ cdef class Edge(_Disownable):
     cpdef face_pos(self):
         """face_pos() -> ((Face plus, pos), (Face minus, pos))
 
-        Returns the Faces on which this edge resides and this
+        Returns the :class:`Face`\ s on which this edge resides and this
         edge's position on that face. If you just want the indices
         of the faces, use :py:meth:`face_index_pos`
         """
@@ -272,14 +265,16 @@ cdef class Edge(_Disownable):
     def prev_crossing(self):
         """prev_crossing() -> Crossing
 
-        Return the crossing from which this edge originates."""
+        Return the :class:`Crossing` from which this edge originates.
+        """
+        
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.crossings[self.p.tail]
     def next_crossing(self):
         """next_crossing() -> Crossing
 
-        Return the crossing towards which this edge points"""
+        Return the :class:`Crossing` towards which this edge points"""
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.crossings[self.p.head]
@@ -287,7 +282,7 @@ cdef class Edge(_Disownable):
     def prev_edge(self):
         """prev_edge() -> Edge
 
-        Return the precedent edge along the component"""
+        Return the previous :class:`Edge` along the component"""
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.edges[
@@ -295,7 +290,7 @@ cdef class Edge(_Disownable):
     def next_edge(self):
         """next_edge() -> Edge
 
-        Return the next edge along the component"""
+        Return the next :class:`Edge` along the component"""
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.edges[
@@ -470,18 +465,6 @@ cdef Face Face_FromParent(PlanarDiagram parent, pd_idx_t index):
 
 
 cdef class Crossing(_Disownable):
-    """A crossing, which holds four edges in positions and an orientation.
-
-    Crossing data is the **most important** piece of data in a
-    PlanarDiagram. A full diagram object can be built from crossing
-    data alone (although orientations of components may differ).
-
-    Once you are finished setting any of the properties ``head``,
-    ``headpos``, ``tail``, and ``tailpos``, you **must** call
-    :py:meth:`PlanarDiagram.regenerate` on the parent so that sanity
-    can be checked and faces and components regenerated.
-
-    """
 
     cdef pd_idx_t[:] edgeview_get(self):
         return <pd_idx_t[:4]>self.p.edge

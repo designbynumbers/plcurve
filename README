@@ -6,4 +6,43 @@ New in library versions 7.0.1 (and later), this includes the functionality
 of the previous octrope library for computing the thickness and ropelength
 of polygonal curves.
 
+Python Module `libpl`
+=====================
 
+plCurve comes with a Python module for accessing and manipulating
+plCurve objects from Python scripts. Presently, the most robust part
+of this module is the `pdcode` submodule that makes available most of
+the functionality of `pdcode`s and other features in `plctopology.h`.
+
+Running configure will try to find the necessary libraries to build
+the Python module. To disable these checks and the Python building,
+pass `--disable-python` to the configure script. Required is Python
+2.7 (and associated development headers) and Numpy. Optional but
+recommended is Cython 0.23+ (Cython is required for development
+builds). If Cython is installed but you would prefer not to use it,
+pass `--disable-cython` to the configure script.
+
+The Python module by default, will try to install the Python module
+to your system's Python module directory (Python itself determines
+this). This usually requires superuser privileges. Passing
+`--enable-python-otherdir=user` will instead install the module to the
+directory which Python has determined to be a user's personal Python
+module directory. Either of these choices are typically already on
+Python's PYTHONPATH, and should not require additional
+configuration. In some circumstances, it may be preferable to install
+the Python module specifically to the prefix determined by the
+configure script; `--enable-python-otherdir=prefix` enables this
+functionality, but be aware that Python may not search this location
+for modules by default (Macs in particular get confused by this).
+
+Python documentation gets built automatically from docstrings
+available in the module. This requires Sphinx, a Python documentation
+package. After installing the `libpl` module, the make command `make
+html` will build the documentation and place it in
+`BUILD_DIR/pysrc/built_doc`.
+
+Some features of the Python module require the external packages
+Spherogram and PLink (available at http://www.math.uic.edu/t3m/), but
+these packages are not required in general. It is listed in the
+docstrings (and documentation) of functions which require these
+modules.

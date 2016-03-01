@@ -81,7 +81,6 @@ cdef class HOMFLYTerm:
             return "%s"%self.C
 
 cdef class HOMFLYPolynomial:
-    """An [immutable] HOMFLY polynomial object."""
     def __cinit__(self):
         self.terms = None
     def __init__(self, data, bool sort=True):
