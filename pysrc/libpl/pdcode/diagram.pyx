@@ -1250,13 +1250,13 @@ cdef class PlanarDiagram:
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         cdef pd_code_t *pd = NULL
 
-        size.e = 0
-        size.v = n_crossings
-        size.f = 0
-        size.r = 0
-        size.g = 0
-        size.d = 0
-        size.t = 0
+        size.e = 0 # #edges
+        size.v = n_crossings # #vertices
+        size.f = 0 # #faces
+        size.r = 0 # #"red"
+        size.g = 0 # #"green"
+        size.d = 0 # something to do with degree on other types of maps
+        size.t = 0 # allowed error on size
         size.dgArr = NULL
 
         if dia_type is None or dia_type == 'all':
@@ -1271,6 +1271,7 @@ cdef class PlanarDiagram:
             # 6-edge-connected quartic map
             size.m = 6
             size.b = 5
+            # 
         elif dia_type == 'biquart':
             # bi-quartic map
             size.m = 9
@@ -1293,16 +1294,20 @@ cdef class PlanarDiagram:
                (pd != NULL and (n_components is not None and n_components != pd.ncomps))):
             if not pmMemoryInit(&size, &meth, &mem):
                 raise Exception("Failure during memory init")
+            if not pmExtendMemory(&size, &meth, &mem, 0):
+                raise Exception("Failure during memory extend")
             if not pmPlanMap(&size, &meth, &mem, &plmap):
                 raise Exception("Failure during map generation")
 
+            map_nv = plmap.v
+
             if pd != NULL:
                 pd_code_free(&pd)
-            pd = pd_code_new(n_crossings+2)
+            pd = pd_code_new(map_nv+2)
 
-            pd.ncross = n_crossings
-            pd.nedges = n_crossings*2
-            pd.nfaces = n_crossings+2
+            pd.ncross = map_nv
+            pd.nedges = map_nv*2
+            pd.nfaces = map_nv+2
 
             cur_v = plmap.root.from_v
             v_idx = cur_v.label-1
@@ -1344,7 +1349,7 @@ cdef class PlanarDiagram:
                 pd_code_free(&pd)
                 return None
 
-        uniform_mask = [random.randint(0,1) for _ in range(n_crossings)]
+        uniform_mask = [random.randint(0,1) for _ in range(map_nv)]
         newobj.p = pd
         newobj.set_all_crossing_signs(uniform_mask)
 
