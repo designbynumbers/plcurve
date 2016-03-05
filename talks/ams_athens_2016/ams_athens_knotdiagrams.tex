@@ -150,9 +150,9 @@
 
 \title{Random Knot Diagrams}
 \author[Cantarella, Chapman, Mastin]{Jason Cantarella (UGA)\\
-joint w/ Harrison Chapman (UGA), Matt Mastin (Wake Forest)\\
+Harrison Chapman (UGA), Matt Mastin (Mailchimp, Inc.)\\
 Crucial Assist: Eric Rawdon (St. Thomas)}
-\date[CanaDAM 2015]{CanaDAM Conference, June 2, 2015}
+\date[AMS Spring 2016]{AMS Spring Southeastern Section Meeting, 2016}
 
 %\allowdisplaybreaks
 %\usepackage[bookmarks,bookmarksopen,bookmarksdepth=4]{hyperref}
@@ -202,7 +202,7 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
 \newcommand{\LnSet}{\mathcal L}
 \newcommand{\sr}{/\!\!/}
 \newtheorem{observationfirst}[theorem]{Observation (known to all combinatoricists, but new to me)}
-\newtheorem{observation}[theorem]{Observation (ktacbntm)}
+\newtheorem{observation}[theorem]{Observation}
 \newtheorem{plan}[theorem]{Plan to Enumerate Diagrams}
 
 \begin{frame}
@@ -532,20 +532,20 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
   \end{figure}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Random diagrams}
-  \begin{definition}
-    A \emph{knot diagram} is a equivalence class of generic immersions of the oriented $S^1$ into
-    the sphere $S^2$ together with over-under strand information at each
-    double point up to diffeomorphism of $S^2$.
-  \end{definition}
-  \begin{figure}
-    \centering
-    \includegraphics[width=1.2in]{8x_tref.pdf}\qquad
-    \includegraphics[width=1.2in]{8x_tref_loopy.pdf}\qquad
-    \includegraphics[width=1.2in]{tree_like_8x.pdf}
-  \end{figure}
-\end{frame}
+%\begin{frame}
+%  \frametitle{Random diagrams}
+%  \begin{definition}
+%    A \emph{knot diagram} is a equivalence class of generic immersions of the oriented $S^1$ into
+%    the sphere $S^2$ together with over-under strand information at each
+%    double point up to diffeomorphism of $S^2$.
+%  \end{definition}
+%  \begin{figure}
+%    \centering
+%    \includegraphics[width=1.2in]{8x_tref.pdf}\qquad
+%    \includegraphics[width=1.2in]{8x_tref_loopy.pdf}\qquad
+%    \includegraphics[width=1.2in]{tree_like_8x.pdf}
+%  \end{figure}
+%\end{frame}
 
 \begin{frame}
   \frametitle{How to enumerate knot diagrams (like a topologist)}
@@ -669,7 +669,7 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
       7  & 2,194           & 561,664          & 484,088              \\
       8  & 14,614          & 7,482,368        & 6,967,942            \\
       9  & 106,421         & 108,975,104      & 105,555,336          \\
-      10 & 823,832         & 1,687,207,936      & \colorbox{yellow}{$\sim$ 1,687,207,936}     \\
+      10 & 823,832         & 1,687,207,936    & 1,664,142,836        \\
     \end{tabular}
     \label{tab:counts}
   \end{table}
@@ -692,118 +692,69 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
 
 \begin{frame}
   \frametitle{Knotting in diagrams}
+
+\smallskip
+
   \begin{figure}
-    \centering
-    \begin{tikzpicture}[scale=1]
-      \begin{axis}[
-        %ymode=log,
-        %log ticks with fixed point,
-        title={Ratios of knots in $n$-crossing diagrams},
-        xlabel={\# crossings in diagram},
-        ylabel={Ratios of knots},
-        cycle list name=Mark-Set1-9,
-        legend pos=outer north east,
-        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $0_1$},
-        ymin=0, ymax=1,
-        ]
-        \addplot table[x=n,y=3.1] {knot_freq.tsv};
-        \addplot table[x=n,y=4.1] {knot_freq.tsv};
-        \addplot table[x=n,y=5.1] {knot_freq.tsv};
-        \addplot table[x=n,y=5.2] {knot_freq.tsv};
-        \addplot table[x=n,y=0.1] {knot_freq.tsv};
-      \end{axis}
-    \end{tikzpicture}
-    \label{fig:kgrow1}
-  \end{figure}
-\end{frame}
-
-
-\begin{frame}
-  \begin{figure}
-    \centering
-    \begin{tikzpicture}[scale=1]
-      \begin{axis}[
-        ymode=log,
-        log ticks with fixed point,
-        title={Ratios of knots in $n$-crossing diagrams (log scale)},
-        xlabel={\# crossings in diagram},
-        ylabel={Ratios of knots},
-        cycle list name=Mark-Set1-9,
-        legend pos=south west,
-        legend entries={$3_1$, $4_1$, $5_1$, $5_2$},
-        ]
-        \addplot table[x=n,y=3.1] {knot_freq.tsv};
-        \addplot table[x=n,y=4.1] {knot_freq.tsv};
-        \addplot table[x=n,y=5.1] {knot_freq.tsv};
-        \addplot table[x=n,y=5.2] {knot_freq.tsv};
-      \end{axis}
-    \end{tikzpicture}
-    \label{fig:kgrow1}
-  \end{figure}
-\end{frame}
-
-
-\begin{frame}
-  \begin{figure}
-    \centering
-      \tikzset{mark=*}
-    \begin{tikzpicture}[scale=1]
-      \begin{axis}[
-        ymode=log,
-        log ticks with fixed point,
-        title={Ratios of knots in $n$-crossing diagrams (log scale)},
-        xlabel={\# crossings in diagram},
-        ylabel={Ratios of knots},
-        cycle list name=Mark-Set1-9,
-        legend style={font=\tiny},
-        legend pos=outer north east,
-        legend entries={$3_1$, $4_1$, $5_1$, $5_2$, $6_1$, $6_2$, $3_1
-          \# 3_1$, $3_1 \# 3_1^*$, $7_1$, $7_2$, $7_3$, $7_4$, $7_5$,
-          $7_6$, $7_7$},
-        ]
-        \addplot table[x=n,y=3.1] {knot_freq.tsv};
-        \addplot table[x=n,y=4.1] {knot_freq.tsv};
-        \addplot table[x=n,y=5.1] {knot_freq.tsv};
-        \addplot table[x=n,y=5.2] {knot_freq.tsv};
-        \addplot table[x=n,y=6.1] {knot_freq.tsv};
-        \addplot table[x=n,y=6.2] {knot_freq.tsv};
-        \addplot table[x=n,y=3.1c3.1] {knot_freq.tsv};
-        \addplot table[x=n,y=3.1c3.1m] {knot_freq.tsv};
-        \addplot table[x=n,y=7.1] {knot_freq.tsv};
-        \addplot table[x=n,y=7.2] {knot_freq.tsv};
-        \addplot table[x=n,y=7.3] {knot_freq.tsv};
-        \addplot table[x=n,y=7.4] {knot_freq.tsv};
-        \addplot table[x=n,y=7.5] {knot_freq.tsv};
-        \addplot table[x=n,y=7.6] {knot_freq.tsv};
-        \addplot table[x=n,y=7.7] {knot_freq.tsv};
-      \end{axis}
-    \end{tikzpicture}
-
-    \label{fig:kgrow2}
-  \end{figure}
+\hfill
+\begin{overpic}[width=4in]{combined_rank_graphic.pdf}
+\put(8,59){$0_1$}
+\put(16.5,59){$3_1$}
+\put(25,59){$3_1^m$}
+\put(34,59){$4_1$}
+\put(44,59){$5_2$}
+\put(53,59){$5_2^m$}
+\put(62,59){$5_1$}
+\put(71,59){$5_1^m$}
+\put(78,59){$3_1 \# 3_1^m$}
+\put(98,59){$6_3$}
+\put(40,-3){Log(Knot Rank)}
+\put(-4,63){Log(Knot Count)}
+\end{overpic}
+%\hfill
+%\begin{minipage}[b]{1.5in}
+%\begin{tabular}{ccc}
+%$\operatorname{Cr}$ & Unknots & (decimal) \\ \hline
+%\\ [-0.15in]
+% 3 & $\frac{\num{17}}{\num{18}}$ & 0.94 \\ [0.05in]
+% 4 & $\frac{\num{265}}{\num{276}}$ & 0.96 \\[0.05in]
+% 5 & $\frac{\num{343}}{\num{367}}$ & 0.93 \\[0.05in]
+% 6 & $\frac{\num{4057}}{\num{4484}}$ & 0.90 \\[0.05in]
+% 7 & $\frac{\num{105583}}{\num{121022}}$ & 0.87 \\[0.05in]
+% 8 & $\frac{\num{2926416}}{\num{3483971}}$ & 0.84  \\[0.05in]
+% 9 & $\frac{\num{42626767}}{\num{52777668}}$ & 0.81 \\[0.05in]
+% 10 & $\frac{\num{1291291155}}{\num{1664142836}}$ & 0.78
+%\end{tabular}
+%\end{minipage}
+\hfill
+\hphantom{.}
+\end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Why so many unknots?}
-  \begin{figure}
-    \centering
-    \begin{tikzpicture}[scale=1]
-      \begin{axis}[
-        %ymode=log,
-        %log ticks with fixed point,
-        title={Ratios of knots in $n$-crossing diagrams},
-        xlabel={\# crossings in diagram},
-        ylabel={Ratios of knots},
-        cycle list name=Mark-Set1-9,
-        legend pos=outer north east,
-        legend entries={$0_1$},
-        ymin=0, ymax=1,
-        ]
-        \addplot table[x=n,y=0.1] {knot_freq.tsv};
-      \end{axis}
-    \end{tikzpicture}
-    \label{fig:kgrow1}
-  \end{figure}
+  \frametitle{Unknot fraction}
+
+\bigskip
+
+\begin{center}
+  \begin{tabular}{ccc}
+$\operatorname{Cr}$ & Unknots & (decimal) \\ \hline
+\\ [-0.15in]
+ 3 & $\frac{{17}}{{18}}$ & 0.94 \\ [0.05in]
+ 4 & $\frac{{265}}{{276}}$ & 0.96 \\[0.05in]
+ 5 & $\frac{{343}}{{367}}$ & 0.93 \\[0.05in]
+ 6 & $\frac{{4057}}{{4484}}$ & 0.90 \\[0.05in]
+ 7 & $\frac{{105583}}{{121022}}$ & 0.87 \\[0.05in]
+ 8 & $\frac{{2926416}}{{3483971}}$ & 0.84  \\[0.05in]
+ 9 & $\frac{{42626767}}{{52777668}}$ & 0.81 \\[0.05in]
+ 10 & $\frac{{1291291155}}{{1664142836}}$ & 0.78
+\end{tabular}
+\end{center}
+
+\bigskip
+
+Unknots are very common, even among 10 crossing diagrams. Why?
+    
 \end{frame}
 
 
@@ -883,49 +834,45 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
 %   \end{figure}
 % \end{frame}
 
-\begin{frame}[label=knotspace1]
-  \frametitle{The space of shadows}
-  \begin{figure}
-    \centering
-    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_0_collage.eps}
-    \\ Link shadows. Pictures generated by Eric Lybrand (UGA
-      undergrad).
-    \label{fig:planarcollage0}
-  \end{figure}
-\end{frame}
-
-\begin{frame}[label=knotspace2]
-  \frametitle{The space of shadows}
-  \begin{figure}
-    \centering
-    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_1_collage.eps}
-     \\ Link shadows. Pictures generated by Eric Lybrand (UGA
-      undergrad).
-    \label{fig:planarcollage1}
-  \end{figure}
-\end{frame}
-
 \begin{frame}
   \frametitle{The space of shadows}
-  \begin{figure}
-    \centering
-    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_10_collage.eps}
- \\ Link shadows. Pictures generated by Eric Lybrand (UGA
-      undergrad).
-    \label{fig:planarcollage10}
-  \end{figure}
+  \begin{center}
+  \includegraphics[width=4in]{knotgrid.pdf}
+  \end{center}
 \end{frame}
 
-\begin{frame}
-  \frametitle{The space of shadows}
-  \begin{figure}
-    \centering
-    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_16_collage.eps}
-  \\ Link shadows. Pictures generated by Eric Lybrand (UGA
-      undergrad).
-    \label{fig:planarcollage16}
-  \end{figure}
-\end{frame}
+%\begin{frame}[label=knotspace2]
+%  \frametitle{The space of shadows}
+%  \begin{figure}
+%    \centering
+%    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_1_collage.eps}
+%     \\ Link shadows. Pictures generated by Eric Lybrand (UGA
+%      undergrad).
+%    \label{fig:planarcollage1}
+%  \end{figure}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{The space of shadows}
+%  \begin{figure}
+%    \centering
+%    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_10_collage.eps}
+% \\ Link shadows. Pictures generated by Eric Lybrand (UGA
+%      undergrad).
+%    \label{fig:planarcollage10}
+%  \end{figure}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{The space of shadows}
+%  \begin{figure}
+%    \centering
+%    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{epsgroup_16_collage.eps}
+%  \\ Link shadows. Pictures generated by Eric Lybrand (UGA
+%      undergrad).
+%    \label{fig:planarcollage16}
+%  \end{figure}
+%\end{frame}
 
 %\begin{frame}
 %  \frametitle{Tabulation is difficult!}
@@ -972,61 +919,28 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
   \frametitle{Most diagrams are (very) composite}
   
   \begin{center}
-  	\only<1>{\includegraphics[width=4in]{../figs/composite-histogram-3.pdf}}
-	\only<2>{\includegraphics[width=4in]{../figs/composite-histogram-4.pdf}}
-	\only<3>{\includegraphics[width=4in]{../figs/composite-histogram-5.pdf}}
-	\only<4>{\includegraphics[width=4in]{../figs/composite-histogram-6.pdf}}
-	\only<5>{\includegraphics[width=4in]{../figs/composite-histogram-7.pdf}}
-	\only<6>{\includegraphics[width=4in]{../figs/composite-histogram-8.pdf}}
-	\only<7>{\includegraphics[width=4in]{../figs/composite-histogram-9.pdf}}
-	\only<8>{\includegraphics[width=4in]{../figs/composite-histogram-10.pdf}}
+  \includegraphics[width=3in]{proportion-connect-sums.pdf}
   \end{center}
   
-\end{frame}
-   
-\begin{frame}
-	\frametitle{Mean number of connect summands $\simeq$ crossing number}
-	
-	\begin{center}
-	  \includegraphics[width=4in]{../figs/mean-connect-summands.pdf}
-	\end{center}
-	
-	
-
-\end{frame}
-
-\begin{frame}
-	\frametitle{Obvious Unknots}
-
-	\begin{proposition}
-	If $d(n,k)$ is the number of diagrams with $n$ crossings and $k$ connect summands, 
-	and $d(n)$ is the number of all $n$ crossing diagrams, 
-	then the unknot fraction among all $n$ crossing diagrams is at least
-	\begin{equation*}
-	\frac{1}{d(n)} \left(d(n,n) + \frac{3}{4} d(n,n-2) + \frac{7}{8} d(n,n-3) \right)
-	\end{equation*}
-	\end{proposition}
-	
-	\begin{proof}
-	\only<1>{Any diagram in $d(n,n)$ is a connect sum of all $1$-crossing diagrams, and so 
-	can be simplified to the unknot via RI moves.} 
-	
-	\only<2>{Any diagram in $d(n,n-2)$ is a connect sum of $1$-crossing diagrams, and a 
-	prime 3-crossing diagram (turns out there's only one-- the trefoil diagram).
-	This diagram is knotted iff those three crossings have the same sign, which 
-	occurs $1/4$ of the time.}
-	
-	\only<3->{You can make a similar argument for $d(n,n-3)$.}
-	\end{proof}
-	
-	\begin{question}<4->
+  \end{frame}
+  
+\begin{frame} 
+  \frametitle{Maximally composite diagrams are ``treelike''}
+  
+  \begin{center}
+  \includegraphics[width=2in]{tree-like-8.pdf}
+  \end{center}
+  
+  \begin{question}
+	Treelike diagrams can't be knotted with any assignment of crossings.
 	Does this (crude) bound explain the unknot fraction?
-	\end{question}
-
+  \end{question}
+  
 \end{frame}
 
+
 \begin{frame}
-	\frametitle{Yup.}
+	\frametitle{Pretty much.}
 	
 	\begin{center}
 	\includegraphics[width=4in]{../figs/obvious-unknots.pdf}
@@ -1446,25 +1360,51 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
 %  \end{columns}
 %\end{frame}
 %
-\begin{frame}
-  \frametitle{Future Direction: How to enumerate diagrams\\ (like a \sout{BOSS} combinatoricist)}
-  \begin{figure}
-    \centering
-    \includegraphics[width=.7\columnwidth]{legdias.pdf}
-    \label{fig:legdia}
-  \end{figure}
 
-  Two-leg diagrams counted by generating function (Bouttier,
-  et al.\ 2003):
-  \[ G_0 = \frac{24g - 1 + \sqrt{1-12g}}{9g(1+\sqrt{1-12g})} = 1 + 2g
-  + 9g^2 + 54g^3 + 378g^4 +  \cdots \]
+\begin{frame}
+  \frametitle{Future Direction: So what about those log-log plots?} 
+
+  \begin{proposition}[with Shonkwiler, 2015]
+  The symplectic structure on polygon space yields a fast direct sampling algorithm for closed equilateral polygons.
+  \end{proposition}
+
+  \medskip
   
-  We can enumerate two-leg diagrams using blossom trees (Schaeffer). 
+  \begin{center}
+  \begin{overpic}[width=3in]{knotfrequencyplotsimplifiedfit.pdf}
+  \put(35,-4){Log(Knot Rank)}
+  \put(-4,57){Log(Knot Freq)}
+  \end{overpic}
+  
+  \end{center}
+  
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Future Direction: You can play, too!}
+  
+  \begin{itemize}
+  \item
+  Knot Probabilities in Random Diagrams
+  Cantarella, Chapman, Mastin.
+  arXiv:1512.05749
+  
+  \item All data (and pictures for all the diagrams) available at 
+    www.jasoncantarella.com/wordpress/papers/
+  
+  \item A Fast Direct Sampling Algorithm for Random Equilateral Polygons
+  Cantarella, Duplantier, Shonkwiler, Uehara.
+  arXiv:1510.02466
+  \end{itemize}
+  
 \end{frame}
 
 \begin{frame}
   \frametitle{Future Direction: Uniform sampling of large diagrams}
  	
+   Harrison Chapman has results on sampling large diagrams:
+   
    \begin{center}
     \only<1>{\includegraphics[width=4in]{../figs/random-70cr-1.png}}
     \only<2>{\includegraphics[height=3in]{../figs/random-70cr-2.png}}
@@ -1472,46 +1412,11 @@ Crucial Assist: Eric Rawdon (St. Thomas)}
    \end{center}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Future direction: Link diagrams}
-      \begin{table}
-    \centering
-    \begin{tabular}{r|cc}
-      \rowcolor{gray!50}
-      n & \# link shadows & \# knot shadows \\
-      0 & 1 & 1 \\
-      1 & 1 & 1 \\
-      2 & 3 & 2 \\
-      3 & 7 & 6 \\
-      4 & 30 & 19\\
-      5 & 124 & 76 \\
-      6 & 733 & 376 \\
-      7 & 4586 & 2194 \\
-      8 & 33373 & 14614 \\
-      9 & 259434 & 106421 \\
-      10 & 2152298 & 823832 \\
-    \end{tabular}
-    \label{tab:count2s}
-  \end{table}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Future direction: Knot distances}
-  \begin{figure}
-    \centering
-    \includegraphics[width=\columnwidth]{9x_distances.png}
-  \end{figure}
-\end{frame}
-
-\section*{}
 
 \begin{frame}[c]
   \centering\textbf{\huge Thank you!}
 
-	\vspace{0.1in}
-
-  Coming soon: Cantarella, Chapman, Mastin. \textit{Knot probabilities in random diagrams}.
-  \begin{center}
+	  \begin{center}
     \includegraphics[width=3in]{linkshadow.pdf}
   \end{center}
   \begin{minipage}[t][.4\textheight]{1.0\linewidth}
