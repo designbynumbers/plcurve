@@ -936,8 +936,16 @@ cdef class PlanarDiagram:
     def homfly(self, as_string=False):
         """homfly([as_string=False]) -> HOMFLYPolynomial
 
-        Compute the HOMFLY polynomial for this diagram."""
-        cdef bytes homflybytes = copy_and_free(pd_homfly(self.p))
+        Compute the HOMFLY polynomial for this diagram. Returns None
+        on error.
+        """
+        cdef char* homfly_from_pd = pd_homfly(self.p)
+        cdef bytes homflybytes
+        if homfly_from_pd == NULL:
+            return None
+        else:
+            homflybytes = copy_and_free(homfly_from_pd)
+
         if as_string:
             return homflybytes
         else:
@@ -1273,15 +1281,15 @@ cdef class PlanarDiagram:
         '6conn', or 'biquart'. (``dia_type=None`` defaults to
         all)
 
-        :param int n_crossings: The number of crossings of the result diagram 
+        :param int n_crossings: The number of crossings of the result diagram
         :param n_components: The number of components of the result
            diagram, or None if no constraint
         :type n_components: int or None
         :param int max_att: The max number of attempts to create a
            diagram of :obj:`n_components` components.
         :param dia_type: The type of diagram to produce, or None for
-           any. Valid types are 'all', 'prime', '6conn', and 'biquart', 
-           corresponding to 2-edge-connected (i.e. any) diagrams, 
+           any. Valid types are 'all', 'prime', '6conn', and 'biquart',
+           corresponding to 2-edge-connected (i.e. any) diagrams,
            4-connected (i.e. prime) diagrams, 6-connected diagrams,
            or bipartite diagrams. Notice that bipartite diagrams
            never have precisely 1 component.
@@ -1319,7 +1327,7 @@ cdef class PlanarDiagram:
             # 6-edge-connected quartic map
             size.m = 6
             size.b = 5
-            # 
+            #
         elif dia_type == 'biquart':
             # bi-quartic map
             size.m = 9

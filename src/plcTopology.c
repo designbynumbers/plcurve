@@ -320,6 +320,10 @@ char *pd_homfly_timeout(pd_code_t *pd, int timeout)
 
   }
 
+  if (homfly_lmpoly == NULL) {
+      return NULL; // NULL signifies timeout or other error in plc_lmpoly
+  }
+
   /* Now transform to (more readable) latex form */
 
   char *homfly = lmpoly_to_latex(homfly_lmpoly);

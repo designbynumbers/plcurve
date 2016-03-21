@@ -1011,6 +1011,7 @@ extern "C" {
   /************************ Topological Invariants ********************/
 
   /* Compute the HOMFLY polynomial of a pd_code (returned as string) */
+  /* Returns NULL if the timeout limit is reached. */
 
   char *pd_homfly( pd_code_t *pdC);
   char *pd_homfly_timeout( pd_code_t *pdC, int timeout);
