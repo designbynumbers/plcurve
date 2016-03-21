@@ -29,6 +29,9 @@ cdef class HOMFLYTerm:
             x.C + y.C,
             x.alpha, x.zeta)
 
+    def __call__(self, a, z):
+        return self.C * a**self.alpha * z**self.zeta
+
     def __nonzero__(self):
         if self.C == 0:
             return 0
@@ -148,6 +151,9 @@ cdef class HOMFLYPolynomial:
             raise
     def __len__(self):
         return len(self.terms)
+
+    def __call__(self, a, z):
+        return sum(term(a,z) for term in self.terms)
 
     def __invert__(HOMFLYPolynomial self):
         cdef HOMFLYPolynomial newpoly = HOMFLYPolynomial.__new__(HOMFLYPolynomial)
