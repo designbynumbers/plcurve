@@ -1,10 +1,47 @@
-This is the plCurve library, designed for working with piecewise linear 
-(not necessarily connected) R^3 curves.  It also includes vector-handling 
+This is the plCurve library, designed for working with piecewise linear
+(not necessarily connected) R^3 curves.  It also includes vector-handling
 routines and some basic support for spline equivalents of the plCurves.
 
 New in library versions 7.0.1 (and later), this includes the functionality
 of the previous octrope library for computing the thickness and ropelength
 of polygonal curves.
+
+`make check` occasionally failing
+=================================
+
+This is okay! There are some random test cases which are run during a
+`make check`. We expect the failure rate of `ccode_test` to be under
+3%; when this happens there will be a message in
+`%BUILD_DIR%/test/ccode_test.log`:
+
+    FAIL
+    unable to generate pd code from plcurve
+    !! this is *expected* to happen 2.5% of the time
+    !! see the README for more information
+
+If you believe that you are seeing this error message more often than
+expected, please get in touch with the maintainers. See below for more
+details.
+
+We know that there will be some cases in which `randomwalk_test()` (a
+test that runs during `ccode_test`) will fail to project to a pdcode
+object; principle among reasons are those in which edges of the random
+polygon generated are self-intersecting (in which case we would be
+unable to determine the sign of that given crossing in constructing
+the pdcode object).
+
+Based on a run of the program in `test/randomwalk_test_test.c`, the
+expected success rate of a given loop run in randomwalk_test() run on
+random polygons with 250 edges is about 999974 in 1000000
+(99.9974%). Hence, the expected failure probability of a given random
+250-gon is 2.6e-5.
+
+In `ccode_test`, `randomwalk_test()` is called to process 1001 random
+250-gons into pdcode objects. If a single loop 'fails', the entire
+test 'fails'. Based on the prior run of this program, we estimate (as
+of March 2016) that this step should fail about 97.431% of the time,
+or about 3-in-100 times.
+
 
 Python Module `libpl`
 =====================
