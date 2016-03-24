@@ -56,7 +56,7 @@ int PD_VERBOSE;
 //#include"/usr/local/include/thrift/Thrift.h"
 //#include<python2.7/Python.h>
 #include<pd_multidx.h>
-#include<pd_dihedral.h>
+#include<pd_dihedral.h>  // a test comment on an include
 #include<pd_cyclic.h>
 #include<pd_perm.h>
 #include<pd_orientation.h>
