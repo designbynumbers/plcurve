@@ -272,7 +272,7 @@ bool rolfsentabletest()
   printf("Loading Mathematica format pd codes...");
 
   int pd_codes_expected;
-  if (!fscanf(infile,"pdcodes %d \n",&pd_codes_expected) == 1) { 
+  if (!(fscanf(infile,"pdcodes %d \n",&pd_codes_expected) == 1)) { 
 
     printf("fail. (Couldn't read # of codes in file)");
     return false;
@@ -355,7 +355,7 @@ bool rolfsentabletest()
 
   printf("Loading Mathematica format pd codes from file...");
 
-  if (!fscanf(infile,"pdcodes %d \n",&pd_codes_expected) == 1) { 
+  if (!(fscanf(infile,"pdcodes %d \n",&pd_codes_expected) == 1)) { 
 
     printf("fail. (Couldn't read # of codes in file)");
     return false;

@@ -550,6 +550,13 @@ pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or)
     ret.head = e.tail;
     ret.headpos = e.tailpos;
 
+  } else {
+
+    pd_error(SRCLOC,"passed or = %c, neither PD_POS_ORIENTATION"\
+	     "nor PD_NEG_ORIENTATION",
+	     NULL,pd_print_or(or));
+    exit(1);
+
   }
 
   return ret;
