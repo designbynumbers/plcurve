@@ -34,18 +34,21 @@ if __name__ == "__main__":
 
     p = re.compile('#include<(?P<headerfile>\S+)>(?P<endmatter>.*)')
     
-    for line in fileinput.input(glob.glob("pdcode.c")):
+    for line in fileinput.input(glob.glob("pdcode.c"),inPlace=True,backup='.backup'):
 
         m = p.match(line)
         if m:
             
             if (m.group('headerfile') in localheaders):
 
-                lst = ['#include"',m.group('headerfile'),'"',m.group('endmatter')]
-                
-                print "would replace ", line.rstrip(), "with ","".join(lst)
-                
+                lst = ['#include"',m.group('headerfile'),'"',m.group('endmatter')]                  if args.dryrun:
+                    print "would replace ", line.rstrip(), "with ","".join(lst)
+                    sys.stdout.write(line)
+                else
+                    sys.stdout.write("".join(lst))
 
-        
+        else:
+
+            sys.stdout.write(line)
 
     
