@@ -1,5 +1,6 @@
 if BUILD_PYTHON
 
+
 PY_FILES = \
 	libpl/__init__.py \
 	libpl/data.py \
@@ -37,7 +38,13 @@ PXD_FILES = \
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py
 
-EXTRA_DIST = $(SETUP_PY) tests $(CPY_FILES) $(CY_FILES) $(CY_H_FILES)
+EXTRA_DIST = \
+	$(SETUP_PY) tests $(CPY_FILES) $(CY_FILES) $(CY_H_FILES) \
+	doc/conf.py \
+	doc/index.rst \
+	doc/libpl \
+	doc/make.bat \
+	doc/Makefile
 
 PY_INSTALL_FLAGS =
 
