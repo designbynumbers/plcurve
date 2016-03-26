@@ -6,6 +6,49 @@ New in library versions 7.0.1 (and later), this includes the functionality
 of the previous octrope library for computing the thickness and ropelength
 of polygonal curves.
 
+Installation
+============
+
+On Mac OS X
+-----------
+
+1. Install the XCode command line tools: `xcode-select --install`
+2. Install Homebrew: Info at http://brew.sh/
+3. Install gsl: `brew install gsl`
+4. Install pip Python package manager: https://pip.pypa.io/en/stable/installing/
+5. Install numpy: `sudo pip install numpy`
+6. Run configure: `./configure`
+7. Make: `make`
+8. Run the C tests: `make check`
+9. Install: `make install` or possibly `sudo make install`
+
+(Suggested): Install ipython: `sudo pip install ipython`
+Ipython is a more user-friendly Python console
+
+10. Build doc: `make html`
+
+On Amazon Linux (such as AWS)
+----------------------
+
+1. Install the development tools: `sudo yum groupinstall "Development Tools"`
+2. Install gsl: `sudo yum install gsl-devel`
+3. Install numpy: `sudo pip install numpy`
+4. Configure: `./configure`
+5. Make: `make`
+6. Run the C tests: `make check`
+7. Install: `sudo make install`
+
+At this point you may need to add /usr/local/lib to the ld path.
+8. Create a file `local.conf` in /etc/ld.so.conf.d/ and give it the
+one line, `/usr/local/lib`. You need to be SU for this; typically
+`sudo nano /etc/ld.so.conf.d/local.conf` is a fine editor command.
+9. `sudo ldconfig` to update the ld configuration cache
+
+(Suggested): Install ipython: `sudo pip install ipython`
+Ipython is a more user-friendly Python console
+
+10 Build doc: `make html`
+
 `make check` occasionally failing
 =================================
 
