@@ -47,7 +47,26 @@ one line, `/usr/local/lib`. You need to be SU for this; typically
 (Suggested): Install ipython: `sudo pip install ipython`
 Ipython is a more user-friendly Python console
 
-10 Build doc: `make html`
+On Ubuntu Linux 14.04 LTS
+----------------------
+
+0. Update the apt package list: `sudo apt-get update`
+1. Install the development tools: `sudo apt-get install build-essential`
+2. Install gsl: `sudo apt-get install libgsl0-dev`
+3. Install pip and Python dev headers: `sudo apt-get install python-pip python-dev`
+4. Install numpy: `sudo pip install numpy`
+
+At this point you should acquire the source code and `cd` to its directory.
+
+5. Configure: `./configure`
+6. Make: `make`
+7. Run the C tests: `make check`
+8. Install: `sudo make install`
+
+9. `sudo ldconfig` to update the ld configuration cache (to find new libs)
+
+(Suggested): Install ipython: `sudo pip install ipython`
+Ipython is a more user-friendly Python console
 
 `make check` occasionally failing
 =================================
