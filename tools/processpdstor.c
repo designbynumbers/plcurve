@@ -326,12 +326,12 @@ int main(int argc,char *argv[]) {
 	for(i=0;i<inpd->ncomps;i++) {
 	  component_orientations[i] = PD_POS_ORIENTATION;
 	}
-	if (allcrossings->count > 0) { 
+	if (allcrossings->count > 0) {
 	  for(i=0;i<inpd->ncross;i++) {
 	    inpd->cross[i].sign = PD_NEG_ORIENTATION;
 	  }
 	} // Otherwise, we'll want to keep the original orientations.
-	  
+
 	pd_multidx_t *orientation_idx;
 	pd_idx_t*    *comp_orientations;
 	pd_idx_t      one = 1, two = 2;
@@ -409,7 +409,7 @@ int main(int argc,char *argv[]) {
 		}
 	      }
 
-	    } else { /* We're only doing one orientation; if we've 
+	    } else { /* We're only doing one orientation; if we've
 			GOT orientations, keep them. */
 
 	      for(i=0;i<working_pd->ncross;i++) {
@@ -417,7 +417,7 @@ int main(int argc,char *argv[]) {
 		  working_pd->cross[i].sign = PD_POS_ORIENTATION;
 		}
 	      }
-	      
+
 	    }
 
 	    fprintf(out,"# %d crossing pd with UID %lu, crossings ",
@@ -497,7 +497,7 @@ int main(int argc,char *argv[]) {
   }
 
   if(simplify->count != 0) {
-    Py_Finalize();
+      //Py_Finalize();
   }
 
   printf("done\n");
