@@ -48,8 +48,8 @@
 #endif
 
 #include"plcTopology.h"
-#include<pd_multidx.h>
-#include<pd_orientation.h>
+#include"pd_multidx.h"
+#include"pd_orientation.h"
 
 pd_iterops_t orientation_ops = {pd_new_orientation,pd_free_orientation,
 				pd_print_orientation,pd_copy_orientation,

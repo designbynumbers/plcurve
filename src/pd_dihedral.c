@@ -47,8 +47,8 @@
 #endif
 
 #include"plcTopology.h"
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
 
 pd_iterops_t dihedral_ops = {pd_new_dihedral,pd_free_dihedral,
 			     pd_print_dihedral,pd_copy_dihedral,

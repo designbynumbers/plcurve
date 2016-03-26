@@ -53,14 +53,14 @@
 //#include<libcassie/cassie.h>
 //#include"/usr/local/include/thrift/Thrift.h"
 //#include<python2.7/Python.h>
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
-#include<pd_perm.h>
-#include<pd_orientation.h>
-#include<pd_isomorphisms.h>
-#include<pd_sortedbuf.h>
-#include<pd_deletions.h>
-#include<pd_splitdiagram.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
+#include"pd_perm.h"
+#include"pd_orientation.h"
+#include"pd_isomorphisms.h"
+#include"pd_sortedbuf.h"
+#include"pd_deletions.h"
+#include"pd_splitdiagram.h"
 
 void pd_compacting_copy(void *source, size_t obj_size, size_t nobj,
 			pd_idx_t ndeletions, pd_idx_t *deletions,

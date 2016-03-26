@@ -15,9 +15,7 @@ from   pprint import pprint
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='scan for header files included with <header.h> instead of \"header.h\" ')
-    parser.add_argument(
-        "--dryrun",   
-        help='print out a list of changes which would be made but don\'t change any files ',action="store_true")
+    parser.add_argument("-d","--dryrun",help="print out a list of changes which would be made but don\'t change any files",action="store_true")
 
     args = parser.parse_args()
 
@@ -33,22 +31,42 @@ if __name__ == "__main__":
     print "headerscan: Scanning over files in ./src.\n"
 
     p = re.compile('#include<(?P<headerfile>\S+)>(?P<endmatter>.*)')
+    oldsrcfile = None
     
-    for line in fileinput.input(glob.glob("pdcode.c"),inPlace=True,backup='.backup'):
+    for line in fileinput.input(glob.glob("*.c"),
+                                inplace=(args.dryrun != None),backup='.backup'):
 
+        if fileinput.filename() != oldsrcfile:
+            oldsrcfile = fileinput.filename()
+            sys.stderr.write("".join(["In file ",fileinput.filename()]))
+                             
         m = p.match(line)
         if m:
             
             if (m.group('headerfile') in localheaders):
 
-                lst = ['#include"',m.group('headerfile'),'"',m.group('endmatter')]                  if args.dryrun:
-                    print "would replace ", line.rstrip(), "with ","".join(lst)
+                lst = ['#include"',m.group('headerfile'),'"',m.group('endmatter'),"\n"]
+
+                if args.dryrun:
+                    sys.stderr.write("".join(["\twould replace ", line.rstrip(), " with ","".join(lst),"\n"]))
                     sys.stdout.write(line)
-                else
+                else:
+                    sys.stderr.write("".join(["\treplaced ",line.rstrip()," with ","".join(lst),"\n"]))
                     sys.stdout.write("".join(lst))
 
-        else:
+            else:
+                sys.stdout.write(line)
 
+        else:
             sys.stdout.write(line)
 
     
+    print "\n\nheaderscan: diffing everything to show you the changes"
+    print "------------------------------------------------------"
+
+    for srcfile in glob.glob("*.c"):
+
+        print("In file ",srcfile," ")
+        subprocess.call(['diff',srcfile,"".join([srcfile,".backup"])])
+
+     

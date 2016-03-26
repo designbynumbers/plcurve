@@ -39,13 +39,13 @@
 #include"plcTopology.h"
 #include"pd_container.h"
 
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
-#include<pd_perm.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
+#include"pd_perm.h"
   
-#include<pd_isomorphisms.h>
-#include<pd_storage.h>
-#include<pd_pack.h>
+#include"pd_isomorphisms.h"
+#include"pd_storage.h"
+#include"pd_pack.h"
 
 /* We now define a compressed version of pd codes for storage. The
    basic idea is that we'll need space for a string of n

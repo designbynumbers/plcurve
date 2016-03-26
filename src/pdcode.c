@@ -55,13 +55,13 @@ int PD_VERBOSE;
 //#include<libcassie/cassie.h>
 //#include"/usr/local/include/thrift/Thrift.h"
 //#include<python2.7/Python.h>
-#include<pd_multidx.h>
-#include<pd_dihedral.h>  // a test comment on an include
-#include<pd_cyclic.h>
-#include<pd_perm.h>
-#include<pd_orientation.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"  // a test comment on an include
+#include"pd_cyclic.h"
+#include"pd_perm.h"
+#include"pd_orientation.h"
 
-#include<pd_isomorphisms.h>
+#include"pd_isomorphisms.h"
 
 pd_code_t *pd_code_new(pd_idx_t mv) {
 

@@ -53,13 +53,13 @@
 //#include<libcassie/cassie.h>
 //#include"/usr/local/include/thrift/Thrift.h"
 //#include<python2.7/Python.h>
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
-#include<pd_perm.h>
-#include<pd_orientation.h>
-#include<pd_isomorphisms.h>
-#include<pd_sortedbuf.h>
-#include<pd_splitdiagram.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
+#include"pd_perm.h"
+#include"pd_orientation.h"
+#include"pd_isomorphisms.h"
+#include"pd_sortedbuf.h"
+#include"pd_splitdiagram.h"
 
 void pdint_split_worker(pd_code_t *pd,pd_idx_t *ncodes,
 			pd_idx_t *edge_code,pd_idx_t edge)

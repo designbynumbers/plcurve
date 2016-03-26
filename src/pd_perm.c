@@ -47,9 +47,9 @@
 #endif
 
 #include"plcTopology.h"
-#include<pd_multidx.h>
-#include<pd_perm.h>
-#include<pd_permdata.h> /* Precomputed permutation data */
+#include"pd_multidx.h"
+#include"pd_perm.h"
+#include"pd_permdata.h" /* Precomputed permutation data */
 
 pd_iterops_t perm_ops = {pd_new_perm,pd_free_perm,
 			 pd_print_perm,pd_copy_perm,

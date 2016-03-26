@@ -47,8 +47,8 @@
 #endif
 
 #include"plcTopology.h"
-#include<pd_multidx.h>
-#include<pd_cyclic.h>
+#include"pd_multidx.h"
+#include"pd_cyclic.h"
 
 pd_iterops_t cyclic_ops = {pd_new_cyclic,pd_free_cyclic,
 			   pd_print_cyclic,pd_copy_cyclic,

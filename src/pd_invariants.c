@@ -41,13 +41,13 @@
 #include"plcTopology.h"
 #include"pd_container.h"
 
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
-#include<pd_perm.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
+#include"pd_perm.h"
   
-#include<pd_isomorphisms.h>
-#include<pd_storage.h>
-#include<pd_invariants.h>
+#include"pd_isomorphisms.h"
+#include"pd_storage.h"
+#include"pd_invariants.h"
 
 int int_cmp (const void *a, const void *b)
 {

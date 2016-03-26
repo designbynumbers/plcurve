@@ -42,11 +42,11 @@
 
 #include"plcTopology.h"
 
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
-#include<pd_perm.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
+#include"pd_perm.h"
   
-#include<pd_isomorphisms.h>
+#include"pd_isomorphisms.h"
 
 pd_code_t *pd_build_twist_knot(pd_idx_t n) 
 

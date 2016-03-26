@@ -56,12 +56,12 @@
 #include"plcTopology.h"
 #include"pd_container.h"
 
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
-#include<pd_cyclic.h>
-#include<pd_perm.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
+#include"pd_cyclic.h"
+#include"pd_perm.h"
 
-#include<pd_isomorphisms.h>
+#include"pd_isomorphisms.h"
 
 bool pd_compgrp_ok(pd_code_t *pd,pd_compgrp_t *cgrp)
 

@@ -52,12 +52,12 @@
 //#include<libcassie/cassie.h>
 //#include"/usr/local/include/thrift/Thrift.h"
 //#include<python2.7/Python.h>
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
-#include<pd_perm.h>
-#include<pd_orientation.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
+#include"pd_perm.h"
+#include"pd_orientation.h"
 
-#include<pd_isomorphisms.h>
+#include"pd_isomorphisms.h"
 
 /* There are some unexposed primitives here which are going to
    be useful in all of the simplifying operations: */

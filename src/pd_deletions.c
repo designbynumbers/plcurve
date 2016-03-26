@@ -52,13 +52,13 @@
 //#include<libcassie/cassie.h>
 //#include"/usr/local/include/thrift/Thrift.h"
 //#include<python2.7/Python.h>
-#include<pd_multidx.h>
-#include<pd_dihedral.h>
-#include<pd_perm.h>
-#include<pd_orientation.h>
-#include<pd_isomorphisms.h>
-#include<pd_sortedbuf.h>
-#include<pd_deletions.h>
+#include"pd_multidx.h"
+#include"pd_dihedral.h"
+#include"pd_perm.h"
+#include"pd_orientation.h"
+#include"pd_isomorphisms.h"
+#include"pd_sortedbuf.h"
+#include"pd_deletions.h"
 
 bool pd_edge_deleted(pd_code_t *pd, pd_idx_t edge)
 /* Returns true if edge has been deleted (by calling edge_delete) */

@@ -6,7 +6,7 @@
 ***************/
 
 #include"plcTopology.h"
-#include<polynomials.h>
+#include"polynomials.h"
 
 void homfly_polynomial_free(homfly_polynomial_t **homfly)
 {

@@ -28,7 +28,7 @@
   #include<stdbool.h>
 #endif
 
-#include<ordie.h>
+#include"ordie.h"
 #include"pd_container.h"
 
 pd_container_t *pd_new_container(pd_contidx_t initsize)

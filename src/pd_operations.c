@@ -47,9 +47,9 @@
 #endif
 
 #include"plcTopology.h"
-#include<pd_multidx.h>
-#include<pd_perm.h>
-#include<pd_isomorphisms.h>
+#include"pd_multidx.h"
+#include"pd_perm.h"
+#include"pd_isomorphisms.h"
 
 
 void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp,pd_or_t or) 
