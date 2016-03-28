@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include <config.h>
-#include <plCurve.h>
+#include"plCurve.h"
 
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
@@ -894,7 +894,7 @@ plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
 
 
 plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
-/* Uses the CSU algorithm to generate a random equilateral closed polygon. */
+/* Uses the CDSU algorithm to generate a random equilateral closed polygon. */
 {
   double *s;
   double *d = malloc((n-1)*sizeof(double));

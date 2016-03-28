@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     print "headerscan: Scanning over files in ./src.\n"
 
-    p = re.compile('#include<(?P<headerfile>\S+)>(?P<endmatter>.*)')
+    p = re.compile('\s*#include\s*<(?P<headerfile>\S+)>(?P<endmatter>.*)')
     oldsrcfile = None
     
     for line in fileinput.input(glob.glob("*.c"),

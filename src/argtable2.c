@@ -36,7 +36,7 @@ USA.
 #endif
 
 #ifdef HAVE_GETOPT_H
-#include <getopt.h>
+#include"getopt.h"
 #else
 #include "./getopt.h"
 #endif

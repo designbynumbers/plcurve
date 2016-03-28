@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_STDARG_H
 #include <stdarg.h>
 #endif
-#include <plCurve.h>
+#include"plCurve.h"
 #include "octrope.h"
 #if SIZEOF_INT < 4
 #include "octcnv2.h"

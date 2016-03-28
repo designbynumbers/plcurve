@@ -8,7 +8,7 @@
  */
 
 #include <config.h>
-#include <plCurve.h>
+#include"plCurve.h"
 
 #ifdef HAVE_STDIO_H
   #include <stdio.h>
@@ -31,7 +31,7 @@
 #ifdef HAVE_MALLOC_H
   #include <malloc.h>
 #endif
-#include <argtable2.h>
+#include"argtable2.h"
 
 
 int main(int argc, char *argv[]) {

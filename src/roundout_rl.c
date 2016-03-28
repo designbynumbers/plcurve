@@ -58,10 +58,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <string.h>
 #endif
 
-#include <octrope_internal.h>
-#include <octrope.h>
+#include"octrope_internal.h"
+#include"octrope.h"
 
-#include <argtable2.h>
+#include"argtable2.h"
 
 #define PI 3.141592653589793238462643383279502884197169399375
 

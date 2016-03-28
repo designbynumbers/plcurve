@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
   
 #include <config.h>
-#include <nplCurve.h>
+#include"nplCurve.h"
   
 #ifdef HAVE_MATH_H
 #include <math.h>

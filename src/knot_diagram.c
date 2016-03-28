@@ -1,5 +1,5 @@
 #include <config.h>
-#include <plCurve.h>
+#include"plCurve.h"
 
 #ifdef HAVE_STDIO_H
   #include <stdio.h>
@@ -29,7 +29,7 @@
   #include <time.h>
 #endif
 #ifdef HAVE_ARGTABLE2_H
-  #include <argtable2.h>
+#include"argtable2.h"
 #endif
 
 /* Remove a vertex from a plCurve by breaking components into pieces */

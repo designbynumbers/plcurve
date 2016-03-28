@@ -6,7 +6,7 @@
 */
 
 #include <config.h>
-#include <plCurve.h>
+#include"plCurve.h"
 
 #ifdef HAVE_STDIO_H
 #include <stdio.h>

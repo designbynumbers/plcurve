@@ -24,10 +24,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include <config.h>
-#include <plCurve.h>
-#include <plcTopology.h>
-#include <homfly.h>
-#include <octrope.h>
+#include"plCurve.h"
+#include"plcTopology.h"
+#include"homfly.h"
+#include"octrope.h"
 
 
 #ifdef HAVE_STDIO_H

@@ -15,7 +15,7 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
-#include <argtable2.h>
+#include"argtable2.h"
 #include <assert.h>
 #include "tsmcmc.h"
 #include <string.h>

@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_FLOAT_H
 #include <float.h>
 #endif
-#include <plCurve.h>
+#include"plCurve.h"
 #include "octrope.h"
 
 #define mr_up_bound ((cutoff > 0) ? cutoff : mr + epsilon)

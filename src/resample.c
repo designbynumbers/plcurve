@@ -7,11 +7,11 @@
  *
  */
 
-#include <plCurve.h>
+#include"plCurve.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <argtable2.h>
+#include"argtable2.h"
 #include <assert.h>
 
 int main(int argc, char *argv[]) {
