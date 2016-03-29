@@ -218,6 +218,9 @@ cdef extern from "plcTopology.h":
 
     pd_code_t *pd_R3_triangle_flip(pd_code_t *pd, pd_idx_t f)
 
+    pd_code_t *pd_connect_sum(pd_code_t *pdA, pd_idx_t edgeA,
+                              pd_code_t *pdB, pd_idx_t edgeB)
+
     void pd_tangle_slide(pd_code_t *pd, pd_tangle_t *tangle,
                          pd_idx_t strand_n_edges,
                          pd_idx_t *strand_edges,

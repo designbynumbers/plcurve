@@ -768,6 +768,15 @@ cdef class PlanarDiagram:
     def R3_triangle_flip(self, pd_idx_t f):
         return PlanarDiagram_wrap(pd_R3_triangle_flip(self.p, f))
 
+    def connect_sum(self, Edge edge, PlanarDiagram other_pd, Edge other_edge):
+        """
+        connect_sum(Edge edge, PlanarDiagram other_pd, Edge other_edge) -> PlanarDiagram
+        
+        This function gives the connect sum of two PlanarDiagram objects at two different edges.
+        """
+        cdef pd_code_t* new_pd_p = pd_connect_sum(self.p, edge.index, other_pd.p, other_edge.index)
+        return PlanarDiagram_wrap(new_pd_p)
+
     def _R3_strand_swap(self, Face f, Edge e):
         # Stub for wrapping C implementation of tangle slide
         cdef pd_idx_t *strand_edges = <pd_idx_t*>malloc(3 * sizeof(pd_idx_t))
