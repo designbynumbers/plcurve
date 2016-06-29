@@ -9,7 +9,7 @@ of polygonal curves.
 Installation
 ============
 
-On Mac OS X
+On Mac OS X 
 -----------
 
 1. Install the XCode command line tools: `xcode-select --install`
@@ -17,7 +17,7 @@ On Mac OS X
 3. Install gsl: `brew install gsl`
 4. Install pip Python package manager: https://pip.pypa.io/en/stable/installing/
 5. Install numpy: `sudo pip install numpy`
-6. Run configure: `./configure`
+6. Run configure: `./configure LDFLAGS="-L/usr/local/lib" CPPFLAGS="-I/usr/local/include`
 7. Make: `make`
 8. Run the C tests: `make check`
 9. Install: `make install` or possibly `sudo make install`
