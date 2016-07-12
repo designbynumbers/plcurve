@@ -529,7 +529,20 @@ The most important question, of course, is how the computation was checked. Our 
 
 We were also able to check against some existing enumerations. K\'apolnai et al.\ classified spherical ``multiquadrangulations''~\cite{Kapolnai:2012hs}, which are the duals of our diagrams as explained in Section~\ref{subsec:connect sum}. Their table 2 of the count of multiquadrangulations matches our count of diagrams exactly through $8$ crossings (note that the quadrangulation has two more vertices than the dual knot diagram has crossings, so their data is shifted by two). It's worth observing that these authors also use \emph{plantri}, so their results are not completely independent from ours. Still, it provides some comfort to see that their implementation on top of \plantri produces the same results as ours. For knot shadows in particular, Arnol'd has given counts of the number of immersions of the unoriented circle into the unoriented sphere with $n$ crossings for $n$ from $0$ to $5$~\cite[page 79]{Arnold:1994wr}. This is sequence A008989 in the Online Encyclopedia of Integer Sequences, with an extension to $n=7$ credited to Guy H.\ Valette. We could not find a published reference for Vallette's extension of the table, but our data for knots does match A008989 including the extension.  Coquereaux et al.~\cite{Coquereaux:2015wv} have recently extended Valette's count using other means (their count is independent of \emph{plantri}) and our numbers also match those in that paper.
 
-Looking at Table~\ref{tab:counts}, one is struck by how close the number of distinct knot diagrams is to the maximum number $2^{\Cr+1} \times (\# \text{ knot shadows})$. To take 8 crossing diagrams as an example, we would expect at most $\num{7482368} =\num{14614} \times 2^9$, and we have $\num{6967942}$-- about $93\%$ of the maximum possible number. By the time we reach 10 crossing diagrams, the corresponding fraction is roughly $98.6\%$. We have fewer distinct diagrams only because some of the underlying knot diagrams have symmetries. For instance, the trefoil diagram $\tref$ has a 3-fold rotational symmetry, so the crossing sign assignments $+--$, $-+-$ and $--+$ are all the same. However, our computations reveal that such symmetries quickly become very rare as the number of crossings increases. Table~\ref{tab:automorphisms} shows the mean number of automorphisms of a knot shadow, which rapidly decreases to 1 (the identity map), as is known for sufficiently large numbers of crossings~\cite{Chapman2015knotasymp}.
+Looking at Table~\ref{tab:counts}, one is struck by how close the number of
+distinct knot diagrams is to the maximum number $2^{\Cr+1} \times (\# \text{
+  knot shadows})$. To take 8 crossing diagrams as an example, we would expect at
+most $\num{7482368} =\num{14614} \times 2^9$, and we have $\num{6967942}$--
+about $93\%$ of the maximum possible number. By the time we reach 10 crossing
+diagrams, the corresponding fraction is roughly $98.6\%$. We have fewer distinct
+diagrams only because some of the underlying knot diagrams have symmetries. For
+instance, the trefoil diagram $\tref$ has a 3-fold rotational symmetry, so the
+crossing sign assignments $+--$, $-+-$ and $--+$ are all the same. However, our
+computations reveal that such symmetries quickly become very rare as the number
+of crossings increases. Table~\ref{tab:automorphisms} shows the mean number of
+automorphisms of a knot shadow, which rapidly decreases exponentially to 1 (the
+identity map), as is known for sufficiently large numbers of
+crossings~\cite{Chapman2015knotasymp}.
 
 \begin{table}[H]
 \begin{ruledtabular}
