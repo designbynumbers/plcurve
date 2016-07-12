@@ -158,7 +158,7 @@ We consider a natural model of random knotting-- choose a knot diagram at random
 
 \section{Introduction}
 
-The study of random knots goes back to the 1960's, when polymer physicists realized that the knot type of a closed (or ring) polymer would play an important role in the statistical mechanics of the polymer~\cite{Edwards:1967hd}. Orlandini and Whittington~\cite{Orlandini:2007kn} give a comprehensive survey of the development of the field in the subsequent years. Most random knot models are based on closed random walks, and there are many variants corresponding to different types of walks (lattice walks, random walks with fixed edgelengths, random walks with variable edgelengths, random walks with different types of geometric constraints such as fixed turning angles). For almost all of these models, certain phenomena have been rigorously established-- for instance, the probability of knotting goes to 1 exponentially fast as the size of the walk increases\cite{Pippenger:1989ft,Sumners:1999cd,Diao:2001db}. However, it has been difficult to prove more informative theorems.
+The study of random knots goes back to the 1960's, when polymer physicists realized that the knot type of a closed (or ring) polymer would play an important role in the statistical mechanics of the polymer~\cite{Edwards:1967hd}. Orlandini and Whittington~\cite{Orlandini:2007kn} give a comprehensive survey of the development of the field in the subsequent years. Most random knot models are based on closed random walks, and there are many variants corresponding to different types of walks (lattice walks, random walks with fixed edgelengths, random walks with variable edgelengths, random walks with different types of geometric constraints such as fixed turning angles). For almost all of these models, certain phenomena have been rigorously established-- for instance, the probability of knotting goes to 1 exponentially fast as the size of the walk increases\cite{Pippenger:1989ft,Soteros:1992PSP,Diao:1993JKTR,Diao:1995iw,Sumners:1999cd,Diao:2001db}. However, it has been difficult to prove more informative theorems.
 
 One way to look at the problem is these knot models are all models of random space curves, and it is quite hard to relate the three-dimensional shape of a space curve to its knot type. One can in principle express the finite-type invariants as (complicated) integrals in the spirit of \cite{Lin:1994wq}, but so far computing the expected value of these integrals has been too difficult.
 
@@ -168,7 +168,15 @@ Previous authors~\cite{Diao:2005tp} have sampled a slightly different version of
 
 This paper is primarily computational. While we give a proof that our algorithm for enumerating diagrams is correct, our main contribution is the data set of diagrams itself. To generate the diagrams, we first enumerated the unoriented immersions of $S^1$ into $S^2$ in two different ways, as described below. We call these immersions knot shadows\footnote{Kauffman~\cite{Kauffman:1988td} calls these knot \emph{universes}.}.  The sets of shadows generated in each way were identical, and we checked the number of shadows against counts by Arnol'd for $n \leq 5$~\cite[page 79]{Arnold:1994wr}, sequence A008989 in the Online Encyclopedia of Integer Sequences~\cite{oeis}, and later enumerations of Kapoln\'ai et al.~\cite{Kapolnai:2012hs} and Coqueraux et al.~\cite{Coquereaux:2015wv}. We then enumerate assignments of crossing information and orientation for each shadow up to diffeomorphisms of $S^2$ preserving the orientation of the curve. (This is more complicated than it first seems; if the diagram has a symmetry, not all assignments of crossing information are different.) Finally, we compute the knot type for each assignment of crossing and orientation. These computations are new and fairly substantial. Enumerating the 1.6 billion 10-crossing knot diagrams and computing their HOMFLY-PT polynomial took several thousand hours of CPU time on the Amazon EC2 cloud computing service.
 
-Figure~\ref{fig:knot frequency loglog} shows the relative frequency of all the knot types we observed, sorted by rank order among knots. When plotted on a log-log plot, we see that the plot is roughly linear across 9 orders of magnitude-- giving some evidence for a roughly Zipfian distribution of knot types. In such a distribution, the $k$-th most frequent knot type would have a probability proportional to $k^{-s}$ for some $s$. It would be very interesting to know what happens for large $n$.
+Figure~\ref{fig:knot frequency loglog} shows the relative frequency of all the
+knot types we observed, sorted by rank order among knots. When plotted on a
+log-log plot, we see that the plot is roughly linear across 9 orders of
+magnitude-- giving some evidence for a roughly Zipfian distribution of knot
+types. In such a distribution, the $k$-th most frequent knot type would have a
+probability proportional to $k^{-s}$ for some $s$. It would be very interesting
+to know what happens for large $n$. This distribution has been previously
+observed for knotting in self-avoiding polygon models by Baiesi, et
+al.~\cite{Orlandini:2007PRL}.
 
 How many of these diagrams represent nontrivial knots? Relatively few. Even for 10-crossing diagrams, the proportion of unknots is about $77\%$. For these crossing numbers, this is largely explained by the surprising frequency of ``tree-like'' knot shadows, studied by Aicardi~\cite{Aicardi:1994uq}, (Figure~\ref{fig:proportiongraphic}) for which the knot type does not depend on the assignment of crossing information-- the resulting knot is \emph{always} the unknot. These diagrams are surprisingly common: $42.05\%$ of 8-crossing diagrams are treelike, which explains about half of the unknots among 8-crossing diagrams ($84\%$ of 8-crossing diagrams are unknots). The remaining unknots are almost all connect sums of treelike diagrams with the unique prime 3- or 4-crossing shadow. We will show that a simple analysis (Proposition~\ref{prop:almost treelike mostly unknots}) based on such diagrams gives a lower bound of $77\%$ for the unknot fraction in 8-crossing diagrams, explaining more than $90\%$ of all unknots in this class.
 
@@ -978,7 +986,15 @@ $\num{17441}$
 \end{table}
 
 
-More interestingly, the log-log plot of ranked knot frequencies for the 622 different possible knot types for 10 crossing diagrams is roughly linear over 9 orders of magnitude in frequency (there are about $1.6 \times 10^9$ diagrams, with the most frequent knot type (the unknot) occurring $1.2 \times 10^9$ times and the least frequent knot types (a 98-way tie among various 10-crossing knots) appearing exactly once. It is not clear to us why this phenomenon should occur in the data: this data is certainly compatible with the hypothesis that there is an (asymptotic) power-law relationship between knot rank and knot probability akin to Zipf's law, but it would take much larger experiments to provide strong statistical support for such a conjecture.
+More interestingly, the log-log plot of ranked knot frequencies for the 622
+different possible knot types for 10 crossing diagrams is roughly linear over 9
+orders of magnitude in frequency (there are about $1.6 \times 10^9$ diagrams,
+with the most frequent knot type (the unknot) occurring $1.2 \times 10^9$ times
+and the least frequent knot types (a 98-way tie among various 10-crossing knots)
+appearing exactly once. It is not clear to us why this phenomenon should occur
+in the data: this data is certainly compatible with the hypothesis that there is
+an (asymptotic) power-law relationship between knot rank and knot probability
+akin to Zipf's law (cf.~\cite{Orlandini:2007PRL}), but it would take much larger experiments to provide strong statistical support for such a conjecture.
 
 \begin{figure}[H]
 \hfill
