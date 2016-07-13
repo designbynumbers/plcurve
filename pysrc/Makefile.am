@@ -32,6 +32,7 @@ PXD_FILES = \
 	libpl/pdcode/diagram.pxd \
 	libpl/pdcode/components.pxd \
 	libpl/pdcode/homfly.pxd \
+	libpl/pdcode/isomorphism.pxd \
 	libpl/pdcode/plctopology.pxd \
 	libpl/pdcode/pdisomorphism.pxd
 
