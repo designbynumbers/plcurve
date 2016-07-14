@@ -41,6 +41,7 @@ SETUP_PY = $(srcdir)/setup.py
 
 EXTRA_DIST = \
 	$(SETUP_PY) tests $(CPY_FILES) $(CY_FILES) $(CY_H_FILES) \
+	libpl/data \
 	doc/conf.py \
 	doc/index.rst \
 	doc/libpl \
