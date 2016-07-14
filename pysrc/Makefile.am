@@ -5,7 +5,8 @@ PY_FILES = \
 	libpl/__init__.py \
 	libpl/data.py \
 	libpl/graphs.py \
-	libpl/pdcode/__init__.py
+	libpl/pdcode/__init__.py \
+	libpl/pdcode/plcTopology_pb2.py
 
 PYX_FILES = \
 	libpl/plcurve.pyx \
@@ -29,12 +30,16 @@ PXD_FILES = \
 	libpl/tsmcmc.pxd \
 	libpl/gsl_rng.pxd \
 	libpl/pdcode/__init__.pxd \
-	libpl/pdcode/diagram.pxd \
 	libpl/pdcode/components.pxd \
+	libpl/pdcode/diagram.pxd \
 	libpl/pdcode/homfly.pxd \
 	libpl/pdcode/isomorphism.pxd \
-	libpl/pdcode/plctopology.pxd \
-	libpl/pdcode/pdisomorphism.pxd
+	libpl/pdcode/pdisomorphism.pxd \
+	libpl/pdcode/pd_invariants.pxd \
+	libpl/pdcode/pd_storage.pxd \
+	libpl/pdcode/pdstor.pxd \
+	libpl/pdcode/planarmap.pxd \
+	libpl/pdcode/plctopology.pxd
 
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py

@@ -1,7 +1,6 @@
 from libpl.pdcode import PlanarDiagram, HOMFLYPolynomial
 from test_pdcode import PlanarDiagramAssertMixin
 import unittest
-from plink import *
 from suite import ROOT_DIR
 
 class TestPDCodeFromPlink(PlanarDiagramAssertMixin, unittest.TestCase):
@@ -16,7 +15,10 @@ class TestPDCodeFromPlink(PlanarDiagramAssertMixin, unittest.TestCase):
         return PlanarDiagram.from_plink(manager)
 
     def setUp(self):
-        pass
+        try:
+            from plink import *
+        except ImportError:
+            self.skipTest("pLink is required for TestPDCodeFromPlink")
 
     @unittest.skip("Requires the ability to make a TK window")
     def test_plink_LinkManager(self):
