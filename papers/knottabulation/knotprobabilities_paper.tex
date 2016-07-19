@@ -548,9 +548,7 @@ instance, the trefoil diagram $\tref$ has a 3-fold rotational symmetry, so the
 crossing sign assignments $+--$, $-+-$ and $--+$ are all the same. However, our
 computations reveal that such symmetries quickly become very rare as the number
 of crossings increases. Table~\ref{tab:automorphisms} shows the mean number of
-automorphisms of a knot shadow, which rapidly decreases exponentially to 1 (the
-identity map), as is known for sufficiently large numbers of
-crossings~\cite{Chapman2015knotasymp}.
+automorphisms of a knot shadow. One of us (Chapman) has proved that the number of these automorphisms decreases exponentially to 1 as the number of crossings becomes large, see~\cite{Chapman2015knotasymp}.
 
 \begin{table}[H]
 \begin{ruledtabular}
@@ -637,24 +635,6 @@ $\num{8450}$ &
 $\num{165791}$ &
 $\num{3175612}$ &
 $\num{60146706}$\\
-$5_{1}^{}$ &
--- &
--- &
-$\num{1}$ &
-$\num{6}$ &
-$\num{213}$ &
-$\num{5819}$ &
-$\num{142614}$ &
-$\num{3252078}$\\
-$5_{1}^{m}$ &
--- &
--- &
-$\num{1}$ &
-$\num{6}$ &
-$\num{213}$ &
-$\num{5819}$ &
-$\num{142614}$ &
-$\num{3252078}$\\
 $5_{2}^{}$ &
 -- &
 -- &
@@ -673,6 +653,24 @@ $\num{730}$ &
 $\num{18075}$ &
 $\num{415290}$ &
 $\num{9025926}$\\
+$5_{1}^{}$ &
+-- &
+-- &
+$\num{1}$ &
+$\num{6}$ &
+$\num{213}$ &
+$\num{5819}$ &
+$\num{142614}$ &
+$\num{3252078}$\\
+$5_{1}^{m}$ &
+-- &
+-- &
+$\num{1}$ &
+$\num{6}$ &
+$\num{213}$ &
+$\num{5819}$ &
+$\num{142614}$ &
+$\num{3252078}$\\
 $3_{1}^{}\#3_{1}^{m}$ &
 -- &
 -- &
@@ -985,7 +983,6 @@ $\num{17441}$
 \label{tab:knot frequency raw data}
 \end{table}
 
-
 More interestingly, the log-log plot of ranked knot frequencies for the 622
 different possible knot types for 10 crossing diagrams is roughly linear over 9
 orders of magnitude in frequency (there are about $1.6 \times 10^9$ diagrams,
@@ -993,8 +990,8 @@ with the most frequent knot type (the unknot) occurring $1.2 \times 10^9$ times
 and the least frequent knot types (a 98-way tie among various 10-crossing knots)
 appearing exactly once. This is consistent with a power law: the probability of 
 the $n$-th most probable knot divided by the probability of the unknot should be 
-approximated by $n^{-r}. This phenomenon was first observed in numerical simulations of random knots modeled as collapsed self-avoiding lattice polygons by Baiesi, Orlandini, and Stella~\cite{Orlandini:2007PRL}, and has also been observed in 
-samples of equilateral polygons by Cantarella and Shonkwiler~\cite{CS }. This type of relationship was first observed by Zipf in linguistic data~\cite{}. In our data, there is no sampling cutoff since we can classify every one of the diagrams, and the frequencies remain approximately linear throughout the entire dataset-- we do not see the downward trend for very infrequently observed knots found in~\cite{Orlandini:2007PRL}.  
+approximated by $n^{-r}$. This phenomenon was first observed in numerical simulations of random knots modeled as collapsed self-avoiding lattice polygons by Baiesi, Orlandini, and Stella~\cite{Orlandini:2007PRL}, and has also been observed in 
+samples of equilateral polygons by Cantarella and Shonkwiler~\cite{Cantarella:2016bt}. This type of relationship was first observed by Zipf in linguistic data~\cite{zipf1949human}. In our data, there is no sampling cutoff since we can classify every one of the diagrams, and the frequencies remain approximately linear throughout the entire dataset-- we do not see the downward trend for very infrequently observed knots found in~\cite{Orlandini:2007PRL}.  
 
 \begin{figure}[H]
 \hfill
@@ -1041,6 +1038,8 @@ $\Cr$ & Unknots & (decimal) \\ \hline
 \caption{A log-log plot of knot frequencies in rank order for crossing numbers 3 through 10, with the 10 most common knot types identified. These knot types have the same rank ordering in all the crossing numbers computed. The data show some evidence of power-law behavior. At right, we see the unknot fraction in table form.}
 \label{fig:knot frequency loglog}
 \end{figure}
+
+\end{document}
 
 At right in Figure~\ref{fig:knot frequency loglog} we give the unknot fraction explicitly in tabular form. We now try to understand this fraction. Of course, for any shadow we can set the crossings to produce an unknot by going ``downhill'' from some distinguished edge, but this effect can only account for a tiny fraction of the unknots-- there are at most $n$ ways to assign crossings in this manner but there are $~2^n$ different crossing assignments overall. It turns out, however, that structural properties of the set of shadows explain most of the unknot fraction. To see how, we start with Figure~\ref{fig:knot grid}, which shows the first 42 shadows obtained in the enumeration.
 
@@ -1145,7 +1144,7 @@ More sophisticated counting procedures have been applied in recent years, partic
 Schaeffer~\cite{Schaeffer:1997wo} (see also~\cite{Bouttier:2002iu}) constructed a very insightful bijection between link shadows with a distinguished, directed edge (``rooted link shadows'') and a class of decorated trees called ``blossom trees''. One of us (Chapman), uses this identification to analyze the asymptotic behavior of our model in further work~\cite{Chapman2015knotasymp}, proving that most diagrams are heavily composite and hence represent nontrivial knots.
 
 \acknowledgments
-The authors are incredibly grateful to Eric Rawdon, who graciously checked our computations of knot types for the various diagrams using his own knot classification code. We also would like to acknowledge the hospitality of the Issac Newton Institute, where much of the original code for this project was written, the support of the Simons Foundation (\#284066, Jason Cantarella), and the support of Amazon Web Services under the AWS Educate program. We would also like to acknowledge many helpful conversations with our friends and colleagues, including Clayton Shonkwiler, Ken Millett, Chris Soteros, Stu Whittington, Gary Iliev, Tetsuo Deguchi, Rafa\l{} Komendarczyk, Andrew Rechnitzer, Julien Courtiel, Marni Mishna, and \'Eric Fusy.
+The authors are incredibly grateful to Eric Rawdon, who graciously checked our computations of knot types for the various diagrams using his own knot classification code. We also would like to acknowledge the hospitality of the Issac Newton Institute, where much of the original code for this project was written, the support of the Simons Foundation (\#284066, Jason Cantarella), and the support of Amazon Web Services under the AWS Educate program. We would also like to acknowledge many helpful conversations with our friends and colleagues, including Clayton Shonkwiler, Ken Millett, Jason Parsley, Chris Soteros, Stu Whittington, Gary Iliev, Tetsuo Deguchi, Rafa\l{} Komendarczyk, Andrew Rechnitzer, Julien Courtiel, Marni Mishna, and \'Eric Fusy.
 
 \appendix
 \section{pd-codes and isomorphisms}
