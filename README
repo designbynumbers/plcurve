@@ -17,15 +17,16 @@ On Mac OS X
 3. Install gsl: `brew install gsl`
 4. Install pip Python package manager: https://pip.pypa.io/en/stable/installing/
 5. Install numpy: `sudo pip install numpy`
-6. Run configure: `./configure LDFLAGS="-L/usr/local/lib" CPPFLAGS="-I/usr/local/include`
-7. Make: `make`
-8. Run the C tests: `make check`
-9. Install: `make install` or possibly `sudo make install`
+6. Install cython: `sudo pip install cython`
+7. Run configure: `./configure LDFLAGS="-L/usr/local/lib" CPPFLAGS="-I/usr/local/include"`
+8. Make: `make`
+9. Run the C tests: `make check`
+10. Install: `make install` or possibly `sudo make install`
 
 (Suggested): Install ipython: `sudo pip install ipython`
 Ipython is a more user-friendly Python console
 
-10. Build doc: `make html`
+11. Build doc: `make html`
 
 On Amazon Linux (such as AWS)
 ----------------------
