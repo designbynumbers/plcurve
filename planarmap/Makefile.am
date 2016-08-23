@@ -40,7 +40,6 @@ planarmap_SOURCES = PMdef.c \
 	PMplanmap.h \
 	interface.h \
 	stats.h \
-	planarmap.c \
-	planarmap.h
+	planarmap.c
 planarmap_CFLAGS = $(AM_CFLAGS) -W -Wall
 planarmap_LDADD = -lm
