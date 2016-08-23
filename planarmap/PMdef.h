@@ -76,6 +76,8 @@ typedef struct st /* data type for stack */
 /******************************/
 
 #define PM_MAP_TYPE_QUART_2C 4
+#define PM_MAP_TYPE_QUART_2C_2LEG 40
+
 #define PM_BASIC_TYPE_QUART_2C 4
 
 typedef struct pmsize /* Data type for map type and size */

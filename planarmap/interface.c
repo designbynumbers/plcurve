@@ -113,9 +113,10 @@ int pmParseArgs(int argc, char *argv[],
 	  exit(2);
 	}break;
       case 'Q': //4-regular maps
-	if (param == 1){ 
+	if (param == 1){
 	  printvf("# 2-edge-connected quartic maps\n");
-	  Size->m = 4; Size->b = 4;
+	  Size->m = PM_MAP_TYPE_QUART_2C;
+    Size->b = PM_BASIC_TYPE_QUART_2C;
 	}else if (param == 2){
 	  printvf("# 4-edge-connected quartic maps\n");
 	  Size->m = 5; Size->b = 5;
@@ -125,6 +126,10 @@ int pmParseArgs(int argc, char *argv[],
 	}else if (param == 4){
 	  printvf("# bi-quartic maps");
 	  Size->m = 9; Size->b = 9;
+  } else if (param == 5) {
+    printvf("# 2-edge-connected quartic 2-leg maps\n");
+    Size->m = PM_MAP_TYPE_QUART_2C_2LEG;
+    Size->b = PM_BASIC_TYPE_QUART_2C;
 	}else{
 	  fprintf(stderr,"unknown kind of quartic\n");
 	  exit(2);

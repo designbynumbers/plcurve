@@ -66,7 +66,8 @@ int pmSetParameters(pmSize *Size, pmMethod *Meth)
       fprintf(stderr,"vtx number must be even for bi-quartic\n");
       return(FALSE);
     }// no break here !
-  case 4:
+  case PM_MAP_TYPE_QUART_2C_2LEG:
+  case PM_MAP_TYPE_QUART_2C:
     if (Size->g || Size->r){
       fprintf(stderr,"color control only for 2-c or 3-c quartic\n");
       return(FALSE);
@@ -74,30 +75,55 @@ int pmSetParameters(pmSize *Size, pmMethod *Meth)
   case 5:
   case 6:
     if (Size->g && Size->r){
+      // Color control set; determine from here
       Size->f = Size->g + Size->r;
       Size->v = Size->f - 2;
       Size->e = 2 * Size->v;
-    }else if (Size->v){
-      Size->f = Size->v + 2;
-      Size->e = 2 * Size->v;
-    }else if (Size->e){
-      if (Size->e % 2 == 0){
-  Size->v = Size->e / 2;
-  Size->f = Size->v + 2;
-      }else{
-  fprintf(stderr,"nb edges must be even for quartic\n");
-  return(FALSE);
+    } else if (Size->v) {
+      // Number vertices set; determine from here
+      if (Size->m == PM_MAP_TYPE_QUART_2C_2LEG) {
+        // Number vertices actually *nonleg* vertices
+        Size->f = Size->v + 1;
+        Size->e = 2*Size->v + 1;
+      } else {
+        Size->f = Size->v + 2;
+        Size->e = 2*Size->v;
       }
-    }else if (Size->f){
-      Size->v = Size->f - 2;
-      Size->e = 2 * Size->v;
+    } else if (Size->e) {
+      // Number edges set; determine from here
+      if (Size->m == PM_MAP_TYPE_QUART_2C_2LEG) {
+        if (Size->e % 2 == 1){
+          Size->v = Size->e-1 / 2;
+          Size->f = Size->v + 1;
+        } else {
+          fprintf(stderr,"nb edges must be odd for 2leg quartic\n");
+          return(FALSE);
+        }
+      } else {
+        if (Size->e % 2 == 0){
+          Size->v = Size->e / 2;
+          Size->f = Size->v + 2;
+        }else{
+          fprintf(stderr,"nb edges must be even for quartic\n");
+          return(FALSE);
+        }
+      }
+    } else if (Size->f) {
+      if (Size->m == PM_MAP_TYPE_QUART_2C_2LEG) {
+        Size->v = Size->f - 1;
+        Size->e = 2*Size->v + 1;
+      } else {
+        Size->v = Size->f - 2;
+        Size->e = 2*Size->v;
+      }
     }
     if (Size->g) Size->r = Size->f - Size->g;
     if (Size->r) Size->g = Size->f - Size->r;
     if (Size->g < 0 || Size->r < 0){
       fprintf(stderr,"not enough faces for colors \n");
       return(FALSE);
-    }break;
+    }
+    break;
 
   case 10:                         // eulerian
     if (Size->g || Size->r){
@@ -160,13 +186,22 @@ int pmMemoryInit(pmSize *S, pmMethod *Meth, pmMemory *M)
     M->sLeaf = 2 * M->sTree + 2;     // nb leaf in stack for balance
     break;
 
+  case PM_MAP_TYPE_QUART_2C_2LEG:    // quartic
+    M->dTree = 2;                    // uses a binary tree T
+    M->sTree = S->v;                 // nb nodes in T
+    M->sWrd  = 2* M->sTree + 1;      // nb letters in word
+    M->sEdge = 4* M->sTree + 4;      // nb half edges used
+    M->sVtx  = 2* M->sTree + 5;      // nb vtx+faces
+    M->sLeaf = 2* M->sTree + 4;      // nb leaf in stack for balance
+    break;
+
   case PM_MAP_TYPE_QUART_2C:         // quartic
     M->dTree = 2;                    // uses a binary tree T
     M->sTree = S->v;                 // nb nodes in T
     M->sWrd  = 2* M->sTree + 1;      // nb letters in word
-    M->sEdge = 4* M->sTree + 2+2;      // nb half edges used
-    M->sVtx  = 2* M->sTree + 3+2;      // nb vtx+faces
-    M->sLeaf = 2* M->sTree + 2+2;      // nb leaf in stack for balance
+    M->sEdge = 4* M->sTree + 2;      // nb half edges used
+    M->sVtx  = 2* M->sTree + 3;      // nb vtx+faces
+    M->sLeaf = 2* M->sTree + 2;      // nb leaf in stack for balance
     break;
 
   case 5:                                 // quartic 2-c and 3-c
@@ -308,14 +343,19 @@ int pmTreeConjugation(pmSize *S, pmMemory *M,
     pmSpring5(Root); break;
   }
 
-  //Root = pmBalance(Root);           // the conjugation
+  if (S->m != PM_MAP_TYPE_QUART_2C_2LEG) {
+    Root = pmBalance(Root);           // the conjugation
+  }
 
   pmCreateStck(M->sLeaf, &Stack);   // the closure, using a stack
-  //Root = pmClosure(Root, &Stack);
-  Root = pmTwoLegClosure(Root, &Stack);
-  Root = pmSuppress(Root);
-  pmFreeStck(Stack);
+  if (S->m != PM_MAP_TYPE_QUART_2C_2LEG) {
+    Root = pmClosure(Root, &Stack);
+    Root = pmSuppress(Root);
+  } else {
+    Root = pmTwoLegClosure(Root, &Stack);
+  }
 
+  pmFreeStck(Stack);
 
   Map->e = pmLabelCanon(Root);      // set labels and create faces
   Map->v = pmChainVtx(Root);
@@ -400,13 +440,14 @@ int pmPlanMap(pmSize *S, pmMethod *Meth, pmMemory *M, pmMap *Map)
   long numTry;
 
   if ((S->m == 1 || S->m == PM_MAP_TYPE_QUART_2C ||                    // basic families
+       S->m == PM_MAP_TYPE_QUART_2C_2LEG ||
        S->m == 5 || S->m == 7 || S->m == 9))
     pmTreeConjugation(S, M, Map);
 
   else if (S->m == 2 || S->m == 3 ||                // extracted families
      S->m == 6 || S->m == 8){
     numTry = 0;
-    do{
+    do {
       pmTreeConjugation(S, M, Map);
       pmExtract(S, Meth, M, Map);
       if (Map->v < S->v - S->t || Map->v > S->v + S->t){

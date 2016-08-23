@@ -688,6 +688,8 @@ pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk)
   pm_edge *Root;
   pm_vertex *Vtx;
   long deg=1;
+  pm_edge *OutRoot = NULL;
+  pm_edge *LastFree = NULL;
 
   // Connect the free, root edge to a new "cofree" edge
   Free->oppo = pmNewEdge(NULL,NULL,NULL,Free,COFREE);
@@ -710,8 +712,8 @@ pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk)
   // Select the next edge CW to our starting root
   Cur1 = Free->next;
 
-  while (Cur1 != Free){
-    // While we are not back at our original root
+  while (Cur1 != LastFree){
+    // While we are not left with precisely 1 unmatched leaf
     if (Cur1->oppo != NULL){
       // If this edge has an opposite (not leaf/bud) swap to it
       Cur1 = Cur1->oppo;
@@ -749,17 +751,8 @@ pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk)
         // stack
         Cur1->oppo = pmStckOut(Stk);
         if (Cur1->oppo == NULL){
-          // Nothing was on the stack, so we want to keep this as a degree 1 vertex
-          if (Cur1->type == BLACK2)
-            Cur1->type = FREE2;
-          else
-            Cur1->type = FREE;
-
-          // Create a new "real" COFREE vertex/edge of degree 1
-          Cur1->oppo = pmNewEdge(NULL,NULL,NULL,Cur1,COFREE);
-          Cur1->oppo->prev = Cur1->oppo;
-          Cur1->oppo->next = Cur1->oppo;
-          pmNewVtx(Cur1->oppo);
+          // This leaf is the last free leaf we've seen
+          LastFree = Cur1;
         }
         else {
           Cur1->type = OUTER;
@@ -773,6 +766,19 @@ pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk)
     }
     Cur1 = Cur1->next;
   }
+
+  // Cur1 is now a leaf we have come to twice, without seeing
+  // any other leaves (it is last leaf)
+  if (Cur1->type == BLACK2)
+    Cur1->type = FREE2;
+  else
+    Cur1->type = FREE;
+
+  // Create a new "real" COFREE vertex/edge of degree 1
+  Cur1->oppo = pmNewEdge(NULL,NULL,NULL,Cur1,COFREE);
+  Cur1->oppo->prev = Cur1->oppo;
+  Cur1->oppo->next = Cur1->oppo;
+  pmNewVtx(Cur1->oppo);
 
   deg = pmRandom(deg);
   while (deg--) Root = Root->next;
