@@ -19,6 +19,7 @@ cdef extern from "PMdef.h":
     ctypedef struct pmMap:
         pm_edge *root
         long e, v, f, i
+        long geodesic_distance "geodesicDistance"
 
     ctypedef struct pmMethod:
         char core, pic
@@ -28,13 +29,29 @@ cdef extern from "PMdef.h":
     ctypedef struct pmMemory:
         pass
 
+    cdef int PM_MAP_TYPE_QUART_2C
+    cdef int PM_MAP_TYPE_QUART_2C_2LEG
+
+    cdef int PM_BASIC_TYPE_QUART_2C
+
     ctypedef struct pmSize:
-        char m, b
-        long e, v, f, r, g, d, t
+        char map_type "m"
+        char basic_type "b"
+        long n_edges "e"
+        long n_verts "v"
+        long n_faces "f"
+
+        long min_loop_comps "minLoopComps"
+        long max_loop_comps "maxLoopComps"
+
+        long r, g, d
+        long t
+
         long *dgArr
 
     cdef int pmInitRND(pmMethod *method)
     cdef int pmMemoryInit(pmSize *size, pmMethod *method, pmMemory *memory)
+    cdef void pmPrintChndVtx(pm_vertex *vtx)
 
 cdef extern from "PMplanmap.h":
     cdef int pmSetParameters(pmSize *size, pmMethod *method)

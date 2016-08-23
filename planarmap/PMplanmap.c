@@ -461,7 +461,7 @@ int pmPlanMap(pmSize *S, pmMethod *Meth, pmMemory *M, pmMap *Map)
 
   // basic families
   if ((S->m == 1 ||
-       S->m == PM_MAP_TYPE_QUART_2C || 
+       S->m == PM_MAP_TYPE_QUART_2C ||
        S->m == PM_MAP_TYPE_QUART_2C_2LEG ||
        S->m == 5 ||
        S->m == 7 ||

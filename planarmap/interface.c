@@ -74,7 +74,7 @@ int pmParseArgs(int argc, char *argv[],
   long i,j;
 
   /* Size preinit */
-  Size->m = 5; Size->m = 5;
+  Size->m = 5; Size->b = 5;
   Size->e = 0; Size->v = 0; Size->f = 0;
   Size->r = 0; Size->g = 0; Size->d = 0;
   Size->t = -1; Size->dgArr = NULL;

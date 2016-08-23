@@ -55,7 +55,8 @@ LIBPL_PDCODE_PYX = (
     "homfly.pyx",
     "isomorphism.pyx",
     "pdstor.pyx",
-    "plctopology.pyx")
+    "plctopology.pyx",
+    "planarmap.pyx",)
 
 LIBPL_PYX = (
     "pdstor.pyx",

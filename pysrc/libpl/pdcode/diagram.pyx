@@ -1383,35 +1383,43 @@ cdef class PlanarDiagram:
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         cdef pd_code_t *pd = NULL
 
-        size.e = 0 # #edges
-        size.v = n_crossings # #vertices
-        size.f = 0 # #faces
+        ## Initialize "size", which determines what type of map to sample
+        size.n_edges = 0
+        size.n_verts = n_crossings
+        size.n_faces = 0
+
+        # We don't currently do anything with these parameters
         size.r = 0 # #"red"
         size.g = 0 # #"green"
         size.d = 0 # something to do with degree on other types of maps
         size.t = 0 # allowed error on size
+
         size.dgArr = NULL
 
         if dia_type is None or dia_type == 'all':
-            # 4-edge-connected quartic map
-            size.m = 4
-            size.b = 4
+            # 2-edge-connected quartic map
+            size.map_type = PM_MAP_TYPE_QUART_2C
+            size.basic_type = PM_BASIC_TYPE_QUART_2C
+
         elif dia_type == 'prime':
             # 4-edge-connected quartic map
-            size.m = 5
-            size.b = 5
+            size.map_type = 5
+            size.basic_type = 5
+
         elif dia_type == '6conn':
             # 6-edge-connected quartic map
-            size.m = 6
-            size.b = 5
-            #
+            size.map_type = 6
+            size.basic_type = 5
+
         elif dia_type == 'biquart':
             # bi-quartic map
-            size.m = 9
-            size.b = 9
+            size.map_type = 9
+            size.basic_type = 9
+
         else:
             raise Exception("dia_type is not an expected value")
 
+        ## Initialize some parameters of the sampling method (namely, seed)
         meth.core = 0
         meth.pic = 0
         meth.seed = int(os.urandom(5).encode('hex'), 16) # TODO: Make randomish, 0 for testing
