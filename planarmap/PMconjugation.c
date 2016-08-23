@@ -29,24 +29,24 @@ long pmLuka1 (long n, long k, char *LkWrd )
       LkWrd[s]=k+'a'; n--;
       h-=k-1;
     }else {
-      LkWrd[s]=0+'a'; 
+      LkWrd[s]=0+'a';
       h++;
     }
     if (h<=min) { min=h; start=s; }
-  }    
+  }
   return start;
 }
 
 /*
  * long luka2 (long l,        la longueur du mot ; ie somme des DgArr[k]
- *	       long DgArr[],  table des degres dans le cas variable
+ *         long DgArr[],  table des degres dans le cas variable
  *             char LkWrd[])  le mot resultat
  * renvoie la position de lecture du debut du mot conjugue.
  *
  * il faut que le tableau LkWrd soit assez grand !
- * il faut aussi que la somme des degres des noeuds soit 
+ * il faut aussi que la somme des degres des noeuds soit
  * egale a l.
- */ 
+ */
 
 long pmLuka2 (long l, long DgArr[], char LkWrd[] )
 {
@@ -62,7 +62,7 @@ long pmLuka2 (long l, long DgArr[], char LkWrd[] )
   for (i=0 ; i<l; i++){
     while (!(DgArr[k]--)) k++;
     LkWrd[i]='a'+k;
-  }    
+  }
   /* permutation */
   /* pour i de 1 a l on multiplie par (i,k) avec k<=i */
   for (i=0 ; i<l; i++){
@@ -71,14 +71,14 @@ long pmLuka2 (long l, long DgArr[], char LkWrd[] )
     LkWrd[k]=LkWrd[i];
     LkWrd[i]=c;
   }
-  /* ici on ne peut pas facilement calculer le point de conjugaison 
+  /* ici on ne peut pas facilement calculer le point de conjugaison
      on the fly donc on le fait apres coup */
   for (i=0 ; i<l; i++){
     h+=LkWrd[i]-'a'-1;
     if (h<min) { min=h; start=i+1; }
   }
   return start%l;
-}   
+}
 
 /* tirage d'un mot bicolore, par chottin
  *
@@ -102,20 +102,20 @@ long pmLuka3 (long i, long j, char LkWrd[] )
     if (pmRandom(s)<=i) {
       LkWrd[p]='B'; i--;
       for (v=0 ; v<2; v++){
-	while (pmRandom(t--)<=j){
-	  j--;    
-	  LkWrd[++p]='b';
-	  h+=2;
-	} 
-	p++;
-	LkWrd[p]='a';
+  while (pmRandom(t--)<=j){
+    j--;
+    LkWrd[++p]='b';
+    h+=2;
+  }
+  p++;
+  LkWrd[p]='a';
       }
     }else {
-      LkWrd[p]='A'; 
+      LkWrd[p]='A';
       h--;
     }
     if (h<min) { min=h; start=p+1; }
-  }    
+  }
   LkWrd[l+1]='\0';
   return start%l;
 }
@@ -129,8 +129,8 @@ long pmLuka3 (long i, long j, char LkWrd[] )
    arbres associes. */
 
 /*
- * Cette fonction construit l'arbre associe a un 
- * code de lukacievicz normal quelconque. 
+ * Cette fonction construit l'arbre associe a un
+ * code de lukacievicz normal quelconque.
  *
  *
  * pm_edge *luka2tree(                 renvoie le 1/2 brin racine
@@ -139,10 +139,10 @@ long pmLuka3 (long i, long j, char LkWrd[] )
  *
  *
  * Attention cet arbre est enracine sur une 1/2 arete supplementaire
- * non donnee par le code. 
+ * non donnee par le code.
  *
  * Attention encore, les feuilles ne sont pas crees :
- * il y a des 1/2 brins.  
+ * il y a des 1/2 brins.
  *
  */
 
@@ -152,14 +152,14 @@ pm_edge *pmLuka2tree(long st, char LkWrd[])
   pm_vertex *Vtx;
   int arity;
   int i;
-  
+
   Root = pmEmptyEdge();
   Root->type = ROOT;
-  
-  /* creation du sommet racine */
 
+  /* creation du sommet racine */
+  // Creation of the root vertex 
   arity = LkWrd[st]-MSK;
-  
+
   Vtx = pmNewVtx(Root);
   Cur1 = Root;
   while (arity--){
@@ -169,8 +169,9 @@ pm_edge *pmLuka2tree(long st, char LkWrd[])
   Cur1->next = Root;
   Root->prev = Cur1;
   Cur1       = Root->next;
-    
+
   /* creation des autres sommets */
+  // Creation of other vertices
   i=st+1;
   if (!LkWrd[i]) i=0;
   while(i!=st){
@@ -182,8 +183,8 @@ pm_edge *pmLuka2tree(long st, char LkWrd[])
       Vtx        = pmNewVtx(Cur1);
       Cur2       = Cur1;
       while (arity--){
-	Cur2->next = pmNewEdge(Vtx,Cur2,NULL,NULL,BLACK);
-	Cur2       = Cur2->next;	
+        Cur2->next = pmNewEdge(Vtx,Cur2,NULL,NULL,BLACK);
+        Cur2       = Cur2->next;
       }
       Cur2->next = Cur1;
       Cur1->prev = Cur2;
@@ -191,7 +192,7 @@ pm_edge *pmLuka2tree(long st, char LkWrd[])
     }else{
       Cur1 = Cur1->next;
       while (Cur1->oppo != NULL)
-	Cur1=Cur1->oppo->next;
+        Cur1=Cur1->oppo->next;
     }
     i++;
     if (!LkWrd[i]) i=0;
@@ -199,7 +200,7 @@ pm_edge *pmLuka2tree(long st, char LkWrd[])
   return Root;
 }
 
-/* Cette fonction construit l'arbre bicolore associe a un 
+/* Cette fonction construit l'arbre bicolore associe a un
    code de Chottin. */
 
 pm_edge *pmChottin2tree(long st, char LkWrd[])
@@ -216,7 +217,7 @@ pm_edge *pmChottin2tree(long st, char LkWrd[])
   Factice2.prev = &Factice1;
   Factice1.oppo = NULL;
   Cur0 = &Factice2;
-  
+
   do{
     Cur1 = Cur0;
     /* Reconstitution d'une "lettre" */
@@ -233,32 +234,32 @@ pm_edge *pmChottin2tree(long st, char LkWrd[])
       /* fils gauche */
       Cur2 = Cur1->next;
       while (LkWrd[i++]!='a'){
-	if (!LkWrd[i]) i=0;
-	Cur2->type = INNER;
-	Cur2->oppo = pmNewEdge(NULL,NULL,NULL,Cur2,INNER);
-	Cur2       = Cur2->oppo;
-	Vtx        = pmNewVtx(Cur2);
-	Cur2->next = pmNewEdge(Vtx,Cur2,NULL,NULL,BLACK);
-	Cur2->prev = pmNewEdge(Vtx,NULL,Cur2,NULL,BLACK);
-	Cur2->next->next = pmNewEdge(Vtx,Cur2->next,Cur2->prev,NULL,BLACK2);
-	Cur2->prev->prev = Cur2->next->next;
-	Cur2 = Cur2->next->next;
+  if (!LkWrd[i]) i=0;
+  Cur2->type = INNER;
+  Cur2->oppo = pmNewEdge(NULL,NULL,NULL,Cur2,INNER);
+  Cur2       = Cur2->oppo;
+  Vtx        = pmNewVtx(Cur2);
+  Cur2->next = pmNewEdge(Vtx,Cur2,NULL,NULL,BLACK);
+  Cur2->prev = pmNewEdge(Vtx,NULL,Cur2,NULL,BLACK);
+  Cur2->next->next = pmNewEdge(Vtx,Cur2->next,Cur2->prev,NULL,BLACK2);
+  Cur2->prev->prev = Cur2->next->next;
+  Cur2 = Cur2->next->next;
       }
       if (!LkWrd[i]) i=0;
       Cur2->mark = mark; //CLSD;
       /* fils droit */
       Cur2 = Cur1->prev;
       while (LkWrd[i++]!='a'){
-	if (!LkWrd[i]) i=0;
-	Cur2->type = INNER;
-	Cur2->oppo = pmNewEdge(NULL,NULL,NULL,Cur2,INNER);
-	Cur2       = Cur2->oppo;
-	Vtx        = pmNewVtx(Cur2);
-	Cur2->next = pmNewEdge(Vtx,Cur2,NULL,NULL,BLACK);
-	Cur2->prev = pmNewEdge(Vtx,NULL,Cur2,NULL,BLACK);
-	Cur2->next->next = pmNewEdge(Vtx,Cur2->next,Cur2->prev,NULL,BLACK2);
-	Cur2->prev->prev = Cur2->next->next;
-	Cur2 = Cur2->next->next;
+  if (!LkWrd[i]) i=0;
+  Cur2->type = INNER;
+  Cur2->oppo = pmNewEdge(NULL,NULL,NULL,Cur2,INNER);
+  Cur2       = Cur2->oppo;
+  Vtx        = pmNewVtx(Cur2);
+  Cur2->next = pmNewEdge(Vtx,Cur2,NULL,NULL,BLACK);
+  Cur2->prev = pmNewEdge(Vtx,NULL,Cur2,NULL,BLACK);
+  Cur2->next->next = pmNewEdge(Vtx,Cur2->next,Cur2->prev,NULL,BLACK2);
+  Cur2->prev->prev = Cur2->next->next;
+  Cur2 = Cur2->next->next;
       }
       if (!LkWrd[i]) i=0;
       Cur2->mark = mark; //CLSD;
@@ -267,15 +268,15 @@ pm_edge *pmChottin2tree(long st, char LkWrd[])
     }
     if (!LkWrd[i]) i=0;
     Cur1->mark = mark; //CLSD;
-    
+
     /* on avance jusqu'a la prochaine feuille ouverte */
     Cur0 = Cur0->prev;
     do{
       Cur0 = Cur0->next;
       while(Cur0->oppo != NULL)
-	Cur0 = Cur0->oppo->next;
+  Cur0 = Cur0->oppo->next;
     }while(Cur0->mark == mark);//CLSD);
-  }while(Cur0 != &Factice1);   
+  }while(Cur0 != &Factice1);
   Factice2.oppo->oppo = NULL;
   Factice2.oppo->type = ROOT;
   return Factice2.oppo;
@@ -296,11 +297,18 @@ pm_edge *pmChottin2tree(long st, char LkWrd[])
  *        apres sa racine locale.
  */
 
+/**
+ * TODO: Check translation ;)
+ * Binary tree -> buds for normal planar maps (quartic?)
+ * 1 bud for each vertex:
+ * 3 possible choices, unless the vertex has indication, in which case
+ * after the local roots (??)
+ */
 void pmSpring1(pm_edge *Root)
 {
   pm_edge *Cur1, *Cur2, *Cur3;
   pm_vertex *Vtx;
-  
+
   Cur1 = Root->next;
   while (Cur1 != Root){
     Vtx = Cur1->from;
@@ -313,12 +321,12 @@ void pmSpring1(pm_edge *Root)
       Cur2->next->prev = Cur3;
       Cur2->next = Cur3;
       break;
-    default: 
+    default:
       Vtx->type  = DONE;
       switch (pmRandom(3)){
       case 1: Cur2 = Cur1; break;
       case 2: Cur2 = Cur1->next; break;
-      case 3: Cur2 = Cur1->prev; 
+      case 3: Cur2 = Cur1->prev;
       }
       Cur3       = pmNewEdge(Vtx,Cur2,Cur2->next,NULL,WHITE);
       Cur2->next->prev = Cur3;
@@ -340,42 +348,42 @@ void pmSpring2(pm_edge *Root)
 {
   pm_edge *Cur1, *Cur2, *Cur3;
   pm_vertex *Vtx;
-  
+
   Cur1 = Root->next;
   while (Cur1 != Root){
     if (Cur1->oppo != NULL){
       if (Cur1->oppo->from->type != DONE &&
-	  Cur1->from->type       != DONE){
-	Cur2       = pmNewEdge(NULL,NULL,NULL,Cur1,INNER);
+    Cur1->from->type       != DONE){
+  Cur2       = pmNewEdge(NULL,NULL,NULL,Cur1,INNER);
         Vtx        = pmNewVtx(Cur2);
-	Vtx->type  = DONE;
-	Cur3       = pmNewEdge(Vtx,NULL,NULL,Cur1->oppo,INNER);
-	Cur1->oppo->type = INNER;
-	Cur1->oppo->oppo = Cur3;
-	Cur1->type       = INNER;
-	Cur1->oppo       = Cur2;
-	if (Cur1->type == FORCED){
-	  Cur2->prev = Cur3;
-	  Cur3->next = Cur2;
-	  Cur2->next = pmNewEdge(Vtx,Cur2,Cur3,NULL,WHITE);
-	  Cur3->prev = Cur2->next;
-	}else if (Cur3->oppo->type == FORCED){
-	  Cur2->next = Cur3;
-	  Cur3->prev = Cur2;
-	  Cur3->next = pmNewEdge(Vtx,Cur3,Cur2,NULL,WHITE);
-	  Cur2->prev = Cur3->next;
-	}else if (pmRandom(2)==1){
-	  Cur2->prev = Cur3;
-	  Cur3->next = Cur2;
-	  Cur2->next = pmNewEdge(Vtx,Cur2,Cur3,NULL,WHITE);
-	  Cur3->prev = Cur2->next;
-	}else{
-	  Cur2->next = Cur3;
-	  Cur3->prev = Cur2;
-	  Cur3->next = pmNewEdge(Vtx,Cur3,Cur2,NULL,WHITE);
-	  Cur2->prev = Cur3->next;
-	}	  
-	Cur1=Cur3;
+  Vtx->type  = DONE;
+  Cur3       = pmNewEdge(Vtx,NULL,NULL,Cur1->oppo,INNER);
+  Cur1->oppo->type = INNER;
+  Cur1->oppo->oppo = Cur3;
+  Cur1->type       = INNER;
+  Cur1->oppo       = Cur2;
+  if (Cur1->type == FORCED){
+    Cur2->prev = Cur3;
+    Cur3->next = Cur2;
+    Cur2->next = pmNewEdge(Vtx,Cur2,Cur3,NULL,WHITE);
+    Cur3->prev = Cur2->next;
+  }else if (Cur3->oppo->type == FORCED){
+    Cur2->next = Cur3;
+    Cur3->prev = Cur2;
+    Cur3->next = pmNewEdge(Vtx,Cur3,Cur2,NULL,WHITE);
+    Cur2->prev = Cur3->next;
+  }else if (pmRandom(2)==1){
+    Cur2->prev = Cur3;
+    Cur3->next = Cur2;
+    Cur2->next = pmNewEdge(Vtx,Cur2,Cur3,NULL,WHITE);
+    Cur3->prev = Cur2->next;
+  }else{
+    Cur2->next = Cur3;
+    Cur3->prev = Cur2;
+    Cur3->next = pmNewEdge(Vtx,Cur3,Cur2,NULL,WHITE);
+    Cur2->prev = Cur3->next;
+  }
+  Cur1=Cur3;
       }
       Cur1 = Cur1->oppo;
     }
@@ -386,12 +394,12 @@ void pmSpring2(pm_edge *Root)
 /* arbres ternaires -> bourgeons pour non separables
  * 1 bourgeon avant chaque demi arete non terminale
  * Pas de choix.
- */ 
+ */
 
 void pmSpring3(pm_edge *Root)
 {
   pm_edge *Cur1, *Cur2;
-  
+
   Cur1 = Root->next;
   while (Cur1 != Root){
     if (Cur1->oppo != NULL){
@@ -429,12 +437,12 @@ void pmSpring4(pm_edge *Root)
     Vtx = Cur1->from;
     if (Vtx->type != DONE){
       if (Vtx->type == FORCED)
-	Cur2 = Vtx->root;
+  Cur2 = Vtx->root;
       else {
-	switch (pmRandom(2)){
-	case 1: Cur2 = Cur1; break;
-	case 2: Cur2 = Cur1->next; 
-	}      
+  switch (pmRandom(2)){
+  case 1: Cur2 = Cur1; break;
+  case 2: Cur2 = Cur1->next;
+  }
       }
       Vtx->type  = DONE;
       Vtx->root  = Cur2;
@@ -469,43 +477,43 @@ void pmSpring5(pm_edge *Root)
 {
   pm_edge *Cur1, *Cur2, *Cur3;
   pm_vertex *Vtx;
-  
+
   Cur1 = Root->next;
   while (Cur1 != Root){
     if (Cur1->oppo != NULL){
       if (Cur1->oppo->from->type != DONE &&
-	  Cur1->from->type       != DONE){
-	Cur2       = pmNewEdge(NULL,NULL,NULL,Cur1,INNER);
+    Cur1->from->type       != DONE){
+  Cur2       = pmNewEdge(NULL,NULL,NULL,Cur1,INNER);
         Vtx        = pmNewVtx(Cur2);
-	Vtx->type  = DONE;
-	Cur3       = pmNewEdge(Vtx,NULL,NULL,Cur1->oppo,INNER);
-	Cur1->oppo->type = INNER;
-	Cur1->oppo->oppo = Cur3;
-	Cur1->type       = INNER;
-	Cur1->oppo       = Cur2;
-	switch (pmRandom(3)){
-	case 1:
-	  Cur2->prev = Cur3;
-	  Cur3->next = Cur2;
-	  Cur2->next = pmNewEdge(Vtx,Cur2,NULL,NULL,WHITE);
-	  Cur3->prev = pmNewEdge(Vtx,Cur2->next,Cur3,NULL,WHITE);
-	  Cur2->next->next = Cur3->prev;
-	  break;
-	case 2:
-	  Cur2->next = pmNewEdge(Vtx,Cur2,Cur3,NULL,WHITE);
-	  Cur3->prev = Cur2->next;
-	  Cur3->next = pmNewEdge(Vtx,Cur3,Cur2,NULL,WHITE);
-	  Cur2->prev = Cur3->next;
-	  break;
-	case 3:
-	  Cur2->next = Cur3;
-	  Cur3->prev = Cur2;
-	  Cur3->next = pmNewEdge(Vtx,Cur3,NULL,NULL,WHITE);
-	  Cur2->prev = pmNewEdge(Vtx,Cur3->next,Cur2,NULL,WHITE);
-	  Cur3->next->next = Cur2->prev;
-	  break;
-	}  
-	Cur1=Cur3;
+  Vtx->type  = DONE;
+  Cur3       = pmNewEdge(Vtx,NULL,NULL,Cur1->oppo,INNER);
+  Cur1->oppo->type = INNER;
+  Cur1->oppo->oppo = Cur3;
+  Cur1->type       = INNER;
+  Cur1->oppo       = Cur2;
+  switch (pmRandom(3)){
+  case 1:
+    Cur2->prev = Cur3;
+    Cur3->next = Cur2;
+    Cur2->next = pmNewEdge(Vtx,Cur2,NULL,NULL,WHITE);
+    Cur3->prev = pmNewEdge(Vtx,Cur2->next,Cur3,NULL,WHITE);
+    Cur2->next->next = Cur3->prev;
+    break;
+  case 2:
+    Cur2->next = pmNewEdge(Vtx,Cur2,Cur3,NULL,WHITE);
+    Cur3->prev = Cur2->next;
+    Cur3->next = pmNewEdge(Vtx,Cur3,Cur2,NULL,WHITE);
+    Cur2->prev = Cur3->next;
+    break;
+  case 3:
+    Cur2->next = Cur3;
+    Cur3->prev = Cur2;
+    Cur3->next = pmNewEdge(Vtx,Cur3,NULL,NULL,WHITE);
+    Cur2->prev = pmNewEdge(Vtx,Cur3->next,Cur2,NULL,WHITE);
+    Cur3->next->next = Cur2->prev;
+    break;
+  }
+  Cur1=Cur3;
       }
       Cur1 = Cur1->oppo;
     }
@@ -514,32 +522,61 @@ void pmSpring5(pm_edge *Root)
 }
 
 
-/* ici on fait la cloture des differents types d'arbres.
-   les nouvelles aretes sont marquees OUTER.
-   En meme temps, dans l'ordre postfixe, on elimine les aretes VIRT.
+/**
+ * ici on fait la cloture des differents types d'arbres.
+ * les nouvelles aretes sont marquees OUTER.
+ * En meme temps, dans l'ordre postfixe, on elimine les aretes VIRT.
+ *
+ * TODO: Proofread translation ;)  --hchapman
+ * Here we make the closure of different types of trees.
+ * The new edges are marked "OUTER".
+ * At the same time, in postfix order, we eliminate the "VIRT" edges.
  */
 
-
+/**
+ * I think this function changes the root of the tree so that it is
+ * ultimately the "free" leaf after closure.
+ */
 pm_edge *pmBalance(pm_edge *Root)
 {
   pm_edge *Cur1;
   pm_edge *Free = Root;
   long h = 0, min = 0;
-  
+
+  // Start with the first edge CW of root edge
   Cur1 = Root->next;
+
   while (Cur1 != Root){
+    // While we are not back at the root,
     if (Cur1->oppo != NULL){
+      // If this edge has an opposite partner (not a leaf/bud), switch with it
       Cur1 = Cur1->oppo;
-    }else{
+
+    } else {
+      // This edge is either a leaf or a bud, so consider the type of this edge:
       switch (Cur1->type){
-      case WHITE : h++; break;
-      case BLACK : 
-      case BLACK2: h--; break;
-      default    :
-	  break;
+      case WHITE:
+        // This edge is a bud (?)
+        h++;
+        break;
+
+      case BLACK:
+      case BLACK2:
+        // This edge is a leaf (?)
+        h--;
+        break;
+
+      default:
+        break;
       }
-      if (h<min){ min = h; Free = Cur1;}
+
+      if (h < min) {
+        min = h;
+        Free = Cur1;
+      }
     }
+
+    // Consider the next edge in the tree CW
     Cur1 = Cur1->next;
   }
   return Free;
@@ -552,54 +589,83 @@ pm_edge *pmClosure(pm_edge *Free, pmStck *Stk)
   pm_vertex *Vtx;
   long deg=1;
 
+  // Connect the free, root edge to a new "cofree" edge
   Free->oppo = pmNewEdge(NULL,NULL,NULL,Free,COFREE);
-  if (Free->type == BLACK2)  
+  if (Free->type == BLACK2) {
     Free->type = FREE2;
-  else 
+  } else {
+    // Set the free edge's type to "FREE"
     Free->type = FREE;
+  }
+
+  // The root edge is this opposite, cofree edge
   Root       = Free->oppo;
+
+  // Create a root vertex at the root edge
   Vtx        = pmNewVtx(Root);
-  
+
+  // Select the next edge CW to our starting root
   Cur1 = Free->next;
+
   while (Cur1 != Free){
+    // While we are not back at our original root
     if (Cur1->oppo != NULL){
+      // If this edge has an opposite (not leaf/bud) swap to it
       Cur1 = Cur1->oppo;
+
       if (Cur1->type == VIRT){
-	if (Cur1->oppo->type != VIRT){
-	  Cur1->oppo->next->prev = Cur1->oppo->prev;
-	  Cur1->oppo->prev->next = Cur1->oppo->next;
-	  Cur1->next->prev = Cur1->prev;
-	  Cur1->prev->next = Cur1->next;
-	  Cur1->type = DLTD;
-	}else
-	  Cur1->type = DLTD;
+        // If this opposite edge is VIRT
+
+        if (Cur1->oppo->type != VIRT){
+          // If the opp-opp edge is not VIRT (original Cur1)
+          // then delete this edge
+
+          Cur1->oppo->next->prev = Cur1->oppo->prev;
+          Cur1->oppo->prev->next = Cur1->oppo->next;
+          Cur1->next->prev = Cur1->prev;
+          Cur1->prev->next = Cur1->next;
+          Cur1->type = DLTD;
+        } else {
+          // Both edges are VIRT so just delete this one
+          Cur1->type = DLTD;
+        }
       }
-    }else{
+
+    } else {
+      // This edge has no opposite (it's leaf/bud)
       switch (Cur1->type){
-      case WHITE : 
-	pmStckIn(Cur1, Stk); break;
-      case BLACK : 
+      case WHITE :
+        // Push the current bud to the stack
+        pmStckIn(Cur1, Stk);
+        break;
+
+      case BLACK :
       case BLACK2:
       case ROOT  :
-	Cur1->oppo = pmStckOut(Stk); 
-	if (Cur1->oppo == NULL){
-	  if (Cur1->type == BLACK2)
-	    Cur1->type = FREE2;
-	  else 
-	    Cur1->type = FREE;
-	  Cur1->oppo = pmNewEdge(Vtx,NULL,Root,Cur1,COFREE);
-	  Root->prev = Cur1->oppo;
-	  Root       = Root->prev;
-	  deg++;
-	}
-	else{
-	  Cur1->type = OUTER;
-	  Cur1->oppo->oppo = Cur1;
-	  Cur1->oppo->type = OUTER;
-	}
-	break;
-      default    : 
-	  break;
+        // We have a leaf, so we want to link up to the bud on the top of the
+        // stack
+        Cur1->oppo = pmStckOut(Stk);
+        if (Cur1->oppo == NULL){
+          // Nothing was on the stack, so we want to hook up with the cofree
+          // (balanced) root vertex
+          if (Cur1->type == BLACK2)
+            Cur1->type = FREE2;
+          else
+            Cur1->type = FREE;
+
+          Cur1->oppo = pmNewEdge(Vtx,NULL,Root,Cur1,COFREE);
+          Root->prev = Cur1->oppo;
+          Root       = Root->prev;
+          deg++;
+        }
+        else{
+          Cur1->type = OUTER;
+          Cur1->oppo->oppo = Cur1;
+          Cur1->oppo->type = OUTER;
+        }
+        break;
+      default    :
+        break;
       }
     }
     Cur1 = Cur1->next;
@@ -612,8 +678,114 @@ pm_edge *pmClosure(pm_edge *Free, pmStck *Stk)
   return Root;
 }
 
+/**
+ * Like pmClosure, but we leave the root and any unmatched vertices
+ * as degree 1 special vertices (legs)
+ */
+pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk)
+{
+  pm_edge *Cur1;
+  pm_edge *Root;
+  pm_vertex *Vtx;
+  long deg=1;
+
+  // Connect the free, root edge to a new "cofree" edge
+  Free->oppo = pmNewEdge(NULL,NULL,NULL,Free,COFREE);
+  if (Free->type == BLACK2) {
+    Free->type = FREE2;
+  } else {
+    // Set the free edge's type to "FREE"
+    Free->type = FREE;
+  }
+
+  // The root edge is this opposite, cofree edge
+  Root       = Free->oppo;
+  // The root edge is degree 1 so its next/prev is itself
+  Root->next = Root;
+  Root->prev = Root;
+
+  // Create a root vertex at the root edge
+  Vtx        = pmNewVtx(Root);
+
+  // Select the next edge CW to our starting root
+  Cur1 = Free->next;
+
+  while (Cur1 != Free){
+    // While we are not back at our original root
+    if (Cur1->oppo != NULL){
+      // If this edge has an opposite (not leaf/bud) swap to it
+      Cur1 = Cur1->oppo;
+
+      if (Cur1->type == VIRT){
+        // If this opposite edge is VIRT
+
+        if (Cur1->oppo->type != VIRT){
+          // If the opp-opp edge is not VIRT (original Cur1)
+          // then delete this edge
+
+          Cur1->oppo->next->prev = Cur1->oppo->prev;
+          Cur1->oppo->prev->next = Cur1->oppo->next;
+          Cur1->next->prev = Cur1->prev;
+          Cur1->prev->next = Cur1->next;
+          Cur1->type = DLTD;
+        } else {
+          // Both edges are VIRT so just delete this one
+          Cur1->type = DLTD;
+        }
+      }
+
+    } else {
+      // This edge has no opposite (it's leaf/bud)
+      switch (Cur1->type){
+      case WHITE :
+        // Push the current bud to the stack
+        pmStckIn(Cur1, Stk);
+        break;
+
+      case BLACK :
+      case BLACK2:
+      case ROOT  :
+        // We have a leaf, so we want to link up to the bud on the top of the
+        // stack
+        Cur1->oppo = pmStckOut(Stk);
+        if (Cur1->oppo == NULL){
+          // Nothing was on the stack, so we want to keep this as a degree 1 vertex
+          if (Cur1->type == BLACK2)
+            Cur1->type = FREE2;
+          else
+            Cur1->type = FREE;
+
+          // Create a new "real" COFREE vertex/edge of degree 1
+          Cur1->oppo = pmNewEdge(NULL,NULL,NULL,Cur1,COFREE);
+          Cur1->oppo->prev = Cur1->oppo;
+          Cur1->oppo->next = Cur1->oppo;
+          pmNewVtx(Cur1->oppo);
+        }
+        else {
+          Cur1->type = OUTER;
+          Cur1->oppo->oppo = Cur1;
+          Cur1->oppo->type = OUTER;
+        }
+        break;
+      default    :
+        break;
+      }
+    }
+    Cur1 = Cur1->next;
+  }
+
+  deg = pmRandom(deg);
+  while (deg--) Root = Root->next;
+  while (Root->oppo->type == FREE2) Root = Root->next;
+  return Root;
+}
+
 /* dans certains cas on veut se debarrasser du sommet de degre 2 */
 
+/**
+ * Sometimes, the root edge will have a vertex of degree 2 that we'd
+ * like to supress (smooth)
+ */
 pm_edge *pmSuppress(pm_edge *Root)
 {
   if (Root->next == Root->prev){
@@ -626,14 +798,3 @@ pm_edge *pmSuppress(pm_edge *Root)
   }
   return Root;
 }
-
-
-
-
-
-
-
-
-
-
-

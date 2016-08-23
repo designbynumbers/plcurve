@@ -74,7 +74,10 @@ typedef struct st /* data type for stack */
 /******************************/
 /* These data types serve for the command flow */
 /******************************/
-			       
+
+#define PM_MAP_TYPE_QUART_2C 4
+#define PM_BASIC_TYPE_QUART_2C 4
+
 typedef struct pmsize /* Data type for map type and size */
 {
   char m, b;     /* map and basic map type */

@@ -133,7 +133,7 @@ int pmParseArgs(int argc, char *argv[],
 	Outp->transform = 1;
 	if (param == 1){ 
 	  printvf("# general map\n");
-	  Size->m = 4; Size->b = 4;
+	  Size->m = PM_MAP_TYPE_QUART_2C; Size->b = PM_BASIC_TYPE_QUART_2C;
 	}else if (param == 2){
 	  printvf("# nonseparable\n");
 	  Size->m = 5; Size->b = 5;

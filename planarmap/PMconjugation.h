@@ -10,4 +10,5 @@ extern void pmSpring4(pm_edge *Root);
 extern void pmSpring5(pm_edge *Root);
 extern pm_edge *pmBalance(pm_edge *Root);
 extern pm_edge *pmClosure(pm_edge *Free, pmStck *Stk);
+extern pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk);
 extern pm_edge *pmSuppress(pm_edge *Root);
