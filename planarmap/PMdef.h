@@ -56,6 +56,7 @@ typedef struct pmmap /* data type for root and info */
 {
   pm_edge *root;
   long e, v, f, i;
+  long geodesicDistance;
 }pmMap;
 
 /* une carte ou un arbre sont constitues de sommets, d'aretes et de faces
@@ -108,10 +109,12 @@ typedef struct pmoutput /* Data type for output */
   char map, dual;
 } pmOutput;
 
+#define PM_STAT_GEODESICDISTANCE 12
+
 typedef struct pmstats  /* Data type for stats */
 {
   long nb;        /* number of maps generated */
-  char stats, loop, core, dist, facedeg, gauss, gaussmax;
+  char stats, loop, core, dist, facedeg, gauss, gaussmax, geodist;
 } pmStats;
 
 

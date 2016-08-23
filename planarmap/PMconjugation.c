@@ -682,13 +682,12 @@ pm_edge *pmClosure(pm_edge *Free, pmStck *Stk)
  * Like pmClosure, but we leave the root and any unmatched vertices
  * as degree 1 special vertices (legs)
  */
-pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk)
+pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk, long *geodesicDistance)
 {
   pm_edge *Cur1;
   pm_edge *Root;
   pm_vertex *Vtx;
   long deg=1;
-  pm_edge *OutRoot = NULL;
   pm_edge *LastFree = NULL;
 
   // Connect the free, root edge to a new "cofree" edge
@@ -715,6 +714,13 @@ pm_edge *pmTwoLegClosure(pm_edge *Free, pmStck *Stk)
   while (Cur1 != LastFree){
     // While we are not left with precisely 1 unmatched leaf
     if (Cur1->oppo != NULL){
+      if (Cur1 == Free) {
+        // The geodesic distance (root->oroot) is the size of the stack as we
+        // pass the original root for the second time
+        *geodesicDistance = Stk->pos;
+        //printf("Geodesic distance %ld \n", Stk->pos);
+      }
+
       // If this edge has an opposite (not leaf/bud) swap to it
       Cur1 = Cur1->oppo;
 

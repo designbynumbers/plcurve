@@ -21,6 +21,7 @@ void pmHelp(void)
   //  printf("                     2-connected, simple 2-c, 3-connected\n");
   printf("   -Q<1,2,3>: 2,4,6-edge-connected quartic maps\n");
   printf("   -Q4      : bipartite quartic maps\n");
+  printf("   -Q5      : 2-leg 2-edge-connected quartic maps\n");
   printf("   -M<1,2,3>: 1,2,3-connected maps\n");
   printf("   -M4      : bipartite bicolor maps\n");
   printf("   -B<1,2>  : 2,3-edge-connected bipartite cubic\n");
@@ -50,7 +51,8 @@ void pmHelp(void)
   printf("   -S<num>: 1 = number of loops\n");
   printf("           2,3,4 = sizes (core, two largest, all),\n"); 
   printf("           5,6,7,8 = distances, 9 = face degrees  \n"); 
-  printf("           10,11 = Gauss components (nb, max)  \n"); 
+  printf("           10,11 = Gauss components (nb, max)  \n");
+  printf("           12 = Geodesic distance (2-leg diagram)  \n"); 
   printf("  system:\n");
   printf("   -h: help\n");
   printf("   -v: verbose (better put it first)\n");
@@ -250,7 +252,7 @@ int pmParseArgs(int argc, char *argv[],
 	  Outp->format = 8;
 	}break;
       case 'S': // statistic
-	if (param > 0 && param < 12){
+	if (param > 0 && param < 13){
 	  printvf("# statistic output of type %ld enabled\n", param);
 	  Stat->stats = param;
 	  switch (param){
@@ -268,6 +270,8 @@ int pmParseArgs(int argc, char *argv[],
 	    Stat->gauss = 1; break;
 	  case 11:
 	    Stat->gaussmax = 1; break;
+    case PM_STAT_GEODESICDISTANCE:
+      Stat->geodist = 1; break;
 	  default:
 	      break;
 	  }

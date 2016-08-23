@@ -507,7 +507,7 @@ void pmPrintDualAdjacency(pmMap *Map, char minor)
 void pmPrintEdgeListTulip(pm_vertex *Vtx) 
 {
   pm_edge *Cur1; 
-  pm_vertex *Vtx1;
+  pm_vertex *Vtx1 = NULL;
   
   printf("\n(nodes %ld", Vtx->label);  
   
@@ -553,7 +553,7 @@ void pmPrintDualEdgeListTulip(pm_vertex *Face)
 {
   pm_edge *Cur1; 
   
-  pm_vertex *Fce1;
+  pm_vertex *Fce1 = NULL;
   
   printf("\n(nodes %ld", Face->label);  
   

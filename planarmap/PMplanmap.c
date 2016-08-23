@@ -348,11 +348,13 @@ int pmTreeConjugation(pmSize *S, pmMemory *M,
   }
 
   pmCreateStck(M->sLeaf, &Stack);   // the closure, using a stack
+  Map->geodesicDistance = 0;
   if (S->m != PM_MAP_TYPE_QUART_2C_2LEG) {
     Root = pmClosure(Root, &Stack);
     Root = pmSuppress(Root);
   } else {
-    Root = pmTwoLegClosure(Root, &Stack);
+    // We are creating a "two-leg diagram"
+    Root = pmTwoLegClosure(Root, &Stack, &Map->geodesicDistance);
   }
 
   pmFreeStck(Stack);

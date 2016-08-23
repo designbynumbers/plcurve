@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   pmStats Stat;
   pmMemory Mem;
 
-  pmCumul Cumul={NULL,NULL,NULL,NULL};
+  pmCumul Cumul={NULL,NULL,NULL,NULL,NULL};
    
 
   pmMap Map;
