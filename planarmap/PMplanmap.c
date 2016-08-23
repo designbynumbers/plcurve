@@ -211,17 +211,17 @@ int pmMemoryInit(pmSize *S, pmMethod *Meth, pmMemory *M)
                                           // nb nodes in T
     if (S->m == 5){                       //   for 2-c
       if (S->r){                          //     with color control
-  M->rTree = S->r - 1;
-  M->gTree = S->g - 2;
+        M->rTree = S->r - 1;
+        M->gTree = S->g - 2;
       }else M->rTree = M->gTree = 0;
       M->sTree = S->v - 1;                //     without
     }else if (S->m == 6){                 //   for 3-c
       if (Meth->pic == 1) M->sTree =(long)3*(S->v)-1.22*exp(2*log(3*S->v)/3);
       else M->sTree = 3 * S->v;
       if (S->r){                          //   with color control
-  M->rTree = S->r * 3;                 //   (pic correction non ready)
-  M->gTree = S->g * 3;
-  M->sTree = S->v * 3;
+        M->rTree = S->r * 3;                 //   (pic correction non ready)
+        M->gTree = S->g * 3;
+        M->sTree = S->v * 3;
       }else M->rTree = M->gTree = 0;
     }
     if (S->r) M->sWrd = 6 * M->sTree + 3; // nb letters in word

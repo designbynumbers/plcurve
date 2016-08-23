@@ -1388,6 +1388,10 @@ cdef class PlanarDiagram:
         size.n_verts = n_crossings
         size.n_faces = 0
 
+        # We might actually want to use these now?
+        size.min_loop_comps = 0
+        size.max_loop_comps = 0
+
         # We don't currently do anything with these parameters
         size.r = 0 # #"red"
         size.g = 0 # #"green"
@@ -1430,13 +1434,15 @@ cdef class PlanarDiagram:
         if not pmSetParameters(&size, &meth):
             raise Exception("Failure during set size")
 
+        if not pmMemoryInit(&size, &meth, &mem):
+            raise Exception("Failure during memory init")
+        if not pmExtendMemory(&size, &meth, &mem, 0):
+            raise Exception("Failure during memory extend")
+
         att_N = 0
         while (pd == NULL or
                (pd != NULL and (n_components is not None and n_components != pd.ncomps))):
-            if not pmMemoryInit(&size, &meth, &mem):
-                raise Exception("Failure during memory init")
-            if not pmExtendMemory(&size, &meth, &mem, 0):
-                raise Exception("Failure during memory extend")
+
             if not pmPlanMap(&size, &meth, &mem, &plmap):
                 raise Exception("Failure during map generation")
 
