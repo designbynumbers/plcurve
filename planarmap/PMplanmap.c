@@ -437,11 +437,15 @@ void pmExtract(pmSize *S, pmMethod *Meth, pmMemory *M, pmMap *Map)
 char pmCheckNumComponents(pmMap *Map, long min, long max) {
   long numComps;
   if (max == 0 && min == 0) {
+    // No condition on # loop components
     return 1;
   }
+
+  // Get the number of loop components
   numComps = pmStatGauss(Map);
 
   if (numComps >= min) {
+    // We have at least the minimum, so check against max
     return ((max == 0) || (numComps <= max));
   }
   return 0;
@@ -453,16 +457,31 @@ char pmCheckNumComponents(pmMap *Map, long min, long max) {
 int pmPlanMap(pmSize *S, pmMethod *Meth, pmMemory *M, pmMap *Map)
 {
   long numTry;
+  char done;
 
-  if ((S->m == 1 || S->m == PM_MAP_TYPE_QUART_2C ||                    // basic families
+  // basic families
+  if ((S->m == 1 ||
+       S->m == PM_MAP_TYPE_QUART_2C || 
        S->m == PM_MAP_TYPE_QUART_2C_2LEG ||
-       S->m == 5 || S->m == 7 || S->m == 9))
+       S->m == 5 ||
+       S->m == 7 ||
+       S->m == 9)) {
+    numTry = 0;
+    done = 0;
     do {
       pmTreeConjugation(S, M, Map);
-    } while (!pmCheckNumComponents(Map, S->minLoopComps, S->maxLoopComps));
-
-  else if (S->m == 2 || S->m == 3 ||                // extracted families
-     S->m == 6 || S->m == 8){
+      done = pmCheckNumComponents(Map, S->minLoopComps, S->maxLoopComps);
+      if (!done) {
+        pmFreeEdge(); pmFreeVtx();
+      }
+      numTry++;
+    } while (!done);
+  }
+  // extracted families
+  else if (S->m == 2 ||
+           S->m == 3 ||
+           S->m == 6 ||
+           S->m == 8){
     numTry = 0;
     do {
       pmTreeConjugation(S, M, Map);
@@ -471,7 +490,7 @@ int pmPlanMap(pmSize *S, pmMethod *Meth, pmMemory *M, pmMap *Map)
         pmFreeEdge(); pmFreeVtx();
       }
       numTry++;
-    }while (Map->v < S->v - S->t || Map->v > S->v + S->t);
+    } while (Map->v < S->v - S->t || Map->v > S->v + S->t);
     printwf("# NbTry%ld = %ld; Final Size = %ld;\n",Map->i, numTry, Map->v);
   }
 
