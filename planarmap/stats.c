@@ -50,12 +50,19 @@ long pmStatMaxGauss(pmMap *Map)
   return(maxSize/2);
 }
 
+/**
+ * Calculate the number of Gauss components of the map.
+ *
+ * Gauss components are the number of "loop" components, at least for 4-valent
+ * maps...
+ */
 long pmStatGauss(pmMap *Map)
 {
   pm_edge *Cur1;
   pmStck Stck;
   long nbComp;
 
+  // Create a mark and initialize a stack for edges
   pmNewMark();
   pmCreateStck(Map->e,&Stck);
 
@@ -64,11 +71,13 @@ long pmStatGauss(pmMap *Map)
     if (Cur1->mark != pmCurMark()){
       nbComp++;
       while(Cur1->mark != pmCurMark()){
-  Cur1->mark = pmCurMark();
-  Cur1->oppo->mark = pmCurMark();
-  if (Cur1->next->mark != pmCurMark())
-    pmStckIn(Cur1->next, &Stck);
-  Cur1 = Cur1->next->next->oppo;
+        Cur1->mark = pmCurMark();
+        if (Cur1->next != Cur1) {
+          Cur1->oppo->mark = pmCurMark();
+        }
+        if (Cur1->next->mark != pmCurMark())
+          pmStckIn(Cur1->next, &Stck);
+        Cur1 = Cur1->next->next->oppo;
       }
     }
   }

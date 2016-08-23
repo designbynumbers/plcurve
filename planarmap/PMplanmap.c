@@ -444,6 +444,7 @@ int pmPlanMap(pmSize *S, pmMethod *Meth, pmMemory *M, pmMap *Map)
   if ((S->m == 1 || S->m == PM_MAP_TYPE_QUART_2C ||                    // basic families
        S->m == PM_MAP_TYPE_QUART_2C_2LEG ||
        S->m == 5 || S->m == 7 || S->m == 9))
+    
     pmTreeConjugation(S, M, Map);
 
   else if (S->m == 2 || S->m == 3 ||                // extracted families

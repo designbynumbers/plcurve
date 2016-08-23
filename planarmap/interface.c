@@ -132,7 +132,7 @@ int pmParseArgs(int argc, char *argv[],
     printvf("# 2-edge-connected quartic 2-leg maps\n");
     Size->m = PM_MAP_TYPE_QUART_2C_2LEG;
     Size->b = PM_BASIC_TYPE_QUART_2C;
-	}else{
+  } else {
 	  fprintf(stderr,"unknown kind of quartic\n");
 	  exit(2);
 	}break;

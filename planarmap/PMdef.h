@@ -87,6 +87,12 @@ typedef struct pmsize /* Data type for map type and size */
   long e, v, f;  /* edges, vertices, faces */
   long r, g, d;  /* red and black vertices, max degree */
   long t;        /* tolerence on e */
+
+  // Min number of loop components (inclusive)
+  long minLoopComps;
+  // Max number of loop components (inclusive)
+  long maxLoopComps;
+
   long *dgArr;   /* pt on vertex list */
 } pmSize;
 
