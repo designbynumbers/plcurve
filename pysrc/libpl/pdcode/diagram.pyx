@@ -287,6 +287,16 @@ cdef class PlanarDiagram:
         return pd_map_isomorphic(self.p, other_pd.p)
 
     def build_isotopies(self, PlanarDiagram other_pd):
+        """
+        build_isotopies(PlanarDiagram other_pd) -> tuple of PlanarIsomorphism
+
+        Compute all diagram isotopies to :obj:`other_pd`.
+
+        :param PlanarDiagram other_pd: Diagram to compute diagram-isotopy
+          to
+        :return: Tuple of isotopies
+        :rtype: tuple of PlanarIsomorphism
+        """
         cdef unsigned int nisos
         cdef pd_iso_t **isos
 
@@ -298,6 +308,17 @@ cdef class PlanarDiagram:
         return ret
 
     def build_map_isomorphisms(self, PlanarDiagram other_pd):
+        """
+        build_map_isomorphisms(PlanarDiagram other_pd) -> tuple of PlanarIsomorphism
+
+        Compute all oriented-sphere isomorphisms to :obj:`other_pd`.
+
+        :param PlanarDiagram other_pd: Diagram to compute oriented-isomorphism
+          to
+        :return: Tuple of isotopies
+        :rtype: tuple of PlanarIsomorphism
+        """
+
         cdef unsigned int nisos
         cdef pd_iso_t **isos
 
@@ -309,9 +330,29 @@ cdef class PlanarDiagram:
         return ret
 
     def build_autoisotopies(self):
+        """
+        build_autoisotopies() -> tuple of PlanarIsomorphism
+
+        Compute all diagram isotopies to itself
+
+        :return: Tuple of isotopies
+        :rtype: tuple of PlanarIsomorphism
+        """
+
         return self.build_isotopies(self)
 
     def build_isomorphisms(self, PlanarDiagram other_pd):
+        """
+        build_isomorphisms(PlanarDiagram other_pd) -> tuple of PlanarIsomorphism
+
+        Compute all unoriented-sphere isomorphisms to :obj:`other_pd`.
+
+        :param PlanarDiagram other_pd: Diagram to compute unoriented-isomorphism
+          to
+        :return: Tuple of isomorphisms
+        :rtype: tuple of PlanarIsomorphism
+        """
+
         cdef unsigned int nisos
         cdef pd_iso_t **isos
 
@@ -323,6 +364,14 @@ cdef class PlanarDiagram:
         return ret
 
     def build_automorphisms(self):
+        """
+        build_autoisotopies() -> tuple of PlanarIsomorphism
+
+        Compute all unoriented isomorphisms to itself
+
+        :return: Tuple of isomorphisms
+        :rtype: tuple of PlanarIsomorphism
+        """
         return self.build_isomorphisms(self)
 
     def isomorphic(self, PlanarDiagram other_pd):
@@ -983,6 +1032,17 @@ cdef class PlanarDiagram:
         return pd_unsigned_linking_number(self.p, c1, c2)
 
     def interlaced_crossings(self):
+        """
+        interlaced_crossings() -> tuple of int
+
+        Calculate the interlaced crossings of this diagram.
+
+        For a knot shadow, one can compute the average (over all possible
+        crossing assignments) v2 invariant by v2=-1/4*C, where C is the number
+        of interlaced crossings.
+
+        :return: Tuple of :variable:`ncomps` ints
+        """
         cdef int i
         cdef int *c_ret = pd_interlaced_crossings(self.p)
         ret = tuple(c_ret[i] for i in range(self.p.ncomps))
@@ -990,6 +1050,14 @@ cdef class PlanarDiagram:
         return ret
 
     def interlaced_crossings_unsigned(self):
+        """
+        interlaced_crossings() -> tuple of int
+
+        Calculate the unsigned interlaced crossings of this diagram.
+
+        :return: Tuple of :variable:`ncomps` ints
+        """
+
         cdef int i
         cdef unsigned int *c_ret = pd_interlaced_crossings_unsigned(self.p)
         ret = tuple(c_ret[i] for i in range(self.p.ncomps))
@@ -1653,6 +1721,11 @@ cdef class PlanarDiagram:
         return pd
 
     def pdcode(self):
+        """
+        pdcode() -> list of ints
+
+        Create a planar diagram code as a python list.
+        """
         cdef list pdcode = []
         cdef list x_temp
         cdef pd_idx_t o_in, o_out, u_in, u_out
@@ -1678,6 +1751,11 @@ cdef class PlanarDiagram:
 
     @classmethod
     def from_pdcode(cls, pdcode, thin=False):
+        """
+        from_pdcode(pdcode) -> new PlanarDiagram
+
+        Create a PlanarDiagram from a planar diagram code list.
+        """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         cdef pd_code_t* pd
         cdef pd_idx_t ncross = len(pdcode)

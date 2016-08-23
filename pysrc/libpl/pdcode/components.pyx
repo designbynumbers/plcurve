@@ -202,6 +202,11 @@ cdef class Edge(_Disownable):
         pd_reorient_edge(self.parent.p, self.index, sign)
 
     cpdef plug_head(self, Crossing x, pd_idx_t pos):
+        """
+        plug_head(Crossing x, pos)
+
+        Change where this edge points to x[pos].
+        """
         if self.parent is not None and self.parent.p != x.parent.p:
             raise Exception("Cannot plug this edge into a different diagram")
         elif self.parent is None:
