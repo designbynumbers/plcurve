@@ -66,8 +66,8 @@ void pmHelp(void)
 /* This function parses the command line */
 /******************************/
 int pmParseArgs(int argc, char *argv[], 
-		pmSize *Size, pmMethod *Meth,
-		pmOutput *Outp, pmStats *Stat)
+                pmSize *Size, pmMethod *Meth,
+                pmOutput *Outp, pmStats *Stat)
 {
   long param;
   char modifier;
@@ -78,6 +78,8 @@ int pmParseArgs(int argc, char *argv[],
   Size->e = 0; Size->v = 0; Size->f = 0;
   Size->r = 0; Size->g = 0; Size->d = 0;
   Size->t = -1; Size->dgArr = NULL;
+  Size->minLoopComps = 0;
+  Size->maxLoopComps = 0;
   /* Meth preinit */
   Meth->core = 0; Meth->pic = 0;
   Meth->seed = getpid();
@@ -101,188 +103,231 @@ int pmParseArgs(int argc, char *argv[],
     if (sscanf(argv[i],"-%c%ld", &modifier, &param) == 2){
       switch(modifier){
       case 'C': //cubic maps
-	if (param == 2){ // dually 2-connected
-	  printvf("# 2-edge-connected cubic maps\n");
-	  Size->m = 1; Size->b = 1;
-	}else if (param == 3){ // dually 3-connected
-	  printvf("# 3-edge-connected cubic maps\n");
-	  Size->m = 2; Size->b = 1;
-	}else if (param == 4){ // dually 4-connected
-	  printvf("# 4-edge-connected cubic maps\n");
-	  Size->m = 3; Size->b = 1;
-	}else{
-	  fprintf(stderr,"unknown kind of cubic\n");
-	  exit(2);
-	}break;
+        if (param == 2){ // dually 2-connected
+          printvf("# 2-edge-connected cubic maps\n");
+          Size->m = 1; Size->b = 1;
+        }else if (param == 3){ // dually 3-connected
+          printvf("# 3-edge-connected cubic maps\n");
+          Size->m = 2; Size->b = 1;
+        }else if (param == 4){ // dually 4-connected
+          printvf("# 4-edge-connected cubic maps\n");
+          Size->m = 3; Size->b = 1;
+        }else{
+          fprintf(stderr,"unknown kind of cubic\n");
+          exit(2);
+        }break;
+
       case 'Q': //4-regular maps
-	if (param == 1){
-	  printvf("# 2-edge-connected quartic maps\n");
-	  Size->m = PM_MAP_TYPE_QUART_2C;
-    Size->b = PM_BASIC_TYPE_QUART_2C;
-	}else if (param == 2){
-	  printvf("# 4-edge-connected quartic maps\n");
-	  Size->m = 5; Size->b = 5;
-	}else if (param == 3){
-	  printvf("# 6-edge-connected quartic maps\n");
-	  Size->m = 6; Size->b = 5;
-	}else if (param == 4){
-	  printvf("# bi-quartic maps");
-	  Size->m = 9; Size->b = 9;
-  } else if (param == 5) {
-    printvf("# 2-edge-connected quartic 2-leg maps\n");
-    Size->m = PM_MAP_TYPE_QUART_2C_2LEG;
-    Size->b = PM_BASIC_TYPE_QUART_2C;
-  } else {
-	  fprintf(stderr,"unknown kind of quartic\n");
-	  exit(2);
-	}break;
+        if (param == 1){
+          printvf("# 2-edge-connected quartic maps\n");
+          Size->m = PM_MAP_TYPE_QUART_2C;
+          Size->b = PM_BASIC_TYPE_QUART_2C;
+        }else if (param == 2){
+          printvf("# 4-edge-connected quartic maps\n");
+          Size->m = 5; Size->b = 5;
+        }else if (param == 3){
+          printvf("# 6-edge-connected quartic maps\n");
+          Size->m = 6; Size->b = 5;
+        }else if (param == 4){
+          printvf("# bi-quartic maps");
+          Size->m = 9; Size->b = 9;
+        } else if (param == 5) {
+          printvf("# 2-edge-connected quartic 2-leg maps\n");
+          Size->m = PM_MAP_TYPE_QUART_2C_2LEG;
+          Size->b = PM_BASIC_TYPE_QUART_2C;
+        } else {
+          fprintf(stderr,"unknown kind of quartic\n");
+          exit(2);
+        }break;
+
       case 'M': //general maps
-	Outp->transform = 1;
-	if (param == 1){ 
-	  printvf("# general map\n");
-	  Size->m = PM_MAP_TYPE_QUART_2C; Size->b = PM_BASIC_TYPE_QUART_2C;
-	}else if (param == 2){
-	  printvf("# nonseparable\n");
-	  Size->m = 5; Size->b = 5;
-	}else if (param == 3){
-	  printvf("# 3-connected\n");
-	  Size->m = 6; Size->b = 5;
-	}else if (param == 4){
-	  printvf("# bipartite bicolor\n");
-	  Size->m = 9; Size->b = 9;
-	}else if (param == 7){
-	  printvf("# simple nonseparable\n");
-	  Size->m = 13; Size->b = 5;
-	}else if (param == 8){
-	  printvf("# loopless maps\n");
-	  Size->m = 11; Size->b = 4;
-	}else if (param == 9){
-	  printvf("# loopless simple maps\n");
-	  Size->m = 12; Size->b = 4;
-	}else{
-	  fprintf(stderr,"unknown kind of map\n");
-	  exit(2);
-	}break;
+        Outp->transform = 1;
+        if (param == 1){ 
+          printvf("# general map\n");
+          Size->m = PM_MAP_TYPE_QUART_2C; Size->b = PM_BASIC_TYPE_QUART_2C;
+        }else if (param == 2){
+          printvf("# nonseparable\n");
+          Size->m = 5; Size->b = 5;
+        }else if (param == 3){
+          printvf("# 3-connected\n");
+          Size->m = 6; Size->b = 5;
+        }else if (param == 4){
+          printvf("# bipartite bicolor\n");
+          Size->m = 9; Size->b = 9;
+        }else if (param == 7){
+          printvf("# simple nonseparable\n");
+          Size->m = 13; Size->b = 5;
+        }else if (param == 8){
+          printvf("# loopless maps\n");
+          Size->m = 11; Size->b = 4;
+        }else if (param == 9){
+          printvf("# loopless simple maps\n");
+          Size->m = 12; Size->b = 4;
+        }else{
+          fprintf(stderr,"unknown kind of map\n");
+          exit(2);
+        }break;
+
       case 'B': //bipartie
-	if (param == 1){ // 1-c
-	  printvf("# 2-edge-connected bipartite cubic\n");
-	  Size->m = 7; Size->b = 7;
-	}else if (param == 2){ // 2-c
-	  printvf("# 3-edge-connected bipartite cubic\n");
-	  Size->m = 8; Size->b = 7;
-	}else{
-	  fprintf(stderr,"unknown kind of bicubic\n");
-	  exit(2);
-	}break;
+        if (param == 1){ // 1-c
+          printvf("# 2-edge-connected bipartite cubic\n");
+          Size->m = 7; Size->b = 7;
+        }else if (param == 2){ // 2-c
+          printvf("# 3-edge-connected bipartite cubic\n");
+          Size->m = 8; Size->b = 7;
+        }else{
+          fprintf(stderr,"unknown kind of bicubic\n");
+          exit(2);
+        }break;
+
       case 'D': // given degrees
-	if (param > 0) { // max degree
-	  printvf("# eulerian with reduced degree distribution:");
-	  Size->dgArr = (long *)calloc(param, sizeof(long));
-	  for (j=0; j < param; j++){
-	    if (sscanf(argv[++i],"%ld",Size->dgArr+j)){
-	      printvf("#  %ld ", Size->dgArr[j]);
-	    } else {
-	      fprintf(stderr,"\nincoherent degree distribution\n");
-	      exit(2);
-	    }	    
-	  }
-	  printvf("# \n");
-	  Size->d = param;
-	  Size->m = 10; Size->b = 10;
-	}
+        if (param > 0) { // max degree
+          printvf("# eulerian with reduced degree distribution:");
+          Size->dgArr = (long *)calloc(param, sizeof(long));
+          for (j=0; j < param; j++){
+            if (sscanf(argv[++i],"%ld",Size->dgArr+j)){
+              printvf("#  %ld ", Size->dgArr[j]);
+            } else {
+              fprintf(stderr,"\nincoherent degree distribution\n");
+              exit(2);
+            }	    
+          }
+          printvf("# \n");
+          Size->d = param;
+          Size->m = 10; Size->b = 10;
+        }
+
       case 'N': // more than one map ?
-	if (param > 0){
-	  printvf("# Number of maps: %ld\n", param);
-	  Stat->nb = param;
-	}break;
+        if (param > 0){
+          printvf("# Number of maps: %ld\n", param);
+          Stat->nb = param;
+        }
+        break;
+
       case 'E': // number of edges
-	if (param > 0){
-	  printvf("# Number of edges: %ld\n",param);
-	  Size->e = param;
-	}break;
+        if (param > 0){
+          printvf("# Number of edges: %ld\n",param);
+          Size->e = param;
+        }
+        break;
+
       case 'V': // number of vertices
-	if (param > 0){
-	  printvf("# Number of vertices: %ld\n",param);
-	  Size->v = param;
-	}break;
+        if (param > 0){
+          printvf("# Number of vertices: %ld\n",param);
+          Size->v = param;
+        }
+        break;
+
       case 'F': // number of faces
-	if (param > 0){
-	  printvf("# Number of faces: %ld\n",param);
-	  Size->f = param;
-	}break;
+        if (param > 0){
+          printvf("# Number of faces: %ld\n",param);
+          Size->f = param;
+        }
+        break;
+
+      case 'k': // min number of loop components
+        if (param == 0) {
+          printvf("# No minimum number of loop components\n");
+          Size->minLoopComps = 0;
+        } else if (param > 0) {
+          printvf("# Minimum number of loop components: %ld\n", param);
+          Size->minLoopComps = param;
+        }
+        break;
+
+      case 'K': // max number of loop components
+        if (param == 0) {
+          printvf("# No maximum number of loop components\n");
+          Size->maxLoopComps = 0;
+        } else if (param > 0) {
+          printvf("# Maximum number of loop components: %ld\n", param);
+          Size->maxLoopComps = param;
+        }
+        break;
+
       case 'R': // red ones
-	if (param > 0){
-	  printvf("# Number of red ones: %ld\n",param);
-	  Size->r = param;
-	}break;
+        if (param > 0){
+          printvf("# Number of red ones: %ld\n",param);
+          Size->r = param;
+        }
+        break;
+
       case 'G': // green ones
        	if (param > 0){
-	  printvf("# Number of green ones: %ld\n",param);
-	  Size->g = param;
-	}break;
+          printvf("# Number of green ones: %ld\n",param);
+          Size->g = param;
+        }
+        break;
+
       case 'I': // error allowed on size
-	if (param >=0){
-	  printvf("# error allowed on size: %ld\n",param);
-	  Size->t = param;
-	}break;
+        if (param >=0){
+          printvf("# error allowed on size: %ld\n",param);
+          Size->t = param;
+        }
+        break;
+
       case 'O': // output format
-	if (param == 1){
-	  printvf("# human readable format\n");
-	  Outp->format = 1;
-	}if (param == 2){
-	  printvf("# edge list output format\n");
-	  Outp->format = 2;
-	}else if (param == 3){
-	  printvf("# maple output format\n");
-	  Outp->format = 3;
-	}else if (param == 4){
-	  printvf("# graphcode output format\n");
-	  Outp->format = 4;
-	}else if (param == 5){
-	  printvf("# LEDA dimacs format\n");
-	  Outp->format = 5;
-	}else if (param == 6){
-	  printvf("# adjacency matrix\n");
-	  Outp->format = 6;
-	}else if (param == 7){
-	  printvf("# principal minor of laplacian\n");
-	  Outp->format = 7;
-	}else if (param == 8){
-	  printvf("# tulip format\n");
-	  Outp->format = 8;
-	}break;
+        if (param == 1){
+          printvf("# human readable format\n");
+          Outp->format = 1;
+        }if (param == 2){
+          printvf("# edge list output format\n");
+          Outp->format = 2;
+        }else if (param == 3){
+          printvf("# maple output format\n");
+          Outp->format = 3;
+        }else if (param == 4){
+          printvf("# graphcode output format\n");
+          Outp->format = 4;
+        }else if (param == 5){
+          printvf("# LEDA dimacs format\n");
+          Outp->format = 5;
+        }else if (param == 6){
+          printvf("# adjacency matrix\n");
+          Outp->format = 6;
+        }else if (param == 7){
+          printvf("# principal minor of laplacian\n");
+          Outp->format = 7;
+        }else if (param == 8){
+          printvf("# tulip format\n");
+          Outp->format = 8;
+        }
+        break;
+
       case 'S': // statistic
-	if (param > 0 && param < 13){
-	  printvf("# statistic output of type %ld enabled\n", param);
-	  Stat->stats = param;
-	  switch (param){
-	  case 5:
-	    Stat->dist = 1; break;
-	  case 6:
-	    Stat->dist = 2; break;
-	  case 7:
-	    Stat->dist = 3; break;
+        if (param > 0 && param < 13) {
+          printvf("# statistic output of type %ld enabled\n", param);
+          Stat->stats = param;
+          switch (param){
+          case 5:
+            Stat->dist = 1; break;
+          case 6:
+            Stat->dist = 2; break;
+          case 7:
+            Stat->dist = 3; break;
           case 8:
-	    Stat->dist = 4; break;
-	  case 9:
-	    Stat->facedeg = TRUE; break;
-	  case 10:
-	    Stat->gauss = 1; break;
-	  case 11:
-	    Stat->gaussmax = 1; break;
-    case PM_STAT_GEODESICDISTANCE:
-      Stat->geodist = 1; break;
-	  default:
-	      break;
-	  }
-	}else
-	  fprintf(stderr,"unknown statistic\n");
-	break;
+            Stat->dist = 4; break;
+          case 9:
+            Stat->facedeg = TRUE; break;
+          case 10:
+            Stat->gauss = 1; break;
+          case 11:
+            Stat->gaussmax = 1; break;
+          case PM_STAT_GEODESICDISTANCE:
+            Stat->geodist = 1; break;
+          default:
+            break;
+          }
+        } else
+          fprintf(stderr,"unknown statistic\n");
+        break;
+
       case 'X': // given seed of random generator
-	Meth->seed = param;
-	break;
+        Meth->seed = param;
+        break;
+
       default :
-	printvf("# unused arg -%c%ld\n", modifier, param);
+        printvf("# unused arg -%c%ld\n", modifier, param);
       }
     }else if (sscanf(argv[i],"-%c", &modifier)){
 
@@ -290,32 +335,32 @@ int pmParseArgs(int argc, char *argv[],
 
       switch(modifier){
       case 'v': // verbose
-	Meth->verbose = TRUE;
-	break;
+        Meth->verbose = TRUE;
+        break;
       case 'w': // superverbose
-	Meth->verbose = TRUE+TRUE;
-	break;
+        Meth->verbose = TRUE+TRUE;
+        break;
       case 'h': // usage
-	pmHelp();
-	break;
+        pmHelp();
+        break;
       case 'p': // print map(s)
-	Outp->map = 1;
-	break;
+        Outp->map = 1;
+        break;
       case 'd': // print dual map(s)
-	Outp->dual = 1;
-	break;
+        Outp->dual = 1;
+        break;
       case 'c': // core method
-	Meth->core = 1;
-	break;
+        Meth->core = 1;
+        break;
       case 'l': // largest component method
-	Meth->core = 2;
-	break;
+        Meth->core = 2;
+        break;
       case 's': // suppress pick correction
-	Meth->pic = 2;
-	printvf("# pic optimization disabled\n");
-	break;
+        Meth->pic = 2;
+        printvf("# pic optimization disabled\n");
+        break;
       default:
-	printvf("# unused arg -%c\n", modifier);
+        printvf("# unused arg -%c\n", modifier);
       }
     }
   }

@@ -1,6 +1,6 @@
 lib_LTLIBRARIES = libplanarmap.la
 
-include_HEADERS = PMdef.h PMconjugation.h PMenlight.h PMextract.h PMplanmap.h PMdisplay.h
+include_HEADERS = PMdef.h PMconjugation.h PMenlight.h PMextract.h PMplanmap.h PMdisplay.h stats.h
 libplanarmap_la_SOURCES = PMdef.c \
 	PMconjugation.c \
 	PMenlight.c \

@@ -7,6 +7,7 @@
 #include "PMenlight.h"
 #include "PMextract.h"
 #include "PMplanmap.h"
+#include "stats.h"
 
 /******************************/
 /* This function checks and completes parameters with defaults */
@@ -433,6 +434,18 @@ void pmExtract(pmSize *S, pmMethod *Meth, pmMemory *M, pmMap *Map)
   pmFreeBloc();pmFreePost();pmFreeSeed();pmFreeComp();
 }
 
+char pmCheckNumComponents(pmMap *Map, long min, long max) {
+  long numComps;
+  if (max == 0 && min == 0) {
+    return 1;
+  }
+  numComps = pmStatGauss(Map);
+
+  if (numComps >= min) {
+    return ((max == 0) || (numComps <= max));
+  }
+  return 0;
+}
 
 /******************************/
 /* this function is the main sampling function */
@@ -444,8 +457,9 @@ int pmPlanMap(pmSize *S, pmMethod *Meth, pmMemory *M, pmMap *Map)
   if ((S->m == 1 || S->m == PM_MAP_TYPE_QUART_2C ||                    // basic families
        S->m == PM_MAP_TYPE_QUART_2C_2LEG ||
        S->m == 5 || S->m == 7 || S->m == 9))
-    
-    pmTreeConjugation(S, M, Map);
+    do {
+      pmTreeConjugation(S, M, Map);
+    } while (!pmCheckNumComponents(Map, S->minLoopComps, S->maxLoopComps));
 
   else if (S->m == 2 || S->m == 3 ||                // extracted families
      S->m == 6 || S->m == 8){

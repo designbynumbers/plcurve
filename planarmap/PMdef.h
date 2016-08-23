@@ -98,7 +98,7 @@ typedef struct pmsize /* Data type for map type and size */
 
 typedef struct pmmethod /* Data type for methods */
 {
-  char core, pic; 
+  char core, pic;
   long seed;
   char verbose;
 } pmMethod;
