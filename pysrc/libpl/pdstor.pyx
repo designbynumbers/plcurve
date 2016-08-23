@@ -469,8 +469,7 @@ class PDStoreExpander(object):
         """crossing_combinations(PlanarDiagram) -> generator(new
         PlanarDiagrams, masks)
 
-        Generate all possible crossing sign permutations.  First crossing
-        is fixed as (+) so as to avoid mirror images
+        Generate all possible crossing sign permutations.
         """
         for cross_set in cls._bin_strings(pdc.ncross, amortize):
             yield cls.crossing_sign_mask(pdc, cross_set, thin=thin), cross_set

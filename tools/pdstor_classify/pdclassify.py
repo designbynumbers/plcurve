@@ -160,16 +160,35 @@ class PDStorClassifier(object):
                 if shadow.ncomps > 1:
                     continue
 
+                # iso_classes is a dict with keys given by signature (total
+                # sign) containing bins that hold isotopy classes (really
+                # representatives) of PlanarDiagram.
+                #
+                # It is known that if two PlanarDiagrams do not have the same
+                # signature, they cannot be diagram isotopic, so we don't have
+                # to cross-check them for isotopy.
                 iso_classes = defaultdict(set)
                 for comp_pd, cmask in PDStoreExpander.component_combinations(
                         shadow, amortize=True, thin=False):
+
+                    # For each possible orientation of each of the components, we are now
+                    # going to go through all of the possible crossing sign assignments
                     for pd, xmask in PDStoreExpander.crossing_combinations(comp_pd):
+                        # pd is a PlanarDiagram object with assigned crossings given by xmask
+                        # sign_count is the signature of this knot diagram (sum of all +/-)
                         sign_count = sum(x*2-1 for x in xmask)
+
                         if not (sign_count in iso_classes and pd in iso_classes[sign_count]):
+                            # We have not processed this isotopy class of
+                            # PlanarDiagram yet, so we are going to classify it
+
                             # Do classify magic
                             homfly = pd.homfly()
                             if (homfly in self.ambiguous_homflys and
                                 pd.ncross >= self.ambiguous_homflys[homfly]):
+                                # This homfly is ambiguous for the number of
+                                # crossings in pd, so store it in a bucket for
+                                # later.
                                 ambiguous[homfly].append(pd)
                                 ambig_stor = PDStorage()
                                 ambig_stor.add(pd)
@@ -177,8 +196,15 @@ class PDStorClassifier(object):
                                     ambig_out, n_amb_hash, n_amb_elt)
 
                             elif homfly == P_unk:
+                                # The homfly is the unknot, so the knot is the
+                                # unknot (homfly distinguishes the unknot for
+                                # the amounts of crossings we are considering)
                                 kt_counts["Unknot[]"] += 1
+
                             else:
+                                # The homfly is not the unknot, and
+                                # distinguishes the knot type, so we record the
+                                # occurrence of said KT.
                                 kts = self.kt_by_homfly[homfly]
                                 #print kts
                                 if len(kts) == 1:
@@ -190,8 +216,15 @@ class PDStorClassifier(object):
                                 #print kt
                                 kt_counts[str(kt)] += 1
 
+                            # Now that we have processed this isotopy class of
+                            # PlanarDiagram, add it to the bin given by its
+                            # signature so that we can check future diagrams
+                            # for isotopy against this.
                             iso_classes[sign_count].add(pd)
 
+                # Calculate the number of new isotopy classes that we've
+                # considered by adding up the number of isotopy classes in each
+                # bin given by sign signature.
                 new_n = sum(len(sign_iso) for sign_iso in iso_classes.itervalues())
                 n_dia_total += new_n
 
