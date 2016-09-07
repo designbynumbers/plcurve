@@ -53,8 +53,12 @@ cdef extern from "PMdef.h":
     cdef int pmMemoryInit(pmSize *size, pmMethod *method, pmMemory *memory)
     cdef void pmPrintChndVtx(pm_vertex *vtx)
 
+    cdef long pmStatGauss(pmMap *Map)
+    cdef long pmStatGeodesicDistance(pmMap *Map)
+
 cdef extern from "PMplanmap.h":
     cdef int pmSetParameters(pmSize *size, pmMethod *method)
     cdef int pmExtendMemory(pmSize *size, pmMethod *method, pmMemory *memory, char OtherReason)
     cdef int pmPlanMap(pmSize *size, pmMethod *method, pmMemory *memory, pmMap *output_map)
     cdef int pmFreeMap(pmMap *map_to_free)
+

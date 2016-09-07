@@ -179,4 +179,5 @@ extern pm_edge *pmNextSeed(void);
 extern int pmInitRND(pmMethod *Meth);
 extern long pmRandom(long n);
 extern int pmIsBloc();
-
+extern long pmStatGauss(pmMap *Map);
+extern long pmStatGeodesicDistance(pmMap *Map);
