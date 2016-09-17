@@ -1,5 +1,19 @@
 import os, sys
 import os.path
+import shlex
+
+CFLAG = []
+CFLAG_INCLUDE = []
+if 'CFLAGS' in os.environ or 'CPPFLAGS' in os.environ:
+    flags = shlex.split(os.environ.get('CFLAGS',"") +" "+ os.environ.get('CPPFLAGS',""))
+    if 'CPPFLAGS' in os.environ:
+        del os.environ['CPPFLAGS']
+    for flag in flags:
+        if flag[:2] == "-I":
+            CFLAG_INCLUDE.append(flag[2:])
+        else:
+            CFLAG.append(flag)
+    os.environ['CFLAGS'] = " ".join(CFLAG)
 
 try:
     from setuptools import setup, Command, Extension
@@ -38,10 +52,12 @@ if USE_CYTHON is None:
 
 if USE_CYTHON:
     #from Cython.Distutils.extension import Extension
+    import Cython.Distutils.build_ext as _build_ext
     from Cython.Build import cythonize
     yes_or_no_cythonize = cythonize
 else:
     #from setuptools.extension import Extension
+    from setuptools.command. build_ext import build_ext as _build_ext
     yes_or_no_cythonize = no_cythonize
 
 import numpy
@@ -63,7 +79,10 @@ LIBPL_PYX = (
     "plcurve.pyx",
     "tsmcmc.pyx")
 
-INCLUDE_DIRS = ["../src", ".", os.path.join(numpy.__path__[0], "core", "include")]
+INCLUDE_DIRS = [
+    "../src",
+    ".",
+    os.path.join(numpy.__path__[0], "core", "include")]
 LIBRARY_DIRS = ["../src/.libs"]
 PLCURVE_LIBRARIES = ["gsl", "plCurve", "gsl", "gslcblas"]
 PDCODE_LIBRARIES = ["gsl", "plCurve", "gsl", "gslcblas", "planarmap"]
@@ -104,6 +123,11 @@ class CythonizeSources(Command):
     def run(self):
         cythonize(EXTENSIONS)
 
+class build_ext(_build_ext, object):
+    def finalize_options(self):
+        super(build_ext, self).finalize_options()
+        self.include_dirs.extend(CFLAG_INCLUDE)
+
 if __name__ == "__main__":
     setup(
         name="libpl",
@@ -122,6 +146,7 @@ if __name__ == "__main__":
                                 os.path.join("pdcode", "*.pxd")]},
         ext_modules=yes_or_no_cythonize(EXTENSIONS),
         cmdclass={
+            "build_ext": build_ext,
             "cythonize": CythonizeSources,
         },
         test_suite="tests",
