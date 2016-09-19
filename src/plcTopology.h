@@ -561,7 +561,7 @@ extern "C" {
 
   void pd_addto_pdstor(pd_stor_t *pdstor, pd_code_t *pd,pd_equivalence_t eq);
   /* Add a new-memory copy of pd to pdstor, unless an equivalent pd_code_t
-     is already stored. Note: If eq == NONE, then we always stored, even if
+     is already stored. Note: If eq == NONE, then we always store, even if
      this is an exact duplicated of a previous entry. */
 
   pd_code_t *pd_stor_firstelt(pd_stor_t *pdstor);

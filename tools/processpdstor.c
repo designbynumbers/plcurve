@@ -34,6 +34,7 @@ struct arg_file *outfile; // optional outfile override
 
 struct arg_lit  *allcrossings;
 struct arg_lit  *allorientations;
+struct arg_lit  *orbitreps;
 struct arg_lit  *knotsonly;
 struct arg_lit  *verbose;
 struct arg_lit  *help;
@@ -134,7 +135,8 @@ int main(int argc,char *argv[]) {
       infile = arg_filen(NULL,NULL,"<filename>",1,1000,"text format (pdstor) pd_code file"),
       outfile = arg_filen("o","outfile","<filename>",0,1,"filename for (single) output file in ccode format"),
       allcrossings = arg_lit0("e","generate-all-crossing-signs","store a version of the pdcode with all crossing sign choices"),
-      allorientations = arg_lit0(NULL,"generate-all-orientations","store a version of the pdcode will all orientation choices"),
+      allorientations = arg_lit0(NULL,"generate-all-orientations","store a version of the pdcode with all orientation choices"),
+      orbitreps = arg_lit0(NULL,"orbit-reps","when generating versions with all crossing sign/orientation choices, only store 1 representative for each orbit of the symmetry group"), 
       knotsonly = arg_lit0("k","knots-only","only process pdcodes for knots (1 component)\n"),
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"),
@@ -176,13 +178,30 @@ int main(int argc,char *argv[]) {
       printf("processpdstor converts a file of pd_codes in the pdstor text file format\n"
 	     "to the Millett/Ewing ccode format. For each pdcode, we either store the \n"
 	     "ccode format -OR IF- the -K flag is set the pdcodes will be printed in\n"
-	     "in the style of KnotTheory\n"
+	     "in the style of KnotTheory. If\n"
 	     "\n"
 	     "--generate-all-crossing-signs is set, generate ccodes with all assignments of crossing signs\n"
 	     "\n"
 	     "--generate-all-orientations is set, generate ccodes with all component orientations\n"
 	     "\n"
-	     "Both options may be set at the same time.\n"
+	     "  (Both options may be set at the same time.)\n"
+	     "\n"
+	     "If --orbit-reps is set, then all 2^n assignments of crossings to an n-crossing diagram are\n"
+	     "generated, but if the diagram has a symmetry group, only one representative of each symmetry\n"
+	     "orbit is stored. For the 'standard trefoil diagram'\n"
+	     "\n"
+	     "       ---------                \n"
+	     "       |       |                \n"
+	     "   ----+-------+----            \n"
+	     "   |   |       |   |            \n"
+	     "   ----+--------   |            \n"
+	     "       |           |            \n"
+	     "       -------------            \n"
+	     "\n"
+	     "there would be 8 assignments of +/- to these three crossings, but \n"
+	     "there is a 6-fold symmetry group which permutes the crossings \n"
+	     "(rotate by 120 or flip) so there are only 4 orbit representatives: \n"
+	     "+++, ++-, +--, and ---.\n"
 	     "\n"
 	     "usage: \n\n");
       arg_print_glossary(stdout, argtable," %-25s %s\n");
@@ -332,6 +351,9 @@ int main(int argc,char *argv[]) {
 	  }
 	} // Otherwise, we'll want to keep the original orientations.
 
+	pd_stor_t *expansions = NULL;
+	expansions = pd_new_pdstor();
+
 	pd_multidx_t *orientation_idx;
 	pd_idx_t*    *comp_orientations;
 	pd_idx_t      one = 1, two = 2;
@@ -420,56 +442,17 @@ int main(int argc,char *argv[]) {
 
 	    }
 
-	    fprintf(out,"# %d crossing pd with UID %lu, crossings ",
-		    working_pd->ncross,working_pd->uid);
-	    for(i=0;i<working_pd->ncross;i++) {
-	      fprintf(out,"%c",pd_print_or(working_pd->cross[i].sign));
+	    if (orbitreps->count > 0) { /* We are not outputting the results yet */
+
+	      pd_addto_pdstor(expansions,working_pd,DIAGRAM_ISOTOPY); /* Store, deleting duplicates. */
+
+	    } else {
+
+	      pd_addto_pdstor(expansions,working_pd,NONE); /* Just store, period. */
+
 	    }
-
-	    fprintf(out," orientation ");
-	    for(i=0;i<working_pd->ncomps;i++) {
-	      fprintf(out,"%c",pd_print_or(component_orientations[i]));
-	    }
-	    fprintf(out,"\n");
-
-	    /* //	    /\* Simplify flag is set so we simplify the pdcode */
-	    /* //  before writing*\/ */
-	    /* if(simplify->count != 0){ */
-            /*   pd_code_t **results; */
-            /*   int ndias = 0; */
-            /*   int results_index = 0; */
-
-	    /*   //printf("Calling pd_simplify\n"); */
-
-	    /*   results = pd_simplify(working_pd, &ndias); */
-            /*   pd_code_free(&working_pd); */
-            /*   working_pd = results[0]; */
-
-            /*   // This won't handle split links properly */
-            /*   // TODO: Handle split links [so ndias > 1] properly */
-            /*   for(results_index = 1; results_index < ndias; results_index++){ */
-            /*     pd_code_free(&results[results_index]); */
-            /*   } */
-            /* } */
-
-	    /*If the KnotTheory flag is set we use
-	      pd_write_KnotTheory to write codes*/
-	    if(KnotTheory->count != 0) {
-	      pd_write_KnotTheory(out,working_pd);
-	    }
-
-	    /*If KnotTheory flag not set then
-	      we write codes as ccodes*/
-	    if(KnotTheory->count == 0){
-	      char *ccode = pdcode_to_ccode(working_pd);
-	      fprintf(out,"%s\n",ccode);
-	      free(ccode);
-	    }
-
-
+	    
 	    pd_code_free(&working_pd);
-
-	    codes_written++;
 
 	  }
 
@@ -481,12 +464,54 @@ int main(int argc,char *argv[]) {
 	pd_free_multidx(&orientation_idx);
 	free(comp_orientations);
 	free(component_orientations);
-
+	
+	pd_code_free(&inpd);
+	
+	/* Now we're going to have a new loop to write out all the 
+	   expansions for this pd code. */
+	
+	pd_code_t *thispd;
+	
+	for (thispd = pd_stor_firstelt(expansions);thispd != NULL;thispd = pd_stor_nextelt(expansions)) {
+	  
+	  codes_written++;
+	  
+	  fprintf(out,"# %d crossing pd with UID %lu, crossings ",
+		  thispd->ncross,thispd->uid);
+	  for(i=0;i<thispd->ncross;i++) {
+	    fprintf(out,"%c",pd_print_or(thispd->cross[i].sign));
+	  }
+	  
+	  fprintf(out," orientation ");
+	  for(i=0;i<thispd->ncomps;i++) {
+	    fprintf(out,"%c",pd_print_or(component_orientations[i]));
+	  }
+	  fprintf(out,"\n");
+	  
+	  /*If the KnotTheory flag is set we use
+	    pd_write_KnotTheory to write codes*/
+	  if(KnotTheory->count != 0) {
+	    pd_write_KnotTheory(out,thispd);
+	  }
+	  
+	  /*If KnotTheory flag not set then
+	    we write codes as ccodes*/
+	  if(KnotTheory->count == 0){
+	    char *ccode = pdcode_to_ccode(thispd);
+	    fprintf(out,"%s\n",ccode);
+	    free(ccode);
+	  }
+	  
+	  pd_code_free(&thispd);
+	  
+	}
+	
+	pd_free_pdstor(&expansions);
+	
       }
-
-      pd_code_free(&inpd);
-
+      
     }
+    
     printf("done (wrote %d crossing codes).\n",codes_written);
 
     if (outfile->count == 0) {
