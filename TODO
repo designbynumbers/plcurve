@@ -20,3 +20,9 @@
    up to modern theory standards, using (e.g., the three, four, and
    five-point estimators of Langer et. al. -- see the DRL for the
    paper).
+
+6) Find flype circuits automatically and write a utility program which
+   gives all of the flype-equivalent diagrams for a given diagram. (Claus)
+
+7) Better interface with KnotTheory and Mathematica.
+

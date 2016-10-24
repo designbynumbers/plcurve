@@ -41,6 +41,7 @@ struct arg_lit  *help;
 struct arg_lit  *quiet;
 struct arg_lit  *KnotTheory;
 struct arg_lit  *simplify;
+struct arg_lit  *cantsimplify;
 struct arg_end  *end;
 struct arg_end  *helpend;
 
@@ -141,7 +142,8 @@ int main(int argc,char *argv[]) {
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"),
       KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory (WARNING: WILL NOT HANDLE SPLIT LINKS)"),
-      simplify = arg_lit0("s","simplify","attempt to simplify diagrams - should only be used with -k"),
+      simplify = arg_lit0("s","simplified-diagrams","output simplified diagrams (unless they have zero crossings)"),
+      cantsimplify = arg_lit0(NULL,"no-simplifications-possible","don't output diagrams which can be simplified"),
       help = arg_lit0(NULL,"help","display help message"),
       end = arg_end(20)
     };
@@ -262,7 +264,17 @@ int main(int argc,char *argv[]) {
     if (outfile->count == 0) { /* We don't have a file open yet. */
 
       if (ofname != NULL) { free(ofname); }
-      ofname = mangle(infile->basename[i],".pdstor",".ccode");
+
+      if (KnotTheory->count == 0) { 
+
+	ofname = mangle(infile->basename[i],".pdstor",".ccode");
+
+      } else {
+
+	ofname = mangle(infile->basename[i],".pdstor",".KnotTheory");
+
+      }
+      
       printf("opening output file %s...",ofname);
       out = fopen(ofname,"w");
 
@@ -330,8 +342,10 @@ int main(int argc,char *argv[]) {
 
       pd_code_t *inpd;
       inpd = pd_read(in);
+      pd_uid_t inuid = inpd->uid;
+      pd_idx_t incross = inpd->ncross;
 
-      if (simplify->count > 0) {
+      if (simplify->count > 0 || cantsimplify->count > 0) {
 
 	pd_code_t *workpd = pd_simplify(inpd);
 	assert(pd_ok(workpd));
@@ -340,191 +354,202 @@ int main(int argc,char *argv[]) {
 
       }
 
-      assert(inpd != NULL);
+      if ((cantsimplify->count==0 && inpd->ncross > 0) || (cantsimplify->count > 0 && inpd->ncross == incross)) {
+      
+	assert(inpd != NULL);
 
-      if (!pd_ok(inpd)) {
+	if (!pd_ok(inpd)) {
 
 	  pd_printf("pdcode read from file does not pass pd_ok\n",inpd);
 	  exit(1);
 
-      }
-
-      if (knotsonly->count == 0 || inpd->ncomps == 1) {
-
-	pd_or_t *component_orientations;
-	component_orientations = calloc(inpd->ncomps,sizeof(pd_or_t));
-	int i;
-	for(i=0;i<inpd->ncomps;i++) {
-	  component_orientations[i] = PD_POS_ORIENTATION;
 	}
-	if (allcrossings->count > 0) {
-	  for(i=0;i<inpd->ncross;i++) {
-	    inpd->cross[i].sign = PD_NEG_ORIENTATION;
+
+	if (knotsonly->count == 0 || inpd->ncomps == 1) {
+
+	  pd_or_t *component_orientations;
+	  component_orientations = calloc(inpd->ncomps,sizeof(pd_or_t));
+	  int i;
+	  for(i=0;i<inpd->ncomps;i++) {
+	    component_orientations[i] = PD_POS_ORIENTATION;
 	  }
-	} // Otherwise, we'll want to keep the original orientations.
-
-	pd_stor_t *expansions = NULL;
-	expansions = pd_new_pdstor();
-
-	pd_multidx_t *orientation_idx;
-	pd_idx_t*    *comp_orientations;
-	pd_idx_t      one = 1, two = 2;
-	comp_orientations = calloc(inpd->ncomps,sizeof(pd_idx_t *));
-
-	if (allorientations->count > 0) {
-
-	  int i;
-	  for(i=0;i<inpd->ncomps;i++) { comp_orientations[i] = &two; }
-
-	} else {
-
-	  int i;
-	  for(i=0;i<inpd->ncomps;i++) { comp_orientations[i] = &one; }
-
-	}
-
-	orientation_idx = pd_new_multidx(inpd->ncomps,
-					 (void **)(comp_orientations),
-					 cyclic_ops);
-
-	unsigned int norientations = pd_multidx_nvals(orientation_idx);
-	unsigned int orcount;
-
-	for(orcount=0;
-	    orcount < norientations;
-	    orcount++,pd_increment_multidx(orientation_idx)) {
-
-	  pd_multidx_t *crossing_idx;
-	  pd_idx_t*    *comp_crossings;
-
-	  comp_crossings = calloc(inpd->ncross,sizeof(pd_idx_t *));
-
 	  if (allcrossings->count > 0) {
+	    for(i=0;i<inpd->ncross;i++) {
+	      inpd->cross[i].sign = PD_NEG_ORIENTATION;
+	    }
+	  } // Otherwise, we'll want to keep the original orientations.
+
+	  pd_stor_t *expansions = NULL;
+	  expansions = pd_new_pdstor();
+
+	  pd_multidx_t *orientation_idx;
+	  pd_idx_t*    *comp_orientations;
+	  pd_idx_t      one = 1, two = 2;
+	  comp_orientations = calloc(inpd->ncomps,sizeof(pd_idx_t *));
+
+	  if (allorientations->count > 0) {
 
 	    int i;
-	    for(i=0;i<inpd->ncross;i++) { comp_crossings[i] = &two; }
+	    for(i=0;i<inpd->ncomps;i++) { comp_orientations[i] = &two; }
 
 	  } else {
 
 	    int i;
-	    for(i=0;i<inpd->ncross;i++) { comp_crossings[i] = &one; }
+	    for(i=0;i<inpd->ncomps;i++) { comp_orientations[i] = &one; }
 
 	  }
 
-	  crossing_idx = pd_new_multidx(inpd->ncross,
-					(void **)(comp_crossings),
-					cyclic_ops);
+	  orientation_idx = pd_new_multidx(inpd->ncomps,
+					   (void **)(comp_orientations),
+					   cyclic_ops);
 
-	  unsigned int ncrossings = pd_multidx_nvals(crossing_idx);
-	  unsigned int crosscount;
+	  unsigned int norientations = pd_multidx_nvals(orientation_idx);
+	  unsigned int orcount;
 
-	  for(crosscount=0;
-	      crosscount < ncrossings;
-	      crosscount++,pd_increment_multidx(crossing_idx)) {
+	  for(orcount=0;
+	      orcount < norientations;
+	      orcount++,pd_increment_multidx(orientation_idx)) {
 
-	    pd_code_t *working_pd = pd_copy(inpd);
+	    pd_multidx_t *crossing_idx;
+	    pd_idx_t*    *comp_crossings;
 
-	    for(i=0;i<working_pd->ncomps;i++) {
-	      if (orientation_idx->i[i] == 1) {
-		pd_reorient_component(working_pd,i,PD_NEG_ORIENTATION);
-		component_orientations[i] = PD_NEG_ORIENTATION;
-	      } else {
-	      component_orientations[i] = PD_POS_ORIENTATION;
-	      }
-	    }
+	    comp_crossings = calloc(inpd->ncross,sizeof(pd_idx_t *));
 
 	    if (allcrossings->count > 0) {
 
-	      for(i=0;i<working_pd->ncross;i++) {
-		if (crossing_idx->i[i] == 1) {
-		  working_pd->cross[i].sign = PD_NEG_ORIENTATION;
-		} else {
-		  working_pd->cross[i].sign = PD_POS_ORIENTATION;
-		}
-	      }
-
-	    } else { /* We're only doing one orientation; if we've
-			GOT orientations, keep them. */
-
-	      for(i=0;i<working_pd->ncross;i++) {
-		if (working_pd->cross[i].sign == PD_UNSET_ORIENTATION) {
-		  working_pd->cross[i].sign = PD_POS_ORIENTATION;
-		}
-	      }
-
-	    }
-
-	    if (orbitreps->count > 0) { /* We are not outputting the results yet */
-
-	      pd_addto_pdstor(expansions,working_pd,DIAGRAM_ISOTOPY); /* Store, deleting duplicates. */
+	      int i;
+	      for(i=0;i<inpd->ncross;i++) { comp_crossings[i] = &two; }
 
 	    } else {
 
-	      pd_addto_pdstor(expansions,working_pd,NONE); /* Just store, period. */
+	      int i;
+	      for(i=0;i<inpd->ncross;i++) { comp_crossings[i] = &one; }
 
 	    }
+
+	    crossing_idx = pd_new_multidx(inpd->ncross,
+					  (void **)(comp_crossings),
+					  cyclic_ops);
+
+	    unsigned int ncrossings = pd_multidx_nvals(crossing_idx);
+	    unsigned int crosscount;
+
+	    for(crosscount=0;
+		crosscount < ncrossings;
+		crosscount++,pd_increment_multidx(crossing_idx)) {
+
+	      pd_code_t *working_pd = pd_copy(inpd);
+
+	      for(i=0;i<working_pd->ncomps;i++) {
+		if (orientation_idx->i[i] == 1) {
+		  pd_reorient_component(working_pd,i,PD_NEG_ORIENTATION);
+		  component_orientations[i] = PD_NEG_ORIENTATION;
+		} else {
+		  component_orientations[i] = PD_POS_ORIENTATION;
+		}
+	      }
+
+	      if (allcrossings->count > 0) {
+
+		for(i=0;i<working_pd->ncross;i++) {
+		  if (crossing_idx->i[i] == 1) {
+		    working_pd->cross[i].sign = PD_NEG_ORIENTATION;
+		  } else {
+		    working_pd->cross[i].sign = PD_POS_ORIENTATION;
+		  }
+		}
+
+	      } else { /* We're only doing one orientation; if we've
+			  GOT orientations, keep them. */
+
+		for(i=0;i<working_pd->ncross;i++) {
+		  if (working_pd->cross[i].sign == PD_UNSET_ORIENTATION) {
+		    working_pd->cross[i].sign = PD_POS_ORIENTATION;
+		  }
+		}
+
+	      }
+
+	      if (orbitreps->count > 0) { /* We are not outputting the results yet */
+
+		pd_addto_pdstor(expansions,working_pd,DIAGRAM_ISOTOPY); /* Store, deleting duplicates. */
+
+	      } else {
+
+		pd_addto_pdstor(expansions,working_pd,NONE); /* Just store, period. */
+
+	      }
 	    
-	    pd_code_free(&working_pd);
+	      pd_code_free(&working_pd);
+
+	    }
+
+	    pd_free_multidx(&crossing_idx);
+	    free(comp_crossings);
 
 	  }
 
-	  pd_free_multidx(&crossing_idx);
-	  free(comp_crossings);
-
+	  pd_free_multidx(&orientation_idx);
+	  free(comp_orientations);
+	  free(component_orientations);
+	
+	  /* Now we're going to have a new loop to write out all the 
+	     expansions for this pd code. */
+	
+	  pd_code_t *thispd;
+	
+	  for (thispd = pd_stor_firstelt(expansions);thispd != NULL;thispd = pd_stor_nextelt(expansions)) {
+	  
+	    codes_written++;
+	  
+	    fprintf(out,"# %d crossing pd from original UID %lu, crossings ",
+		    thispd->ncross,inuid);
+	    for(i=0;i<thispd->ncross;i++) {
+	      fprintf(out,"%c",pd_print_or(thispd->cross[i].sign));
+	    }
+	  
+	    /* fprintf(out," orientation "); */
+	    /* for(i=0;i<thispd->ncomps;i++) { */
+	    /*   fprintf(out,"%c",pd_print_or(component_orientations[i])); */
+	    /* } */
+	    fprintf(out,"\n"); 
+	  
+	    /*If the KnotTheory flag is set we use
+	      pd_write_KnotTheory to write codes*/
+	    if(KnotTheory->count != 0) {
+	      pd_write_KnotTheory(out,thispd);
+	    }
+	  
+	    /*If KnotTheory flag not set then
+	      we write codes as ccodes*/
+	    if(KnotTheory->count == 0){
+	      char *ccode = pdcode_to_ccode(thispd);
+	      fprintf(out,"%s\n",ccode);
+	      free(ccode);
+	    }
+	  
+	    pd_code_free(&thispd);
+	  
+	  }
+	
+	  pd_free_pdstor(&expansions);
+	  pd_code_free(&inpd);
+	
 	}
 
-	pd_free_multidx(&orientation_idx);
-	free(comp_orientations);
-	free(component_orientations);
-	
-	pd_code_free(&inpd);
-	
-	/* Now we're going to have a new loop to write out all the 
-	   expansions for this pd code. */
-	
-	pd_code_t *thispd;
-	
-	for (thispd = pd_stor_firstelt(expansions);thispd != NULL;thispd = pd_stor_nextelt(expansions)) {
-	  
-	  codes_written++;
-	  
-	  fprintf(out,"# %d crossing pd with UID %lu, crossings ",
-		  thispd->ncross,thispd->uid);
-	  for(i=0;i<thispd->ncross;i++) {
-	    fprintf(out,"%c",pd_print_or(thispd->cross[i].sign));
-	  }
-	  
-	  fprintf(out," orientation ");
-	  for(i=0;i<thispd->ncomps;i++) {
-	    fprintf(out,"%c",pd_print_or(component_orientations[i]));
-	  }
-	  fprintf(out,"\n");
-	  
-	  /*If the KnotTheory flag is set we use
-	    pd_write_KnotTheory to write codes*/
-	  if(KnotTheory->count != 0) {
-	    pd_write_KnotTheory(out,thispd);
-	  }
-	  
-	  /*If KnotTheory flag not set then
-	    we write codes as ccodes*/
-	  if(KnotTheory->count == 0){
-	    char *ccode = pdcode_to_ccode(thispd);
-	    fprintf(out,"%s\n",ccode);
-	    free(ccode);
-	  }
-	  
-	  pd_code_free(&thispd);
-	  
-	}
-	
-	pd_free_pdstor(&expansions);
-	
       }
       
     }
     
-    printf("done (wrote %d crossing codes).\n",codes_written);
+    if (KnotTheory->count == 0) {
+      
+      printf("done (wrote %d crossing codes).\n",codes_written);
+
+    } else {
+
+      printf("done (wrote %d KnotTheory pd codes).\n",codes_written);
+
+    }
 
     if (outfile->count == 0) {
       printf("closing output file %s...",ofname);

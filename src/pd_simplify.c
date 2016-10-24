@@ -69,7 +69,7 @@ pd_code_t *pd_simplify(pd_code_t *pd)
       
     }
     
-  } while (found_monogon);
+  } while (found_monogon && workingpd->ncross > 0);
 
   return workingpd;
 
