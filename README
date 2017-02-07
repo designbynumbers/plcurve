@@ -155,3 +155,9 @@ Spherogram and PLink (available at http://www.math.uic.edu/t3m/), but
 these packages are not required in general. It is listed in the
 docstrings (and documentation) of functions which require these
 modules.
+
+In general, you start a session using libpl with
+
+from libpl.pdcode import PlanarDiagram
+
+in IPython and then the basic class is the PlanarDiagram class.
