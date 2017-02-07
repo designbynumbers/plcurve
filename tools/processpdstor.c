@@ -235,7 +235,16 @@ int main(int argc,char *argv[]) {
   //  import_libpl__pdcode__diagram();
   //}
 
-  printf("processpdstor crossing code generator for pdstor files\n");
+  printf("processpdstor %s crossing code generator for pdstor files\n",PACKAGE_VERSION);
+
+  char svntag[1024];
+  sprintf(svntag,"%s",SVNVERSION);
+  if (!strstr("exported",svntag)) {  /* We were built from svn */
+      printf("svn version %s\n",SVNVERSION);
+  }
+  
+  printf("Built %s, %s.\n", __DATE__ , __TIME__ );
+
   printf("generating crossing codes for %d pdstor files\n",infile->count);
 
   FILE *out;
@@ -377,10 +386,15 @@ int main(int argc,char *argv[]) {
 	    for(i=0;i<inpd->ncross;i++) {
 	      inpd->cross[i].sign = PD_NEG_ORIENTATION;
 	    }
-	  } // Otherwise, we'll want to keep the original orientations.
+	  } // Otherwise, we'll want to keep the original crossing signs.
 
 	  pd_stor_t *expansions = NULL;
-	  expansions = pd_new_pdstor();
+
+	  if (orbitreps->count > 0) {
+	    
+	    expansions = pd_new_pdstor();
+
+	  }
 
 	  pd_multidx_t *orientation_idx;
 	  pd_idx_t*    *comp_orientations;
@@ -459,8 +473,9 @@ int main(int argc,char *argv[]) {
 		  }
 		}
 
-	      } else { /* We're only doing one orientation; if we've
-			  GOT orientations, keep them. */
+	      } else { /* We're only doing one sign assignment for the crossings; if we've
+			  GOT crossing signs, keep them; otherwise, we may as well set them 
+		          all to "positive" as we're outputting diagrams (always). */
 
 		for(i=0;i<working_pd->ncross;i++) {
 		  if (working_pd->cross[i].sign == PD_UNSET_ORIENTATION) {
@@ -476,7 +491,36 @@ int main(int argc,char *argv[]) {
 
 	      } else {
 
-		pd_addto_pdstor(expansions,working_pd,NONE); /* Just store, period. */
+		/* We want to write out the results while we still have the component orientations 
+		   and crossing signs recorded. */
+
+		codes_written++;
+	      
+		fprintf(out,"# %d crossing pd from original UID %lu, orientations ",working_pd->ncross,inuid);
+		for(i=0;i<working_pd->ncomps;i++) {
+		  fprintf(out,"%c",pd_print_or(component_orientations[i]));
+		}
+
+		fprintf(out, " crossings ");
+		for(i=0;i<working_pd->ncross;i++) {
+		  fprintf(out,"%c",pd_print_or(working_pd->cross[i].sign));
+		}
+	      
+		fprintf(out,"\n"); 
+	      
+		/*If the KnotTheory flag is set we use
+		  pd_write_KnotTheory to write codes*/
+		if(KnotTheory->count != 0) {
+		  pd_write_KnotTheory(out,working_pd);
+		}
+	      
+		/*If KnotTheory flag not set then
+		  we write codes as ccodes*/
+		if(KnotTheory->count == 0){
+		  char *ccode = pdcode_to_ccode(working_pd);
+		  fprintf(out,"%s\n",ccode);
+		  free(ccode);
+		}
 
 	      }
 	    
@@ -492,47 +536,52 @@ int main(int argc,char *argv[]) {
 	  pd_free_multidx(&orientation_idx);
 	  free(comp_orientations);
 	  free(component_orientations);
+
+	  /* Now, if we stored orbit-reps, we're going to have to write out the elements in the pdstor
+	     (since we haven't written anything yet). */
 	
-	  /* Now we're going to have a new loop to write out all the 
-	     expansions for this pd code. */
+	  if (orbitreps->count > 0) { 
 	
-	  pd_code_t *thispd;
-	
-	  for (thispd = pd_stor_firstelt(expansions);thispd != NULL;thispd = pd_stor_nextelt(expansions)) {
-	  
-	    codes_written++;
-	  
-	    fprintf(out,"# %d crossing pd from original UID %lu, crossings ",
-		    thispd->ncross,inuid);
-	    for(i=0;i<thispd->ncross;i++) {
-	      fprintf(out,"%c",pd_print_or(thispd->cross[i].sign));
+	    pd_code_t *thispd;
+	    
+	    for (thispd = pd_stor_firstelt(expansions);thispd != NULL;thispd = pd_stor_nextelt(expansions)) {
+	      
+	      codes_written++;
+	      
+	      fprintf(out,"# %d crossing pd from original UID %lu, crossings ",
+		      thispd->ncross,inuid);
+	      for(i=0;i<thispd->ncross;i++) {
+		fprintf(out,"%c",pd_print_or(thispd->cross[i].sign));
+	      }
+	      
+	      /* fprintf(out," orientation "); */
+	      /* for(i=0;i<thispd->ncomps;i++) { */
+	      /*   fprintf(out,"%c",pd_print_or(component_orientations[i])); */
+	      /* } */
+	      fprintf(out,"\n"); 
+	      
+	      /*If the KnotTheory flag is set we use
+		pd_write_KnotTheory to write codes*/
+	      if(KnotTheory->count != 0) {
+		pd_write_KnotTheory(out,thispd);
+	      }
+	      
+	      /*If KnotTheory flag not set then
+		we write codes as ccodes*/
+	      if(KnotTheory->count == 0){
+		char *ccode = pdcode_to_ccode(thispd);
+		fprintf(out,"%s\n",ccode);
+		free(ccode);
+	      }
+	      
+	      pd_code_free(&thispd);
+	      
 	    }
-	  
-	    /* fprintf(out," orientation "); */
-	    /* for(i=0;i<thispd->ncomps;i++) { */
-	    /*   fprintf(out,"%c",pd_print_or(component_orientations[i])); */
-	    /* } */
-	    fprintf(out,"\n"); 
-	  
-	    /*If the KnotTheory flag is set we use
-	      pd_write_KnotTheory to write codes*/
-	    if(KnotTheory->count != 0) {
-	      pd_write_KnotTheory(out,thispd);
-	    }
-	  
-	    /*If KnotTheory flag not set then
-	      we write codes as ccodes*/
-	    if(KnotTheory->count == 0){
-	      char *ccode = pdcode_to_ccode(thispd);
-	      fprintf(out,"%s\n",ccode);
-	      free(ccode);
-	    }
-	  
-	    pd_code_free(&thispd);
-	  
+	    
+	    pd_free_pdstor(&expansions);
+
 	  }
-	
-	  pd_free_pdstor(&expansions);
+	  
 	  pd_code_free(&inpd);
 	
 	}

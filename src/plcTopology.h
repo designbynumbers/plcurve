@@ -562,7 +562,15 @@ extern "C" {
   void pd_addto_pdstor(pd_stor_t *pdstor, pd_code_t *pd,pd_equivalence_t eq);
   /* Add a new-memory copy of pd to pdstor, unless an equivalent pd_code_t
      is already stored. Note: If eq == NONE, then we always store, even if
-     this is an exact duplicated of a previous entry. */
+     this is an exact duplicate of a previous entry. 
+
+     The uid of pd is
+
+     1) left alone if the pd code was inserted successfully
+     2) reset to the UID of the equivalent diagram in the pdstor if a 
+        duplicate was found in storage. 
+
+  */
 
   pd_code_t *pd_stor_firstelt(pd_stor_t *pdstor);
 
