@@ -31,6 +31,7 @@
 
 struct arg_file *infile;  //
 struct arg_file *outfile; // optional outfile override
+struct arg_int  *numcomps;
 
 struct arg_lit  *allcrossings;
 struct arg_lit  *allorientations;
@@ -139,6 +140,7 @@ int main(int argc,char *argv[]) {
       allorientations = arg_lit0(NULL,"generate-all-orientations","store a version of the pdcode with all orientation choices"),
       orbitreps = arg_lit0(NULL,"orbit-reps","when generating versions with all crossing sign/orientation choices, only store 1 representative for each orbit of the symmetry group"), 
       knotsonly = arg_lit0("k","knots-only","only process pdcodes for knots (1 component)\n"),
+      numcomps = arg_int0("c","number-of-components","<n>","only process pdcodes for links with <n> components\n"), 
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"),
       KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory (WARNING: WILL NOT HANDLE SPLIT LINKS)"),
@@ -374,7 +376,9 @@ int main(int argc,char *argv[]) {
 
 	}
 
-	if (knotsonly->count == 0 || inpd->ncomps == 1) {
+	if ((knotsonly->count == 1 && inpd->ncomps == 1) ||
+	    (numcomps->count == 1 && numcomps->ival[0] == inpd->ncomps) ||
+	    (numcomps->count == 0 && knotsonly->count == 0)) {
 
 	  pd_or_t *component_orientations;
 	  component_orientations = calloc(inpd->ncomps,sizeof(pd_or_t));
