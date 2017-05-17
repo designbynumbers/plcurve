@@ -991,14 +991,18 @@ cdef class PlanarDiagram:
         Return the Euler characteristic of the diagram."""
         return self.nfaces + self.ncross - self.nedges
 
-    def homfly(self, as_string=False):
-        """homfly([as_string=False]) -> HOMFLYPolynomial
+    def homfly(self, as_string=False, timeout=None):
+        """homfly([as_string=False, timeout=None]) -> HOMFLYPolynomial
 
         Compute the HOMFLY polynomial for this diagram. Returns None
         on error.
         """
-        cdef char* homfly_from_pd = pd_homfly(self.p)
+        cdef char* homfly_from_pd
         cdef bytes homflybytes
+        if timeout is None:
+            homfly_from_pd = pd_homfly(self.p)
+        else:
+            homfly_from_pd = pd_homfly_timeout(self.p, timeout)
         if homfly_from_pd == NULL:
             return None
         else:
@@ -1492,7 +1496,7 @@ cdef class PlanarDiagram:
             pd_regenerate(pd)
             att_N += 1
             meth.seed += 1
-            if max_att and att_N >= max_att:
+            if max_att and att_N > max_att:
                 pd_code_free(&pd)
                 return None
 
