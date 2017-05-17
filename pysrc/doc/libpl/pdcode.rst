@@ -1,36 +1,11 @@
-pdcode: PlanarDiagrams
--------------------------------------
+The pdcode Module: Diagrams
+===========================
 
-.. currentmodule:: libpl.pdcode
+Contents:
 
-The PlanarDiagram class
-'''''''''''''''''''''''
+.. toctree::
+   :maxdepth: 4
 
-.. autoclass:: PlanarDiagram
-   :members:
-   :exclude-members: from_unknot_wye, from_unknot,
-                     from_simple_chain, from_torus_knot, from_twist_knot
-
-Building block classes
-''''''''''''''''''''''
-
-.. autoclass:: Component
-   :members:
-
-.. autoclass:: Edge
-   :members:
-
-.. autoclass:: Crossing
-   :members:
-
-.. autoclass:: Face
-   :members:
-
-Utility classes
-'''''''''''''''
-
-.. autoclass:: HOMFLYPolynomial
-   :members:
-
-.. autoclass:: HOMFLYTerm
-   :members:
+   pdcode/diagram
+   pdcode/components
+   pdcode/homfly

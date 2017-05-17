@@ -105,7 +105,7 @@ intersphinx_mapping = {'python': ('https://docs.python.org/2.7', None)}
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -234,7 +234,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'plcurve', u'plCurve Documentation',
-     [u'Jason Cantarella'], 1)
+     [u'Ted Ashton', u'Jason Cantarella', u'Harrison Chapman'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -248,7 +248,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'plCurve', u'plCurve Documentation',
-   u'Jason Cantarella', 'plCurve', 'One line description of project.',
+   u'Jason Cantarella, Harrison Chapman', 'plCurve', 'Piecewise-linear curve library.',
    'Miscellaneous'),
 ]
 
@@ -264,5 +264,6 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
-autodoc_member_order = "groupwise"
+autodoc_member_order = "bysource"
 autodoc_docstring_signature = True
+autoclass_content = "both"

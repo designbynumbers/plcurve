@@ -60,9 +60,8 @@ cdef class Crossing(_Disownable):
     :py:meth:`PlanarDiagram.regenerate` on the parent so that sanity
     can be checked and faces and components regenerated.
 
-    Accessing crossing information
-    ==============================
-    
+    *Accessing crossing information*
+
     Crossings support two methods of viewing their child edge data,
 
     """
