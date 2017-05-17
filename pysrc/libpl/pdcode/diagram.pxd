@@ -9,10 +9,13 @@ cdef class _OwnedObjectList:
 
 cdef class _EdgeList(_OwnedObjectList):
     pass
+
 cdef class _CrossingList(_OwnedObjectList):
     pass
+
 cdef class _ComponentList(_OwnedObjectList):
     pass
+
 cdef class _FaceList(_OwnedObjectList):
     pass
 

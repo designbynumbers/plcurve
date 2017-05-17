@@ -72,6 +72,7 @@ LIBPL_PDCODE_PYX = (
     "isomorphism.pyx",
     "pdstor.pyx",
     "plctopology.pyx",
+    "pd_invariants.pyx",
     "planarmap.pyx",)
 
 LIBPL_PYX = (

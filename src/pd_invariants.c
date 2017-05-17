@@ -122,7 +122,7 @@ int pdint_interlaced_comp(pd_code_t *pd,pd_idx_t comp,bool signs)
    0 2 0 1 2 
 
    Some crossings (with other components) will occur only
-   one. Crossings of this component with itself should occur twice in
+   once. Crossings of this component with itself should occur twice in
    the list. We then scan to compute frequency of each crossing in the
    list, then eliminate crossings that occur only once.
 
@@ -191,21 +191,21 @@ int pdint_interlaced_comp(pd_code_t *pd,pd_idx_t comp,bool signs)
    and yY. Let's assume wlog that X < Y. Then we can enumerate the
    options, and there are really only six. We can arrange these in
    clever way, along with the swaps that get them there
-  	   
-		 (yYxX)
-	       	    |  	   
-                 Yx-->xY  
-	      	    |	
-    YX-->XY    --(yxYX)---   yx-->xy  
-              /   	  \ 
-             / 	       	   \
+
+                 (yYxX)
+                   |
+                Yx-->xY
+                   |
+    YX-->XY    --(yxYX)---   yx-->xy
+             /           \
+            /             \
           (yxXY)         (xyYX)
-   	     \ 	       	   /   	    
-      	      \     	  / 	    
+            \             /
+             \           /
      yx-->xy   --(xyXY)---   YX-->XY
-       	       	    |
+                    |
                  yX-->Xy
-		    |
+                    |
                  (xXyY)
 
    We notice that among these, only yxYX and xyXY are linked; these

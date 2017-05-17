@@ -61,7 +61,6 @@ class NoParentException(Exception):
     pass
 
 cdef class Edge(_Disownable):
-    
     property head:
         """The index of the crossing towards which this edge points."""
         def __get__(self):
@@ -113,10 +112,8 @@ cdef class Edge(_Disownable):
         self.parent = parent
 
     def __dealloc__(self):
-        #return
         if self.parent is None and self.p is not NULL:
-            pass
-            #PyMem_Free(self.p)
+            PyMem_Free(self.p)
 
     cdef disown(self):
         """Disconnect this data from its parent and copy the data."""
@@ -127,12 +124,12 @@ cdef class Edge(_Disownable):
     cpdef Edge oriented(self, pd_or_t sign):
         """oriented(sign) -> Edge
 
-        Returns a copy of original edge if ``sign ==
-        PD_POS_EDGE_ORIENTATION``, or a new reversed edge if ``sign ==
-        PD_NEG_EDGE_ORIENTATION``.
+        Returns a copy of original edge if ``sign`` is
+        `~.diagram.POS_ORIENTATION`, or a new reversed edge if ``sign`` is
+        `~.diagram.NEG_ORIENTATION`.
 
-        The :class`Edge` returned is not connected to any
-        :py:class:`PlanarDiagram` until it is attached.
+        The `Edge` returned is not connected to any
+        `~.diagram.PlanarDiagram` until it is attached.
         """
         cdef Edge ret = self.__new__(self.__class__)
         cdef pd_edge_t cedge = pd_oriented_edge(deref(self.p), sign)
@@ -143,7 +140,8 @@ cdef class Edge(_Disownable):
         return ret
 
     cpdef component_index_pos(self):
-        """component_index_pos() -> (component index, edge pos)
+        """
+        component_index_pos() -> component index, edge pos
 
         Returns the index of the component on which this edge resides and this
         edge's position on that component.
@@ -156,18 +154,19 @@ cdef class Edge(_Disownable):
         return comp, comp_pos
 
     cpdef component_pos(self):
-        """component_pos() -> (Component, edge pos)
+        """
+        component_pos() -> Component, edge pos
 
-        Returns the :class:`Component` on which this edge resides and this
-        edge's position on that component. If you just want the index
-        of the component, use :py:meth:`component_index_pos`
+        Returns the `Component` on which this edge resides and this edge's
+        position on that component.  If you just want the index of the
+        component, use `component_index_pos()`
         """
         cdef pd_idx_t comp, comp_pos
         comp, comp_pos = self.component_index_pos()
         return self.parent.components[comp], comp_pos
 
     cpdef face_index_pos(self):
-        """face_index_pos() -> ((pos_face, pos), (neg_face, pos))
+        """face_index_pos() -> [pos_face, pos], [neg_face, pos]
 
         Returns the face indices on which this edge resides and this
         edge's position on those faces.
@@ -181,11 +180,11 @@ cdef class Edge(_Disownable):
         return (plus, plus_pos), (minus, minus_pos)
 
     cpdef face_pos(self):
-        """face_pos() -> ((Face plus, pos), (Face minus, pos))
+        """face_pos() -> [Face plus, pos], [Face minus, pos]
 
-        Returns the :class:`Face`\ s on which this edge resides and this
+        Returns the `Face`\ s on which this edge resides and this
         edge's position on that face. If you just want the indices
-        of the faces, use :py:meth:`face_index_pos`
+        of the faces, use `face_index_pos()`
         """
         cdef pd_idx_t plus, plus_pos, minus, minus_pos
         (plus,plus_pos),(minus,minus_pos) = self.face_index_pos()
@@ -195,7 +194,7 @@ cdef class Edge(_Disownable):
     cpdef reorient(self, pd_or_t sign):
         """reorient(sign)
 
-        Flips the edge if ``sign == PD_NEG_ORIENTATION``.
+        Flips the edge if ``sign`` is `~.diagram.NEG_ORIENTATION`.
         """
         if self.parent is None:
             raise NoParentException("Edge does not belong to a pdcode")
@@ -205,7 +204,15 @@ cdef class Edge(_Disownable):
         """
         plug_head(Crossing x, pos)
 
-        Change where this edge points to x[pos].
+        Redirect the head of this edge to point to x[pos].
+
+        :param Crossing x: The crossing to connect this edge to
+        :param int pos: The position in [0..3] of the `Crossing` ``x`` to
+            connect this edge to.
+
+        :raises Exception: If this edge is either not part of a
+            `PlanarDiagram`, or connected to a different `PlanarDiagram` than
+            the `Crossing` ``x``.
         """
         if self.parent is not None and self.parent.p != x.parent.p:
             raise Exception("Cannot plug this edge into a different diagram")
@@ -216,6 +223,19 @@ cdef class Edge(_Disownable):
         self.headpos = pos
 
     cpdef plug_tail(self, Crossing x, pd_idx_t pos):
+        """
+        plug_tail(Crossing x, pos)
+
+        Redirect the tail of this edge to point from x[pos].
+
+        :param Crossing x: The crossing to connect this edge to
+        :param int pos: The position in [0..3] of the `Crossing` ``x`` to
+            connect this edge to.
+
+        :raises Exception: If this edge is either not part of a
+            `PlanarDiagram`, or connected to a different `PlanarDiagram` than
+            the `Crossing` ``x``.
+        """
         if self.parent is not None and self.parent.p != x.parent.p:
             raise Exception("Cannot plug this edge into a different diagram")
         elif self.parent is None:
@@ -225,8 +245,25 @@ cdef class Edge(_Disownable):
         self.tailpos = pos
 
     cpdef swap_head(self, Edge other, pd_or_t head_or_tail):
+        """
+        swap_head(Edge other, head_or_tail)
+
+        Swap the head of this edge with the head or tail of edge ``other``.
+
+        :param Edge other: the other edge with whom to swap
+        :param head_or_tail: Either `~.diagram.NEG_ORIENTATION` or
+            `~.diagram.POS_ORIENTATION`, which determines whether to swap the
+            head of this edge with the tail or head of ``other``, respectively.
+
+        :raises Exception: If head_or_tail is not a valid orientation choice,
+            or this edge is connected to a different parent than ``other``
+        """
         cdef Crossing x
         cdef pd_idx_t pos
+
+        if self.parent is not None and self.parent.p != other.parent.p:
+            raise Exception("Cannot plug this edge into a different diagram")
+
         if head_or_tail == PD_NEG_ORIENTATION:
             # Plug into other's tail crossing
             pos = self.headpos
@@ -243,8 +280,27 @@ cdef class Edge(_Disownable):
             raise Exception("Invalid orientation describing head-or-tail")
 
     cpdef swap_tail(self, Edge other, pd_or_t head_or_tail):
+        """
+        swap_tail(Edge other, head_or_tail)
+
+        Swap the tail of this edge with the head or tail of edge ``other``.
+
+        :param Edge other: the other edge with whom to swap
+        :param head_or_tail: Either `~.diagram.NEG_ORIENTATION` or
+            `~.diagram.POS_ORIENTATION`, which determines whether to swap the
+            tail of this edge with the tail or head of ``other``,
+            respectively.
+
+        :raises Exception: If head_or_tail is not a valid orientation choice,
+            or this edge is connected to a different parent than ``other``
+        """
+
         cdef Crossing x
         cdef pd_idx_t pos
+
+        if self.parent is not None and self.parent.p != other.parent.p:
+            raise Exception("Cannot plug this edge into a different diagram")
+
         if head_or_tail == PD_NEG_ORIENTATION:
             # Plug into other's tail crossing
             pos = self.tailpos
@@ -268,38 +324,54 @@ cdef class Edge(_Disownable):
             self.p.tail, self.p.tailpos, self.p.head, self.p.headpos)
 
     def prev_crossing(self):
-        """prev_crossing() -> Crossing
+        """
+        prev_crossing() -> Crossing
 
         Return the :class:`Crossing` from which this edge originates.
         """
-        
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.crossings[self.p.tail]
-    def next_crossing(self):
-        """next_crossing() -> Crossing
 
-        Return the :class:`Crossing` towards which this edge points"""
+    def next_crossing(self):
+        """
+        next_crossing() -> Crossing
+
+        Return the :class:`Crossing` towards which this edge points
+        """
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.crossings[self.p.head]
 
     def prev_edge(self):
-        """prev_edge() -> Edge
+        """
+        prev_edge() -> Edge
 
-        Return the previous :class:`Edge` along the component"""
+        Return the previous :class:`Edge` along the component
+        """
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.edges[
             self.parent.p.cross[self.p.tail].edge[(self.p.tailpos+2)%4]]
-    def next_edge(self):
-        """next_edge() -> Edge
 
-        Return the next :class:`Edge` along the component"""
+    def next_edge(self):
+        """
+        next_edge() -> Edge
+
+        Return the next :class:`Edge` along the component
+        """
         if self.parent is None:
             raise NoParentException("This Edge is not owned by any PlanarDiagram.")
         return self.parent.edges[
             self.parent.p.cross[self.p.head].edge[(self.p.headpos+2)%4]]
+
+    # cdef _update_parent(self, PlanarDiagram parent, int i, pd_edge_t* ptr):
+    #     if self.parent is None and self.p is not NULL:
+    #         PyMem_Free(self.p)
+
+    #     self.parent = parent
+    #     self.index = i
+    #     self.p = &parent.p.edge[index]
 
 cdef Edge Edge_FromParent(PlanarDiagram parent, pd_idx_t index):
     cdef Edge new_edge = Edge.__new__(Edge)
@@ -474,45 +546,47 @@ cdef class Crossing(_Disownable):
     cdef pd_idx_t[:] edgeview_get(self):
         return <pd_idx_t[:4]>self.p.edge
     property edges:
-        """A tuple of the indices of the edges which connect to this crossing.
+        """A memory view of the indices of the edges which connect to this
+        crossing.
 
-        If you want objects instead of indices, access this ``Crossing``
-        like a sequence instead.
+        Indices can be changed, but you have to be careful and
+        regenerate/validity check the diagram after this.
+
+        If you want objects instead of indices, access this `Crossing` like a
+        sequence instead.
         """
         def __get__(self):
             return self.edgeview_get()
     property sign:
-        """The orientation of this crossing. The convention used to determine
+        """The orientation of this crossing.  The convention used to determine
         sign is this:
 
-        **Positive crossing**: (upper tangent vector) \\\\(\\\\times\\\\)
+        **Positive crossing**: (upper tangent vector) :math:`\\times`
         (lower tangent vector) points OUT of screen::
 
-                ^
-                |
-           ----------->
-                |
-                |
+                 ^
+                 |
+            ----------->
+                 |
+                 |
 
-        **Negative crossing**: (upper tangent vector) \\\\(\\\\times\\\\)
+        **Negative crossing**: (upper tangent vector) :math:`\\times`
         (lower tangent vector) points INTO screen::
 
-                ^
-                |
-           -----|----->
-                |
-                |
+                 ^
+                 |
+            -----|----->
+                 |
+                 |
 
-        You often simply want to know which of the strands (0-2) or
-        (1-3) is on top. There are several cases, because it depends
-        BOTH on the sign of the crossing and the orientation of the
-        strands. It's recommended to use the methods
-        :py:meth:`overstrand` and :py:meth:`understrand` to determine
-        which is which. Also, the methods :py:meth:`overstrand_pos`
-        and :py:meth:`understrand_pos` return the position in this
-        crossing (that is, a number in 0..3) of the incoming and
-        outgoing edges of the strand going over at this crossing.
-
+        You often simply want to know which of the strands (0-2) or (1-3) is on
+        top.  There are several cases, because it depends BOTH on the sign of
+        the crossing and the orientation of the strands.  It's recommended to
+        use the methods :py:meth:`overstrand` and :py:meth:`understrand` to
+        determine which is which.  Also, the methods :py:meth:`overstrand_pos`
+        and :py:meth:`understrand_pos` return the position in this crossing
+        (that is, a number in 0..3) of the incoming and outgoing edges of the
+        strand going over at this crossing.
         """
         def __get__(self):
             return self.p.sign
@@ -569,9 +643,7 @@ cdef class Crossing(_Disownable):
         if isinstance(i, slice):
             return tuple(self.p.edge[j] for j in range(*i.indices(4)))
         else:
-            i = -i if i < 0 else i
-            if i >= 4:
-                raise IndexError("Index is out of bounds")
+            i = i % 4
             return self.parent.edges[self.p.edge[i]]
 
     cdef PlanarDiagram parent_x(self):
@@ -580,6 +652,11 @@ cdef class Crossing(_Disownable):
         return self.parent
 
     def adjacent(self, pos):
+        """
+        adjacent(pos) -> Crossing, int position
+
+        Returns the crossing and position to which the edge at ``pos`` points.
+        """
         edge = self[pos]
         if (self.index, pos) == edge.head_tuple:
             return edge.prev_crossing(), edge.tailpos
@@ -587,10 +664,11 @@ cdef class Crossing(_Disownable):
             return edge.next_crossing(), edge.headpos
 
     def overstrand(self):
-        """overstrand(self) -> (Edge incoming, Edge outgoing)
+        """
+        overstrand() -> Edge incoming, Edge outgoing
 
-        Return Edge objects which are the incoming and outgoing edges
-        for the strand which passes *over* this crossing.
+        Return Edge objects which are the incoming and outgoing edges for the
+        strand which passes *over* this crossing.
 
         If you want indices instead of objects, use
         :py:meth:`overstrand_indices`.
@@ -599,7 +677,8 @@ cdef class Crossing(_Disownable):
         return (self.parent_x().edges[inc], self.parent_x().edges[out])
 
     cpdef overstrand_indices(self):
-        """overstrand_indices(self) -> (in_index, out_index)
+        """
+        overstrand_indices() -> in_index, out_index
 
         Return indices corresponding to the incoming and outgoing
         edges for the strand which passes *over* this crossing.
@@ -612,7 +691,8 @@ cdef class Crossing(_Disownable):
         return inc, out
 
     cpdef overstrand_pos(self):
-        """overstrand_pos(self) -> (in_pos, out_pos)
+        """
+        overstrand_pos() -> in_pos, out_pos
 
         Return indices around this crossing corresponding to the
         incoming and outgoing edges for the strand which passes *over*
@@ -623,10 +703,11 @@ cdef class Crossing(_Disownable):
         return incp, outp
 
     def understrand(self):
-        """understrand(self) -> (Edge incoming, Edge outgoing)
+        """
+        understrand() -> Edge incoming, Edge outgoing
 
-        Return Edge objects which are the incoming and outgoing edges
-        for the strand which passes *under* this crossing.
+        Return Edge objects which are the incoming and outgoing edges for the
+        strand which passes *under* this crossing.
 
         If you want indices instead of objects, use
         :py:meth:`understrand_indices`.
@@ -635,7 +716,8 @@ cdef class Crossing(_Disownable):
         return (self.parent_x().edges[inc], self.parent_x().edges[out])
 
     cpdef understrand_indices(self):
-        """understrand_indices(self) -> (in_index, out_index)
+        """
+        understrand_indices() -> in_index, out_index
 
         Return indices corresponding to the incoming and outgoing
         edges for the strand which passes *under* this crossing.
@@ -648,7 +730,8 @@ cdef class Crossing(_Disownable):
         return inc, out
 
     cpdef understrand_pos(self):
-        """understrand_pos(self) -> (in_pos, out_pos)
+        """
+        understrand_pos() -> in_pos, out_pos
 
         Return indices around this crossing corresponding to the
         incoming and outgoing edges for the strand which passes *under*
@@ -659,7 +742,8 @@ cdef class Crossing(_Disownable):
         return incp, outp
 
     def get_faces(self):
-        """get_faces() -> tuple of Faces
+        """
+        get_faces() -> tuple of Faces
 
         Return the faces on which this crossing is a vertex, in
         clockwise order.

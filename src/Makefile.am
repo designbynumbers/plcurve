@@ -2,7 +2,7 @@ AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
 AM_CPPFLAGS = -I $(top_srcdir)/judy/src      # We'll need to find Judy.h here. 
 ACLOCAL_AMFLAGS = -I m4
 
-include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.h 
+include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.h pd_invariants.h
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
 #if HAVE_ARGTABLE2

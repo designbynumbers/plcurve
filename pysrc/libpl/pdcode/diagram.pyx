@@ -207,6 +207,42 @@ cdef class _EdgeList:
     def __len__(self):
         return self.parent.nedges
 
+    # cdef void _set_edge(self, int i, Edge edge):
+    #     """
+    #     Set the edge at index i to be the data contained in edge
+    #     """
+    #     self.parent.p.edge[i] = edge.p[0]
+    #     edge._update_parent(self, i, self.parent.p.edge+i)
+
+    # def __setitem__(self, i, edge):
+    #     """ TODO: Needs to be careful if edge is owned by a parent...
+    #     """
+    #     if not (isinstance(i, int) or isinstance(i, long)):
+    #         raise TypeError("Index must be an integer.")
+    #     if i < 0:
+    #         _i = len(self)-i
+    #     else:
+    #         _i = i
+
+    #     if _i < 0 or _i > len(self):
+    #         raise IndexError("Index %s is out of range"%i)
+
+    #     if isinstance(edge, Edge):
+    #         if edge.parent is not None:
+    #             raise TypeError("Edge must not already belong to a parent")
+
+    #         self._set_edge(_i, edge)
+
+    #     elif isinstance(edge, tuple):
+    #         headdata, taildata = edge
+    #         head, headpos = headdata
+    #         tail, tailpos = taildata
+
+    #         self.parent.edge[i].head = head
+    #         self.parent.edge[i].tail = tail
+    #         self.parent.edge[i].headpos = headpos
+    #         self.parent.edge[i].tailpos = tailpos
+
     cdef object _new_child_object(self, long i):
         return Edge_FromParent(self.parent, i)
 
@@ -1816,45 +1852,44 @@ cdef class PlanarDiagram:
 
     @classmethod
     def random_diagram(cls, n_crossings, n_components=None, max_att=50, dia_type=None):
-        u"""
-         random_diagram(n_crossings, n_components=None, max_att=50,
-         dia_type=None) -> PlanarDiagram
+        """
+        random_diagram(n_crossings, n_components=None, max_att=50, dia_type=None) -> PlanarDiagram
 
-         Create a new PlanarDiagram with ``n_crossings`` crossings by uniformly
-         sampling a rooted 4-regular map using Giles Schaeffer's PlanarMap and
-         uniformly sampling a sign at each crossing.  If n_components is a
-         positive integer rather than `None`, then we will attempt up to
-         max_att times to create a diagram with precisely n_components, and
-         `None` otherwise.  If ``max_att=0`` then there is no limit on the
-         number of attempts to satisfy ``n_components``.
+        Create a new PlanarDiagram with ``n_crossings`` crossings by uniformly
+        sampling a rooted 4-regular map using Giles Schaeffer's PlanarMap and
+        uniformly sampling a sign at each crossing.  If n_components is a
+        positive integer rather than `None`, then we will attempt up to max_att
+        times to create a diagram with precisely n_components, and `None`
+        otherwise.  If ``max_att=0`` then there is no limit on the number of
+        attempts to satisfy ``n_components``.
 
-         Presently, dia_type is one of ``'all'``, ``'prime'``, ``'6conn'``, or
-         ``'biquart'``.  (``dia_type=None`` defaults to all)
+        Presently, dia_type is one of ``'all'``, ``'prime'``, ``'6conn'``, or
+        ``'biquart'``.  (``dia_type=None`` defaults to all)
 
-         :param int n_crossings: The number of crossings of the result diagram
-         :param n_components: The number of components of the result diagram,
-             or None if no constraint
-         :param int max_att: The max number of attempts to create a diagram of
-             :obj:`n_components` components.
-         :param dia_type: The type of diagram to produce, or None for any.
-             Valid types are:
+        :param int n_crossings: The number of crossings of the result diagram
+        :param n_components: The number of components of the result diagram, or
+            None if no constraint
+        :param int max_att: The max number of attempts to create a diagram of
+            :obj:`n_components` components.
+        :param dia_type: The type of diagram to produce, or None for any.
+            Valid types are:
 
-                 - ``'all'``, 2-edge-connected (i.e. any) diagrams,
+                - ``'all'``, 2-edge-connected (i.e. any) diagrams,
 
-                 - ``'prime'``, 4-connected (i.e. prime) diagrams
+                - ``'prime'``, 4-connected (i.e. prime) diagrams
 
-                 - ``'6conn'``, 6-connected diagrams, and
+                - ``'6conn'``, 6-connected diagrams, and
 
-                 - ``'biquart'``, bipartite diagrams.  Notice that bipartite
-                   diagrams never have precisely 1 component.
+                - ``'biquart'``, bipartite diagrams.  Notice that bipartite
+                  diagrams never have precisely 1 component.
 
-         :type n_components: int or None
-         :type dia_type: str or None
+        :type n_components: int or None
+        :type dia_type: str or None
 
-         :return: A new uniformly sampled PlanarDiagram of the appropriate type
-         :rtype: PlanarDiagram
-         """
-
+        :return: A new uniformly sampled PlanarDiagram of the appropriate type
+        :rtype: PlanarDiagram
+        """
+        
         import os
         cdef pmMap plmap
         cdef pmSize size

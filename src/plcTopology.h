@@ -368,8 +368,8 @@ extern "C" {
   /* Returns true if the edge is on the face (with either sign). */
 
   pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or);
-  /* Returns original edge if or = PD_POS_EDGE_ORIENTATION,
-     reversed edge if or = PD_NEG_EDGE_ORIENTATION */
+  /* Returns original edge if or = PD_POS_ORIENTATION,
+     reversed edge if or = PD_NEG_ORIENTATION */
 
   void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t or);
   /* Flips the edge in pd->edges[] if or == PD_NEG_ORIENTATION */
