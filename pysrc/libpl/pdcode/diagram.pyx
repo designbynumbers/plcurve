@@ -1199,15 +1199,29 @@ cdef class PlanarDiagram:
             yield self.R2_bigon_elimination_vertices(*bigon.vertices)
 
     def simplify(self, seed=None):
-        """simplify(seed=None) -> PlanarDiagram
+        """simplify(seed=None) -> tuple(PlanarDiagram, [PlanarDiagram, [...]])
 
-        Returns an isomorphic PlanarDiagram whose crossing number
-        software knows not how to decrease (i.e. this would
-        **ideally** return a diagram of this knot with minimal number
-        of crossings).
+        Returns a tuple of PlanarDiagram whose split link is isomorphic to this
+        diagram and whose crossing numbers software knows not how to decrease
+        (i.e. this would **ideally** return a tuple of diagrams isomorphic to
+        link with minimal number of crossings).
+
+        The return value is a tuple of PlanarDiagram, as it is possible that R2
+        simplifications break apart a split link diagram into two separate
+        PlanarDiagrams. Order of the tuple depends on the simplification order;
+        at R2 simplifications which split links, two diagrams are returned as
+        (Upper, Lower) depending on their pre-R2 simplification state: Whatever
+        diagrams are produced from simplifying the first diagram come first in
+        the tuple, while the end will the diagrams obtained from simplifying
+        the second. In a very meaningless sense this means the resultant
+        diagrams are returned in a height order, with the "top" diagram
+        appearing first and so on: Of course, there's no well-defined notion of
+        height of a split link diagram, and it's possible that simplification
+        steps could mess this up, too.
 
         If ``seed`` is not ``None``, pick a random move instead of
         using any order (using the integer seed provided).
+
         """
         if seed:
             return self._simplify_helper(random.Random(seed))
