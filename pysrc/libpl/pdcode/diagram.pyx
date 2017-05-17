@@ -289,8 +289,15 @@ cdef class PlanarDiagram:
 
     @classmethod
     def _wrap(cls, object pdp, bool thin=False):
-        """Should be cdef but can't because classmethod. If you must call from
-        Python somehow, use this. Otherwise, use PlanarDiagram_wrap"""
+        """
+        _wrap(object pdp[, bool thin=False]) -> PlanarDiagram
+
+        Should be cdef but can't because classmethod.  If you must call from
+        Python somehow, use this.  Otherwise, use PlanarDiagram_wrap
+
+        :param pd_code_t* pdp: Pointer to a pd_code_t object
+        :param bool thin: Whether to wrap all children as Python objects
+        """
         cdef pd_code_t *pd = <pd_code_t*>pdp
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd
@@ -299,7 +306,10 @@ cdef class PlanarDiagram:
         return newobj
 
     def __richcmp__(PlanarDiagram self, PlanarDiagram other_pd, int op):
-        """Check whether two :class:`PlanarDiagram`s are isotopic (as diagrams) or isomorphic (as maps)"""
+        """
+        Check whether two :class:`PlanarDiagram`s are isotopic (as diagrams) or
+        isomorphic (as maps)
+        """
         if op == 2:
             if self.equiv_type == ISOTOPY:
                 return pd_diagram_isotopic(self.p, other_pd.p)
@@ -318,12 +328,12 @@ cdef class PlanarDiagram:
         """
         isotopic(PlanarDiagram other_pd) -> bool
 
-        Returns whether or not this :class:`PlanarDiagram` is
-        diagram-isotopic to the input :class:`PlanarDiagram`
-        :obj:`other_pd`. This is equivalent to ``pd == other`` or
-        ``not pd != other``.
+        Returns whether or not this :class:`PlanarDiagram` is diagram-isotopic
+        to the input :class:`PlanarDiagram` :obj:`other_pd`.  This is
+        equivalent to ``pd == other`` or ``not pd != other``.
 
         :param PlanarDiagram other_pd: Diagram to check isotopy to
+
         :return: Whether or not the diagrams are isotopic
         :rtype: bool
         """
@@ -333,12 +343,11 @@ cdef class PlanarDiagram:
         """
         map_isomorphic(PlanarDiagram other_pd) -> bool
 
-        Returns whether or not this pdcode is
-        oriented-\\\\(S^2\\\\)-isotopic to the input
-        :class:`PlanarDiagram` :obj:`other_pd`.
+        Returns whether or not this pdcode is oriented-:math:`S^2`-isotopic to
+        the input :class:`PlanarDiagram` :obj:`other_pd`.
 
-        :param PlanarDiagram other_pd: Diagram to check oriented-isomorphism
-          to
+        :param PlanarDiagram other_pd: Diagram to check oriented-isomorphism to
+
         :return: Whether or not the diagrams are oriented-isomorphic
         :rtype: bool
         """
@@ -367,12 +376,13 @@ cdef class PlanarDiagram:
 
     def build_map_isomorphisms(self, PlanarDiagram other_pd):
         """
-        build_map_isomorphisms(PlanarDiagram other_pd) -> tuple of PlanarIsomorphism
+        build_map_isomorphisms(PlanarDiagram other_pd) -> tuple(PlanarIsomorphism)
 
         Compute all oriented-sphere isomorphisms to :obj:`other_pd`.
 
         :param PlanarDiagram other_pd: Diagram to compute oriented-isomorphism
-          to
+            to
+
         :return: Tuple of isotopies
         :rtype: tuple of PlanarIsomorphism
         """
@@ -389,26 +399,27 @@ cdef class PlanarDiagram:
 
     def build_autoisotopies(self):
         """
-        build_autoisotopies() -> tuple of PlanarIsomorphism
+        build_autoisotopies() -> tuple(PlanarIsomorphism)
 
         Compute all diagram isotopies to itself
 
         :return: Tuple of isotopies
-        :rtype: tuple of PlanarIsomorphism
+        :rtype: tuple(PlanarIsomorphism)
         """
 
         return self.build_isotopies(self)
 
     def build_isomorphisms(self, PlanarDiagram other_pd):
         """
-        build_isomorphisms(PlanarDiagram other_pd) -> tuple of PlanarIsomorphism
+        build_isomorphisms(PlanarDiagram other_pd) -> tuple(PlanarIsomorphism)
 
         Compute all unoriented-sphere isomorphisms to :obj:`other_pd`.
 
-        :param PlanarDiagram other_pd: Diagram to compute unoriented-isomorphism
-          to
+        :param PlanarDiagram other_pd: Diagram to compute
+            unoriented-isomorphism to
+
         :return: Tuple of isomorphisms
-        :rtype: tuple of PlanarIsomorphism
+        :rtype: tuple(PlanarIsomorphism)
         """
 
         cdef unsigned int nisos
@@ -423,22 +434,23 @@ cdef class PlanarDiagram:
 
     def build_automorphisms(self):
         """
-        build_autoisotopies() -> tuple of PlanarIsomorphism
+        build_automorphisms() -> tuple(PlanarIsomorphism)
 
         Compute all unoriented isomorphisms to itself
 
         :return: Tuple of isomorphisms
-        :rtype: tuple of PlanarIsomorphism
+        :rtype: tuple(PlanarIsomorphism)
         """
         return self.build_isomorphisms(self)
 
     def isomorphic(self, PlanarDiagram other_pd):
         """isomorphic(PlanarDiagram other_pd) -> bool
 
-        Returns whether or not this pdcode is shadow isomorphic to the
-        input pdcode ``other_pd``.
+        Returns whether or not this pdcode is shadow isomorphic to the input
+        pdcode ``other_pd``.
 
         :param PlanarDiagram other_pd: Diagram to check shadow isomorphism to
+
         :return: Whether or not the diagrams are shadow isomorphic
         :rtype: bool
         """
@@ -448,11 +460,12 @@ cdef class PlanarDiagram:
         """identical(PlanarDiagram other_pd) -> bool
 
         Returns whether or not this diagram is identical to :obj:`other_pd`,
-        i.e., whether or not it has the exact same crossings, edges,
-        faces, and components. Does not care about memory allocated,
-        just the advertised structure.
+        i.e., whether or not it has the exact same crossings, edges, faces, and
+        components.  Does not care about memory allocated, just the advertised
+        structure.
 
         :param PlanarDiagram other_pd: Diagram to compare
+
         :return: Whether or not the diagrams are identical
         :rtype: bool
         """
@@ -500,10 +513,13 @@ cdef class PlanarDiagram:
         return True
 
     def resize(self, pd_idx_t ncross):
-        """resize(ncross)
+        """
+        resize(ncross)
 
         Resizes the :class:`PlanarDiagram` to fit more (or less, down to
-        :obj:`ncross`) vertices
+        :obj:`ncross`) vertices.
+
+        :param int ncross: New total number of crossings for resultant object
         """
 
         cdef pd_code_t *oldpd = self.p
@@ -511,6 +527,14 @@ cdef class PlanarDiagram:
         pd_code_free(&oldpd)
 
     def add_crossing(self, N=1):
+        """
+        add_crossing([N=1])
+
+        Add :obj:`N` crossings to this :class:`PlanarDiagram`.  If too small,
+        we resize first to fit the new crossings.
+
+        :param int N: Number of new crossings to add, or 1 by default
+        """
         cdef pd_idx_t old_n = self.p.ncross
 
         self.p.ncross += N
@@ -525,12 +549,15 @@ cdef class PlanarDiagram:
         self.regenerate_py_os()
 
     def copy(self, thin=False):
-        """copy() -> PlanarDiagram
+        """
+        copy() -> PlanarDiagram
 
         Returns a memory deepcopy of this PlanarDiagram
 
+        :param bool thin: Whether to wrap all children as Python objects
+
         :return: A deep memory copy of this PlanarDiagram
-        :rtype: :class:`PlanarDiagram`
+        :rtype: PlanarDiagram
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(self.__class__)
         newobj.p = pd_copy(self.p)
@@ -546,6 +573,8 @@ cdef class PlanarDiagram:
 
         TODO: Make this definition private (_assert_nonnull) as end users
         should not need to ever call this, in theory...
+
+        :raises Exception: if the internal C data pointer is NULL 
         """
         if self.p is NULL:
             raise Exception("Initialization for this PlanarDiagram is incomplete.")
@@ -558,24 +587,34 @@ cdef class PlanarDiagram:
         print "MAXFACES=%s" % self.p.MAXFACES
 
     def write(self, f):
-        """write(file f)
+        """
+        write(file f)
 
         Write this pdcode to the open file object ``f``.
 
-        TODO: Rewrite for Py3 compatibility; use a filename rather
-        than a file pointer
+        TODO: Rewrite for Py3 compatibility; use a filename rather than a file
+        pointer
+
+        :param file f: File object to write to
+
+        :raises IOError: If the file is not writable
         """
         if not ("w" in f.mode or "a" in f.mode or "+" in f.mode):
             raise IOError("File must be opened in a writable mode.")
         pd_write(PyFile_AsFile(f), self.p)
 
     def write_knot_theory(self, f):
-        """write_knot_theory(file f)
+        """
+        write_knot_theory(file f)
 
         Write this pdcode in KnotTheory format to the open file object ``f``.
 
-        TODO: Rewrite for Py3 compatibility; use a filename rather
-        than a file pointer
+        TODO: Rewrite for Py3 compatibility; use a filename rather than a file
+        pointer
+
+        :param file f: File object to write to
+
+        :raises IOError: If the file is not writable
         """
         if not ("w" in f.mode or "a" in f.mode or "+" in f.mode):
             raise IOError("File must be opened in a writable mode.")
@@ -583,14 +622,28 @@ cdef class PlanarDiagram:
 
     @classmethod
     def read(cls, f, read_header=False, thin=False):
-        """read(file f) -> new PlanarDiagram
+        """
+        read(file f[, read_header=False][, thin=False]) -> PlanarDiagram
 
         Read the next pdcode from a file object.
 
-        TODO: Rewrite for Py3 compatibility; use a filename rather
-        than a file pointer
+        TODO: Rewrite for Py3 compatibility; use a filename rather than a file
+        pointer
+
+        :param f: File to read
+        :type f: file or str
+
+        :param bool read_header: Whether to read in a pdstor file header
+        :param bool thin: Whether to wrap all children as Python objects
+
+        :raises TypeError: If the file is not a valid type
+        :raises EOFError: If the file is already at EOF and there is no object
+            to read
+        :raises Exception: If there is an issue reading the PlanarDiagram
+            object
 
         :return: A new :class:`PlanarDiagram`, or :obj:`None` on failure.
+        :rtype: PlanarDiagram or None
         """
 
         if not isinstance(f, file):
@@ -626,13 +679,28 @@ cdef class PlanarDiagram:
 
     @classmethod
     def read_all(cls, f, read_header=False, thin=False):
-        """read_all(file f) -> generator of PlanarDiagram
+        """
+        read_all(file f[, read_header=False][, thin=False]) -> generator of PlanarDiagram
 
-        Returns a generator that iterates through the pdcodes stored
-        in ``f``.
+        Returns a generator that iterates through the pdcodes stored in the
+        file ``f``.
 
-        TODO: Rewrite for Py3 compatibility; use a filename rather
-        than a file pointer
+        TODO: Rewrite for Py3 compatibility; use a filename rather than a file
+        pointer
+
+        :param f: File to read
+        :type f: file or str
+
+        :param bool read_header: Whether to read in a pdstor file header
+        :param bool thin: Whether to wrap all children as Python objects
+
+        :raises TypeError: If the file is not a valid type
+        :raises Exception: If there is an issue reading the PlanarDiagram
+            object
+
+        :return: A generator of :class:`PlanarDiagram` objects contained in the
+                 file
+        :rtype: generator(PlanarDiagram)
         """
 
         if not isinstance(f, file):
@@ -668,20 +736,29 @@ cdef class PlanarDiagram:
     @classmethod
     def read_knot_theory(cls, f, thin=False):
         """
-        read_knot_theory(file f) -> PlanarDiagram
+        read_knot_theory(file f[, thin=False]) -> PlanarDiagram
 
-        This function reads a pdcode which was exported from the
-        Mathematica package KnotTheory, exported as text with
-        something like:
+        This function reads a pdcode which was exported from the Mathematica
+        package KnotTheory, exported as text with something like:
 
         ``Export["7_2.txt",PD[Knot[7,2]]]``
 
-        These PD codes don't have component or face information, so
-        that is all regenerated once the crossings have been loaded
-        from the file.  This will only read one PD code from ``f``.
+        These PD codes don't have component or face information, so that is all
+        regenerated once the crossings have been loaded from the file.  This
+        will only read one PD code from the file ``f``.
 
-        TODO: Rewrite for Py3 compatibility; use a filename rather
-        than a file pointer
+        TODO: Rewrite for Py3 compatibility; use a filename rather than a file
+        pointer
+
+        :param f: File to read
+        :type f: file or str
+
+        :param bool thin: Whether to wrap all children as Python objects
+
+        :raises TypeError: If the file is not a valid type
+
+        :return: A new :class:`PlanarDiagram`, or :obj:`None` on failure.
+        :rtype: PlanarDiagram or None
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
 
@@ -709,12 +786,16 @@ cdef class PlanarDiagram:
     # Methods which build standard PlanarDiagrams
     @classmethod
     def twist_knot(cls, n_twists, thin=False):
-        """twist_knot(n_twists) -> PlanarDiagram
+        """
+        twist_knot(n_twists[, thin=False]) -> PlanarDiagram
 
-        Create a new :py:class:`PlanarDiagram` which represents a
-        twist knot with \\\\(n\\\\) twists.
+        Create a new :py:class:`PlanarDiagram` which represents a twist knot
+        with :math:`n` twists.
 
-        :return: A new diagram which representing the twist knot
+        :param int n_twists: Number of twists
+        :param bool thin: Whether to wrap all children as Python objects
+
+        :return: A new twist knot diagram
         :rtype: PlanarDiagram
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
@@ -726,10 +807,21 @@ cdef class PlanarDiagram:
 
     @classmethod
     def torus_knot(cls, p, q, thin=False):
-        """torus_knot(p, q) -> PlanarDiagram
+        """
+        torus_knot(p, q[, thin=False]) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` which represents a
-        \\\\((p,q)\\\\)-torus knot. Only implemented for \\\\(p=2\\\\).
+        :math:`(p,q)`-torus knot.  Only implemented for :math:`p=2`.
+
+        :param int p: Number of rotations around the a generator, must be 2
+            currently
+        :param int q: Number of rotations around the b generator
+        :param bool thin: Whether to wrap all children as Python objects
+
+        :raises Exception: If p is not 2
+
+        :return: A new :math:`(p,q)` torus knot diagram
+        :rtype: PlanarDiagram
         """
         cdef PlanarDiagram newobj
         if p != 2:
@@ -744,10 +836,17 @@ cdef class PlanarDiagram:
 
     @classmethod
     def simple_chain(cls, n_links, thin=False):
-        """simple_chain(n_links) -> PlanarDiagram
+        """
+        simple_chain(n_links[, thin=False]) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` which represents an
-        \\\\(n\\\\)-link chain.
+        :math:`n`-link chain.
+
+        :param int n_links: Number of links in the simple chain
+        :param bool thin: Whether to wrap all children as Python objects
+
+        :return: A new simple chain diagram
+        :rtype: PlanarDiagram
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.thin = thin
@@ -758,11 +857,19 @@ cdef class PlanarDiagram:
 
     @classmethod
     def unknot(cls, n_crossings, thin=False):
-        """unknot(n_crossings) -> PlanarDiagram
+        """
+        unknot(n_crossings[, thin=False]) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` which represents an
-        \\\\(n\\\\)-crossing unlink diagram
+        :math:`n`-crossing unknot diagram
+
+        :param int n_crossings: Number of crossings in resulting diagram
+        :param bool thin: Whether to wrap all children as Python objects
+
+        :return: A new unknot diagram
+        :rtype: PlanarDiagram
         """
+
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.p = pd_build_unknot(n_crossings)
         newobj.thin = thin
@@ -772,10 +879,21 @@ cdef class PlanarDiagram:
 
     @classmethod
     def unknot_wye(cls, a,b,c, thin=False):
-        """unknot_wye(a,b,c) -> PlanarDiagram
+        """
+        unknot_wye(a,b,c[, thin=False]) -> PlanarDiagram
 
         Create a new :py:class:`PlanarDiagram` representing an unknot which is
-        designed for hash collisions."""
+        designed for hash collisions.
+
+        :param int a: Positive integer parameter
+        :param int b: Positive integer parameter
+        :param int c: Positive integer parameter
+        :param bool thin: Whether to wrap all children as Python objects
+
+        :return: A new wye unknot diagram
+        :rtype: PlanarDiagram
+        """
+
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
         newobj.thin = thin
         newobj.p = pd_build_unknot_wye(a,b,c)
@@ -783,12 +901,17 @@ cdef class PlanarDiagram:
         return newobj
     from_unknot_wye = unknot_wye # Deprecated
 
+    # Sign changes and component orientation manipulation
+    # -------------------------------------------------------------------------
+
     def set_all_crossing_signs(self, signature):
         """
         set_all_crossing_signs(signature)
 
-        Set all signs of the crossings in this diagram to match
-        signature; i.e. set ``self.crossing.sign[i] = signature[i]``.
+        Set all signs of the crossings in this diagram to match signature; i.e.
+        set ``self.crossing.sign[i] = signature[i]``.
+
+        :param signature: Sign to set all crossings in this diagram
         """
         for i, sign in enumerate(signature):
             self.p.cross[i].sign = sign
@@ -797,24 +920,30 @@ cdef class PlanarDiagram:
         """
         unset_crossing_signs()
 
-        Unset all signs on this PlanarDiagram to
-        ``PD_UNSET_ORIENTATION``, i.e. make this diagram a shadow.
+        Unset all signs on this PlanarDiagram to ``PD_UNSET_ORIENTATION``, i.e.
+        make this diagram a shadow.
         """
         for x in self.crossings:
             x.sign = PD_UNSET_ORIENTATION
 
     def reorient_component(self, pd_idx_t component, pd_or_t sign):
-        """reorient_component(component, sign)
+        """
+        reorient_component(component, sign)
 
-        Reverse the orientation of component iff sign is :py:const:`PD_NEG_ORIENTATION`
+        Reverse the orientation of component iff sign is
+        :py:const:`PD_NEG_ORIENTATION`
+
+        :param int component: Index of the component to reorient
+        :param sign: If PD_NEG_ORIENTATION, reverse the component orientation
         """
         pd_reorient_component(self.p, component, sign)
 
     def toggle_crossing(self, pd_idx_t x_i):
-        """toggle_crossing(x_i)
+        """
+        toggle_crossing(x_i)
 
-        Toggle the sign of crossing x_i, from positive to negative (or vice versa).
-        If the crossing sign is unset, this is a no-op.
+        Toggle the sign of crossing x_i, from positive to negative (or vice
+        versa). If the crossing sign is unset, this is a no-op.
 
         :param x_i: Index of the crossing to toggle
         """
@@ -824,23 +953,26 @@ cdef class PlanarDiagram:
             self.p.cross[x_i].sign = PD_NEG_ORIENTATION
 
     # Regenerate pd code data
+    # -------------------------------------------------------------------------
     def regenerate_crossings(self):
-        """regenerate_crossings()
+        """
+        regenerate_crossings()
 
-        Reorders the crossings cyclically to put the
-        lowest index edge first and sorts crossings
-        in dictionary order based on this reordering.
+        Reorders the crossings cyclically to put the lowest index edge first
+        and sorts crossings in dictionary order based on this reordering.
         """
         pd_regenerate_crossings(self.p)
+
     def regenerate_components(self):
         """
         regenerate_components()
 
         Generates randomly oriented and numbered edges from crossings, then
         strings them into components, sorts components by size, renumbers edges
-        and orients them along components. Updates and regenerates crossings.
+        and orients them along components.  Updates and regenerates crossings.
         """
         pd_regenerate_comps(self.p)
+
     def regenerate_faces(self):
         """
         regenerate_faces()
@@ -849,6 +981,7 @@ cdef class PlanarDiagram:
         of each edge along the face.
         """
         pd_regenerate_faces(self.p)
+
     def regenerate_hash(self):
         """
         regenerate_hash()
@@ -856,6 +989,7 @@ cdef class PlanarDiagram:
         Fill in (printable) hash value from comps, faces, and crossings
         """
         pd_regenerate_hash(self.p)
+
     def regenerate(self):
         """
         regenerate()
@@ -865,13 +999,20 @@ cdef class PlanarDiagram:
         pd_regenerate(self.p)
         self.regenerate_py_os()
 
-    # Knot-isomorphic modifications
+    # Crossing-move operations
+    # -------------------------------------------------------------------------
     def R1_loop_deletion(self, pd_idx_t cr):
         """
-        R1_loop_deletion(crossing_or_index) -> new PlanarDiagram
+        R1_loop_deletion(cr) -> PlanarDiagram
 
-        Performs a Reidemeister 1 loop deletion which removes the input
-        crossing.
+        Performs a Reidemeister 1 loop deletion which removes the loop
+        designated by input crossing.
+
+        :param int cr: Index of crossing identifying loop to remove
+
+        :raises Exception: If there is an error performing the R1 deletion move
+
+        :return: A new PlanarDiagram with the monogon removed.
         """
         ret = PlanarDiagram_wrap(pd_R1_loopdeletion(self.p, cr))
         if ret is None:
@@ -883,11 +1024,13 @@ cdef class PlanarDiagram:
 
     def R2_bigon_elimination(self, Face f):
         """
-        R2_bigon_elimination(Face f) -> (Upper new PlanarDiagram, [Lower new PlanarDiagram])
+        R2_bigon_elimination(Face f) -> (Upper PlanarDiagram[, Lower PlanarDiagram])
 
-        Performs a Reidemeister 2 bigon elimination removing the bigon f. This
+        Performs a Reidemeister 2 bigon elimination removing the bigon f.  This
         is **not an in-place operation** as there may be more than one
         PlanarDiagram as a result of the move.
+
+        :param Face f: Face to eliminate, must be a bigon with valid signs
 
         :raises: An Exception if the Face f is not a bigon.
         """
@@ -898,20 +1041,21 @@ cdef class PlanarDiagram:
     def R2_bigon_addition(self, pd_idx_t f, pd_idx_t e1_on_f,
                           pd_idx_t e2_on_f, pd_or_t e1_over_e2_or):
         """
-        R2_bigon_addition(f, e1_on_f, e2_on_f, e1_over_e2_or) -> new PlanarDiagram
+        R2_bigon_addition(f, e1_on_f, e2_on_f, e1_over_e2_or) -> PlanarDiagram
 
-        Performs a Reidemeister 2 bigon addition move across the face indexed by f, by moving
-        edges e1_on_f and e2_on_f across each other. NOT FULLY WORKING?
+        Performs a Reidemeister 2 bigon addition move across the face indexed
+        by f, by moving edges e1_on_f and e2_on_f across each other.  NOT FULLY
+        WORKING?
 
-        TODO: Fix implementation! The orientation currently has no effect
-        TODO: Fix specification! We should be more consistent and be able to
+        TODO: Fix implementation!  The orientation currently has no effect
+        TODO: Fix specification!  We should be more consistent and be able to
         work with python objects like using a Face f instead of an index
         """
         return PlanarDiagram_wrap(pd_R2_bigon_addition(self.p, f, e1_on_f, e2_on_f, e1_over_e2_or))
 
     def R2_bigon_elimination_vertices(self, pd_idx_t cr1, pd_idx_t cr2):
         """
-        R2_bigon_elimination_vertices(cr1, cr2) -> (Upper new PlanarDiagram, [Lower new PlanarDiagram])
+        R2_bigon_elimination_vertices(cr1, cr2) -> (Upper PlanarDiagram, [Lower PlanarDiagram])
 
         Performs a Reidemeister 2 bigon elimination removing the bigon defined by the vertices
         indexed by cr1 and cr2. Observe that cr1 and cr2 uniquely determine a bigon unless
@@ -931,7 +1075,7 @@ cdef class PlanarDiagram:
 
     def R3_triangle_flip(self, pd_idx_t f):
         """
-        R3_triangle_flip(f) -> new PlanarDiagram
+        R3_triangle_flip(f) -> PlanarDiagram
 
         Perform a Reidemeister 3 triangle flip move, flipping the face indexed
         by f. Currently DOES NOT CARE about sign, and so only works on shadows.
@@ -942,10 +1086,15 @@ cdef class PlanarDiagram:
 
     def connect_sum(self, Edge edge, PlanarDiagram other_pd, Edge other_edge):
         """
-        connect_sum(Edge edge, PlanarDiagram other_pd, Edge other_edge) -> new PlanarDiagram
+        connect_sum(Edge edge, PlanarDiagram other_pd, Edge other_edge) -> PlanarDiagram
 
         This function gives the connect sum of two PlanarDiagram objects at two
         different edges, keeping edge orientations consistent.
+
+        :param Edge edge: Edge in this diagram which designates location of connect sum
+        :param PlanarDiagram other_pd: Other diagram to connect sum in
+        :param Edge other_edge: Edge in other_pd which designates location of connect sum
+        :return: A new PlanarDiagram which is the result of the connect sum
         """
         cdef pd_code_t* new_pd_p = pd_connect_sum(self.p, edge.index, other_pd.p, other_edge.index)
         return PlanarDiagram_wrap(new_pd_p)
@@ -1000,6 +1149,11 @@ cdef class PlanarDiagram:
         return ret
 
     def R3_nice_swap(self, Face f, Edge e):
+        """
+        R3_nice_swap(Face f, Edge e) -> PlanarDiagram
+
+        Perform an R3 move. *Possibly not implemented*
+        """
         fip = e.face_pos()
         pos = fip[0][1] if f == fip[0][0] else fip[1][1]
         a = f[(pos+1) %3]
@@ -1010,10 +1164,14 @@ cdef class PlanarDiagram:
         b2 = b.prev_edge() if f.signs[(pos+2) %3] == 1 else b.next_edge()
         return self.R3_strand_swap(x.index, a.index, b.index, a2.index, b2.index)
 
-
     def R3_strand_swap(self, pd_idx_t i_x,
                        pd_idx_t i_a_1, pd_idx_t i_b_1,
                        pd_idx_t i_a_2, pd_idx_t i_b_2):
+        """
+        R3_strand_swap(i_x, i_a_1, i_b_1, i_a_2, i_b_2) -> PlanarDiagram
+
+        Perform a R3 move. *Possibly not implemented*
+        """
         cdef PlanarDiagram result = self.copy()
         cdef Crossing x = result.crossings[i_x]
         cdef Edge a_1 = result.edges[i_a_1]
@@ -1078,48 +1236,96 @@ cdef class PlanarDiagram:
         return result
 
     def tangle_slide(self, tangle, crs_edges, strand):
+        # Not implemented
         pass
 
     # Validity checks
+    # -------------------------------------------------------------------------
     def crossings_ok(self):
-        """crossings_ok() -> bool
+        """
+        crossings_ok() -> bool
 
         Crossings are the fundamental data from which
         PD codes are regenerated. This checks that the crossing
-        data is sane."""
+        data is sane.
+
+        :return: Whether or not the crossing data is sane
+        :rtype: bool
+        """
         return pd_cross_ok(self.p)
+
     def edges_ok(self):
-        """edges_ok() -> bool
+        """
+        edges_ok() -> bool
 
-        Check that the edge data agrees with crossing data."""
+        Check that the edge data agrees with crossing data.
+
+        :return: Whether or not the edges agree with crossing data
+        :rtype: bool
+        """
         return pd_edges_ok(self.p)
+
     def faces_ok(self):
-        """faces_ok() -> bool
+        """
+        faces_ok() -> bool
 
-        Check that the face data agrees with crossing data."""
+        Check that the face data agrees with crossing data.
+
+        :return: Whether or not the faces agree with crossing data
+        :rtype: bool
+        """
         return pd_faces_ok(self.p)
+
     def components_ok(self):
-        """components_ok() -> bool
+        """
+        components_ok() -> bool
 
-        Check that the component data agrees with crossing data."""
+        Check that the component data agrees with crossing data.
+
+        :return: Whether or not the components agree with crossing data
+        :rtype: bool
+        """
         return pd_comps_ok(self.p)
-    def is_ok(self):
-        """is_ok() -> bool
 
-        Check that all data contained in this PD code is sane."""
+    def is_ok(self):
+        """
+        is_ok() -> bool
+
+        Check that all data contained in this PD code is sane.
+
+        :return: Whether or not this PD code is sane
+        :rtype: bool
+        """
         return pd_ok(self.p)
 
     def euler_characteristic(self):
-        """euler_characteristic() -> int
+        """
+        euler_characteristic() -> int
 
-        Return the Euler characteristic of the diagram."""
+        Return the Euler characteristic of the diagram.  The pdcode library is
+        currently only guaranteed for the sphere, with Euler characteristic 2.
+
+        :return: Euler characteristic of the embedding surface for this
+                 diagram.
+        :rtype: int
+        """
         return self.nfaces + self.ncross - self.nedges
 
     def homfly(self, as_string=False, timeout=None):
-        """homfly([as_string=False, timeout=None]) -> HOMFLYPolynomial
+        """
+        homfly([as_string=False][, timeout=None]) -> HOMFLYPolynomial
 
-        Compute the HOMFLY polynomial for this diagram. Returns None
-        on error.
+        Compute the HOMFLY polynomial for this diagram.  Returns `None` on
+        error or timeout.
+
+        :param bool as_string: If `True`, return a `str` rather than a
+            `HOMFLYPolynomial`
+        :param timeout: Infinite if `None` (default), or a timeout in
+            milliseconds for ``llmpoly``
+        :type timeout: None or int
+
+        :return: The HOMFLY polynomial of this diagram, or None on error
+        :rtype: HOMFLYPolynomial or str
         """
         cdef char* homfly_from_pd
         cdef bytes homflybytes
@@ -1138,38 +1344,53 @@ cdef class PlanarDiagram:
             return HOMFLYPolynomial(homflybytes)
 
     def linking_number(self, unsigned int c1=0, unsigned int c2=0):
-        """linking_number([pd_idx_t c1, [pd_idx_t c2]]) -> int
+        """
+        linking_number([c1=0][, c2=0]) -> int
 
-        Return the linking number of the two numbered components. If no
-        arguments are supplied, checks the first component with
-        itself. If one argument is supplied, the other defaults to the
-        first component.
+        Return the linking number of the two numbered components.  If no
+        arguments are supplied, checks the first component with itself.  If one
+        argument is supplied, the other defaults to the first component.
 
+        :param int c1: Index of a component between 0 and :attr:`ncomps`-1,
+            inclusive
+        :param int c2: Index of a component between 0 and :attr:`ncomps`-1,
+            inclusive
+
+        :return: Linking number of the two components
+        :rtype: int
         """
         return pd_linking_number(self.p, c1, c2)
 
     def unsigned_linking_number(self, unsigned int c1=0, unsigned int c2=0):
-        """linking_number([pd_idx_t c1, [pd_idx_t c2]]) -> int
+        """
+        unsigned_linking_number([c1=0][, c2=0]) -> int
 
-        Return the linking number of the two numbered components. If no
-        arguments are supplied, checks the first component with
-        itself. If one argument is supplied, the other defaults to the
-        first component.
+        Return the linking number of the two numbered components.  If no
+        arguments are supplied, checks the first component with itself.  If one
+        argument is supplied, the other defaults to the first component.
 
+        :param int c1: Index of a component between 0 and :attr:`ncomps`-1,
+            inclusive
+        :param int c2: Index of a component between 0 and :attr:`ncomps`-1,
+            inclusive
+
+        :return: Unsigned linking number of the two components
+        :rtype: int
         """
         return pd_unsigned_linking_number(self.p, c1, c2)
 
     def interlaced_crossings(self):
         """
-        interlaced_crossings() -> tuple of int
+        interlaced_crossings() -> tuple(int)
 
         Calculate the interlaced crossings of this diagram.
 
         For a knot shadow, one can compute the average (over all possible
-        crossing assignments) v2 invariant by v2=-1/4*C, where C is the number
-        of interlaced crossings.
+        crossing assignments) :math:`v_2` invariant by :math:`v_2=-C/4`, where
+        C is the number of interlaced crossings.
 
-        :return: Tuple of :variable:`ncomps` ints
+        :return: Tuple of :attr:`ncomps` ints
+        :rtype: tuple(int)
         """
         cdef int i
         cdef int *c_ret = pd_interlaced_crossings(self.p)
@@ -1179,11 +1400,12 @@ cdef class PlanarDiagram:
 
     def interlaced_crossings_unsigned(self):
         """
-        interlaced_crossings() -> tuple of int
+        interlaced_crossings_unsigned() -> tuple(int)
 
         Calculate the unsigned interlaced crossings of this diagram.
 
-        :return: Tuple of :variable:`ncomps` ints
+        :return: Tuple of :attr:`ncomps` ints
+        :rtype: tuple(int)
         """
 
         cdef int i
@@ -1193,12 +1415,18 @@ cdef class PlanarDiagram:
         return ret
 
     def unique_code(self):
-        """unique_code() -> str
+        """
+        unique_code() -> str
 
         Returns a 'pdcode-ish' string which uniquely identifies this
         planar diagram. If another planar diagram is not isomorphic to
         this, their :meth:`unique_code`\ s will differ, but two isomorphic
         planar diagrams may have different :meth:`unique_code`\ s.
+
+        *Obsolete or otherwise unnecessary*
+
+        :return: A unique code representing this diagram
+        :rtype: str
         """
         pdstr = "PD[%s, CompSigns=[%s]]"%(
             ", ".join(("X{}[{},{},{},{}]".format(
@@ -1211,6 +1439,8 @@ cdef class PlanarDiagram:
 
     @classmethod
     def _kt_db_search(cls, search_key, names_f, table_f):
+        """Find a diagram by search key in a file of names, using a table
+        """
         for line in names_f:
             if search_key in line:
                 return cls.read_knot_theory(table_f)
@@ -1219,19 +1449,33 @@ cdef class PlanarDiagram:
 
     KNOT_NAMES = os.path.join(SOURCE_DIR,"rolfsennames.txt")
     KNOT_TABLE = os.path.join(SOURCE_DIR,"rolfsentable.txt")
+
     @classmethod
     def db_knot(cls, ncross, index, alternating=None):
-        """db_knot(ncross, index, alternating=None) -> new PlanarDiagram
+        """
+        db_knot(ncross, index[, alternating=None]) -> PlanarDiagram
 
         Searches the Rolfsen table of knot types and returns a new
-        PlanarDiagram which is isotopic. Raises KeyError if the specified
-        knot is not found.
+        PlanarDiagram which is isotopic.  Raises KeyError if the specified knot
+        is not found.
 
-        The variable ``alternating`` defaults to None. If the crossing
-        number is high enough that knots are distinguished by
-        'Alternating' or 'NonAlternating,' be sure to set
-        ``alternating`` to True or False respectively.
+        The variable ``alternating`` defaults to None.  If the crossing number
+        is high enough that knots are distinguished by 'Alternating' or
+        'NonAlternating,' be sure to set ``alternating`` to True or False
+        respectively.
 
+        :param int ncross: Minimal crossing number
+        :param int index: Index among other minimal crossing number knots
+        :param alternating: For small knots, there is no alternating
+            information and this should be None.  Otherwise, we specify that a
+            knot is non-alternating or alternating, whether this is True or
+            False
+        :type alternating: None or bool
+
+        :raises KeyError: If queried entry is not found
+
+        :return: A diagram representing the database knot queried
+        :rtype: PlanarDiagram
         """
         search_key = "Knot[%s, %s%s]"%(
             ncross,
@@ -1251,11 +1495,22 @@ cdef class PlanarDiagram:
     LINK_TABLE = os.path.join(SOURCE_DIR,"thistlethwaitetable.txt")
     @classmethod
     def db_link(cls, ncross, index, alternating=True):
-        """db_link(ncross, index, alternating=True) -> new PlanarDiagram
+        """
+        db_link(ncross, index[, alternating=True]) -> PlanarDiagram
 
         Searches the Thistlethwaite table of link types and returns a new
-        PlanarDiagram which is isotopic. Raises KeyError if the specified
-        link is not found."""
+        PlanarDiagram which is isotopic.  Raises KeyError if the specified link
+        is not found.
+
+        :param int ncross: Minimal crossing number
+        :param int index: Index among other minimal crossing number links
+        :param bool alternating: Whether to find a non-alternating or alternating link
+
+        :raises KeyError: If queried entry is not found
+
+        :return: A diagram representing the database link queried
+        :rtype: PlanarDiagram
+        """
         search_key = "Link[%s, %sAlternating, %s]"%(
             ncross,
             "" if alternating else "Non",
@@ -1268,10 +1523,14 @@ cdef class PlanarDiagram:
         return loaded_pd
 
     def get_R1_loops(self):
-        """get_R1_loops() -> generator of Faces
+        """
+        get_R1_loops() -> generator(Faces)
 
-        Returns a generator of loops which are viable candidates
-        for Reidemeister 1 moves.
+        Returns a generator of loops which are viable candidates for
+        Reidemeister 1 moves.
+
+        :return: Generator of monogon loops
+        :rtype: generator(Face)
         """
         if self.ncross > 0:
             for face in self.faces:
@@ -1279,10 +1538,15 @@ cdef class PlanarDiagram:
                     yield face
 
     def get_R2_bigons(self):
-        """get_R2_bigons() -> generator of Faces
+        """
+        get_R2_bigons() -> generator(Faces)
 
-        Returns a generator of bigons which are viable candidates
-        for Reidemeister 2 moves.
+        Returns a generator of bigons which are viable candidates for
+        Reidemeister 2 moves.
+
+        :return: Generator of bigon loops whose signs are valid for a R2 move
+                 operation
+        :rtype: generator(Face)
         """
         if self.ncross > 0:
             for face in self.faces:
@@ -1293,11 +1557,16 @@ cdef class PlanarDiagram:
                     yield face
 
     def get_R3_triangles(self):
-        """get_R3_triangles() -> generator of (Face, Edge) pairs
+        """
+        get_R3_triangles() -> generator((Face, Edge))
 
-        Returns a generator of trigons which are viable
-        candidates for Reidemeister 3 moves, with the strand
-        that would move."""
+        Returns a generator of trigons which are viable candidates for
+        Reidemeister 3 moves, with the strand that would move.
+
+        :return: Generator of triangles whose signs are valid for an R3 move,
+                 with an edge that can move
+        :rtype: generator((Face,Edge))
+        """
         if self.ncross > 2:
             for face in self.faces:
                 verts = set(face.vertices)
@@ -1309,13 +1578,16 @@ cdef class PlanarDiagram:
 
 
     def neighbors(self):
-        """neighbors() -> generator of tuples of PlanarDiagrams
+        """
+        neighbors() -> generator(tuple(PlanarDiagram))
 
-        Returns a generator of knot-isomorphic PlanarDiagrams by
-        identifying and performing knot moves which preserve
-        isomorphism (i.e. Reidemeister moves). The generator yields
-        *tuples* of PlanarDiagrams, in case the move untangled a link
-        into two separate diagrams.
+        Returns a generator of knot-isomorphic PlanarDiagrams by identifying
+        and performing knot moves which preserve isomorphism (i.e. Reidemeister
+        moves).  The generator yields *tuples* of PlanarDiagrams, in case the
+        move untangled a link into two separate diagrams.
+
+        :return: A generator of one-move-simplified neighbors
+        :rtype: generator(tuple(PlanarDiagram))
         """
         for loop in self.get_R1_loops():
             yield (self.R1_loop_deletion(loop.vertices[0]),)
@@ -1323,7 +1595,8 @@ cdef class PlanarDiagram:
             yield self.R2_bigon_elimination_vertices(*bigon.vertices)
 
     def simplify(self, seed=None):
-        """simplify(seed=None) -> tuple(PlanarDiagram, [PlanarDiagram, [...]])
+        """
+        simplify([seed=None]) -> tuple(PlanarDiagram)
 
         Returns a tuple of PlanarDiagram whose split link is isomorphic to this
         diagram and whose crossing numbers software knows not how to decrease
@@ -1332,20 +1605,27 @@ cdef class PlanarDiagram:
 
         The return value is a tuple of PlanarDiagram, as it is possible that R2
         simplifications break apart a split link diagram into two separate
-        PlanarDiagrams. Order of the tuple depends on the simplification order;
-        at R2 simplifications which split links, two diagrams are returned as
-        (Upper, Lower) depending on their pre-R2 simplification state: Whatever
-        diagrams are produced from simplifying the first diagram come first in
-        the tuple, while the end will the diagrams obtained from simplifying
-        the second. In a very meaningless sense this means the resultant
-        diagrams are returned in a height order, with the "top" diagram
-        appearing first and so on: Of course, there's no well-defined notion of
-        height of a split link diagram, and it's possible that simplification
-        steps could mess this up, too.
+        PlanarDiagrams.  Order of the tuple depends on the simplification
+        order; at R2 simplifications which split links, two diagrams are
+        returned as (Upper, Lower) depending on their pre-R2 simplification
+        state: Whatever diagrams are produced from simplifying the first
+        diagram come first in the tuple, while the end will the diagrams
+        obtained from simplifying the second.  In a very meaningless sense this
+        means the resultant diagrams are returned in a height order, with the
+        "top" diagram appearing first and so on: Of course, there's no
+        well-defined notion of height of a split link diagram, and it's
+        possible that simplification steps could mess this up, too.
 
-        If ``seed`` is not ``None``, pick a random move instead of
-        using any order (using the integer seed provided).
+        If ``seed`` is not ``None``, pick a random move instead of using any
+        order (using the integer seed provided).
 
+        :param seed: If non-None, a deterministic seed for the random number
+            generator
+        :type seed: None or int
+
+        :return: PlanarDiagrams produced by reducing, from "top" to "bottom";
+                 see description for scare-quote explanation.
+        :rtype: tuple(PlanarDiagram)
         """
         if seed:
             return self._simplify_helper(random.Random(seed))
@@ -1353,6 +1633,8 @@ cdef class PlanarDiagram:
             return self._simplify_helper(None)
 
     def _simplify_helper(self, pyrng):
+        """Helper method for simplify()
+        """
         if pyrng is None:
             try:
                 if self.ncross == 0:
@@ -1367,6 +1649,8 @@ cdef class PlanarDiagram:
                 return (self.copy(),)
 
     def dual_graph(self):
+        """Compute a dual graph; *Not sufficiently implemented or used*
+        """
         dual = PlanarSignedFaceDigraph()
         dual.verts = range(self.nfaces)
         for edge in self.edges:
@@ -1377,11 +1661,16 @@ cdef class PlanarDiagram:
         return dual
 
     def as_spherogram(self):
-        """as_spherogram() -> spherogram.Link
+        """
+        as_spherogram() -> spherogram.Link
 
         Returns a Spherogram Link object representing this PlanarDiagram
 
-        Requires: :mod:`spherogram`"""
+        Requires: :mod:`spherogram`
+
+        :return: A spherogram Link object which represents this PlanarDiagram
+        :rtype: spherogram.Link
+        """
         pdcode = self.pdcode()
 
         from spherogram import links
@@ -1438,18 +1727,24 @@ cdef class PlanarDiagram:
         return link
 
     def snappy_manifold(self):
-        """snappy_manifold() -> snappy.Manifold
+        """
+        snappy_manifold() -> snappy.Manifold
 
         Returns a SnapPy Manifold object which represents this knot/link's
-        complement in $S^3$.
+        complement in :math:`S^3`.
 
-        Requires: ``snappy``, ``spherogram``"""
+        Requires: :mod:`snappy`, :mod:`spherogram`
+
+        :return: A snappy Manifold object which represents this PlanarDiagram's
+                 complement
+        :rtype: snappy.Manifold
+        """
         from snappy import Manifold
         sgm_link = self.as_spherogram()
         return Manifold("DT:%s"%sgm_link.DT_code())
 
     def edit_copy(self):
-        """edit_copy() -> new PlanarDiagram
+        """edit_copy() -> PlanarDiagram
 
         Open a plink editor for this PlanarDiagram. On
         completion, returns a new PlanarDiagram object.
@@ -1484,36 +1779,37 @@ cdef class PlanarDiagram:
     @classmethod
     def random_diagram(cls, n_crossings, n_components=None, max_att=50, dia_type=None):
         u"""
-        random_diagram(n_crossings, n_components=None, max_att=50,
-        dia_type=None) -> new PlanarDiagram
+         random_diagram(n_crossings, n_components=None, max_att=50, dia_type=None) -> PlanarDiagram
 
-        Create a new PlanarDiagram with n_crossings crossings by
-        uniformly sampling a rooted 4-regular map using Giles
-        Schaeffer's PlanarMap and uniformly sampling a sign at each
-        crossing. If n_components is a positive integer rather
-        than ``None``, then we will attempt up to max_att times to
-        create a diagram with precisely n_components, and ``None``
-        otherwise. If ``max_att=0`` then there is no limit on the
-        number of attempts to satisfy n_components.
+         Create a new PlanarDiagram with ``n_crossings`` crossings by uniformly
+         sampling a rooted 4-regular map using Giles Schaeffer's PlanarMap and
+         uniformly sampling a sign at each crossing.  If n_components is a
+         positive integer rather than ``None``, then we will attempt up to
+         max_att times to create a diagram with precisely n_components, and
+         ``None`` otherwise.  If ``max_att=0`` then there is no limit on the
+         number of attempts to satisfy ``n_components``.
 
-        Presently, dia_type is one of 'all', 'prime',
-        '6conn', or 'biquart'. (``dia_type=None`` defaults to
-        all)
+         Presently, dia_type is one of 'all', 'prime', '6conn', or 'biquart'.
+         (``dia_type=None`` defaults to all)
 
-        :param int n_crossings: The number of crossings of the result diagram
-        :param n_components: The number of components of the result
-           diagram, or None if no constraint
-        :type n_components: int or None
-        :param int max_att: The max number of attempts to create a
-           diagram of :obj:`n_components` components.
-        :param dia_type: The type of diagram to produce, or None for
-           any. Valid types are 'all', 'prime', '6conn', and 'biquart',
-           corresponding to 2-edge-connected (i.e. any) diagrams,
-           4-connected (i.e. prime) diagrams, 6-connected diagrams,
-           or bipartite diagrams. Notice that bipartite diagrams
-           never have precisely 1 component.
-        :type dia_type: str or None
-        """
+         :param int n_crossings: The number of crossings of the result diagram
+         :param n_components: The number of components of the result diagram,
+             or None if no constraint
+         :param int max_att: The max number of attempts to create a diagram of
+             :obj:`n_components` components.
+         :param dia_type: The type of diagram to produce, or None for any.
+             Valid types are 'all', 'prime', '6conn', and 'biquart',
+             corresponding to 2-edge-connected (i.e. any) diagrams, 4-connected
+             (i.e. prime) diagrams, 6-connected diagrams, or bipartite
+             diagrams.  Notice that bipartite diagrams never have precisely 1
+             component.
+
+         :type n_components: int or None
+         :type dia_type: str or None
+
+         :return: A new uniformly sampled PlanarDiagram of the appropriate type
+         :rtype: PlanarDiagram
+         """
 
         import os
         cdef pmMap plmap
@@ -1656,7 +1952,7 @@ cdef class PlanarDiagram:
 
     @classmethod
     def from_dt_code(cls, dt_code):
-        """from_dt_code() -> new PlanarDiagram
+        """from_dt_code(dt_code) -> PlanarDiagram
 
         Creates a new PlanarDiagram from a DT code (Dowker-Thistlethwaite).
         Requires :mod:`Spherogram` package
@@ -1664,19 +1960,30 @@ cdef class PlanarDiagram:
         Warning: Currently depends on :meth:`from_pdcode`, which has bugs with
         components of length 2
 
-        Requires: :mod:`spherogram`"""
+        Requires: :mod:`spherogram`
+
+        :param str dt_code: Dowker-Thistlethwaite code to parse
+
+        :return: A new diagram corresponding to dt_code
+        :rtype: PlanarDiagram
+        """
         import spherogram
         return cls.from_pdcode(spherogram.DTcodec(dt_code).PD_code())
 
     @classmethod
     def from_editor(cls, **kwargs):
         """
-        from_editor() -> new PlanarDiagram
+        from_editor(**kwargs) -> PlanarDiagram
 
         Creates a new PlanarDiagram using a new :mod:`plink`
         :class:`LinkEditor`
 
         Requires package :mod:`plink` and Tkinter interface
+
+        :param **kwargs: Arguments for plink.LinkEditor constructor
+
+        :return: A new diagram based on the link drawn in the editor
+        :rtype: PlanarDiagram
         """
         from plink import LinkEditor
         from Tkinter import mainloop as _tk_mainloop
@@ -1689,12 +1996,19 @@ cdef class PlanarDiagram:
     @classmethod
     def from_plink(cls, editor, thin=False):
         """
-        from_plink(editor) -> new PlanarDiagram
+        from_plink(editor, thin=False) -> PlanarDiagram
 
         Creates a new :class:`PlanarDiagram` from a :mod:`plink`
         :class:`LinkManager` object.
 
         Requires package :mod:`plink`
+
+        :param plink.LinkManager editor: The plink LinkManager object which
+            contains the diagram
+        :param bool thin: Whether or not to wrap child components in Python
+
+        :return: A new diagram object based on that drawn in the editor
+        :rtype: PlanarDiagram
         """
 
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
@@ -1777,17 +2091,24 @@ cdef class PlanarDiagram:
         """
         ccode() -> str
 
-        Convert this PlanarDiagram to its Ewing-Millet ccode
+        Convert this PlanarDiagram to its Ewing-Millett ccode
         format. Wraps :c:func:`pdcode_to_ccode`.
+
+        :return: An Ewing-Millett ccode string
+        :rtype: str
         """
 
         return copy_and_free(pdcode_to_ccode(self.p))
 
     def serialize(self):
-        """serialize() -> str
+        """
+        serialize() -> str
 
         Serialize this pdcode into a string matching the PDCode spec
         found in src/plcTopology.proto. Requires protobuf-python.
+
+        :return: A protobuf serialized string
+        :rtype: str
         """
         import plcTopology_pb2
         pb_code = plcTopology_pb2.PDCode()
@@ -1826,13 +2147,19 @@ cdef class PlanarDiagram:
 
     @classmethod
     def deserialize(cls, basestring buff):
-        """deserialize(buffer) -> PlanarDiagram
+        """
+        deserialize(buffer) -> PlanarDiagram
 
         Deserialize this pdcode from a string matching the PDCode spec
         found in src/plcTopology.proto. Requires protobuf-python.
 
         Caveats: tries to reproduce a PlanarDiagram exactly from the
         serialization, hence will not regenerate() itself.
+
+        :param str buffer: A protobuf serialized PlanarDiagram string
+
+        :return: The serialized diagram
+        :rtype: PlanarDiagram
         """
         cdef PlanarDiagram pd = cls.__new__(cls)
 
@@ -1908,7 +2235,7 @@ cdef class PlanarDiagram:
     @classmethod
     def from_pdcode(cls, pdcode, thin=False):
         """
-        from_pdcode(pdcode) -> new PlanarDiagram
+        from_pdcode(pdcode) -> PlanarDiagram
 
         Create a PlanarDiagram from a planar diagram code list.
         """
@@ -1975,6 +2302,7 @@ cdef class PlanarDiagram:
         self.faces = _FaceList(self)
 
     def __len__(self):
+        """"A length of a pdcode is its number of components"""
         return self.p.ncomps
 
     def __str__(self):
@@ -1982,10 +2310,12 @@ cdef class PlanarDiagram:
             self.p.ncross, self.p.ncomps))
 
     # Special methods which allow pdcodes to be pickled.
+    # -------------------------------------------------------------------------
     def __reduce__(self):
         """Required method to implement pickling of extension types.
 
-        Returns a tuple: (Constructor-ish, Constructor args, __getstate__ output).
+        Returns a tuple: (Constructor-ish, Constructor args, __getstate__
+        output).
         """
         return (self.__class__,
                 (self.p.ncross,),
