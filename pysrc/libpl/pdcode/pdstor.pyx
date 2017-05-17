@@ -8,13 +8,22 @@ cdef extern from "Python.h":
 
 cdef class PDStorage:
     def __init__(self):
+        """
+        Creates a new PDStor file for use. To use an existent file use read()
+        """
         self.p = pd_new_pdstor()
 
     def add(self, PlanarDiagram pd, pd_equivalence_t eq=DIAGRAM_ISOTOPY):
+        """
+        Add a PlanarDiagram to this PDStor. Default equivalence is diagram isotopy.
+        """
         pd_addto_pdstor(self.p, pd.p, eq)
 
     @classmethod
     def read(cls, f, pd_equivalence_t eq=DIAGRAM_ISOTOPY):
+        """
+        Loads in a PDStor file for use.
+        """
         if not isinstance(f, file):
             if isinstance(f, basestring):
                 with open(f, "r") as real_file:
