@@ -1,3 +1,14 @@
+"""
+diagram.pyx: Module for wrapping pd_code_t as PlanarDiagram
+
+In this file we primarily wrap the functionality of the C object pd_code_t
+as a Python class, :class:`PlanarDiagram`.
+
+There are also some utility functions and variables defined. For the most part,
+naming conventions try to match up with plcTopology.h and headers pd_***.h, and
+further documentation can be found there.
+"""
+
 cimport cython
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libc.string cimport memcpy, strncpy
@@ -61,6 +72,10 @@ cdef extern from "stdio.h":
     ctypedef struct FILE:
         pass
 
+# Currently, this will NOT work with Py3, because they completely
+# revamped how file objects are accessed. If you are tasked with
+# porting this to Py3, I believe your first order of business is to
+# work by managing files yourself, not using Python's file object.
 cdef extern from "Python.h":
     cdef FILE* PyFile_AsFile(file_obj)
 
@@ -73,9 +88,14 @@ cdef bytes copy_and_free(char* charp):
     return ret
 
 def ori_char(pd_or_t ori):
+    """
+    Returns a single-character representation of `ori`: +, -, U (for unset), or
+    ? (anything else)
+    """
     return chr(pd_print_or(ori))
 
 cdef sgn(x):
+    """Signum function; return sign of `x`"""
     if x == 0: return 0
     return x / abs(x)
 
@@ -84,23 +104,40 @@ class NoParentException(Exception):
 
 # List subclasses which know how to properly delete/set elements within
 cdef class _OwnedObjectList:
+    """
+    A (virtual) list-like class which abstracts access to Python objects wrapping
+    data contained in a PlanarDiagram parent object.
+    """
     def __cinit__(self, PlanarDiagram parent):
         self.parent = parent
         self.objs = dict()
 
     def __len__(self):
+        """
+        Needs to be implemented by child class; return the number of such objects
+        as dictated by parent
+        """
         return 0
 
     def __iter__(self):
+        """
+        Return an iterator to this object's data
+        """
         for i in range(len(self)):
             yield self[i]
 
     def __repr__(self):
+        """
+        Print as a (less-friendly) string
+        """
         return ("[" +
                 ", ".join(repr(o) for o in self) +
                 "]")
 
     def __getitem__(self, i):
+        """
+        Standard accessor. We only accept integer indices, no slices
+        """
         if not (isinstance(i, int) or isinstance(i, long)):
             raise TypeError("Index must be an integer.")
 
@@ -112,15 +149,25 @@ cdef class _OwnedObjectList:
         return self.objs[i]
 
     cdef object _new_child_object(self, long i):
+        """
+        Must be implemented by child class; create a new Python wrapper for
+        indexed C data at position i
+        """
         return None
 
     def _disown(self):
+        """
+        Disown all data contained in this list, so that they can be garbage collected if necessary
+        """
         cdef _Disownable o
         for o in self.objs.itervalues():
             o.disown()
         self.parent = None
 
 cdef class _EdgeList:
+    """
+    A list-like object containing Python objects for a PlanarDiagram's edges.
+    """
     def __len__(self):
         return self.parent.nedges
 
@@ -128,6 +175,9 @@ cdef class _EdgeList:
         return Edge_FromParent(self.parent, i)
 
 cdef class _CrossingList(_OwnedObjectList):
+    """
+    A list-like object containing Python objects for a PlanarDiagram's crossings.
+    """
     def __len__(self):
         return self.parent.ncross
 
@@ -135,6 +185,9 @@ cdef class _CrossingList(_OwnedObjectList):
         return Crossing_FromParent(self.parent, i)
 
 cdef class _ComponentList(_OwnedObjectList):
+    """
+    A list-like object containing Python objects for a PlanarDiagram's components.
+    """
     def __len__(self):
         return self.parent.ncomps
 
@@ -142,6 +195,9 @@ cdef class _ComponentList(_OwnedObjectList):
         return Component_FromParent(self.parent, i)
 
 cdef class _FaceList(_OwnedObjectList):
+    """
+    A list-like object containing Python objects for a PlanarDiagram's faces.
+    """
     def __len__(self):
         return self.parent.nfaces
 
@@ -206,6 +262,7 @@ cdef class PlanarDiagram:
             return self.p.uid
 
     property _hash:
+        """Get the hash of this :class:`PlanarDiagram`, without any intelligent re-hashing"""
         def __get__(self):
             return self.p.hash
 
@@ -242,6 +299,7 @@ cdef class PlanarDiagram:
         return newobj
 
     def __richcmp__(PlanarDiagram self, PlanarDiagram other_pd, int op):
+        """Check whether two :class:`PlanarDiagram`s are isotopic (as diagrams) or isomorphic (as maps)"""
         if op == 2:
             if self.equiv_type == ISOTOPY:
                 return pd_diagram_isotopic(self.p, other_pd.p)
@@ -482,10 +540,18 @@ cdef class PlanarDiagram:
         return newobj
 
     def assert_nonnull(self):
+        """assert_nonnull()
+
+        Raise an exception if this PlanarDiagram's data pointer is NULL.
+
+        TODO: Make this definition private (_assert_nonnull) as end users
+        should not need to ever call this, in theory...
+        """
         if self.p is NULL:
             raise Exception("Initialization for this PlanarDiagram is incomplete.")
 
     def _bounds(self):
+        """Print the maximum numbers of different parts of this PlanarDiagram"""
         print "MAXVERTS=%s" % self.p.MAXVERTS
         print "MAXEDGES=%s" % self.p.MAXEDGES
         print "MAXCOMPONENTS=%s" % self.p.MAXCOMPONENTS
@@ -495,6 +561,9 @@ cdef class PlanarDiagram:
         """write(file f)
 
         Write this pdcode to the open file object ``f``.
+
+        TODO: Rewrite for Py3 compatibility; use a filename rather
+        than a file pointer
         """
         if not ("w" in f.mode or "a" in f.mode or "+" in f.mode):
             raise IOError("File must be opened in a writable mode.")
@@ -504,6 +573,9 @@ cdef class PlanarDiagram:
         """write_knot_theory(file f)
 
         Write this pdcode in KnotTheory format to the open file object ``f``.
+
+        TODO: Rewrite for Py3 compatibility; use a filename rather
+        than a file pointer
         """
         if not ("w" in f.mode or "a" in f.mode or "+" in f.mode):
             raise IOError("File must be opened in a writable mode.")
@@ -514,6 +586,9 @@ cdef class PlanarDiagram:
         """read(file f) -> new PlanarDiagram
 
         Read the next pdcode from a file object.
+
+        TODO: Rewrite for Py3 compatibility; use a filename rather
+        than a file pointer
 
         :return: A new :class:`PlanarDiagram`, or :obj:`None` on failure.
         """
@@ -551,10 +626,13 @@ cdef class PlanarDiagram:
 
     @classmethod
     def read_all(cls, f, read_header=False, thin=False):
-        """read_all(file f) -> PlanarDiagram
+        """read_all(file f) -> generator of PlanarDiagram
 
         Returns a generator that iterates through the pdcodes stored
         in ``f``.
+
+        TODO: Rewrite for Py3 compatibility; use a filename rather
+        than a file pointer
         """
 
         if not isinstance(f, file):
@@ -601,6 +679,9 @@ cdef class PlanarDiagram:
         These PD codes don't have component or face information, so
         that is all regenerated once the crossings have been loaded
         from the file.  This will only read one PD code from ``f``.
+
+        TODO: Rewrite for Py3 compatibility; use a filename rather
+        than a file pointer
         """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(cls)
 
@@ -730,11 +811,17 @@ cdef class PlanarDiagram:
         pd_reorient_component(self.p, component, sign)
 
     def toggle_crossing(self, pd_idx_t x_i):
+        """toggle_crossing(x_i)
+
+        Toggle the sign of crossing x_i, from positive to negative (or vice versa).
+        If the crossing sign is unset, this is a no-op.
+
+        :param x_i: Index of the crossing to toggle
+        """
         if self.p.cross[x_i].sign == PD_NEG_ORIENTATION:
             self.p.cross[x_i].sign = PD_POS_ORIENTATION
         elif self.p.cross[x_i].sign == PD_POS_ORIENTATION:
             self.p.cross[x_i].sign = PD_NEG_ORIENTATION
-
 
     # Regenerate pd code data
     def regenerate_crossings(self):
@@ -746,40 +833,45 @@ cdef class PlanarDiagram:
         """
         pd_regenerate_crossings(self.p)
     def regenerate_components(self):
-        """regenerate_components()
+        """
+        regenerate_components()
 
-        Generates randomly oriented and numbered
-        edges from crossings, then strings them
-        into components, sorts components by
-        size, renumbers edges and orients them along
-        components. Updates and regenerates crossings."""
+        Generates randomly oriented and numbered edges from crossings, then
+        strings them into components, sorts components by size, renumbers edges
+        and orients them along components. Updates and regenerates crossings.
+        """
         pd_regenerate_comps(self.p)
     def regenerate_faces(self):
-        """regenerate_faces()
+        """
+        regenerate_faces()
 
-        Fills in faces from crossing, edge
-        information, including orientation of
-        each edge along the face."""
+        Fills in faces from crossing, edge information, including orientation
+        of each edge along the face.
+        """
         pd_regenerate_faces(self.p)
     def regenerate_hash(self):
-        """regenerate_hash()
+        """
+        regenerate_hash()
 
-        Fill in (printable) hash value from
-        comps, faces, and crossings"""
+        Fill in (printable) hash value from comps, faces, and crossings
+        """
         pd_regenerate_hash(self.p)
     def regenerate(self):
-        """regenerate()
+        """
+        regenerate()
 
-        Regenerates everything from cross data."""
+        Regenerates everything from cross data.
+        """
         pd_regenerate(self.p)
         self.regenerate_py_os()
 
     # Knot-isomorphic modifications
     def R1_loop_deletion(self, pd_idx_t cr):
-        """R1_loop_deletion(crossing_or_index) -> result pdcode
+        """
+        R1_loop_deletion(crossing_or_index) -> new PlanarDiagram
 
-        Performs a Reidemeister 1 loop deletion which
-        removes the input crossing.
+        Performs a Reidemeister 1 loop deletion which removes the input
+        crossing.
         """
         ret = PlanarDiagram_wrap(pd_R1_loopdeletion(self.p, cr))
         if ret is None:
@@ -790,12 +882,14 @@ cdef class PlanarDiagram:
         return PlanarDiagram_wrap(pd_R1_loop_addition(self.p, f, e_on_f))
 
     def R2_bigon_elimination(self, Face f):
-        """R2_bigon_elimination(crossing_or_index, crossing_or_index)
-        -> (Upper pdcode, [Lower pdcode])
+        """
+        R2_bigon_elimination(Face f) -> (Upper new PlanarDiagram, [Lower new PlanarDiagram])
 
-        Performs a Reidemeister 2 bigon elimination removing the bigon
-        with vertices the two inputs. This is **not an in-place operation**
-        as there may be more than one PlanarDiagram as a result of the move.
+        Performs a Reidemeister 2 bigon elimination removing the bigon f. This
+        is **not an in-place operation** as there may be more than one
+        PlanarDiagram as a result of the move.
+
+        :raises: An Exception if the Face f is not a bigon.
         """
         if len(f) != 2:
             raise Exception("Must R2 eliminate on a bigon, but f not a bigon")
@@ -803,9 +897,30 @@ cdef class PlanarDiagram:
 
     def R2_bigon_addition(self, pd_idx_t f, pd_idx_t e1_on_f,
                           pd_idx_t e2_on_f, pd_or_t e1_over_e2_or):
+        """
+        R2_bigon_addition(f, e1_on_f, e2_on_f, e1_over_e2_or) -> new PlanarDiagram
+
+        Performs a Reidemeister 2 bigon addition move across the face indexed by f, by moving
+        edges e1_on_f and e2_on_f across each other. NOT FULLY WORKING?
+
+        TODO: Fix implementation! The orientation currently has no effect
+        TODO: Fix specification! We should be more consistent and be able to
+        work with python objects like using a Face f instead of an index
+        """
         return PlanarDiagram_wrap(pd_R2_bigon_addition(self.p, f, e1_on_f, e2_on_f, e1_over_e2_or))
 
     def R2_bigon_elimination_vertices(self, pd_idx_t cr1, pd_idx_t cr2):
+        """
+        R2_bigon_elimination_vertices(cr1, cr2) -> (Upper new PlanarDiagram, [Lower new PlanarDiagram])
+
+        Performs a Reidemeister 2 bigon elimination removing the bigon defined by the vertices
+        indexed by cr1 and cr2. Observe that cr1 and cr2 uniquely determine a bigon unless
+        the diagram is a split link of two trivial circles; in this case the result will be two
+        trivial diagrams.
+
+        Caveat: This method does not check that cr1 and cr2 actually define a bigon! It is
+        preferred that you use R2_bigon_elimination(), which does error checking.
+        """
         cdef pd_idx_t *cr = [cr1, cr2]
         cdef pd_idx_t nout
         cdef pd_code_t **out_pds
@@ -815,13 +930,22 @@ cdef class PlanarDiagram:
         return tuple(PlanarDiagram_wrap(out_pds[i]) for i in range(nout))
 
     def R3_triangle_flip(self, pd_idx_t f):
+        """
+        R3_triangle_flip(f) -> new PlanarDiagram
+
+        Perform a Reidemeister 3 triangle flip move, flipping the face indexed
+        by f. Currently DOES NOT CARE about sign, and so only works on shadows.
+
+        TODO: Implement properly for diagrams
+        """
         return PlanarDiagram_wrap(pd_R3_triangle_flip(self.p, f))
 
     def connect_sum(self, Edge edge, PlanarDiagram other_pd, Edge other_edge):
         """
-        connect_sum(Edge edge, PlanarDiagram other_pd, Edge other_edge) -> PlanarDiagram
-        
-        This function gives the connect sum of two PlanarDiagram objects at two different edges.
+        connect_sum(Edge edge, PlanarDiagram other_pd, Edge other_edge) -> new PlanarDiagram
+
+        This function gives the connect sum of two PlanarDiagram objects at two
+        different edges, keeping edge orientations consistent.
         """
         cdef pd_code_t* new_pd_p = pd_connect_sum(self.p, edge.index, other_pd.p, other_edge.index)
         return PlanarDiagram_wrap(new_pd_p)
