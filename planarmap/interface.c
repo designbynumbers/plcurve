@@ -36,6 +36,8 @@ void pmHelp(void)
   printf("   -R<nb>: number of red faces in Q2 (=vertices for -M2)\n");
   printf("   -G<nb>: number of green faces in Q2 (=faces for -M2)\n");
   printf("   -I<nb>: approximate size [N+/-I]\n");
+  printf("   -k<nb>: minimum number of loops\n");
+  printf("   -K<nb>: maximum number of loops\n");
   printf("  methods:\n");
   printf("   -l extraction by largest component (default)\n");
   printf("   -c extraction by core \n");
