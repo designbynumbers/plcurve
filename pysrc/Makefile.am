@@ -18,7 +18,8 @@ PYX_FILES = \
 	libpl/pdcode/homfly.pyx \
 	libpl/pdcode/isomorphism.pyx \
 	libpl/pdcode/plctopology.pyx \
-	libpl/pdcode/planarmap.pyx
+	libpl/pdcode/planarmap.pyx \
+	libpl/pdcode/pd_invariants.pyx
 
 CY_FILES = $(PYX_FILES:.pyx=.c)
 CY_H_FILES = \
