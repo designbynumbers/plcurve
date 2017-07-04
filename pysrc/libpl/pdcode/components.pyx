@@ -415,6 +415,9 @@ cdef class Component(_Disownable):
         self.parent = None
 
     def __getitem__(self, i):
+        """
+        Gets the `Edge` at position i in the `Component`.
+        """
         if self.parent is None:
             raise NoParentException("This Component is not owned by any PlanarDiagram.")
 
@@ -491,9 +494,16 @@ cdef class Face(_Disownable):
         return sgn(pd_face_cmp(self.p, face.p))
 
     def __len__(self):
+        """
+        Size of a face is the number of `Edge`s, which is the same as the number of
+        `Crossing`s
+        """
         return self.p.nedges
 
     def __getitem__(self, i):
+        """
+        Get the `Edge` at position i of this `Face`.
+        """
         if self.parent is None:
             raise NoParentException("This Face is not owned by any PlanarDiagram.")
 
@@ -558,8 +568,9 @@ cdef class Crossing(_Disownable):
         def __get__(self):
             return self.edgeview_get()
     property sign:
-        """The orientation of this crossing.  The convention used to determine
-        sign is this:
+        """
+        The orientation of this crossing. The convention used to determine sign is
+        this:
 
         **Positive crossing**: (upper tangent vector) :math:`\\times`
         (lower tangent vector) points OUT of screen::
