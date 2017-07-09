@@ -372,7 +372,8 @@ def pdstor_command(args):
             while gal*MAX_GALLERY < len(gen_images):
                 with open("gallery_{}.html".format(gal), "w") as f:
                     f.write("<html><body>\n")
-                    for i, src in enumerate(gen_images[gal*MAX_GALLERY:gal*MAX_GALLERY+MAX_GALLERY+1]):
+                    for i, src in enumerate(
+                            gen_images[gal*MAX_GALLERY:gal*MAX_GALLERY+MAX_GALLERY+1]):
                         if i and not i%args.gallery:
                             f.write("<br>\n")
                         f.write("<img src='{}'>".format(src))
@@ -462,9 +463,11 @@ if __name__ == "__main__":
         'pdstor', help='create images for diagrams in a pdstor')
     parser_pdstor.add_argument("pdstor", type=argparse.FileType('r'))
     parser_pdstor.add_argument("-o", "--skip-header", action='store_false',
-                               dest="read_header")
+                               dest="read_header",
+                               help="Don't read pdstor header (e.g. for naked pd output)")
     parser_pdstor.add_argument("-N", "--no-auto-prefix", action="store_false",
-                               dest="auto_prefix")
+                               dest="auto_prefix",
+                               help="Don't automagically generate a prefix from filename")
     parser_pdstor.add_argument("-G", "--gallery", type=int,
                                help="Auto-generate HTML gallery of GALLERY columns")
     parser_pdstor.set_defaults(func=pdstor_command)
