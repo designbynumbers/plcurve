@@ -33,7 +33,7 @@ def intersect_arrows(over, under, verts):
 
 def get_orthogonal_arrows(orth, width=100., height=100.,
                           scale=None, xscale=None, yscale=None,
-                          border=None):
+                          border=None, **kwargs):
     """
     Using an OrthogonalPlanarDiagram create a list of primitive "arrow" shapes
     for drawing.

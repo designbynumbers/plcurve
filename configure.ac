@@ -208,7 +208,8 @@ AC_CONFIG_FILES([Makefile
                 pysrc/Makefile
                 tools/Makefile
 		test/Makefile
-		tools/pdstor_classify/Makefile])
+		tools/pdstor_classify/Makefile
+    tools/diagram_to_img/Makefile])
 
 AC_CONFIG_SUBDIRS([judy])
 AC_OUTPUT
