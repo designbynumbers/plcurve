@@ -21,6 +21,8 @@ cdef class Edge(_Disownable):
     cdef readonly int index
     """The index by which this edge is known in the parent."""
 
+    cdef bool owned
+
     cpdef Edge oriented(self, pd_or_t sign)
     cpdef component_index_pos(self)
     cpdef component_pos(self)

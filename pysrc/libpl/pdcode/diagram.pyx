@@ -2447,6 +2447,7 @@ cdef class PlanarDiagram:
                 "])")
 
     def __dealloc__(self):
+        #print "** dealloc:", <long>self.p, <long>self.p.edge
         if self.p is not NULL:
             pd_code_free(&self.p)
             self.p = NULL

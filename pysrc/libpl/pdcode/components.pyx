@@ -107,12 +107,16 @@ cdef class Edge(_Disownable):
     def __cinit__(self):
         self.p = NULL
         self.parent = None
+        self.owned = True
 
     def __init__(self, PlanarDiagram parent):
         self.parent = parent
 
     def __dealloc__(self):
-        if self.parent is None and self.p is not NULL:
+        #print self.parent, self.owned
+        #print <long>self.p
+        #print self.p.tail, self.p.tailpos
+        if not self.owned:
             PyMem_Free(self.p)
 
     cdef disown(self):
@@ -120,6 +124,7 @@ cdef class Edge(_Disownable):
         self.p = <pd_edge_t *>memcpy(PyMem_Malloc(sizeof(pd_edge_t)),
                                      self.p, sizeof(pd_edge_t))
         self.parent = None
+        self.owned = False
 
     cpdef Edge oriented(self, pd_or_t sign):
         """oriented(sign) -> Edge
@@ -378,6 +383,8 @@ cdef Edge Edge_FromParent(PlanarDiagram parent, pd_idx_t index):
     new_edge.parent = parent
     new_edge.p = &parent.p.edge[index]
     new_edge.index = index
+    if parent is None:
+        new_edge.owned = False
     return new_edge
 
 cdef class Component(_Disownable):

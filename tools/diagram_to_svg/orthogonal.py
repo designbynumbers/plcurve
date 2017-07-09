@@ -85,7 +85,8 @@ def subdivide_edge(crossing_strand, n):
 
 class OrthogonalPlanarDiagram(OrthogonalLinkDiagram):
     def __init__(self, pd):
-        self.pd = pd = pd.copy()
+        #pd = pd.copy()
+        self.pd = pd
         self.crossings = [PdCrossing(label=x) for x in pd.crossings]
         for x, cross in zip(pd.crossings, self.crossings):
             # Identify which of our PD indices is SGM index 0:
@@ -101,7 +102,6 @@ class OrthogonalPlanarDiagram(OrthogonalLinkDiagram):
         list.__init__(self, [PlanarFace(self.crossings, F) for F in pd.faces])
         exterior_face = max(self, key=len)
         exterior_face.exterior = True
-
         self.face_network = self.flow_networkx()
         self.bend()
         self.orient_edges()

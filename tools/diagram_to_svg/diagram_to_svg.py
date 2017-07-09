@@ -1,4 +1,4 @@
-
+#!/usr/bin/python
 from libpl.pdcode import PlanarDiagram
 from libpl import pdcode
 
@@ -192,16 +192,39 @@ def draw_orthogonal_projection(orth, fname,
 
 from math import pi
 
+def pdstor_command(args):
+    for pd in PlanarDiagram.read_all(args.pdstor, read_header=True):
+        pd.randomly_assign_crossings()
+        orth = OrthogonalPlanarDiagram(pd)
+        draw_orthogonal_projection(orth, "diagram_{}.svg".format(pd.uid),
+                                   height=400, width=400,cross_width=2)
+
+def pdcode_command(args):
+    for i in range(10):
+        pd = PlanarDiagram.random_diagram(3, 1, 0)
+        orth = OrthogonalPlanarDiagram(pd)
+        for edge in pd.edges:
+            assert edge.parent is not None
+
 if __name__ == "__main__":
-    #K = PlanarDiagram.simple_chain(2)
-    #K = PlanarDiagram.torus_knot(2,5)
-    K = PlanarDiagram.random_diagram(100, 9, 0)
-    #with open("5_1slip.pd", "r") as f:
-    #    K = PlanarDiagram.read(f)
-    ##print repr(K)
+    import sys, argparse
 
-    pd = K
-    N = pd.ncross
+    parser = argparse.ArgumentParser(
+        description='Generate SVG images from PlanarDiagrams')
 
-    orth = OrthogonalPlanarDiagram(K)
-    draw_orthogonal_projection(orth, "knot2.svg",height=400, width=400,cross_width=2)
+    subparsers = parser.add_subparsers()
+
+    parser_pdstor = subparsers.add_parser(
+        'pdstor', help='create images for diagrams in a pdstor')
+    parser_pdstor.add_argument("pdstor", type=argparse.FileType('r'))
+    parser_pdstor.set_defaults(func=pdstor_command)
+
+    parser_pdcode = subparsers.add_parser(
+        'pdcode', help='create image from a KnotTheory PDCode')
+    parser_pdcode.add_argument("pdcode", type=str,
+                               help="KnotTheory PDCode to load")
+    parser_pdcode.set_defaults(func=pdcode_command)
+
+    args = parser.parse_args()
+    args.func(args)
+
