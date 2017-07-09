@@ -384,17 +384,17 @@ def pdcode_command(args):
     i = 0
     pd = PlanarDiagram.read_knot_theory(args.pdcode)
     while pd is not None:
-        args.draw_pd(pd,
-                     filename_gen(i, args.draw_pd["ext"], args.prefix),
-                     **_args_to_draw_kwargs(args))
+        args.draw_pd["func"](pd,
+                             filename_gen(i, args.draw_pd["ext"], args.prefix),
+                             **_args_to_draw_kwargs(args))
         pd = PlanarDiagram.read_knot_theory(args.pdcode)
         i += 1
 
 def random_command(args):
     pd = PlanarDiagram.random_diagram(args.size)
-    args.draw_pd(pd,
-                 filename_gen(pd.uid, args.draw_pd["ext"], args.prefix),
-                 **_args_to_draw_kwargs(args))
+    args.draw_pd["func"](pd,
+                         filename_gen(pd.uid, args.draw_pd["ext"], args.prefix),
+                         **_args_to_draw_kwargs(args))
 
 format_opts = {
     'cairo-svg': {'func': draw_pd_cairo, "ext": "svg"},
