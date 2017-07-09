@@ -142,14 +142,13 @@ class OrthogonalPlanarDiagram(OrthogonalLinkDiagram):
                     stc[ce] = n
                     self.strand_CEPs.append(ce)
 
-    def ascii_data(self, xscale=1, yscale=1):
+    def ascii_data(self, emb, xscale=1, yscale=1):
         """
         Returns:
         * a list of vertex positions
         * a list of arrows joining vertices
         * a list of crossings in the format (arrow over, arrow under)
         """
-        emb = self.orthogonal_rep().basic_grid_embedding()
         x_max = max(a for a,b in emb.values())
         y_max = max(b for a,b in emb.values())
 

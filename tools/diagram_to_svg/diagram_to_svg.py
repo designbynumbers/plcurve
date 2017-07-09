@@ -9,7 +9,9 @@ import json
 
 from orthogonal import OrthogonalPlanarDiagram
 
-with open("config.json") as f:
+import os.path
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                       "config.json")) as f:
     colors = json.load(f)["colors"]
 colors = [tuple(i/255. for i in color) for color in colors]
 
@@ -29,36 +31,48 @@ def intersect_arrows(over, under, verts):
         y = over_start[1]
     return (x, y)
 
-def draw_orthogonal_projection(orth, fname,
-                               width=100., height=100.,
-                               skip_start=0, skip_end=0,
-                               cross_width=4):
-    """Draw an OrthogonalPlanarDiagram"""
+def get_orthogonal_arrows(orth, width=100., height=100.,
+                          scale=None, xscale=None, yscale=None):
+    """
+    Using an OrthogonalPlanarDiagram create a list of primitive "arrow" shapes
+    for drawing.
+    """
 
     XBUFF = 3
     GRIDH = 5
     GRIDW = 5
 
-    ## Natural scale is a grid by 10s
-    xscale = 2.
-    yscale = 2.
+    # Fix a grid embedding
+    emb = orth.orthogonal_rep().basic_grid_embedding()
 
-    verts, arrows, xings = orth.ascii_data(1., 1.)
+    # Case on whether we should scale to w/h or were given a scale
+    if scale is not None:
+        verts, arrows, xings = orth.ascii_data(emb, scale, scale)
+        maxx = max(v[0] for v in verts)
+        maxy = max(v[1] for v in verts)
+        width, height = scale+maxx, scale+maxy
 
-    maxx = max(v[0] for v in verts)
-    maxy = max(v[1] for v in verts)
+    elif xscale is not None and yscale is not None:
+        verts, arrows, xings = orth.ascii_data(emb, xscale, yscale)
+        maxx = max(v[0] for v in verts)
+        maxy = max(v[1] for v in verts)
+        width, height = xscale+maxx, yscale+maxy
+    else:
+        verts, arrows, xings = orth.ascii_data(emb, 1., 1.)
 
-    sqwidth = min(width, height)
-    ctr_x, ctr_y = width/2, height/2
-    rad = sqwidth/2-30
+        maxx = max(v[0] for v in verts)
+        maxy = max(v[1] for v in verts)
 
-    scale = min(maxx, maxy)
-    xscale = width/(maxx+10)
-    yscale = height/(maxy+10)
-    ssc = min(xscale, yscale)
+        sqwidth = min(width, height)
+        ctr_x, ctr_y = width/2, height/2
+        rad = sqwidth/2-30
 
-    verts, arrows, xings = orth.ascii_data(ssc, ssc)
+        scale = min(maxx, maxy)
+        xscale = width/(maxx+1)
+        yscale = height/(maxy+1)
+        ssc = min(xscale, yscale)
 
+        verts, arrows, xings = orth.ascii_data(emb, xscale, yscale)
 
     # Goal 1 is to break up arrows into crossing chunks
     # *------|------|------|------>* should become...
@@ -134,21 +148,95 @@ def draw_orthogonal_projection(orth, fname,
                                   is_over, crspos, tail_vtx, head_vtx, comp))
             #print "brk", self.broken_arrows
 
-    surf = cairo.SVGSurface(fname, width, height)
-    cr = cairo.Context(surf)
+    return width, height, easy_arrows, broken_arrows
+
+class DrawingContext(object):
+    pass
+
+class CairoDrawingContext(DrawingContext):
+    def __init__(self, fname):
+        import cairo
+        self.fname = fname
+
+    def open(self, width, height):
+        self.surf = cairo.SVGSurface(self.fname, width, height)
+        self.cr = cairo.Context(self.surf)
+        self.cr.set_line_width(1.)
+
+    def set_thickness(self, thickness):
+        self.cr.set_line_width(thickness)
+
+    def set_color(self, r, g, b):
+        self.cr.set_source_rgb(r, g, b)
+
+    def draw_line(self, start, end):
+        self.cr.move_to(*start)
+        self.cr.line_to(*end)
+        self.cr.stroke()
+
+    def draw_circle(self, center, radius):
+        self.cr.arc(center[0], center[1], radius, 0, 2*pi)
+        self.cr.fill()
+
+    def close(self):
+        pass
+
+class PILDrawingContext(DrawingContext):
+    def __init__(self, fname):
+        import PIL.Image, PIL.ImageDraw
+        self.fname = fname
+        self.color = (0,0,0)
+        self.thickness = 1
+
+    def open(self, width, height):
+        self.image = PIL.Image.new("RGB", (width, height), (255,255,255))
+        self.draw = PIL.ImageDraw.Draw(self.image)
+
+    def set_thickness(self, thickness):
+        self.thickness = thickness
+
+    def set_color(self, r, g, b):
+        self.color = (int(r*255), int(g*255), int(b*255))
+
+    def draw_line(self, start, end):
+        self.draw.line((start, end), self.color, width=self.thickness)
+
+    def draw_circle(self, center, radius):
+        self.draw.ellipse([(center[0]-radius, center[1]-radius),
+                           (center[0]+radius, center[1]+radius)],
+                          self.color)
+
+    def close(self):
+        with open(self.fname+".png", "w") as f:
+            self.image.save(f, "PNG")
+
+def _draw_pd(pd, dc, skip_start=0, skip_end=0,
+             cross_width=4, cross_radius=0,
+             line_width=1, **kwargs):
+    orth = OrthogonalPlanarDiagram(pd)
+    width, height, easy_arrows, broken_arrows = get_orthogonal_arrows(
+        orth, **kwargs)
+
+    dc.open(width, height)
+    print width,height
+
+    dc.set_thickness(line_width)
+
+    ## "Easy" arrows were never broken
     for edge, arrowtail, arrowhead, comp in easy_arrows:
         # skip an easy arrow if its edge is skippable
-        if skip_start <= edge <= skip_end:
+        if skip_start == 0 and skip_end == 0:
+            pass
+        elif skip_start <= edge <= skip_end:
             continue
         elif (skip_end < skip_start and
               (edge <= skip_end or edge >= skip_start)):
             continue
 
-        cr.set_source_rgb(*colors[comp])
-        cr.move_to(*arrowtail)
-        cr.line_to(*arrowhead)
-        cr.stroke()
+        dc.set_color(*colors[comp%len(colors)])
+        dc.draw_line(arrowtail, arrowhead)
 
+    ## "Broken" arrows were long arrows broken apart by crossings
     for tailedge, headedge, is_over, crossloc, arrowtail, arrowhead, comp in broken_arrows:
         # skip a broken arrow if both its tail and head are skippable
         if (skip_start <= tailedge <= skip_end and
@@ -165,46 +253,70 @@ def draw_orthogonal_projection(orth, fname,
             if is_horizontal:
                 sgn = 1 if arrowtail[0] < arrowhead[0] else -1
                 #print "hzunder", arrowtail, crossloc, arrowhead
-                cr.set_source_rgb(*colors[comp])
-                cr.move_to(arrowtail[0], arrowtail[1])
-                cr.line_to(crossloc[0] - sgn*cross_width, crossloc[1])
-                cr.move_to(crossloc[0] + sgn*cross_width, crossloc[1])
-                cr.line_to(arrowhead[0], arrowhead[1])
-                cr.stroke()
+                dc.set_color(*colors[comp%len(colors)])
+                dc.draw_line((arrowtail[0], arrowtail[1]),
+                             (crossloc[0] - sgn*cross_width, crossloc[1]))
+                dc.draw_line((crossloc[0] + sgn*cross_width, crossloc[1]),
+                             (arrowhead[0], arrowhead[1]))
             else:
                 sgn = 1 if arrowtail[1] < arrowhead[1] else -1
                 #print "vtunder", arrowhead, arrowtail, crossloc
-                cr.set_source_rgb(*colors[comp])
-                cr.move_to(arrowtail[0], arrowtail[1])
-                cr.line_to(crossloc[0], crossloc[1] - sgn*cross_width)
-                cr.move_to(crossloc[0], crossloc[1] + sgn*cross_width)
-                cr.line_to(arrowhead[0], arrowhead[1])
-                cr.stroke()
-        else:
-            cr.set_source_rgb(*colors[comp])
-            cr.move_to(*arrowtail)
-            cr.line_to(*arrowhead)
-            cr.stroke()
-            cr.arc(crossloc[0], crossloc[1], cross_width/2, 0, 2*pi)
-            cr.fill()
+                dc.set_color(*colors[comp%len(colors)])
+                dc.draw_line((arrowtail[0], arrowtail[1]),
+                             (crossloc[0], crossloc[1] - sgn*cross_width))
+                dc.draw_line((crossloc[0], crossloc[1] + sgn*cross_width),
+                             (arrowhead[0], arrowhead[1]))
 
-    surf.write_to_png("knot.png")
+        else:
+            dc.set_color(*colors[comp%len(colors)])
+            dc.draw_line(arrowtail, arrowhead)
+
+            if cross_radius:
+                dc.draw_circle(crossloc, cross_radius)
+
+    dc.close()
+
+def draw_pd_cairo(pd, fname, **kwargs):
+    _draw_pd(pd, CairoDrawingContext(fname),
+             **kwargs)
+
+def draw_pd_pil(pd, fname, **kwargs):
+    _draw_pd(pd, PILDrawingContext(fname),
+             **kwargs)
 
 from math import pi
 
+def _args_to_draw_kwargs(args):
+    return {"height": args.height,
+            "width": args.width,
+            "scale": args.scale,
+            "xscale": args.xscale,
+            "yscale": args.yscale,
+            "line_width": args.line_width,
+            "cross_width": args.cross_width,
+            "cross_radius": args.cross_radius}
+
 def pdstor_command(args):
-    for pd in PlanarDiagram.read_all(args.pdstor, read_header=True):
+    for pd in PlanarDiagram.read_all(args.pdstor,
+                                     read_header=args.read_header):
         pd.randomly_assign_crossings()
-        orth = OrthogonalPlanarDiagram(pd)
-        draw_orthogonal_projection(orth, "diagram_{}.svg".format(pd.uid),
-                                   height=400, width=400,cross_width=2)
+        args.draw_pd(pd, "diagram_{}.svg".format(pd.uid),
+                     **_args_to_draw_kwargs(args))
 
 def pdcode_command(args):
-    for i in range(10):
-        pd = PlanarDiagram.random_diagram(3, 1, 0)
-        orth = OrthogonalPlanarDiagram(pd)
-        for edge in pd.edges:
-            assert edge.parent is not None
+    i = 0
+    pd = PlanarDiagram.read_knot_theory(args.pdcode)
+    while pd is not None:
+        args.draw_pd(pd, "diagram_pdcode_{}.svg".format(i),
+                     **_args_to_draw_kwargs(args))
+        pd = PlanarDiagram.read_knot_theory(args.pdcode)
+        i += 1
+
+def random_command(args):
+    pd = PlanarDiagram.random_diagram(args.size)
+    args.draw_pd(pd, "diagram_random.svg".format(pd.uid),
+                 **_args_to_draw_kwargs(args))
+
 
 if __name__ == "__main__":
     import sys, argparse
@@ -212,19 +324,60 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Generate SVG images from PlanarDiagrams')
 
+    fmt_group = parser.add_mutually_exclusive_group()
+    fmt_group.add_argument("--cairo-svg", action='store_const',
+                           dest="draw_pd",
+                           const=draw_pd_cairo)
+    fmt_group.add_argument("--pil-png", action='store_const',
+                           dest="draw_pd",
+                           const=draw_pd_pil)
+    parser.set_defaults(draw_pd=draw_pd_cairo)
+
+    wh_size_group = parser.add_argument_group()
+    wh_size_group.add_argument("-W", "--width", type=int,
+                               help="Fixed width for resultant image (noop if scale)")
+    wh_size_group.add_argument("-H", "--height", type=int,
+                               help="Fixed height for resultant image (noop if scale)")
+    parser.add_argument("-s", "--scale", type=float,
+                        help="Fixed scale for resulting image grid")
+    xyscale_size_group = parser.add_argument_group()
+    xyscale_size_group.add_argument("-x", "--xscale", type=float,
+                                    help="Fixed X scale for resulting image grid")
+    xyscale_size_group.add_argument("-y", "--yscale", type=float,
+                                    help="Fixed Y scale for resulting image grid")
+    parser.set_defaults(width=100, height=100)
+
+    parser.add_argument("-l", "--line_width", type=int,
+                        default=1,
+                        help="Width of the lines used to draw")
+    parser.add_argument("-X", "--cross_width", type=int,
+                        default=2,
+                        help="Size of the gaps used to denote crossings")
+    parser.add_argument("-r", "--cross_radius", type=int,
+                        default=0,
+                        help="Size of circle nodes used to denote crossings")
+
     subparsers = parser.add_subparsers()
 
     parser_pdstor = subparsers.add_parser(
         'pdstor', help='create images for diagrams in a pdstor')
     parser_pdstor.add_argument("pdstor", type=argparse.FileType('r'))
+    parser_pdstor.add_argument("-o", "--skip-header", action='store_false',
+                               dest="read_header")
     parser_pdstor.set_defaults(func=pdstor_command)
 
     parser_pdcode = subparsers.add_parser(
-        'pdcode', help='create image from a KnotTheory PDCode')
-    parser_pdcode.add_argument("pdcode", type=str,
-                               help="KnotTheory PDCode to load")
+        'pdcode', help='create images from KnotTheory PDCodes')
+    parser_pdcode.add_argument("pdcode", type=argparse.FileType('r'),
+                               help="KnotTheory PDCode file to load")
     parser_pdcode.set_defaults(func=pdcode_command)
 
+    parser_random = subparsers.add_parser(
+        'random', help='create image from a random diagram')
+    parser_random.add_argument("size", type=int)
+    parser_random.set_defaults(func=random_command)
+
     args = parser.parse_args()
+    print args
     args.func(args)
 
