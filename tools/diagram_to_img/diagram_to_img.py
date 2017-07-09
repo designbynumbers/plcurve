@@ -1,11 +1,11 @@
 #!/usr/bin/python
-from libpl.pdcode import PlanarDiagram
+from libpl.pdcode import PlanarDiagram, UNSET_ORIENTATION
 from libpl import pdcode
 
 from collections import defaultdict
 
-import cairo
 import json
+from importlib import import_module
 
 from orthogonal import OrthogonalPlanarDiagram
 
@@ -32,7 +32,8 @@ def intersect_arrows(over, under, verts):
     return (x, y)
 
 def get_orthogonal_arrows(orth, width=100., height=100.,
-                          scale=None, xscale=None, yscale=None):
+                          scale=None, xscale=None, yscale=None,
+                          border=None):
     """
     Using an OrthogonalPlanarDiagram create a list of primitive "arrow" shapes
     for drawing.
@@ -48,31 +49,30 @@ def get_orthogonal_arrows(orth, width=100., height=100.,
     # Case on whether we should scale to w/h or were given a scale
     if scale is not None:
         verts, arrows, xings = orth.ascii_data(emb, scale, scale)
+        verts = [(v[0]-scale+border, v[1]-scale+border) for v in verts]
         maxx = max(v[0] for v in verts)
         maxy = max(v[1] for v in verts)
-        width, height = scale+maxx, scale+maxy
+        width, height = border+maxx, border+maxy
 
     elif xscale is not None and yscale is not None:
         verts, arrows, xings = orth.ascii_data(emb, xscale, yscale)
+        verts = [(v[0]-scalex+border, v[1]-scaley+border) for v in verts]
         maxx = max(v[0] for v in verts)
         maxy = max(v[1] for v in verts)
-        width, height = xscale+maxx, yscale+maxy
+        width, height = border+maxx, border+maxy
     else:
         verts, arrows, xings = orth.ascii_data(emb, 1., 1.)
 
         maxx = max(v[0] for v in verts)
         maxy = max(v[1] for v in verts)
 
-        sqwidth = min(width, height)
-        ctr_x, ctr_y = width/2, height/2
-        rad = sqwidth/2-30
-
         scale = min(maxx, maxy)
-        xscale = width/(maxx+1)
-        yscale = height/(maxy+1)
+        xscale = (width-2*border)/(maxx-1)
+        yscale = (height-2*border)/(maxy-1)
         ssc = min(xscale, yscale)
 
         verts, arrows, xings = orth.ascii_data(emb, xscale, yscale)
+        verts = [(v[0]-xscale+border, v[1]-yscale+border) for v in verts]
 
     # Goal 1 is to break up arrows into crossing chunks
     # *------|------|------|------>* should become...
@@ -155,16 +155,19 @@ class DrawingContext(object):
 
 class CairoDrawingContext(DrawingContext):
     def __init__(self, fname):
-        import cairo
+        self.cairo = import_module("cairo")
         self.fname = fname
+        self.orient = True
+        self.thickness = 1.
 
     def open(self, width, height):
-        self.surf = cairo.SVGSurface(self.fname, width, height)
-        self.cr = cairo.Context(self.surf)
-        self.cr.set_line_width(1.)
+        self.surf = self.cairo.SVGSurface(self.fname, width, height)
+        self.cr = self.cairo.Context(self.surf)
+        self.cr.set_line_width(self.thickness)
 
     def set_thickness(self, thickness):
         self.cr.set_line_width(thickness)
+        self.thickness = thickness
 
     def set_color(self, r, g, b):
         self.cr.set_source_rgb(r, g, b)
@@ -172,7 +175,31 @@ class CairoDrawingContext(DrawingContext):
     def draw_line(self, start, end):
         self.cr.move_to(*start)
         self.cr.line_to(*end)
+
+        if self.orient:
+            # Draw arrows
+            cx = (end[0])
+            cy = (end[1])
+
+            if start[0] < end[0]:
+                self.cr.move_to(cx-self.thickness*4, cy-self.thickness*3)
+                self.cr.line_to(cx, cy)
+                self.cr.line_to(cx-self.thickness*4, cy+self.thickness*3)
+            elif start[0] > end[0]:
+                self.cr.move_to(cx+self.thickness*4, cy+self.thickness*3)
+                self.cr.line_to(cx, cy)
+                self.cr.line_to(cx+self.thickness*4, cy-self.thickness*3)
+            elif start[1] < end[1]:
+                self.cr.move_to(cx+self.thickness*3, cy-self.thickness*4)
+                self.cr.line_to(cx, cy)
+                self.cr.line_to(cx-self.thickness*3, cy-self.thickness*4)
+            elif start[1] > end[1]:
+                self.cr.move_to(cx+self.thickness*3, cy+self.thickness*4)
+                self.cr.line_to(cx, cy)
+                self.cr.line_to(cx-self.thickness*3, cy+self.thickness*4)
+
         self.cr.stroke()
+
 
     def draw_circle(self, center, radius):
         self.cr.arc(center[0], center[1], radius, 0, 2*pi)
@@ -182,15 +209,17 @@ class CairoDrawingContext(DrawingContext):
         pass
 
 class PILDrawingContext(DrawingContext):
-    def __init__(self, fname):
-        import PIL.Image, PIL.ImageDraw
+    def __init__(self, fname, fmt="GIF"):
+        self.PILImage = import_module("PIL.Image")
+        self.PILImageDraw = import_module("PIL.ImageDraw")
         self.fname = fname
         self.color = (0,0,0)
         self.thickness = 1
+        self.fmt = fmt
 
     def open(self, width, height):
-        self.image = PIL.Image.new("RGB", (width, height), (255,255,255))
-        self.draw = PIL.ImageDraw.Draw(self.image)
+        self.image = self.PILImage.new("RGB", (int(width), int(height)), (255,255,255))
+        self.draw = self.PILImageDraw.Draw(self.image)
 
     def set_thickness(self, thickness):
         self.thickness = thickness
@@ -207,8 +236,8 @@ class PILDrawingContext(DrawingContext):
                           self.color)
 
     def close(self):
-        with open(self.fname+".png", "w") as f:
-            self.image.save(f, "PNG")
+        with open(self.fname, "w") as f:
+            self.image.save(f, self.fmt)
 
 def _draw_pd(pd, dc, skip_start=0, skip_end=0,
              cross_width=4, cross_radius=0,
@@ -218,7 +247,7 @@ def _draw_pd(pd, dc, skip_start=0, skip_end=0,
         orth, **kwargs)
 
     dc.open(width, height)
-    print width,height
+    #print width,height
 
     dc.set_thickness(line_width)
 
@@ -280,8 +309,8 @@ def draw_pd_cairo(pd, fname, **kwargs):
     _draw_pd(pd, CairoDrawingContext(fname),
              **kwargs)
 
-def draw_pd_pil(pd, fname, **kwargs):
-    _draw_pd(pd, PILDrawingContext(fname),
+def draw_pd_pil(pd, fname, draw_pd, **kwargs):
+    _draw_pd(pd, PILDrawingContext(fname, fmt=draw_pd["fmt"]),
              **kwargs)
 
 from math import pi
@@ -292,46 +321,108 @@ def _args_to_draw_kwargs(args):
             "scale": args.scale,
             "xscale": args.xscale,
             "yscale": args.yscale,
+            "border": args.border,
             "line_width": args.line_width,
             "cross_width": args.cross_width,
-            "cross_radius": args.cross_radius}
+            "cross_radius": args.cross_radius,
+            "draw_pd": args.draw_pd}
+
+def filename_gen(uid, fmt, prefix=None):
+    if prefix is not None:
+        return "{}_{}.{}".format(prefix, uid, fmt)
+    else:
+        return "{}.{}".format(uid, fmt)
 
 def pdstor_command(args):
+    #print args.pdstor.name
+    prefix = None
+    if args.prefix:
+        prefix = args.prefix
+    elif args.auto_prefix:
+        import os.path
+        if args.pdstor.name[0] != "<":
+            # Not a special file descriptor
+            prefix = os.path.splitext(os.path.basename(args.pdstor.name))[0]
+
+    gen_images = []
     for pd in PlanarDiagram.read_all(args.pdstor,
                                      read_header=args.read_header):
-        pd.randomly_assign_crossings()
-        args.draw_pd(pd, "diagram_{}.svg".format(pd.uid),
-                     **_args_to_draw_kwargs(args))
+        if any(x.sign == UNSET_ORIENTATION for x in pd.crossings):
+            # We don't know how to draw unset crossing signs yet...
+            pd.randomly_assign_crossings()
+        fname = filename_gen(pd.uid, args.draw_pd["ext"], prefix)
+        if args.gallery:
+            gen_images.append(fname)
+        args.draw_pd["func"](pd,
+                             fname,
+                             **_args_to_draw_kwargs(args))
+
+    MAX_GALLERY = 1000
+    if args.gallery > 0:
+        if len(gen_images) < MAX_GALLERY:
+            with open("gallery.html", "w") as f:
+                f.write("<html><body>\n")
+                for i, src in enumerate(gen_images):
+                    if i and not i%args.gallery:
+                        f.write("<br>\n")
+                    f.write("<img src='{}'>".format(src))
+                f.write("</body></html>\n")
+        else:
+            gal = 0
+            while gal*MAX_GALLERY < len(gen_images):
+                with open("gallery_{}.html".format(gal), "w") as f:
+                    f.write("<html><body>\n")
+                    for i, src in enumerate(gen_images[gal*MAX_GALLERY:gal*MAX_GALLERY+MAX_GALLERY+1]):
+                        if i and not i%args.gallery:
+                            f.write("<br>\n")
+                        f.write("<img src='{}'>".format(src))
+                    f.write("</body></html>\n")
+                    gal += 1
 
 def pdcode_command(args):
     i = 0
     pd = PlanarDiagram.read_knot_theory(args.pdcode)
     while pd is not None:
-        args.draw_pd(pd, "diagram_pdcode_{}.svg".format(i),
+        args.draw_pd(pd,
+                     filename_gen(i, args.draw_pd["ext"], args.prefix),
                      **_args_to_draw_kwargs(args))
         pd = PlanarDiagram.read_knot_theory(args.pdcode)
         i += 1
 
 def random_command(args):
     pd = PlanarDiagram.random_diagram(args.size)
-    args.draw_pd(pd, "diagram_random.svg".format(pd.uid),
+    args.draw_pd(pd,
+                 filename_gen(pd.uid, args.draw_pd["ext"], args.prefix),
                  **_args_to_draw_kwargs(args))
 
+format_opts = {
+    'cairo-svg': {'func': draw_pd_cairo, "ext": "svg"},
+    'pil-png': {"func": draw_pd_pil, "fmt": "PNG", "ext": "png"},
+    'pil-gif': {"func": draw_pd_pil, "fmt": "GIF", "ext": "gif"}
+}
 
 if __name__ == "__main__":
     import sys, argparse
 
+    class DictChoiceAction(argparse.Action):
+        def __init__(self, option_strings, dest, **kwargs):
+            super(DictChoiceAction, self).__init__(option_strings, dest, **kwargs)
+        def __call__(self, parser, namespace, values, option_string=None):
+            setattr(namespace, self.dest, self.choices[values])
+
     parser = argparse.ArgumentParser(
         description='Generate SVG images from PlanarDiagrams')
 
-    fmt_group = parser.add_mutually_exclusive_group()
-    fmt_group.add_argument("--cairo-svg", action='store_const',
-                           dest="draw_pd",
-                           const=draw_pd_cairo)
-    fmt_group.add_argument("--pil-png", action='store_const',
-                           dest="draw_pd",
-                           const=draw_pd_pil)
-    parser.set_defaults(draw_pd=draw_pd_cairo)
+    parser.add_argument("-f", "--format", type=str, choices=format_opts,
+                        action=DictChoiceAction, dest="draw_pd")
+    # fmt_group = parser.add_mutually_exclusive_group()
+    # fmt_group.add_argument("--cairo-svg", action='store_const',
+    #                        dest="draw_pd",
+    #                        const={"func": draw_pd_cairo, "ext": "svg"})
+    # fmt_group.add_argument("--pil-png", action='store_const',
+    #                        dest="draw_pd",
+    #                        const=format_opts['cairo-svg'])
+    parser.set_defaults(draw_pd={"func": draw_pd_cairo, "ext": "svg"})
 
     wh_size_group = parser.add_argument_group()
     wh_size_group.add_argument("-W", "--width", type=int,
@@ -347,6 +438,10 @@ if __name__ == "__main__":
                                     help="Fixed Y scale for resulting image grid")
     parser.set_defaults(width=100, height=100)
 
+    parser.add_argument("-b", "--border", type=int,
+                        help="Size of border around image",
+                        default=5)
+
     parser.add_argument("-l", "--line_width", type=int,
                         default=1,
                         help="Width of the lines used to draw")
@@ -357,6 +452,10 @@ if __name__ == "__main__":
                         default=0,
                         help="Size of circle nodes used to denote crossings")
 
+
+    parser.add_argument("-p", "--prefix", type=str,
+                        help="Prefix for image filenames: [prefix]_[uid].[fmt]")
+
     subparsers = parser.add_subparsers()
 
     parser_pdstor = subparsers.add_parser(
@@ -364,6 +463,10 @@ if __name__ == "__main__":
     parser_pdstor.add_argument("pdstor", type=argparse.FileType('r'))
     parser_pdstor.add_argument("-o", "--skip-header", action='store_false',
                                dest="read_header")
+    parser_pdstor.add_argument("-N", "--no-auto-prefix", action="store_false",
+                               dest="auto_prefix")
+    parser_pdstor.add_argument("-G", "--gallery", type=int,
+                               help="Auto-generate HTML gallery of GALLERY columns")
     parser_pdstor.set_defaults(func=pdstor_command)
 
     parser_pdcode = subparsers.add_parser(
@@ -378,6 +481,6 @@ if __name__ == "__main__":
     parser_random.set_defaults(func=random_command)
 
     args = parser.parse_args()
-    print args
+    #print args
     args.func(args)
 
