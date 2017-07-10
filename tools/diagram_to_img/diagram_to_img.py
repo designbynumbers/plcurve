@@ -329,9 +329,11 @@ def _args_to_draw_kwargs(args):
 
 def filename_gen(uid, fmt, prefix=None):
     if prefix is not None:
-        return "{}_{}.{}".format(prefix, uid, fmt)
+        filename="{}_{}.{}".format(prefix, uid, fmt)
     else:
-        return "{}.{}".format(uid, fmt)
+        filename="{}.{}".format(uid, fmt)
+    print "Writing diagram to "+filename
+    return filename
 
 def pdstor_command(args):
     #print args.pdstor.name
@@ -437,7 +439,7 @@ if __name__ == "__main__":
                                     help="Fixed X scale for resulting image grid")
     xyscale_size_group.add_argument("-y", "--yscale", type=float,
                                     help="Fixed Y scale for resulting image grid")
-    parser.set_defaults(width=100, height=100)
+    parser.set_defaults(width=100, height=100, scale=20)
 
     parser.add_argument("-b", "--border", type=int,
                         help="Size of border around image",

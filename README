@@ -15,18 +15,21 @@ On Mac OS X
 1. Install the XCode command line tools: `xcode-select --install`
 2. Install Homebrew: Info at http://brew.sh/
 3. Install gsl: `brew install gsl`
-4. Install pip Python package manager: https://pip.pypa.io/en/stable/installing/
-5. Install numpy: `sudo pip install numpy`
-6. Install cython: `sudo pip install cython`
-7. Run configure: `./configure LDFLAGS="-L/usr/local/lib" CPPFLAGS="-I/usr/local/include"`
-8. Make: `make`
-9. Run the C tests: `make check`
-10. Install: `make install` or possibly `sudo make install`
+4. Install cairo: `brew install cairo`
+5. Install py2cairo: `brew install py2cairo`
+6. Install pip Python package manager: https://pip.pypa.io/en/stable/installing/
+7. Install numpy: `sudo pip install numpy`
+8. Install cython: `sudo pip install cython`
+9. Install spherogram: `pip install spherogram`
+10. Run configure: `./configure LDFLAGS="-L/usr/local/lib" CPPFLAGS="-I/usr/local/include"`
+11. Make: `make`
+12. Run the C tests: `make check`
+13. Install: `make install` or possibly `sudo make install`
 
 (Suggested): Install ipython: `sudo pip install ipython`
 Ipython is a more user-friendly Python console
 
-11. Build doc: `make html`
+14. Build doc: `make html`
 
 If you have trouble building the package, and you have previously installed a
 version of plcurve on the same (mac) machine, try
