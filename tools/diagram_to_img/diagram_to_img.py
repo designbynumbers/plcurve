@@ -335,13 +335,13 @@ def filename_gen(uid, fmt, prefix=None):
     print "Writing diagram to "+filename
     return filename
 
-def process_pd_images(pds, args):
+def process_pd_images(pds, args, use_uid=True):
     gen_images = []
     for i, pd in enumerate(pds):
         if any(x.sign == UNSET_ORIENTATION for x in pd.crossings):
             # We don't know how to draw unset crossing signs yet...
             pd.randomly_assign_crossings()
-        fname = filename_gen(i if pd.uid == None else pd.uid, args.draw_pd['ext'], args.prefix)
+        fname = filename_gen(i if not use_uid else pd.uid, args.draw_pd['ext'], args.prefix)
         if args.gallery:
             gen_images.append(fname)
         args.draw_pd["func"](pd,
@@ -392,10 +392,7 @@ def pdcode_command(args):
         pd = PlanarDiagram.read_knot_theory(args.pdcode)
         i += 1
 
-import re
-rawdon_xing = re.compile(r"\((\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,?\s*)\)")
-rawdon_xing_ei = re.compile(r"(\d+)")
-
+import ast
 def read_rawdon(f):
     """
     read_rawdon(f)
@@ -410,13 +407,13 @@ def read_rawdon(f):
             continue
         elif not line:
             continue
+        elif not line[0] in "[(":
+            continue
 
-        # try to match the line to a regexp
-        # very lazy for now
-        pdcode = []
-        for x in rawdon_xing.findall(line):
-            crs = tuple(int(ei) for ei in rawdon_xing_ei.findall(x))
-            pdcode.append(crs)
+        # Read a python primitive as pdcode
+        pdcode = ast.literal_eval(line)
+
+        ## WARNING: currently no sanity checking
 
         yield PlanarDiagram.from_pdcode(pdcode)
 
@@ -429,7 +426,7 @@ def rawdon_command(args):
             args.prefix = os.path.splitext(os.path.basename(args.pdcode_file.name))[0]
 
     #raise NotImplementedError("Processing Rawdon's files not yet implemented")
-    process_pd_images(read_rawdon(args.pdcode_file), args)
+    process_pd_images(read_rawdon(args.pdcode_file), args, use_uid=False)
 
 def random_command(args):
     pd = PlanarDiagram.random_diagram(args.size)
