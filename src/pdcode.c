@@ -3719,10 +3719,29 @@ ones we don't need.
 
   }
 
+  /* KnotTheory pdcodes are 1-indexed, but we are 0-indexed; fix this before passing along */
+
+  pd_idx_t cr;
+  for (cr=0; cr<crbuf_used; cr++) {
+    pd_idx_t j;
+    for(j=0; j<4; j++) {
+      crbuf[cr].edge[j] -= 1;
+    }
+  }
+
   /* We have now read all the crossings and won't bother with the file anymore. Our job is
      to extract the information needed to allocate and fill a pd_code_t from this buffer,
      then free it. The first task is to allocate space for the code. */
 
+  pd_code_t *pd = pd_code_from_crossing_pdcode(crbuf, crbuf_used);
+
+  /* We're done with the crossing buffer. */
+  free(crbuf);
+
+  return pd;
+}
+
+pd_code_t *pd_code_from_crossing_pdcode(pd_crossing_t *crbuf, int crbuf_used) {
   pd_code_t *pd = pd_code_new(crbuf_used+2);
   assert(pd != NULL);
 
@@ -3735,7 +3754,7 @@ ones we don't need.
     pd_idx_t j;
     for(j=0;j<4;j++) {
 
-      pd->cross[cr].edge[j] = crbuf[cr].edge[j]-1;
+      pd->cross[cr].edge[j] = crbuf[cr].edge[j];
 
       if (j==0) { /* We're definitely going IN */
 
@@ -4264,9 +4283,6 @@ ones we don't need.
     }
 
   }
-
-  /* We're done with the crossing buffer. */
-  free(crbuf);
 
   /* We now make a final check, then terminate... */
 

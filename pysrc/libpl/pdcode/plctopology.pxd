@@ -243,6 +243,8 @@ cdef extern from "plcTopology.h":
     pd_code_t *pd_build_unknot(pd_idx_t n)
     pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c)
 
+    pd_code_t *pd_code_from_crossing_pdcode(pd_crossing_t* crbuf, int ncross)
+
     char *pd_homfly(pd_code_t *pdC)
     char *pd_homfly_timeout(pd_code_t *pdC, int timeout)
 

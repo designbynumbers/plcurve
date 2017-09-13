@@ -2320,51 +2320,18 @@ cdef class PlanarDiagram:
         cdef pd_code_t* pd
         cdef pd_idx_t ncross = len(pdcode)
         cdef pd_idx_t off = min([min(x) for x in pdcode])
+        cdef pd_crossing_t* crbuf = <pd_crossing_t*>calloc(ncross, sizeof(pd_crossing_t))
         newobj.thin = thin
-        pd = pd_code_new(ncross+2)
+
+        for i, crs in enumerate(pdcode):
+            for epos, ei in enumerate(crs):
+                crbuf[i].edge[epos] = ei-off
+
+        pd = pd_code_from_crossing_pdcode(crbuf, ncross)
+        free(crbuf)
+
         newobj.p = pd
-        pd.ncross = ncross
-        pd.nedges = ncross*2
-        pd.nfaces = ncross+2
 
-        # tail dictionary for consistency checking
-        tails = dict()
-
-        # Set crossings and fill in some edges
-        for i,x in enumerate(pdcode):
-            for pos in (0,1,2,3):
-                pd.cross[i].edge[pos] = x[pos] - off
-        pd_regenerate_edges(pd)
-
-        # Set signs on the crossings. It's important to do this
-        # after regenerate_edges() as that removes sign info
-        for i,x in enumerate(pdcode):
-            tails[x[2]] = i
-            if x[3] - x[1] == 1:
-                if x[3] not in tails:
-                    tails[x[3]] = i
-                    pd.cross[i].sign = PD_NEG_ORIENTATION
-                else:
-                    tails[x[1]] = i
-                    pd.cross[i].sign = PD_POS_ORIENTATION
-            elif x[1] - x[3] == 1:
-                if x[1] not in tails:
-                    tails[x[1]] = i
-                    pd.cross[i].sign = PD_POS_ORIENTATION
-                else:
-                    tails[x[3]] = i
-                    pd.cross[i].sign = PD_NEG_ORIENTATION
-            elif x[1] > x[3]:
-                tails[x[3]] = i
-                pd.cross[i].sign = PD_NEG_ORIENTATION
-            elif x[3] > x[1]:
-                tails[x[1]] = i
-                pd.cross[i].sign = PD_POS_ORIENTATION
-            else:
-                print x
-                raise Exception("Error in pdcode or pdcode reader")
-
-        pd_regenerate(pd)
         newobj.regenerate_py_os()
         return newobj
 
