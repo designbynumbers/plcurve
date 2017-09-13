@@ -392,6 +392,34 @@ def pdcode_command(args):
         pd = PlanarDiagram.read_knot_theory(args.pdcode)
         i += 1
 
+import re
+rawdon_xing = re.compile(r"\((\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,?\s*)\)")
+rawdon_xing_ei = re.compile(r"(\d+)")
+
+def read_rawdon(f):
+    """
+    read_rawdon(f)
+
+    Read one of Rawdon's pdcode files and yield resultant codes
+    """
+
+    for line in f:
+        stline = line.strip()
+        if line[0] == "#":
+            # comment line. possibly could take the name from here
+            continue
+        elif not line:
+            continue
+
+        # try to match the line to a regexp
+        # very lazy for now
+        pdcode = []
+        for x in rawdon_xing.findall(line):
+            crs = tuple(int(ei) for ei in rawdon_xing_ei.findall(x))
+            pdcode.append(crs)
+
+        yield PlanarDiagram.from_pdcode(pdcode)
+
 def rawdon_command(args):
     i = 0
     if not args.prefix and args.auto_prefix:
@@ -400,7 +428,7 @@ def rawdon_command(args):
             # Not a special file descriptor
             args.prefix = os.path.splitext(os.path.basename(args.pdcode_file.name))[0]
 
-    raise NotImplementedError("Processing Rawdon's files not yet implemented")
+    #raise NotImplementedError("Processing Rawdon's files not yet implemented")
     process_pd_images(read_rawdon(args.pdcode_file), args)
 
 def random_command(args):
@@ -495,6 +523,11 @@ if __name__ == "__main__":
         'rawdon', help='create images from Rawdon\'s pdcode list format')
     parser_rawdon.add_argument("pdcode_file", type=argparse.FileType('r'),
                                help="Rawdon pdcode file to load")
+    parser_rawdon.add_argument("-N", "--no-auto-prefix", action="store_false",
+                               dest="auto_prefix",
+                               help="Don't automagically generate a prefix from filename")
+    parser_rawdon.add_argument("-G", "--gallery", type=int,
+                               help="Auto-generate HTML gallery of GALLERY columns")
     parser_rawdon.set_defaults(func=rawdon_command)
 
     parser_random = subparsers.add_parser(
