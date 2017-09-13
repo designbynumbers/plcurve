@@ -335,24 +335,13 @@ def filename_gen(uid, fmt, prefix=None):
     print "Writing diagram to "+filename
     return filename
 
-def pdstor_command(args):
-    #print args.pdstor.name
-    prefix = None
-    if args.prefix:
-        prefix = args.prefix
-    elif args.auto_prefix:
-        import os.path
-        if args.pdstor.name[0] != "<":
-            # Not a special file descriptor
-            prefix = os.path.splitext(os.path.basename(args.pdstor.name))[0]
-
+def process_pd_images(pds, args):
     gen_images = []
-    for pd in PlanarDiagram.read_all(args.pdstor,
-                                     read_header=args.read_header):
+    for i, pd in enumerate(pds):
         if any(x.sign == UNSET_ORIENTATION for x in pd.crossings):
             # We don't know how to draw unset crossing signs yet...
             pd.randomly_assign_crossings()
-        fname = filename_gen(pd.uid, args.draw_pd["ext"], prefix)
+        fname = filename_gen(i if pd.uid == None else pd.uid, args.draw_pd['ext'], args.prefix)
         if args.gallery:
             gen_images.append(fname)
         args.draw_pd["func"](pd,
@@ -382,6 +371,17 @@ def pdstor_command(args):
                     f.write("</body></html>\n")
                     gal += 1
 
+def pdstor_command(args):
+    #print args.pdstor.name
+    if not args.prefix and args.auto_prefix:
+        import os.path
+        if args.pdstor.name[0] != "<":
+            # Not a special file descriptor
+            args.prefix = os.path.splitext(os.path.basename(args.pdstor.name))[0]
+
+    process_pd_images(PlanarDiagram.read_all(args.pdstor, read_header=args.read_header),
+                      args)
+
 def pdcode_command(args):
     i = 0
     pd = PlanarDiagram.read_knot_theory(args.pdcode)
@@ -391,6 +391,17 @@ def pdcode_command(args):
                              **_args_to_draw_kwargs(args))
         pd = PlanarDiagram.read_knot_theory(args.pdcode)
         i += 1
+
+def rawdon_command(args):
+    i = 0
+    if not args.prefix and args.auto_prefix:
+        import os.path
+        if args.pdcode_file.name[0] != "<":
+            # Not a special file descriptor
+            args.prefix = os.path.splitext(os.path.basename(args.pdcode_file.name))[0]
+
+    raise NotImplementedError("Processing Rawdon's files not yet implemented")
+    process_pd_images(read_rawdon(args.pdcode_file), args)
 
 def random_command(args):
     pd = PlanarDiagram.random_diagram(args.size)
@@ -479,6 +490,12 @@ if __name__ == "__main__":
     parser_pdcode.add_argument("pdcode", type=argparse.FileType('r'),
                                help="KnotTheory PDCode file to load")
     parser_pdcode.set_defaults(func=pdcode_command)
+
+    parser_rawdon = subparsers.add_parser(
+        'rawdon', help='create images from Rawdon\'s pdcode list format')
+    parser_rawdon.add_argument("pdcode_file", type=argparse.FileType('r'),
+                               help="Rawdon pdcode file to load")
+    parser_rawdon.set_defaults(func=rawdon_command)
 
     parser_random = subparsers.add_parser(
         'random', help='create image from a random diagram')
