@@ -1403,14 +1403,18 @@ cdef class PlanarDiagram:
         """
         cdef char* homfly_from_pd
         cdef bytes homflybytes
-        if timeout is None:
-            homfly_from_pd = pd_homfly(self.p)
+
+        if self.p.ncross == 0:
+            homflybytes = <bytes>'1'
         else:
-            homfly_from_pd = pd_homfly_timeout(self.p, timeout)
-        if homfly_from_pd == NULL:
-            return None
-        else:
-            homflybytes = copy_and_free(homfly_from_pd)
+            if timeout is None:
+                homfly_from_pd = pd_homfly(self.p)
+            else:
+                homfly_from_pd = pd_homfly_timeout(self.p, timeout)
+            if homfly_from_pd == NULL:
+                return None
+            else:
+                homflybytes = copy_and_free(homfly_from_pd)
 
         if as_string:
             return homflybytes
@@ -2028,6 +2032,84 @@ cdef class PlanarDiagram:
         """
         uniform_mask = [random.randint(0,1) for _ in range(self.ncross)]
         self.set_all_crossing_signs(uniform_mask)
+
+    def new_from_components(self, components):
+        cdef PlanarDiagram newobj = PlanarDiagram.__new__(self.__class__)
+        cdef pd_code_t* pd
+        cdef pd_idx_t ncross = self.ncross
+        #newobj.thin = thin
+
+        if isinstance(components, int):
+            components = [components]
+
+        components = [self.components[ci] for ci in components]
+
+        # Count crossings which appear. Degree 2 crossings are to be smoothed.
+        crossings = [0]*ncross
+        for component in components:
+            for edge in component:
+                crossings[edge.head]+=1
+                crossings[edge.tail]+=1
+
+        raw_indices = [i for i,v in enumerate(crossings) if v==4]
+        crs_map = {k: i for i,k in enumerate(raw_indices)}
+
+        ncross = len(crs_map)
+
+        # If there are no crossings, we have a split link of trivial diagrams
+        if not crs_map:
+            if len(components) == 1:
+                return self.__class__.unknot(0)
+            return [self.__class__.unknot(0) for _ in components]
+
+        # TODO: Account for possibility of split link diagram.. yikes!
+
+        pd = pd_code_new(ncross+2)
+        newobj.p = pd
+
+        crossing_indices = dict()
+        cross_idx = 0
+        edge_idx = 0
+        for component in components:
+            # Store this edge index for when we come back around
+            first_edge = component[0]
+            while first_edge.tail not in crs_map:
+                first_edge = first_edge.prev_edge()
+
+            e = first_edge
+            joining = False
+
+            while True:
+                if not joining and e.tail in crs_map:
+                    pd.cross[crs_map[e.tail]].edge[e.tailpos] = edge_idx
+                    pd.edge[edge_idx].tail = crs_map[e.tail]
+                    pd.edge[edge_idx].tailpos = e.tailpos
+
+                if e.head in crs_map:
+                    pd.cross[crs_map[e.head]].edge[e.headpos] = edge_idx
+                    pd.cross[crs_map[e.head]].sign = e.next_crossing().sign
+                    pd.edge[edge_idx].head = crs_map[e.head]
+                    pd.edge[edge_idx].headpos = e.headpos
+                    edge_idx += 1
+                    joining = False
+                else:
+                    joining = True
+
+                e = e.next_edge()
+                if not joining and e == first_edge:
+                    break
+
+        # Regenerate the object to load in faces and components
+        # Notice that we could in theory just regenerate faces, and
+        # use component information from the Plink editor for components
+        pd.ncross = ncross
+        pd.nedges = ncross*2
+        pd.nfaces = ncross+2
+        pd.ncomps = len(components)
+
+        #print repr(newobj)
+        newobj.regenerate()
+        return newobj
 
     @classmethod
     def from_dt_code(cls, dt_code):
