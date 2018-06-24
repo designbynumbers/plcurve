@@ -2034,6 +2034,14 @@ cdef class PlanarDiagram:
         self.set_all_crossing_signs(uniform_mask)
 
     def new_from_components(self, components):
+        """
+        new_from_components(components) -> new PlanarDiagram
+
+        Create a new PlanarDiagram, removing any components whose indices do not
+        appear in the iterable components argument.
+
+        *Not guaranteed to work*
+        """
         cdef PlanarDiagram newobj = PlanarDiagram.__new__(self.__class__)
         cdef pd_code_t* pd
         cdef pd_idx_t ncross = self.ncross
