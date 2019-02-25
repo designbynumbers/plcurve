@@ -43,6 +43,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 #include "octrope.h"
 
+char octrope_error_str[80];
+int  octrope_error_num;
+
 #define check_err \
 if (octrope_error_num != 0) {\
   fprintf(stderr,"test_minrad:Octrope error %d:%s\n",octrope_error_num,\

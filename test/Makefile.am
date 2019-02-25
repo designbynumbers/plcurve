@@ -193,27 +193,27 @@ ccode_test_CFLAGS = -I$(top_srcdir)/src
 #tsmcmc_random_test_CFLAGS = -I$(top_srcdir)/src 
 
 nn_test_SOURCES = nn_test.c
-nn_test_LDADD = -L$(top_builddir)/src -lplCurve
+nn_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 nn_test_CFLAGS = -I$(top_srcdir)/src
 
 symmetry_test_SOURCES = symmetry_test.c
-symmetry_test_LDADD = -L$(top_builddir)/src -lplCurve
+symmetry_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 symmetry_test_CFLAGS = -I$(top_srcdir)/src
 
 eq_primitives_test_SOURCES = eq_primitives_test.c 
-eq_primitives_test_LDADD = -L$(top_builddir)/src -lplCurve
+eq_primitives_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 eq_primitives_test_CFLAGS = -I$(top_srcdir)/src
 
 loopclosure_test_SOURCES = loopclosure_test.c
-loopclosure_test_LDADD = -L$(top_builddir)/src -lplCurve
+loopclosure_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 loopclosure_test_CFLAGS = -I$(top_srcdir)/src
 
 randompolygon_test_SOURCES = randompolygon_test.c 
-randompolygon_test_LDADD = -L$(top_builddir)/src -lplCurve
+randompolygon_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 randompolygon_test_CFLAGS = -I$(top_srcdir)/src
 
 exit_failure_tests_SOURCES = exit_failure_tests.c
-exit_failure_tests_LDADD = -L$(top_builddir)/src -lplCurve
+exit_failure_tests_LDADD = -L$(top_builddir)/src -lplCurveStatic
 exit_failure_tests_CFLAGS = -I$(top_srcdir)/src
 
 #run_tests_SOURCES = run_tests.c
@@ -230,31 +230,31 @@ CLEANFILES = runtest_wrapper.sh hopftest.vect treftest.vect \
 noinst_PROGRAMS = test_levels octrope_timing
 
 test_levels_SOURCES = test_levels.c
-test_levels_LDADD = -L$(top_builddir)/src -lplCurve
+test_levels_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_levels_CFLAGS = -I$(top_srcdir)/src
 
 test_struts_SOURCES = test_struts.c
-test_struts_LDADD = -L$(top_builddir)/src -lplCurve
+test_struts_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_struts_CFLAGS = -I$(top_srcdir)/src
 
 test_minrad_SOURCES = test_minrad.c
-test_minrad_LDADD = -L$(top_builddir)/src -lplCurve
+test_minrad_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_minrad_CFLAGS = -I$(top_srcdir)/src
 
 test_findpoca_SOURCES = test_findpoca.c
-test_findpoca_LDADD = -L$(top_builddir)/src -lplCurve
+test_findpoca_LDADD = -L$(top_builddir)/src -lplCurveStatic
 test_findpoca_CFLAGS = -I$(top_srcdir)/src
 
 call_check_SOURCES = call_check.c
-call_check_LDADD = -L$(top_builddir)/src -lplCurve
+call_check_LDADD = -L$(top_builddir)/src -lplCurveStatic
 call_check_CFLAGS = -I$(top_srcdir)/src
 
 hopf_test_SOURCES = hopf_test.c
-hopf_test_LDADD = -L$(top_builddir)/src -lplCurve
+hopf_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 hopf_test_CFLAGS = -I$(top_srcdir)/src
 
 octrope_timing_SOURCES = octrope_timing.c
-octrope_timing_LDADD = -L$(top_builddir)/src -lplCurve
+octrope_timing_LDADD = -L$(top_builddir)/src -lplCurveStatic
 octrope_timing_CFLAGS = -I$(top_srcdir)/src
 
 test_isomorphism_SOURCES = test_isomorphism.c

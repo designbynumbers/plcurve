@@ -1046,7 +1046,7 @@ extern "C" {
 
     int  nf;                            /* Number of prime factors */
     int  cr[MAXPRIMEFACTORS];           /* Crossing number of each prime factor */
-    int  ind[MAXPRIMEFACTORS];           /* Index (in Rolfsen or Cerf) of each prime factor */
+    int  ind[MAXPRIMEFACTORS];          /* Index (in Rolfsen or Cerf) of each prime factor */
     char sym[MAXPRIMEFACTORS][128];     /* Symmetry tag (Whitten group element) for each prime factor */
     char homfly[MAXHOMFLY];             /* Homfly polynomial (as plc_lmpoly output) */
 

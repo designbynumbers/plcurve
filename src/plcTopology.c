@@ -219,9 +219,6 @@ char *pdcode_to_ccode(pd_code_t *pd)
 
     char or = pd->cross[cr].sign == PD_POS_ORIENTATION ? '+':'-';
 
-    /* Notice that we're SWAPPING orientations here because the M/E
-       code uses the OTHER convention. -- trying it the other way*/
-
     thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c",cr+1,or);
     total_used += thiscr_used;
     ccode_buf += thiscr_used;

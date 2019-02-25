@@ -3,7 +3,7 @@ SUBDIRS = pdstor_classify diagram_to_img
 AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
 ACLOCAL_AMFLAGS = -I m4
 
-bin_PROGRAMS = processpdstor orientedshadows shadow2diagram
+bin_PROGRAMS = processpdstor orientedshadows shadow2diagram randomknot
 noinst_PROGRAMS = test_pyembed test_random_memleak
 
 test_pyembed_SOURCES = test_pyembed.c
@@ -20,6 +20,11 @@ processpdstor_SOURCES = processpdstor.c
 processpdstor_LDADD = -lplCurve $(PYTHON_EXTRA_LIBS)
 processpdstor_LDFLAGS = -static $(PYTHON_LDFLAGS)
 processpdstor_CFLAGS = -I${top_srcdir}/src -I${top_srcdir}/pysrc/libpl -L${top_builddir}/src/.libs $(PYTHON_CPPFLAGS)
+
+randomknot_SOURCES = randomknot.c
+randomknot_LDADD = -lplCurve $(PYTHON_EXTRA_LIBS)
+randomknot_LDFLAGS = -static $(PYTHON_LDFLAGS)
+randomknot_CFLAGS = -I${top_srcdir}/src -I${top_srcdir}/pysrc/libpl -L${top_builddir}/src/.libs $(PYTHON_CPPFLAGS)
 
 orientedshadows_SOURCES = orientedshadows.c
 orientedshadows_LDADD = -lplCurve $(PYTHON_EXTRA_LIBS)
