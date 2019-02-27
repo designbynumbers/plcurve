@@ -48,6 +48,19 @@ struct arg_lit  *quiet;
 struct arg_end  *end;
 struct arg_end  *helpend;
 
+#define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
+#define PBWIDTH 60
+
+void print_progress (double percentage,int found,int target)
+{
+    int val = (int) (percentage * 100);
+    int lpad = (int) (percentage * PBWIDTH);
+    int rpad = PBWIDTH - lpad;
+    printf ("\r%3d%% (%d/%d) [%.*s%*s]", val, found, target, lpad, PBSTR, rpad, "");
+    fflush (stdout);
+}
+
+
 int main(int argc,char *argv[]) {
 
   int nerrors;
@@ -56,11 +69,11 @@ int main(int argc,char *argv[]) {
     {
 
       outfile = arg_filen("o","outfile","<filename>",0,1,"output VECT files will be named <filename>-1.vect, ..., <filename>-<s>.vect"),
-      crossings = arg_int1("c","crossings","<crossing-number>","number of crossings in knot type"),
-      knotindex = arg_int1("i","rolfsen-index","<index>","index in Rolfsen table for knot type"),
+      crossings = arg_int0("c","crossings","<crossing-number>","number of crossings in knot type"),
+      knotindex = arg_int0("i","rolfsen-index","<index>","index in Rolfsen table for knot type"),
       nverts = arg_int1("n","number-of-vertices","<n>","number of vertices in polygon"),
       nsamples = arg_int1("s","number-of-samples","<s>","number of polygons of given knot typeto generate"),
-      maxtrials = arg_int1("m","maximum-trials","<m>","maximum number of polygons to check for correct knot type"),
+      maxtrials = arg_int0("m","maximum-trials","<m>","maximum number of polygons to check for correct knot type"),
       seed = arg_int0(NULL,"seed","<s>","seed for random number generator"),
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"),
@@ -114,20 +127,48 @@ int main(int argc,char *argv[]) {
 		 asked for help or gave nothing */
 
       printf("\n"
-	     "randomknot generates random equilateral polygons of a given knot type\n"
-	     "by rejection sampling (using the moment polytope algorithm of Cantarella).\n"
-	     "The user must specify both a maximum number of polygons of the given knot\n"
-	     "type to generate and a maximum number of trials.\n"
+	     "randomknot generates random equilateral polygons using the moment polytope\n"
+	     "algorithm of Cantarella, Duplantier, Shonkwiler, and Uehara. If a knot type\n"
+	     "is specified, the program calculates knot type (using the HOMFLY polynomial)\n"
+	     "and saves only polygons of the given knot type.\n"
 	     "\n"
-	     "Knot types are classified by HOMFLY. In cases where the same HOMFLY \n"
-	     "corresponds to more than one knot type, we return all samples with the\n"
-	     "correct HOMFLY.\n"
+	     "The number of vertices and samples must always be specified. If a knot type\n"
+	     "is (crossing number and index) is specified, the user must also specify a\n"
+	     "maximum number of trials.\n"
+	     "\n"
+	     "In cases where the same HOMFLY corresponds to more than one knot type,\n"
+	     "all samples with the correct HOMFLY are saved, regardless of actual knot type.\n"
 	     "\n"
 	     "usage: \n\n");
       arg_print_glossary(stdout, argtable," %-25s %s\n");
       exit(0);
 
     }
+
+  }
+
+  if (crossings->count != knotindex->count) {
+
+    fprintf(stderr,
+	    "randomknot: Must specify both crossing number and index to specify knot type\n"
+	    "            or must specify neither to obtain random polygons of any knot type\n");
+
+    printf("usage\n\n");
+    arg_print_glossary(stdout, argtable," %-25s %s\n");
+    exit(1);
+
+  }
+
+  if (crossings->count > 0 && maxtrials->count == 0) {
+
+    fprintf(stderr,
+	    "randomknot: If knot type is specified, must also specify --maximum-trials\n"
+	    "            to provide upper bound on number of polygons to check for correct\n"
+	    "            knot type.\n");
+
+    printf("usage\n\n");
+    arg_print_glossary(stdout, argtable," %-25s %s\n");
+    exit(1);
 
   }
 
@@ -140,10 +181,15 @@ int main(int argc,char *argv[]) {
     ofname = calloc(4096,sizeof(char));
     strncpy(ofname,outfile->filename[0],4096);
 
+  } else if (crossings->count > 0) {
+
+    ofname = calloc(256,sizeof(char));
+    sprintf(ofname,"%d-%d-%d-vert-example",crossings->ival[0],knotindex->ival[0],nverts->ival[0]);
+
   } else {
 
     ofname = calloc(256,sizeof(char));
-    sprintf(ofname,"%d-%d-example",crossings->ival[0],knotindex->ival[0]);
+    sprintf(ofname,"%d-vert-example",nverts->ival[0]);
 
   }
 
@@ -156,11 +202,21 @@ int main(int argc,char *argv[]) {
   if (!strstr("exported",svntag)) {  /* We were built from svn */
       printf("svn version %s\n",SVNVERSION);
   }
-  
-  printf("generating %d %d-vertex examples of knot %d.%d (%d max trials)...",
-	 nsamples->ival[0],nverts->ival[0],crossings->ival[0],knotindex->ival[0],
-	 maxtrials->ival[0]);
-  fflush(stdout);
+
+  if (crossings->count > 0) {
+    
+    printf("generating %d %d-vertex examples of knot %d.%d (%d max trials)\n",
+	   nsamples->ival[0],nverts->ival[0],crossings->ival[0],knotindex->ival[0],
+	   maxtrials->ival[0]);
+    fflush(stdout);
+
+  } else {
+
+     printf("generating %d %d-vertex random polygons\n",
+	    nsamples->ival[0],nverts->ival[0]);
+     fflush(stdout);
+
+  }
 
   int found=0,trial=0;
 
@@ -171,16 +227,50 @@ int main(int argc,char *argv[]) {
     int nposs;
 
     sample = plc_random_equilateral_closed_polygon(rng,nverts->ival[0]);
-    knottype = plc_classify(rng,sample,&nposs);
 
-    int poss;
+    if (crossings->count > 0) {
+      
+      knottype = plc_classify(rng,sample,&nposs);
 
-    for(poss=0;poss<nposs;poss++) {
+      if (knottype != NULL) { /* The classify call can fail. */
+	
+	int poss;
 
-      if (knottype->nf == 1 && knottype->cr[0] == crossings->ival[0] &&
-	  knottype->ind[0] == knotindex->ival[0]) {
+	for(poss=0;poss<nposs;poss++) {
 
-	found++;
+	  if (knottype->nf == 1 && knottype->cr[0] == crossings->ival[0] &&
+	      knottype->ind[0] == knotindex->ival[0]) {
+	    
+	    found++;
+	    FILE *outfile;
+	    char name[512];
+	    
+	    sprintf(name,"%s-%05d.vect",ofname,found);
+	    outfile = fopen(name,"w");
+	    if (outfile == NULL) {
+	      fprintf(stderr,"randomknot: Couldn't open %s for output.",name);
+	      exit(1);
+	    }
+	    
+	    plc_write(outfile,sample);
+	    fclose(outfile);
+
+	    if (quiet->count == 0) { 
+	      
+	      print_progress((double)(found)/(double)(nsamples->ival[0]),found,nsamples->ival[0]);
+	      
+	    }
+	    
+	  }
+	}
+	
+	free(knottype);
+	
+      }
+      
+    } else { /* knot type not specified; there's no reason to check it */
+
+        found++;
 	FILE *outfile;
 	char name[512];
 
@@ -193,10 +283,15 @@ int main(int argc,char *argv[]) {
 
 	plc_write(outfile,sample);
 	fclose(outfile);
-      }
+
+	if (quiet->count == 0) {
+	  
+	  print_progress((double)(found)/(double)(nsamples->ival[0]),found,nsamples->ival[0]);
+
+	}
+	
     }
 
-    free(knottype);
     plc_free(sample);
 
   }

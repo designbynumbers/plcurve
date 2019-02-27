@@ -60,7 +60,7 @@ one line, `/usr/local/lib`. You need to be SU for this; typically
 (Suggested): Install ipython: `sudo pip install ipython`
 Ipython is a more user-friendly Python console
 
-On Ubuntu Linux 14.04 LTS
+On Ubuntu Linux 14.04 LTS (also tested on Ubuntu 18.04)
 ----------------------
 
 0. Update the apt package list: `sudo apt-get update`

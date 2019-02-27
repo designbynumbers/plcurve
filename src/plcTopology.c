@@ -963,7 +963,7 @@ crossing_reference_container *divide_crossings_by_component(crossing_container *
 
     if (crc[cmp].used != crc[cmp].size) { /* There's a problem! */
 
-      fprintf(stderr,"pdcode_from_plCurve: Expected component %d to have %d crossings, but actually had %d.\n",
+      fprintf(stderr,"pd_code_from_plCurve: Expected component %d to have %d crossings, but actually had %d.\n",
 	      cmp,crc[cmp].size,crc[cmp].used);
       exit(1);
 
@@ -1553,10 +1553,12 @@ plc_knottype *plc_classify(gsl_rng *rng, plCurve *L, int *nposs)
   pd_code_t *pdC;
 
   pdC = pd_code_from_plCurve(rng,L);
+  if (pdC == NULL) { *nposs = 0; return NULL; } /* For a singular polygon, don't classify. */
+
   ccode = pdcode_to_ccode(pdC);  /* The number of crossings is 2 + the number of \n's in ccode. */
   free(pdC); /* We're not going to use this again, may as well free it now */
 
-  if (ccode == NULL) { *nposs = 0; return NULL; } // Otherwise you WILL segfaut
+  if (ccode == NULL) { *nposs = 0; return NULL; } // Otherwise you WILL segfault
 
   int Ncount = 0;
   for(cptr = strchr(ccode,'\n');cptr != NULL;cptr = strchr(cptr+1,'\n'),Ncount++);
