@@ -1,3 +1,6 @@
+from ..gsl_rng cimport gsl_rng
+from ..plcurve cimport plCurve
+
 cdef extern from "stdio.h":
     ctypedef struct FILE:
         pass
@@ -14,6 +17,9 @@ cdef extern from "plcTopology.h":
         PD_NOT_OK = 1
         PD_BAD_FORMAT = 2
         PD_EOF = 3
+    cdef enum:
+        MAXPRIMEFACTORS = 10
+        MAXHOMFLY = 1024
     ctypedef enum pd_equivalence_t:
         NONE = 0
         ISOMORPHISM = 1
@@ -243,12 +249,23 @@ cdef extern from "plcTopology.h":
     pd_code_t *pd_build_unknot(pd_idx_t n)
     pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c)
 
-    pd_code_t *pd_code_from_crossing_pdcode(pd_crossing_t* crbuf, int ncross)
-
     char *pd_homfly(pd_code_t *pdC)
     char *pd_homfly_timeout(pd_code_t *pdC, int timeout)
+    cdef char *plc_homfly( gsl_rng *rng, plCurve *L)
 
     int pd_linking_number(pd_code_t *L, pd_idx_t c1, pd_idx_t c2)
     unsigned int pd_unsigned_linking_number(pd_code_t *L, pd_idx_t c1, pd_idx_t c2)
+
+    #Knot classification
+    cdef struct knottypestruct:
+      int  nf
+      int  cr[MAXPRIMEFACTORS]
+      int  ind[MAXPRIMEFACTORS]
+      char sym[MAXPRIMEFACTORS][128]
+      char homfly[MAXHOMFLY]
+
+    ctypedef knottypestruct plc_knottype;
+
+    cdef plc_knottype *plc_classify( gsl_rng *rng, plCurve *L, int *nposs)
 
 cdef extern char* pdcode_to_ccode(pd_code_t *pdC)

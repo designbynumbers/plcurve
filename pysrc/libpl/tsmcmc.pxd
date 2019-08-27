@@ -12,6 +12,7 @@ cdef extern from "plcRandomPolygon.h":
     cdef void tsmcmc_triangulation_free(tsmcmc_triangulation_t)
 
     cdef tsmcmc_run_parameters tsmcmc_default_unconfined_parameters()
+    cdef tsmcmc_run_parameters tsmcmc_default_confined_parameters()
 
     cdef double tsmcmc_equilateral_expectation(
         gsl_rng *rng,
@@ -21,6 +22,16 @@ cdef extern from "plcRandomPolygon.h":
         tsmcmc_run_parameters run_params,
         tsmcmc_run_stats *run_stats,
         double *error)
+
+    cdef double tsmcmc_confined_equilateral_expectation(
+                 gsl_rng *rng,
+                 double integrand(plCurve *L, void *args),
+                 void *args,
+    						 double confinement_radius, int nedges,
+    						 int max_steps,int max_seconds,
+    						 tsmcmc_run_parameters run_params,
+    						 tsmcmc_run_stats *run_stats,
+    						 double *error)
 
 cdef class Triangulation:
     cdef tsmcmc_triangulation_t c

@@ -1012,10 +1012,6 @@ extern "C" {
 
   pd_code_t *pd_build_unknot_wye(pd_idx_t a,pd_idx_t b,pd_idx_t c); /* An unknot diagram designed for hash collisions */
 
-  // Split out from read_KnotTheory, this reads a pdcode as a knot theory-ish
-  // array of crossings. Directions and orientation are inferred from indices.
-  pd_code_t *pd_code_from_crossing_pdcode(pd_crossing_t* crbuf, int ncross);
-
   /******* Interface with traditional plCurve types ******/
 
   pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L);

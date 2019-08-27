@@ -27,6 +27,12 @@ cdef class RunParameters:
         cdef RunParameters ret = RunParameters.__new__(cls)
         ret.c = tsmcmc_default_unconfined_parameters()
         return ret
+    @classmethod
+    def default_confined(cls):
+        cdef RunParameters ret = RunParameters.__new__(cls)
+        ret.c = tsmcmc_default_confined_parameters()
+        return ret
+    
 
 def equilateral_expectation(
         RandomGenerator rng, integrand,
@@ -43,3 +49,20 @@ def equilateral_expectation(
         run_params.c,
         NULL, &error
     ), error
+
+def confined_equilateral_expectation(
+            RandomGenerator rng, integrand,
+            float confinement_radius,
+            int nedges,
+            int max_steps, int max_seconds,
+            RunParameters run_params, get_stats=False,
+            cb_args=(), cb_kwargs={},):
+        cdef double error = 0
+        cdef object args = (integrand, cb_args, cb_kwargs)
+        return tsmcmc_confined_equilateral_expectation(
+            rng.p, _py_integrand, <void*>args,
+            confinement_radius, nedges,
+            max_steps, max_seconds,
+            run_params.c,
+            NULL, &error
+        ), error
