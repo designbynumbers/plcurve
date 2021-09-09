@@ -346,6 +346,7 @@ char *plc_homfly( gsl_rng *rng, plCurve *L)
 
 {
   pd_code_t *pd = pd_code_from_plCurve(rng,L);
+  if (pd == NULL) { return NULL; } // Prevent segfault
   char *homfly = pd_homfly(pd);
   pd_code_free(&pd);
   return homfly;
