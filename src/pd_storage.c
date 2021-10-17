@@ -827,7 +827,7 @@ void pd_copyinto_cass(pd_code_t *pd)
 
   //int com_size = 21 + PD_MAXVERTS*4 + 1 + 32;
   char com_string[110];
-  char current_char[1];
+  char current_char[2]; // Make room for the trailing zero!
   
   sprintf(com_string, "python shad_stor.py ");
   

@@ -35,7 +35,7 @@
 
 /* The pdstor type only contains a few primitives. */
 
-pd_stor_t      *pd_new_pdstor();
+pd_stor_t      *pd_new_pdstor(void);
 void            pd_free_pdstor(pd_stor_t **pdstor);
 /* This is the only way to delete elements from a pdstor;
    the accessor functions below return pointers to copies

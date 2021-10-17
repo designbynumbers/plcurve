@@ -18,8 +18,8 @@ PYX_FILES = \
 	libpl/pdcode/homfly.pyx \
 	libpl/pdcode/isomorphism.pyx \
 	libpl/pdcode/plctopology.pyx \
-	libpl/pdcode/planarmap.pyx \
-	libpl/pdcode/pd_invariants.pyx
+	libpl/pdcode/pd_invariants.pyx \
+	libpl/pdcode/planarmap.pyx 
 
 CY_FILES = $(PYX_FILES:.pyx=.c)
 CY_H_FILES = \
@@ -40,8 +40,8 @@ PXD_FILES = \
 	libpl/pdcode/pd_invariants.pxd \
 	libpl/pdcode/pd_storage.pxd \
 	libpl/pdcode/pdstor.pxd \
-	libpl/pdcode/planarmap.pxd \
-	libpl/pdcode/plctopology.pxd
+	libpl/pdcode/plctopology.pxd \
+	libpl/pdcode/planarmap.pxd 
 
 CPY_FILES = $(PY_FILES) $(PYX_FILES) $(PXD_FILES)
 SETUP_PY = $(srcdir)/setup.py

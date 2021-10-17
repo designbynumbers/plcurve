@@ -39,7 +39,7 @@ void pmCreateVtx(long n)
   pmNxtVtxNbr=0;
 }
 
-void pmFreeVtx()
+void pmFreeVtx(void)
 {
   free(pmVtxSet);
   pmNxtVtxNbr=-1;
@@ -81,13 +81,13 @@ void pmCreateEdge(long n)
   pmNxtEdgeNbr=0;
 }
 
-void pmFreeEdge()
+void pmFreeEdge(void)
 {
   free(pmEdgeSet);
   pmNxtEdgeNbr=-1;
 }
 
-pm_edge *pmEmptyEdge()
+pm_edge *pmEmptyEdge(void)
 {
   return (pmEdgeSet+pmNxtEdgeNbr++);
 }
@@ -136,17 +136,17 @@ pm_edge *pmStckOut(pmStck *Stack)
 long pmAbsMark=1;
 long pmAbsLabel=1;
 
-long pmNewMark() 
+long pmNewMark(void) 
 {
   pmAbsMark++;
   if (pmAbsMark == 0) pmAbsMark++;
   return pmAbsMark;
 }
-long pmCurMark()
+long pmCurMark(void)
 {
   return pmAbsMark;
 }
-long pmNewLabel() 
+long pmNewLabel(void) 
 {
   pmAbsLabel++;
   if (pmAbsLabel == 0) pmAbsLabel++;
@@ -170,11 +170,11 @@ void pmCreateBloc(long n)
   pmBlocBeg=-1;
   pmBlocEnd=-1;
 }
-int pmIsBloc(){
+int pmIsBloc(void){
   if (pmBlocBeg == pmBlocEnd) return(FALSE);
   else return(TRUE);
 }
-void pmFreeBloc()
+void pmFreeBloc(void)
 {
   free(pmBloc);
   pmBlocBeg=-1;
@@ -199,11 +199,11 @@ void pmCreateComp(long n)
   pmCompBeg=-1;
   pmCompEnd=-1;
 }
-int pmIsComp(){
+int pmIsComp(void){
   if (pmCompBeg == pmCompEnd) return(FALSE);
   else return(TRUE);
 }
-void pmFreeComp()
+void pmFreeComp(void)
 {
   free(pmComp);
   pmCompBeg=-1;
@@ -234,16 +234,16 @@ void pmCreatePost(long n)
   pmPostBeg=-1;
   pmPostEnd=-1;
 }
-int pmIsPost(){
+int pmIsPost(void){
   if (pmPostBeg == pmPostEnd) return(FALSE);
   else return(TRUE);
 }
-void pmResetPost()
+void pmResetPost(void)
 {
   pmPostBeg=-1;
   pmPostEnd=-1;
 }
-void pmFreePost()
+void pmFreePost(void)
 {
   free(pmPost);
   pmPostBeg=-1;
@@ -279,11 +279,11 @@ void pmCreateSeed(long n)
   pmSeedBeg=-1;
   pmSeedEnd=-1;
 }
-int pmIsSeed(){
+int pmIsSeed(void){
   if (pmSeedBeg == pmSeedEnd) return(FALSE);
   else return(TRUE);
 }
-void pmFreeSeed()
+void pmFreeSeed(void)
 {
   free(pmSeed);
   pmSeedBeg=-1;

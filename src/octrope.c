@@ -104,7 +104,7 @@ static int num_edges; /* Number of edges in the link */
 static int debug_level = 0;
 
 int octrope_error_num;      /* These have to live in a specific SOURCE file, don't they? */
-char octrope_error_str[80];
+char octrope_error_str[1024];
 
 void octrope_set_debug(int level) 
 {

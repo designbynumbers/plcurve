@@ -214,8 +214,8 @@ extern "C" {
   char    *tsmcmc_run_stats_MathematicaForm(tsmcmc_run_stats run_stats);
   char    *tsmcmc_run_params_MathematicaForm(tsmcmc_run_parameters run_params);
 
-  tsmcmc_run_parameters tsmcmc_default_unconfined_parameters();
-  tsmcmc_run_parameters tsmcmc_default_confined_parameters();
+  tsmcmc_run_parameters tsmcmc_default_unconfined_parameters(void);
+  tsmcmc_run_parameters tsmcmc_default_confined_parameters(void);
 
   /* 
      Direct Sampler. 

@@ -1564,7 +1564,7 @@ double   tsmcmc_fixed_ftc_expectation(gsl_rng *rng,double integrand(plCurve *L, 
   Default run parameters:
 */
 
-tsmcmc_run_parameters tsmcmc_default_unconfined_parameters()
+tsmcmc_run_parameters tsmcmc_default_unconfined_parameters(void)
 {
   tsmcmc_run_parameters RP;
 
@@ -1579,7 +1579,7 @@ tsmcmc_run_parameters tsmcmc_default_unconfined_parameters()
   return RP;
 }
 
-tsmcmc_run_parameters tsmcmc_default_confined_parameters()
+tsmcmc_run_parameters tsmcmc_default_confined_parameters(void)
 {
   tsmcmc_run_parameters RP;
 

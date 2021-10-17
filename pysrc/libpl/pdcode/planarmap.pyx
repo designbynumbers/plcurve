@@ -1,4 +1,5 @@
 from planarmap cimport *
+from planarmap cimport pmPrintChndVtx
 from libc.stdlib cimport malloc, free
 
 cdef class _PlanarMap:
@@ -33,8 +34,8 @@ cdef class _PlanarMap:
         cdef pm_edge *Cur1
         cdef pm_vertex *Vtx
 
-        pmPrintChndVtx(self.p.root.from_v)
         return
+        pmPrintChndVtx(self.p.root.from_v)
         sigma = []
         tau = []
 
@@ -153,8 +154,8 @@ cdef class _PlanarMap:
         if not pmPlanMap(&size, &meth, &mem, self.p):
             raise Exception("Failure during map generation")
 
-        pmPrintChndVtx(self.p.root.from_v)
-        print self.to_combinatorial_map()
+        #pmPrintChndVtx(self.p.root.from_v)
+        #print self.to_combinatorial_map()
 
         return self
 

@@ -553,7 +553,7 @@ extern "C" {
   typedef struct pdstorage_struct pd_stor_t;
   typedef enum {NONE, ISOMORPHISM, DIAGRAM_ISOTOPY} pd_equivalence_t;
 
-  pd_stor_t *pd_new_pdstor();
+  pd_stor_t *pd_new_pdstor(void);
   /* Create new (empty) pdstor */
 
   void pd_free_pdstor(pd_stor_t **pdstor);

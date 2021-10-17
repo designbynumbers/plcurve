@@ -56,7 +56,7 @@ typedef struct octrope_mrloc_type {
 } octrope_mrloc;
     
 extern int octrope_error_num;
-extern char octrope_error_str[80];
+extern char octrope_error_str[1024];
 
 /************************ Now for the main routines **************************/
 

@@ -73,7 +73,9 @@ LIBPL_PDCODE_PYX = (
     "pdstor.pyx",
     "plctopology.pyx",
     "pd_invariants.pyx",
-    "planarmap.pyx",)
+    "planarmap.pyx")
+
+# took out a trailing comma here
 
 LIBPL_PYX = (
     "pdstor.pyx",
