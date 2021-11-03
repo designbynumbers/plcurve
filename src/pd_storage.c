@@ -75,7 +75,7 @@ void pdint_init_pdstor_iterstate(pd_stor_t *pdstor)
   pdstor->iter_PValue_hash = NULL;
 }
 
-pd_stor_t *pd_new_pdstor()
+pd_stor_t *pd_new_pdstor(void)
 
 {
   pd_stor_t *pdstor;

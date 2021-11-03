@@ -1,4 +1,4 @@
-SUBDIRS = judy src planarmap pysrc tools test
+SUBDIRS = judy src planarmap pysrc tools test planarity
 
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-python-otherdir=prefix --disable-cython
 

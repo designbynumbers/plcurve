@@ -49,6 +49,12 @@ pd_code_t *pd_simplify(pd_code_t *pd)
 {
   bool found_monogon;
   pd_code_t *workingpd = pd_copy(pd);
+
+  if (pd->ncross == 0) { /* This is already a 0-crossing unknot */
+
+    return workingpd;
+
+  }
   
   do {
 

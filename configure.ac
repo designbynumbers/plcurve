@@ -7,7 +7,7 @@ ifdef([m4_pattern_allow],
       [m4_pattern_allow([^AM_(CONFIG_HEADER|PROG_LEX)$])])dnl
 
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.71])
 AC_COPYRIGHT(
 ------------------------------- libplCurve.a ---------------------------------
 
@@ -19,7 +19,7 @@ AC_COPYRIGHT(
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT(libplCurve, 8.1.7, cantarel@math.uga.edu)
+AC_INIT([libplCurve],[8.1.7],[cantarel@math.uga.edu])
 #AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE()
 
@@ -45,7 +45,7 @@ AC_CONFIG_SRCDIR([src/plCurve.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-#AC_GNU_SOURCE
+#AC_USE_SYSTEM_EXTENSIONS
 LT_INIT
 
 # Checks for programs.
@@ -59,7 +59,7 @@ AC_PROG_CPP
 AC_PROG_LN_S
 
 AC_PROG_MAKE_SET
-AC_PROG_LIBTOOL
+LT_INIT
 
 # Checks for libraries. The syntax here is
 #
@@ -158,7 +158,15 @@ AC_DEFINE_UNQUOTED([SVNVERSION],["][`svnversion`]["],[the svn revision number (o
 # in your source files. Paths are all handled for you, so you shouldn't need
 # to specify more about where it is.
 
-AC_HEADER_STDC
+#m4_warn([obsolete],
+#[The preprocessor macro `STDC_HEADERS' is obsolete.
+#  Except in unusual embedded environments, you can safely include all
+#  ISO C90 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+#AC_CHECK_INCLUDES_DEFAULT
+#AC_PROG_EGREP
+
 AC_HEADER_ASSERT
 AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
                   string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
@@ -212,6 +220,7 @@ AC_CONFIG_FILES([Makefile
     tools/diagram_to_img/Makefile])
 
 AC_CONFIG_SUBDIRS([judy])
+AC_CONFIG_SUBDIRS([planarity])
 AC_OUTPUT
 
 echo \

@@ -370,7 +370,7 @@ int  pd_cross_cmp(const void *A,const void *B)
 
 int  pd_face_cmp(const void *A, const void *B)
 
-/* Compares faces by number of components (largest number first) then dictionary order */
+/* Compares faces by number of edges (largest number first) then dictionary order */
 
 {
   pd_face_t *fA = (pd_face_t *)(A);
@@ -2916,9 +2916,9 @@ void pd_write(FILE *of,pd_code_t *pd)
    nc   <ncomps>
    <nc lines, each containing nedges edge edge .... edge and a final "tag (character)">
    nf   <nfaces>
-   <nf lines, each in the format nedges edge edge ... edge giving face information counterclockwise>
+   <nf lines, each in the format nedges edge(+/-) edge(+/-) ... edge giving face information counterclockwise, along with orientation of the face.
 
-   (nts: Add ordering information!)
+   
 
 */
 
@@ -3279,9 +3279,12 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
     /* If we're a zero-crossing unknot, there is one piece of
        information that can actually matter, which is the tag
-       of the (single) component. We're going to discard the
-       rest of the file, but first we'll run through and extract
-       the "tag" (if present). */
+       of the (single) component.
+
+       We're going to go ahead and read through to the tag, then
+       continue until we see a blank line (the separator between
+       pd_codes in a pdstor).
+    */
 
     char rolling_buffer[4];
     pd_tag_t tag = 'A';
@@ -3291,22 +3294,31 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
     rolling_buffer[2] = (char)(getc(infile));
     rolling_buffer[3] = 0;
 
-    for(;!feof(infile);) {
-
-      if (!strcmp(rolling_buffer,"tag")) {
-
-	fscanf(infile," %c ",&tag);
-
-      }
+    for(;!strcmp(rolling_buffer,"tag");) {
 
       rolling_buffer[0] = rolling_buffer[1]; rolling_buffer[1] = rolling_buffer[2];
       rolling_buffer[2] = (char)(getc(infile));
 
+      if (feof(infile)) {
+
+	pd_error(SRCLOC,
+		 "Reading 0 crossing pd code, we found eof before a component tag. ",NULL);
+	pd_err_set(err, PD_BAD_FORMAT);
+	exit(1);
+
+      }
     }
 
+    fscanf(infile," %c ",&tag);
     pd_code_t *outcode;
     outcode = pd_build_unknot(0);
     outcode->comp[0].tag = tag;
+
+    /* Now we continue to scan until we see the letter p (a new pd-code) or feof. */
+
+    int read_char;
+    for(read_char = fgetc(infile);read_char != 'p' && !feof(infile);read_char = fgetc(infile));
+    if (!feof(infile)) {ungetc(read_char,infile);}
 
     return outcode;
 
