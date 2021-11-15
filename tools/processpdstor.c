@@ -43,6 +43,7 @@ struct arg_lit  *quiet;
 struct arg_lit  *KnotTheory;
 struct arg_lit  *simplify;
 struct arg_lit  *cantsimplify;
+struct arg_lit  *knottype;
 struct arg_end  *end;
 struct arg_end  *helpend;
 
@@ -146,6 +147,7 @@ int main(int argc,char *argv[]) {
       KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory (WARNING: WILL NOT HANDLE SPLIT LINKS)"),
       simplify = arg_lit0("s","simplified-diagrams","output simplified diagrams (unless they have zero crossings)"),
       cantsimplify = arg_lit0(NULL,"no-simplifications-possible","don't output diagrams which can be simplified"),
+      knottype = arg_lit0("","knottypes","output HOMFLY/knottype instead of ccode"),
       help = arg_lit0(NULL,"help","display help message"),
       end = arg_end(20)
     };
@@ -180,13 +182,17 @@ int main(int argc,char *argv[]) {
 
       fprintf(stderr,"processpdstor compiled " __DATE__ " " __TIME__ "\n");
       printf("processpdstor converts a file of pd_codes in the pdstor text file format\n"
-	     "to the Millett/Ewing ccode format. For each pdcode, we either store the \n"
-	     "ccode format -OR IF- the -K flag is set the pdcodes will be printed in\n"
-	     "in the style of KnotTheory. If\n"
+	     "to one of three outputs:\n"
 	     "\n"
-	     "--generate-all-crossing-signs is set, generate ccodes with all assignments of crossing signs\n"
+	     "  1) the Millett/Ewing ccode format (default) \n"
+	     "  2) the KnotTheory PD code format (if the -K flag is set) \n"
+	     "  3) the HOMFLY polynomial or knot type (if the --knottypes flag is set) \n"
 	     "\n"
-	     "--generate-all-orientations is set, generate ccodes with all component orientations\n"
+	     "If\n"
+	     "\n"
+	     "--generate-all-crossing-signs is set, generate results with all assignments of crossing signs\n"
+	     "\n"
+	     "--generate-all-orientations is set, generate results with all component orientations\n"
 	     "\n"
 	     "  (Both options may be set at the same time.)\n"
 	     "\n"
