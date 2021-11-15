@@ -58,10 +58,10 @@ EXTRA_DIST = \
 PY_INSTALL_FLAGS =
 
 if INSTALL_PYTHON_USER
-PY_INSTALL_FLAGS = --user
+PY_INSTALL_FLAGS += --user
 else
 if INSTALL_PYTHON_PREFIX
-PY_INSTALL_FLAGS = --prefix=$(DESTDIR)/$(prefix)
+PY_INSTALL_FLAGS += --prefix=$(DESTDIR)/$(prefix)
 endif
 endif
 

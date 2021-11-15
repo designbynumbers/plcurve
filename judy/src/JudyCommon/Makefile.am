@@ -1,4 +1,4 @@
-INCLUDES =  -I$(srcdir)/. -I$(srcdir)/..
+AM_CPPFLAGS = -I$(srcdir)/. -I$(srcdir)/..
 AM_CFLAGS = @CFLAGS@ @WARN_CFLAGS@ 
 
 include_HEADERS = JudyPrivate.h \

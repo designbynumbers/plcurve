@@ -4,12 +4,12 @@ AC_INIT(Judy, 1.0.5, dougbaskins@yahoo.com)
 AM_MAINTAINER_MODE
 
 dnl Turn on automake, and pass it the PACKAGE_NAME and PACKAGE_VERSION, too.
-AM_INIT_AUTOMAKE($PACKAGE_NAME, $PACKAGE_VERSION)
+AM_INIT_AUTOMAKE
 
 dnl Tell autoconf we want to keep our preprocessor defines in a header named
 dnl config.h.  This keeps automake from passing a zillion -D directives to
 dnl the C compiler.
-AM_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 LT_INIT # Change to work with later versions of AutoTools. --JC
 
@@ -109,7 +109,7 @@ AC_MSG_CHECKING(which flavor to build)
 
 dnl Process our --enable-debug argument.
 AC_ARG_ENABLE(debug,
-              AC_HELP_STRING([--enable-debug],
+              AS_HELP_STRING([--enable-debug],
                              [enable debugging features]),
               , enable_debug=no)
 if test "x$enable_debug" != xyes -a "x$enable_debug" != xno; then
@@ -118,7 +118,7 @@ fi
 
 dnl Process our --enable-ccover argument.
 AC_ARG_ENABLE(ccover,
-              AC_HELP_STRING([--enable-ccover],
+              AS_HELP_STRING([--enable-ccover],
                              [enable use of ccover code coverage tools]),
               , enable_ccover=no)
 if test "x$enable_ccover" != xyes -a "x$enable_ccover" != xno; then
@@ -155,7 +155,7 @@ AC_PROG_MAKE_SET
 dnl==========================================================================
 dnl Checks for Header Files
 dnl==========================================================================
-AC_HEADER_STDC
+#AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h malloc.h stddef.h stdint.h stdlib.h string.h strings.h sys/param.h sys/time.h unistd.h])
 
 dnl==========================================================================
@@ -167,7 +167,7 @@ AC_HEADER_STDBOOL
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
+#AC_HEADER_TIME
 AC_STRUCT_TM
 AC_C_VOLATILE
 AC_CHECK_TYPES([ptrdiff_t])
@@ -237,7 +237,8 @@ AC_CHECK_TOOL(RANLIB, ranlib, :)
 
 dnl Checks for libtool - this must be done after we set cflags (abi issues)
 dnl
-AM_PROG_LIBTOOL
+LT_INIT
+#AM_PROG_LIBTOOL (this is a deprecated form of LT_INIT)
 
 WARN_CFLAGS=""
 build_warnings="-W -Wall -Wstrict-prototypes -Wmissing-prototypes"

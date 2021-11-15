@@ -1,4 +1,5 @@
-INCLUDES =  -I$(srcdir)/. -I$(srcdir)/.. -I$(srcdir)/../JudyCommon/ 
+# was INCLUDES --JC
+AM_CPPFLAGS =  -I$(srcdir)/. -I$(srcdir)/.. -I$(srcdir)/../JudyCommon/ 
 AM_CFLAGS = -DJUDY1 @WARN_CFLAGS@ 
 
 include_HEADERS = Judy1.h
