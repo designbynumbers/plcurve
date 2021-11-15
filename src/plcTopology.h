@@ -1048,10 +1048,17 @@ extern "C" {
 
   } plc_knottype;
 
+  /* Prints the knot type in a neatly formatted human-readable version */
+  void plc_write_knottype(FILE *out,plc_knottype kt);
+
 
   /* Find the knot type of a single component plCurve */
   /* Sets nposs to the number of possible knottypes found for the curve. If we cannot
      classify the knot, return 0 for nposs and NULL for the buffer of knot types. */
   plc_knottype *plc_classify( gsl_rng *rng, plCurve *L, int *nposs);
+
+  /* Find the knot type of a single component pdcode */
+  /* Same return data as from plc_classify */
+  plc_knottype *pd_classify(pd_code_t *pdC, int *nposs);
 
 #endif

@@ -253,7 +253,13 @@ int main(int argc,char *argv[]) {
   
   printf("Built %s, %s.\n", __DATE__ , __TIME__ );
 
-  printf("generating crossing codes for %d pdstor files\n",infile->count);
+  if (knottype->count > 0) {
+    printf("generating knot types for");
+  } else {
+    printf("generating crossing codes for");
+  }
+
+  printf(" %d pdstor files\n",infile->count);
 
   FILE *out;
 
@@ -282,13 +288,17 @@ int main(int argc,char *argv[]) {
 
       if (ofname != NULL) { free(ofname); }
 
-      if (KnotTheory->count == 0) { 
+      if (KnotTheory->count == 0 && knottype->count == 0) { 
 
 	ofname = mangle(infile->basename[i],".pdstor",".ccode");
 
-      } else {
+      } else if (KnotTheory->count > 0) {
 
 	ofname = mangle(infile->basename[i],".pdstor",".KnotTheory");
+
+      } else { /* We must be generating knot types */
+
+	ofname = mangle(infile->basename[i],".pdstor",".knottypes");
 
       }
       
@@ -338,7 +348,16 @@ int main(int argc,char *argv[]) {
 
     printf("done (%d pd codes, %d hashes)\n",nelts_claimed,nhashes);
 
-    printf("writing crossing codes...\n");
+    if (knottype->count == 0) {
+      
+      printf("writing crossing codes...\n");
+
+    } else {
+
+      printf("writing knot types...\n");
+
+    }
+    
     int j;
     int codes_written = 0;
     for(j=0;!feof(in);j++) {
@@ -521,12 +540,36 @@ int main(int argc,char *argv[]) {
 		/*If the KnotTheory flag is set we use
 		  pd_write_KnotTheory to write codes*/
 		if(KnotTheory->count != 0) {
+		  
 		  pd_write_KnotTheory(out,working_pd);
-		}
+
+		} else if (knottype->count != 0) {
+
+		  if (working_pd->ncomps == 1) {
+
+		    plc_knottype *knottype;
+		    int nposs,i;
+		    
+		    knottype = pd_classify(working_pd,&nposs);
+		    for(i=0;i<nposs;i++) {
+		      plc_write_knottype(out,knottype[i]);
+		    }
+		    free(knottype);
+
+		  } else {
+
+		    char *homfly;
+		    homfly = pd_homfly_timeout(working_pd,120);
+		    fprintf(out,"%s",homfly);
+		    free(homfly);
+
+		  }
+		    
+		} else {
 	      
-		/*If KnotTheory flag not set then
+		/*If KnotTheory and knottype not flagged not set then
 		  we write codes as ccodes*/
-		if(KnotTheory->count == 0){
+	      
 		  char *ccode = pdcode_to_ccode(working_pd);
 		  fprintf(out,"%s\n",ccode);
 		  free(ccode);
@@ -573,15 +616,40 @@ int main(int argc,char *argv[]) {
 	      /*If the KnotTheory flag is set we use
 		pd_write_KnotTheory to write codes*/
 	      if(KnotTheory->count != 0) {
+
 		pd_write_KnotTheory(out,thispd);
-	      }
-	      
-	      /*If KnotTheory flag not set then
-		we write codes as ccodes*/
-	      if(KnotTheory->count == 0){
+
+	      } else if (knottype->count > 0) {
+		
+	        if (thispd->ncomps == 1) {
+
+		    plc_knottype *knottype;
+		    int nposs,i;
+		    
+		    knottype = pd_classify(thispd,&nposs);
+		    for(i=0;i<nposs;i++) {
+		      plc_write_knottype(out,knottype[i]);
+		    }
+		    free(knottype);
+
+		  } else {
+
+		    char *homfly;
+		    homfly = pd_homfly_timeout(thispd,120);
+		    fprintf(out,"%s",homfly);
+		    free(homfly);
+
+		  }
+		
+	      } else {
+
+		/*If KnotTheory flag and knottype flags are both not set then
+		  we write codes as ccodes*/
+	     
 		char *ccode = pdcode_to_ccode(thispd);
 		fprintf(out,"%s\n",ccode);
 		free(ccode);
+		
 	      }
 	      
 	      pd_code_free(&thispd);
@@ -600,13 +668,17 @@ int main(int argc,char *argv[]) {
       
     }
     
-    if (KnotTheory->count == 0) {
+    if (knottype->count > 0) {
       
-      printf("done (wrote %d crossing codes).\n",codes_written);
+      printf("done (wrote %d knot types or homfly polynomials).\n",codes_written);
+
+    } if (KnotTheory->count > 0) {
+
+      printf("done (wrote %d KnotTheory pd codes).\n",codes_written);
 
     } else {
 
-      printf("done (wrote %d KnotTheory pd codes).\n",codes_written);
+      printf("done (wrote %d crossing codes).\n",codes_written);
 
     }
 

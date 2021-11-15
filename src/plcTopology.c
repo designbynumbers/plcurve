@@ -1625,6 +1625,101 @@ plc_knottype *plc_classify(gsl_rng *rng, plCurve *L, int *nposs)
 
 }
 
+plc_knottype *pd_classify(pd_code_t *pdC, int *nposs)
+
+{
+  plc_knottype kt = { 1, { 0 }, { 1 }, { "(1,1,e)" }, { "[[1]]N " } },*ktmatch,*ret;
+  char *homfly;
+
+  plc_knottype unknot = {1, { 0 }, { 1 }, { "(1,1,e)" }, { "[[1]]N " } };
+
+  /* We have to work around a bug in lmpoly here, where it horks on one or two
+     crossing diagrams. */
+
+  char *ccode,*cptr;
+
+  if (pdC == NULL) { *nposs = 0; return NULL; } /* For a singular polygon, don't classify. */
+
+  ccode = pdcode_to_ccode(pdC);  /* The number of crossings is 2 + the number of \n's in ccode. */
+  free(pdC); /* We're not going to use this again, may as well free it now */
+
+  if (ccode == NULL) { *nposs = 0; return NULL; } // Otherwise you WILL segfault
+
+  int Ncount = 0;
+  for(cptr = strchr(ccode,'\n');cptr != NULL;cptr = strchr(cptr+1,'\n'),Ncount++);
+
+  if (Ncount == 3 || Ncount == 4) { /* 1 or 2 crossings, we know this must be the unknot */
+
+    ret = calloc(1,sizeof(plc_knottype));
+    assert(ret != NULL);
+    ret[0] = unknot;
+    *nposs = 1;
+
+    free(ccode);
+    return ret;
+
+  }
+
+  /* Now we know that the ccode has at least 3 crossings, compute the homfly (lmpoly should work) */
+
+  homfly = plc_lmpoly(ccode,60);
+  free(ccode);
+
+  if (homfly == NULL) {
+      homfly = calloc(128,sizeof(char));
+      sprintf(homfly,"ccode unable to create crossing code for L");
+  }
+
+  if (homfly == NULL) { *nposs = 0; return NULL; }
+  strncpy(kt.homfly,homfly,MAXHOMFLY);
+  free(homfly);
+
+  /* Now search for matching knottypes in ktdb */
+
+  ktmatch = bsearch(&kt,ktdb,KTDBSIZE,sizeof(plc_knottype),homcmp);
+
+  if (ktmatch == NULL) { /* No matching homfly was found */
+
+    *nposs = 0;
+    return NULL;
+
+  }
+
+  /* If there is more than one match, we might have landed anywhere in the collection of matching types */
+
+  plc_knottype *mlo,*mhi;
+
+  for(mlo = ktmatch;!strcmp(kt.homfly,mlo->homfly) && mlo > ktdb;mlo--);  // search down until we don't match anymore or start of buffer
+  if (strcmp(kt.homfly,mlo->homfly)) { mlo++; }                           // if we don't match (we might if we went to the start of buffer)
+  assert(!strcmp(kt.homfly,mlo->homfly));
+
+  for(mhi = ktmatch;!strcmp(kt.homfly,mhi->homfly) && mhi < &(ktdb[KTDBSIZE]);mhi++);
+  if (strcmp(kt.homfly,mhi->homfly)) { mhi--; }
+  assert(!strcmp(kt.homfly,mhi->homfly));
+
+  /* Now we know the interval between mlo and mhi (inclusive) is the set of knot types which match this homfly */
+
+  *nposs = (mhi - mlo) + 1;
+  ret = calloc(*nposs,sizeof(plc_knottype));
+  assert(ret != NULL);
+
+  int i;
+  for(ktmatch=mlo,i=0;ktmatch <= mhi;i++,ktmatch++) {ret[i] = *ktmatch;} // Copy the matches to the output buffer
+  return ret;
+
+}
+void plc_write_knottype(FILE *out, plc_knottype kt)
+/* Prints the knot type (or types) in a neatly formatted human-readable version. */
+{
+  int i;
+  fprintf(out,"%d_%d",kt.cr[0],kt.ind[0]);
+  for(i=1;i<kt.nf;i++) {
+    fprintf(out,"#%d_%d",kt.cr[i],kt.ind[i]);
+  }
+  fprintf(out," (%s) \n",kt.homfly);
+}
+
+
 /*** Over and under information **/
 
 /* All of this will depend on an internal function. This will be called more than once in typical use,

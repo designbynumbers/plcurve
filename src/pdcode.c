@@ -3294,7 +3294,10 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
     rolling_buffer[2] = (char)(getc(infile));
     rolling_buffer[3] = 0;
 
-    for(;!strcmp(rolling_buffer,"tag");) {
+    int nottag;
+
+    nottag=strcmp(rolling_buffer,"tag");
+    for(;nottag != 0;nottag=strcmp(rolling_buffer,"tag")) {
 
       rolling_buffer[0] = rolling_buffer[1]; rolling_buffer[1] = rolling_buffer[2];
       rolling_buffer[2] = (char)(getc(infile));

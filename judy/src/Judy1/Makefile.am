@@ -20,7 +20,7 @@ libinline_la_SOURCES = j__udy1Test.c
 libinline_la_CFLAGS = $(AM_CFLAGS) -DJUDYGETINLINE
 
 Judy1Tables.c: Judy1TablesGen.c
-	$(CC) $(INCLUDES) $(AM_CFLAGS) @CFLAGS@ -o Judy1TablesGen Judy1TablesGen.c; ./Judy1TablesGen
+	$(CC) $(AM_CPPFLAGS) $(AM_CFLAGS) @CFLAGS@ -o Judy1TablesGen Judy1TablesGen.c; ./Judy1TablesGen
 
 Judy1ByCount.c:$(srcdir)/../JudyCommon/JudyByCount.c
 	cp -f $(srcdir)/../JudyCommon/JudyByCount.c      		Judy1ByCount.c   
