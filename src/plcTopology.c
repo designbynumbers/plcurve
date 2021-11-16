@@ -1640,6 +1640,16 @@ plc_knottype *pd_classify(pd_code_t *pdC, int *nposs)
 
   if (pdC == NULL) { *nposs = 0; return NULL; } /* For a singular polygon, don't classify. */
 
+  if (pdC->ncross == 0 || pdC->ncross == 1 || (pdC->ncomps == 1 && pdC->ncross == 2)) {
+
+    ret = calloc(1,sizeof(plc_knottype));
+    assert(ret != NULL);
+    ret[0] = unknot;
+    *nposs = 1;
+    return ret;
+
+  }
+
   ccode = pdcode_to_ccode(pdC);  /* The number of crossings is 2 + the number of \n's in ccode. */
   free(pdC); /* We're not going to use this again, may as well free it now */
 

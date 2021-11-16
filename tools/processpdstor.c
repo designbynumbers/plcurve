@@ -390,7 +390,10 @@ int main(int argc,char *argv[]) {
 
       }
 
-      if ((cantsimplify->count==0 && inpd->ncross > 0) || (cantsimplify->count > 0 && inpd->ncross == incross)) {
+      if (
+	  (cantsimplify->count==0 && inpd->ncross > 0) ||
+	  (cantsimplify->count > 0 && inpd->ncross == incross) ||
+	  (knottype->count > 0) ) {
       
 	assert(inpd != NULL);
 
