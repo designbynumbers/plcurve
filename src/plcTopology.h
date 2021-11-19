@@ -339,7 +339,7 @@ extern "C" {
      on edge numbers. Used for searching, sorting. */
 
   int  pd_component_cmp(const void *A, const void *B);
-  /* Sort by number of components, then dictionary order on the edge numbers.
+  /* Sort by number of edges, then dictionary order on the edge numbers.
      Used for searching, sorting. */
 
   void pd_component_and_pos(pd_code_t *pd,pd_idx_t edge,
