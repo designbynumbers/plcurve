@@ -189,7 +189,7 @@ libnplCurve_la_CFLAGS = $(AM_CFLAGS)
 libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
 knot_diagram_SOURCES = knot_diagram.c
-knot_diagram_LDADD = -lplCurve
+knot_diagram_LDADD = libplCurve.la
 #if HAVE_ARGTABLE2
 knot_diagram_LDFLAGS = -static
 #else
@@ -201,64 +201,64 @@ knot_diagram_LDFLAGS = -static
 #ccode_test_LDFLAGS = -static
 
 momentpolytope_SOURCES = momentpolytope.c
-momentpolytope_LDADD = -lplCurve
+momentpolytope_LDADD = libplCurve.la
 
 carbonizepd_SOURCES = carbonizepd.c
-carbonizepd_LDADD = -lplCurve
+carbonizepd_LDADD = libplCurve.la
 carbonizepd_LDFLAGS = -static
 carbonizepd_CFLAGS = -I${top_builddir}/src
 
 connectsum_SOURCES = connectsum.c
-connectsum_LDADD = -lplCurve
+connectsum_LDADD = libplCurve.la
 connectsum_LDFLAGS = -static
 connectsum_CFLAGS = -I${top_builddir}/src
 
 filterpd_SOURCES = filterpd.c
-filterpd_LDADD = -lplCurve
+filterpd_LDADD = libplCurve.la
 filterpd_LDFLAGS = -static
 filterpd_CFLAGS = -I${top_builddir}/src
 
 splitpd_SOURCES = splitpd.c
-splitpd_LDADD = -lplCurve
+splitpd_LDADD = libplCurve.la
 splitpd_LDFLAGS = -static
 splitpd_CFLAGS = -I${top_builddir}/src
 
 computepd_SOURCES = computepd.c
-computepd_LDADD = -lplCurve
+computepd_LDADD = libplCurve.la
 computepd_LDFLAGS = -static
 computepd_CFLAGS = -I${top_builddir}/src
 
 joinpd_SOURCES = joinpd.c
-joinpd_LDADD = -lplCurve
+joinpd_LDADD = libplCurve.la
 joinpd_LDFLAGS = -static
 joinpd_CFLAGS = -I${top_builddir}/src
 
 spline_view_SOURCES = spline_view.c
-spline_view_LDADD = -lplCurve
+spline_view_LDADD = libplCurve.la
 spline_view_LDFLAGS = -static
 
 resample_SOURCES = resample.c
-resample_LDADD = -lplCurve
+resample_LDADD = libplCurve.la
 resample_LDFLAGS = -static
 
 plcurvature_SOURCES = plcurvature.c
-plcurvature_LDADD = -lplCurve
+plcurvature_LDADD = libplCurve.la
 plcurvature_LDFLAGS = -static
 
 plcrwalk_SOURCES = plcrwalk.c
-plcrwalk_LDADD = -lplCurve
+plcrwalk_LDADD = libplCurve.la
 
 ropelength_SOURCES = ropelength.c
-ropelength_LDADD = -lplCurve
+ropelength_LDADD = libplCurve.la
 
 struts_SOURCES = struts.c
-struts_LDADD = -lplCurve
+struts_LDADD = libplCurve.la
 
 roundout_rl_SOURCES = roundout_rl.c
-roundout_rl_LDADD = -lplCurve
+roundout_rl_LDADD = libplCurve.la
 
 mrlocs_SOURCES = mrlocs.c
-mrlocs_LDADD = -lplCurve
+mrlocs_LDADD = libplCurve.la
 
 #if HAVE_SWIG
 # BUILT_SOURCES = plCurve_wrap.c \

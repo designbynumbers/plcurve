@@ -22,6 +22,7 @@
 #endif
 
 #define VERBOSE 1
+int PD_VERBOSE=0;
 
 int gcd(int x, int y)
 {

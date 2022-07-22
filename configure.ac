@@ -19,7 +19,7 @@ AC_COPYRIGHT(
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT([libplCurve],[8.1.7],[cantarel@math.uga.edu])
+AC_INIT([libplCurve],[8.2.7],[jason.cantarella@uga.edu])
 #AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE()
 
@@ -40,7 +40,7 @@ AM_INIT_AUTOMAKE()
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
 #
-AC_SUBST(LIB_VERSION, 8:1:7)
+AC_SUBST(LIB_VERSION, 8:2:7)
 AC_CONFIG_SRCDIR([src/plCurve.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -86,16 +86,16 @@ AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x and higher
 
 # Python extension library checks (Python, Cython, numpy)
 AC_ARG_ENABLE([python],
-        [AS_HELP_STRING([--disable-python],
-                [do not build Python bindings])],
+        [AS_HELP_STRING([--enable-python],
+                [build Python bindings (currently deprecated until distutils dependency fixed)])],
         [enable_python=$enableval],
-        [enable_python=yes])
+        [enable_python=no])
 
 AC_ARG_ENABLE([cython],
-        [AS_HELP_STRING([--disable-cython],
-        [do not build libpl .c Python extension source from .pyx])],
+        [AS_HELP_STRING([--enable-cython],
+        [build libpl .c Python extension source from .pyx (deprecated until distutils dependency fixed)])],
         [enable_cython=$enableval],
-        [enable_cython=yes])
+        [enable_cython=no])
 
 AC_ARG_ENABLE([python-otherdir],
         [AS_HELP_STRING([--enable-python-otherdir],

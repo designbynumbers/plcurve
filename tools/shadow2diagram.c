@@ -5,6 +5,8 @@
 
 */
 
+#include <config.h>
+
 #include <plCurve.c>
 #include <plcTopology.h>
 #include <pd_multidx.h>
@@ -24,11 +26,14 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <Python.h>
-#include <pdcode/diagram_api.h>
+#ifdef HAVE_PYTHON
+  #include <Python.h>
+  #include <pdcode/diagram_api.h>
+#endif
 
 // Turn asserts ON.
 #define DEBUG 1
+int PD_VERBOSE=0;
 
 /* Global variables live here. */
 

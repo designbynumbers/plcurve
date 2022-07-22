@@ -42,7 +42,8 @@
 
 
 // Turn asserts ON.
-#define DEBUG 1 
+#define DEBUG 1
+int PD_VERBOSE = 0;
 
 /* Global variables live here. */
 

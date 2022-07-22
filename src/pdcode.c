@@ -9,7 +9,7 @@
 
 */
 
-int PD_VERBOSE;
+extern int PD_VERBOSE;
 
 #ifdef HAVE_CONFIG_H
   #include"config.h"

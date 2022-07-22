@@ -4,7 +4,16 @@ AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
 ACLOCAL_AMFLAGS = -I m4
 
 bin_PROGRAMS = processpdstor orientedshadows shadow2diagram randomknot
+
+if BUILD_PYTHON
+
 noinst_PROGRAMS = test_pyembed test_random_memleak
+
+else
+
+noinst_PROGRAMS = test_random_memleak
+
+endif
 
 test_pyembed_SOURCES = test_pyembed.c
 test_pyembed_LDADD = -lplCurve $(PYTHON_EXTRA_LIBS)

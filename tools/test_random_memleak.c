@@ -2,6 +2,9 @@
 #include <plcTopology.h>
 #include <stdio.h>
 #include <gsl/gsl_rng.h>
+
+int PD_VERBOSE=0;
+
 int main(int argc, char** argv) {
     plCurve* K;
     gsl_rng *r;
