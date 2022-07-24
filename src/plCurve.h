@@ -51,6 +51,7 @@ extern "C" {
   /* We now introduce a data type encoding a symmetry of a link. Such a symmetry has to include
      both a geometric transformation of space AND a corresponding map from each vertex of the
      plcurve to a target vertex. */
+#include <iso646.h>
 
   typedef double (plc_matrix)[3][3];
 
