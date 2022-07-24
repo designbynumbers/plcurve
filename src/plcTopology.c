@@ -339,7 +339,12 @@ char *pd_homfly_timeout(pd_code_t *pd, int timeout)
 
 }
 char *pd_homfly(pd_code_t *pd) {
-    return pd_homfly_timeout(pd, 300); /* Maximum of 5 minutes */
+  
+  pd_code_t *pds = pd_simplify(pd);
+  char *pd_homfly_result = pd_homfly_timeout(pd, 300); /* Maximum of 5 minutes */
+  pd_code_free(&pds);
+  
+  return pd_homfly_result;
 }
 
 char *plc_homfly( gsl_rng *rng, plCurve *L)
@@ -1345,7 +1350,7 @@ pd_code_t *pd_code_from_plCurve(gsl_rng *rng, plCurve *L) {
   pd_code_t  *pd = NULL;
   plc_vector new_axis = {{0,0,1}};
 
-  for(attempt_number=0;attempt_number < 3 && !pd_created;attempt_number++) {
+  for(attempt_number=0;attempt_number < 9 && !pd_created;attempt_number++) {
 
     /* Step 1. Rotate the whole thing randomly. */
 
