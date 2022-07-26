@@ -26,7 +26,8 @@ cp ../trt_raw/tangle_testg.pdstor .
 cp ../trt_raw/tangle_testh.c .
 cp ../trt_raw/tangle_testh.pdstor .
 
-python ./assemble_tangleregentest.py
+pyenv local 2.7.18; pyenv exec python2.7 $(pwd)/assemble_tangleregentest.py 
+
 cp ./test_tangle_regenerate_auto.c ../test_tangle_regenerate.c
 cd ..
 make ./test_tangle_regenerate

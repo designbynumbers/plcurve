@@ -566,10 +566,10 @@ bool is_0_crossing_diagram(pd_code_t *pd)
   if (pd->face == NULL) { return false; }
   if (pd->face[0].nedges != 1) { return false; }
   if (pd->face[0].edge[0] != 0) { return false; }
-  if (pd->face[0].or[0] != PD_POS_ORIENTATION) { return false; }
+  if (pd->face[0].orient[0] != PD_POS_ORIENTATION) { return false; }
   if (pd->face[1].nedges != 1) { return false; }
   if (pd->face[1].edge[0] != 0) { return false; }
-  if (pd->face[1].or[0] != PD_NEG_ORIENTATION) { return false; }
+  if (pd->face[1].orient[0] != PD_NEG_ORIENTATION) { return false; }
   
   if (pd->comp == NULL) { return false; }
   if (pd->comp[0].nedges != 1) { return false; }
@@ -820,69 +820,69 @@ pd->comp[0].edge[5] = 5;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 5;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 2;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 4;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 1;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 5;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 2;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 4;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 3;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[3].nedges = 1;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[4].nedges = 1;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 3;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 
 /* End of data. */
@@ -961,51 +961,51 @@ pd->comp[0].edge[3] = 3;
 
 pd->face[0].nedges = 3;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 2;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 1;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 2;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[2].nedges = 1;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[3].nedges = 1;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 3;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 
 /* End of data. */
@@ -1264,123 +1264,123 @@ pd->comp[1].edge[5] = 11;
 
 pd->face[0].nedges = 6;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 2;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 10;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 5;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[0].edge[5] = 7;
-pd->face[0].or[5] = 0;
+pd->face[0].orient[5] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 6;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 9;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 3;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 8;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 6;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 4;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 9;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 11;
-pd->face[3].or[2] = 0;
+pd->face[3].orient[2] = 0;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 5;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 11;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 8;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 7;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 4;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 10;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[7].nedges = 1;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 2;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 
 /* End of data. */
@@ -1520,105 +1520,105 @@ pd->comp[1].edge[3] = 9;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 7;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 4;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 9;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 3;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 7;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 6;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 2;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 9;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 5;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 3;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 5;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 8;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 1;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 6;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 4;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 8;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 
 /* End of data. */
@@ -1907,159 +1907,159 @@ pd->comp[1].edge[5] = 15;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 3;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 13;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 12;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 11;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 8;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 4;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 8;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 10;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 2;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 7;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 11;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[2].edge[3] = 13;
-pd->face[2].or[3] = 1;
+pd->face[2].orient[3] = 1;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 3;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 9;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 5;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[3].edge[3] = 14;
-pd->face[3].or[3] = 0;
+pd->face[3].orient[3] = 0;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 0;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 15;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 5;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 3;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 1;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 6;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[5].edge[2] = 15;
-pd->face[5].or[2] = 1;
+pd->face[5].orient[2] = 1;
 
 pd->face[6].nedges = 3;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 1;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 10;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[6].edge[2] = 7;
-pd->face[6].or[2] = 0;
+pd->face[6].orient[2] = 0;
 
 pd->face[7].nedges = 3;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 2;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 14;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 pd->face[7].edge[2] = 6;
-pd->face[7].or[2] = 1;
+pd->face[7].orient[2] = 1;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 4;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 9;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[9].nedges = 1;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 12;
-pd->face[9].or[0] = 0;
+pd->face[9].orient[0] = 0;
 
 
 /* End of data. */
@@ -2236,141 +2236,141 @@ pd->comp[1].edge[3] = 13;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 4;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 8;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 10;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 3;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 9;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 5;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 12;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 13;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 5;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 6;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 13;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 1;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 10;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 7;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 3;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 2;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 7;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[5].edge[2] = 11;
-pd->face[5].or[2] = 1;
+pd->face[5].orient[2] = 1;
 
 pd->face[6].nedges = 3;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 2;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 12;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[6].edge[2] = 6;
-pd->face[6].or[2] = 1;
+pd->face[6].orient[2] = 1;
 
 pd->face[7].nedges = 3;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 3;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 11;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[7].edge[2] = 8;
-pd->face[7].or[2] = 1;
+pd->face[7].orient[2] = 1;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 4;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 9;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 
 /* End of data. */
@@ -2794,285 +2794,285 @@ pd->comp[2].edge[5] = 29;
 
 pd->face[0].nedges = 7;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 6;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 29;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 28;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 27;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[0].edge[5] = 19;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[0].edge[6] = 8;
-pd->face[0].or[6] = 0;
+pd->face[0].orient[6] = 0;
 
 pd->face[1].nedges = 7;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 21;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 13;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 23;
-pd->face[1].or[3] = 1;
+pd->face[1].orient[3] = 1;
 
 pd->face[1].edge[4] = 15;
-pd->face[1].or[4] = 1;
+pd->face[1].orient[4] = 1;
 
 pd->face[1].edge[5] = 11;
-pd->face[1].or[5] = 1;
+pd->face[1].orient[5] = 1;
 
 pd->face[1].edge[6] = 7;
-pd->face[1].or[6] = 1;
+pd->face[1].orient[6] = 1;
 
 pd->face[2].nedges = 5;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 2;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 10;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 15;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 12;
-pd->face[2].or[3] = 1;
+pd->face[2].orient[3] = 1;
 
 pd->face[2].edge[4] = 21;
-pd->face[2].or[4] = 0;
+pd->face[2].orient[4] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 3;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 9;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 19;
-pd->face[3].or[2] = 0;
+pd->face[3].orient[2] = 0;
 
 pd->face[3].edge[3] = 26;
-pd->face[3].or[3] = 0;
+pd->face[3].orient[3] = 0;
 
 pd->face[4].nedges = 4;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 3;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 25;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 16;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[4].edge[3] = 10;
-pd->face[4].or[3] = 0;
+pd->face[4].orient[3] = 0;
 
 pd->face[5].nedges = 4;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 5;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 18;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[5].edge[2] = 27;
-pd->face[5].or[2] = 1;
+pd->face[5].orient[2] = 1;
 
 pd->face[5].edge[3] = 29;
-pd->face[5].or[3] = 1;
+pd->face[5].orient[3] = 1;
 
 pd->face[6].nedges = 4;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 6;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 11;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[6].edge[2] = 16;
-pd->face[6].or[2] = 1;
+pd->face[6].orient[2] = 1;
 
 pd->face[6].edge[3] = 24;
-pd->face[6].or[3] = 0;
+pd->face[6].orient[3] = 0;
 
 pd->face[7].nedges = 3;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 1;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 8;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 pd->face[7].edge[2] = 20;
-pd->face[7].or[2] = 1;
+pd->face[7].orient[2] = 1;
 
 pd->face[8].nedges = 3;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 2;
-pd->face[8].or[0] = 0;
+pd->face[8].orient[0] = 0;
 
 pd->face[8].edge[1] = 20;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[8].edge[2] = 9;
-pd->face[8].or[2] = 1;
+pd->face[8].orient[2] = 1;
 
 pd->face[9].nedges = 3;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 4;
-pd->face[9].or[0] = 1;
+pd->face[9].orient[0] = 1;
 
 pd->face[9].edge[1] = 17;
-pd->face[9].or[1] = 0;
+pd->face[9].orient[1] = 0;
 
 pd->face[9].edge[2] = 25;
-pd->face[9].or[2] = 1;
+pd->face[9].orient[2] = 1;
 
 pd->face[10].nedges = 3;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 4;
-pd->face[10].or[0] = 0;
+pd->face[10].orient[0] = 0;
 
 pd->face[10].edge[1] = 26;
-pd->face[10].or[1] = 1;
+pd->face[10].orient[1] = 1;
 
 pd->face[10].edge[2] = 18;
-pd->face[10].or[2] = 0;
+pd->face[10].orient[2] = 0;
 
 pd->face[11].nedges = 3;
 pd->face[11].edge = calloc(pd->face[11].nedges,sizeof(pd_idx_t));
-pd->face[11].or = calloc(pd->face[11].nedges,sizeof(pd_or_t));
+pd->face[11].orient = calloc(pd->face[11].nedges,sizeof(pd_or_t));
 assert(pd->face[11].edge != NULL);
-assert(pd->face[11].or != NULL);
+assert(pd->face[11].orient != NULL);
 
 pd->face[11].edge[0] = 5;
-pd->face[11].or[0] = 1;
+pd->face[11].orient[0] = 1;
 
 pd->face[11].edge[1] = 24;
-pd->face[11].or[1] = 1;
+pd->face[11].orient[1] = 1;
 
 pd->face[11].edge[2] = 17;
-pd->face[11].or[2] = 1;
+pd->face[11].orient[2] = 1;
 
 pd->face[12].nedges = 3;
 pd->face[12].edge = calloc(pd->face[12].nedges,sizeof(pd_idx_t));
-pd->face[12].or = calloc(pd->face[12].nedges,sizeof(pd_or_t));
+pd->face[12].orient = calloc(pd->face[12].nedges,sizeof(pd_or_t));
 assert(pd->face[12].edge != NULL);
-assert(pd->face[12].or != NULL);
+assert(pd->face[12].orient != NULL);
 
 pd->face[12].edge[0] = 12;
-pd->face[12].or[0] = 0;
+pd->face[12].orient[0] = 0;
 
 pd->face[12].edge[1] = 14;
-pd->face[12].or[1] = 0;
+pd->face[12].orient[1] = 0;
 
 pd->face[12].edge[2] = 22;
-pd->face[12].or[2] = 0;
+pd->face[12].orient[2] = 0;
 
 pd->face[13].nedges = 2;
 pd->face[13].edge = calloc(pd->face[13].nedges,sizeof(pd_idx_t));
-pd->face[13].or = calloc(pd->face[13].nedges,sizeof(pd_or_t));
+pd->face[13].orient = calloc(pd->face[13].nedges,sizeof(pd_or_t));
 assert(pd->face[13].edge != NULL);
-assert(pd->face[13].or != NULL);
+assert(pd->face[13].orient != NULL);
 
 pd->face[13].edge[0] = 0;
-pd->face[13].or[0] = 1;
+pd->face[13].orient[0] = 1;
 
 pd->face[13].edge[1] = 7;
-pd->face[13].or[1] = 0;
+pd->face[13].orient[1] = 0;
 
 pd->face[14].nedges = 2;
 pd->face[14].edge = calloc(pd->face[14].nedges,sizeof(pd_idx_t));
-pd->face[14].or = calloc(pd->face[14].nedges,sizeof(pd_or_t));
+pd->face[14].orient = calloc(pd->face[14].nedges,sizeof(pd_or_t));
 assert(pd->face[14].edge != NULL);
-assert(pd->face[14].or != NULL);
+assert(pd->face[14].orient != NULL);
 
 pd->face[14].edge[0] = 13;
-pd->face[14].or[0] = 0;
+pd->face[14].orient[0] = 0;
 
 pd->face[14].edge[1] = 22;
-pd->face[14].or[1] = 1;
+pd->face[14].orient[1] = 1;
 
 pd->face[15].nedges = 2;
 pd->face[15].edge = calloc(pd->face[15].nedges,sizeof(pd_idx_t));
-pd->face[15].or = calloc(pd->face[15].nedges,sizeof(pd_or_t));
+pd->face[15].orient = calloc(pd->face[15].nedges,sizeof(pd_or_t));
 assert(pd->face[15].edge != NULL);
-assert(pd->face[15].or != NULL);
+assert(pd->face[15].orient != NULL);
 
 pd->face[15].edge[0] = 14;
-pd->face[15].or[0] = 1;
+pd->face[15].orient[0] = 1;
 
 pd->face[15].edge[1] = 23;
-pd->face[15].or[1] = 0;
+pd->face[15].orient[1] = 0;
 
 pd->face[16].nedges = 1;
 pd->face[16].edge = calloc(pd->face[16].nedges,sizeof(pd_idx_t));
-pd->face[16].or = calloc(pd->face[16].nedges,sizeof(pd_or_t));
+pd->face[16].orient = calloc(pd->face[16].nedges,sizeof(pd_or_t));
 assert(pd->face[16].edge != NULL);
-assert(pd->face[16].or != NULL);
+assert(pd->face[16].orient != NULL);
 
 pd->face[16].edge[0] = 28;
-pd->face[16].or[0] = 0;
+pd->face[16].orient[0] = 0;
 
 
 /* End of data. */
@@ -3382,267 +3382,267 @@ pd->comp[2].edge[3] = 27;
 
 pd->face[0].nedges = 7;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 21;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 13;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 23;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 15;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[0].edge[5] = 11;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[0].edge[6] = 7;
-pd->face[0].or[6] = 1;
+pd->face[0].orient[6] = 1;
 
 pd->face[1].nedges = 5;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 6;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 27;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 19;
-pd->face[1].or[3] = 1;
+pd->face[1].orient[3] = 1;
 
 pd->face[1].edge[4] = 8;
-pd->face[1].or[4] = 0;
+pd->face[1].orient[4] = 0;
 
 pd->face[2].nedges = 5;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 2;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 10;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 15;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 12;
-pd->face[2].or[3] = 1;
+pd->face[2].orient[3] = 1;
 
 pd->face[2].edge[4] = 21;
-pd->face[2].or[4] = 0;
+pd->face[2].orient[4] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 3;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 9;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 19;
-pd->face[3].or[2] = 0;
+pd->face[3].orient[2] = 0;
 
 pd->face[3].edge[3] = 26;
-pd->face[3].or[3] = 0;
+pd->face[3].orient[3] = 0;
 
 pd->face[4].nedges = 4;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 3;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 25;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 16;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[4].edge[3] = 10;
-pd->face[4].or[3] = 0;
+pd->face[4].orient[3] = 0;
 
 pd->face[5].nedges = 4;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 6;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 11;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[5].edge[2] = 16;
-pd->face[5].or[2] = 1;
+pd->face[5].orient[2] = 1;
 
 pd->face[5].edge[3] = 24;
-pd->face[5].or[3] = 0;
+pd->face[5].orient[3] = 0;
 
 pd->face[6].nedges = 3;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 1;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 8;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[6].edge[2] = 20;
-pd->face[6].or[2] = 1;
+pd->face[6].orient[2] = 1;
 
 pd->face[7].nedges = 3;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 2;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 20;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[7].edge[2] = 9;
-pd->face[7].or[2] = 1;
+pd->face[7].orient[2] = 1;
 
 pd->face[8].nedges = 3;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 4;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 17;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[8].edge[2] = 25;
-pd->face[8].or[2] = 1;
+pd->face[8].orient[2] = 1;
 
 pd->face[9].nedges = 3;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 4;
-pd->face[9].or[0] = 0;
+pd->face[9].orient[0] = 0;
 
 pd->face[9].edge[1] = 26;
-pd->face[9].or[1] = 1;
+pd->face[9].orient[1] = 1;
 
 pd->face[9].edge[2] = 18;
-pd->face[9].or[2] = 0;
+pd->face[9].orient[2] = 0;
 
 pd->face[10].nedges = 3;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 5;
-pd->face[10].or[0] = 0;
+pd->face[10].orient[0] = 0;
 
 pd->face[10].edge[1] = 18;
-pd->face[10].or[1] = 1;
+pd->face[10].orient[1] = 1;
 
 pd->face[10].edge[2] = 27;
-pd->face[10].or[2] = 1;
+pd->face[10].orient[2] = 1;
 
 pd->face[11].nedges = 3;
 pd->face[11].edge = calloc(pd->face[11].nedges,sizeof(pd_idx_t));
-pd->face[11].or = calloc(pd->face[11].nedges,sizeof(pd_or_t));
+pd->face[11].orient = calloc(pd->face[11].nedges,sizeof(pd_or_t));
 assert(pd->face[11].edge != NULL);
-assert(pd->face[11].or != NULL);
+assert(pd->face[11].orient != NULL);
 
 pd->face[11].edge[0] = 5;
-pd->face[11].or[0] = 1;
+pd->face[11].orient[0] = 1;
 
 pd->face[11].edge[1] = 24;
-pd->face[11].or[1] = 1;
+pd->face[11].orient[1] = 1;
 
 pd->face[11].edge[2] = 17;
-pd->face[11].or[2] = 1;
+pd->face[11].orient[2] = 1;
 
 pd->face[12].nedges = 3;
 pd->face[12].edge = calloc(pd->face[12].nedges,sizeof(pd_idx_t));
-pd->face[12].or = calloc(pd->face[12].nedges,sizeof(pd_or_t));
+pd->face[12].orient = calloc(pd->face[12].nedges,sizeof(pd_or_t));
 assert(pd->face[12].edge != NULL);
-assert(pd->face[12].or != NULL);
+assert(pd->face[12].orient != NULL);
 
 pd->face[12].edge[0] = 12;
-pd->face[12].or[0] = 0;
+pd->face[12].orient[0] = 0;
 
 pd->face[12].edge[1] = 14;
-pd->face[12].or[1] = 0;
+pd->face[12].orient[1] = 0;
 
 pd->face[12].edge[2] = 22;
-pd->face[12].or[2] = 0;
+pd->face[12].orient[2] = 0;
 
 pd->face[13].nedges = 2;
 pd->face[13].edge = calloc(pd->face[13].nedges,sizeof(pd_idx_t));
-pd->face[13].or = calloc(pd->face[13].nedges,sizeof(pd_or_t));
+pd->face[13].orient = calloc(pd->face[13].nedges,sizeof(pd_or_t));
 assert(pd->face[13].edge != NULL);
-assert(pd->face[13].or != NULL);
+assert(pd->face[13].orient != NULL);
 
 pd->face[13].edge[0] = 0;
-pd->face[13].or[0] = 1;
+pd->face[13].orient[0] = 1;
 
 pd->face[13].edge[1] = 7;
-pd->face[13].or[1] = 0;
+pd->face[13].orient[1] = 0;
 
 pd->face[14].nedges = 2;
 pd->face[14].edge = calloc(pd->face[14].nedges,sizeof(pd_idx_t));
-pd->face[14].or = calloc(pd->face[14].nedges,sizeof(pd_or_t));
+pd->face[14].orient = calloc(pd->face[14].nedges,sizeof(pd_or_t));
 assert(pd->face[14].edge != NULL);
-assert(pd->face[14].or != NULL);
+assert(pd->face[14].orient != NULL);
 
 pd->face[14].edge[0] = 13;
-pd->face[14].or[0] = 0;
+pd->face[14].orient[0] = 0;
 
 pd->face[14].edge[1] = 22;
-pd->face[14].or[1] = 1;
+pd->face[14].orient[1] = 1;
 
 pd->face[15].nedges = 2;
 pd->face[15].edge = calloc(pd->face[15].nedges,sizeof(pd_idx_t));
-pd->face[15].or = calloc(pd->face[15].nedges,sizeof(pd_or_t));
+pd->face[15].orient = calloc(pd->face[15].nedges,sizeof(pd_or_t));
 assert(pd->face[15].edge != NULL);
-assert(pd->face[15].or != NULL);
+assert(pd->face[15].orient != NULL);
 
 pd->face[15].edge[0] = 14;
-pd->face[15].or[0] = 1;
+pd->face[15].orient[0] = 1;
 
 pd->face[15].edge[1] = 23;
-pd->face[15].or[1] = 0;
+pd->face[15].orient[1] = 0;
 
 
 /* End of data. */
@@ -3865,87 +3865,87 @@ pd->comp[0].edge[7] = 7;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 5;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 4;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 3;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 7;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 3;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 5;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 6;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 2;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 6;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 7;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[5].nedges = 1;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 4;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 
 /* End of data. */
@@ -4043,69 +4043,69 @@ pd->comp[0].edge[5] = 5;
 
 pd->face[0].nedges = 3;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 4;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 2;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 3;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 5;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 3;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 4;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 5;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 
 /* End of data. */
@@ -4367,123 +4367,123 @@ pd->comp[1].edge[1] = 11;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 5;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 11;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 3;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 7;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[1].nedges = 5;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 8;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 10;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[1].edge[4] = 5;
-pd->face[1].or[4] = 1;
+pd->face[1].orient[4] = 1;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 6;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 9;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 9;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 7;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 0;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 6;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 2;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 8;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 4;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 10;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 4;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 11;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 
 /* End of data. */
@@ -4601,87 +4601,87 @@ pd->comp[0].edge[7] = 7;
 
 pd->face[0].nedges = 3;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 3;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 5;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 4;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 7;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 6;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 3;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 7;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 5;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 0;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 4;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 2;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 6;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 
 /* End of data. */
@@ -4731,21 +4731,21 @@ pd->comp[0].edge[0] = 0;
 
 pd->face[0].nedges = 1;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[1].nedges = 1;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 
 /* End of data. */
@@ -5037,123 +5037,123 @@ pd->comp[0].edge[11] = 11;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 8;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 10;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 6;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 7;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 11;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 5;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 4;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 8;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 5;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 10;
-pd->face[3].or[2] = 0;
+pd->face[3].orient[2] = 0;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 9;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 4;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 7;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 3;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 9;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 6;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 11;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 
 /* End of data. */
@@ -5271,87 +5271,87 @@ pd->comp[0].edge[7] = 7;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 2;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 6;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 5;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 7;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 3;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 6;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 4;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 5;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 4;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 7;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[5].nedges = 1;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 2;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 
 /* End of data. */
@@ -5650,123 +5650,123 @@ pd->comp[1].edge[5] = 11;
 
 pd->face[0].nedges = 6;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 7;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 2;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 9;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 4;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[0].edge[5] = 11;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[1].nedges = 6;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 6;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 5;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 10;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[1].edge[4] = 3;
-pd->face[1].or[4] = 0;
+pd->face[1].orient[4] = 0;
 
 pd->face[1].edge[5] = 8;
-pd->face[1].or[5] = 0;
+pd->face[1].orient[5] = 0;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 6;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 7;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 8;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 3;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 9;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 4;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 10;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 5;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 11;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 
 /* End of data. */
@@ -5891,87 +5891,87 @@ pd->comp[1].edge[3] = 7;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 5;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 2;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 7;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 4;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 6;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 4;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 5;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 6;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 3;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 7;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 
 /* End of data. */
@@ -6380,231 +6380,231 @@ pd->comp[2].edge[3] = 23;
 
 pd->face[0].nedges = 8;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 23;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 10;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 13;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 16;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[0].edge[5] = 6;
-pd->face[0].or[5] = 0;
+pd->face[0].orient[5] = 0;
 
 pd->face[0].edge[6] = 2;
-pd->face[0].or[6] = 0;
+pd->face[0].orient[6] = 0;
 
 pd->face[0].edge[7] = 4;
-pd->face[0].or[7] = 0;
+pd->face[0].orient[7] = 0;
 
 pd->face[1].nedges = 7;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 7;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 16;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 12;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 14;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[1].edge[4] = 10;
-pd->face[1].or[4] = 0;
+pd->face[1].orient[4] = 0;
 
 pd->face[1].edge[5] = 22;
-pd->face[1].or[5] = 0;
+pd->face[1].orient[5] = 0;
 
 pd->face[1].edge[6] = 18;
-pd->face[1].or[6] = 0;
+pd->face[1].orient[6] = 0;
 
 pd->face[2].nedges = 6;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 3;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 6;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[2].edge[3] = 17;
-pd->face[2].or[3] = 1;
+pd->face[2].orient[3] = 1;
 
 pd->face[2].edge[4] = 8;
-pd->face[2].or[4] = 1;
+pd->face[2].orient[4] = 1;
 
 pd->face[2].edge[5] = 20;
-pd->face[2].or[5] = 0;
+pd->face[2].orient[5] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 9;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 21;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 19;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[3].edge[3] = 23;
-pd->face[3].or[3] = 1;
+pd->face[3].orient[3] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 1;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 5;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 3;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[5].nedges = 3;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 8;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 18;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[5].edge[2] = 21;
-pd->face[5].or[2] = 0;
+pd->face[5].orient[2] = 0;
 
 pd->face[6].nedges = 3;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 11;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 15;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[6].edge[2] = 13;
-pd->face[6].or[2] = 1;
+pd->face[6].orient[2] = 1;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 1;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 4;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 2;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 5;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[9].nedges = 2;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 7;
-pd->face[9].or[0] = 1;
+pd->face[9].orient[0] = 1;
 
 pd->face[9].edge[1] = 17;
-pd->face[9].or[1] = 0;
+pd->face[9].orient[1] = 0;
 
 pd->face[10].nedges = 2;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 9;
-pd->face[10].or[0] = 1;
+pd->face[10].orient[0] = 1;
 
 pd->face[10].edge[1] = 20;
-pd->face[10].or[1] = 1;
+pd->face[10].orient[1] = 1;
 
 pd->face[11].nedges = 2;
 pd->face[11].edge = calloc(pd->face[11].nedges,sizeof(pd_idx_t));
-pd->face[11].or = calloc(pd->face[11].nedges,sizeof(pd_or_t));
+pd->face[11].orient = calloc(pd->face[11].nedges,sizeof(pd_or_t));
 assert(pd->face[11].edge != NULL);
-assert(pd->face[11].or != NULL);
+assert(pd->face[11].orient != NULL);
 
 pd->face[11].edge[0] = 11;
-pd->face[11].or[0] = 0;
+pd->face[11].orient[0] = 0;
 
 pd->face[11].edge[1] = 14;
-pd->face[11].or[1] = 1;
+pd->face[11].orient[1] = 1;
 
 pd->face[12].nedges = 2;
 pd->face[12].edge = calloc(pd->face[12].nedges,sizeof(pd_idx_t));
-pd->face[12].or = calloc(pd->face[12].nedges,sizeof(pd_or_t));
+pd->face[12].orient = calloc(pd->face[12].nedges,sizeof(pd_or_t));
 assert(pd->face[12].edge != NULL);
-assert(pd->face[12].or != NULL);
+assert(pd->face[12].orient != NULL);
 
 pd->face[12].edge[0] = 12;
-pd->face[12].or[0] = 1;
+pd->face[12].orient[0] = 1;
 
 pd->face[12].edge[1] = 15;
-pd->face[12].or[1] = 0;
+pd->face[12].orient[1] = 0;
 
 pd->face[13].nedges = 2;
 pd->face[13].edge = calloc(pd->face[13].nedges,sizeof(pd_idx_t));
-pd->face[13].or = calloc(pd->face[13].nedges,sizeof(pd_or_t));
+pd->face[13].orient = calloc(pd->face[13].nedges,sizeof(pd_or_t));
 assert(pd->face[13].edge != NULL);
-assert(pd->face[13].or != NULL);
+assert(pd->face[13].orient != NULL);
 
 pd->face[13].edge[0] = 19;
-pd->face[13].or[0] = 0;
+pd->face[13].orient[0] = 0;
 
 pd->face[13].edge[1] = 22;
-pd->face[13].or[1] = 1;
+pd->face[13].orient[1] = 1;
 
 
 /* End of data. */
@@ -6844,195 +6844,195 @@ pd->comp[2].edge[1] = 19;
 
 pd->face[0].nedges = 9;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 3;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 6;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 16;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 12;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[0].edge[5] = 14;
-pd->face[0].or[5] = 0;
+pd->face[0].orient[5] = 0;
 
 pd->face[0].edge[6] = 10;
-pd->face[0].or[6] = 0;
+pd->face[0].orient[6] = 0;
 
 pd->face[0].edge[7] = 8;
-pd->face[0].or[7] = 1;
+pd->face[0].orient[7] = 1;
 
 pd->face[0].edge[8] = 19;
-pd->face[0].or[8] = 0;
+pd->face[0].orient[8] = 0;
 
 pd->face[1].nedges = 7;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 18;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 8;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 17;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[1].edge[4] = 6;
-pd->face[1].or[4] = 0;
+pd->face[1].orient[4] = 0;
 
 pd->face[1].edge[5] = 2;
-pd->face[1].or[5] = 0;
+pd->face[1].orient[5] = 0;
 
 pd->face[1].edge[6] = 4;
-pd->face[1].or[6] = 0;
+pd->face[1].orient[6] = 0;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 7;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 10;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 13;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 16;
-pd->face[2].or[3] = 1;
+pd->face[2].orient[3] = 1;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 5;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 3;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 11;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 15;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 13;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 1;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 4;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 2;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 5;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 7;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 17;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 9;
-pd->face[8].or[0] = 0;
+pd->face[8].orient[0] = 0;
 
 pd->face[8].edge[1] = 18;
-pd->face[8].or[1] = 1;
+pd->face[8].orient[1] = 1;
 
 pd->face[9].nedges = 2;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 9;
-pd->face[9].or[0] = 1;
+pd->face[9].orient[0] = 1;
 
 pd->face[9].edge[1] = 19;
-pd->face[9].or[1] = 1;
+pd->face[9].orient[1] = 1;
 
 pd->face[10].nedges = 2;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 11;
-pd->face[10].or[0] = 0;
+pd->face[10].orient[0] = 0;
 
 pd->face[10].edge[1] = 14;
-pd->face[10].or[1] = 1;
+pd->face[10].orient[1] = 1;
 
 pd->face[11].nedges = 2;
 pd->face[11].edge = calloc(pd->face[11].nedges,sizeof(pd_idx_t));
-pd->face[11].or = calloc(pd->face[11].nedges,sizeof(pd_or_t));
+pd->face[11].orient = calloc(pd->face[11].nedges,sizeof(pd_or_t));
 assert(pd->face[11].edge != NULL);
-assert(pd->face[11].or != NULL);
+assert(pd->face[11].orient != NULL);
 
 pd->face[11].edge[0] = 12;
-pd->face[11].or[0] = 1;
+pd->face[11].orient[0] = 1;
 
 pd->face[11].edge[1] = 15;
-pd->face[11].or[1] = 0;
+pd->face[11].orient[1] = 0;
 
 
 /* End of data. */
@@ -7251,51 +7251,51 @@ pd->comp[0].edge[3] = 3;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 3;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 2;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 1;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[1].nedges = 2;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 3;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[2].nedges = 1;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[3].nedges = 1;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 
 /* End of data. */
@@ -7347,21 +7347,21 @@ pd->comp[0].edge[0] = 0;
 
 pd->face[0].nedges = 1;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[1].nedges = 1;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 
 /* End of data. */
@@ -7593,69 +7593,69 @@ pd->comp[0].edge[5] = 5;
 
 pd->face[0].nedges = 3;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 2;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 4;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 5;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 3;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 4;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 5;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 
 /* End of data. */
@@ -7719,33 +7719,33 @@ pd->comp[0].edge[1] = 1;
 
 pd->face[0].nedges = 2;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 1;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[1].nedges = 1;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[2].nedges = 1;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 
 /* End of data. */
@@ -8110,195 +8110,195 @@ pd->comp[1].edge[7] = 19;
 
 pd->face[0].nedges = 10;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 6;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 15;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 19;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 17;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[0].edge[5] = 13;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[0].edge[6] = 8;
-pd->face[0].or[6] = 1;
+pd->face[0].orient[6] = 1;
 
 pd->face[0].edge[7] = 2;
-pd->face[0].or[7] = 1;
+pd->face[0].orient[7] = 1;
 
 pd->face[0].edge[8] = 10;
-pd->face[0].or[8] = 1;
+pd->face[0].orient[8] = 1;
 
 pd->face[0].edge[9] = 4;
-pd->face[0].or[9] = 1;
+pd->face[0].orient[9] = 1;
 
 pd->face[1].nedges = 5;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 5;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 11;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 3;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[1].edge[4] = 9;
-pd->face[1].or[4] = 0;
+pd->face[1].orient[4] = 0;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 8;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 14;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[2].edge[3] = 6;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 7;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 13;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 18;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[3].edge[3] = 15;
-pd->face[3].or[3] = 0;
+pd->face[3].orient[3] = 0;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 12;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 16;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 18;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 5;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 2;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 9;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 3;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 10;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 4;
-pd->face[8].or[0] = 0;
+pd->face[8].orient[0] = 0;
 
 pd->face[8].edge[1] = 11;
-pd->face[8].or[1] = 1;
+pd->face[8].orient[1] = 1;
 
 pd->face[9].nedges = 2;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 7;
-pd->face[9].or[0] = 0;
+pd->face[9].orient[0] = 0;
 
 pd->face[9].edge[1] = 14;
-pd->face[9].or[1] = 0;
+pd->face[9].orient[1] = 0;
 
 pd->face[10].nedges = 2;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 12;
-pd->face[10].or[0] = 1;
+pd->face[10].orient[0] = 1;
 
 pd->face[10].edge[1] = 17;
-pd->face[10].or[1] = 0;
+pd->face[10].orient[1] = 0;
 
 pd->face[11].nedges = 2;
 pd->face[11].edge = calloc(pd->face[11].nedges,sizeof(pd_idx_t));
-pd->face[11].or = calloc(pd->face[11].nedges,sizeof(pd_or_t));
+pd->face[11].orient = calloc(pd->face[11].nedges,sizeof(pd_or_t));
 assert(pd->face[11].edge != NULL);
-assert(pd->face[11].or != NULL);
+assert(pd->face[11].orient != NULL);
 
 pd->face[11].edge[0] = 16;
-pd->face[11].or[0] = 1;
+pd->face[11].orient[0] = 1;
 
 pd->face[11].edge[1] = 19;
-pd->face[11].or[1] = 0;
+pd->face[11].orient[1] = 0;
 
 
 /* End of data. */
@@ -8434,105 +8434,105 @@ pd->comp[0].edge[9] = 9;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 6;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 2;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 8;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 4;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[1].nedges = 5;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 5;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 9;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 3;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[1].edge[4] = 7;
-pd->face[1].or[4] = 0;
+pd->face[1].orient[4] = 0;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 5;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 6;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 7;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 3;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 8;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 4;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 9;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 
 /* End of data. */
@@ -8630,69 +8630,69 @@ pd->comp[0].edge[5] = 5;
 
 pd->face[0].nedges = 3;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 2;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 4;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 5;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 3;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 4;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 5;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 
 /* End of data. */
@@ -9072,195 +9072,195 @@ pd->comp[2].edge[3] = 19;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 12;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 11;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 16;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[1].nedges = 5;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 5;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 14;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 7;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 18;
-pd->face[1].or[3] = 1;
+pd->face[1].orient[3] = 1;
 
 pd->face[1].edge[4] = 9;
-pd->face[1].or[4] = 1;
+pd->face[1].orient[4] = 1;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 19;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 8;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 17;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 17;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 7;
-pd->face[3].or[2] = 0;
+pd->face[3].orient[2] = 0;
 
 pd->face[3].edge[3] = 15;
-pd->face[3].or[3] = 1;
+pd->face[3].orient[3] = 1;
 
 pd->face[4].nedges = 4;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 15;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 6;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[4].edge[3] = 13;
-pd->face[4].or[3] = 0;
+pd->face[4].orient[3] = 0;
 
 pd->face[5].nedges = 4;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 3;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 13;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[5].edge[2] = 5;
-pd->face[5].or[2] = 0;
+pd->face[5].orient[2] = 0;
 
 pd->face[5].edge[3] = 10;
-pd->face[5].or[3] = 1;
+pd->face[5].orient[3] = 1;
 
 pd->face[6].nedges = 4;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 4;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 9;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[6].edge[2] = 19;
-pd->face[6].or[2] = 1;
+pd->face[6].orient[2] = 1;
 
 pd->face[6].edge[3] = 11;
-pd->face[6].or[3] = 0;
+pd->face[6].orient[3] = 0;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 0;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 16;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 2;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 12;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[9].nedges = 2;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 4;
-pd->face[9].or[0] = 0;
+pd->face[9].orient[0] = 0;
 
 pd->face[9].edge[1] = 10;
-pd->face[9].or[1] = 0;
+pd->face[9].orient[1] = 0;
 
 pd->face[10].nedges = 2;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 6;
-pd->face[10].or[0] = 1;
+pd->face[10].orient[0] = 1;
 
 pd->face[10].edge[1] = 14;
-pd->face[10].or[1] = 0;
+pd->face[10].orient[1] = 0;
 
 pd->face[11].nedges = 2;
 pd->face[11].edge = calloc(pd->face[11].nedges,sizeof(pd_idx_t));
-pd->face[11].or = calloc(pd->face[11].nedges,sizeof(pd_or_t));
+pd->face[11].orient = calloc(pd->face[11].nedges,sizeof(pd_or_t));
 assert(pd->face[11].edge != NULL);
-assert(pd->face[11].or != NULL);
+assert(pd->face[11].orient != NULL);
 
 pd->face[11].edge[0] = 8;
-pd->face[11].or[0] = 1;
+pd->face[11].orient[0] = 1;
 
 pd->face[11].edge[1] = 18;
-pd->face[11].or[1] = 0;
+pd->face[11].orient[1] = 0;
 
 
 /* End of data. */
@@ -9464,159 +9464,159 @@ pd->comp[2].edge[1] = 15;
 
 pd->face[0].nedges = 6;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 11;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 5;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 14;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 3;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[0].edge[5] = 8;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[1].nedges = 5;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 3;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 15;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 5;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 12;
-pd->face[1].or[3] = 1;
+pd->face[1].orient[3] = 1;
 
 pd->face[1].edge[4] = 7;
-pd->face[1].or[4] = 1;
+pd->face[1].orient[4] = 1;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 13;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 6;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 11;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 7;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 13;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[3].edge[3] = 9;
-pd->face[3].or[3] = 0;
+pd->face[3].orient[3] = 0;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 1;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 9;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 10;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 10;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 2;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 8;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 4;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 14;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 4;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 15;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[9].nedges = 2;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 6;
-pd->face[9].or[0] = 1;
+pd->face[9].orient[0] = 1;
 
 pd->face[9].edge[1] = 12;
-pd->face[9].or[1] = 0;
+pd->face[9].orient[1] = 0;
 
 
 /* End of data. */
@@ -10011,195 +10011,195 @@ pd->comp[5].edge[1] = 19;
 
 pd->face[0].nedges = 10;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 5;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 9;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 13;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 19;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[0].edge[5] = 15;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[0].edge[6] = 11;
-pd->face[0].or[6] = 1;
+pd->face[0].orient[6] = 1;
 
 pd->face[0].edge[7] = 7;
-pd->face[0].or[7] = 1;
+pd->face[0].orient[7] = 1;
 
 pd->face[0].edge[8] = 3;
-pd->face[0].or[8] = 1;
+pd->face[0].orient[8] = 1;
 
 pd->face[0].edge[9] = 16;
-pd->face[0].or[9] = 0;
+pd->face[0].orient[9] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 17;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 4;
-pd->face[1].or[3] = 1;
+pd->face[1].orient[3] = 1;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 2;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 7;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 8;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[2].edge[3] = 5;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 6;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 11;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 12;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[3].edge[3] = 9;
-pd->face[3].or[3] = 0;
+pd->face[3].orient[3] = 0;
 
 pd->face[4].nedges = 4;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 10;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 15;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 18;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[4].edge[3] = 13;
-pd->face[4].or[3] = 0;
+pd->face[4].orient[3] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 16;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 0;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 17;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 2;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 4;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 6;
-pd->face[8].or[0] = 0;
+pd->face[8].orient[0] = 0;
 
 pd->face[8].edge[1] = 8;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[9].nedges = 2;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 10;
-pd->face[9].or[0] = 0;
+pd->face[9].orient[0] = 0;
 
 pd->face[9].edge[1] = 12;
-pd->face[9].or[1] = 0;
+pd->face[9].orient[1] = 0;
 
 pd->face[10].nedges = 2;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 14;
-pd->face[10].or[0] = 0;
+pd->face[10].orient[0] = 0;
 
 pd->face[10].edge[1] = 18;
-pd->face[10].or[1] = 0;
+pd->face[10].orient[1] = 0;
 
 pd->face[11].nedges = 2;
 pd->face[11].edge = calloc(pd->face[11].nedges,sizeof(pd_idx_t));
-pd->face[11].or = calloc(pd->face[11].nedges,sizeof(pd_or_t));
+pd->face[11].orient = calloc(pd->face[11].nedges,sizeof(pd_or_t));
 assert(pd->face[11].edge != NULL);
-assert(pd->face[11].or != NULL);
+assert(pd->face[11].orient != NULL);
 
 pd->face[11].edge[0] = 14;
-pd->face[11].or[0] = 1;
+pd->face[11].orient[0] = 1;
 
 pd->face[11].edge[1] = 19;
-pd->face[11].or[1] = 0;
+pd->face[11].orient[1] = 0;
 
 
 /* End of data. */
@@ -10331,87 +10331,87 @@ pd->comp[2].edge[1] = 7;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 4;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 6;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 7;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 5;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 4;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 5;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 6;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 2;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 7;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 
 /* End of data. */
@@ -10541,87 +10541,87 @@ pd->comp[2].edge[1] = 7;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 4;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 6;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 7;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 5;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 4;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 5;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 6;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 2;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 7;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 
 /* End of data. */
@@ -11023,213 +11023,213 @@ pd->comp[3].edge[3] = 21;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 15;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 11;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 6;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 18;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[1].nedges = 5;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 3;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 20;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 8;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 13;
-pd->face[1].or[3] = 1;
+pd->face[1].orient[3] = 1;
 
 pd->face[1].edge[4] = 17;
-pd->face[1].or[4] = 0;
+pd->face[1].orient[4] = 0;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 21;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 3;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 16;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 17;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 10;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[3].edge[3] = 15;
-pd->face[3].or[3] = 1;
+pd->face[3].orient[3] = 1;
 
 pd->face[4].nedges = 4;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 6;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 12;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 8;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[4].edge[3] = 19;
-pd->face[4].or[3] = 0;
+pd->face[4].orient[3] = 0;
 
 pd->face[5].nedges = 4;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 7;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 11;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[5].edge[2] = 14;
-pd->face[5].or[2] = 0;
+pd->face[5].orient[2] = 0;
 
 pd->face[5].edge[3] = 13;
-pd->face[5].or[3] = 0;
+pd->face[5].orient[3] = 0;
 
 pd->face[6].nedges = 3;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 0;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 4;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[6].edge[2] = 21;
-pd->face[6].or[2] = 1;
+pd->face[6].orient[2] = 1;
 
 pd->face[7].nedges = 3;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 0;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 18;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 pd->face[7].edge[2] = 5;
-pd->face[7].or[2] = 0;
+pd->face[7].orient[2] = 0;
 
 pd->face[8].nedges = 3;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 4;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 9;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[8].edge[2] = 20;
-pd->face[8].or[2] = 1;
+pd->face[8].orient[2] = 1;
 
 pd->face[9].nedges = 3;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 5;
-pd->face[9].or[0] = 1;
+pd->face[9].orient[0] = 1;
 
 pd->face[9].edge[1] = 19;
-pd->face[9].or[1] = 1;
+pd->face[9].orient[1] = 1;
 
 pd->face[9].edge[2] = 9;
-pd->face[9].or[2] = 1;
+pd->face[9].orient[2] = 1;
 
 pd->face[10].nedges = 2;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 2;
-pd->face[10].or[0] = 0;
+pd->face[10].orient[0] = 0;
 
 pd->face[10].edge[1] = 16;
-pd->face[10].or[1] = 1;
+pd->face[10].orient[1] = 1;
 
 pd->face[11].nedges = 2;
 pd->face[11].edge = calloc(pd->face[11].nedges,sizeof(pd_idx_t));
-pd->face[11].or = calloc(pd->face[11].nedges,sizeof(pd_or_t));
+pd->face[11].orient = calloc(pd->face[11].nedges,sizeof(pd_or_t));
 assert(pd->face[11].edge != NULL);
-assert(pd->face[11].or != NULL);
+assert(pd->face[11].orient != NULL);
 
 pd->face[11].edge[0] = 7;
-pd->face[11].or[0] = 1;
+pd->face[11].orient[0] = 1;
 
 pd->face[11].edge[1] = 12;
-pd->face[11].or[1] = 0;
+pd->face[11].orient[1] = 0;
 
 pd->face[12].nedges = 2;
 pd->face[12].edge = calloc(pd->face[12].nedges,sizeof(pd_idx_t));
-pd->face[12].or = calloc(pd->face[12].nedges,sizeof(pd_or_t));
+pd->face[12].orient = calloc(pd->face[12].nedges,sizeof(pd_or_t));
 assert(pd->face[12].edge != NULL);
-assert(pd->face[12].or != NULL);
+assert(pd->face[12].orient != NULL);
 
 pd->face[12].edge[0] = 10;
-pd->face[12].or[0] = 0;
+pd->face[12].orient[0] = 0;
 
 pd->face[12].edge[1] = 14;
-pd->face[12].or[1] = 1;
+pd->face[12].orient[1] = 1;
 
 
 /* End of data. */
@@ -11458,177 +11458,177 @@ pd->comp[3].edge[1] = 17;
 
 pd->face[0].nedges = 8;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 17;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 12;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 8;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[0].edge[5] = 15;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[0].edge[6] = 6;
-pd->face[0].or[6] = 0;
+pd->face[0].orient[6] = 0;
 
 pd->face[0].edge[7] = 10;
-pd->face[0].or[7] = 0;
+pd->face[0].orient[7] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 13;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 16;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 6;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 14;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 8;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[2].edge[3] = 11;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 4;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 13;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 0;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 10;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 5;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 3;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 4;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 9;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[5].edge[2] = 12;
-pd->face[5].or[2] = 1;
+pd->face[5].orient[2] = 1;
 
 pd->face[6].nedges = 3;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 5;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 11;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[6].edge[2] = 9;
-pd->face[6].or[2] = 1;
+pd->face[6].orient[2] = 1;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 2;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 16;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 2;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 17;
-pd->face[8].or[1] = 1;
+pd->face[8].orient[1] = 1;
 
 pd->face[9].nedges = 2;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 7;
-pd->face[9].or[0] = 1;
+pd->face[9].orient[0] = 1;
 
 pd->face[9].edge[1] = 14;
-pd->face[9].or[1] = 0;
+pd->face[9].orient[1] = 0;
 
 pd->face[10].nedges = 2;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 7;
-pd->face[10].or[0] = 0;
+pd->face[10].orient[0] = 0;
 
 pd->face[10].edge[1] = 15;
-pd->face[10].or[1] = 0;
+pd->face[10].orient[1] = 0;
 
 
 /* End of data. */
@@ -11923,123 +11923,123 @@ pd->comp[1].edge[3] = 11;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 11;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 4;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 9;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 9;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 3;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 6;
-pd->face[1].or[3] = 1;
+pd->face[1].orient[3] = 1;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 2;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 5;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 11;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[2].edge[3] = 7;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 7;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 8;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 3;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 10;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 5;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 8;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 2;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 6;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 4;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 10;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 
 /* End of data. */
@@ -12164,87 +12164,87 @@ pd->comp[1].edge[1] = 7;
 
 pd->face[0].nedges = 6;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 1;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 4;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 7;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 2;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[0].edge[5] = 5;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[1].nedges = 3;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 2;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 6;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 4;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[2].nedges = 2;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 5;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 3;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 6;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 3;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 7;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[5].nedges = 1;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 
 /* End of data. */
@@ -12555,141 +12555,141 @@ pd->comp[1].edge[3] = 13;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 10;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 9;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 3;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 7;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[1].nedges = 5;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 2;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 8;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 4;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 12;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[1].edge[4] = 6;
-pd->face[1].or[4] = 1;
+pd->face[1].orient[4] = 1;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 11;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 5;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 13;
-pd->face[2].or[3] = 1;
+pd->face[2].orient[3] = 1;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 6;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 11;
-pd->face[3].or[2] = 0;
+pd->face[3].orient[2] = 0;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 4;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 9;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 13;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 10;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 2;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 7;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 3;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 8;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 5;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 12;
-pd->face[8].or[1] = 1;
+pd->face[8].orient[1] = 1;
 
 
 /* End of data. */
@@ -12832,105 +12832,105 @@ pd->comp[1].edge[1] = 9;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 4;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 9;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 6;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 2;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 1;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 6;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 8;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 4;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 3;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 7;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 3;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 7;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 5;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 8;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 5;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 9;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 
 /* End of data. */
@@ -13235,141 +13235,141 @@ pd->comp[0].edge[13] = 13;
 
 pd->face[0].nedges = 6;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 6;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 11;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 4;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 13;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[0].edge[5] = 8;
-pd->face[0].or[5] = 0;
+pd->face[0].orient[5] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 9;
-pd->face[1].or[1] = 1;
+pd->face[1].orient[1] = 1;
 
 pd->face[1].edge[2] = 2;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 7;
-pd->face[1].or[3] = 1;
+pd->face[1].orient[3] = 1;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 3;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 12;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 5;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[2].edge[3] = 10;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 10;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 6;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 3;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 9;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 13;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 0;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 8;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 1;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 7;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 4;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 12;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 5;
-pd->face[8].or[0] = 0;
+pd->face[8].orient[0] = 0;
 
 pd->face[8].edge[1] = 11;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 
 /* End of data. */
@@ -13505,105 +13505,105 @@ pd->comp[0].edge[9] = 9;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 6;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 8;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 2;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 7;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 4;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 9;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 4;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 6;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 1;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 9;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 5;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 0;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 5;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 2;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 8;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 3;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 7;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 
 /* End of data. */
@@ -13949,177 +13949,177 @@ pd->comp[1].edge[5] = 17;
 
 pd->face[0].nedges = 5;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 14;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 8;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 16;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 4;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 2;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 6;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 12;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 10;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 2;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 9;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 15;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 7;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 5;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 13;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 1;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 7;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 14;
-pd->face[4].or[2] = 0;
+pd->face[4].orient[2] = 0;
 
 pd->face[5].nedges = 3;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 1;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 13;
-pd->face[5].or[1] = 0;
+pd->face[5].orient[1] = 0;
 
 pd->face[5].edge[2] = 6;
-pd->face[5].or[2] = 1;
+pd->face[5].orient[2] = 1;
 
 pd->face[6].nedges = 3;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 3;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 10;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[6].edge[2] = 17;
-pd->face[6].or[2] = 0;
+pd->face[6].orient[2] = 0;
 
 pd->face[7].nedges = 3;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 3;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 pd->face[7].edge[1] = 16;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[7].edge[2] = 9;
-pd->face[7].or[2] = 1;
+pd->face[7].orient[2] = 1;
 
 pd->face[8].nedges = 3;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 4;
-pd->face[8].or[0] = 0;
+pd->face[8].orient[0] = 0;
 
 pd->face[8].edge[1] = 17;
-pd->face[8].or[1] = 1;
+pd->face[8].orient[1] = 1;
 
 pd->face[8].edge[2] = 11;
-pd->face[8].or[2] = 1;
+pd->face[8].orient[2] = 1;
 
 pd->face[9].nedges = 3;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 5;
-pd->face[9].or[0] = 0;
+pd->face[9].orient[0] = 0;
 
 pd->face[9].edge[1] = 11;
-pd->face[9].or[1] = 0;
+pd->face[9].orient[1] = 0;
 
 pd->face[9].edge[2] = 12;
-pd->face[9].or[2] = 1;
+pd->face[9].orient[2] = 1;
 
 pd->face[10].nedges = 2;
 pd->face[10].edge = calloc(pd->face[10].nedges,sizeof(pd_idx_t));
-pd->face[10].or = calloc(pd->face[10].nedges,sizeof(pd_or_t));
+pd->face[10].orient = calloc(pd->face[10].nedges,sizeof(pd_or_t));
 assert(pd->face[10].edge != NULL);
-assert(pd->face[10].or != NULL);
+assert(pd->face[10].orient != NULL);
 
 pd->face[10].edge[0] = 8;
-pd->face[10].or[0] = 0;
+pd->face[10].orient[0] = 0;
 
 pd->face[10].edge[1] = 15;
-pd->face[10].or[1] = 1;
+pd->face[10].orient[1] = 1;
 
 
 /* End of data. */
@@ -14298,141 +14298,141 @@ pd->comp[1].edge[3] = 13;
 
 pd->face[0].nedges = 4;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 7;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 3;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 12;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 2;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 6;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 10;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 8;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 5;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 11;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[3].nedges = 3;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 1;
+pd->face[3].orient[0] = 1;
 
 pd->face[3].edge[1] = 12;
-pd->face[3].or[1] = 1;
+pd->face[3].orient[1] = 1;
 
 pd->face[3].edge[2] = 4;
-pd->face[3].or[2] = 1;
+pd->face[3].orient[2] = 1;
 
 pd->face[4].nedges = 3;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 1;
-pd->face[4].or[0] = 0;
+pd->face[4].orient[0] = 0;
 
 pd->face[4].edge[1] = 11;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[4].edge[2] = 6;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[5].nedges = 3;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 3;
-pd->face[5].or[0] = 0;
+pd->face[5].orient[0] = 0;
 
 pd->face[5].edge[1] = 8;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[5].edge[2] = 13;
-pd->face[5].or[2] = 0;
+pd->face[5].orient[2] = 0;
 
 pd->face[6].nedges = 3;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 4;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 13;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[6].edge[2] = 9;
-pd->face[6].or[2] = 1;
+pd->face[6].orient[2] = 1;
 
 pd->face[7].nedges = 3;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 5;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 9;
-pd->face[7].or[1] = 0;
+pd->face[7].orient[1] = 0;
 
 pd->face[7].edge[2] = 10;
-pd->face[7].or[2] = 1;
+pd->face[7].orient[2] = 1;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 2;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 7;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 
 /* End of data. */
@@ -14769,159 +14769,159 @@ pd->comp[2].edge[3] = 15;
 
 pd->face[0].nedges = 6;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 1;
-pd->face[0].or[0] = 0;
+pd->face[0].orient[0] = 0;
 
 pd->face[0].edge[1] = 4;
-pd->face[0].or[1] = 1;
+pd->face[0].orient[1] = 1;
 
 pd->face[0].edge[2] = 5;
-pd->face[0].or[2] = 0;
+pd->face[0].orient[2] = 0;
 
 pd->face[0].edge[3] = 6;
-pd->face[0].or[3] = 1;
+pd->face[0].orient[3] = 1;
 
 pd->face[0].edge[4] = 10;
-pd->face[0].or[4] = 0;
+pd->face[0].orient[4] = 0;
 
 pd->face[0].edge[5] = 15;
-pd->face[0].or[5] = 1;
+pd->face[0].orient[5] = 1;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 0;
-pd->face[1].or[0] = 1;
+pd->face[1].orient[0] = 1;
 
 pd->face[1].edge[1] = 3;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 13;
-pd->face[1].or[2] = 1;
+pd->face[1].orient[2] = 1;
 
 pd->face[1].edge[3] = 8;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 4;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 0;
-pd->face[2].or[0] = 0;
+pd->face[2].orient[0] = 0;
 
 pd->face[2].edge[1] = 11;
-pd->face[2].or[1] = 0;
+pd->face[2].orient[1] = 0;
 
 pd->face[2].edge[2] = 6;
-pd->face[2].or[2] = 0;
+pd->face[2].orient[2] = 0;
 
 pd->face[2].edge[3] = 4;
-pd->face[2].or[3] = 0;
+pd->face[2].orient[3] = 0;
 
 pd->face[3].nedges = 4;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 2;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 15;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[3].edge[2] = 9;
-pd->face[3].or[2] = 0;
+pd->face[3].orient[2] = 0;
 
 pd->face[3].edge[3] = 13;
-pd->face[3].or[3] = 0;
+pd->face[3].orient[3] = 0;
 
 pd->face[4].nedges = 4;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 7;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 8;
-pd->face[4].or[1] = 1;
+pd->face[4].orient[1] = 1;
 
 pd->face[4].edge[2] = 14;
-pd->face[4].or[2] = 1;
+pd->face[4].orient[2] = 1;
 
 pd->face[4].edge[3] = 10;
-pd->face[4].or[3] = 1;
+pd->face[4].orient[3] = 1;
 
 pd->face[5].nedges = 3;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 1;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 12;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[5].edge[2] = 3;
-pd->face[5].or[2] = 1;
+pd->face[5].orient[2] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 2;
-pd->face[6].or[0] = 1;
+pd->face[6].orient[0] = 1;
 
 pd->face[6].edge[1] = 12;
-pd->face[6].or[1] = 0;
+pd->face[6].orient[1] = 0;
 
 pd->face[7].nedges = 2;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 7;
-pd->face[7].or[0] = 0;
+pd->face[7].orient[0] = 0;
 
 pd->face[7].edge[1] = 11;
-pd->face[7].or[1] = 1;
+pd->face[7].orient[1] = 1;
 
 pd->face[8].nedges = 2;
 pd->face[8].edge = calloc(pd->face[8].nedges,sizeof(pd_idx_t));
-pd->face[8].or = calloc(pd->face[8].nedges,sizeof(pd_or_t));
+pd->face[8].orient = calloc(pd->face[8].nedges,sizeof(pd_or_t));
 assert(pd->face[8].edge != NULL);
-assert(pd->face[8].or != NULL);
+assert(pd->face[8].orient != NULL);
 
 pd->face[8].edge[0] = 9;
-pd->face[8].or[0] = 1;
+pd->face[8].orient[0] = 1;
 
 pd->face[8].edge[1] = 14;
-pd->face[8].or[1] = 0;
+pd->face[8].orient[1] = 0;
 
 pd->face[9].nedges = 1;
 pd->face[9].edge = calloc(pd->face[9].nedges,sizeof(pd_idx_t));
-pd->face[9].or = calloc(pd->face[9].nedges,sizeof(pd_or_t));
+pd->face[9].orient = calloc(pd->face[9].nedges,sizeof(pd_or_t));
 assert(pd->face[9].edge != NULL);
-assert(pd->face[9].or != NULL);
+assert(pd->face[9].orient != NULL);
 
 pd->face[9].edge[0] = 5;
-pd->face[9].or[0] = 1;
+pd->face[9].orient[0] = 1;
 
 
 /* End of data. */
@@ -15089,123 +15089,123 @@ pd->comp[2].edge[1] = 11;
 
 pd->face[0].nedges = 8;
 pd->face[0].edge = calloc(pd->face[0].nedges,sizeof(pd_idx_t));
-pd->face[0].or = calloc(pd->face[0].nedges,sizeof(pd_or_t));
+pd->face[0].orient = calloc(pd->face[0].nedges,sizeof(pd_or_t));
 assert(pd->face[0].edge != NULL);
-assert(pd->face[0].or != NULL);
+assert(pd->face[0].orient != NULL);
 
 pd->face[0].edge[0] = 0;
-pd->face[0].or[0] = 1;
+pd->face[0].orient[0] = 1;
 
 pd->face[0].edge[1] = 3;
-pd->face[0].or[1] = 0;
+pd->face[0].orient[1] = 0;
 
 pd->face[0].edge[2] = 7;
-pd->face[0].or[2] = 1;
+pd->face[0].orient[2] = 1;
 
 pd->face[0].edge[3] = 10;
-pd->face[0].or[3] = 0;
+pd->face[0].orient[3] = 0;
 
 pd->face[0].edge[4] = 9;
-pd->face[0].or[4] = 1;
+pd->face[0].orient[4] = 1;
 
 pd->face[0].edge[5] = 1;
-pd->face[0].or[5] = 0;
+pd->face[0].orient[5] = 0;
 
 pd->face[0].edge[6] = 4;
-pd->face[0].or[6] = 1;
+pd->face[0].orient[6] = 1;
 
 pd->face[0].edge[7] = 5;
-pd->face[0].or[7] = 0;
+pd->face[0].orient[7] = 0;
 
 pd->face[1].nedges = 4;
 pd->face[1].edge = calloc(pd->face[1].nedges,sizeof(pd_idx_t));
-pd->face[1].or = calloc(pd->face[1].nedges,sizeof(pd_or_t));
+pd->face[1].orient = calloc(pd->face[1].nedges,sizeof(pd_or_t));
 assert(pd->face[1].edge != NULL);
-assert(pd->face[1].or != NULL);
+assert(pd->face[1].orient != NULL);
 
 pd->face[1].edge[0] = 2;
-pd->face[1].or[0] = 0;
+pd->face[1].orient[0] = 0;
 
 pd->face[1].edge[1] = 9;
-pd->face[1].or[1] = 0;
+pd->face[1].orient[1] = 0;
 
 pd->face[1].edge[2] = 11;
-pd->face[1].or[2] = 0;
+pd->face[1].orient[2] = 0;
 
 pd->face[1].edge[3] = 7;
-pd->face[1].or[3] = 0;
+pd->face[1].orient[3] = 0;
 
 pd->face[2].nedges = 3;
 pd->face[2].edge = calloc(pd->face[2].nedges,sizeof(pd_idx_t));
-pd->face[2].or = calloc(pd->face[2].nedges,sizeof(pd_or_t));
+pd->face[2].orient = calloc(pd->face[2].nedges,sizeof(pd_or_t));
 assert(pd->face[2].edge != NULL);
-assert(pd->face[2].or != NULL);
+assert(pd->face[2].orient != NULL);
 
 pd->face[2].edge[0] = 1;
-pd->face[2].or[0] = 1;
+pd->face[2].orient[0] = 1;
 
 pd->face[2].edge[1] = 6;
-pd->face[2].or[1] = 1;
+pd->face[2].orient[1] = 1;
 
 pd->face[2].edge[2] = 3;
-pd->face[2].or[2] = 1;
+pd->face[2].orient[2] = 1;
 
 pd->face[3].nedges = 2;
 pd->face[3].edge = calloc(pd->face[3].nedges,sizeof(pd_idx_t));
-pd->face[3].or = calloc(pd->face[3].nedges,sizeof(pd_or_t));
+pd->face[3].orient = calloc(pd->face[3].nedges,sizeof(pd_or_t));
 assert(pd->face[3].edge != NULL);
-assert(pd->face[3].or != NULL);
+assert(pd->face[3].orient != NULL);
 
 pd->face[3].edge[0] = 0;
-pd->face[3].or[0] = 0;
+pd->face[3].orient[0] = 0;
 
 pd->face[3].edge[1] = 4;
-pd->face[3].or[1] = 0;
+pd->face[3].orient[1] = 0;
 
 pd->face[4].nedges = 2;
 pd->face[4].edge = calloc(pd->face[4].nedges,sizeof(pd_idx_t));
-pd->face[4].or = calloc(pd->face[4].nedges,sizeof(pd_or_t));
+pd->face[4].orient = calloc(pd->face[4].nedges,sizeof(pd_or_t));
 assert(pd->face[4].edge != NULL);
-assert(pd->face[4].or != NULL);
+assert(pd->face[4].orient != NULL);
 
 pd->face[4].edge[0] = 2;
-pd->face[4].or[0] = 1;
+pd->face[4].orient[0] = 1;
 
 pd->face[4].edge[1] = 6;
-pd->face[4].or[1] = 0;
+pd->face[4].orient[1] = 0;
 
 pd->face[5].nedges = 2;
 pd->face[5].edge = calloc(pd->face[5].nedges,sizeof(pd_idx_t));
-pd->face[5].or = calloc(pd->face[5].nedges,sizeof(pd_or_t));
+pd->face[5].orient = calloc(pd->face[5].nedges,sizeof(pd_or_t));
 assert(pd->face[5].edge != NULL);
-assert(pd->face[5].or != NULL);
+assert(pd->face[5].orient != NULL);
 
 pd->face[5].edge[0] = 8;
-pd->face[5].or[0] = 1;
+pd->face[5].orient[0] = 1;
 
 pd->face[5].edge[1] = 10;
-pd->face[5].or[1] = 1;
+pd->face[5].orient[1] = 1;
 
 pd->face[6].nedges = 2;
 pd->face[6].edge = calloc(pd->face[6].nedges,sizeof(pd_idx_t));
-pd->face[6].or = calloc(pd->face[6].nedges,sizeof(pd_or_t));
+pd->face[6].orient = calloc(pd->face[6].nedges,sizeof(pd_or_t));
 assert(pd->face[6].edge != NULL);
-assert(pd->face[6].or != NULL);
+assert(pd->face[6].orient != NULL);
 
 pd->face[6].edge[0] = 8;
-pd->face[6].or[0] = 0;
+pd->face[6].orient[0] = 0;
 
 pd->face[6].edge[1] = 11;
-pd->face[6].or[1] = 1;
+pd->face[6].orient[1] = 1;
 
 pd->face[7].nedges = 1;
 pd->face[7].edge = calloc(pd->face[7].nedges,sizeof(pd_idx_t));
-pd->face[7].or = calloc(pd->face[7].nedges,sizeof(pd_or_t));
+pd->face[7].orient = calloc(pd->face[7].nedges,sizeof(pd_or_t));
 assert(pd->face[7].edge != NULL);
-assert(pd->face[7].or != NULL);
+assert(pd->face[7].orient != NULL);
 
 pd->face[7].edge[0] = 5;
-pd->face[7].or[0] = 1;
+pd->face[7].orient[0] = 1;
 
 
 /* End of data. */

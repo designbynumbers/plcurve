@@ -564,7 +564,7 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
 
   for(iso=0;iso<nisos;iso++) {
 
-    if (isos[iso]->crossmap->or == PD_NEG_ORIENTATION) {
+    if (isos[iso]->crossmap->orient == PD_NEG_ORIENTATION) {
 
       plane_neg[npn++] = iso;
 
@@ -597,16 +597,16 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
 
   if (ncross % 2 != 0) { /* EVEN # of crossings. */
 
-    if (isos[plane_pos[0]]->edgemap->or[0] == isos[plane_pos[1]]->edgemap->or[0]) { /* Same orientation */
+    if (isos[plane_pos[0]]->edgemap->orient[0] == isos[plane_pos[1]]->edgemap->orient[0]) { /* Same orientation */
 
       printf("FAIL.\n(# crossings == %d == odd, but BOTH plane+ isos (rot and e) are component %c)",
-	     ncross,pd_print_or(isos[plane_pos[0]]->edgemap->or[0]));
+	     ncross,pd_print_or(isos[plane_pos[0]]->edgemap->orient[0]));
       return false;
 
     }
 
-    if (isos[plane_pos[0]]->edgemap->or[0] == PD_POS_ORIENTATION &&
-	isos[plane_pos[1]]->edgemap->or[0] == PD_NEG_ORIENTATION) { 
+    if (isos[plane_pos[0]]->edgemap->orient[0] == PD_POS_ORIENTATION &&
+	isos[plane_pos[1]]->edgemap->orient[0] == PD_NEG_ORIENTATION) { 
 
       e = plane_pos[0]; 
       rot = plane_pos[1];
@@ -618,16 +618,16 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
 
     }
 
-    if (isos[plane_neg[0]]->edgemap->or[0] == isos[plane_neg[1]]->edgemap->or[1]) {
+    if (isos[plane_neg[0]]->edgemap->orient[0] == isos[plane_neg[1]]->edgemap->orient[1]) {
 
        printf("FAIL.\n(# crossings == %d == odd, but BOTH plane- isos (hflip, vflip) are component %c)",
-	     ncross,pd_print_or(isos[plane_neg[0]]->edgemap->or[0]));
+	     ncross,pd_print_or(isos[plane_neg[0]]->edgemap->orient[0]));
       return false;
 
     }
 
-    if (isos[plane_neg[0]]->edgemap->or[0] == PD_POS_ORIENTATION &&
-	isos[plane_neg[1]]->edgemap->or[0] == PD_NEG_ORIENTATION) { 
+    if (isos[plane_neg[0]]->edgemap->orient[0] == PD_POS_ORIENTATION &&
+	isos[plane_neg[1]]->edgemap->orient[0] == PD_NEG_ORIENTATION) { 
 
       hflip = plane_neg[0]; 
       vflip = plane_neg[1];
@@ -641,12 +641,12 @@ bool unknot_iso_test(pd_idx_t ncross,bool print)
 
   } else {  /* number of crossings is odd */
 
-    if (isos[plane_pos[0]]->edgemap->or[0] != isos[plane_pos[1]]->edgemap->or[0]) { /* diff orientation */
+    if (isos[plane_pos[0]]->edgemap->orient[0] != isos[plane_pos[1]]->edgemap->orient[0]) { /* diff orientation */
 
       printf("FAIL. (# crossings == %d == odd, but plane+ isos are component %c and %c)",
 	     ncross,
-	     pd_print_or(isos[plane_pos[0]]->edgemap->or[0]),
-	     pd_print_or(isos[plane_pos[1]]->edgemap->or[0]));
+	     pd_print_or(isos[plane_pos[0]]->edgemap->orient[0]),
+	     pd_print_or(isos[plane_pos[1]]->edgemap->orient[0]));
       return false;
 
     }
@@ -927,7 +927,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 
   for(i=0;i<2;i++) { 
 
-    if (isos[evflip[i]]->edgemap->or[0] != isos[evflip[i]]->crossmap->or) { 
+    if (isos[evflip[i]]->edgemap->orient[0] != isos[evflip[i]]->crossmap->orient) { 
 
       printf("FAIL.\n isos[%d] doesn't preserve or reverse BOTH plane and curve orientation.\n",evflip[i]);
       return false;
@@ -936,7 +936,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 
   }
 
-  if (isos[evflip[0]]->crossmap->or == isos[evflip[1]]->crossmap->or) {
+  if (isos[evflip[0]]->crossmap->orient == isos[evflip[1]]->crossmap->orient) {
 
     printf("FAIL.\n isos[%d] AND isos[%d] preserve or reverse plane orientation.\n",evflip[0],evflip[1]);
     return false;
@@ -945,7 +945,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 
   pd_idx_t e, vflip;
 
-  if (isos[evflip[0]]->crossmap->or == PD_POS_ORIENTATION) { 
+  if (isos[evflip[0]]->crossmap->orient == PD_POS_ORIENTATION) { 
 
     e = evflip[0]; vflip = evflip[1];
     printf("pass. (e == isos[%d], vflip == isos[%d])\n",evflip[0],evflip[1]);
@@ -1023,7 +1023,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
   
   printf("\t checking that hflip reverses plane orientation...");
 
-  if (isos[hflip]->crossmap->or != PD_NEG_ORIENTATION) { 
+  if (isos[hflip]->crossmap->orient != PD_NEG_ORIENTATION) { 
 
     printf("FAIL. hflip PRESERVES plane orientation.\n");
     return false;
@@ -1036,7 +1036,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 
     printf("\t checking that hflip reverses curve orientation...");
 
-    if (isos[hflip]->edgemap->or[0] != PD_NEG_ORIENTATION) {
+    if (isos[hflip]->edgemap->orient[0] != PD_NEG_ORIENTATION) {
 
       printf("FAIL. (hflip PRESERVES curve orientation, but ntwist == %d is even).\n",ntwist);
       return false;
@@ -1049,7 +1049,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 
      printf("\t checking that hflip preserves curve orientation...");
 
-    if (isos[hflip]->edgemap->or[0] != PD_POS_ORIENTATION) {
+    if (isos[hflip]->edgemap->orient[0] != PD_POS_ORIENTATION) {
 
       printf("FAIL. (hflip REVERSES curve orientation, but ntwist == %d is odd).\n",ntwist);
       return false;
@@ -1106,7 +1106,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
   
   printf("\t checking that rot preserves plane orientation...");
 
-  if (isos[rot]->crossmap->or != PD_POS_ORIENTATION) { 
+  if (isos[rot]->crossmap->orient != PD_POS_ORIENTATION) { 
 
     printf("FAIL. rot REVERSES plane orientation.\n");
     return false;
@@ -1119,7 +1119,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 
     printf("\t checking that rot reverses curve orientation...");
 
-    if (isos[rot]->edgemap->or[0] != PD_NEG_ORIENTATION) {
+    if (isos[rot]->edgemap->orient[0] != PD_NEG_ORIENTATION) {
 
       printf("FAIL. (rot PRESERVES curve orientation, but ntwist == %d is odd).\n",ntwist);
       return false;
@@ -1132,7 +1132,7 @@ bool twist_iso_test(pd_idx_t ntwist,bool print)
 
     printf("\t checking that rot preserves curve orientation...");
 
-    if (isos[rot]->edgemap->or[0] != PD_POS_ORIENTATION) {
+    if (isos[rot]->edgemap->orient[0] != PD_POS_ORIENTATION) {
 
       printf("FAIL. (rot REVERSES curve orientation, but ntwist == %d is even).\n",ntwist);
       return false;
@@ -1226,9 +1226,9 @@ bool torusknot_iso_test(pd_idx_t p,pd_idx_t q,bool prime,bool print)
     if (isos[i]->facemap->perm->map[0] == 0 &&   /* Not a "vflip" */
 	isos[i]->facemap->perm->map[1] == 1) {
 
-      if (isos[i]->crossmap->or == PD_POS_ORIENTATION) {
+      if (isos[i]->crossmap->orient == PD_POS_ORIENTATION) {
 	
-	if (isos[i]->edgemap->or[0] != PD_POS_ORIENTATION) {
+	if (isos[i]->edgemap->orient[0] != PD_POS_ORIENTATION) {
 	  
 	  printf("FAIL. isos[%d] preserves plane, but reverses curve orientation.\n",i);
 	  return false;
@@ -1239,7 +1239,7 @@ bool torusknot_iso_test(pd_idx_t p,pd_idx_t q,bool prime,bool print)
 	
       } else {
 	
-	if (isos[i]->edgemap->or[0] != PD_NEG_ORIENTATION) {
+	if (isos[i]->edgemap->orient[0] != PD_NEG_ORIENTATION) {
 	  
 	  printf("FAIL. isos[%d] reverses plane, but preserves curve orientation.\n",i);
 	  return false;

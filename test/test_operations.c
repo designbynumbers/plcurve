@@ -71,10 +71,10 @@ bool isomorphism_matches_sign_iterator(pd_iso_t *iso,pd_code_t *pdA,pd_multidx_t
 
   for(i=0;i<pdA->ncomps;i++) { 
     
-    pd_or_t start_or = iso->edgemap->or[pdA->comp[i].edge[0]];
+    pd_or_t start_or = iso->edgemap->orient[ pdA->comp[i].edge[0]];
     for(j=1;j<pdA->comp[i].nedges;j++) { 
 
-      if (iso->edgemap->or[pdA->comp[i].edge[j]] != start_or) { 
+      if (iso->edgemap->orient[ pdA->comp[i].edge[j]] != start_or) { 
 
 	free(signs_actual);
 	return false;
@@ -91,7 +91,7 @@ bool isomorphism_matches_sign_iterator(pd_iso_t *iso,pd_code_t *pdA,pd_multidx_t
 
   for(i=0;i<sign_iterator->nobj;i++) { 
     
-    if (signs_actual[i] != ((pd_orientation_t *)(sign_iterator->obj[i]))->or) {
+    if (signs_actual[i] != ((pd_orientation_t *)(sign_iterator->obj[i]))->orient) {
 
       free(signs_actual);
       return false;
@@ -122,7 +122,7 @@ bool test_all_component_reversals(pd_code_t *pd, int *tests_run) {
     pd_idx_t k;
     for(k=0;k<sign_iterator->nobj;k++) { 
 
-      pd_reorient_component(working_copy,k,((pd_orientation_t *)(sign_iterator->obj[k]))->or);
+      pd_reorient_component(working_copy,k,((pd_orientation_t *)(sign_iterator->obj[k]))->orient);
 
     }
 

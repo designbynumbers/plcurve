@@ -529,7 +529,7 @@ bool test_all_signs(pd_code_t *pd) {
     pd_idx_t k;
     for(k=0;k<sign_iterator->nobj;k++) { 
 
-      pd->cross[k].sign = ((pd_orientation_t *)(sign_iterator->obj[k]))->or;
+      pd->cross[k].sign = ((pd_orientation_t *)(sign_iterator->obj[k]))->orient;
 
     }
 
@@ -648,7 +648,7 @@ bool test_unknot_homfly_all_signs(pd_code_t *pd,char *desc) {
     pd_idx_t k;
     for(k=0;k<sign_iterator->nobj;k++) { 
 
-      pd->cross[k].sign = ((pd_orientation_t *)(sign_iterator->obj[k]))->or;
+      pd->cross[k].sign = ((pd_orientation_t *)(sign_iterator->obj[k]))->orient;
 
     }
 
