@@ -1170,7 +1170,7 @@ pd_code_t *pd_flype(pd_code_t *pd,pd_idx_t e[4], pd_idx_t f[4])
 struct sequence_match {
 
   pd_idx_t *pos;  /* The positions in "buf" where the match occurs */
-  pd_or_t   or;
+  pd_or_t   orient;
 
 };
 
@@ -1180,7 +1180,7 @@ struct sequence_match pdint_sequence_match_new(pd_idx_t size)
   struct sequence_match match;
   match.pos = calloc(size,sizeof(pd_idx_t));
   assert(match.pos != NULL);
-  match.or = PD_UNSET_ORIENTATION;
+  match.orient = PD_UNSET_ORIENTATION;
 
   return match;
 }
@@ -1194,7 +1194,7 @@ void pdint_sequence_match_free(struct sequence_match *match)
 
   }
 
-  match->or = PD_UNSET_ORIENTATION;
+  match->orient = PD_UNSET_ORIENTATION;
 }
 
 void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
@@ -1247,7 +1247,7 @@ void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
 	  pd_idx_t k;
 	  for(k=matchbufsize/2;k<matchbufsize;k++) {
 	    (*match)[k].pos = NULL;
-	    (*match)[k].or = PD_UNSET_ORIENTATION;
+	    (*match)[k].orient = PD_UNSET_ORIENTATION;
 	  }
 
 	}
@@ -1258,7 +1258,7 @@ void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
 	    (*match)[*nmatch].pos[j] = (i+j)%nbuf;
 
 	}
-	(*match)[*nmatch].or = PD_POS_ORIENTATION;
+	(*match)[*nmatch].orient = PD_POS_ORIENTATION;
 	(*nmatch)++;
 
       }
@@ -1294,7 +1294,7 @@ void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
 	  pd_idx_t k;
 	  for(k=matchbufsize/2;k<matchbufsize;k++) {
 	    (*match)[k].pos = NULL;
-	    (*match)[k].or = PD_UNSET_ORIENTATION;
+	    (*match)[k].orient = PD_UNSET_ORIENTATION;
 	  }
 
 	}
@@ -1305,7 +1305,7 @@ void pdint_find_sequence_match(pd_idx_t nbuf,pd_idx_t *buf,
 	    (*match)[*nmatch].pos[j] = (i+npat-1-j)%nbuf;
 
 	}
-	(*match)[*nmatch].or = PD_NEG_ORIENTATION;
+	(*match)[*nmatch].orient = PD_NEG_ORIENTATION;
 	(*nmatch)++;
 
       }
@@ -1552,10 +1552,10 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
       pd_face_and_pos(pd,overstrand_edges[j],
 		      &posface, &pfp, &negface, &nfp);
 
-      if ((match[thismatch].or == PD_POS_ORIENTATION &&
+      if ((match[thismatch].orient == PD_POS_ORIENTATION &&
 	   posface == border_faces[j])
 	  ||
-	  (match[thismatch].or == PD_NEG_ORIENTATION &&
+	  (match[thismatch].orient == PD_NEG_ORIENTATION &&
 	   negface == border_faces[j])) {
 
 	found_correct_match = true;
@@ -1627,7 +1627,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
   for(i=0;i<n-1;i++) {
 
-    if (match[correct_match].or == PD_POS_ORIENTATION) {
+    if (match[correct_match].orient == PD_POS_ORIENTATION) {
 
       /*          |  	   |
 		  |  	   |
@@ -1645,7 +1645,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
       (*tangle_slide_edges)[i] = t->edge[match[correct_match].pos[i]];
 
-    } else if (match[correct_match].or == PD_NEG_ORIENTATION) {
+    } else if (match[correct_match].orient == PD_NEG_ORIENTATION) {
 
       /*          |  	   |
 		  |  	   |
@@ -1666,8 +1666,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
     } else {
 
-      pd_error(SRCLOC,"match[correct_match].or = %OR, neither POS nor NEG\n",
-	       pd,match[correct_match].or);
+      pd_error(SRCLOC,"match[correct_match].orient = %OR, neither POS nor NEG\n",
+	       pd,match[correct_match].orient);
       exit(1);
 
     }
@@ -1697,7 +1697,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
        complementary edges should start with tangle pos 2
        and count backwards... */
 
-    if (match[correct_match].or == PD_POS_ORIENTATION) {
+    if (match[correct_match].orient == PD_POS_ORIENTATION) {
 
       (*complementary_edges)[i] =
 	t->edge[(match[correct_match].pos[0]+t->nedges-1-i)%t->nedges];
@@ -1705,7 +1705,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
       (*complementary_or)[i] =
 	t->edge_bdy_or[(match[correct_match].pos[0]+t->nedges-1-i)%t->nedges];
 
-    } else if (match[correct_match].or == PD_NEG_ORIENTATION) {
+    } else if (match[correct_match].orient == PD_NEG_ORIENTATION) {
 
       /* We're in a situation like:
 
@@ -1738,8 +1738,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
     } else {
 
-      pd_error(SRCLOC,"match[correct_match].or = %OR, which is not pos or neg",
-	       pd,match[correct_match].or);
+      pd_error(SRCLOC,"match[correct_match].orient = %OR, which is not pos or neg",
+	       pd,match[correct_match].orient);
 
       /* Now we've got to free the matches... */
       pd_idx_t k;
@@ -1773,7 +1773,7 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
   /* Now we set the overstrand orientation. */
 
-  *overstrand_orientation = match[correct_match].or;
+  *overstrand_orientation = match[correct_match].orient;
 
   /* At this point, we are no longer going to use the buffer of matches.
      So we can free them. We do that so that we don't lose the memory

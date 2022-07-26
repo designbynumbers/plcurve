@@ -70,7 +70,7 @@ void *pd_new_dihedral(void *np)
   pd_idx_t i;
   for(i=0;i<n;i++) { d->map[i] = i; }
   
-  d->or = PD_POS_ORIENTATION;
+  d->orient = PD_POS_ORIENTATION;
   
   return d;
 }
@@ -99,7 +99,7 @@ char  *pd_print_dihedral(void *dihedralP)
   
   /* First, we try to identify the dihedral as a rotation or reflection. */
 
-  if (d->or == PD_POS_ORIENTATION) { 
+  if (d->orient == PD_POS_ORIENTATION) { 
 
     /* This should match to a rotation: make sure everything goes up */
 
@@ -116,7 +116,7 @@ char  *pd_print_dihedral(void *dihedralP)
       
     }
     
-  } else if (d->or == PD_NEG_ORIENTATION) { 
+  } else if (d->orient == PD_NEG_ORIENTATION) { 
     
     for(i=0;i<(d->n)-1;i++) { 
       
@@ -174,7 +174,7 @@ void  *pd_copy_dihedral(void *dihedralP)
 
   new_d = pd_new_dihedral(&(d->n));
   memcpy(new_d->map,d->map,d->n*sizeof(pd_idx_t));
-  new_d->or = d->or;
+  new_d->orient = d->orient;
 
   return (void *)(new_d);
 } 
@@ -209,20 +209,20 @@ void pd_increment_dihedral(void *dihedralP)
 
   if (d->n == 1) { 
     
-    if (d->or == PD_POS_ORIENTATION) { d->or = PD_NEG_ORIENTATION; }
-    else if (d->or == PD_NEG_ORIENTATION) { d->or = PD_POS_ORIENTATION; }
-    else { assert(d->or == PD_POS_ORIENTATION || d->or == PD_NEG_ORIENTATION); }
+    if (d->orient == PD_POS_ORIENTATION) { d->orient = PD_NEG_ORIENTATION; }
+    else if (d->orient == PD_NEG_ORIENTATION) { d->orient = PD_POS_ORIENTATION; }
+    else { assert(d->orient == PD_POS_ORIENTATION || d->orient == PD_NEG_ORIENTATION); }
 
-  } else if (d->or == PD_POS_ORIENTATION && d->map[0] == d->n - 1) { /* R_{n-1} -> S_0 */
+  } else if (d->orient == PD_POS_ORIENTATION && d->map[0] == d->n - 1) { /* R_{n-1} -> S_0 */
 
-    d->or = PD_NEG_ORIENTATION;
+    d->orient = PD_NEG_ORIENTATION;
     pd_idx_t i;
     d->map[0] = 0;
     for(i=1;i<d->n;i++) { d->map[i] = d->n - i; }
 
-  } else if (d->or == PD_NEG_ORIENTATION && d->map[0] == 1) { /* S_1 -> R_0 */
+  } else if (d->orient == PD_NEG_ORIENTATION && d->map[0] == 1) { /* S_1 -> R_0 */
 
-    d->or = PD_POS_ORIENTATION;
+    d->orient = PD_POS_ORIENTATION;
     pd_idx_t i;
     for(i=0;i<d->n;i++) { d->map[i] = i; }
 
@@ -281,16 +281,16 @@ bool pd_dihedral_ok(void *dihedralP)
 
   }
 
-  if (!(d->or == PD_POS_ORIENTATION || d->or == PD_NEG_ORIENTATION)) {
+  if (!(d->orient == PD_POS_ORIENTATION || d->orient == PD_NEG_ORIENTATION)) {
 
     return pd_error(SRCLOC,"%DIHEDRAL contains illegal orientation %d.\n",NULL,
-		    d,d->or);
+		    d,d->orient);
 
   }
 
   /* Now we know that d contains a valid permutation of 0..n-1, and a valid orientation. */
 
-  if (d->or == PD_NEG_ORIENTATION) { /* This is a reflection and should go down as we read. */
+  if (d->orient == PD_NEG_ORIENTATION) { /* This is a reflection and should go down as we read. */
 
     for(i=0;i<(d->n)-1;i++) { 
 
@@ -330,9 +330,9 @@ int          pd_dihedral_cmp(const void *dihedralAp,const void *dihedralBp)
   assert(dihedralA->n == dihedralB->n);
   n = dihedralA->n;
 
-  if (dihedralA->or != dihedralB->or) {
+  if (dihedralA->orient != dihedralB->orient) {
 
-    if (dihedralA->or == PD_POS_ORIENTATION) { return -1; }
+    if (dihedralA->orient == PD_POS_ORIENTATION) { return -1; }
     else { return +1; }
 
   }

@@ -373,10 +373,10 @@ pd_edgemap_t  *pd_new_edgemap(pd_idx_t *nedges)
   edgemap = calloc(1,sizeof(pd_edgemap_t)); assert(edgemap != NULL);
   edgemap->perm = (pd_perm_t *) pd_new_perm(nedges);
 
-  edgemap->or = calloc(*nedges,sizeof(pd_or_t));
-  assert(edgemap->or != NULL);
+  edgemap->orient = calloc(*nedges,sizeof(pd_or_t));
+  assert(edgemap->orient != NULL);
   pd_idx_t edge;
-  for(edge=0;edge<*nedges;edge++) { edgemap->or[edge] = PD_POS_ORIENTATION; }
+  for(edge=0;edge<*nedges;edge++) { edgemap->orient[edge] = PD_POS_ORIENTATION; }
 
   return edgemap;
 }
@@ -388,7 +388,7 @@ void pd_free_edgemap(pd_edgemap_t **edgemapP)
   if (edgemap == NULL) { return; }
 
   pd_free_perm((void **)(&(edgemap->perm)));
-  if (edgemap->or != NULL) { free(edgemap->or); edgemap->or = NULL; }
+  if (edgemap->orient != NULL) { free(edgemap->orient); edgemap->orient = NULL; }
 
   free(edgemap);
   *edgemapP = NULL;
@@ -413,7 +413,7 @@ char  *pd_print_edgemap(pd_edgemap_t *edgemap)
 
   for(edge=0;edge<edgemap->perm->n;edge++) {
 
-    printed = snprintf(strptr,bufsize,"%c%d",pd_print_or(edgemap->or[edge]),edgemap->perm->map[edge]);
+    printed = snprintf(strptr,bufsize,"%c%d",pd_print_or(edgemap->orient[edge]),edgemap->perm->map[edge]);
     assert(printed < bufsize);
     bufsize -= printed;
     strptr += printed;
@@ -444,10 +444,10 @@ void *pd_copy_edgemap(pd_edgemap_t *edgemap)
 
   newmap = calloc(1,sizeof(pd_edgemap_t));  assert(newmap != NULL);
   newmap->perm = pd_copy_perm(edgemap->perm);
-  newmap->or = calloc(edgemap->perm->n,sizeof(pd_idx_t));
-  assert(newmap->or != NULL);
+  newmap->orient = calloc(edgemap->perm->n,sizeof(pd_idx_t));
+  assert(newmap->orient != NULL);
 
-  memcpy(newmap->or,edgemap->or,edgemap->perm->n*sizeof(pd_or_t));
+  memcpy(newmap->orient,edgemap->orient,edgemap->perm->n*sizeof(pd_or_t));
 
   return newmap;
 }
@@ -461,7 +461,7 @@ bool pd_edgemap_ok(pd_edgemap_t *edgemap)
 
   for(edge=0;edge<edgemap->perm->n;edge++) {
 
-    if (!(edgemap->or[edge] == PD_POS_ORIENTATION || edgemap->or[edge] == PD_NEG_ORIENTATION)) {
+    if (!(edgemap->orient[edge] == PD_POS_ORIENTATION || edgemap->orient[edge] == PD_NEG_ORIENTATION)) {
 
       return pd_error(SRCLOC,"%EDGEMAP has illegal orientation for edge %d",NULL,edgemap,edge);
 
@@ -507,7 +507,7 @@ int  pd_edgemap_cmp(const void *A,const void *B)
 
   for(edge=0;edge<n;edge++) {
 
-    orcmp = pd_or_cmp(&(edgemapA->or[edge]),&(edgemapB->or[edge]));
+    orcmp = pd_or_cmp(&(edgemapA->orient[edge]),&(edgemapB->orient[edge]));
     if (orcmp != 0) { return orcmp; }
 
   }
@@ -660,7 +660,7 @@ pd_edgemap_t **pd_build_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_t *comp_p
 	pd_idx_t edgeto   = pdB->comp[comp_perm->map[comp]].edge[this_dihedral->map[edge]];
 
 	edgemaps[i]->perm->map[edgefrom] = edgeto;
-	edgemaps[i]->or[edgefrom] = this_dihedral->or;
+	edgemaps[i]->orient[edgefrom] = this_dihedral->orient;
 
       }
 
@@ -712,7 +712,7 @@ bool pd_edgemap_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_edgemap_t *edgemap)
     pd_idx_t target_comp;
 
     pd_component_and_pos(pdB,edgemap->perm->map[Aedge],&target_comp,NULL);
-    pd_or_t  target_or=edgemap->or[Aedge];
+    pd_or_t  target_or=edgemap->orient[Aedge];
 
     assert(pdA->comp[comp].nedges == pdB->comp[comp].nedges);
     pd_idx_t compedges = pdA->comp[comp].nedges;
@@ -732,7 +732,7 @@ bool pd_edgemap_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_edgemap_t *edgemap)
 
       }
 
-      pd_or_t this_or = edgemap->or[Aedge];
+      pd_or_t this_or = edgemap->orient[Aedge];
 
       if (this_or != target_or) {
 
@@ -776,7 +776,7 @@ pd_edgemap_t  *pd_compose_edgemaps(pd_edgemap_t *A,pd_edgemap_t *B)
        while its orientation is changed by A->or[B->perm->map[edge]] */
 
     AstarB->perm->map[edge] = A->perm->map[B->perm->map[edge]];
-    AstarB->or[edge] = pd_compose_or(B->or[edge],A->or[B->perm->map[edge]]);
+    AstarB->orient[edge] = pd_compose_or(B->orient[edge],A->orient[B->perm->map[edge]]);
 
   }
 
@@ -790,7 +790,7 @@ void           pd_stareq_edgemap(pd_edgemap_t *A,pd_edgemap_t *B)
   pd_edgemap_t *AstarB;
   AstarB = pd_compose_edgemaps(A,B);
   memcpy(A->perm->map,AstarB->perm->map,A->perm->n*sizeof(pd_idx_t));
-  memcpy(A->or,AstarB->or,A->perm->n*sizeof(pd_or_t));
+  memcpy(A->orient,AstarB->orient,A->perm->n*sizeof(pd_or_t));
   pd_free_edgemap(&AstarB);
 }
 
@@ -813,7 +813,7 @@ void pd_apply_edgemap(pd_code_t *pd, pd_edgemap_t *edgemap)
 
   for(e=0;e<pd->nedges;e++) {
 
-    pd_reorient_edge(pd,edgemap->perm->map[e],edgemap->or[e]);
+    pd_reorient_edge(pd,edgemap->perm->map[e],edgemap->orient[e]);
     new_edgebuf[e] = pd->edge[edgemap->perm->map[e]];
 
   }
@@ -866,7 +866,7 @@ void pd_apply_edgemap(pd_code_t *pd, pd_edgemap_t *edgemap)
     for(e=0;e<pd->face[f].nedges;e++) {
 
       pd->face[f].edge[e] = iperm->map[pd->face[f].edge[e]];
-      pd->face[f].or[e] = pd_compose_or(edgemap->or[pd->face[f].edge[e]],pd->face[f].or[e]);
+      pd->face[f].orient[e] = pd_compose_or(edgemap->orient[pd->face[f].edge[e]],pd->face[f].orient[e]);
 
     }
 
@@ -896,7 +896,7 @@ pd_crossmap_t *pd_new_crossmap(pd_idx_t *ncross)
 
   crossmap = calloc(1,sizeof(pd_crossmap_t)); assert(crossmap != NULL);
   crossmap->perm = pd_new_perm(ncross);
-  crossmap->or   = PD_POS_ORIENTATION;
+  crossmap->orient = PD_POS_ORIENTATION;
 
   return crossmap;
 }
@@ -923,7 +923,7 @@ char           *pd_print_crossmap(pd_crossmap_t *crossmap)
 
   bufsize = strlen(pstring) + 32;
   buf = calloc(bufsize,sizeof(char));
-  printed = snprintf(buf,bufsize,"crossmap %c %s",pd_print_or(crossmap->or),pstring);
+  printed = snprintf(buf,bufsize,"crossmap %c %s",pd_print_or(crossmap->orient),pstring);
   assert(printed < bufsize);
 
   free(pstring);
@@ -940,7 +940,7 @@ void           *pd_copy_crossmap(pd_crossmap_t *crossmap)
 
   newcrossmap = calloc(1,sizeof(pd_crossmap_t)); assert(newcrossmap != NULL);
   newcrossmap->perm = pd_copy_perm(crossmap->perm);
-  newcrossmap->or = crossmap->or;
+  newcrossmap->orient = crossmap->orient;
 
   return newcrossmap;
 }
@@ -957,7 +957,7 @@ int  pd_crossmap_cmp(const void *A,const void *B)
   pd_crossmap_t *crossmapA = *(pd_crossmap_t **)(A);
   pd_crossmap_t *crossmapB = *(pd_crossmap_t **)(B);
 
-  int cmp = pd_or_cmp(&(crossmapA->or),&(crossmapB->or));
+  int cmp = pd_or_cmp(&(crossmapA->orient),&(crossmapB->orient));
   if (cmp != 0) { return cmp; }
 
   cmp = pd_perm_cmp(&(crossmapA->perm),&(crossmapB->perm));
@@ -966,7 +966,7 @@ int  pd_crossmap_cmp(const void *A,const void *B)
 
 
 pd_crossmap_t *pdint_build_oriented_crossmap(pd_code_t *pdA,pd_code_t *pdB,
-					     pd_edgemap_t *edgemap,pd_or_t or)
+					     pd_edgemap_t *edgemap,pd_or_t orient)
 
 /* Try to generate a crossing map _with the given orientation_. Return crossmap or NULL. */
 
@@ -983,7 +983,7 @@ pd_crossmap_t *pdint_build_oriented_crossmap(pd_code_t *pdA,pd_code_t *pdB,
 
   /* Now we can try to generate the crmap with this orientation. */
 
-  crossmap->or = or;
+  crossmap->orient = orient;
 
   for(cross=0;cross<ncross;cross++) {
 
@@ -997,7 +997,7 @@ pd_crossmap_t *pdint_build_oriented_crossmap(pd_code_t *pdA,pd_code_t *pdB,
 
     }
 
-    pd_canonorder_cross(&mapcross,or);
+    pd_canonorder_cross(&mapcross,orient);
 
     /* Step 1. Search for that crossing in pdB's crossing list */
 
@@ -1029,7 +1029,7 @@ pd_crossmap_t *pdint_build_oriented_crossmap(pd_code_t *pdA,pd_code_t *pdB,
 }
 
 pd_crossmap_t *pdint_build_oriented_signed_crossmap(pd_code_t *pdA,pd_code_t *pdB,
-						    pd_edgemap_t *edgemap,pd_or_t or)
+						    pd_edgemap_t *edgemap,pd_or_t orient)
 
 /* Try to generate a crossing map _with the given orientation_ for the plane.
    Return crossmap or NULL. */
@@ -1047,7 +1047,7 @@ pd_crossmap_t *pdint_build_oriented_signed_crossmap(pd_code_t *pdA,pd_code_t *pd
 
   /* Now we can try to generate the crmap with this orientation. */
 
-  crossmap->or = or;
+  crossmap->orient = orient;
 
   for(cross=0;cross<ncross;cross++) {
 
@@ -1061,7 +1061,7 @@ pd_crossmap_t *pdint_build_oriented_signed_crossmap(pd_code_t *pdA,pd_code_t *pd
 
     }
 
-    pd_canonorder_cross(&mapcross,or);
+    pd_canonorder_cross(&mapcross,orient);
 
     /* Step 1. Search for that crossing in pdB's crossing list. This SHOULD be sorted,
        but we use lfind (instead of bsearch) just in case it isn't. */
@@ -1211,7 +1211,7 @@ pd_crossmap_t  *pd_compose_crossmaps(pd_crossmap_t *crossmapA,pd_crossmap_t *cro
   AstarB = calloc(1,sizeof(pd_crossmap_t)); assert(AstarB != NULL);
 
   AstarB->perm = pd_compose_perms(crossmapA->perm,crossmapB->perm);
-  AstarB->or   = pd_compose_or(crossmapA->or,crossmapB->or);
+  AstarB->orient = pd_compose_or(crossmapA->orient,crossmapB->orient);
 
   return AstarB;
 }
@@ -1220,7 +1220,7 @@ void pd_stareq_crossmap(pd_crossmap_t *crossmapA,pd_crossmap_t *crossmapB)
 /* Compose A with B in-place. */
 {
   pd_stareq_perm(crossmapA->perm,crossmapB->perm);
-  crossmapA->or = pd_compose_or(crossmapA->or,crossmapB->or);
+  crossmapA->orient = pd_compose_or(crossmapA->orient,crossmapB->orient);
 }
 
 /**************************** face maps *****************************/
@@ -1233,7 +1233,7 @@ pd_facemap_t *pd_new_facemap(pd_idx_t *nfaces)
 
   facemap = calloc(1,sizeof(pd_facemap_t)); assert(facemap != NULL);
   facemap->perm = pd_new_perm(nfaces);
-  facemap->or   = PD_POS_ORIENTATION;
+  facemap->orient = PD_POS_ORIENTATION;
 
   return facemap;
 }
@@ -1260,7 +1260,7 @@ char           *pd_print_facemap(pd_facemap_t *facemap)
 
   bufsize = strlen(pstring) + 32;
   buf = calloc(bufsize,sizeof(char));
-  printed = snprintf(buf,bufsize,"facemap %c %s",pd_print_or(facemap->or),pstring);
+  printed = snprintf(buf,bufsize,"facemap %c %s",pd_print_or(facemap->orient),pstring);
   assert(printed < bufsize);
 
   free(pstring);
@@ -1275,7 +1275,7 @@ void           *pd_copy_facemap(pd_facemap_t *facemap)
 
   newfacemap = calloc(1,sizeof(pd_facemap_t)); assert(newfacemap != NULL);
   newfacemap->perm = pd_copy_perm(facemap->perm);
-  newfacemap->or = facemap->or;
+  newfacemap->orient = facemap->orient;
 
   return newfacemap;
 }
@@ -1292,7 +1292,7 @@ int  pd_facemap_cmp(const void *A,const void *B)
   pd_facemap_t *facemapA = *(pd_facemap_t **)(A);
   pd_facemap_t *facemapB = *(pd_facemap_t **)(B);
 
-  int cmp = pd_or_cmp(&(facemapA->or),&(facemapB->or));
+  int cmp = pd_or_cmp(&(facemapA->orient),&(facemapB->orient));
   if (cmp != 0) { return cmp; }
 
   cmp = pd_perm_cmp(&(facemapA->perm),&(facemapB->perm));
@@ -1300,7 +1300,7 @@ int  pd_facemap_cmp(const void *A,const void *B)
 }
 
 pd_facemap_t *pdint_build_oriented_facemap(pd_code_t *pdA,pd_code_t *pdB,
-					   pd_edgemap_t *edgemap,pd_or_t or)
+					   pd_edgemap_t *edgemap,pd_or_t orient)
 
 /* Try to generate a facemap _with the given orientation_. Return facemap or NULL. */
 
@@ -1316,7 +1316,7 @@ pd_facemap_t *pdint_build_oriented_facemap(pd_code_t *pdA,pd_code_t *pdB,
 
   /* Now we can try to generate the facemap with this orientation. */
 
-  facemap->or = or;
+  facemap->orient = orient;
 
   for(face=0;face<nfaces;face++) {
 
@@ -1326,8 +1326,8 @@ pd_facemap_t *pdint_build_oriented_facemap(pd_code_t *pdA,pd_code_t *pdB,
 
     mapface.nedges = pdA->face[face].nedges;
     mapface.edge = calloc(mapface.nedges,sizeof(pd_idx_t));
-    mapface.or = calloc(mapface.nedges,sizeof(pd_or_t));
-    assert(mapface.edge != NULL && mapface.or != NULL);
+    mapface.orient = calloc(mapface.nedges,sizeof(pd_or_t));
+    assert(mapface.edge != NULL && mapface.orient != NULL);
 
     for(edge=0;edge<pdA->face[face].nedges;edge++) {
 
@@ -1335,7 +1335,7 @@ pd_facemap_t *pdint_build_oriented_facemap(pd_code_t *pdA,pd_code_t *pdB,
 
     }
 
-    pd_canonorder_face(&mapface,or);
+    pd_canonorder_face(&mapface,orient);
 
     /* Step 1. Search for that face in pdB's face list. This is known to be sorted */
     /* if this pd code passed pd_faces_ok, so it's ok to bsearch. */
@@ -1345,8 +1345,8 @@ pd_facemap_t *pdint_build_oriented_facemap(pd_code_t *pdA,pd_code_t *pdB,
 
     /* Now dispose of the mapface memory. */
 
-    free(mapface.edge); free(mapface.or);
-    mapface.edge = NULL; mapface.or = NULL;
+    free(mapface.edge); free(mapface.orient);
+    mapface.edge = NULL; mapface.orient = NULL;
     mapface.nedges = 0;
 
     /* Step 2. If found, translate to index, continue, if not found, go on to negative orientation. */
@@ -1399,7 +1399,7 @@ pd_facemap_t **pd_build_facemaps(pd_code_t *pdA,pd_code_t *pdB,
 
     *nfacemaps = 1;
     face_buf[0] = pd_new_facemap(&(pdA->nfaces)); /* That is, 2 faces */
-    face_buf[0]->or = emap->or[0];     /* Reverses <=> we reverse the edge */
+    face_buf[0]->orient = emap->orient[0];     /* Reverses <=> we reverse the edge */
     face_buf[0]->perm->map[0] = 0;     /* Identity permutation. */
     face_buf[0]->perm->map[1] = 1;
     return face_buf;
@@ -1443,7 +1443,7 @@ pd_facemap_t  *pd_compose_facemaps(pd_facemap_t *facemapA,pd_facemap_t *facemapB
   AstarB = calloc(1,sizeof(pd_facemap_t)); assert(AstarB != NULL);
 
   AstarB->perm = pd_compose_perms(facemapA->perm,facemapB->perm);
-  AstarB->or   = pd_compose_or(facemapA->or,facemapB->or);
+  AstarB->orient = pd_compose_or(facemapA->orient,facemapB->orient);
 
   return AstarB;
 }
@@ -1452,7 +1452,7 @@ void pd_stareq_facemap(pd_facemap_t *facemapA,pd_facemap_t *facemapB)
 /* Compose A with B in-place. */
 {
   pd_stareq_perm(facemapA->perm,facemapB->perm);
-  facemapA->or = pd_compose_or(facemapA->or,facemapB->or);
+  facemapA->orient = pd_compose_or(facemapA->orient,facemapB->orient);
 }
 
 /************************* isomorphisms ***************************/
@@ -1725,12 +1725,12 @@ bool pd_iso_is_e(pd_iso_t *iso) /* Check whether iso is identity (for testing) *
   if (!pd_perm_is_e(iso->crossmap->perm)) { return false; }
   if (!pd_perm_is_e(iso->facemap->perm))  { return false; }
 
-  if (iso->facemap->or != PD_POS_ORIENTATION) { return false; }
-  if (iso->crossmap->or != PD_POS_ORIENTATION) { return false; }
+  if (iso->facemap->orient != PD_POS_ORIENTATION) { return false; }
+  if (iso->crossmap->orient != PD_POS_ORIENTATION) { return false; }
 
   for(edge=0;edge<iso->edgemap->perm->n;edge++) {
 
-    if (iso->edgemap->or[edge] != PD_POS_ORIENTATION) { return false; }
+    if (iso->edgemap->orient[edge] != PD_POS_ORIENTATION) { return false; }
 
   }
 
@@ -1835,13 +1835,13 @@ bool pd_iso_ok(pd_iso_t *iso)
   return true;
 }
 
-bool pdint_in_cyclic_order(pd_idx_t a,pd_idx_t b,pd_idx_t n,pd_or_t or)
+bool pdint_in_cyclic_order(pd_idx_t a,pd_idx_t b,pd_idx_t n,pd_or_t orient)
 /* Returns true if a and b are consective in the oriented
    (by or) cyclic order on n elements. */
 {
-  assert(pd_or_ok(or));
+  assert(pd_or_ok(orient));
 
-  if (or == PD_POS_ORIENTATION) { /* Should be climbing */
+  if (orient == PD_POS_ORIENTATION) { /* Should be climbing */
 
     if (b == a + 1) { return true; }
     if (b == 0 && a == n-1) { return true; }
@@ -1859,7 +1859,7 @@ bool pdint_in_cyclic_order(pd_idx_t a,pd_idx_t b,pd_idx_t n,pd_or_t or)
 
 }
 
-bool pdint_buffers_cycliceq(pd_idx_t *bufA,pd_idx_t *bufB,pd_idx_t n,pd_or_t or)
+bool pdint_buffers_cycliceq(pd_idx_t *bufA,pd_idx_t *bufB,pd_idx_t n,pd_or_t orient)
 /* Decide whether buffers A and B (of length n) are
    (cyclic) rotations of one another if or is PD_POS_ORIENTATION
    or orientation-reversed rotations if or is PD_NEG_ORIENTATION. */
@@ -1869,7 +1869,7 @@ bool pdint_buffers_cycliceq(pd_idx_t *bufA,pd_idx_t *bufB,pd_idx_t n,pd_or_t or)
 
   bcopy = calloc(n,sizeof(pd_idx_t));
 
-  if (or == PD_POS_ORIENTATION) {
+  if (orient == PD_POS_ORIENTATION) {
 
     for(i=0;i<n;i++) { bcopy[i] = bufB[i]; }
 
@@ -2044,18 +2044,18 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
     pd_idx_t start_edge = pdA->comp[comp].edge[0];
     pd_idx_t compedge;
 
-    comp_or[comp] = iso->edgemap->or[start_edge];
+    comp_or[comp] = iso->edgemap->orient[start_edge];
 
     for(compedge=1;compedge<pdA->comp[comp].nedges;compedge++) {
 
       pd_idx_t this_edge = pdA->comp[comp].edge[compedge];
 
-      if (iso->edgemap->or[this_edge] != comp_or[comp]) {
+      if (iso->edgemap->orient[this_edge] != comp_or[comp]) {
 
 	return pd_error(SRCLOC,
 			"edge %d (edge %d of comp %d) edgemap or %OR does \n"
 			"not match edge %d (edge 0 of comp %d) or %OR",NULL,
-			this_edge,compedge,comp,iso->edgemap->or[this_edge],
+			this_edge,compedge,comp,iso->edgemap->orient[this_edge],
 			start_edge,comp,comp_or[comp]);
 
       }
@@ -2145,13 +2145,13 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
 
     if (!pdint_buffers_cycliceq(&(after_edgemap_cross.edge[0]),
 				&(after_crossmap_cross->edge[0]),
-				4,iso->crossmap->or)) {
+				4,iso->crossmap->orient)) {
 
       return pd_error(SRCLOC,
 		      "%CROSSMAP takes %d -> %OR %d, but \n"
 		      "%EDGEMAP takes %CROSSPTR -> %CROSSPTR != %CROSSPTR\n"
 		      "with orientation %OR.\n",
-		      NULL,iso->crossmap,cross,iso->crossmap->or,iso->crossmap->perm->map[cross],
+		      NULL,iso->crossmap,cross,iso->crossmap->orient,iso->crossmap->perm->map[cross],
 		      iso->edgemap,&(pdA->cross[cross]),&after_edgemap_cross,
 		      after_crossmap_cross);
 
@@ -2196,8 +2196,8 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
 
     after_edgemap_face.nedges = pdA->face[face].nedges;
     after_edgemap_face.edge = calloc(after_edgemap_face.nedges,sizeof(pd_idx_t));
-    after_edgemap_face.or = calloc(after_edgemap_face.nedges,sizeof(pd_or_t));
-    assert(after_edgemap_face.edge != NULL && after_edgemap_face.or != NULL);
+    after_edgemap_face.orient = calloc(after_edgemap_face.nedges,sizeof(pd_or_t));
+    assert(after_edgemap_face.edge != NULL && after_edgemap_face.orient != NULL);
 
     for(facepos=0;facepos<pdA->face[face].nedges;facepos++) {
 
@@ -2212,21 +2212,21 @@ bool pd_iso_consistent(pd_code_t *pdA,pd_code_t *pdB,pd_iso_t *iso)
 
     if (!pdint_buffers_cycliceq(&(after_edgemap_face.edge[0]),
 				&(after_facemap_face->edge[0]),
-				nedges,iso->facemap->or)) {
+				nedges,iso->facemap->orient)) {
 
       return pd_error(SRCLOC,
 		      "%FACEMAP takes %d -> %OR %d, but \n"
 		      "%EDGEMAP takes %FACEPTR -> %FACEPTR != %FACEPTR\n"
 		      "with orientation %OR.\n",
-		      NULL,iso->facemap,face,iso->facemap->or,iso->facemap->perm->map[face],
+		      NULL,iso->facemap,face,iso->facemap->orient,iso->facemap->perm->map[face],
 		      iso->edgemap,&(pdA->face[face]),&after_edgemap_face,
 		      after_facemap_face);
 
     }
 
     /* Now free the after_edgemap face */
-    free(after_edgemap_face.edge); free(after_edgemap_face.or);
-    after_edgemap_face.edge = NULL; after_edgemap_face.or = NULL;
+    free(after_edgemap_face.edge); free(after_edgemap_face.orient);
+    after_edgemap_face.edge = NULL; after_edgemap_face.orient = NULL;
     after_edgemap_face.nedges = 0;
 
   }
@@ -2331,7 +2331,7 @@ bool pd_is_diagram_isotopy(pd_iso_t *A, pd_code_t *pdA, pd_code_t *pdB)
 
   if (pdA->ncross > 0) { /* We only have a crossmap orientation if there's a crossmap */
 
-    assert(A->crossmap->or == A->facemap->or);
+    assert(A->crossmap->orient == A->facemap->orient);
 
   }
 
@@ -2339,7 +2339,7 @@ bool pd_is_diagram_isotopy(pd_iso_t *A, pd_code_t *pdA, pd_code_t *pdB)
 
   for(i=0;i<A->edgemap->perm->n;i++) {
 
-    if (A->edgemap->or[i] != PD_POS_ORIENTATION) {
+    if (A->edgemap->orient[i] != PD_POS_ORIENTATION) {
 
       return false;
 
@@ -2463,7 +2463,7 @@ pd_edgemap_t **pd_build_oriented_edgemaps(pd_code_t *pdA,pd_code_t *pdB,pd_perm_
 	pd_idx_t edgeto   = pdB->comp[comp_perm->map[comp]].edge[this_cyclic->map[edge]];
 
 	edgemaps[i]->perm->map[edgefrom] = edgeto;
-	edgemaps[i]->or[edgefrom] = PD_POS_ORIENTATION;
+	edgemaps[i]->orient[edgefrom] = PD_POS_ORIENTATION;
 
       }
 
@@ -2659,7 +2659,7 @@ pd_iso_t **pd_build_diagram_isotopies(pd_code_t *pdA,pd_code_t *pdB,unsigned int
 	new_iso->edgemap  = pd_copy_edgemap(edgemaps[edgemap]);
 	new_iso->crossmap = pd_copy_crossmap(crossmaps[0]);
 
-	if (crossmaps[0]->or == PD_POS_ORIENTATION) {
+	if (crossmaps[0]->orient == PD_POS_ORIENTATION) {
 
 	  new_iso->facemap  = pd_copy_facemap(facemaps[0]);
 
@@ -2834,7 +2834,7 @@ pd_iso_t **pdint_build_map_isomorphisms(pd_code_t *pdA,pd_code_t *pdB,
 
       for(map=0;map<nmaps && !abortflag;map++) { /* We have actually generated an isomorphism! */
 
-          if(crossmaps[map]->or == PD_POS_ORIENTATION) { // We have a *map* isomorphism (oriented S2)
+          if(crossmaps[map]->orient == PD_POS_ORIENTATION) { // We have a *map* isomorphism (oriented S2)
 
               pd_iso_t *new_iso;
               new_iso = calloc(1,sizeof(pd_iso_t)); assert(new_iso != NULL);

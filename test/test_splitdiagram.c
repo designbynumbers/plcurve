@@ -239,17 +239,17 @@ pd_code_t *pd_joindiagram(pd_idx_t ncomponentPD,pd_code_t **componentPD)
 	= calloc(pd->face[new_face_number[i][j]].nedges,sizeof(pd_idx_t));
       assert(pd->face[new_face_number[i][j]].edge != NULL);
 
-      pd->face[new_face_number[i][j]].or 
+      pd->face[new_face_number[i][j]].orient 
 	= calloc(pd->face[new_face_number[i][j]].nedges,sizeof(pd_or_t));
-      assert(pd->face[new_face_number[i][j]].or != NULL);
+      assert(pd->face[new_face_number[i][j]].orient != NULL);
       
       for(k=0;k<componentPD[i]->face[j].nedges;k++) { 
 
 	pd->face[new_face_number[i][j]].edge[k] = 
 	  new_edge_number[i][componentPD[i]->face[j].edge[k]];
 
-	pd->face[new_face_number[i][j]].or[k] = 
-	  componentPD[i]->face[j].or[k];
+	pd->face[new_face_number[i][j]].orient[k] = 
+	  componentPD[i]->face[j].orient[k];
 
       }
 

@@ -673,7 +673,7 @@ pd_code_t *pd_R1_loop_addition(pd_code_t *pd,
     pd_code_t *ret = pd_copy_newsize(pd, pd->ncross+2);
     pd_idx_t c = ret->ncross++;
     pd_idx_t e = pd->face[f].edge[e_on_f];
-    pd_or_t eo = pd->face[f].or[e_on_f];
+    pd_or_t eo = pd->face[f].orient[e_on_f];
     pd_idx_t ea, eb;
 
     ea = ret->nedges++; eb = ret->nedges++;
@@ -1767,7 +1767,7 @@ pd_code_t *pd_R2_bigon_addition(pd_code_t *pd, pd_idx_t f,
     // cr0 and cr1 numbered wrt direction of e1
 
     e1 = ret->face[f].edge[e1_on_f];
-    e1o = ret->face[f].or[e1_on_f];
+    e1o = ret->face[f].orient[e1_on_f];
     e1a = ret->nedges++; e1b = ret->nedges++;
 
     // Alignment/division of edge 2 before R2 addition
@@ -1781,7 +1781,7 @@ pd_code_t *pd_R2_bigon_addition(pd_code_t *pd, pd_idx_t f,
     // (X,Y) = (0,1) if e1o*e2o == 1 else (1,0)
 
     e2 = ret->face[f].edge[e2_on_f];
-    e2o = ret->face[f].or[e2_on_f];
+    e2o = ret->face[f].orient[e2_on_f];
     e2a = ret->nedges++; e2b = ret->nedges++;
 
     if (e1o == PD_POS_ORIENTATION && e2o == PD_POS_ORIENTATION) {

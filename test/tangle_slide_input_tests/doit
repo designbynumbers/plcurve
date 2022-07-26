@@ -1,0 +1,53 @@
+rm *.c
+rm *.pdstor
+cp ../assemble_tangleslideinput.py .
+
+cp ../tst_raw/tangle_slide_input_testa.c .
+cp ../tst_raw/tangle_slide_input_testa.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testb.c .
+cp ../tst_raw/tangle_slide_input_testb.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testc.c .
+cp ../tst_raw/tangle_slide_input_testc.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testd.c .
+cp ../tst_raw/tangle_slide_input_testd.pdstor .
+
+cp ../tst_raw/tangle_slide_input_teste.c .
+cp ../tst_raw/tangle_slide_input_teste.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testf.c .
+cp ../tst_raw/tangle_slide_input_testf.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testg.c .
+cp ../tst_raw/tangle_slide_input_testg.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testg.c .
+cp ../tst_raw/tangle_slide_input_testg.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testh.c .
+cp ../tst_raw/tangle_slide_input_testh.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testi.c .
+cp ../tst_raw/tangle_slide_input_testi.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testW.c .
+cp ../tst_raw/tangle_slide_input_testW.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testX.c .
+cp ../tst_raw/tangle_slide_input_testX.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testY.c .
+cp ../tst_raw/tangle_slide_input_testY.pdstor .
+
+cp ../tst_raw/tangle_slide_input_testZ.c .
+cp ../tst_raw/tangle_slide_input_testZ.pdstor .
+
+pyenv local 2.7.18; pyenv exec python2.7 $(pwd)/assemble_tangleslideinput.py 
+
+cp ./test_tangle_slide_input_auto.c ../test_tangle_slide_input.c
+cd ..
+make ./test_tangle_slide_input
+cd ./tangle_slide_input_tests
+

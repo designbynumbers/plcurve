@@ -148,10 +148,10 @@ void pd_code_free(pd_code_t **PD) {
 
       }
 
-      if (pd->face[face].or != NULL) {
+      if (pd->face[face].orient != NULL) {
 
-	free(pd->face[face].or);
-	pd->face[face].or = NULL;
+	free(pd->face[face].orient);
+	pd->face[face].orient = NULL;
 
       }
 
@@ -217,9 +217,9 @@ pd_or_t pd_compose_or(pd_or_t a,pd_or_t b)
   exit(1);
 }
 
-bool pd_or_ok(pd_or_t or) /* Check whether or has a legal value. */
+bool pd_or_ok(pd_or_t orient) /* Check whether or has a legal value. */
 {
-  return (or == PD_POS_ORIENTATION || or == PD_NEG_ORIENTATION);
+  return (orient == PD_POS_ORIENTATION || orient == PD_NEG_ORIENTATION);
 }
 
 int pd_or_cmp(const void *A, const void *B)
@@ -261,12 +261,12 @@ pd_crossing_t pd_build_cross(pd_idx_t e0,pd_idx_t e1,pd_idx_t e2,pd_idx_t e3)
   return cr;
 }
 
-void pd_canonorder_cross(pd_crossing_t *cross, pd_or_t or)
+void pd_canonorder_cross(pd_crossing_t *cross, pd_or_t orient)
 /* Reverses (if or == PD_NEG_ORIENTATION) and then rotates
    a crossing into canonical order: cr->edge[0] is the
    lowest edge # */
 {
-  if (or == PD_NEG_ORIENTATION) { /* Reverse the cyclic order of the edges */
+  if (orient == PD_NEG_ORIENTATION) { /* Reverse the cyclic order of the edges */
 
     pd_idx_t rev[4];
     pd_pos_t pos;
@@ -283,7 +283,7 @@ void pd_canonorder_cross(pd_crossing_t *cross, pd_or_t or)
 
 }
 
-void pd_canonorder_face(pd_face_t *face, pd_or_t or)
+void pd_canonorder_face(pd_face_t *face, pd_or_t orient)
 /* Reverses (if or == PD_NEG_ORIENTATION) and then rotates
    a face into canonical order: face->edge[0] is the
    lowest edge # */
@@ -296,20 +296,20 @@ void pd_canonorder_face(pd_face_t *face, pd_or_t or)
 
   nedges = reface.nedges = face->nedges;
   reface.edge = calloc(reface.nedges,sizeof(pd_idx_t));
-  reface.or = calloc(reface.nedges,sizeof(pd_or_t));
-  assert(reface.edge != NULL && reface.or != NULL);
+  reface.orient = calloc(reface.nedges,sizeof(pd_or_t));
+  assert(reface.edge != NULL && reface.orient != NULL);
 
-  if (or == PD_POS_ORIENTATION) {
+  if (orient == PD_POS_ORIENTATION) {
 
     memcpy(reface.edge,face->edge,nedges*sizeof(pd_idx_t));
-    memcpy(reface.or,face->or,nedges*sizeof(pd_or_t));
+    memcpy(reface.orient,face->orient,nedges*sizeof(pd_or_t));
 
-  } else if (or == PD_NEG_ORIENTATION) { /* There's no library function for reverse-copy */
+  } else if (orient == PD_NEG_ORIENTATION) { /* There's no library function for reverse-copy */
 
     for(edge=0;edge < nedges;edge++) {
 
       reface.edge[edge] = face->edge[(nedges-1) - edge];
-      reface.or[edge] = face->or[(nedges-1) - edge];
+      reface.orient[edge] = face->orient[(nedges-1) - edge];
 
     }
 
@@ -334,14 +334,14 @@ void pd_canonorder_face(pd_face_t *face, pd_or_t or)
   for(edge=0;edge<nedges;edge++) {
 
     face->edge[edge] = reface.edge[(lowPos + edge) % nedges];
-    face->or[edge] = reface.or[(lowPos + edge) % nedges];
+    face->orient[edge] = reface.orient[(lowPos + edge) % nedges];
 
   }
 
-  /* Finally, free the scratch buffers reface.edge and reface.or. */
+  /* Finally, free the scratch buffers reface.edge and reface.orient. */
 
   free(reface.edge);
-  free(reface.or);
+  free(reface.orient);
 
 }
 
@@ -454,7 +454,7 @@ void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 
       if (pd->face[face].edge[fedge] == edge) {
 
-	if (pd->face[face].or[fedge] == PD_POS_ORIENTATION) {
+	if (pd->face[face].orient[fedge] == PD_POS_ORIENTATION) {
 
 	  if (pos_found == true) { /* We have a problem */
 
@@ -469,7 +469,7 @@ void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 	  pos_found = true;
 	  *posface = face; *posface_pos = fedge;
 
-	} else if (pd->face[face].or[fedge] == PD_NEG_ORIENTATION) {
+	} else if (pd->face[face].orient[fedge] == PD_NEG_ORIENTATION) {
 
 	  if (neg_found == true) { /* We have a problem */
 
@@ -487,7 +487,7 @@ void pd_face_and_pos(pd_code_t *pd, pd_idx_t edge,
 	} else {
 
 	  pd_error(SRCLOC,"pd %PD contains unknown orientation %d for edge %d of face %FACE",pd,
-		   pd->face[face].or[fedge],fedge,face);
+		   pd->face[face].orient[fedge],fedge,face);
 
 	}
 
@@ -530,19 +530,19 @@ bool pd_edge_on_face(pd_code_t *pd, pd_idx_t edge, pd_idx_t face)
 
 }
 
-pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or)
+pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t orient)
 /* Returns original edge if or = PD_POS_ORIENTATION,
    reversed edge if or = PD_NEG_ORIENTATION */
 
 { pd_edge_t ret;
 
-  assert(or == PD_POS_ORIENTATION || or == PD_NEG_ORIENTATION);
+  assert(orient == PD_POS_ORIENTATION || orient == PD_NEG_ORIENTATION);
 
-  if (or == PD_POS_ORIENTATION) {
+  if (orient == PD_POS_ORIENTATION) {
 
     ret = e;
 
-  } else if (or == PD_NEG_ORIENTATION) {
+  } else if (orient == PD_NEG_ORIENTATION) {
 
     ret.tail = e.head;
     ret.tailpos = e.headpos;
@@ -554,7 +554,7 @@ pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or)
 
     pd_error(SRCLOC,"passed or = %c, neither PD_POS_ORIENTATION"\
 	     "nor PD_NEG_ORIENTATION",
-	     NULL,pd_print_or(or));
+	     NULL,pd_print_or(orient));
     exit(1);
 
   }
@@ -563,14 +563,14 @@ pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or)
 
 }
 
-void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t or)
+void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t orient)
 /* Flips the edge in pd->edges[] if or == PD_NEG_ORIENTATION */
 {
   assert(pd != NULL);
   assert(edge < pd->nedges);
-  assert(or == PD_POS_ORIENTATION || or == PD_NEG_ORIENTATION);
+  assert(orient == PD_POS_ORIENTATION || orient == PD_NEG_ORIENTATION);
 
-  if (or == PD_NEG_ORIENTATION) {
+  if (orient == PD_NEG_ORIENTATION) {
 
     pd_idx_t cross_swap;
 
@@ -1734,7 +1734,7 @@ void pd_regenerate_hash(pd_code_t *pd)
 }
 
 
-void pdint_next_edge_on_face(pd_code_t *pd,pd_idx_t ed,pd_or_t or,
+void pdint_next_edge_on_face(pd_code_t *pd,pd_idx_t ed,pd_or_t orient,
 			     pd_idx_t *next_edge,pd_or_t *next_or)
 
 /* Given an edge and an orientation (or), if or = +1, travel to the head of the edge,
@@ -1744,11 +1744,11 @@ void pdint_next_edge_on_face(pd_code_t *pd,pd_idx_t ed,pd_or_t or,
 {
   assert(pd != NULL && next_edge != NULL && next_or != NULL);
   assert(ed < pd->nedges);
-  assert(or == PD_POS_ORIENTATION || or == PD_NEG_ORIENTATION);
+  assert(orient == PD_POS_ORIENTATION || orient == PD_NEG_ORIENTATION);
 
   pd_idx_t cross, this_pos, next_pos;
 
-  if (or == PD_POS_ORIENTATION) {
+  if (orient == PD_POS_ORIENTATION) {
 
     cross    = pd->edge[ed].head;
     this_pos = pd->edge[ed].headpos;
@@ -1940,7 +1940,7 @@ void pd_regenerate_faces(pd_code_t *pd)
   for(face=0;face<pd->MAXFACES;face++) {
 
     if (pd->face[face].edge != NULL) { free(pd->face[face].edge); pd->face[face].edge = NULL; }
-    if (pd->face[face].or != NULL) { free(pd->face[face].or); pd->face[face].or = NULL; }
+    if (pd->face[face].orient != NULL) { free(pd->face[face].orient); pd->face[face].orient = NULL; }
     pd->face[face].nedges = 0;
 
   }
@@ -2033,8 +2033,8 @@ void pd_regenerate_faces(pd_code_t *pd)
 
     pd->face[pd->nfaces].nedges = nedges;
     pd->face[pd->nfaces].edge = calloc(nedges,sizeof(pd_idx_t));
-    pd->face[pd->nfaces].or = calloc(nedges,sizeof(pd_or_t));
-    assert(pd->face[pd->nfaces].edge != NULL && pd->face[pd->nfaces].or != NULL);
+    pd->face[pd->nfaces].orient = calloc(nedges,sizeof(pd_or_t));
+    assert(pd->face[pd->nfaces].edge != NULL && pd->face[pd->nfaces].orient != NULL);
 
   } /* End of loop over faces. */
 
@@ -2048,13 +2048,13 @@ void pd_regenerate_faces(pd_code_t *pd)
     assert(face_assigned[edge].pos_face_position < pd->face[face_assigned[edge].pos_face].nedges);
 
     pd->face[face_assigned[edge].pos_face].edge[face_assigned[edge].pos_face_position] = edge;
-    pd->face[face_assigned[edge].pos_face].or[face_assigned[edge].pos_face_position] = PD_POS_ORIENTATION;
+    pd->face[face_assigned[edge].pos_face].orient[face_assigned[edge].pos_face_position] = PD_POS_ORIENTATION;
 
     assert(face_assigned[edge].neg_face < pd->nfaces);
     assert(face_assigned[edge].neg_face_position < pd->face[face_assigned[edge].neg_face].nedges);
 
     pd->face[face_assigned[edge].neg_face].edge[face_assigned[edge].neg_face_position] = edge;
-    pd->face[face_assigned[edge].neg_face].or[face_assigned[edge].neg_face_position] = PD_NEG_ORIENTATION;
+    pd->face[face_assigned[edge].neg_face].orient[face_assigned[edge].neg_face_position] = PD_NEG_ORIENTATION;
 
   }
 
@@ -2581,8 +2581,8 @@ bool pd_faces_ok(pd_code_t *pd)
 
       /* Check that consecutive edges meet at vertex in left turn. */
 
-      this = pd_oriented_edge(pd->edge[f->edge[edge]],f->or[edge]);
-      next = pd_oriented_edge(pd->edge[f->edge[nxt_edge]],f->or[nxt_edge]);
+      this = pd_oriented_edge(pd->edge[f->edge[edge]],f->orient[edge]);
+      next = pd_oriented_edge(pd->edge[f->edge[nxt_edge]],f->orient[nxt_edge]);
 
       if (this.head != next.tail || (next.tailpos + 1) % 4 != this.headpos) {
 
@@ -2805,21 +2805,21 @@ pd_code_t *pd_copy_newsize(pd_code_t *pd, pd_idx_t MAXVERTS)
 
   for(face=0;face<pdA->nfaces;face++) {
 
-    assert((pd->face[face].nedges == 0 && (pd->face[face].edge == NULL && pd->face[face].or == NULL)) ||
-	   (pd->face[face].nedges != 0 && (pd->face[face].edge != NULL && pd->face[face].or != NULL)));
+    assert((pd->face[face].nedges == 0 && (pd->face[face].edge == NULL && pd->face[face].orient == NULL)) ||
+	   (pd->face[face].nedges != 0 && (pd->face[face].edge != NULL && pd->face[face].orient != NULL)));
 
     if (pd->face[face].nedges != 0) {
 
       pdA->face[face].nedges = pd->face[face].nedges;
       pdA->face[face].edge   = calloc(pdA->face[face].nedges,sizeof(pd_idx_t));
-      pdA->face[face].or     = calloc(pdA->face[face].nedges,sizeof(pd_or_t));
+      pdA->face[face].orient = calloc(pdA->face[face].nedges,sizeof(pd_or_t));
 
-      assert(pdA->face[face].edge != NULL && pdA->face[face].or != NULL);
+      assert(pdA->face[face].edge != NULL && pdA->face[face].orient != NULL);
 
       for(edge=0;edge<pdA->face[face].nedges;edge++) {
 
 	pdA->face[face].edge[edge] = pd->face[face].edge[edge];
-	pdA->face[face].or[edge] = pd->face[face].or[edge];
+	pdA->face[face].orient[edge] = pd->face[face].orient[edge];
 
       }
 
@@ -3002,7 +3002,7 @@ void pd_write(FILE *of,pd_code_t *pd)
 
     for(edge=0;edge<pd->face[face].nedges;edge++) {
 
-      if (pd->face[face].or[edge] == PD_POS_ORIENTATION) {
+      if (pd->face[face].orient[edge] == PD_POS_ORIENTATION) {
 
 	fprintf(of,"+ ");
 
@@ -3114,18 +3114,18 @@ void pd_write_c(FILE *outfile, pd_code_t *pd, char *pdname)
     fprintf(outfile,
 	    "pd->face[%d].nedges = %d;\n"
 	    "pd->face[%d].edge = calloc(pd->face[%d].nedges,sizeof(pd_idx_t));\n"
-	    "pd->face[%d].or = calloc(pd->face[%d].nedges,sizeof(pd_or_t));\n"
+	    "pd->face[%d].orient = calloc(pd->face[%d].nedges,sizeof(pd_or_t));\n"
 	    "assert(pd->face[%d].edge != NULL);\n"
-	    "assert(pd->face[%d].or != NULL);\n\n",
+	    "assert(pd->face[%d].orient != NULL);\n\n",
 	    i,pd->face[i].nedges,i,i,i,i,i,i);
 
     for(j=0;j<pd->face[i].nedges;j++) {
 
       fprintf(outfile,
 	      "pd->face[%d].edge[%d] = %d;\n"
-	      "pd->face[%d].or[%d] = %d;\n\n",
+	      "pd->face[%d].orient[%d] = %d;\n\n",
 	      i,j,pd->face[i].edge[j],
-	      i,j,pd->face[i].or[j]);
+	      i,j,pd->face[i].orient[j]);
 
     }
 
@@ -3612,8 +3612,8 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
     }
 
     pd->face[face].edge = calloc(pd->face[face].nedges,sizeof(pd_idx_t));
-    pd->face[face].or = calloc(pd->face[face].nedges,sizeof(pd_or_t));
-    assert(pd->face[face].edge != NULL && pd->face[face].or != NULL);
+    pd->face[face].orient = calloc(pd->face[face].nedges,sizeof(pd_or_t));
+    assert(pd->face[face].edge != NULL && pd->face[face].orient != NULL);
 
     for(edge=0;edge<pd->face[face].nedges;edge++) {
 
@@ -3643,7 +3643,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
       }
 
       pd->face[face].edge[edge] = (pd_idx_t)(input_temp);
-      pd->face[face].or[edge] = (orientation[0] == '+') ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
+      pd->face[face].orient[edge] = (orientation[0] == '+') ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
 
     }
 
@@ -4300,12 +4300,12 @@ ones we don't need.
 
 /* Pd human output */
 
-char pd_print_or(pd_or_t or)
+char pd_print_or(pd_or_t orient)
 /* Returns a single-character version of or: +, -, U (for unset), or ? (anything else) */
 {
-  if (or == PD_POS_ORIENTATION) { return '+'; }
-  else if (or == PD_NEG_ORIENTATION) { return '-'; }
-  else if (or == PD_UNSET_ORIENTATION) { return 'U'; }
+  if (orient == PD_POS_ORIENTATION) { return '+'; }
+  else if (orient == PD_NEG_ORIENTATION) { return '-'; }
+  else if (orient == PD_UNSET_ORIENTATION) { return 'U'; }
   else return '?';
 }
 
@@ -4327,7 +4327,7 @@ char *pd_print_idx(pd_idx_t idx)
   return out;
 }
 
-char *pd_print_boundary_or(pd_boundary_or_t or)
+char *pd_print_boundary_or(pd_boundary_or_t orient)
 /* Returns a character string containing "in", "out", or "?".
    It's the user's responsibility to dispose of the buffer. */
 {
@@ -4335,9 +4335,9 @@ char *pd_print_boundary_or(pd_boundary_or_t or)
   outbuf = calloc(32,sizeof(char));
   assert(outbuf != NULL);
 
-  if (or == in) {
+  if (orient == in) {
     sprintf(outbuf," in");
-  } else if (or == out) {
+  } else if (orient == out) {
     sprintf(outbuf,"out");
   } else {
     sprintf(outbuf,"  ?");
@@ -4454,7 +4454,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
 	  char *edge_idx = pd_print_idx(pd->face[face].edge[edge]);
 	  fprintf(stream," (%c) %s ->",
-		  pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
+		  pd->face[face].orient[edge] == PD_POS_ORIENTATION ? '+':'-',
 		  edge_idx);
 	  free(edge_idx);
 
@@ -4462,7 +4462,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
 	char *edge_idx = pd_print_idx(pd->face[face].edge[edge]);
 	fprintf(stream,"(%c) %s) ",
-		pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-',
+		pd->face[face].orient[edge] == PD_POS_ORIENTATION ? '+':'-',
 		edge_idx);
 	free(edge_idx);
 
@@ -4711,7 +4711,7 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 	pd_idx_t edge = (pd_idx_t) va_arg(ap,int);
 
 	fprintf(stream,"%d (%c)",pd->face[face].edge[edge],
-		pd->face[face].or[edge] == PD_POS_ORIENTATION ? '+':'-');
+		pd->face[face].orient[edge] == PD_POS_ORIENTATION ? '+':'-');
 
 	nxtconv += 6;
 
@@ -4755,8 +4755,8 @@ void pd_vfprintf(FILE *stream, char *infmt, pd_code_t *pd, va_list ap )
 
     } else if (!strncmp(nxtconv,"%OR ",3)) { /* Edge map */
 
-      pd_or_t *or = (pd_or_t *) va_arg(ap,void *);
-      fprintf(stream,"or (%c)",pd_print_or(*or));
+      pd_or_t *orient = (pd_or_t *) va_arg(ap,void *);
+      fprintf(stream,"or (%c)",pd_print_or(*orient));
 
       nxtconv += 3;
 

@@ -238,7 +238,7 @@ int main(int argc,char *argv[])
       
       for(acount=0;acount<amax;acount++,pd_increment_multidx(a_orientation_iter)) {
 
-	if (((pd_orientation_t *)(a_orientation_iter->obj[0]))->or == PD_POS_ORIENTATION) {
+	if (((pd_orientation_t *)(a_orientation_iter->obj[0]))->orient == PD_POS_ORIENTATION) {
 	  
 	  pd_multidx_t *b_orientation_iter = pd_new_multidx(pdB->ncomps,NULL,orientation_ops);
 	  unsigned int bmax = pd_multidx_nvals(b_orientation_iter);
@@ -250,7 +250,7 @@ int main(int argc,char *argv[])
 	  for(compA=0;compA<pdA->ncomps;compA++) {
 	    
 	    pd_reorient_component(workingA,compA,
-				  ((pd_orientation_t *)(a_orientation_iter->obj[compA]))->or);
+				  ((pd_orientation_t *)(a_orientation_iter->obj[compA]))->orient) ;
 	    
 	  }
 	  
@@ -262,7 +262,7 @@ int main(int argc,char *argv[])
 	    for(compB=0;compB<pdB->ncomps;compB++) {
 	      
 	      pd_reorient_component(workingB,compB,
-				    ((pd_orientation_t *)(b_orientation_iter->obj[compB]))->or);
+				    ((pd_orientation_t *)(b_orientation_iter->obj[compB]))->orient) ;
 	      
 	    }
 	    

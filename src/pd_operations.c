@@ -52,13 +52,13 @@
 #include"pd_isomorphisms.h"
 
 
-void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp,pd_or_t or) 
+void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp,pd_or_t orient) 
 {
   
   pd_check_notnull(SRCLOC,"pd",pd);
   pd_check_cmp(SRCLOC,pd,cmp);
 
-  if (or == PD_NEG_ORIENTATION) {
+  if (orient == PD_NEG_ORIENTATION) {
 
     /* Several things need to happen in a proper component reversal:
 
@@ -114,7 +114,7 @@ void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp,pd_or_t or)
     
     for(e=0;e<pd->nedges;e++) { 
 
-      emap->or[e] = PD_POS_ORIENTATION;
+      emap->orient[e] = PD_POS_ORIENTATION;
       emap->perm->map[e] = e;
 
     }
@@ -130,12 +130,12 @@ void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp,pd_or_t or)
     assert(last_edge - first_edge + 1 == cmp_edges); 
     /* This is, we're assuming that the edges are consecutive. */
     
-    emap->or[first_edge] = PD_NEG_ORIENTATION;
+    emap->orient[first_edge] = PD_NEG_ORIENTATION;
     emap->perm->map[first_edge] = first_edge;
  
     for(e=1;e<cmp_edges;e++) { 
       
-      emap->or[first_edge+e] = PD_NEG_ORIENTATION;
+      emap->orient[first_edge+e] = PD_NEG_ORIENTATION;
       emap->perm->map[first_edge+e] = (last_edge+1) - e;
 
     }
@@ -191,7 +191,7 @@ void pd_renumber_component(pd_code_t *pd, pd_idx_t cmp,pd_idx_t ofs)
     
     for(e=0;e<pd->nedges;e++) { 
 
-      emap->or[e] = PD_POS_ORIENTATION;
+      emap->orient[e] = PD_POS_ORIENTATION;
       emap->perm->map[e] = e;
 
     }
@@ -204,7 +204,7 @@ void pd_renumber_component(pd_code_t *pd, pd_idx_t cmp,pd_idx_t ofs)
     for(e=0;e<cmp_edges;e++) { 
 
       new_e = (e + ofs) % cmp_edges;
-      emap->or[pd->comp[cmp].edge[e]] = PD_POS_ORIENTATION;
+      emap->orient[pd->comp[cmp].edge[e]] = PD_POS_ORIENTATION;
       emap->perm->map[pd->comp[cmp].edge[e]] = pd->comp[cmp].edge[new_e];
 
     }

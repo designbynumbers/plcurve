@@ -11,7 +11,7 @@
 
 typedef struct pd_orientation_struct {
 
-  pd_or_t  or;    /* PD_POS_ORIENTATION or PD_NEG_ORIENTATION */
+  pd_or_t  orient;    /* PD_POS_ORIENTATION or PD_NEG_ORIENTATION */
  
 } pd_orientation_t;
 

@@ -364,9 +364,9 @@ case with n == 0 and n == 1 correctly.
     assert(pd->face[0].edge != NULL);
     pd->face[0].edge[0] = 0;
     
-    pd->face[0].or = calloc(1,sizeof(pd_or_t));
-    assert(pd->face[0].or != NULL);
-    pd->face[0].or[0] = PD_POS_ORIENTATION;
+    pd->face[0].orient = calloc(1,sizeof(pd_or_t));
+    assert(pd->face[0].orient != NULL);
+    pd->face[0].orient[0] = PD_POS_ORIENTATION;
 
     pd->face[1].nedges = 1;
     
@@ -374,9 +374,9 @@ case with n == 0 and n == 1 correctly.
     assert(pd->face[1].edge != NULL);
     pd->face[1].edge[0] = 0;
     
-    pd->face[1].or = calloc(1,sizeof(pd_or_t));
-    assert(pd->face[1].or != NULL);
-    pd->face[1].or[0] = PD_NEG_ORIENTATION;
+    pd->face[1].orient = calloc(1,sizeof(pd_or_t));
+    assert(pd->face[1].orient != NULL);
+    pd->face[1].orient[0] = PD_NEG_ORIENTATION;
 
     pd->comp[0].nedges = 1;
     pd->comp[0].edge = calloc(1,sizeof(pd_idx_t));
@@ -428,10 +428,10 @@ case with n == 0 and n == 1 correctly.
     pd->face[0].edge[0] = 0;
     pd->face[0].edge[1] = 1;
     
-    pd->face[0].or = calloc(2,sizeof(pd_or_t));
-    assert(pd->face[0].or != NULL);
-    pd->face[0].or[0] = PD_NEG_ORIENTATION;
-    pd->face[0].or[1] = PD_POS_ORIENTATION;
+    pd->face[0].orient = calloc(2,sizeof(pd_or_t));
+    assert(pd->face[0].orient != NULL);
+    pd->face[0].orient[0] = PD_NEG_ORIENTATION;
+    pd->face[0].orient[1] = PD_POS_ORIENTATION;
 
     pd->face[1].nedges = 1;
     
@@ -439,9 +439,9 @@ case with n == 0 and n == 1 correctly.
     assert(pd->face[1].edge != NULL);
     pd->face[1].edge[0] = 0;
     
-    pd->face[1].or = calloc(1,sizeof(pd_or_t));
-    assert(pd->face[1].or != NULL);
-    pd->face[1].or[0] = PD_POS_ORIENTATION;
+    pd->face[1].orient = calloc(1,sizeof(pd_or_t));
+    assert(pd->face[1].orient != NULL);
+    pd->face[1].orient[0] = PD_POS_ORIENTATION;
 
     pd->face[2].nedges = 1;
     
@@ -449,9 +449,9 @@ case with n == 0 and n == 1 correctly.
     assert(pd->face[2].edge != NULL);
     pd->face[2].edge[0] = 1;
     
-    pd->face[2].or = calloc(1,sizeof(pd_or_t));
-    assert(pd->face[2].or != NULL);
-    pd->face[2].or[0] = PD_NEG_ORIENTATION;
+    pd->face[2].orient = calloc(1,sizeof(pd_or_t));
+    assert(pd->face[2].orient != NULL);
+    pd->face[2].orient[0] = PD_NEG_ORIENTATION;
 
     pd->comp[0].nedges = 2;
     pd->comp[0].edge = calloc(2,sizeof(pd_idx_t));

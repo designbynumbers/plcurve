@@ -61,7 +61,7 @@ void *pd_new_orientation(void *nodata)
   pd_orientation_t *d;
   d = calloc(1,sizeof(pd_orientation_t));
   assert(d != NULL);
-  d->or = PD_POS_ORIENTATION;
+  d->orient = PD_POS_ORIENTATION;
  
   return d;
 }
@@ -87,7 +87,7 @@ char  *pd_print_orientation(void *orientationP)
   char *buf = calloc(bufsize,sizeof(char));
   assert(buf != NULL);
 
-  snprintf(buf,bufsize,"or %c",pd_print_or(d->or));
+  snprintf(buf,bufsize,"or %c",pd_print_or(d->orient));
   return buf;
 
 }
@@ -101,7 +101,7 @@ void  *pd_copy_orientation(void *orientationP)
   pd_orientation_t *new_d;
 
   new_d = pd_new_orientation(NULL);
-  new_d->or = d->or;
+  new_d->orient = d->orient;
   return (void *)(new_d);
 } 
 
@@ -112,17 +112,17 @@ void pd_increment_orientation(void *orientationP)
 {
   pd_orientation_t *d = (pd_orientation_t *)(orientationP);
 
-  if (d->or == PD_POS_ORIENTATION) { 
+  if (d->orient == PD_POS_ORIENTATION) { 
 
-    d->or = PD_NEG_ORIENTATION;
+    d->orient = PD_NEG_ORIENTATION;
 
-  } else if (d->or == PD_NEG_ORIENTATION) { 
+  } else if (d->orient == PD_NEG_ORIENTATION) { 
 
-    d->or = PD_POS_ORIENTATION;
+    d->orient = PD_POS_ORIENTATION;
 
   } else {
 
-    pd_error(SRCLOC,"can't increment invalid orientation %d",NULL,d->or);
+    pd_error(SRCLOC,"can't increment invalid orientation %d",NULL,d->orient);
 
   }
 
@@ -145,11 +145,11 @@ bool pd_orientation_ok(void *orientationP)
 {
   pd_orientation_t *d = (pd_orientation_t *)(orientationP);
 
-  if (!pd_or_ok(d->or)) { 
+  if (!pd_or_ok(d->orient)) { 
 
     return pd_error(SRCLOC,
 		    "%ORIENTATION contains illegal orientation %d",
-		    NULL,d,d->or);
+		    NULL,d,d->orient);
 
   }
   
@@ -162,13 +162,13 @@ int pd_orientation_cmp(const void *orientationAp,const void *orientationBp)
   pd_orientation_t *orientationA = *(pd_orientation_t **)(orientationAp);
   pd_orientation_t *orientationB = *(pd_orientation_t **)(orientationBp);
 
-  if (orientationA->or == orientationB->or) {
+  if (orientationA->orient == orientationB->orient) {
 
     return 0;
 
   } 
 
-  if (orientationA->or == PD_POS_ORIENTATION) {
+  if (orientationA->orient == PD_POS_ORIENTATION) {
 
     return -1;
 

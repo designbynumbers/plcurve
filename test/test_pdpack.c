@@ -130,7 +130,7 @@ bool pd_identical(pd_code_t *pdA,pd_code_t *pdB)
 
       }
 
-      if (pdA->face[i].or[j] != pdB->face[i].or[j]) {
+      if (pdA->face[i].orient[j] != pdB->face[i].orient[j]) {
 
 	return false;
 

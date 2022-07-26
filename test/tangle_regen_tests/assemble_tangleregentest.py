@@ -33,7 +33,7 @@ for x in pdstor_files:
 print "\nRunning carbonize...\n"
 for x in pdstor_files:
     try:
-        carbonize_results = subprocess.check_output(["carbonizepd",x])
+        carbonize_results = subprocess.check_output(["carbonizepd","--weak-checking",x])
         xroot = re.search('(.+)\.pdstor',x);
         print "\t" + x + "\t->\t" + xroot.group(1) + ".c"
     except subprocess.CalledProcessError:

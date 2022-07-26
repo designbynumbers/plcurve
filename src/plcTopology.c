@@ -217,9 +217,9 @@ char *pdcode_to_ccode(pd_code_t *pd)
 
   for(cr=0;cr<pd->ncross;cr++) {
 
-    char or = pd->cross[cr].sign == PD_POS_ORIENTATION ? '+':'-';
+    char orient = pd->cross[cr].sign == PD_POS_ORIENTATION ? '+':'-';
 
-    thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c",cr+1,or);
+    thiscr_used = snprintf(ccode_buf,ccode_size-total_used,"%d%c",cr+1,orient);
     total_used += thiscr_used;
     ccode_buf += thiscr_used;
 

@@ -105,7 +105,7 @@ void pd_edge_delete(pd_code_t *pd, pd_idx_t edge)
       if (pd->face[i].edge[j] == edge) { 
 	
 	pd->face[i].edge[j] = PD_UNSET_IDX;
-	pd->face[i].or[j] = PD_UNSET_ORIENTATION;
+	pd->face[i].orient[j] = PD_UNSET_ORIENTATION;
 
       }
 

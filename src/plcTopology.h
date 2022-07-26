@@ -162,7 +162,7 @@ extern "C" {
 
     pd_idx_t    nedges;
     pd_idx_t    *edge;
-    pd_or_t     *or;
+    pd_or_t     *orient;
 
     /* Edge indices around the face in counterclockwise order. These
        are NOT consecutive, nor are they always positively oriented
@@ -306,13 +306,13 @@ extern "C" {
   int  pd_idx_cmp(const void *A, const void *B);
   /* The usual comparison function for sorting and searching */
 
-  char pd_print_or(pd_or_t or);
+  char pd_print_or(pd_or_t orient);
   /* Returns a one-character printed form for "or": +, -, U (unset), or ? (anything else) */
 
   pd_or_t pd_compose_or(pd_or_t a,pd_or_t b);
   /* Returns the composition of the two orientation changes: ++ = -- = +, +- = -+ = - */
 
-  bool pd_or_ok(pd_or_t or); /* Check whether or has a legal value. */
+  bool pd_or_ok(pd_or_t orient); /* Check whether or has a legal value. */
 
   int pd_or_cmp(const void *A,const void *B);
   /* Compare two *pd_or_t. */
@@ -320,12 +320,12 @@ extern "C" {
   pd_crossing_t pd_build_cross(pd_idx_t e0,pd_idx_t e1,pd_idx_t e2,pd_idx_t e3);
   /* Builds a crossing from the given edge indices */
 
-  void pd_canonorder_cross(pd_crossing_t *cr, pd_or_t or);
+  void pd_canonorder_cross(pd_crossing_t *cr, pd_or_t orient);
   /* Reverses (if or == PD_NEG_ORIENTATION) and then rotates
      a crossing into canonical order: cr->edge[0] is the
      lowest edge # */
 
-  void pd_canonorder_face(pd_face_t *face, pd_or_t or);
+  void pd_canonorder_face(pd_face_t *face, pd_or_t orient);
   /* Reverses (if or == PD_NEG_ORIENTATION) and then rotates
      a face into canonical order: face->edge[0] is the
      lowest edge # */
@@ -367,12 +367,12 @@ extern "C" {
   bool pd_edge_on_face(pd_code_t *pd, pd_idx_t edge, pd_idx_t face);
   /* Returns true if the edge is on the face (with either sign). */
 
-  pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t or);
-  /* Returns original edge if or = PD_POS_ORIENTATION,
-     reversed edge if or = PD_NEG_ORIENTATION */
+  pd_edge_t pd_oriented_edge(pd_edge_t e,pd_or_t orient);
+  /* Returns original edge if orient = PD_POS_ORIENTATION,
+     reversed edge if orient = PD_NEG_ORIENTATION */
 
-  void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t or);
-  /* Flips the edge in pd->edges[] if or == PD_NEG_ORIENTATION */
+  void pd_reorient_edge(pd_code_t *pd,pd_idx_t edge,pd_or_t orient);
+  /* Flips the edge in pd->edges[] if orient == PD_NEG_ORIENTATION */
 
   /* Over and under information at a crossing. */
 
@@ -608,7 +608,7 @@ extern "C" {
   pd_code_t *pd_copy(pd_code_t *pd);
   /* Make a new-memory copy of pd */
 
-  void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp, pd_or_t or);
+  void pd_reorient_component(pd_code_t *pd, pd_idx_t cmp, pd_or_t orient);
   /* Reverse the orientation of component cmp iff or == PD_NEG_ORIENTATION */
 
   void pd_renumber_component(pd_code_t *pd, pd_idx_t cmp,pd_idx_t ofs);

@@ -47,11 +47,12 @@ extern "C" {
 #include <stdio.h>
 #include <stdbool.h>
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
-
+#include <iso646.h>
+  
   /* We now introduce a data type encoding a symmetry of a link. Such a symmetry has to include
      both a geometric transformation of space AND a corresponding map from each vertex of the
      plcurve to a target vertex. */
-#include <iso646.h>
+
 
   typedef double (plc_matrix)[3][3];
 
@@ -331,6 +332,22 @@ extern "C" {
   /* nv[i] is the number of vertices of the ith component */
   /* open[i] is true if the ith component is open */
   /* cc[i] is the number of colors for that component (0,1, or nv[i]) */
+
+  void plc_read_vertex_buffer(plCurve * const L, const double * const restrict vts, const int i);
+
+  /* vts is a buffer of coordinates in the order xyz ... xyz for the first component, 
+     then the second component, ..., until the last component. The offset i assumes 
+     that many plCurves (of the same number of components and vertices in each component)
+     are stored in a large buffer of this form, and we read from the ith plCurve. 
+     L is expected to have already been allocated with plc_new, so this procedure
+     does not allocate any new memory. */
+
+  void plc_write_vertex_buffer(const plCurve * const L, double * const restrict vts, const int i);
+
+  /* vts is buffer of coordinates in the order above, holding vertices for many plCurves.
+     This routine writes the coordinates of L to the i-th location in this buffer (assuming 
+     that all of the plCurves in the buffer have the same number of components and vertices as L). */
+  
 
   /* Free the plCurve (and strands) */
   void plc_free(/*@only@*/ /*@null@*/ plCurve *L);

@@ -489,8 +489,8 @@ pd_code_t *pd_read_err_weak(FILE *infile, int *err)
     }
 
     pd->face[face].edge = calloc(pd->face[face].nedges,sizeof(pd_idx_t));
-    pd->face[face].or = calloc(pd->face[face].nedges,sizeof(pd_or_t));
-    assert(pd->face[face].edge != NULL && pd->face[face].or != NULL);
+    pd->face[face].orient = calloc(pd->face[face].nedges,sizeof(pd_or_t));
+    assert(pd->face[face].edge != NULL && pd->face[face].orient != NULL);
 
     for(edge=0;edge<pd->face[face].nedges;edge++) {
 
@@ -519,7 +519,7 @@ pd_code_t *pd_read_err_weak(FILE *infile, int *err)
       }
 
       pd->face[face].edge[edge] = (pd_idx_t)(input_temp);
-      pd->face[face].or[edge] = (orientation[0] == '+') ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
+      pd->face[face].orient[edge] = (orientation[0] == '+') ? PD_POS_ORIENTATION : PD_NEG_ORIENTATION;
 
     }
 
@@ -628,18 +628,18 @@ void pd_write_c_weak(FILE *outfile, pd_code_t *pd, char *pdname)
     fprintf(outfile,
 	    "pd->face[%d].nedges = %d;\n"
 	    "pd->face[%d].edge = calloc(pd->face[%d].nedges,sizeof(pd_idx_t));\n"
-	    "pd->face[%d].or = calloc(pd->face[%d].nedges,sizeof(pd_or_t));\n"
+	    "pd->face[%d].orient = calloc(pd->face[%d].nedges,sizeof(pd_or_t));\n"
 	    "assert(pd->face[%d].edge != NULL);\n"
-	    "assert(pd->face[%d].or != NULL);\n\n",
+	    "assert(pd->face[%d].orient != NULL);\n\n",
 	    i,pd->face[i].nedges,i,i,i,i,i,i);
 
     for(j=0;j<pd->face[i].nedges;j++) {
 
       fprintf(outfile,
 	      "pd->face[%d].edge[%d] = %d;\n"
-	      "pd->face[%d].or[%d] = %d;\n\n",
+	      "pd->face[%d].orient[%d] = %d;\n\n",
 	      i,j,pd->face[i].edge[j],
-	      i,j,pd->face[i].or[j]);
+	      i,j,pd->face[i].orient[j]);
 
     }
 

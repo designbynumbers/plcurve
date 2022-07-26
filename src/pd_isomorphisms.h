@@ -50,7 +50,7 @@ bool        pd_compperms_ok(unsigned int ncomp_perms,pd_perm_t **comp_perms);
 typedef struct pd_edgemap_struct {
 
   pd_perm_t *perm;  /* Keep in mind that the "perm" type stores the number of entries. */
-  pd_or_t   *or;    /* This is a buffer of orientations of size perm->n. */
+  pd_or_t   *orient;    /* This is a buffer of orientations of size perm->n. */
 
 } pd_edgemap_t;
 
@@ -95,7 +95,7 @@ void           pd_apply_edgemap(pd_code_t *pd, pd_edgemap_t *edgemap);
 typedef struct pd_crossmap_struct {
 
   pd_perm_t *perm; /* Permutation of the crossings. */
-  pd_or_t    or;   /* Effect on (global) orientation of plane */
+  pd_or_t    orient;   /* Effect on (global) orientation of plane */
 
 } pd_crossmap_t;
 
@@ -152,7 +152,7 @@ void            pd_stareq_crossmap(pd_crossmap_t *crossmapA,pd_crossmap_t *cross
 typedef struct pd_facemap_struct {
 
   pd_perm_t    *perm;
-  pd_or_t       or;               /* Effect on (global) orientation of plane. */
+  pd_or_t       orient;               /* Effect on (global) orientation of plane. */
 
 } pd_facemap_t;
 

@@ -14,7 +14,7 @@ typedef struct pd_dihedral_struct {
   pd_idx_t n;     /* number of elts */
   pd_idx_t *map;  /* i -> map[i] */
   
-  pd_or_t  or;    /* rotation or reflection */
+  pd_or_t  orient;    /* rotation or reflection */
  
 } pd_dihedral_t;
 
