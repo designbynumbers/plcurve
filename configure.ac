@@ -55,6 +55,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
 
+
 #AM_PROG_LEX
 AC_PROG_LN_S
 
@@ -182,6 +183,7 @@ AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+AC_C_RESTRICT
 AC_TYPE_MODE_T
 AC_TYPE_SIZE_T
 AC_STRUCT_TM
