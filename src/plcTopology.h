@@ -1061,4 +1061,9 @@ extern "C" {
   /* Same return data as from plc_classify */
   plc_knottype *pd_classify(pd_code_t *pdC, int *nposs);
 
+#if (__cplusplus || c_plusplus)
+   }
 #endif
+
+#endif
+

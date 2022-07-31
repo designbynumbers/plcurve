@@ -317,7 +317,7 @@ int main(int argc,char *argv[]) {
 
       pd_multidx_t *orientation_idx;
       pd_idx_t*    *comp_orientations;
-      pd_idx_t      one = 1, two = 2;
+      pd_idx_t      /*one = 1,*/ two = 2;
       comp_orientations = calloc(inpd->ncomps,sizeof(pd_idx_t *));
       
       for(i=0;i<inpd->ncomps;i++) { comp_orientations[i] = &two; }
