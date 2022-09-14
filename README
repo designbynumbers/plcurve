@@ -21,7 +21,7 @@ On Mac OS X
 7. Install numpy: `sudo pip install numpy`
 8. Install cython: `sudo pip install cython`
 9. Install spherogram: `pip install spherogram`
-10. Run configure: `./configure LDFLAGS="-L/usr/local/lib" CPPFLAGS="-I/usr/local/include"`
+10. Run configure: `./configure LDFLAGS="-L/usr/local/lib -L/opt/lib -L/opt/homebrew/lib" CPPFLAGS="-I/usr/local/include -I/opt/homebrew/include -I/opt/include"`
 11. Make: `make`
 12. Run the C tests: `make check`
 13. Install: `make install` or possibly `sudo make install`

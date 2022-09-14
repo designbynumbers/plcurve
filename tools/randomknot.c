@@ -73,7 +73,7 @@ int main(int argc,char *argv[]) {
       crossings = arg_int0("c","crossings","<crossing-number>","number of crossings in knot type"),
       knotindex = arg_int0("i","rolfsen-index","<index>","index in Rolfsen table for knot type"),
       nverts = arg_int1("n","number-of-vertices","<n>","number of vertices in polygon"),
-      nsamples = arg_int1("s","number-of-samples","<s>","number of polygons of given knot typeto generate"),
+      nsamples = arg_int1("s","number-of-samples","<s>","number of polygons of given knot type to generate"),
       maxtrials = arg_int0("m","maximum-trials","<m>","maximum number of polygons to check for correct knot type"),
       seed = arg_int0(NULL,"seed","<s>","seed for random number generator"),
       verbose = arg_lit0(NULL,"verbose","print debugging information"),

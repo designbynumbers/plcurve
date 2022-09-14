@@ -188,10 +188,10 @@ libnplCurve_la_SOURCES = nplCurve.c nplCurve.h nvector.c
 libnplCurve_la_CFLAGS = $(AM_CFLAGS)
 libnplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
 
-knot_diagram_SOURCES = knot_diagram.c
-knot_diagram_LDADD = libplCurve.la
+#knot_diagram_SOURCES = knot_diagram.c
+#knot_diagram_LDADD = libplCurve.la
 #if HAVE_ARGTABLE2
-knot_diagram_LDFLAGS = -static
+#knot_diagram_LDFLAGS = -static
 #else
 #knot_diagram_LDFLAGS = -static
 #endif
@@ -200,8 +200,8 @@ knot_diagram_LDFLAGS = -static
 #ccode_test_LDADD = -lplCurve
 #ccode_test_LDFLAGS = -static
 
-momentpolytope_SOURCES = momentpolytope.c
-momentpolytope_LDADD = libplCurve.la
+#momentpolytope_SOURCES = momentpolytope.c
+#momentpolytope_LDADD = libplCurve.la
 
 carbonizepd_SOURCES = carbonizepd.c
 carbonizepd_LDADD = libplCurve.la
@@ -233,13 +233,13 @@ joinpd_LDADD = libplCurve.la
 joinpd_LDFLAGS = -static
 joinpd_CFLAGS = -I${top_builddir}/src
 
-spline_view_SOURCES = spline_view.c
-spline_view_LDADD = libplCurve.la
-spline_view_LDFLAGS = -static
+#spline_view_SOURCES = spline_view.c
+#spline_view_LDADD = libplCurve.la
+#spline_view_LDFLAGS = -static
 
-resample_SOURCES = resample.c
-resample_LDADD = libplCurve.la
-resample_LDFLAGS = -static
+#resample_SOURCES = resample.c
+#resample_LDADD = libplCurve.la
+#resample_LDFLAGS = -static
 
 plcurvature_SOURCES = plcurvature.c
 plcurvature_LDADD = libplCurve.la

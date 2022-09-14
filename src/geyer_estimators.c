@@ -520,8 +520,12 @@ void geyer_ips_add(geyer_ips_t *gips,double data)
     double sample_mean = gips->sample_sum /(double)(gips->buffer_size);
     int i,N;
     for(i=0;i<gips->buffer_size;i++) { zero_meaned_data[i] = gips->databuf[i] - sample_mean; }
-    double gamma0, gamma1, *Gammas, sigma;
-    sigma = ips_sigma_estimator_with_gammas(zero_meaned_data,gips->buffer_size,&gamma0,&gamma1,&Gammas,&N);
+    double gamma0, gamma1, *Gammas;
+
+    /* Here we don't care about the value produced by the estimator, so
+       we don't assign the result of the ips_sigma_estimator to anything. */
+    
+    ips_sigma_estimator_with_gammas(zero_meaned_data,gips->buffer_size,&gamma0,&gamma1,&Gammas,&N);
 
     /* We want to keep at least three times as many lagged dots as we expect to use, 
        (and at least 50 in any event), but we have to cap this at buffer size to 

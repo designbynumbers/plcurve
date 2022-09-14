@@ -61,7 +61,6 @@ TESTS = test_knottheory \
 	test_invariants \
 	test_pdstorage \
 	test_pdpack \
-	csu_random_polygon_test \
 	test_hypersimplex_sampling \
 	test_k_ascent_permutations \
 	test_tangle_slide_ops \
