@@ -86,65 +86,65 @@ AC_SEARCH_LIBS([gsl_ran_gaussian],[gsl], ,AC_MSG_ERROR([plCurve 6.x.x and higher
 #fi
 
 # Python extension library checks (Python, Cython, numpy)
-AC_ARG_ENABLE([python],
-        [AS_HELP_STRING([--enable-python],
-                [build Python bindings (currently deprecated until distutils dependency fixed)])],
-        [enable_python=$enableval],
-        [enable_python=no])
+#AC_ARG_ENABLE([python],
+#        [AS_HELP_STRING([--enable-python],
+#                [build Python bindings (currently deprecated until distutils dependency fixed)])],
+#        [enable_python=$enableval],
+#        [enable_python=no])
 
-AC_ARG_ENABLE([cython],
-        [AS_HELP_STRING([--enable-cython],
-        [build libpl .c Python extension source from .pyx (deprecated until distutils dependency fixed)])],
-        [enable_cython=$enableval],
-        [enable_cython=no])
+#AC_ARG_ENABLE([cython],
+#        [AS_HELP_STRING([--enable-cython],
+#        [build libpl .c Python extension source from .pyx (deprecated until distutils dependency fixed)])],
+#        [enable_cython=$enableval],
+#        [enable_cython=no])
 
-AC_ARG_ENABLE([python-otherdir],
-        [AS_HELP_STRING([--enable-python-otherdir],
-                [install Python to another directory (options: user, prefix)])],
-        [enable_pyotherdir=$enableval],
-        [enable_pyotherdir=global])
+#AC_ARG_ENABLE([python-otherdir],
+#        [AS_HELP_STRING([--enable-python-otherdir],
+#                [install Python to another directory (options: user, prefix)])],
+#        [enable_pyotherdir=$enableval],
+#        [enable_pyotherdir=global])
 
-if test "x${enable_python}" = xyes; then
-   AM_PATH_PYTHON(2.7)
-   AX_PYTHON_DEVEL(>= '2.7')
-   if test "x${enable_cython}" = xyes; then
-      CYTHON_CHECK_VERSION([0.21.0],
-           [have_cython=true],
-           [have_cython=false])
+#if test "x${enable_python}" = xyes; then
+#   AM_PATH_PYTHON(2.7)
+#   AX_PYTHON_DEVEL(>= '2.7')
+#   if test "x${enable_cython}" = xyes; then
+#      CYTHON_CHECK_VERSION([0.21.0],
+#           [have_cython=true],
+#           [have_cython=false])
       # We might still be able to build if we're pre-cythonized
-      if test "x${have_cython}" = xfalse; then
+#      if test "x${have_cython}" = xfalse; then
          # Check for a Cython-generated C file to see if build should succeed
-         AC_CHECK_FILE([${srcdir}/pysrc/libpl/pdcode/diagram.c],
-            [AC_MSG_RESULT([Cython was disabled and pre-Cythonized C files were found.
-               Trying to build Python extensions without Cython.])],
-            [AC_MSG_FAILURE([Cython was disabled and no pre-Cythonized C files were found.
-               You can omit building the Python extensions by passing --disable-python.]
-         )])
-      fi
-   else
-      # Check for a Cython-generated C file to see if build should succeed
-      AC_CHECK_FILE([${srcdir}/pysrc/libpl/pdcode/diagram.c],
-        [AC_MSG_RESULT([Cython was not found, but pre-Cythonized C files were.
-            Trying to build Python extensions without Cython.])],
-        [AC_MSG_FAILURE([Neither Cython nor pre-Cythonized C files were found.
-            You can omit building the Python extensions by passing --disable-python.]
-        )])
-   fi
-   CIT_NUMPY_PYTHON_MODULE(1.8.0,
-        [have_numpy=true;
-         CIT_NUMPY_INCDIR],
-        [AC_MSG_WARN([Python bindings were not disabled but Numpy was not found.]);
-         have_numpy=false]])
-fi
+#         AC_CHECK_FILE([${srcdir}/pysrc/libpl/pdcode/diagram.c],
+#            [AC_MSG_RESULT([Cython was disabled and pre-Cythonized C files were found.
+#               Trying to build Python extensions without Cython.])],
+#            [AC_MSG_FAILURE([Cython was disabled and no pre-Cythonized C files were found.
+#               You can omit building the Python extensions by passing --disable-python.]
+#         )])
+#      fi
+#   else
+#      # Check for a Cython-generated C file to see if build should succeed
+#      AC_CHECK_FILE([${srcdir}/pysrc/libpl/pdcode/diagram.c],
+#        [AC_MSG_RESULT([Cython was not found, but pre-Cythonized C files were.
+#            Trying to build Python extensions without Cython.])],
+#        [AC_MSG_FAILURE([Neither Cython nor pre-Cythonized C files were found.
+#            You can omit building the Python extensions by passing --disable-python.]
+#        )])
+#   fi
+#   CIT_NUMPY_PYTHON_MODULE(1.8.0,
+#        [have_numpy=true;
+#         CIT_NUMPY_INCDIR],
+#        [AC_MSG_WARN([Python bindings were not disabled but Numpy was not found.]);
+#         have_numpy=false]])
+#fi
 
-AM_CONDITIONAL([BUILD_PYTHON],[test "x${enable_python}" = xyes])
-AM_CONDITIONAL([BUILD_CYTHON],[test "x${enable_cython}" = xyes && test "x${have_cython}" = xtrue])
-AM_CONDITIONAL([INSTALL_PYTHON_USER],
-        [test "x${enable_pyotherdir}" = xyes || test "x${enable_pyotherdir}" = xuser])
-AM_CONDITIONAL([INSTALL_PYTHON_PREFIX],
-        [test "x${enable_pyotherdir}" = xprefix])
-AM_CONDITIONAL([INSTALL_PYTHON_GLOBAL],
-        [test "x${enable_pyotherdir}" = xglobal])
+#AM_CONDITIONAL([BUILD_PYTHON],[test "x${enable_python}" = xyes])
+#AM_CONDITIONAL([BUILD_CYTHON],[test "x${enable_cython}" = xyes && test "x${have_cython}" = xtrue])
+#AM_CONDITIONAL([INSTALL_PYTHON_USER],
+#        [test "x${enable_pyotherdir}" = xyes || test "x${enable_pyotherdir}" = xuser])
+#AM_CONDITIONAL([INSTALL_PYTHON_PREFIX],
+#        [test "x${enable_pyotherdir}" = xprefix])
+#AM_CONDITIONAL([INSTALL_PYTHON_GLOBAL],
+#        [test "x${enable_pyotherdir}" = xglobal])
 
 AC_DEFINE_UNQUOTED([SVNVERSION],["][`svnversion`]["],[the svn revision number (or "exported" if this was not built from svn)])
 
@@ -215,7 +215,6 @@ AC_C_CONST
 AC_CONFIG_FILES([Makefile
 		src/Makefile
                 planarmap/Makefile
-                pysrc/Makefile
                 tools/Makefile
 		test/Makefile
 		tools/pdstor_classify/Makefile
@@ -231,7 +230,6 @@ echo \
   ${PACKAGE_NAME} Version ${PACKAGE_VERSION}
 
   Installing to prefix: ${prefix}
-  Installing Python to directory: ${enable_pyotherdir}
 
   Compiler: '${CC} ${CFLAGS} ${CPPFLAGS}'
 

@@ -6,12 +6,12 @@ include_HEADERS = plCurve.h nplCurve.h octrope.h plcTopology.h plcRandomPolygon.
 lib_LTLIBRARIES = libplCurve.la libnplCurve.la libplCurveStatic.la
 
 #if HAVE_ARGTABLE2
-bin_PROGRAMS = knot_diagram resample plcurvature ropelength struts roundout_rl mrlocs plcrwalk momentpolytope carbonizepd connectsum filterpd joinpd computepd splitpd
+bin_PROGRAMS = plcurvature ropelength struts roundout_rl mrlocs plcrwalk carbonizepd connectsum filterpd joinpd computepd splitpd
 #else
 #bin_PROGRAMS = knot_diagram
 #endif
 
-noinst_PROGRAMS = spline_view # gcov_tests
+#noinst_PROGRAMS = spline_view # gcov_tests
 noinst_HEADERS = homfly.h
 
 libplCurveStatic_la_SOURCES = plCurve.c \
