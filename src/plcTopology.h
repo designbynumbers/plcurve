@@ -1051,6 +1051,9 @@ extern "C" {
   /* Prints the knot type in a neatly formatted human-readable version */
   void plc_write_knottype(FILE *out,plc_knottype kt);
 
+  /* Reads a knot-type as written by a human. Returns NULL if it can't parse the input string.*/
+  plc_knottype *plc_read_knottype(const char *kt);
+
 
   /* Find the knot type of a single component plCurve */
   /* Sets nposs to the number of possible knottypes found for the curve. If we cannot

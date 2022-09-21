@@ -1734,6 +1734,56 @@ void plc_write_knottype(FILE *out, plc_knottype kt)
   fprintf(out," (%s) \n",kt.homfly);
 }
 
+plc_knottype *plc_read_knottype(const char *kt)
+/* Reads the knot type as a human would write it: 3_1#5_2, for example. Returns NULL if it can't parse the knottype. */
+{
+  char *primecomp;
+  plc_knottype *working_kt;
+  int pc = 0;
+  char *working_copy = calloc(strlen(kt)+10,sizeof(char));
+  strcpy(working_copy,kt);
+  int maxind[19] = {0, 0, 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293, 1388705, 8053393, 48266466, 294130458};
+
+  working_kt = calloc(1,sizeof(plc_knottype));
+  while((primecomp = strtok_r(working_copy,"#",&working_copy)) != NULL) {
+
+    if (sscanf(primecomp,"%d_%d",&(working_kt->cr[pc]),&(working_kt->ind[pc])) != 2) {
+      fprintf(stderr,"plc_read_knottype: Could not parse prime component %s in knot type %s.\n",primecomp,kt);
+      free(working_copy);
+      free(working_kt);
+      return NULL;
+    }
+
+    if (working_kt->cr[pc] < 0 || working_kt->cr[pc] > 19) {
+      fprintf(stderr,"plc_read_knottype: Prime component type %s has <0 or >19 crossings. Such knots cannot be classified.\n",primecomp);
+      free(working_copy);
+      free(working_kt);
+      return NULL;
+    }
+
+    if (working_kt->ind[pc] < 0 || working_kt->ind[pc] > maxind[working_kt->cr[pc]]) {
+      fprintf(stderr,"plc_read_knottype: Prime component type %s has index <0 or >%d (the number of %d crossing prime knots).\n",primecomp,
+	      maxind[working_kt->cr[pc]],working_kt->cr[pc]);
+      free(working_copy);
+      free(working_kt);
+      return NULL;
+    }
+
+    pc++;
+
+    if (pc == MAXPRIMEFACTORS) {
+      fprintf(stderr,"plc_read_knottype: Knot type %s has more than maximum number (%d) of prime components for this build of plcurve.\n"
+	      "The library can be recompiled to change the upper bound on prime components by changing plcTopology.h.",kt,pc);
+      free(working_copy);
+      free(working_kt);
+
+    }
+    
+  }
+
+  free(working_copy);
+  return working_kt;
+}
 
 /*** Over and under information **/
 

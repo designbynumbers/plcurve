@@ -14,6 +14,13 @@ On Mac OS X
 
 1. Install the XCode command line tools: `xcode-select --install`
 2. Install Homebrew: Info at http://brew.sh/
+3. Install the cantarellalab tap: brew tap designbynumbers/cantarellalab
+4. Install plcurve: brew install libplcurve
+
+This will install the library from the source tarball located at
+
+https://www.jasoncantarella.com/downloads/libplcurve-(version).tar.gz
+
 3. Install gsl: `brew install gsl`
 4. Install cairo: `brew install cairo`
 5. Install py2cairo: `brew install py2cairo`

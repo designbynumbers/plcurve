@@ -51,7 +51,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include"argtable2.h"
 
-  int VERBOSE = 0;
+int VERBOSE = 0;
+int PD_VERBOSE = 0;
+
 
 int main(int argc,char *argv[]) {
 

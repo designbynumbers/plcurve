@@ -63,6 +63,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include"argtable2.h"
 
+int PD_VERBOSE = 0;
+
 #define PI 3.141592653589793238462643383279502884197169399375
 
 typedef struct point_n_curvature_type {
