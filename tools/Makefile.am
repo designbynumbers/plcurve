@@ -1,5 +1,3 @@
-#SUBDIRS = pdstor_classify diagram_to_img
-
 AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
 ACLOCAL_AMFLAGS = -I m4
 

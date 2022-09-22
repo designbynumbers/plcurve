@@ -216,9 +216,8 @@ AC_CONFIG_FILES([Makefile
 		src/Makefile
                 planarmap/Makefile
                 tools/Makefile
-		test/Makefile
-		tools/pdstor_classify/Makefile])
-
+		test/Makefile])
+#		tools/pdstor_classify/Makefile])
 #		tools/diagram_to_img/Makefile])
 
 AC_CONFIG_SUBDIRS([judy])
