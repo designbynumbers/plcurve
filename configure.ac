@@ -8,14 +8,14 @@ ifdef([m4_pattern_allow],
 
 
 AC_PREREQ([2.71])
-AC_COPYRIGHT(
+AC_COPYRIGHT([
 ------------------------------- libplCurve.a ---------------------------------
 
                   Copyright (c) 2006 University of Georgia.
 
  Distributed under terms of the GNU General Public License version 2.1
                        or later (see COPYING.LIB-2.1).
-)
+])
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
