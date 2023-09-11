@@ -66,14 +66,20 @@ extern "C" {
        acceptable choice. If you want to play with special-purpose
        triangulations, here are the definitions.
 
-    2) The direct sampling algorithm from 
+    2) The updated direct sampling algorithm from
+
+       A faster direct sampling algorithm for closed equilateral polygons
+
+       by Cantarella, Schumacher, and Shonkwiler. This algorithm is based on the
+       original
 
        A fast direct sampling algorithm for closed equilateral polygons
 
-       by Cantarella, Shonkwiler, and Uehara. This is slower (per sample),
-       but produces samples that are known to be uncorrelated.
-
-
+       by Cantarella, Duplantier, Shonkwiler, and Uehara, but implements
+       a faster method of checking inequalities which reduces the (expected)
+       time per sample from O(n^5/2) to O(n^2). The samples are proved to be
+       independent and to sample the standard probability distribution on
+       the moduli space of equilateral closed n-gons/SO(3).
 
     We start with the extra stuff for the first algorithm. It depends
     on selecting a triangulation for a closed n-gon to determine which

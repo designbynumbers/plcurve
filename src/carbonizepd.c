@@ -90,7 +90,7 @@ pd_code_t *pd_read_err_weak(FILE *infile, int *err)
      to do a little dodge to construct the pattern for sscanf, because we
      want the sscanf pattern to reflect PD_HASHSIZE (which might change) */
 
-  char hash_template[1024];
+  char hash_template[1026];
   sprintf(hash_template," pd %%%d[a-zA-Z0-9;:] %%lu ",PD_HASHSIZE);
 
   int sscanf_result = sscanf(pd_line,hash_template,hash,&input_temp);
@@ -99,7 +99,7 @@ pd_code_t *pd_read_err_weak(FILE *infile, int *err)
 
     /* Check for an incorrect hash. */
 
-    char bogus_hash[4096];
+    char bogus_hash[4098];
     if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 2) {
 
       pd_error(SRCLOC,
@@ -130,7 +130,7 @@ pd_code_t *pd_read_err_weak(FILE *infile, int *err)
     /* Well, it looks like we didn't even TRY to provide a hash and uid. */
     /* In this case, we should match "(whitespace)pd(whitespace)" */
 
-    char pd_string[32];
+    char pd_string[34];
 
     if (sscanf(pd_line," %32s ",pd_string) != 1) {
 

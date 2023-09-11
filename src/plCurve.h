@@ -688,12 +688,17 @@ extern "C" {
   plCurve *plc_random_open_plane_polygon(gsl_rng *r,int nEdges);
 
   /* Random equilateral polygons. This code generates random equilateral
-     polygons using the Action-Angle algorithm of Cantarella, Duplantier,
-     Shonkwiler, and Uehara. 
+     polygons using the updated version of the Action-Angle algorithm of
+     Cantarella, Duplantier, Shonkwiler, and Uehara. 
 
      A Fast Direct Sampling Algorithm for Equilateral Closed Polygons 
      arXiv:1510.02466
 
+     and
+
+     A Faster Direct Sampling Algorithm for Equilateral Closed Polygons
+     Cantarella, Schumacher, Shonkwiler.
+     
      They have unit length edges. */
 
   plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges);

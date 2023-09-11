@@ -178,17 +178,10 @@ pd_idx_t pd_split_diagram(pd_code_t *pd,pd_code_t ***pd_children)
 
     pd_idx_t j;
     pd_idx_t nedges = 0;
-    pd_idx_t ncomps = 0;
 
     for(j=0;j<pd->nedges;j++) { 
     
       if(edge_code[j] == i) { nedges++; }
-
-    }
-
-    for(j=0;j<pd->ncomps;j++) { 
-
-      if (edge_code[pd->comp[j].edge[0]] == i) { ncomps++; }
 
     }
 
