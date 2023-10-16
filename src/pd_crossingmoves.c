@@ -1474,6 +1474,7 @@ v         |                     |         ^
 
         /* Now we've either walked all the components or something has gone really wrong. */
         assert(all_walked);
+	assert(safety>=0);
 
         /* We are now ready to partition the diagram. We know the components involved in each
            child diagram, so we'll have to get the edges and crossings as well now. */

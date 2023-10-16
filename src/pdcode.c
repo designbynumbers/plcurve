@@ -3158,9 +3158,9 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
   /* We now read the rest of the line, to see if it contains a hash
      and uid. We're going to bet on hashes (and hence, lines) no
-     longer than 4096 characters here. */
+     longer than 4096 characters here. But don't forget the string-terminating 0!*/
 
-  char pd_line[4096];
+  char pd_line[4098];
 
   if (fgets(pd_line,4096,infile) == NULL) {
 
@@ -3183,7 +3183,7 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
 
     /* Check for an incorrect hash. */
 
-    char bogus_hash[4096];
+    char bogus_hash[4098];
     if (sscanf(pd_line," pd %4096s %lu ",bogus_hash,&input_temp) == 2) {
 
       pd_error(SRCLOC,
@@ -3214,9 +3214,11 @@ pd_code_t *pd_read_err(FILE *infile, int *err)
     }
 
     /* Well, it looks like we didn't even TRY to provide a hash and uid. */
-    /* In this case, we should match "(whitespace)pd(whitespace)" */
+    /* In this case, we should match "(whitespace)pd(whitespace)". Again,*/
+    /* we scan for a buffer of length 32, but allocate 34 chars to make  */
+    /* room for the string terminating 0. */
 
-    char pd_string[32];
+    char pd_string[34];
 
     if (sscanf(pd_line," %32s ",pd_string) != 1) {
 

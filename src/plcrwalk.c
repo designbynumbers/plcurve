@@ -1,6 +1,9 @@
 /*
 
-  This file generates closed and confined random walks using tsmcmc. 
+  This file generates closed and confined random walks using tsmcmc
+  or the moment polytope algorithm. It can generate chordlength data
+  as well; this is primarily used to make sure that the algorithm
+  is operating correctly. 
 
 */
 
@@ -39,9 +42,10 @@ struct arg_dbl  *radius;       // radius of confining sphere (if any)
 struct arg_int  *burnin;       // number of steps to discard in burn-in period (optional)
 struct arg_int  *interval;     // sampling interval (optional)
 struct arg_file *outfile;      // name for outfile (optional)
-struct arg_str  *format;       // Vect or Mathematica (optional)
+struct arg_str  *format;       // Vect, Mathematica, ChordLength (optional)
 struct arg_str  *knottype;     // knot type of samples to look for
 struct arg_dbl  *ftc;          // Failure to close
+struct arg_int  *chordskip;    // If the output format is ChordLength, which chord length to record
 
 struct arg_lit  *verbose;
 struct arg_lit  *help;
@@ -70,11 +74,12 @@ int main(int argc,char *argv[]) {
       burnin = arg_int0("b","burnin","<int < nsamples>","number of samples to discard"),
       mpr = arg_int0(NULL,"moment-polytope-repeat","<10>","number of times to repeat moment polytope step (optional)"),
       seed = arg_int0(NULL,"seed","<int>","seed for random number generator (optional)"),
-      beta = arg_dbl0(NULL,"beta","[0,1]","fraction of non-permutation steps which are moment polytope steps"),
-      delta = arg_dbl0(NULL,"delta","[0,1]","fraction of all steps which are permutation steps"),
+      beta = arg_dbl0(NULL,"beta","<float> in [0,1]","fraction of non-permutation steps which are moment polytope steps"),
+      delta = arg_dbl0(NULL,"delta","<float> in [0,1]","fraction of all steps which are permutation steps"),
      
       outfile = arg_file0("o","outfile","<filename>","filename for output tar file"),
-      format = arg_str0("f","format","<Mathematica|VECT>","output format (optional)"),
+      format = arg_str0("f","format","<Mathematica|VECT|ChordLength>","output format (optional)"),
+      chordskip = arg_int0(NULL,"chordskip","<int> in [0,n]","number of edges to skip when measuring chord length"),
 
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"), 
@@ -113,7 +118,7 @@ int main(int argc,char *argv[]) {
       printf("randompolygon generates closed (or fixed failure-to-close) \n"
 	     "and possibly confined equilateral random walks using\n"
 	     "the toric-symplectic moment polytope algorithm or\n"
-	     "the csu rejection sampling algorithm.\n"
+	     "the (improved) moment polytope rejection sampling algorithm.\n"
 	     "usage: \n\n");
       arg_print_glossary(stdout, argtable," %-25s %s\n");
       exit(0);
@@ -143,8 +148,10 @@ int main(int argc,char *argv[]) {
   double runbeta, rundelta;
   int runmpr = 10,runburnin = 1;
   int runn, runskip;
+  int chordskipk;
   double runradius;
   double runftc = 0.0;
+  FILE *summaryfile = NULL;
 
   runn = n->ival[0];
 
@@ -215,27 +222,7 @@ int main(int argc,char *argv[]) {
 
   }
 
-  char outfile_name[512];
-  
-  if (outfile->count > 0) { 
-
-    strncpy(outfile_name,outfile->filename[0],512);
-
-  } else { 
-
-    if (radius->count > 0) { 
-
-      sprintf(outfile_name,"rws-%03d-edge-%.2f-rad",runn,runradius);
-      
-    } else {
-
-      sprintf(outfile_name,"rws-%03d-edge",runn);
-
-    }
-
-  }
-
-  typedef enum {Mathematica,VECT} outputformat_t;
+  typedef enum {Mathematica,VECT,ChordLength} outputformat_t;
   
   outputformat_t runof = VECT;
 
@@ -253,6 +240,10 @@ int main(int argc,char *argv[]) {
 
       runof = VECT;
 
+    } if (!strcmp(format->sval[0],"ChordLength") || !strcmp(format->sval[0],"chordlength")) {
+
+      runof = ChordLength;
+
     } else { 
 
       fprintf(stderr,"randompolygon: Can't parse output format %s (should be Mathematica, CSV or VECT)\n",format->sval[0]); 
@@ -260,6 +251,63 @@ int main(int argc,char *argv[]) {
 
     }
 
+  }
+
+  if (runof == ChordLength) {
+
+    if (chordskip->count > 0) {
+
+      chordskipk = chordskip->ival[0];
+      if (chordskipk < 0 || chordskipk > runn) {
+
+	fprintf(stderr,"randompolygon: Can't collect chordlength data on skip %d chords in a %d-gon.\n",
+		chordskipk,runn);
+	exit(1);
+      }
+
+    } else {
+
+      chordskipk = floor(runn/2.0);
+
+    }
+
+  }
+
+  char outfile_name[512];
+  
+  if (outfile->count > 0) { 
+
+    strncpy(outfile_name,outfile->filename[0],512);
+
+  } else {
+
+    if (runof == Mathematica || runof == VECT) {
+
+      if (radius->count > 0) { 
+	
+	sprintf(outfile_name,"rws-%03d-edge-%.2f-rad",runn,runradius);
+	
+      } else {
+
+	sprintf(outfile_name,"rws-%03d-edge",runn);
+	
+      }
+
+    } else if (runof == ChordLength) {
+
+      sprintf(outfile_name,"rws-chordlength-%03d-edge-%03d-skip.csv",runn,chordskipk);
+
+    }
+  }
+
+  if (runof == ChordLength) {
+    
+    summaryfile = fopen(outfile_name,"w");
+    if (summaryfile == NULL) {
+      fprintf(stderr,"randompolygon: Couldn't open summary file %s.\n",outfile_name);
+      exit(1);
+    }
+    
   }
 
   if (ftc->count == 0 && radius->count == 0) { runskip = 1; }
@@ -282,6 +330,15 @@ int main(int argc,char *argv[]) {
     printf("generating %d %d-edge equilateral random walks with failure-to-close %g\n",samples->ival[0],runn,runftc);
   }
   if (radius->count > 0) { printf(" confined in sphere of radius %4f around vertex 0",runradius); }
+  printf("\n");
+
+  if (runof == VECT) {
+    printf("as polygons stored as VECT files in %s",outfile_name);
+  } else if (runof == Mathematica) {
+    printf("as polygons stored as Mathematica (csv) files in %s",outfile_name);
+  } else if (runof == ChordLength) {
+    printf("as skip-%d chordlengths only in %s",chordskipk,outfile_name);
+  }
   printf("\n\n");
 
   if (verbose->count > 0) { 
@@ -304,7 +361,7 @@ int main(int argc,char *argv[]) {
 
       printf("Algorithm Parameters\n"
 	     "--------------------------------------------------\n"
-	     "Using CSU direct sampling algorithm \n");
+	     "Using CSS/CDSU direct sampling algorithm \n");
     }
   }
 
@@ -312,50 +369,54 @@ int main(int argc,char *argv[]) {
  
   /* We start by creating a subdirectory for the randompolygon samples */
 
-  printf("opening sample directory (%s)...",outfile_name);
-
-  DIR *sampledir;
-  sampledir = opendir(outfile_name);
-
-  if (sampledir != NULL) { /* Directory exists; kill it */
+  if (runof == Mathematica || runof == VECT) {
     
-    struct dirent *thisfile;
-    for(thisfile=readdir(sampledir);thisfile!= NULL;thisfile=readdir(sampledir)) { 
+    printf("opening sample directory (%s)...",outfile_name);
     
-      if (strcmp(thisfile->d_name,".") && strcmp(thisfile->d_name,"..")) { 
-
-	char fullname[2048];
-	sprintf(fullname,"./%s/%s",outfile_name,thisfile->d_name);
+    DIR *sampledir;
+    sampledir = opendir(outfile_name);
+    
+    if (sampledir != NULL) { /* Directory exists; kill it */
+    
+      struct dirent *thisfile;
+      for(thisfile=readdir(sampledir);thisfile!= NULL;thisfile=readdir(sampledir)) { 
 	
-	if(remove(fullname) != 0) { 
+	if (strcmp(thisfile->d_name,".") && strcmp(thisfile->d_name,"..")) { 
 	  
-	  fprintf(stderr,"randompolygon: Couldn't remove file %s to make room for samples",fullname);
-	  exit(1);
+	  char fullname[2048];
+	  sprintf(fullname,"./%s/%s",outfile_name,thisfile->d_name);
 	  
-	}
+	  if(remove(fullname) != 0) { 
+	    
+	    fprintf(stderr,"randompolygon: Couldn't remove file %s to make room for samples",fullname);
+	    exit(1);
+	    
+	  }
 
+	}
+    
       }
     
-    }
-    
-    closedir(sampledir);
-    if (remove(outfile_name) != 0) {
+      closedir(sampledir);
+      if (remove(outfile_name) != 0) {
+	
+	fprintf(stderr,"randompolygon: Couldn't remove existing directory ./%s to make room for samples",outfile_name);
+	exit(1);
 
-      fprintf(stderr,"randompolygon: Couldn't remove existing directory ./%s to make room for samples",outfile_name);
+      }
+      
+    }
+   
+    if (mkdir(outfile_name,S_IRWXU) != 0) { 
+
+      fprintf(stderr,"randompolygon: Couldn't create directory ./%s to store sample files\n",outfile_name);
       exit(1);
 
     }
 
-  }
-   
-  if (mkdir(outfile_name,S_IRWXU) != 0) { 
-
-    fprintf(stderr,"randompolygon: Couldn't create directory ./%s to store sample files\n",outfile_name);
-    exit(1);
+    printf("done\n");
 
   }
-
-  printf("done\n");
 
   /* Now initialize the sampler. */
 
@@ -449,41 +510,51 @@ int main(int argc,char *argv[]) {
       }
 
       if (passes_knottype) {
+
+	if (runof == Mathematica || runof == VECT) {
      
-	char filename[2048];
-
-	if (runof == VECT) { 
-      
-	  sprintf(filename,"./%s/walk-%05d.vect",outfile_name,samps);
+	  char filename[2048];
 	
-	} else {
-
-	  sprintf(filename,"./%s/walk-%05d.csv",outfile_name,samps);
-
-	}
-
-	FILE *sample_outfile = fopen(filename,"w");
-	if (sample_outfile == NULL) {
-	  fprintf(stderr,"randompolygon: Couldn't open output filename %s.\n",filename);
-	  exit(1);
-	}
-	
-	if (runof == VECT) { 
-
-	  plc_write(sample_outfile,L);
+	  if (runof == VECT) { 
+	    
+	    sprintf(filename,"./%s/walk-%05d.vect",outfile_name,samps);
 	  
-	} else { 
+	  } else if (runof == Mathematica) {
 
-	  int vt;
-	  for(vt=0;vt<L->cp[0].nv;vt++) { 
-	  
-	    fprintf(sample_outfile,"%12g, %12g, %12g \n",plc_M_clist(L->cp[0].vt[vt]));
+	    sprintf(filename,"./%s/walk-%05d.csv",outfile_name,samps);
 
 	  }
-	
-	}
 
-	fclose(sample_outfile);
+	  FILE *sample_outfile = fopen(filename,"w");
+	  if (sample_outfile == NULL) {
+	    fprintf(stderr,"randompolygon: Couldn't open output filename %s.\n",filename);
+	    exit(1);
+	  }
+	  
+	  if (runof == VECT) { 
+	  
+	    plc_write(sample_outfile,L);
+	  
+	  } else { 
+
+	    int vt;
+	    for(vt=0;vt<L->cp[0].nv;vt++) { 
+	  
+	      fprintf(sample_outfile,"%12g, %12g, %12g \n",plc_M_clist(L->cp[0].vt[vt]));
+
+	    }
+	
+	  }
+
+	  fclose(sample_outfile);
+
+	} else if (runof == ChordLength) {
+
+	  double cl = plc_distance(L->cp[0].vt[0],L->cp[0].vt[chordskipk]);
+	  fprintf(summaryfile,"%.17g \n",cl);
+
+	}
+	
 	samps++;
 
       }
@@ -497,6 +568,11 @@ int main(int argc,char *argv[]) {
   bigend = clock();
   cpu_time_used = ((double)(bigend - bigstart))/CLOCKS_PER_SEC;
   printf("done (%-5.3g sec/%-5.3g sec/polygon/%-5.3f polygons/sec)\n\n",cpu_time_used,cpu_time_used/samps,samps/cpu_time_used);
+
+  if (summaryfile != NULL) {
+    fclose(summaryfile);
+    summaryfile = NULL;
+  }
  
   /***************************************/
 

@@ -894,9 +894,9 @@ plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
 
 
 plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
-/* Uses the CDSU algorithm to generate a random equilateral closed polygon. */
+/* Uses the improvment by CSS of the original CDSU algorithm to
+   generate a random equilateral closed polygon in O(n^2) time. */
 {
-  double *s;
   double *d = malloc((n-1)*sizeof(double));
   assert(d != NULL);
   bool distances_ok;
@@ -914,42 +914,47 @@ plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int n)
   
   do {
 
-    /* The first step is to generate a point in the central slice of 
-       the hypercube. We're going to let d[0] = 1.0 and d[n-2] = 1.0,
-       and fill in the remaining distances by summing the entries in
-       this sample. */
+    do {
 
-    s = hypercube_slice_sample(n-2,rng);
+      for(i=1,distances_ok = true,d[0]=1.0;
+	  i<n-2 && distances_ok;
+	  i++) {
 
-    /* Now we check to see if these are inside our rejection sampling
-       domain. */
-    
-    distances_ok = true;
-    
-    for(i=1,d[0]=1.0;i<n-1 && distances_ok;i++) {
+	d[i] = d[i-1] + (2.0*gsl_rng_uniform(rng)-1.0);
 
-      d[i] = d[i-1] + s[i-1];  /* Generate the distance. */
+	/* Generate the next distance by adding a uniform random */
+	/* variate in [-1,1] (this is s[i-1], but we don't need to
+	   store the s[i]. */
+	
+	/* We don't have to complete the job if the sum of 
+	   successive distances is too small-- remember that
+	   our conditions on the d[i] are that 
+	   
+	   |d[i] - d[i-1]| <= 1.0 (already true because |s[i]| <= 1.0)
+	   
+	   and 
+	   
+	   d[i] + d[i-1] >= 1.0 (which we have to check). */
+	
+	if (d[i] + d[i-1] < 1.0 || d[i] < 1e-12) { distances_ok = false; }
 
-      /* We don't have to complete the job if the sum of 
-	 successive distances is too small-- remember that
-         our conditions on the d[i] are that 
+      }
 
-         |d[i] - d[i-1]| <= 1.0 (already true because |s[i]| <= 1.0)
+      safety_check++;
 
-         and 
+    } while (!distances_ok && safety_check < 10000);
 
-         d[i] + d[i-1] >= 1.0 (which we have to check). */
+    /* Now we've generated distances up to d[n-3] without violating
+       a sum condition. We still have to check that 0 <= d[n-3] <= 2,
+       so that we can set d[n-2]=1 without violating an inequality. */
 
-      if (d[i] + d[i-1] < 1.0 || d[i] < 1e-12) { distances_ok = false; }
-
-    }
-
-    free(s);
-    safety_check++;
-
-  } while (!distances_ok && safety_check < 10000);
+  } while((d[n-3] < 0 || d[n-3] > 2) && safety_check < 10000);
 
   assert(safety_check < 10000);
+
+  /* We can now set the last distance to be 1.0 */
+
+  d[n-2] = 1.0;
 
   /* If we've gotten to this point, we generated a vector of acceptable
      distances. We'll now sample angles, too. */
