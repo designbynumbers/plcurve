@@ -229,7 +229,7 @@ extern "C" {
   */
 
   plCurve *plc_random_equilateral(int n,gsl_rng *rng);
-  /* Generate a random equilateral polygon using the CSU algorithm. */
+  /* Generate a random equilateral polygon using the CSS/CDSU algorithm. */
 
   /*-
     Master functions for integrating over polygon space.
