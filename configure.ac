@@ -4,7 +4,8 @@
 # Autoconf 2.50 wants to disallow AM_ names.  We explicitly allow
 # the ones we care about.
 ifdef([m4_pattern_allow],
-      [m4_pattern_allow([^AM_(CONFIG_HEADER|PROG_LEX)$])])dnl
+      [m4_pattern_allow([^AM_(CONFIG_HEAD
+      ER|PROG_LEX)$])])dnl
 
 
 AC_PREREQ([2.71])
