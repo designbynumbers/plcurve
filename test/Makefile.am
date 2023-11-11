@@ -55,7 +55,8 @@ check_PROGRAMS = test_knottheory \
 	         test_multidx \
 		 test_dihedral \
 	         test_perm \
-		 ccode_test 
+		 ccode_test \
+		 test_random_sap	
 
 TESTS = test_knottheory \
 	test_invariants \
@@ -89,26 +90,32 @@ TESTS = test_knottheory \
 	test_multidx \
 	test_dihedral \
 	test_perm \
-	ccode_test
+	ccode_test \
+	test_random_sap 
 
-test_knottheory_SOURCES = test_knottheory.c 
-test_knottheory_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_knottheory_LDFLAGS = -static
-test_knottheory_CFLAGS = -I$(top_srcdir)/src
+test_knottheory_SOURCES = test_knottheory.c libplCurveStatic.la
+test_knottheory_LDADD = -lplCurveStatic
+test_knottheory_LDFLAGS = -static -L$(top_builddir)/src 
+test_knottheory_CPPFLAGS = -I$(top_srcdir)/src
+
+test_random_sap_SOURCES = random_sap_test.c 
+test_random_sap_LDADD =  -lplCurveStatic
+test_random_sap_LDFLAGS = -static -L$(top_builddir)/src
+test_random_sap_CPPFLAGS = -I$(top_srcdir)/src
 
 test_homfly_SOURCES = test_homfly.c 
-test_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_homfly_LDFLAGS = -static
+test_homfly_LDADD = -lplCurveStatic
+test_homfly_LDFLAGS = -static -L$(top_builddir)/src
 test_homfly_CFLAGS = -I$(top_srcdir)/src
 
 test_invariants_SOURCES = test_invariants.c 
-test_invariants_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_invariants_LDFLAGS = -static
+test_invariants_LDADD = -lplCurveStatic
+test_invariants_LDFLAGS = -static -L$(top_builddir)/src
 test_invariants_CFLAGS = -I$(top_srcdir)/src
 
 test_pdpack_SOURCES = test_pdpack.c 
-test_pdpack_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_pdpack_LDFLAGS = -static
+test_pdpack_LDADD = -lplCurveStatic
+test_pdpack_LDFLAGS = -static -L$(top_builddir)/src 
 test_pdpack_CFLAGS = -I$(top_srcdir)/src
 
 test_pdstorage_SOURCES = test_pdstorage.c 
@@ -117,18 +124,18 @@ test_pdstorage_LDFLAGS = -static
 test_pdstorage_CFLAGS = -I$(top_srcdir)/src
 
 csu_random_polygon_test_SOURCES = csu_random_polygon_test.c 
-csu_random_polygon_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
-csu_random_polygon_test_LDFLAGS = -static
+csu_random_polygon_test_LDADD = -lplCurveStatic
+csu_random_polygon_test_LDFLAGS = -static -L$(top_builddir)/src
 csu_random_polygon_test_CFLAGS = -I$(top_srcdir)/src
 
 test_k_ascent_permutations_SOURCES = test_k_ascent_permutations.c 
-test_k_ascent_permutations_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_k_ascent_permutations_LDFLAGS = -static
+test_k_ascent_permutations_LDADD = -lplCurveStatic
+test_k_ascent_permutations_LDFLAGS = -static -L$(top_builddir)/src 
 test_k_ascent_permutations_CFLAGS = -I$(top_srcdir)/src
 
 test_hypersimplex_sampling_SOURCES = test_hypersimplex_sampling.c 
-test_hypersimplex_sampling_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_hypersimplex_sampling_LDFLAGS = -static
+test_hypersimplex_sampling_LDADD = -lplCurveStatic
+test_hypersimplex_sampling_LDFLAGS = -static -L$(top_builddir)/src
 test_hypersimplex_sampling_CFLAGS = -I$(top_srcdir)/src
 
 test_tangle_slide_ops_SOURCES = test_tangle_slide_ops.c 
@@ -137,33 +144,33 @@ test_tangle_slide_ops_LDFLAGS = -static
 test_tangle_slide_ops_CFLAGS = -I$(top_srcdir)/src
 
 test_splitdiagram_SOURCES = test_splitdiagram.c 
-test_splitdiagram_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_splitdiagram_LDFLAGS = -static
+test_splitdiagram_LDADD = -lplCurveStatic
+test_splitdiagram_LDFLAGS = -static -L$(top_builddir)/src 
 test_splitdiagram_CFLAGS = -I$(top_srcdir)/src
 
 test_readkt_SOURCES = test_readkt.c 
-test_readkt_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_readkt_LDFLAGS = -static
+test_readkt_LDADD = -lplCurveStatic
+test_readkt_LDFLAGS = -static -L$(top_builddir)/src 
 test_readkt_CFLAGS = -I$(top_srcdir)/src
 
 test_tangle_regenerate_SOURCES = test_tangle_regenerate.c 
-test_tangle_regenerate_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_tangle_regenerate_LDFLAGS = -static
+test_tangle_regenerate_LDADD = -lplCurveStatic
+test_tangle_regenerate_LDFLAGS = -static -L$(top_builddir)/src 
 test_tangle_regenerate_CFLAGS = -I$(top_srcdir)/src
 
 test_tangle_slide_input_SOURCES = test_tangle_slide_input.c 
-test_tangle_slide_input_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_tangle_slide_input_LDFLAGS = -static
+test_tangle_slide_input_LDADD = -lplCurveStatic
+test_tangle_slide_input_LDFLAGS = -static -L$(top_builddir)/src 
 test_tangle_slide_input_CFLAGS = -I$(top_srcdir)/src
 
 test_bad_homfly_SOURCES = test_bad_homfly.c 
-test_bad_homfly_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_bad_homfly_LDFLAGS = -static
+test_bad_homfly_LDADD = -lplCurveStatic
+test_bad_homfly_LDFLAGS = -static -L$(top_builddir)/src 
 test_bad_homfly_CFLAGS = -I$(top_srcdir)/src
 
 test_diagram_isotopic_SOURCES = test_diagram_isotopic.c 
-test_diagram_isotopic_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_diagram_isotopic_LDFLAGS = -static
+test_diagram_isotopic_LDADD = -lplCurveStatic
+test_diagram_isotopic_LDFLAGS = -static -L$(top_builddir)/src 
 test_diagram_isotopic_CFLAGS = -I$(top_srcdir)/src
 
 test_2crossing_SOURCES = test_2crossing.c 
@@ -172,18 +179,18 @@ test_2crossing_LDFLAGS = -static
 test_2crossing_CFLAGS = -I$(top_srcdir)/src
 
 test_operations_SOURCES = test_operations.c 
-test_operations_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_operations_LDFLAGS = -static
+test_operations_LDADD = -lplCurveStatic
+test_operations_LDFLAGS = -static -L$(top_builddir)/src 
 test_operations_CFLAGS = -I$(top_srcdir)/src
 
 test_crossingops_SOURCES = test_crossingops.c 
-test_crossingops_LDADD = -L$(top_builddir)/src -lplCurveStatic
-test_crossingops_LDFLAGS = -static
+test_crossingops_LDADD = -lplCurveStatic
+test_crossingops_LDFLAGS = -static -L$(top_builddir)/src 
 test_crossingops_CFLAGS = -I$(top_srcdir)/src
 
 ccode_test_SOURCES = ccode_test.c 
-ccode_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
-ccode_test_LDFLAGS = -static
+ccode_test_LDADD = -lplCurveStatic
+ccode_test_LDFLAGS = -static -L$(top_builddir)/src 
 ccode_test_CFLAGS = -I$(top_srcdir)/src
 
 #tsmcmc_random_test_SOURCES = tsmcmc_random_test.c
@@ -192,7 +199,8 @@ ccode_test_CFLAGS = -I$(top_srcdir)/src
 #tsmcmc_random_test_CFLAGS = -I$(top_srcdir)/src 
 
 nn_test_SOURCES = nn_test.c
-nn_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
+nn_test_LDADD = -lplCurveStatic
+nn_test_LDFLAGS = -static -L$(top_builddir)/src 
 nn_test_CFLAGS = -I$(top_srcdir)/src
 
 symmetry_test_SOURCES = symmetry_test.c
@@ -208,12 +216,14 @@ loopclosure_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
 loopclosure_test_CFLAGS = -I$(top_srcdir)/src
 
 randompolygon_test_SOURCES = randompolygon_test.c 
-randompolygon_test_LDADD = -L$(top_builddir)/src -lplCurveStatic
+randompolygon_test_LDADD = -lplCurveStatic
 randompolygon_test_CFLAGS = -I$(top_srcdir)/src
+randompolygon_test_LDFLAGS = -static -L$(top_builddir)/src 
 
 exit_failure_tests_SOURCES = exit_failure_tests.c
-exit_failure_tests_LDADD = -L$(top_builddir)/src -lplCurveStatic
+exit_failure_tests_LDADD = -lplCurveStatic
 exit_failure_tests_CFLAGS = -I$(top_srcdir)/src
+exit_failure_tests_LDFLAGS = -static -L$(top_builddir)/src  
 
 #run_tests_SOURCES = run_tests.c
 #run_tests_LDADD = -L$(top_builddir)/src -lplCurve

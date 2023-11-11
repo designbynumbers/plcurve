@@ -127,6 +127,7 @@ src/randompolygon
 src/splitpd
 test/3samples.csv
 test/6a5and6n1.kt
+test/test_random_sap
 
 # The planarity sublibrary generates test results and some executables
 

@@ -69,6 +69,60 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <gsl/gsl_randist.h>
 #endif
 
+bool plc_is_sap(plCurve *L) {
+
+  /* This is an internal debugging function which double-checks that all
+     vertices of L are at least (almost) distance 1.0 away from each other.
+     It's written for the general case where L has many components, even
+     though we don't have code to generate such SAPs yet. */
+
+  int cp1,cp2;
+  int vt1,vt2;
+
+  for(cp1=0;cp1<L->nc;cp1++) {
+
+    for(cp2=0;cp2<=cp1;cp2++) {
+
+      if (cp1 == cp2) {
+	
+	for(vt1=1;vt1<L->cp[cp1].nv;vt1++) {
+	  
+	  for(vt2=0;vt2<vt1;vt2++) {
+	    
+	    if (plc_sq_dist(L->cp[cp1].vt[vt1],L->cp[cp2].vt[vt2]) < 1.0-1e-10) {
+	      return false;
+	      
+	    }
+	    
+	  }
+	  
+	}
+	
+      } else {
+	
+	for(vt1=0;vt1<L->cp[cp1].nv;vt1++) {
+	  
+	  for(vt2=0;vt2<L->cp[cp2].nv;vt2++) {
+	    
+	    if (plc_sq_dist(L->cp[cp1].vt[vt1],L->cp[cp2].vt[vt2]) < 1.0-1e-10) {
+	      return false;
+	      
+	    }
+
+	  }
+
+	}
+
+      }
+
+    }
+
+  }
+
+  return true;
+
+}
+
 plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 /* 
    Generates random closed polygons where vertices are surrounded by a 
@@ -102,11 +156,11 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 
   }
 
-  assert(n <= 30);
-  if (n > 30) {
+  assert(n <= 16);
+  if (n > 16) {
 
     printf("Error. Can't call plc_random_sap\n"
-	   "with n > 30\n");
+	   "with n > 16\n");
     exit(1);
   }
   
@@ -218,9 +272,9 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
     
     safety_check++;
     
-  } while (!distances_ok && safety_check < 50000);
+  } while (!distances_ok && safety_check < 500000000);
   
-  assert(safety_check < 50000); 
+  assert(safety_check < 500000000); 
   assert(fabs(plc_distance(L->cp[0].vt[0],L->cp[0].vt[n-1]) - 1.0) < 1e-8);
   
   plc_fix_wrap(L);
