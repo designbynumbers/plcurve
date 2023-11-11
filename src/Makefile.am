@@ -26,6 +26,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	matrix.c \
 	matrix.h \
 	plcRandomPolygon.c \
+	plcRandomSap.c \
 	plc_dihedrals.c \
 	octrope.h \
 	octrope_internal.h \
@@ -111,6 +112,7 @@ libplCurve_la_SOURCES = plCurve.c \
 	matrix.c \
 	matrix.h \
 	plcRandomPolygon.c \
+	plcRandomSap.c \
 	plc_dihedrals.c \
 	octrope.h \
 	octrope_internal.h \

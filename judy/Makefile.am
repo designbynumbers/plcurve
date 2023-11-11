@@ -1,6 +1,7 @@
 # Tell automake we don't want to comply with every last clause in the
 # GNU Maintainer's Manual.
 AUTOMAKE_OPTIONS = foreign
+ACLOCAL_AMFLAGS([-I m4])
 
 # We need to build the following subdirectories in this order.  Note that
 # we put a Makefile.am in every subdirectory, even if there's nothing to

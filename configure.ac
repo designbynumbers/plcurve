@@ -44,7 +44,7 @@ AM_INIT_AUTOMAKE()
 AC_SUBST(LIB_VERSION, 10:2:0)
 AC_CONFIG_SRCDIR([src/plCurve.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 
 #AC_USE_SYSTEM_EXTENSIONS
 LT_INIT
@@ -222,7 +222,7 @@ AC_CONFIG_FILES([Makefile
 #		tools/diagram_to_img/Makefile])
 
 AC_CONFIG_SUBDIRS([judy])
-AC_CONFIG_SUBDIRS([planarity])
+#AC_CONFIG_SUBDIRS([planarity])
 AC_OUTPUT
 
 echo \

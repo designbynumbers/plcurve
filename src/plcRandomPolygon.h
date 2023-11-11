@@ -66,12 +66,12 @@ extern "C" {
        acceptable choice. If you want to play with special-purpose
        triangulations, here are the definitions.
 
-    2) The updated direct sampling algorithm from
+    2) The updated direct sampling algorithm (PAAM) from
 
        A faster direct sampling algorithm for closed equilateral polygons
 
        by Cantarella, Schumacher, and Shonkwiler. This algorithm is based on the
-       original
+       original Action-Angle Method (AAM) from
 
        A fast direct sampling algorithm for closed equilateral polygons
 
@@ -80,6 +80,11 @@ extern "C" {
        time per sample from O(n^5/2) to O(n^2). The samples are proved to be
        independent and to sample the standard probability distribution on
        the moduli space of equilateral closed n-gons/SO(3).
+
+    3) An experimental rejection sampler for closed self-avoiding polygons (SPAAM).   
+       This algorithm generates closed equilateral polygons using a version of 
+       the PAAM method which checks for self-intersections and fails early. It
+       produces reasonable results for walks with lengths between 5 and 25.
 
     We start with the extra stuff for the first algorithm. It depends
     on selecting a triangulation for a closed n-gon to determine which
@@ -223,14 +228,7 @@ extern "C" {
   tsmcmc_run_parameters tsmcmc_default_unconfined_parameters(void);
   tsmcmc_run_parameters tsmcmc_default_confined_parameters(void);
 
-  /* 
-     Direct Sampler. 
-
-  */
-
-  plCurve *plc_random_equilateral(int n,gsl_rng *rng);
-  /* Generate a random equilateral polygon using the CSU algorithm. */
-
+  
   /*-
     Master functions for integrating over polygon space.
     -*/

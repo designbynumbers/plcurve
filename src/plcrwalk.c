@@ -46,6 +46,7 @@ struct arg_str  *format;       // Vect, Mathematica, ChordLength (optional)
 struct arg_str  *knottype;     // knot type of samples to look for
 struct arg_dbl  *ftc;          // Failure to close
 struct arg_int  *chordskip;    // If the output format is ChordLength, which chord length to record
+struct arg_lit  *sap;          // Whether to generate self-avoiding polygons.
 
 struct arg_lit  *verbose;
 struct arg_lit  *help;
@@ -80,6 +81,7 @@ int main(int argc,char *argv[]) {
       outfile = arg_file0("o","outfile","<filename>","filename for output tar file"),
       format = arg_str0("f","format","<Mathematica|VECT|ChordLength>","output format (optional)"),
       chordskip = arg_int0(NULL,"chordskip","<int> in [0,n]","number of edges to skip when measuring chord length"),
+      sap = arg_lit0(NULL,"sap","generate self-avoiding polygons");
 
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"), 
@@ -116,9 +118,12 @@ int main(int argc,char *argv[]) {
   
       fprintf(stderr,"randompolygon compiled " __DATE__ " " __TIME__ "\n");
       printf("randompolygon generates closed (or fixed failure-to-close) \n"
-	     "and possibly confined equilateral random walks using\n"
-	     "the toric-symplectic moment polytope algorithm or\n"
-	     "the (improved) moment polytope rejection sampling algorithm.\n"
+	     "equilateral random walks via:\n"
+	     "\n"
+	     "\t toric-symplectic moment polytope method (confined polygons)\n"
+             "\t progressive action-angle method (unconfined polygons)\n"
+             "\t self-avoiding progressive action-angle method (self-avoiding polygons)\n"
+	     "\n"
 	     "usage: \n\n");
       arg_print_glossary(stdout, argtable," %-25s %s\n");
       exit(0);
@@ -325,12 +330,12 @@ int main(int argc,char *argv[]) {
   printf("with %s random number gen, seeded with %d.\n",gsl_rng_name(rng),seedi);
   
   if (ftc->count == 0) { 
-    printf("generating %d %d-edge closed random walks",samples->ival[0],runn);
+    printf("generating %d %d-edge closed random walks\n",samples->ival[0],runn);
   } else {
     printf("generating %d %d-edge equilateral random walks with failure-to-close %g\n",samples->ival[0],runn,runftc);
   }
-  if (radius->count > 0) { printf(" confined in sphere of radius %4f around vertex 0",runradius); }
-  printf("\n");
+  if (radius->count > 0) { printf("\t confined in sphere of radius %4f around vertex 0\n",runradius); }
+  if (sap->count > 0) { printf("\t in the string-of-pearls model for self-avoiding walks\n");
 
   if (runof == VECT) {
     printf("as polygons stored as VECT files in %s",outfile_name);
@@ -357,11 +362,17 @@ int main(int argc,char *argv[]) {
 	     "-------------------------------------------------\n",
 	     runskip,runburnin,runmpr,rundelta,runbeta,runftc);
 
+    } else if (sap->count > 0) {
+
+      printf("Algorithm Parameters\n"
+	     "--------------------------------------------------\n"
+	     "Using SPAAM direct sampling algorithm \n");
+
     } else {
 
       printf("Algorithm Parameters\n"
 	     "--------------------------------------------------\n"
-	     "Using CSS/CDSU direct sampling algorithm \n");
+	     "Using PAAM direct sampling algorithm \n");
     }
   }
 
@@ -471,6 +482,10 @@ int main(int argc,char *argv[]) {
       if (radius->count > 0 || ftc->count > 0) {
 	
 	L = tsmcmc_embed_polygon(T,edge_lengths,diagonal_lengths,dihedral_angles);
+
+      } else if (sap->count > 0) {
+
+	L = plc_random_equilateral_closed_self_avoiding_polygon(rng,runn);
 
       } else {
 

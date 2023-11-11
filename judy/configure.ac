@@ -10,6 +10,7 @@ dnl Tell autoconf we want to keep our preprocessor defines in a header named
 dnl config.h.  This keeps automake from passing a zillion -D directives to
 dnl the C compiler.
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIRS([m4])
 
 LT_INIT # Change to work with later versions of AutoTools. --JC
 

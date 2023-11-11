@@ -688,13 +688,7 @@ extern "C" {
   plCurve *plc_random_open_plane_polygon(gsl_rng *r,int nEdges);
 
   /* Random equilateral polygons. This code generates random equilateral
-     polygons using the updated version of the Action-Angle algorithm of
-     Cantarella, Duplantier, Shonkwiler, and Uehara. 
-
-     A Fast Direct Sampling Algorithm for Equilateral Closed Polygons 
-     arXiv:1510.02466
-
-     and
+     polygons using the Progressive Action Angle Method described in:
 
      A Faster Direct Sampling Algorithm for Equilateral Closed Polygons
      Cantarella, Schumacher, Shonkwiler.
@@ -702,6 +696,16 @@ extern "C" {
      They have unit length edges. */
 
   plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges);
+
+  /* Random self-avoiding equilateral polygons. (Experimental). This code
+     generates random self-avoiding equilateral closed polygons by direct
+     rejection sampling from the Action Angle Method. This is confined to 
+     polygons with between 5 and 30 edges. */
+
+  plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *r,int nEdges);
+
+  /* Random open polygons. Just generates points on sphere and adds them up. */
+  
   plCurve *plc_random_equilateral_open_polygon(gsl_rng *r,int nEdges);
 
   /* Generate a random closure for an open component cp of polygon openL */
