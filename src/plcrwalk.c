@@ -81,7 +81,7 @@ int main(int argc,char *argv[]) {
       outfile = arg_file0("o","outfile","<filename>","filename for output tar file"),
       format = arg_str0("f","format","<Mathematica|VECT|ChordLength>","output format (optional)"),
       chordskip = arg_int0(NULL,"chordskip","<int> in [0,n]","number of edges to skip when measuring chord length"),
-      sap = arg_lit0(NULL,"sap","generate self-avoiding polygons");
+      sap = arg_lit0(NULL,"sap","generate self-avoiding polygons"),
 
       verbose = arg_lit0(NULL,"verbose","print debugging information"),
       quiet = arg_lit0("q","quiet","suppress almost all output (for scripting)"), 
@@ -241,7 +241,10 @@ int main(int argc,char *argv[]) {
 
       runof = Mathematica;
 
-    } else if (!strcmp(format->sval[0],"VECT") || !strcmp(format->sval[0],"vect")) {
+    }
+
+    else if (!strcmp(format->sval[0],"VECT") || !strcmp(format->sval[0],"vect"))
+      {
 
       runof = VECT;
 
@@ -335,7 +338,7 @@ int main(int argc,char *argv[]) {
     printf("generating %d %d-edge equilateral random walks with failure-to-close %g\n",samples->ival[0],runn,runftc);
   }
   if (radius->count > 0) { printf("\t confined in sphere of radius %4f around vertex 0\n",runradius); }
-  if (sap->count > 0) { printf("\t in the string-of-pearls model for self-avoiding walks\n");
+  if (sap->count > 0) { printf("\t in the string-of-pearls model for self-avoiding walks\n"); }
 
   if (runof == VECT) {
     printf("as polygons stored as VECT files in %s",outfile_name);

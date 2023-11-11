@@ -69,7 +69,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <gsl/gsl_randist.h>
 #endif
 
-plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n);
+plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 /* 
    Generates random closed polygons where vertices are surrounded by a 
    disjoint spheres of radius 1/2 (the "string of pearls" model) by 
@@ -86,9 +86,10 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 
   double last_diag, this_diag;
   int i;
-  int safety_check;
+  int safety_check = 0;
   double TWOPI = 6.2831853071795864769;
   double theta;
+  bool distances_ok;
 
   plc_vector normal;
 
@@ -209,7 +210,7 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
       for(j=0;j<i && distances_ok;j++) {
 
 	distances_ok =
-	  distances_ok && (plc_sq_distance(L->cp[0].vt[j],L->cp[0].vt[i]) >= 1.0);
+	  distances_ok && (plc_sq_dist(L->cp[0].vt[j],L->cp[0].vt[i]) >= 1.0);
 
       }	
       
@@ -226,86 +227,4 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
   
   return L;
   
-}
-
-
-  
-
-plCurve *fantriangulation_action_angle(int n,double *theta, double *d)
-/* 
-   Now we need to assemble the action-angle coordinates into a
-   polygon.  We've written this code before, but in a very general
-   way. Now we're going to use the fact that we know this is the fan
-   triangulation in order to run this as fast as possible. 
-*/
-{
-  
-  plc_vector normal = {{0,0,1}};
-  int i;
-
-  /* The way this is going to work is that we'll retain a normal vector 
-     for every triangle as we build it, updating as we apply the d[i]
-     and theta[i] in sequence. There are n-1 of the d's, starting with 
-     1.0 and ending with 1.0, but only n-3 of the thetas. */
-
-  for(i=1;i<n-1;i++) {
-
-    /* At this point, we're building vt[i+1] using the current value 
-       of normal, the position of vt[i], and the diagonal d[i-1]. 
-    
-       Define the angles of the triangles at the vertex across from
-       the edge vt[i]->vt[i+1] to be the alpha[i]; we won't store
-       the history of them, but we will need the current one. */
-
-    double cos_alpha = (d[i-1]*d[i-1] + d[i]*d[i] - 1.0)/(2.0*d[i-1]*d[i]);
-    double sin_alpha = sqrt(1 - cos_alpha*cos_alpha);
-
-    /*
-
-             d[i] 
-              |   <=== dihedral angle theta[i-1] applied HERE
-           f2 |   vt[i+1]  
-      f3\   ^ v /\
-         \  |  /  \  1 
-          \ | /    \ 
-           \|/a  f1 \
-            *----->--* vt[i]
-       vt[0]    ^ 	    
-                |
-              d[i-1]
-
-    */
-
-    plc_vector f1, f2, f3;
-    bool ok;
-    
-    f1 = plc_normalize_vect(L->cp[0].vt[i],&ok);
-    assert(ok);
-    f2 = plc_normalize_vect(plc_cross_prod(normal,f1),&ok);
-    assert(ok);
-
-    L->cp[0].vt[i+1] = plc_vlincomb(d[i]*cos_alpha,f1,
-				    d[i]*sin_alpha,f2);
-
-    /* If we're going to have another triangle, we have to 
-       rotate the normal. (By definition, we're going to let 
-       the dihedral angles be the angles between these normals.) */
-
-    if (i<n-2) { 
-
-      f3 = plc_cross_prod(normal,plc_normalize_vect(L->cp[0].vt[i+1],&ok));
-      assert(ok);
-      f3 = plc_normalize_vect(f3,&ok);  /* This shouldn't do anything */
-    
-      normal = plc_vlincomb(cos(theta[i-1]),normal,
-			    sin(theta[i-1]),f3);
-      normal = plc_normalize_vect(normal,&ok);
-
-    }
-
-  }
-
-  assert(fabs(plc_distance(L->cp[0].vt[0],L->cp[0].vt[n-1]) - 1.0) < 1e-8);
-  plc_fix_wrap(L);
-  return L;
 }
