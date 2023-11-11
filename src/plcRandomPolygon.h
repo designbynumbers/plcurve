@@ -228,7 +228,14 @@ extern "C" {
   tsmcmc_run_parameters tsmcmc_default_unconfined_parameters(void);
   tsmcmc_run_parameters tsmcmc_default_confined_parameters(void);
 
-  
+  /* 
+     Direct Sampler. 
+
+  */
+
+  plCurve *plc_random_equilateral(int n,gsl_rng *rng);
+  /* Generate a random equilateral polygon using the CSS/CDSU algorithm. */
+
   /*-
     Master functions for integrating over polygon space.
     -*/
