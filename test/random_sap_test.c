@@ -295,8 +295,11 @@ int sample_quality_worker(gsl_rng *rng,int n,int s)
 
   plCurve *L;
   int samp;
+  clock_t start, end;
+  double cpu_seconds_used;
 
   printf("Testing sample-quality for %d-gons over %d samples...",n,s);
+  start = clock();
 
   for(samp=0;samp<s;samp++) {
 
@@ -327,7 +330,10 @@ int sample_quality_worker(gsl_rng *rng,int n,int s)
     
   }
 
-  printf("pass.\n");
+  end = clock();
+  cpu_seconds_used = ((double)(end - start))/CLOCKS_PER_SEC;
+
+  printf("pass (%g polygons/sec)\n",(double)(s)/cpu_seconds_used);
   return true;
 
 }

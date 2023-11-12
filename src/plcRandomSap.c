@@ -232,9 +232,9 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 	bool ok;
 	
 	f1 = plc_normalize_vect(L->cp[0].vt[i-1],&ok);
-	assert(ok);
+	//assert(ok);
 	f2 = plc_normalize_vect(plc_cross_prod(normal,f1),&ok);
-	assert(ok);
+	//assert(ok);
 	
 	L->cp[0].vt[i] = plc_vlincomb(this_diag*cos_alpha,f1,
 				      this_diag*sin_alpha,f2);
@@ -245,7 +245,7 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 	   the special case than to just do it. */
 	
 	f3 = plc_cross_prod(normal,plc_normalize_vect(L->cp[0].vt[i],&ok));
-	assert(ok);
+	//	assert(ok);
 	f3 = plc_normalize_vect(f3,&ok);  /* This shouldn't do anything */
 	
 	theta = TWOPI*gsl_rng_uniform(rng);
@@ -261,7 +261,7 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
          existing ones. */
 
       int j;
-      for(j=0;j<i && distances_ok;j++) {
+      for(j=i-1;j>=0 && distances_ok;j--) {
 
 	distances_ok =
 	  distances_ok && (plc_sq_dist(L->cp[0].vt[j],L->cp[0].vt[i]) >= 1.0);
