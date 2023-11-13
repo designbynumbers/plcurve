@@ -702,7 +702,7 @@ extern "C" {
      rejection sampling from the Action Angle Method. This is confined to 
      polygons with between 5 and 30 edges. */
 
-  plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *r,int nEdges);
+  plCurve *plc_random_equilateral_closed_self_avoiding_polygon(uint64_t *r,int nEdges);
 
   /* Random open polygons. Just generates points on sphere and adds them up. */
   

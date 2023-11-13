@@ -6,6 +6,7 @@
 
 #include"plCurve.h"
 #include"plcRandomPolygon.h"
+#include"plc_xoshiro.h"
 
 #include<config.h>
 
@@ -34,6 +35,7 @@
 #endif
 
 gsl_rng *rng; /* The global random number generator */
+uint64_t *xos; /* The global Xoshiro random number state */
 
 bool plc_is_sap_internal(plCurve *L,bool verbose); /* An internal debugging function in plcRandomSap.c */
 
@@ -288,9 +290,7 @@ double chordlength(plCurve *L, void *args) {
 
 }
 
-
-
-int sample_quality_worker(gsl_rng *rng,int n,int s)
+int sample_quality_worker(uint64_t *xos,int n,int s)
 {
 
   plCurve *L;
@@ -303,7 +303,7 @@ int sample_quality_worker(gsl_rng *rng,int n,int s)
 
   for(samp=0;samp<s;samp++) {
 
-    L = plc_random_equilateral_closed_self_avoiding_polygon(rng,n);
+    L = plc_random_equilateral_closed_self_avoiding_polygon(xos,n);
 
     if (!plc_is_sap_internal(L,true)) {
 
@@ -343,7 +343,7 @@ int sample_quality_worker(gsl_rng *rng,int n,int s)
 }
 
 
-bool sample_quality_tests(gsl_rng *rng)
+bool sample_quality_tests(uint64_t *rng)
 {
   printf("--------------------------------------"
 	 "-----------------------------------\n"
@@ -404,6 +404,8 @@ int main(int argc, char *argv[]) {
 
   gsl_rng_set(rng,seedi);
 
+  xos = plc_xoshiro_init((uint64_t)(time(0)));
+    
   if (argc > 1) { PAPERMODE = true; }
 
   printf("plcRandomSap test suite \n"
@@ -425,9 +427,12 @@ int main(int argc, char *argv[]) {
 	 "===========================================================\n"
 	 ,gsl_rng_name(rng),seedi);
 
-  if (!sample_quality_tests(rng)) { PASS = false; }
+  if (!sample_quality_tests(xos)) { PASS = false; }
   gsl_rng_free(rng);
 
+  plc_xoshiro_free(xos);
+			 
+			 
   printf("=========================================================================\n");
 
   if (PASS) {

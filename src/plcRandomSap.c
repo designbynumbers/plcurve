@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <config.h>
 #include"plCurve.h"
+#include"plc_xoshiro.h"
 
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
@@ -137,12 +138,12 @@ bool plc_is_sap_internal(plCurve *L, bool verbose) {
 
 bool plc_is_sap(plCurve *L) {
 
-  plc_is_sap_internal(L,false);
+  return plc_is_sap_internal(L,false);
 
 }
 
 
-plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
+plCurve *plc_random_equilateral_closed_self_avoiding_polygon(uint64_t *xos,int n)
 /* 
    Generates random closed polygons where vertices are surrounded by a 
    disjoint spheres of radius 1/2 (the "string of pearls" model) by 
@@ -217,7 +218,7 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 
   for(i=2;i<(n-1); i++, last_diag = this_diag) {
 
-    this_diag = last_diag + 2.0*(gsl_rng_uniform(rng)-0.5);
+    this_diag = last_diag + 2.0*(plc_xoshiro_uniform(xos)-0.5);
     if ((this_diag + last_diag < 1.0) || (this_diag <= 0.0)) { goto restart_trial; };
     
     /* frame[-][0] = X[-][i-1]/||X[-][i-1]|| */
@@ -255,7 +256,7 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
     
     /* Now pick a dihedral angle theta to try. */
     
-    theta = TWOPI*gsl_rng_uniform(rng);
+    theta = TWOPI*plc_xoshiro_uniform(xos);
     cos_theta = cos(theta);
     sin_theta = sin(theta);
       
