@@ -69,7 +69,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <gsl/gsl_randist.h>
 #endif
 
-bool plc_is_sap(plCurve *L) {
+bool plc_is_sap_internal(plCurve *L, bool verbose) {
 
   /* This is an internal debugging function which double-checks that all
      vertices of L are at least (almost) distance 1.0 away from each other.
@@ -90,7 +90,15 @@ bool plc_is_sap(plCurve *L) {
 	  for(vt2=0;vt2<vt1;vt2++) {
 	    
 	    if (plc_sq_dist(L->cp[cp1].vt[vt1],L->cp[cp2].vt[vt2]) < 1.0-1e-10) {
-	      return false;
+
+	      if (verbose) {
+
+		printf("plc_is_sap: Squared distance between L->cp[%d].vt[%d] and L->cp[%d].vt[%d] is %g < %g\n",
+		       cp1,vt1,cp2,vt2,plc_sq_dist(L->cp[cp1].vt[vt1],L->cp[cp2].vt[vt2]),1.0-1e-10);
+		       
+		return false;
+
+	      }
 	      
 	    }
 	    
@@ -104,10 +112,14 @@ bool plc_is_sap(plCurve *L) {
 	  
 	  for(vt2=0;vt2<L->cp[cp2].nv;vt2++) {
 	    
-	    if (plc_sq_dist(L->cp[cp1].vt[vt1],L->cp[cp2].vt[vt2]) < 1.0-1e-10) {
-	      return false;
-	      
-	    }
+	     if (verbose) {
+
+		printf("plc_is_sap: Squared distance between L->cp[%d].vt[%d] and L->cp[%d].vt[%d] is %g < %g\n",
+		       cp1,vt1,cp2,vt2,plc_sq_dist(L->cp[cp1].vt[vt1],L->cp[cp2].vt[vt2]),1.0-1e-10);
+		       
+		return false;
+
+	     }
 
 	  }
 
@@ -123,30 +135,33 @@ bool plc_is_sap(plCurve *L) {
 
 }
 
+bool plc_is_sap(plCurve *L) {
+
+  plc_is_sap_internal(L,false);
+
+}
+
+
 plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 /* 
    Generates random closed polygons where vertices are surrounded by a 
    disjoint spheres of radius 1/2 (the "string of pearls" model) by 
    rejection sampling. This is exponentially slow, so it's limited both 
    in number of attempts and by the max and min n which will be attempted. 
+
+   We also do a fair amount of one-off optimization here in order to increase 
+   performance. 
+
 */
 {
   int nv = n,cc = {0};
   bool open = {false};
   plCurve *L = plc_new(1,&nv,&open,&cc);
 
-  L->cp[0].vt[0] = plc_build_vect(0,0,0);
-  L->cp[0].vt[1] = plc_build_vect(1,0,0);
+  /* We'll copy over our sap to the buffer in L once we generate it. */
 
-  double last_diag, this_diag;
-  int i;
-  int safety_check = 0;
-  double TWOPI = 6.2831853071795864769;
-  double theta;
-  bool distances_ok;
-
-  plc_vector normal;
-
+  double *X[3];  /* This will be our working buffer of vertex positions. */
+ 
   assert(n >= 5);
   if (n < 5) {
 
@@ -156,129 +171,177 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(gsl_rng *rng,int n)
 
   }
 
-  assert(n <= 16);
-  if (n > 16) {
+  assert(n <= 25);
+  if (n > 25) {
 
     printf("Error. Can't call plc_random_sap\n"
-	   "with n > 16\n");
+	   "with n > 25\n");
     exit(1);
   }
+
+  /* The design of this code is basically straight from the Mathematica notebook spaam-sampling.nb */
+  /* These are buffers of vertex coordinates. In order to address the individual vectors, we use */
+  /* the **seemingly backwards** notation X[k][i] to get the k-th entry of the i-th vector. */
+
+  X[0] = malloc(n * sizeof(double));
+  X[1] = malloc(n * sizeof(double));
+  X[2] = malloc(n * sizeof(double));
+
+  assert(X[0] != NULL); assert(X[1] != NULL); assert(X[2] != NULL);
+
+  X[0][0] = 0.; X[1][0] = 0.; X[2][0] = 0.;
+  X[0][1] = 1.; X[1][1] = 0.; X[2][1] = 0.;
+
+  double frame[3][3] = {{0.,0.,0.},{0.,0.,0.},{0.,0.,0.}};
+
+  /* To match the memory usage in the X buffers, we'll address these "backwards" too: frame[k][i] is */
+  /* the k-th coordinate of the i-th vector. */
   
-  do {
+  double last_diag, this_diag = 0.;
+  double normal[3];
+  int i,j;
+  int trials=0,max_trials = 50000000;
 
-    for(i=2,distances_ok = true,last_diag=1.0,normal=plc_build_vect(0,0,1);
-	i<n && distances_ok;
-	i++,last_diag=this_diag) {
+  double TWOPI = 6.2831853071795864769;
+  double cos_phi, sin_phi;
+  double theta, cos_theta, sin_theta;
+  double nm;
+
+  restart_trial:
+
+  trials++;
+  assert(trials < max_trials);
+  
+  normal[0] = 0.; normal[1] = 0.; normal[2] = 1.;
+  last_diag = 1.0;
+
+  for(i=2;i<(n-1); i++, last_diag = this_diag) {
+
+    this_diag = last_diag + 2.0*(gsl_rng_uniform(rng)-0.5);
+    if ((this_diag + last_diag < 1.0) || (this_diag <= 0.0)) { goto restart_trial; };
+    
+    /* frame[-][0] = X[-][i-1]/||X[-][i-1]|| */
+    
+    nm = sqrt(X[0][i-1]*X[0][i-1] + X[1][i-1]*X[1][i-1] + X[2][i-1]*X[2][i-1]);
+    frame[0][0] = X[0][i-1]/nm; frame[1][0] = X[1][i-1]/nm; frame[2][0] = X[2][i-1]/nm;
+    
+    /* frame[-][1] = normal x frame[-][0] */
       
-      if (i < n-1) {
-	
-	/* Generate the next diagonal by adding a uniform random */
-	/* variate in [-1,1]. Remember that i is the 0-indexed vertex */
-	/* number, so "this_diag" will be used to build vertex i. */
-	
-	this_diag = last_diag + (2.0*gsl_rng_uniform(rng)-1.0);
-	
-	/* In this case, |this_diag - last_diag| < 1.0 by construction, 
-	   but we have to check that this_diag + last_diag > 1.0, and
-	   that this_diag > 0. */
-	
-	distances_ok = (this_diag + last_diag > 1.0 && this_diag > 1e-12);
-	
-      } else {
-	
-	/* The last diagonal is always 1.0. */
-	
-	this_diag = 1.0;
-	
-	/* In this case, we already know that this_diag + last_diag > 1.0 and 
-	   that this_diag > 0, but we have to explicitly check
-	   |this_diag - last_diag| < 1.0 */
-	
-	distances_ok = (fabs(this_diag - last_diag) < 1.0);
-	
-      }
+    frame[0][1] = normal[1]*frame[2][0] - normal[2]*frame[1][0];  
+    frame[1][1] = normal[2]*frame[0][0] - normal[0]*frame[2][0];
+    frame[2][1] = normal[0]*frame[1][0] - normal[1]*frame[0][0];
+    
+    /* frame[-][1] *= 1/||f[-][1]|| */
+    
+    nm = sqrt(frame[0][1]*frame[0][1] + frame[1][1]*frame[1][1] + frame[2][1]*frame[2][1]);
+    frame[0][1] /= nm;
+    frame[1][1] /= nm;
+    frame[2][1] /= nm;
+    
+    cos_phi = (this_diag * this_diag + last_diag * last_diag - 1.0)/(2.0 * this_diag * last_diag);
+    sin_phi = sqrt(1 - cos_phi * cos_phi);
       
-      if (distances_ok) {
-	
-	/* The diagonal distance is ok, so we can build the next vertex.
-	   We now do that, and add it to the polygon-in-progress L. 
-	   
-	   At this point, we're building vt[i] using the current value 
-	   of normal, the position of vt[i], and the diagonal d[i-1]. 
-	   
-	   Define the angle of the triangles at the vertex across from
-	   the edge vt[i-1]->vt[i] to be alpha. */
-	
-	double cos_alpha = (last_diag*last_diag + this_diag*this_diag - 1.0)/(2.0*last_diag*this_diag);
-	double sin_alpha = sqrt(1 - cos_alpha*cos_alpha);
-	
-	/*
-	  
-	    this_diag 
-              |   <=== new dihedral angle applied HERE
-           f2 |   vt[i]  
-      f3\   ^ v /\
-         \  |  /  \  1 
-          \ | /    \ 
-           \|/a  f1 \
-            *----->--* vt[i-1]
-       vt[0]    ^ 	    
-                |
-              last_diag
-
-	*/
-
-	plc_vector f1, f2, f3;
-	bool ok;
-	
-	f1 = plc_normalize_vect(L->cp[0].vt[i-1],&ok);
-	//assert(ok);
-	f2 = plc_normalize_vect(plc_cross_prod(normal,f1),&ok);
-	//assert(ok);
-	
-	L->cp[0].vt[i] = plc_vlincomb(this_diag*cos_alpha,f1,
-				      this_diag*sin_alpha,f2);
-	
-	/* Now we have to rotate the normal to encode the new
-	   dihedral angle. Technically, we could skip this part for
-	   the last diagonal, but it would take longer to check for
-	   the special case than to just do it. */
-	
-	f3 = plc_cross_prod(normal,plc_normalize_vect(L->cp[0].vt[i],&ok));
-	//	assert(ok);
-	f3 = plc_normalize_vect(f3,&ok);  /* This shouldn't do anything */
-	
-	theta = TWOPI*gsl_rng_uniform(rng);
-	
-	normal = plc_vlincomb(cos(theta),normal,
-			      sin(theta),f3);
-	normal = plc_normalize_vect(normal,&ok);
-	
-      }
-
-      /* We now have to check the self-avoiding condition, which means 
-         checking the distances between the new vertex and each of the 
-         existing ones. */
-
-      int j;
-      for(j=i-1;j>=0 && distances_ok;j--) {
-
-	distances_ok =
-	  distances_ok && (plc_sq_dist(L->cp[0].vt[j],L->cp[0].vt[i]) >= 1.0);
-
-      }	
+    /* X[-][i] = this_diag (cos_phi * frame[-][0] + sin_phi * frame[-][1]); */
+    
+    X[0][i] = this_diag * (cos_phi * frame[0][0] + sin_phi * frame[0][1]);
+    X[1][i] = this_diag * (cos_phi * frame[1][0] + sin_phi * frame[1][1]);
+    X[2][i] = this_diag * (cos_phi * frame[2][0] + sin_phi * frame[2][1]);
+    
+    /* frame[-][2] = -sin_phi frame[-][0] + cos_phi frame[-][1] */
+    
+    frame[0][2] = -sin_phi * frame[0][0] + cos_phi * frame[0][1];
+    frame[1][2] = -sin_phi * frame[1][0] + cos_phi * frame[1][1];
+    frame[2][2] = -sin_phi * frame[2][0] + cos_phi * frame[2][1];
+    
+    /* Now pick a dihedral angle theta to try. */
+    
+    theta = TWOPI*gsl_rng_uniform(rng);
+    cos_theta = cos(theta);
+    sin_theta = sin(theta);
       
+    /* normal = cos(theta) normal + sin(theta) frame[-][2]; */
+      
+    normal[0] = cos_theta * normal[0] + sin_theta * frame[0][2];
+    normal[1] = cos_theta * normal[1] + sin_theta * frame[1][2];
+    normal[2] = cos_theta * normal[2] + sin_theta * frame[2][2];
+    
+    /* Now check distances. We go backwards because the new sphere is most likely */
+    /* to collide with nearby spheres. */
+    
+    for(j=i-1;j>=0;j--) {
+
+      if (((X[0][i]-X[0][j])*(X[0][i]-X[0][j]) +
+	   (X[1][i]-X[1][j])*(X[1][i]-X[1][j]) +
+	   (X[2][i]-X[2][j])*(X[2][i]-X[2][j])) < 1.0-(1e-9)) { goto restart_trial; }
+	
     }
-    
-    safety_check++;
-    
-  } while (!distances_ok && safety_check < 500000000);
+
+  }
+
+  /* If we got to this point, we're at i = n - 1; the last vertex! */
+
+  assert(i==n-1); 
+  last_diag = this_diag;
   
-  assert(safety_check < 500000000); 
-  assert(fabs(plc_distance(L->cp[0].vt[0],L->cp[0].vt[n-1]) - 1.0) < 1e-8);
+  if (last_diag <= 0.0 || last_diag >= 2.0) { goto restart_trial; }
+    
+  /* frame[-][0] = X[-][i-1]/||X[-][i-1]|| */
   
+  nm = sqrt(X[0][i-1]*X[0][i-1] + X[1][i-1]*X[1][i-1] + X[2][i-1]*X[2][i-1]);
+  frame[0][0] = X[0][i-1]/nm; frame[1][0] = X[1][i-1]/nm; frame[2][0] = X[2][i-1]/nm;
+  
+  /* frame[-][1] = normal x frame[-][0] */
+  
+  frame[0][1] = normal[1]*frame[2][0] - normal[2]*frame[1][0];  
+  frame[1][1] = normal[2]*frame[0][0] - normal[0]*frame[2][0];
+  frame[2][1] = normal[0]*frame[1][0] - normal[1]*frame[0][0];
+  
+  /* frame[-][1] *= 1/||f[-][1]|| */
+  
+  nm = sqrt(frame[0][1]*frame[0][1] + frame[1][1]*frame[1][1] + frame[2][1]*frame[2][1]);
+  frame[0][1] /= nm;
+  frame[1][1] /= nm;
+  frame[2][1] /= nm;
+  
+  /* Since we know that this_diag is 1.0, this formula simplifies... */
+	
+  cos_phi = last_diag/2.0;
+  sin_phi = sqrt(1.0 - cos_phi * cos_phi);
+  
+  /* X[-][i] = this_diag (cos_phi * frame[-][0] + sin_phi * frame[-][1]); */
+	
+  X[0][i] = cos_phi * frame[0][0] + sin_phi * frame[0][1];
+  X[1][i] = cos_phi * frame[1][0] + sin_phi * frame[1][1];
+  X[2][i] = cos_phi * frame[2][0] + sin_phi * frame[2][1];
+  
+  /* This is the last vertex, so there's no need to update the frame, but we still */
+  /* check distances. We go backwards because the new sphere is most likely */
+  /* to collide with nearby spheres. */
+	
+  for(j=i-1;j>=0;j--) {
+	  
+    if (((X[0][i]-X[0][j])*(X[0][i]-X[0][j]) +
+	 (X[1][i]-X[1][j])*(X[1][i]-X[1][j]) +
+	 (X[2][i]-X[2][j])*(X[2][i]-X[2][j])) < 1.0-(1e-9)) { goto restart_trial; };
+	
+  }
+	
+  /* If we make it to here, it's time to copy the contents of the buffers into the plCurve data structure */
+
+  for(i=0;i<n;i++) {
+    
+    L->cp[0].vt[i].c[0] = X[0][i];
+    L->cp[0].vt[i].c[1] = X[1][i];
+    L->cp[0].vt[i].c[2] = X[2][i];
+    
+  }
+
   plc_fix_wrap(L);
-  
+
+  /* Now we need to clean up the temporary buffers */
+
+  free(X[0]); free(X[1]); free(X[2]);
+
   return L;
-  
-}
+
+} 

@@ -35,7 +35,7 @@
 
 gsl_rng *rng; /* The global random number generator */
 
-bool plc_is_sap(plCurve *L); /* An internal debugging function in plcRandomSap.c */
+bool plc_is_sap_internal(plCurve *L,bool verbose); /* An internal debugging function in plcRandomSap.c */
 
 bool PAPERMODE;
 FILE *outfile;
@@ -305,11 +305,12 @@ int sample_quality_worker(gsl_rng *rng,int n,int s)
 
     L = plc_random_equilateral_closed_self_avoiding_polygon(rng,n);
 
-    if (!plc_is_sap(L)) {
+    if (!plc_is_sap_internal(L,true)) {
 
       printf("fail\n\tTest failed at sample %d, which is not self-avoiding.\n",
 	     samp);
 
+      plc_write(stdout,L);
       plc_free(L);
       return false;
 
@@ -321,6 +322,9 @@ int sample_quality_worker(gsl_rng *rng,int n,int s)
     if (longest > 1.0 + 1e-9 || shortest < 1.0 - 1e-9) {
 
       printf("fail.\n\t Test failed at sample %d, which is not equilateral.\n\tLongest edge: %g, Shortest edge: %g\n",samp,longest,shortest);
+
+      plc_write(stdout,L);
+      
       plc_free(L);
       return false;
 
@@ -345,18 +349,22 @@ bool sample_quality_tests(gsl_rng *rng)
 	 "-----------------------------------\n"
 	 "Testing sample quality for saps.\n\n");
 
-  if (!sample_quality_worker(rng,5,1000) ||
-      !sample_quality_worker(rng,6,1000) ||
-      !sample_quality_worker(rng,7,1000) ||
-      !sample_quality_worker(rng,8,500)  ||
-      !sample_quality_worker(rng,9,500)  ||
-      !sample_quality_worker(rng,10,100)  ||
-      !sample_quality_worker(rng,11,100)  ||
-      !sample_quality_worker(rng,12,10)  ||
-      !sample_quality_worker(rng,13,10)  ||
-      !sample_quality_worker(rng,14,1)  ||
-      !sample_quality_worker(rng,15,1)  ||
-      !sample_quality_worker(rng,16,1)) {
+  if (!sample_quality_worker(rng,5,100000) ||
+      !sample_quality_worker(rng,6,100000) ||
+      !sample_quality_worker(rng,7,100000) ||
+      !sample_quality_worker(rng,8,50000)  ||
+      !sample_quality_worker(rng,9,50000)  ||
+      !sample_quality_worker(rng,10,10000)  ||
+      !sample_quality_worker(rng,11,1000)  ||
+      !sample_quality_worker(rng,12,1000)  ||
+      !sample_quality_worker(rng,13,1000)  ||
+      !sample_quality_worker(rng,14,500)  ||
+      !sample_quality_worker(rng,15,500)  ||
+      !sample_quality_worker(rng,16,500) ||
+      !sample_quality_worker(rng,17,100)  ||
+      !sample_quality_worker(rng,18,100) ||
+      !sample_quality_worker(rng,19,100)  ||
+      !sample_quality_worker(rng,20,100)) {
 
     printf("Sample Quality Test: FAIL\n");
     printf("--------------------------------------"\
