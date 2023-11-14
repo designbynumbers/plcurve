@@ -94,8 +94,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	getopt.c \
 	getopt.h \
 	getopt1.c \
-	pd_simplify.c \
-	plc_xoshiro.c 
+	pd_simplify.c 
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -181,8 +180,7 @@ libplCurve_la_SOURCES = plCurve.c \
 	getopt.c \
 	getopt.h \
 	getopt1.c \
-	pd_simplify.c \
-	plc_xoshiro.c
+	pd_simplify.c 
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)

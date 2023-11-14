@@ -695,14 +695,19 @@ extern "C" {
      
      They have unit length edges. */
 
-  plCurve *plc_random_equilateral_closed_polygon(gsl_rng *r,int nEdges);
+  plCurve *plc_random_equilateral_closed_polygon(gsl_rng *rng,int nEdges);
 
   /* Random self-avoiding equilateral polygons. (Experimental). This code
      generates random self-avoiding equilateral closed polygons by direct
      rejection sampling from the Action Angle Method. This is confined to 
-     polygons with between 5 and 30 edges. */
+     polygons with between 5 and 30 edges. This uses an internal random 
+     number generator to increase performance, so instead of calling the
+     usual gsl functions, you need to use the "init" and "free" functions
+     below to set the state for the random number generator. */
 
-  plCurve *plc_random_equilateral_closed_self_avoiding_polygon(uint64_t *r,int nEdges);
+  uint64_t *plc_xoshiro_init(uint64_t init);
+  void      plc_xoshiro_free(uint64_t *xos);
+  plCurve  *plc_random_equilateral_closed_self_avoiding_polygon(uint64_t *xos,int nEdges);
 
   /* Random open polygons. Just generates points on sphere and adds them up. */
   

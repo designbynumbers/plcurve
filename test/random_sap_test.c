@@ -6,7 +6,6 @@
 
 #include"plCurve.h"
 #include"plcRandomPolygon.h"
-#include"plc_xoshiro.h"
 
 #include<config.h>
 
@@ -30,11 +29,6 @@
 #include<stdio.h>
 #endif
 
-#ifdef HAVE_GSL_GSL_RNG_H
-#include<gsl/gsl_rng.h>
-#endif
-
-gsl_rng *rng; /* The global random number generator */
 uint64_t *xos; /* The global Xoshiro random number state */
 
 bool plc_is_sap_internal(plCurve *L,bool verbose); /* An internal debugging function in plcRandomSap.c */
@@ -163,7 +157,7 @@ double eq_pol_prediction(int n,int k) {
 }
 char eq_pol_predstring[256] = "((n-k)/(n-1)) k";
 
-bool equilateral_unconfined_chordlength_tests(gsl_rng *rng)
+bool equilateral_unconfined_chordlength_tests(uint64_t *xos)
 {
   int nvals[10] = {50,100,200,250};
   int kvals[10] = {10,20,30};
@@ -178,7 +172,7 @@ bool equilateral_unconfined_chordlength_tests(gsl_rng *rng)
       glob_skip = kvals[k];
       sprintf(predname,"avg squared length of skip %d chords",kvals[k]);
 
-      if (!test_equilateral_prediction(rng,nvals[n],skip_squared_chordlength,eq_pol_prediction(nvals[n],kvals[k]),predname)) {
+      if (!test_equilateral_prediction(xos,nvals[n],skip_squared_chordlength,eq_pol_prediction(nvals[n],kvals[k]),predname)) {
 
 	return false;
 
@@ -193,7 +187,7 @@ bool equilateral_unconfined_chordlength_tests(gsl_rng *rng)
 }
 
 
-bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve *L, void *args),double expected,char *prediction_name)
+bool test_ftc_prediction(gsl_rng *xos,double ftc,int n,double integrand(plCurve *L, void *args),double expected,char *prediction_name)
 {
   printf("--------------------------------------"
 	 "-----------------------------------\n"
@@ -206,7 +200,7 @@ bool test_ftc_prediction(gsl_rng *rng,double ftc,int n,double integrand(plCurve 
   double error,result;
 
   tsmcmc_triangulation_t T = tsmcmc_fan_triangulation(n);
-  result = tsmcmc_fixed_ftc_expectation(rng,integrand,NULL,ftc,50000,2,T,run_params,&run_stats,&error);
+  result = tsmcmc_fixed_ftc_expectation(xos,integrand,NULL,ftc,50000,2,T,run_params,&run_stats,&error);
 
   printf("done.\n"
          "Run statistics: \n"
@@ -343,28 +337,28 @@ int sample_quality_worker(uint64_t *xos,int n,int s)
 }
 
 
-bool sample_quality_tests(uint64_t *rng)
+bool sample_quality_tests(uint64_t *xos)
 {
   printf("--------------------------------------"
 	 "-----------------------------------\n"
 	 "Testing sample quality for saps.\n\n");
 
-  if (!sample_quality_worker(rng,5,100000) ||
-      !sample_quality_worker(rng,6,100000) ||
-      !sample_quality_worker(rng,7,100000) ||
-      !sample_quality_worker(rng,8,50000)  ||
-      !sample_quality_worker(rng,9,50000)  ||
-      !sample_quality_worker(rng,10,10000)  ||
-      !sample_quality_worker(rng,11,1000)  ||
-      !sample_quality_worker(rng,12,1000)  ||
-      !sample_quality_worker(rng,13,1000)  ||
-      !sample_quality_worker(rng,14,500)  ||
-      !sample_quality_worker(rng,15,500)  ||
-      !sample_quality_worker(rng,16,500) ||
-      !sample_quality_worker(rng,17,100)  ||
-      !sample_quality_worker(rng,18,100) ||
-      !sample_quality_worker(rng,19,100)  ||
-      !sample_quality_worker(rng,20,100)) {
+  if (!sample_quality_worker(xos,5,100000) ||
+      !sample_quality_worker(xos,6,100000) ||
+      !sample_quality_worker(xos,7,100000) ||
+      !sample_quality_worker(xos,8,50000)  ||
+      !sample_quality_worker(xos,9,50000)  ||
+      !sample_quality_worker(xos,10,10000)  ||
+      !sample_quality_worker(xos,11,1000)  ||
+      !sample_quality_worker(xos,12,1000)  ||
+      !sample_quality_worker(xos,13,1000)  ||
+      !sample_quality_worker(xos,14,500)  ||
+      !sample_quality_worker(xos,15,500)  ||
+      !sample_quality_worker(xos,16,500) ||
+      !sample_quality_worker(xos,17,100)  ||
+      !sample_quality_worker(xos,18,100) ||
+      !sample_quality_worker(xos,19,100)  ||
+      !sample_quality_worker(xos,20,100)) {
 
     printf("Sample Quality Test: FAIL\n");
     printf("--------------------------------------"\
@@ -390,19 +384,7 @@ char eq_pol_gyradius_predstring[256] = "(1/3) (n+1)/n^2";
 int main(int argc, char *argv[]) {
 
   bool PASS = {true};
-
-  const gsl_rng_type * rng_T;
-
-  gsl_rng_env_setup();
-  rng_T = gsl_rng_default;
-  rng = gsl_rng_alloc(rng_T);
-
   int seedi = time(0);
-
-  //if (seed->count > 0) { seedi = seed->ival[0]; }
-  //else { seedi = time(0); }
-
-  gsl_rng_set(rng,seedi);
 
   xos = plc_xoshiro_init((uint64_t)(time(0)));
     
@@ -425,10 +407,9 @@ int main(int argc, char *argv[]) {
 	 "with seed %d.\n"
 	 "\n"
 	 "===========================================================\n"
-	 ,gsl_rng_name(rng),seedi);
+	 ,"xoshiro256+",seedi);
 
   if (!sample_quality_tests(xos)) { PASS = false; }
-  gsl_rng_free(rng);
 
   plc_xoshiro_free(xos);
 			 

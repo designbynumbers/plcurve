@@ -25,7 +25,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <config.h>
 #include"plCurve.h"
-#include"plc_xoshiro.h"
 
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
@@ -57,18 +56,124 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-
 #ifdef HAVE_COMPLEX_H
 #include <complex.h>
 #endif
 
-#ifdef HAVE_GSL_GSL_RNG_H
-#include <gsl/gsl_rng.h>
-#endif
+uint64_t *plc_xoshiro_init(uint64_t init) {
 
-#ifdef HAVE_GSL_GSL_RANDIST_H
-#include <gsl/gsl_randist.h>
-#endif
+  uint64_t *seed = malloc(4*sizeof(uint64_t));
+  
+  uint64_t z;
+  int i;
+  
+  for(i=0;i<4;i++ ) {
+
+    z = (init += UINT64_C(0x9E3779B97F4A7C15));
+    z = (z ^ (z >> 30)) * UINT64_C(0xBF58476D1CE4E5B9);
+    z = (z ^ (z >> 27)) * UINT64_C(0x94D049BB133111EB);
+  
+    seed[i] = z ^ (z >> 31);
+
+  }
+
+  return seed;
+  
+}
+
+void plc_xoshiro_free(uint64_t *rng) {
+
+  free(rng);
+
+}
+
+static inline uint64_t rotl(const uint64_t x, int k) {
+  return (x << k) | (x >> (64 - k));
+}
+
+uint64_t plc_xoshiro_next(uint64_t *s) {
+
+  const uint64_t result = s[0] + s[3];
+  
+  const uint64_t t = s[1] << 17;
+  
+  s[2] ^= s[0];
+  s[3] ^= s[1];
+  s[1] ^= s[2];
+  s[0] ^= s[3];
+  
+  s[2] ^= t;
+  
+  s[3] = rotl(s[3], 45);
+  
+  return result;
+}
+
+static inline double plc_xoshiro_uniform(uint64_t *state) {
+  const uint64_t r = plc_xoshiro_next(state);
+  const double _nrm=1.0/(1ull<<52);
+  return (r>>12)*_nrm;
+}
+ 
+/* This is the jump function for the generator. It is equivalent 
+    to 2^128 calls to next(); it can be used to generate 2^128 
+    non-overlapping subsequences for parallel computations. */ 
+
+void plc_xoshiro_jump(uint64_t *s) {
+  static const uint64_t JUMP[] = { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c };
+  
+  uint64_t s0 = 0;
+  uint64_t s1 = 0;
+  uint64_t s2 = 0;
+  uint64_t s3 = 0;
+
+  for(int i = 0; i < sizeof JUMP / sizeof *JUMP; i++)
+    for(int b = 0; b < 64; b++) {
+      if (JUMP[i] & UINT64_C(1) << b) {
+	s0 ^= s[0];
+	s1 ^= s[1];
+	s2 ^= s[2];
+	s3 ^= s[3];
+      }
+      plc_xoshiro_next(s);
+    }
+  
+  s[0] = s0;
+  s[1] = s1;
+  s[2] = s2;
+  s[3] = s3;
+}
+
+
+/* /\* This is the long-jump function for the generator. It is equivalent to */
+/*    2^192 calls to next(); it can be used to generate 2^64 starting points, */
+/*    from each of which jump() will generate 2^64 non-overlapping */
+/*    subsequences for parallel distributed computations. *\/ */
+
+/* void long_jump(void) { */
+/*   static const uint64_t LONG_JUMP[] = { 0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635 }; */
+  
+/*   uint64_t s0 = 0; */
+/*   uint64_t s1 = 0; */
+/*   uint64_t s2 = 0; */
+/*   uint64_t s3 = 0; */
+/*   for(int i = 0; i < sizeof LONG_JUMP / sizeof *LONG_JUMP; i++) */
+/*     for(int b = 0; b < 64; b++) { */
+/*       if (LONG_JUMP[i] & UINT64_C(1) << b) { */
+/* 	s0 ^= s[0]; */
+/* 	s1 ^= s[1]; */
+/* 	s2 ^= s[2]; */
+/* 	s3 ^= s[3]; */
+/*       } */
+/*       next();	 */
+/*     } */
+  
+/*   s[0] = s0; */
+/*   s[1] = s1; */
+/*   s[2] = s2; */
+/*   s[3] = s3; */
+/* } */
+
 
 bool plc_is_sap_internal(plCurve *L, bool verbose) {
 
@@ -151,7 +256,19 @@ plCurve *plc_random_equilateral_closed_self_avoiding_polygon(uint64_t *xos,int n
    in number of attempts and by the max and min n which will be attempted. 
 
    We also do a fair amount of one-off optimization here in order to increase 
-   performance. 
+   performance, including the use of an internal random number generator 
+   instead of our usual calls to gsl. 
+
+   To call this function, we need to use 
+
+   uint64_t *xos =  plc_xoshiro_init((uint64_t)(time(0)));
+
+   and then pass the resulting xos pointer to this function with each call, 
+   freeing the xoshiro state pointer xos with 
+
+   plc_xoshiro_free(xos);
+
+   after runs are complete.
 
 */
 {
