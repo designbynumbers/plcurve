@@ -87,7 +87,7 @@ void plc_xoshiro_free(uint64_t *rng) {
 
 }
 
-static inline uint64_t rotl(const uint64_t x, int k) {
+inline uint64_t rotl(const uint64_t x, int k) {
   return (x << k) | (x >> (64 - k));
 }
 
@@ -109,7 +109,7 @@ uint64_t plc_xoshiro_next(uint64_t *s) {
   return result;
 }
 
-static inline double plc_xoshiro_uniform(uint64_t *state) {
+inline double plc_xoshiro_uniform(uint64_t *state) {
   const uint64_t r = plc_xoshiro_next(state);
   const double _nrm=1.0/(1ull<<52);
   return (r>>12)*_nrm;
