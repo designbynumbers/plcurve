@@ -9,6 +9,7 @@
 
 #include"plCurve.h"
 #include"plcTopology.h"
+#include"plcRandomSap.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,11 +20,12 @@
 
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
-#include"argtable2.h"
+#include "argtable2.h"
 #include <assert.h>
 #include "tsmcmc.h"
 #include <string.h>
 #include <sys/stat.h>
+
 
 // Turn asserts ON.
 #define DEBUG 1 
@@ -136,6 +138,7 @@ int main(int argc,char *argv[]) {
   double cpu_time_used;
 
   const gsl_rng_type * rng_T;
+  uint64_t *xos;
      
   gsl_rng_env_setup();  
   rng_T = gsl_rng_default;
@@ -146,6 +149,7 @@ int main(int argc,char *argv[]) {
   if (seed->count > 0) { seedi = seed->ival[0]; }
   else { seedi = time(0); }
   gsl_rng_set(rng,seedi);
+  xos = plc_xoshiro_init((uint64_t)(seedi));
 
   tsmcmc_triangulation_t T;
   double runbeta, rundelta;
@@ -246,7 +250,7 @@ int main(int argc,char *argv[]) {
 
       runof = VECT;
 
-    } if (!strcmp(format->sval[0],"ChordLength") || !strcmp(format->sval[0],"chordlength")) {
+    } else if (!strcmp(format->sval[0],"ChordLength") || !strcmp(format->sval[0],"chordlength")) {
 
       runof = ChordLength;
 
@@ -486,7 +490,7 @@ int main(int argc,char *argv[]) {
 
       } else if (sap->count > 0) {
 
-	L = plc_random_equilateral_closed_self_avoiding_polygon(rng,runn);
+	L = plc_random_equilateral_closed_self_avoiding_polygon(xos,runn);
 
       } else {
 
@@ -595,7 +599,10 @@ int main(int argc,char *argv[]) {
   printf("clearing memory...");
 
   tsmcmc_triangulation_free(T);  
+
   gsl_rng_free(rng);
+  plc_xoshiro_free(xos);
+  
   arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
   arg_freetable(helpendtable,sizeof(helpendtable)/sizeof(helpendtable[0]));
 

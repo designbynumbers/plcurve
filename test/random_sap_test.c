@@ -54,83 +54,6 @@ void timestamp(FILE *outfile) {
 
 }
 
-bool test_equilateral_prediction(gsl_rng *rng,int n,double integrand(plCurve *L, void *args),double expected,char *prediction_name)
-{
-  printf("---------------------------------------"
-	 "-----------------------------------\n"
-	 "Testing %s for equilateral %d-gons.\n"
-	 "Running for 10 seconds...",prediction_name,n);
-
-  tsmcmc_run_parameters run_params = tsmcmc_default_unconfined_parameters();
-  tsmcmc_run_stats run_stats;
-  double error,result;
-
-  tsmcmc_triangulation_t T = tsmcmc_spiral_triangulation(n);
-  result = tsmcmc_equilateral_expectation(rng,integrand,NULL,50000,2,T,run_params,&run_stats,&error);
-
-  printf("done.\n"
-         "Run statistics: \n"
-	 "\tstep counts (dihedral/momentpoly/permute): %d/%d/%d\n"
-	 "\ttotal time                               : %2.2g sec\n"
-	 "\tlagged covariances used in computing err : %d (of %d)\n",
-	 run_stats.dihedral_steps,
-	 run_stats.mp_steps,
-	 run_stats.permute_steps,
-	 run_stats.total_seconds,
-	 run_stats.max_lagged_covariance_used,
-	 run_stats.lagged_covariances_available);
-
-  printf("checking expected value (%g) within error bounds...",expected);
-
-  if (fabs(expected - result) < error) {
-
-    printf("pass\n"
-	   "Details:\n"
-	   "\tComputed expectation: %4.4g\n"
-	   "\tExact expectation   : %4.4g\n"
-	   "\tActual Error        : %4.2g\n"
-	   "\tError Bound         : %4.2g\n",
-	   result,
-	   expected,
-	   fabs(expected-result),error);
-
-  } else if (fabs(expected - result) < 4*error) {
-
-    printf("conditional pass\n"
-	   "Details:\n"
-	   "\tComputed expectation: %4.4g\n"
-	   "\tExact expectation   : %4.4g\n"
-	   "\tActual Error        : %4.2g\n"
-	   "\t95%% Error Bound    : %4.2g\n"
-	   "\tNever Error Bound   : %4.2g\n",
-	   result,
-	   expected,
-	   fabs(expected-result),error,4*error);
-
-    printf("Test will continue. The 95%% confidence interval fails 5%% of the time\n"
-	   "so you are likely to observe this from time to time. However, we \n"
-	   "should NEVER exceed the error bound above.\n");
-    return true;
-
-  } else {
-
-    printf("FAIL (actual error %g >= 4*error bound %g)\n",fabs(expected-result),error);
-    printf("This failure means the Markov chain has not converged (or there\n"
-	   "is a serious bug somewhere in the library). In either case, it's\n"
-	   "a reportable failure, and I'd like to know your platform so that\n"
-	   "I can try to reproduce the failure.\n");
-    return false;
-
-  }
-
-  printf("result...pass\n");
-  printf("------------------------------------------"
-	 "-----------------------"
-	 "--------\n");
-  return true;
-
-}
-
 int glob_skip;
 double skip_squared_chordlength(plCurve *L, void *args) {
 
@@ -172,7 +95,7 @@ bool equilateral_unconfined_chordlength_tests(uint64_t *xos)
       glob_skip = kvals[k];
       sprintf(predname,"avg squared length of skip %d chords",kvals[k]);
 
-      if (!test_equilateral_prediction(xos,nvals[n],skip_squared_chordlength,eq_pol_prediction(nvals[n],kvals[k]),predname)) {
+      if (!0) {
 
 	return false;
 
@@ -182,95 +105,6 @@ bool equilateral_unconfined_chordlength_tests(uint64_t *xos)
 
   }
 
-  return true;
-
-}
-
-
-bool test_ftc_prediction(gsl_rng *xos,double ftc,int n,double integrand(plCurve *L, void *args),double expected,char *prediction_name)
-{
-  printf("--------------------------------------"
-	 "-----------------------------------\n"
-	 "Testing %s for %d-gons with edge 0 length %g\n"
-	 "all other edges equilateral (fixed failure-to-close)\n"
-	 "Running for 10 seconds...",prediction_name,n,ftc);
-
-  tsmcmc_run_parameters run_params = tsmcmc_default_unconfined_parameters();
-  tsmcmc_run_stats run_stats;
-  double error,result;
-
-  tsmcmc_triangulation_t T = tsmcmc_fan_triangulation(n);
-  result = tsmcmc_fixed_ftc_expectation(xos,integrand,NULL,ftc,50000,2,T,run_params,&run_stats,&error);
-
-  printf("done.\n"
-         "Run statistics: \n"
-	 "\tstep counts (dihedral/momentpoly/permute): %d/%d/%d\n"
-	 "\ttotal time                               : %2.2g sec\n"
-	 "\tlagged covariances used in computing err : %d (of %d)\n",
-	 run_stats.dihedral_steps,
-	 run_stats.mp_steps,
-	 run_stats.permute_steps,
-	 run_stats.total_seconds,
-	 run_stats.max_lagged_covariance_used,
-	 run_stats.lagged_covariances_available);
-
-  printf("checking expected value (%g) within error bounds...",expected);
-
-  if (fabs(expected - result) < error) {
-
-    printf("pass\n"
-	   "Details:\n"
-	   "\tComputed expectation: %4.4g\n"
-	   "\tExact expectation   : %4.4g\n"
-	   "\tActual Error        : %4.2g\n"
-	   "\tError Bound         : %4.2g\n",
-	   result,
-	   expected,
-	   fabs(expected-result),error);
-
-  } else if (fabs(expected - result) < 4*error) {
-
-    printf("conditional pass\n"
-	   "Details:\n"
-	   "\tComputed expectation: %4.4g\n"
-	   "\tExact expectation   : %4.4g\n"
-	   "\tActual Error        : %4.2g\n"
-	   "\t95%% Error Bound     : %4.2g\n"
-	   "\tNever Error Bound   : %4.2g\n",
-	   result,
-	   expected,
-	   fabs(expected-result),error,4*error);
-
-    printf("Test will continue. The 95%% confidence interval fails 5%% of the time\n"
-	   "so you are likely to observe this much error during an average test a \n"
-	   "couple of times.\n");
-    return true;
-
-  } else {
-
-    printf("FAIL\n"
-	   "Details:\n"
-	   "\tComputed expectation: %4.4g\n"
-	   "\tExact expectation   : %4.4g\n"
-	   "\tActual Error        : %4.2g\n"
-	   "\t95%% Error Bound     : %4.2g\n"
-	   "\tNever Error Bound   : %4.2g\n",
-	   result,
-	   expected,
-	   fabs(expected-result),error,4*error);
-
-    printf("This failure means the Markov chain has not converged (or there\n"
-	   "is a serious bug somewhere in the library). In either case, it's\n"
-	   "a reportable failure, and I'd like to know your platform so that\n"
-	   "I can try to reproduce the failure.\n");
-    return false;
-
-  }
-
-  printf("result...pass\n");
-  printf("------------------------------------------"
-	 "-----------------------"
-	 "--------\n");
   return true;
 
 }
