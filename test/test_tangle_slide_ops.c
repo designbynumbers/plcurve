@@ -40,7 +40,7 @@
 #include<pd_multidx.h>
 #include<pd_perm.h>
 
-int PD_VERBOSE=15;
+extern int PD_VERBOSE;
 
 /* We need a utility function to do the tests... */
 
@@ -1354,6 +1354,8 @@ pd_idx_t border_faces[5]     = {0,2,3, 4, 0};
 
 
 int main() {
+
+  PD_VERBOSE = 15;
 
   printf("test_tangle_slide_operation (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

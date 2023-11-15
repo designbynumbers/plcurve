@@ -46,7 +46,7 @@
 #include<pd_isomorphisms.h>
 #include<pd_splitdiagram.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 pd_code_t *pd_joindiagram(pd_idx_t ncomponentPD,pd_code_t **componentPD)
 
@@ -907,6 +907,8 @@ bool test_splitdiagramC() {
   
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_splitdiagram (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

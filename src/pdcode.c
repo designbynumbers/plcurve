@@ -9,7 +9,7 @@
 
 */
 
-int PD_VERBOSE;  /* This is the actual home of PD_VERBOSE. Every other reference should be extern */
+int PD_VERBOSE = 0;  /* This is the actual home of PD_VERBOSE. Every other reference should be extern */
 
 #ifdef HAVE_CONFIG_H
   #include"config.h"
