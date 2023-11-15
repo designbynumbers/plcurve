@@ -37,8 +37,6 @@
 #include<gsl/gsl_rng.h>
 #endif
 
-int PD_VERBOSE=0;
-
 gsl_rng *rng; /* The global random number generator */
 gsl_rng *r;  /* The global random number generator */
 

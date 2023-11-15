@@ -46,7 +46,7 @@
 
 #include"argtable2.h" /* We use a local copy of argtable */
 
-int PD_VERBOSE=0;
+extern int PD_VERBOSE;
 
 bool insert_torusknots(int nknots,pd_stor_t **pdstor,pd_equivalence_t eq)
 

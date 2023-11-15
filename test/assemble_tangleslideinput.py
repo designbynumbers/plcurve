@@ -1,4 +1,4 @@
-import glob
+]1;95;0cimport glob
 import subprocess
 import re
 import sys
@@ -487,7 +487,7 @@ prefixboilerplate = r"""
 
 #include<plcTopology.h>
 
-int PD_VERBOSE=15;
+extern int PD_VERBOSE;
 
 /* We need to include a prototype for the function we're testing, because
    it's not exposed in the header files. */
@@ -505,6 +505,8 @@ bool pdint_check_tslide_data_ok_and_find_te(pd_code_t *pd,pd_tangle_t *t,
 
 actualtest = r"""
 int main() {{
+
+  PD_VERBOSE = 15;
 
   printf("test_tangle_slide_input (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

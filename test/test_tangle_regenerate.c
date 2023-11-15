@@ -36,7 +36,7 @@
 
 #include<plcTopology.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 /* tangle interior test a assembled c code */
 
 pd_code_t *pd_create_tangle_testa_0() { 
@@ -4691,6 +4691,8 @@ pd_tangle_strand_t strand_data[5] = {{0,5,3,0},
 
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_tangle_regenerate_auto (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

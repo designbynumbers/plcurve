@@ -42,7 +42,7 @@
 
 #include<pd_isomorphisms.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 bool two_crossing() {
 
@@ -98,6 +98,8 @@ bool two_crossing() {
 }
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_2crossing (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

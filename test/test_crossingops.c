@@ -48,8 +48,6 @@
 #include<pd_isomorphisms.h>
 #include<pd_orientation.h>
 
-int PD_VERBOSE=50;
-
 void pd_compacting_copy(void *source, size_t obj_size, size_t nobj, 
 			pd_idx_t ndeletions, pd_idx_t *deletions,
 			void **target_var,

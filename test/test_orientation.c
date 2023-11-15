@@ -53,7 +53,7 @@
    #include<argtable2.h> /* We use a local copy of argtable */
 #endif
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 bool test_norientation(pd_idx_t n, bool print)
 
@@ -166,6 +166,8 @@ bool test_orientation() {
 }
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_orientation (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

@@ -49,7 +49,7 @@
    #include<argtable2.h> /* We use a local copy of argtable */
 #endif
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 bool test_ndihedral(pd_idx_t n, bool print)
 
@@ -167,6 +167,8 @@ bool test_dihedral() {
 }
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_dihedral (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

@@ -69,8 +69,6 @@ void random_k_ascent_permutation(int n,int k,
 				 int *perm,
 				 gsl_rng *rng);
 
-int PD_VERBOSE=50;
-
 bool nap_lookup_table_test()
 { 
 

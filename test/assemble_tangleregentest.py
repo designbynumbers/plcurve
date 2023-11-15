@@ -381,11 +381,13 @@ prefixboilerplate = r"""
 
 #include<plcTopology.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 """
 
 actualtest = r"""
 int main() {{
+
+  PD_VERBOSE = 50;
 
   printf("test_tangle_regenerate_auto (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

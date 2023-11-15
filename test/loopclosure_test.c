@@ -31,7 +31,6 @@
 #include<gsl/gsl_rng.h>
 #endif
 
-int PD_VERBOSE=0;
 gsl_rng *r;  /* The global random number generator */
 
 bool PAPERMODE;

@@ -46,7 +46,7 @@
 #include<pd_orientation.h>
 #include<polynomials.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 void create_inputfile() {
 
@@ -127,6 +127,8 @@ bool test_6a5_and_6n1() {
 }
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_readkt (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

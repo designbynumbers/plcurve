@@ -57,8 +57,6 @@ struct arg_end *helpend;
 
 gsl_rng *rng; /* The global random number generator */
 
-int PD_VERBOSE = 0;
-
 int main(int argc,char *argv[]) {
 
   int nerrors;

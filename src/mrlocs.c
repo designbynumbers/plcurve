@@ -47,8 +47,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
   #define min(A,B) ((A < B) ? A : B)
 #endif
 
-int PD_VERBOSE = 0;
-
 int compare_mrlocs(const void *a, const void *b)
 {
   octrope_mrloc *A,*B;

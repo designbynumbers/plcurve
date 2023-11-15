@@ -49,7 +49,7 @@
 
 #include<pd_isomorphisms.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 bool test_compgrps()
 
@@ -1527,6 +1527,8 @@ bool test_isomorphic()
 }
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_isomorphism (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

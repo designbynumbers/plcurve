@@ -67,8 +67,6 @@ typedef struct augmented_strut_type {
 
 #define pline_edges(P) (((P).open) ? (P).nv-1 : (P).nv)
 
-int PD_VERBOSE = 0;
-
 int compare_augmented_struts(const void *a, const void *b)
 {
   augmented_strut *A,*B;

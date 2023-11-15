@@ -48,7 +48,7 @@
 #include<pd_orientation.h>
 #include<polynomials.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 /* We now swap in an open-source replacement for getline. */
 
@@ -64,12 +64,12 @@ int PD_VERBOSE=50;
    the error.  */
 
 int
-mygetstr (lineptr, n, stream, terminator, offset)
-     char **lineptr;
+mygetstr (char **lineptr, size_t *n, FILE *stream, char terminator, int offset)
+/*   char **lineptr;
      size_t *n;
      FILE *stream;
      char terminator;
-     int offset;
+     int offset; */
 {
   int nchars_avail;		/* Allocated but unused chars in *LINEPTR.  */
   char *read_pos;		/* Where we're reading into *LINEPTR. */
@@ -159,10 +159,10 @@ mygetstr (lineptr, n, stream, terminator, offset)
 }
 
 int
-mygetline (lineptr, n, stream)
-     char **lineptr;
-     size_t *n;
-     FILE *stream;
+mygetline (char **lineptr,size_t * n, FILE *stream)
+/*     char **lineptr;
+       size_t *n;
+       FILE *stream; */
 {
   return mygetstr (lineptr, n, stream, '\n', 0);
 }
@@ -972,6 +972,8 @@ bool rolfsentabletest()
     
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_homfly (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

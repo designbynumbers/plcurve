@@ -51,7 +51,7 @@
 #include<pd_dihedral.h>
 
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 
 /* We are responsible for implementing the following interface for the iterator in 
@@ -337,6 +337,8 @@ bool test_multidx() {
 }
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_multidx (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

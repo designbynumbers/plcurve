@@ -49,7 +49,7 @@
 
 #include<pd_invariants.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 bool unknot_interlacement_test(pd_idx_t ncross)
 /*
@@ -357,6 +357,8 @@ bool test_easy_examples() {
 }
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_invariants (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

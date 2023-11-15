@@ -46,7 +46,7 @@
 
 #include"argtable2.h" /* We use a local copy of argtable */
 
-int PD_VERBOSE=0;
+extern int PD_VERBOSE;
 
 bool pd_identical(pd_code_t *pdA,pd_code_t *pdB)
 /* This is function that should have basically no use outside debugging,

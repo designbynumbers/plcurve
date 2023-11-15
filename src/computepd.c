@@ -86,7 +86,6 @@ struct arg_lit  *help;
 struct arg_end  *end;
 struct arg_end  *helpend;
 
-int PD_VERBOSE = 0;
 int VERBOSE;
 
 int main(int argc,char *argv[])

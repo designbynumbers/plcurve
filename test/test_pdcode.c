@@ -41,7 +41,7 @@
 
 #include<pd_isomorphisms.h>
 
-int PD_VERBOSE=50;
+extern int PD_VERBOSE;
 
 bool ok_test(pd_code_t *pd) {
 
@@ -1057,6 +1057,8 @@ bool test_rw_altforms() {
 
 
 int main() {
+
+  PD_VERBOSE = 50;
 
   printf("test_pdcode (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

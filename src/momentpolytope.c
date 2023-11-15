@@ -52,8 +52,6 @@ struct arg_rem *tab1;
 struct arg_rem *tab2;
 struct arg_rem *tab3;
 
-int PD_VERBOSE=0;
-
 gsl_rng *rng; /* The global random number generator */
 
 int main(int argc,char *argv[]) {

@@ -54,7 +54,7 @@
 #define MAXEDGES 25
 
 int VERBOSE;
-int PD_VERBOSE;
+extern int PD_VERBOSE;
 
 #include<ordie.h>
 #include<plcTopology.h>
@@ -67,7 +67,6 @@ int PD_VERBOSE;
 #include<pd_storage.h>
 
 #define DEBUG 1            /* Turn on asserts */
-int PD_VERBOSE={0};       /* Turn on debugging info */
 
 struct arg_lit  *verbose;
 struct arg_lit  *help;
@@ -76,6 +75,8 @@ struct arg_end  *helpend;
   
 int main(int argc,char *argv[])
 {
+  PD_VERBOSE = 0;
+  
   int            nerrors,ncross;
    
   void *argtable[] = 

@@ -316,7 +316,7 @@ prefixboilerplate = r"""
 #include<pd_multidx.h>
 #include<pd_perm.h>
 
-int PD_VERBOSE=15;
+extern int PD_VERBOSE;
 
 /* We need a utility function to do the tests... */
 
@@ -393,6 +393,8 @@ bool compare_list_of_pds(pd_idx_t nA, pd_code_t **A,
 
 actualtest = r"""
 int main() {{
+
+  PD_VERBOSE = 15;
 
   printf("test_tangle_slide_operation (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

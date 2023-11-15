@@ -32,7 +32,6 @@
 #include<gsl/gsl_randist.h>
 #endif
 
-int PD_VERBOSE=0;
 gsl_rng *r; /* The global random number generator */
 
 // Process has done x out of n rounds,
