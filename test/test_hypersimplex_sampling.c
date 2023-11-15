@@ -60,7 +60,7 @@ double *psi_inverse(int n,double *y);
 double *hypersimplex_sample(int k, int n,gsl_rng *rng);
 double *hypercube_slice_sample(int n,gsl_rng *rng);
 
-extern int PD_VERBOSE;
+
 
 double *psi(int n, double *x)
 {
@@ -590,8 +590,6 @@ bool hypercube_quality_test() {
 }
 
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_hypersimplex_sampling (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

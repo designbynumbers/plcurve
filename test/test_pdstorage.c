@@ -46,7 +46,7 @@
 
 #include"argtable2.h" /* We use a local copy of argtable */
 
-extern int PD_VERBOSE;
+
 
 bool insert_torusknots(int nknots,pd_stor_t **pdstor,pd_equivalence_t eq)
 
@@ -63,7 +63,7 @@ bool insert_torusknots(int nknots,pd_stor_t **pdstor,pd_equivalence_t eq)
 	 nknots,pd_stor_nelts(*pdstor),
 	 eq == NONE ? "none" : (eq == ISOMORPHISM ? "isomorphism" : "diagram isotopy"));
 
-  if (PD_VERBOSE > 10) { printf("\n"); }
+  if (PD_VERBOSE) { printf("\n"); }
 
   for(i=0;i<nknots;i++) {
 
@@ -118,7 +118,7 @@ bool insert_torusknots_with_dups(int nknots,pd_stor_t **pdstor,pd_equivalence_t 
 	 nknots,pd_stor_nelts(*pdstor),
 	 eq == NONE ? "none" : (eq == ISOMORPHISM ? "isomorphism" : "diagram isotopy"));
 
-  if (PD_VERBOSE > 10) { printf("\n"); }
+  if (PD_VERBOSE) { printf("\n"); }
 
   int added = 0;
 
@@ -342,7 +342,7 @@ bool insert_unknotwyes(int n,pd_stor_t **pdstor,pd_equivalence_t eq)
 	 n,pd_stor_nelts(*pdstor),
 	 eq == NONE ? "none" : (eq == ISOMORPHISM ? "isomorphism" : "diagram isotopy"));
 
-  if (PD_VERBOSE > 10) { printf("\n"); }
+  if (PD_VERBOSE) { printf("\n"); }
   if (n < 4) { printf("\n"); }
 
   for(m=0;m<=n;m++) {
@@ -654,9 +654,6 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
   printf("pass.\n");
   printf("now inserting collection of torus knots ... ");
 
-  unsigned int VERB_STORE = PD_VERBOSE;
-  PD_VERBOSE = 0;
-
   for(i=0;i<nknots;i++) {
 
     pd_code_t *pd;
@@ -666,8 +663,6 @@ bool torusknot_insert_and_search(int nknots,pd_stor_t **pdstor)
     pd_code_free(&pd);
 
   }
-
-  PD_VERBOSE = VERB_STORE;
 
   printf("done.\n"); /* If we didn't crash, we pass. */
   printf("checking stats ... ");
@@ -778,16 +773,13 @@ bool read_write_test()
 
   printf("inserting unknotwyes and torusknots ... ");
 
-  if (PD_VERBOSE > 20) { printf("\n"); }
-
-  unsigned int VERB_STORE;
-  VERB_STORE = PD_VERBOSE;
+  if (PD_VERBOSE) { printf("\n"); }
 
   for(i=0;i<14;i++) {
 
     pd = pd_build_torus_knot(2,i+3); 
 
-    if (PD_VERBOSE > 20) {
+    if (PD_VERBOSE) {
 
       printf("\t torus knot (2,%d) hash -> %s \n",i+3,pd->hash);
 
@@ -810,7 +802,7 @@ bool read_write_test()
 
 	  pd = pd_build_unknot_wye(i,j,k);
 	  
-	  if (PD_VERBOSE > 20) {
+	  if (PD_VERBOSE) {
 	    
 	    printf("\t unknotwye (%d,%d,%d) hash -> %s \n",i,j,k,pd->hash);
 	    
@@ -827,12 +819,10 @@ bool read_write_test()
 
   }
 
-  if (PD_VERBOSE > 20) { printf("\n"); }
+  if (PD_VERBOSE) { printf("\n"); }
 
   printf("done.\n");
 
-  PD_VERBOSE = 0;
-  
   unsigned int nelts,nhashes;
   pd_stor_stats(pdstor,&nhashes,&nelts);
 
@@ -901,8 +891,6 @@ bool read_write_test()
  
   printf("pass (new_nelts == %u == nelts == %u)\n",new_nelts,nelts);
 
-  PD_VERBOSE = VERB_STORE;
-   
   printf("comparing elements of pdstors ... ");
   fflush(stdout);
   

@@ -46,18 +46,20 @@ extern "C" {
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
 #include <plCurve.h>
 #include <limits.h>
-
+  
   /* This is going to take an actual fork to deal with the fact that
      we can't keep the data in static memory anymore. */
-
-/* #define PD_MAXVERTS         1024   /\* We are only going to deal with diagrams with <= 1024 crossings. *\/ */
-/* #define PD_MAXEDGES         (int)(PD_MAXVERTS*2 + 1) */
-/* #define PD_MAXCOMPONENTS    (int)(PD_MAXVERTS/2) */
-/* #define PD_MAXFACES         PD_MAXVERTS+2 */
-
-  #define PD_HASHSIZE 32
-
-  extern int PD_VERBOSE;
+  
+  /* #define PD_MAXVERTS         1024   /\* We are only going to deal with diagrams with <= 1024 crossings. *\/ */
+  /* #define PD_MAXEDGES         (int)(PD_MAXVERTS*2 + 1) */
+  /* #define PD_MAXCOMPONENTS    (int)(PD_MAXVERTS/2) */
+  /* #define PD_MAXFACES         PD_MAXVERTS+2 */
+  
+#define PD_HASHSIZE 32
+  
+#ifndef PD_VERBOSE /* We have switched to defining PD_VERBOSE as preprocessor symbol */
+#define PD_VERBOSE 0
+#endif
 
   /* For the sake of compactness and speed, everything
      is written on top of three "abstract" integer types,
@@ -466,7 +468,7 @@ extern "C" {
      check the derived data against
      the cross data.
 
-     If PD_VERBOSE > 10 they terminate on
+     If PD_VERBOSE they terminate on
      error with a helpful message. Otherwise
      they just return true/false.
   */
@@ -758,7 +760,7 @@ extern "C" {
 
   bool pd_error(char *file, int line, char *fmt, pd_code_t *pd, ...);
 
-  /* If PD_VERBOSE > 10, outputs the error string in fmt,
+  /* If PD_VERBOSE, outputs the error string in fmt,
      converted with the special format conversions
      to stderr, and then exits with error code 1.
 

@@ -302,7 +302,7 @@ char *pd_homfly_timeout(pd_code_t *pd, int timeout)
 
   ccode = pdcode_to_ccode(pd);
 
-  if (PD_VERBOSE > 50) {
+  if (PD_VERBOSE) {
 
     pd_printf("pd_homfly: Converted pd code\n %PD \n to crossing code \n %s \n",
 	     pd,ccode);
@@ -311,7 +311,7 @@ char *pd_homfly_timeout(pd_code_t *pd, int timeout)
 
   homfly_lmpoly = plc_lmpoly(ccode,timeout);
 
-  if (PD_VERBOSE > 50) {
+  if (PD_VERBOSE) {
 
     printf("got (raw) HOMFLY string %s\n",homfly_lmpoly);
 
@@ -326,7 +326,7 @@ char *pd_homfly_timeout(pd_code_t *pd, int timeout)
   char *homfly = lmpoly_to_latex(homfly_lmpoly);
   free(homfly_lmpoly);
 
-  if (PD_VERBOSE > 50) {
+  if (PD_VERBOSE) {
 
     printf("got finished HOMFLY string %s\n",homfly);
 

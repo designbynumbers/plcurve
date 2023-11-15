@@ -9,8 +9,6 @@
 
 */
 
-int PD_VERBOSE = 0;  /* This is the actual home of PD_VERBOSE. Every other reference should be extern */
-
 #ifdef HAVE_CONFIG_H
   #include"config.h"
 #endif
@@ -2128,9 +2126,6 @@ void pd_regenerate(pd_code_t *pd)
 
   } else {
 
-    pd_idx_t PD_VERBOSITY_STORE = PD_VERBOSE;
-    PD_VERBOSE = 0;
-
     if (!pd_edges_ok(pd)) {
 
       for(i=0;i<pd->ncross;i++) {
@@ -2142,8 +2137,6 @@ void pd_regenerate(pd_code_t *pd)
       pd_regenerate_edges(pd);
 
     }
-
-    PD_VERBOSE = PD_VERBOSITY_STORE;
 
   }
 
@@ -4866,16 +4859,13 @@ bool pd_error(char *file, int line, char *fmt, pd_code_t *pd, ...)
 {
   va_list ap;
 
-  if (PD_VERBOSE < 10) { return false; }
+  if (!PD_VERBOSE) { return false; }
 
   fprintf(stderr,"%s (%d): pd_error \n",file,line);
-
 
   va_start(ap,pd);
   pd_vfprintf(stderr,fmt,pd,ap);
   va_end(ap);
-
-  if (PD_VERBOSE < 20) { return false; }
 
   exit(1);
 }

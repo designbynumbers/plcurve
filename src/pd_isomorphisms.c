@@ -66,7 +66,7 @@
 bool pd_compgrp_ok(pd_code_t *pd,pd_compgrp_t *cgrp)
 
 /* Checks that indices are meaningful with respect to the pdcode. As usual, */
-/* prints an error message and terminates the program if PD_VERBOSE > 10.   */
+/* prints an error message and terminates the program if PD_VERBOSE.   */
 
 {
   if (cgrp->ncomps > pd->ncomps) {

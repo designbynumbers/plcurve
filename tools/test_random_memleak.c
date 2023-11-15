@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <gsl/gsl_rng.h>
 
-extern int PD_VERBOSE;
-
 int main(int argc, char** argv) {
     plCurve* K;
     gsl_rng *r;

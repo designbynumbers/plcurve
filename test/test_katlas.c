@@ -54,7 +54,7 @@
 #define MAXEDGES 25
 
 int VERBOSE;
-extern int PD_VERBOSE;
+
 
 #include<ordie.h>
 #include<plcTopology.h>
@@ -75,8 +75,6 @@ struct arg_end  *helpend;
   
 int main(int argc,char *argv[])
 {
-  PD_VERBOSE = 0;
-  
   int            nerrors,ncross;
    
   void *argtable[] = 
@@ -157,9 +155,7 @@ int main(int argc,char *argv[])
 
       printf("Matched files %s and %s. Starting scan.\n",katlas_name,pdstor_name);
       
-      PD_VERBOSE = 60;
       pd_stor_t *existing_pdstor = pd_read_pdstor(pdstor);
-      PD_VERBOSE = VERBOSE;
 
       unsigned int nhashes, nelts;
       pd_stor_stats(existing_pdstor,&nhashes,&nelts);

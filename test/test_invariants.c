@@ -49,7 +49,7 @@
 
 #include<pd_invariants.h>
 
-extern int PD_VERBOSE;
+
 
 bool unknot_interlacement_test(pd_idx_t ncross)
 /*
@@ -320,9 +320,6 @@ bool torusknot_interlacement_test(pd_idx_t q)
 
 bool test_easy_examples() {
 
-  int store_verb = PD_VERBOSE;
-  PD_VERBOSE = 0;
-
   printf("----------------------------------\n"
 	 "pd_interlaced_crossings test suite\n"
 	 "----------------------------------\n");
@@ -350,15 +347,11 @@ bool test_easy_examples() {
 	 "pd_interlaced_crossings test suite: PASS\n"
 	 "----------------------------------------\n");
 
-  PD_VERBOSE = store_verb;
-
   return true;
 
 }
 
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_invariants (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

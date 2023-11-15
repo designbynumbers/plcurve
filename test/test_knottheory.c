@@ -44,7 +44,7 @@
 
 #include<pd_isomorphisms.h>
 
-extern int PD_VERBOSE;
+
 
 pd_code_t *pd_create_badguy_0() { 
 
@@ -497,8 +497,6 @@ bool test_inouts() {
 }
 
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_knottheory (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

@@ -43,7 +43,6 @@
 
 // Turn asserts ON.
 #define DEBUG 1
-extern int PD_VERBOSE;
 
 /* Global variables live here. */
 
@@ -884,8 +883,6 @@ int main(int argc,char *argv[]) {
     int j;
     for(j=0;!feof(in);j++) { 
       
-      PD_VERBOSE = 50;
-
       pd_code_t *inpd;
 
       if (weakchecking->count > 0) { 

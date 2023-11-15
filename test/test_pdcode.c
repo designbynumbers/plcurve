@@ -41,7 +41,7 @@
 
 #include<pd_isomorphisms.h>
 
-extern int PD_VERBOSE;
+
 
 bool ok_test(pd_code_t *pd) {
 
@@ -803,13 +803,10 @@ bool test_read_pd(char *pd_code_file, char *testname,bool xpass) {
   printf("reading new_pd from file ");
   if (xpass) { 
     printf("(expect pass)...");
-    PD_VERBOSE = 50;
     new_pd = pd_read(infile); /* We WANT errors to stop the test. */
   } else {
     printf("(expect fail)...");
-    PD_VERBOSE = 0;
     new_pd = pd_read(infile); /* We don't want errors to stop the test. */
-    PD_VERBOSE = 50;
   }
 
   if (new_pd == NULL && xpass) { 
@@ -1051,14 +1048,7 @@ bool test_rw_altforms() {
 
 }
 
-  
-
-  
-
-
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_pdcode (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

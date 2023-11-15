@@ -103,7 +103,7 @@ void pd_free_pdstor(pd_stor_t **pdstor)
   JSLF(PValue_hash,(*pdstor)->PJSLArray,hash);
   /* Find the first entry in the JudySL of hashes */
 
-  if (PD_VERBOSE > 10) { 
+  if (PD_VERBOSE) { 
 
     printf("\n"
 	   "pd_free_pdstor: Attempting to free pdstor with %d elts.\n",pd_stor_nelts(*pdstor));
@@ -141,7 +141,7 @@ void pd_free_pdstor(pd_stor_t **pdstor)
     JLFA(bytes_freed_this_hash,PJLArray); /* Free the actual JudyL memory */
     *PValue_hash = (Word_t)(PJLArray);    /* Propagate updated JudyL pointer back to top JudySL */
 
-    if (PD_VERBOSE > 10) { 
+    if (PD_VERBOSE) { 
 
       printf("pd_free_pdstor: \t Freed uids %d-%d (of %d uids total)/%d bytes of memory for hash %s.\n",
 	     (int)(min_uid),(int)(max_uid),(int)(uids_this_hash),(int)(bytes_freed_this_hash),hash);
@@ -154,7 +154,7 @@ void pd_free_pdstor(pd_stor_t **pdstor)
 
   JSLFA(bytes_freed_all_hashes,(*pdstor)->PJSLArray); /* Free the top-level JudySL memory */
 
-  if (PD_VERBOSE > 10) { 
+  if (PD_VERBOSE) { 
 
     printf("pd_stor_free: Freed %d bytes of memory in JudySL for all hashes.\n\n",
 	   (int)(bytes_freed_all_hashes));
@@ -233,7 +233,7 @@ void pd_addto_pdstor(pd_stor_t *pdstor,pd_code_t *pd,pd_equivalence_t eq)
 	if ((eq == ISOMORPHISM && pd_isomorphic(stored_pd,pd)) ||
 	    (eq == DIAGRAM_ISOTOPY && pd_diagram_isotopic(stored_pd,pd))) { /* We found it: Quit! */
 	  
-	  if (PD_VERBOSE > 20) {
+	  if (PD_VERBOSE) {
 	  
 	    printf("\t pd_addto_pdstor: Attempting to insert pd code with hash %s and uid %d.\n"
 		   "\t                   Found equivalent (%s) pd code with hash %s and uid %d present.\n"
@@ -314,7 +314,7 @@ void pd_addto_pdstor(pd_stor_t *pdstor,pd_code_t *pd,pd_equivalence_t eq)
 
   /* Now report to the user if desired. */
 
-  if (PD_VERBOSE > 20) { 
+  if (PD_VERBOSE) { 
 
     printf("\t pd_addto_pdstor: Inserted pd with hash %s and (new) uid %d into storage.\n",
 	   pd->hash,(int)(new_uid));
@@ -635,7 +635,7 @@ void pd_write_pdstor(FILE *stream,pd_stor_t *pdstor) /* Prints a representation 
 
   free(pd);
 
-  if (PD_VERBOSE > 20) { 
+  if (PD_VERBOSE) { 
 
     printf("pd_write_pdstor: Wrote %d element, %d hash pdstor to stream.\n",
 	   nelts,nhashes);
@@ -733,7 +733,7 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq)
     char c = '.';
     if (fscanf(stream,"?/? (claimed/actual) nhashes %c",&c) != 1 || c != '?') {
 
-      if (PD_VERBOSE > 20) {
+      if (PD_VERBOSE) {
 
 	printf("pd_read_pdstor: Couldn't parse header.\n");
       
@@ -749,7 +749,7 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq)
 
     if (nelts_claimed != nelts_actual) { 
 
-      if (PD_VERBOSE > 20) {
+      if (PD_VERBOSE) {
 
 	printf("pd_read_pdstor: Header of pdstor file appears corrupt.\n");
 	return NULL;
@@ -770,7 +770,7 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq)
 
   for(elt=0;elt<nelts && !feof(stream);elt++) {
 
-    if (PD_VERBOSE > 50) { /* Actually draw a progress bar */
+    if (PD_VERBOSE) { /* Actually draw a progress bar */
 
       printf("pd_read_pdstor: Read %u of %u pdcodes.\r",elt,nelts);
 
@@ -780,7 +780,7 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq)
 
     if (pd == NULL) { 
 
-      if (PD_VERBOSE > 20) { printf("pd_read_pdstor: Couldn't parse pd code %d.\n",elt); }
+      if (PD_VERBOSE) { printf("pd_read_pdstor: Couldn't parse pd code %d.\n",elt); }
       pd_free_pdstor(&pdstor);
       return NULL;
 
@@ -796,13 +796,13 @@ pd_stor_t *pd_read_pdstor(FILE *stream, pd_equivalence_t eq)
 
   if (elt != nelts) { 
 
-    if (PD_VERBOSE > 20) { printf("pd_read_pdstor: Only read %u of %u elements from file.\n",elt,nelts); }
+    if (PD_VERBOSE) { printf("pd_read_pdstor: Only read %u of %u elements from file.\n",elt,nelts); }
     pd_free_pdstor(&pdstor);
     return NULL;
 
   }
 
-  if (PD_VERBOSE > 20) { 
+  if (PD_VERBOSE) { 
 
     printf("pd_read_pdstor: Read %u elements from stream.\n",nelts);
     

@@ -48,6 +48,10 @@ extern "C" {
 #include <stdbool.h>
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
 #include <iso646.h>
+
+#ifndef PD_VERBOSE
+  #define PD_VERBOSE 0
+#endif
   
   /* We now introduce a data type encoding a symmetry of a link. Such a symmetry has to include
      both a geometric transformation of space AND a corresponding map from each vertex of the

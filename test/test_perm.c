@@ -52,7 +52,7 @@
 #include<pd_dihedral.h>
 #include<pd_isomorphisms.h>
 
-extern int PD_VERBOSE;
+
 
 bool test_nperm(pd_idx_t n, bool print)
 
@@ -298,8 +298,6 @@ bool test_perm() {
 }
 
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_perm (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

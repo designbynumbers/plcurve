@@ -48,7 +48,7 @@
 #include<pd_orientation.h>
 #include<polynomials.h>
 
-extern int PD_VERBOSE;
+
 
 /* We now swap in an open-source replacement for getline. */
 
@@ -972,8 +972,6 @@ bool rolfsentabletest()
     
 
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_homfly (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

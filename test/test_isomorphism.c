@@ -49,7 +49,7 @@
 
 #include<pd_isomorphisms.h>
 
-extern int PD_VERBOSE;
+
 
 bool test_compgrps()
 
@@ -475,9 +475,6 @@ bool evec_test(pd_idx_t ncomps,pd_idx_t *evec,bool printperms,bool printemaps)
 
 bool test_compperms_and_edgemaps() {
 
-  int store_verb = PD_VERBOSE;
-  PD_VERBOSE = 0;
-
   printf("pd_build_compperms and pd_build_edgemaps test suite\n"
 	 "---------------------------------------------------\n");
 
@@ -503,8 +500,6 @@ bool test_compperms_and_edgemaps() {
 
   printf("--------------------------------------------------------\n"
 	 "pd_build_compperms and pd_build_edgemaps test suite PASS\n\n");
-
-  PD_VERBOSE = store_verb;
 
   return true;
 
@@ -1357,9 +1352,6 @@ bool torusknot_iso_test(pd_idx_t p,pd_idx_t q,bool prime,bool print)
 
 bool test_isos() {
 
-  int store_verb = PD_VERBOSE;
-  PD_VERBOSE = 0;
-
   printf("pd_build_isos test suite\n"
 	 "-------------------------------\n");
 
@@ -1384,17 +1376,12 @@ bool test_isos() {
   printf("------------------------------------\n"
 	 "pd_build_isos test suite PASS\n\n");
 
-  PD_VERBOSE = store_verb;
-
   return true;
 
 }
 
 bool test_isomorphic()
 {
-  int store_verb = PD_VERBOSE;
-  PD_VERBOSE = 0;
-  
   printf("pd_isomorphic test suite\n"
 	 "-------------------------------\n");
 
@@ -1520,15 +1507,11 @@ bool test_isomorphic()
   printf("------------------------------------\n"
 	 "pd_isomorphic test suite PASS\n\n");
   
-  PD_VERBOSE = store_verb;
-  
   return true;
 
 }
 
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_isomorphism (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

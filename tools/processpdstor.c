@@ -26,7 +26,7 @@
 
 // Turn asserts ON.
 #define DEBUG 1
-extern int PD_VERBOSE;
+
 
 /* Global variables live here. */
 
@@ -362,20 +362,6 @@ int main(int argc,char *argv[]) {
     int j;
     int codes_written = 0;
     for(j=0;!feof(in);j++) {
-
-      if (verbose->count > 0) {
-
-	PD_VERBOSE = 50;
-
-      } else if (quiet->count > 0) {
-
-	PD_VERBOSE = 0;
-
-      } else {
-
-	PD_VERBOSE = 10;
-
-      }
 
       pd_code_t *inpd;
       inpd = pd_read(in);

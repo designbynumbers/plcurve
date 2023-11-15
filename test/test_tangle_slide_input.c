@@ -36,7 +36,7 @@
 
 #include<plcTopology.h>
 
-extern int PD_VERBOSE;
+
 
 /* We need to include a prototype for the function we're testing, because
    it's not exposed in the header files. */
@@ -8203,8 +8203,6 @@ pd_or_t overstrand_orientation = PD_UNSET_ORIENTATION;
 
 
 int main() {
-
-  PD_VERBOSE = 15;
 
   printf("test_tangle_slide_input (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

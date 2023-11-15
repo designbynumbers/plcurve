@@ -49,7 +49,7 @@
 #include<pd_orientation.h>
 #include<polynomials.h>
 
-extern int PD_VERBOSE;
+
 
 bool isomorphism_matches_sign_iterator(pd_iso_t *iso,pd_code_t *pdA,pd_multidx_t *sign_iterator)
  
@@ -589,8 +589,6 @@ bool connect_sum_tests()
     
 
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_operations (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

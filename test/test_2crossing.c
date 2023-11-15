@@ -42,16 +42,12 @@
 
 #include<pd_isomorphisms.h>
 
-extern int PD_VERBOSE;
-
 bool two_crossing() {
 
   printf("----------------------------------\n"
 	 "two-crossing regeneration tests\n"
 	 "----------------------------------\n");
   
-  PD_VERBOSE = 50;
-
   printf("building 2 crossing diagram...");
 
   pd_code_t *pdA = pd_code_new(2);
@@ -98,8 +94,6 @@ bool two_crossing() {
 }
 
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_2crossing (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

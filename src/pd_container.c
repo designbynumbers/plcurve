@@ -172,7 +172,7 @@ bool pd_container_ok(pd_container_t *cont)
 /* Internal sanity checks */
 {
 
-  if (PD_VERBOSE > 10) {
+  if (PD_VERBOSE) {
 
     if (cont == NULL) {
 

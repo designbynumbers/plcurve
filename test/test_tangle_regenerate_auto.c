@@ -36,7 +36,6 @@
 
 #include<plcTopology.h>
 
-int PD_VERBOSE=50;
 /* tangle interior test a assembled c code */
 
 pd_code_t *pd_create_tangle_testa_0() { 

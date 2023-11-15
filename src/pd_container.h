@@ -15,6 +15,10 @@
 #ifndef __PD_CONTAINER_H__
 #define __PD_CONTAINER_H__ 1
 
+#ifndef PD_VERBOSE
+#define PD_VERBOSE 0
+#endif
+
 typedef unsigned int pd_contidx_t;  /* Index to elements in a pd_container_t. */
 
 typedef void * pd_contdata_t; 
@@ -29,8 +33,6 @@ typedef struct pd_container_struct {
   pd_contdata_t *elt;  /* Array of void ptrs */
   
 } pd_container_t;
-
-extern int PD_VERBOSE;
 
 pd_container_t *pd_new_container(pd_contidx_t initsize);
 /* Allocates space for a new pd_container holding initsize pointers. */

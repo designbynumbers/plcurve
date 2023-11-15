@@ -36,8 +36,6 @@
 
 #include<plcTopology.h>
 
-int PD_VERBOSE=15;
-
 /* We need to include a prototype for the function we're testing, because
    it's not exposed in the header files. */
 

@@ -44,7 +44,7 @@
 
 #include<pd_container.h>
 
-extern int PD_VERBOSE;
+
 
 bool init_and_read_tests(pd_contidx_t init,pd_contidx_t toadd,pd_container_t **rcont)
 
@@ -427,8 +427,6 @@ bool test_container() {
 }
  
 int main() {
-
-  PD_VERBOSE = 50;
 
   printf("test_pdcontainer (%s)\n",PACKAGE_STRING);
   printf("---------------------------------------\n"

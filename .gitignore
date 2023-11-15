@@ -71,6 +71,7 @@ tools/orientedshadows
 tools/processpdstor
 tools/randomknot
 tools/shadow2diagram
+tools/TAGS
 
 # .trs files are test results; we don't want these tracked
 
@@ -125,9 +126,11 @@ src/filterpd
 src/joinpd
 src/randompolygon
 src/splitpd
+src/TAGS
 test/3samples.csv
 test/6a5and6n1.kt
 test/test_random_sap
+test/TAGS
 
 # The planarity sublibrary generates test results and some executables
 
