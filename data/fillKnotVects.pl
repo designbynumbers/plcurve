@@ -187,7 +187,7 @@ foreach $knotline ( @rawtable ) {
 
     # Now we need to actually generate the header file with the data by running the homfly code. 
 
-    open(KNOTTYPE,"knottype -qh /Users/cantarel/plCurve/data/knotvects/$newfile |");
+    open(KNOTTYPE,"knot_type -qh /Users/cantarel/plCurve/data/knotvects/$newfile |");
     while (<KNOTTYPE>) {
 
       if (/Homfly polynomial:\((.+)\)/) {

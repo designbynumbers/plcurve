@@ -48,7 +48,7 @@ struct arg_lit  *KnotTheory;
 struct arg_lit  *countonly;
 struct arg_lit  *simplify;
 struct arg_end  *end;
-struct arg_end  *helpend;
+struct arg_end  *helpEnd;
 
 char *mangle(const char *filename,const char *oldextension,const char *newextension);
 void  nmangle(char *newname,int nnsize,
@@ -149,8 +149,8 @@ int main(int argc,char *argv[]) {
       end = arg_end(20)
     };
 
-  void *helptable[] = {help,helpend = arg_end(20)};
-  void *helpendtable[] = {helpend};
+  void *helptable[] = {help, helpEnd = arg_end(20)};
+  void *helpendtable[] = {helpEnd};
 
   /* First, we parse the command-line arguments using argtable. */
 

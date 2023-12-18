@@ -251,6 +251,8 @@ plcurvature_LDFLAGS = -static
 
 randompolygon_SOURCES = plcrwalk.c
 randompolygon_LDADD = libplCurve.la
+randompolygon_CFLAGS = -I${top_builddir}/src
+randompolygon_LDFLAGS = -static -L${top_builddir}/src
 
 ropelength_SOURCES = ropelength.c
 ropelength_LDADD = libplCurve.la

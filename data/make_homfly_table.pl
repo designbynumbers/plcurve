@@ -84,7 +84,7 @@ foreach $knotline ( @rawtable ) {
 
     # Now we need to run the homfly code. 
 
-    open(KNOTTYPE,"knottype -qh /Users/cantarel/plCurve/data/knotvects/$fname |");
+    open(KNOTTYPE,"knot_type -qh /Users/cantarel/plCurve/data/knotvects/$fname |");
     while (<KNOTTYPE>) {
 
       if (/Homfly polynomial:\((.+)\)/) {
@@ -188,8 +188,8 @@ foreach $knotline (@rawtable) {
 
    $homfly = "Error";
 
-   #print "bash -c \"knottype -#h @files >> tempfile\"";
-   `bash -c "knottype -q#h @files > tempfile"`;
+   #print "bash -c \"knot_type -#h @files >> tempfile\"";
+   `bash -c "knot_type -q#h @files > tempfile"`;
 
    open(KNOTTYPE,"tempfile") or die("Myerror: couldn't open tempfile");
    while (<KNOTTYPE>) {

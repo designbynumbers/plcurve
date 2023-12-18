@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CLionExternalBuildManager">
+    <target id="a812f100-1bc0-4c41-a76b-029461084de3" name="randompolygon" defaultType="TOOL">
+      <configuration id="f0eea708-e2c4-4891-b6ed-00fa444f0692" name="randompolygon">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_make random polygon in src" />
+        </build>
+        <clean type="TOOL">
+          <tool actionId="Tool_External Tools_clean randompolygon in src" />
+        </clean>
+      </configuration>
+    </target>
+  </component>
+</project>

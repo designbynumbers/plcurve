@@ -44,9 +44,9 @@ struct arg_lit  *quiet;
 struct arg_lit  *KnotTheory;
 struct arg_lit  *simplify;
 struct arg_lit  *cantsimplify;
-struct arg_lit  *knottype;
+struct arg_lit  *knot_type;
 struct arg_end  *end;
-struct arg_end  *helpend;
+struct arg_end  *helpEnd;
 
 char *mangle(const char *filename,const char *oldextension,const char *newextension);
 void  nmangle(char *newname,int nnsize,
@@ -148,13 +148,13 @@ int main(int argc,char *argv[]) {
       KnotTheory = arg_lit0("K","KnotTheory","print pd codes in the style of knottheory (WARNING: WILL NOT HANDLE SPLIT LINKS)"),
       simplify = arg_lit0("s","simplified-diagrams","output simplified diagrams (unless they have zero crossings)"),
       cantsimplify = arg_lit0(NULL,"no-simplifications-possible","don't output diagrams which can be simplified"),
-      knottype = arg_lit0("","knottypes","output HOMFLY/knottype instead of ccode"),
+            knot_type = arg_lit0("", "knottypes", "output HOMFLY/knot_type instead of ccode"),
       help = arg_lit0(NULL,"help","display help message"),
       end = arg_end(20)
     };
 
-  void *helptable[] = {help,helpend = arg_end(20)};
-  void *helpendtable[] = {helpend};
+  void *helptable[] = {help, helpEnd = arg_end(20)};
+  void *helpendtable[] = {helpEnd};
 
   /* First, we parse the command-line arguments using argtable. */
 
@@ -254,7 +254,7 @@ int main(int argc,char *argv[]) {
   
   printf("Built %s, %s.\n", __DATE__ , __TIME__ );
 
-  if (knottype->count > 0) {
+  if (knot_type->count > 0) {
     printf("generating knot types for");
   } else {
     printf("generating crossing codes for");
@@ -289,7 +289,7 @@ int main(int argc,char *argv[]) {
 
       if (ofname != NULL) { free(ofname); }
 
-      if (KnotTheory->count == 0 && knottype->count == 0) { 
+      if (KnotTheory->count == 0 && knot_type->count == 0) {
 
 	ofname = mangle(infile->basename[i],".pdstor",".ccode");
 
@@ -349,7 +349,7 @@ int main(int argc,char *argv[]) {
 
     printf("done (%d pd codes, %d hashes)\n",nelts_claimed,nhashes);
 
-    if (knottype->count == 0) {
+    if (knot_type->count == 0) {
       
       printf("writing crossing codes...\n");
 
@@ -380,7 +380,7 @@ int main(int argc,char *argv[]) {
       if (
 	  (cantsimplify->count==0 && inpd->ncross > 0) ||
 	  (cantsimplify->count > 0 && inpd->ncross == incross) ||
-	  (knottype->count > 0) ) {
+	  (knot_type->count > 0) ) {
       
 	assert(inpd != NULL);
 
@@ -533,7 +533,7 @@ int main(int argc,char *argv[]) {
 		  
 		  pd_write_KnotTheory(out,working_pd);
 
-		} else if (knottype->count != 0) {
+		} else if (knot_type->count != 0) {
 
 		  if (working_pd->ncomps == 1) {
 
@@ -557,7 +557,7 @@ int main(int argc,char *argv[]) {
 		    
 		} else {
 	      
-		/*If KnotTheory and knottype not flagged not set then
+		/*If KnotTheory and knot_type not flagged not set then
 		  we write codes as ccodes*/
 	      
 		  char *ccode = pdcode_to_ccode(working_pd);
@@ -609,7 +609,7 @@ int main(int argc,char *argv[]) {
 
 		pd_write_KnotTheory(out,thispd);
 
-	      } else if (knottype->count > 0) {
+	      } else if (knot_type->count > 0) {
 		
 	        if (thispd->ncomps == 1) {
 
@@ -633,7 +633,7 @@ int main(int argc,char *argv[]) {
 		
 	      } else {
 
-		/*If KnotTheory flag and knottype flags are both not set then
+		/*If KnotTheory flag and knot_type flags are both not set then
 		  we write codes as ccodes*/
 	     
 		char *ccode = pdcode_to_ccode(thispd);
@@ -658,7 +658,7 @@ int main(int argc,char *argv[]) {
       
     }
     
-    if (knottype->count > 0) {
+    if (knot_type->count > 0) {
       
       printf("done (wrote %d knot types or homfly polynomials).\n",codes_written);
 

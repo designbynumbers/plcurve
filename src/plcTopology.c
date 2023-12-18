@@ -1735,7 +1735,7 @@ void plc_write_knottype(FILE *out, plc_knottype kt)
 }
 
 plc_knottype *plc_read_knottype(const char *kt)
-/* Reads the knot type as a human would write it: 3_1#5_2, for example. Returns NULL if it can't parse the knottype. */
+/* Reads the knot type as a human would write it: 3_1#5_2, for example. Returns NULL if it can't parse the knot_type. */
 {
   char *primecomp;
   plc_knottype *working_kt;
