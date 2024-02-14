@@ -46,6 +46,7 @@ extern "C" {
    */
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>       /* We'll need the uint64_t for Xoshiro */
 #include <gsl/gsl_rng.h>  /* We are going to need the gsl_rng type to be defined below. */
 #include <iso646.h>
 

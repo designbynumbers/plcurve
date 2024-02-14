@@ -17,15 +17,11 @@
 #include <config.h>
 #include"plCurve.h"
 
-#ifdef HAVE_STDIO_H
 #include <stdio.h>
-#endif
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-#ifdef HAVE_MATH_H
-  #include <math.h>
-#endif
+#include <math.h>
+#include <stdint.h>
+
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
