@@ -75,7 +75,7 @@ struct arg_file *Bfile;
 struct arg_file *outfile;
 struct arg_lit  *help;
 struct arg_end  *end;
-struct arg_end  *helpend;
+struct arg_end  *helpEnd;
 
 int VERBOSE;
 
@@ -92,7 +92,7 @@ int main(int argc,char *argv[])
      help = arg_lit0(NULL,"help","display help message"),
      end = arg_end(20)};
   
-  void *helptable[] = {help,helpend = arg_end(20)};
+  void *helptable[] = {help, helpEnd = arg_end(20)};
 
   printf("connectsum (%s)\n",PACKAGE_STRING);
 
@@ -345,7 +345,7 @@ int main(int argc,char *argv[])
   pd_free_pdstor(&cstor);
     
   arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
-  free(helpend);
+  free(helpEnd);
 
   exit(0);
 

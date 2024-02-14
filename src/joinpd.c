@@ -73,7 +73,7 @@ struct arg_lit  *isotopy;
 struct arg_rem  *mustdo;
 struct arg_lit  *help;
 struct arg_end  *end;
-struct arg_end  *helpend;
+struct arg_end  *helpEnd;
 
 int VERBOSE;
 
@@ -93,7 +93,7 @@ int main(int argc,char *argv[])
      isotopy = arg_lit0(NULL,"isotopy-checking","diagram isotopy, uses crossing data"),
      end = arg_end(20)};
   
-  void *helptable[] = {help,helpend = arg_end(20)};
+  void *helptable[] = {help, helpEnd = arg_end(20)};
 
   printf("joinpd (%s)\n",PACKAGE_STRING);
 
@@ -314,7 +314,7 @@ int main(int argc,char *argv[])
   pd_free_pdstor(&astor);
       
   arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
-  free(helpend);
+  free(helpEnd);
 
   exit(0);
 

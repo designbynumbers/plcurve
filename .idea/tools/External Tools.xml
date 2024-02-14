@@ -1,0 +1,16 @@
+<toolSet name="External Tools">
+  <tool name="make random polygon in src" description="Runs make, but in /plcurve/build/src." showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="/bin/sh " />
+      <option name="PARAMETERS" value="-c &quot;cd $ProjectFileDir$/build/src &amp;&amp; make randompolygon&quot;" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="clean randompolygon in src" description="Runs make clean in src" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="make" />
+      <option name="PARAMETERS" value="clean" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/build/src" />
+    </exec>
+  </tool>
+</toolSet>

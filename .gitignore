@@ -190,3 +190,11 @@ judy/src/JudyL/JudyLTables.c
 judy/src/JudyL/JudyLTablesGen
 judy/src/JudyL/JudyLTablesGen.c
 judy/src/JudyL/j__udyLGet.c
+
+# the build directory is system-specific and shouldn't be under git
+
+build
+
+# the .idea directory contains settings.xml which should be ignored.
+
+./.idea/settings.xml

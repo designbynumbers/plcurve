@@ -47,7 +47,7 @@ struct arg_lit  *help;
 struct arg_lit  *quiet;
 
 struct arg_end  *end;
-struct arg_end  *helpend;
+struct arg_end  *helpEnd;
 
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
 #define PBWIDTH 60
@@ -82,8 +82,8 @@ int main(int argc,char *argv[]) {
       end = arg_end(20)
     };
 
-  void *helptable[] = {help,helpend = arg_end(20)};
-  void *helpendtable[] = {helpend};
+  void *helptable[] = {help, helpEnd = arg_end(20)};
+  void *helpendtable[] = {helpEnd};
 
   const gsl_rng_type * T;
   gsl_rng *rng;
