@@ -174,7 +174,7 @@ AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
                   time.h sys/times.h sys/types.h fcntl.h signal.h complex.h \
 		  gsl/gsl_rng.h gsl/gsl_randist.h gsl/gsl_combination.h \
 		  gsl/gsl_permutation.h \
-		  limits.h strings.h stdint.h strings.h ])
+		  limits.h strings.h stdint.h strings.h errno.h])
 
 
 # Signal to AUTOMAKE if we have argtable2

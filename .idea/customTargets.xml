@@ -11,5 +11,15 @@
         </clean>
       </configuration>
     </target>
+    <target id="1709656c-c2be-4748-8990-d71c4483a75f" name="knottype" defaultType="TOOL">
+      <configuration id="78998737-2a63-4489-91d4-4fad6c6870c9" name="knottype">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_make knottype in src" />
+        </build>
+        <clean type="TOOL">
+          <tool actionId="Tool_External Tools_clean src" />
+        </clean>
+      </configuration>
+    </target>
   </component>
 </project>
