@@ -178,9 +178,10 @@ int main(int argc,char *argv[])
     if (print_pdcode->count > 0) {
 
       pd_code_t *core_pd = pd_code_from_plCurve(rng, core);
-      pd_write(stdout,core_pd);
+      pd_code_t *simplified_pd = pd_simplify(core_pd);
+      pd_write_KnotTheory(stdout,simplified_pd);
       pd_code_free(&core_pd);
-      
+      pd_code_free(&simplified_pd);
     }
     
     if (print_homfly->count > 0) {
