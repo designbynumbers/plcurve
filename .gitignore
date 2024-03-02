@@ -68,6 +68,7 @@ auto/
 # tools contains some executables that we don't want in git
 
 tools/orientedshadows
+tools/knottype
 tools/processpdstor
 tools/randomknot
 tools/shadow2diagram
