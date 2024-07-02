@@ -4,7 +4,8 @@ routines and some basic support for spline equivalents of the plCurves.
 
 New in library versions 7.0.1 (and later), this includes the functionality
 of the previous octrope library for computing the thickness and ropelength
-of polygonal curves.
+of polygonal curves. plCurve no longer includes a python interface, as it
+proved too difficult to support. 
 
 Installation
 ============
@@ -17,26 +18,16 @@ On Mac OS X
 3. Install the cantarellalab tap: brew tap designbynumbers/cantarellalab
 4. Install plcurve: brew install libplcurve
 
-This will install the library from the source tarball located at
+Alternately, you can install from the source tarball located at
 
 https://www.jasoncantarella.com/downloads/libplcurve-(version).tar.gz
 
-3. Install gsl: `brew install gsl`
-4. Install cairo: `brew install cairo`
-5. Install py2cairo: `brew install py2cairo`
-6. Install pip Python package manager: https://pip.pypa.io/en/stable/installing/
-7. Install numpy: `sudo pip install numpy`
-8. Install cython: `sudo pip install cython`
-9. Install spherogram: `pip install spherogram`
-10. Run configure: `./configure LDFLAGS="-L/usr/local/lib -L/opt/lib -L/opt/homebrew/lib" CPPFLAGS="-I/usr/local/include -I/opt/homebrew/include -I/opt/include"`
-11. Make: `make`
-12. Run the C tests: `make check`
-13. Install: `make install` or possibly `sudo make install`
-
-(Suggested): Install ipython: `sudo pip install ipython`
-Ipython is a more user-friendly Python console
-
-14. Build doc: `make html`
+1. Install gsl: `brew install gsl`
+2. Install cairo: `brew install cairo`
+3. Run configure: `./configure LDFLAGS="-L/usr/local/lib -L/opt/lib -L/opt/homebrew/lib" CPPFLAGS="-I/usr/local/include -I/opt/homebrew/include -I/opt/include"`
+4. Make: `make`
+5. Run the C tests: `make check`
+6. Install: `make install` or possibly `sudo make install`
 
 If you have trouble building the package, and you have previously installed a
 version of plcurve on the same (mac) machine, try
@@ -52,11 +43,10 @@ On Amazon Linux (such as AWS)
 
 1. Install the development tools: `sudo yum groupinstall "Development Tools"`
 2. Install gsl: `sudo yum install gsl-devel`
-3. Install numpy: `sudo pip install numpy`
-4. Configure: `./configure`
-5. Make: `make`
-6. Run the C tests: `make check`
-7. Install: `sudo make install`
+3. Configure: `./configure`
+4. Make: `make`
+5. Run the C tests: `make check`
+6. Install: `sudo make install`
 
 At this point you may need to add /usr/local/lib to the ld path.
 8. Create a file `local.conf` in /etc/ld.so.conf.d/ and give it the
@@ -64,29 +54,20 @@ one line, `/usr/local/lib`. You need to be SU for this; typically
 `sudo nano /etc/ld.so.conf.d/local.conf` is a fine editor command.
 9. `sudo ldconfig` to update the ld configuration cache
 
-(Suggested): Install ipython: `sudo pip install ipython`
-Ipython is a more user-friendly Python console
-
 On Ubuntu Linux 14.04 LTS (also tested on Ubuntu 18.04)
 ----------------------
 
 0. Update the apt package list: `sudo apt-get update`
 1. Install the development tools: `sudo apt-get install build-essential`
 2. Install gsl: `sudo apt-get install libgsl0-dev`
-3. Install pip and Python dev headers: `sudo apt-get install python-pip python-dev`
-4. Install numpy: `sudo pip install numpy`
 
 At this point you should acquire the source code and `cd` to its directory.
 
-5. Configure: `./configure`
-6. Make: `make`
-7. Run the C tests: `make check`
-8. Install: `sudo make install`
-
-9. `sudo ldconfig` to update the ld configuration cache (to find new libs)
-
-(Suggested): Install ipython: `sudo pip install ipython`
-Ipython is a more user-friendly Python console
+3. Configure: `./configure`
+4. Make: `make`
+5. Run the C tests: `make check`
+6. Install: `sudo make install`
+7. `sudo ldconfig` to update the ld configuration cache (to find new libs)
 
 `make check` occasionally failing
 =================================
@@ -123,51 +104,3 @@ In `ccode_test`, `randomwalk_test()` is called to process 1001 random
 test 'fails'. Based on the prior run of this program, we estimate (as
 of March 2016) that this step should fail about 97.431% of the time,
 or about 3-in-100 times.
-
-
-Python Module `libpl`
-=====================
-
-plCurve comes with a Python module for accessing and manipulating
-plCurve objects from Python scripts. Presently, the most robust part
-of this module is the `pdcode` submodule that makes available most of
-the functionality of `pdcode`s and other features in `plctopology.h`.
-
-Running configure will try to find the necessary libraries to build
-the Python module. To disable these checks and the Python building,
-pass `--disable-python` to the configure script. Required is Python
-2.7 (and associated development headers) and Numpy. Optional but
-recommended is Cython 0.23+ (Cython is required for development
-builds). If Cython is installed but you would prefer not to use it,
-pass `--disable-cython` to the configure script.
-
-The Python module by default, will try to install the Python module
-to your system's Python module directory (Python itself determines
-this). This usually requires superuser privileges. Passing
-`--enable-python-otherdir=user` will instead install the module to the
-directory which Python has determined to be a user's personal Python
-module directory. Either of these choices are typically already on
-Python's PYTHONPATH, and should not require additional
-configuration. In some circumstances, it may be preferable to install
-the Python module specifically to the prefix determined by the
-configure script; `--enable-python-otherdir=prefix` enables this
-functionality, but be aware that Python may not search this location
-for modules by default (Macs in particular get confused by this).
-
-Python documentation gets built automatically from docstrings
-available in the module. This requires Sphinx, a Python documentation
-package. After installing the `libpl` module, the make command `make
-html` will build the documentation and place it in
-`BUILD_DIR/pysrc/built_doc`.
-
-Some features of the Python module require the external packages
-Spherogram and PLink (available at http://www.math.uic.edu/t3m/), but
-these packages are not required in general. It is listed in the
-docstrings (and documentation) of functions which require these
-modules.
-
-In general, you start a session using libpl with
-
-from libpl.pdcode import PlanarDiagram
-
-in IPython and then the basic class is the PlanarDiagram class.
