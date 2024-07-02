@@ -19,9 +19,7 @@
   #include<sys/stat.h>
 #endif
 
-#ifdef HAVE_ERRNO_H
-  #include<errno.h>
-#endif
+#include<errno.h>
 
 #ifdef HAVE_STRING_H
   #include<string.h>
