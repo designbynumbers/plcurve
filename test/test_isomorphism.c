@@ -9,21 +9,14 @@
   #include"config.h"
 #endif
 
-#ifdef HAVE_STDIO_H
-   #include<stdio.h>
-#endif  
-
-#ifdef HAVE_STRING_H
-   #include<string.h>
-#endif
+#include<stdio.h>
+#include<string.h>
 
 #ifdef HAVE_STDINT_H
    #include<stdint.h>
 #endif
 
-#ifdef HAVE_STDLIB_H
-   #include<stdlib.h>
-#endif
+#include<stdlib.h>
 
 #ifdef HAVE_GSL_GSL_PERMUTATION_H
    #include<gsl/gsl_permutation.h>
@@ -33,9 +26,7 @@
    #include<stdbool.h>
 #endif
 
-#ifdef HAVE_ASSERT_H
-   #include<assert.h>
-#endif
+#include<assert.h>
 
 #ifdef HAVE_ARGTABLE2_H
    #include<argtable2.h> 

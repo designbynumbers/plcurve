@@ -1,3 +1,4 @@
+#This works under Python 2.7.18, but not under python 3.
 import glob
 import subprocess
 import re
@@ -355,25 +356,15 @@ prefixboilerplate = r"""
   #include"config.h"
 #endif
 
-#ifdef HAVE_STDIO_H
-   #include<stdio.h>
-#endif
-
-#ifdef HAVE_ASSERT_H
-   #include<assert.h>
-#endif
-
-#ifdef HAVE_STRING_H
-   #include<string.h>
-#endif
+#include<stdio.h>
+#include<assert.h>
+#include<string.h>
 
 #ifdef HAVE_STDINT_H
    #include<stdint.h>
 #endif
 
-#ifdef HAVE_STDLIB_H
-   #include<stdlib.h>
-#endif
+#include<stdlib.h>
 
 #ifdef HAVE_STDBOOL_H
    #include<stdbool.h>
@@ -381,7 +372,10 @@ prefixboilerplate = r"""
 
 #include<plcTopology.h>
 
-extern int PD_VERBOSE;
+#ifndef PD_VERBOSE /* We have switched to defining PD_VERBOSE as preprocessor symbol */
+#define PD_VERBOSE 0
+#endif
+
 """
 
 actualtest = r"""

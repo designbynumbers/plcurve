@@ -9,18 +9,14 @@
 #include<config.h>
 #include"plCurve.h"
 
-#ifdef HAVE_STDLIB_H
-  #include <stdlib.h>
-#endif
-#ifdef HAVE_MATH_H
-  #include <math.h>
-#endif
+#include <stdlib.h>
+#include <math.h>
+
 #ifdef HAVE_MALLOC_H
-  #include <malloc.h>
+#include <malloc.h>
 #endif
-#ifdef HAVE_FLOAT_H
-  #include <float.h>
-#endif
+
+#include <float.h>
 
 int GLOB_SEARCH_DIMENSION = 0;
 plc_vector *GLOB_NN_BUFFER;

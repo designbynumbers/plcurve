@@ -1,15 +1,9 @@
 #include <config.h>
 #include"plCurve.h"
 
-#ifdef HAVE_STDIO_H
-  #include <stdio.h>
-#endif
-#ifdef HAVE_ASSERT_H
-  #include <assert.h>
-#endif
-#ifdef HAVE_STDLIB_H
-  #include <stdlib.h>
-#endif
+#include <stdio.h>
+#include <assert.h>
+#include <stdlib.h>
 
 int main(void) {
   plCurve *L;

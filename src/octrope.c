@@ -25,28 +25,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
 #include <stdio.h>
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-#ifdef HAVE_MATH_H
+
 #include <math.h>
-#endif
-#ifdef HAVE_FLOAT_H
 #include <float.h>
-#endif
-#ifdef HAVE_CTYPE_H
 #include <ctype.h>
-#endif
-#ifdef HAVE_STDARG_H
 #include <stdarg.h>
-#endif
+
 #include"plCurve.h"
 #include "octrope.h"
 #if SIZEOF_INT < 4

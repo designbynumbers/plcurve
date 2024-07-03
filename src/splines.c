@@ -31,24 +31,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <config.h>
 #include"plCurve.h"
 
-#ifdef HAVE_MATH_H
-  #include <math.h>
-#endif
+#include <math.h>
+
 #ifdef HAVE_MALLOC_H
-  #include <malloc.h>
+#include <malloc.h>
 #endif
-#ifdef HAVE_STDLIB_H
-  #include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-  #include <string.h>
-#endif
-#ifdef HAVE_ASSERT_H
-  #include <assert.h>
-#endif
-#ifdef HAVE_FLOAT_H
-  #include <float.h>
-#endif
+
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <float.h>
 
 static inline void spline_strand_new(/*@out@*/ plc_spline_strand *Pl,
                                      int  ns, bool  open, int  cc) {

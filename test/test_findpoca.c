@@ -28,22 +28,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#ifdef HAVE_STDIO_H
-#include <stdio.h>
-#endif
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_MATH_H
-#include <math.h>
-#endif
-#ifdef HAVE_TIME_H
-#include <time.h>
-#endif
-#ifdef HAVE_ASSERT_H
-#include <assert.h>
-#endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <assert.h>
 
 #include "octrope.h"
 

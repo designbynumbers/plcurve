@@ -8,15 +8,10 @@
 #include<plCurve.h>
 #include"plcTopology.h"
 
-#ifdef HAVE_MATH_H
-  #include<math.h>
-#endif
-#ifdef HAVE_STDLIB_H
-  #include<stdlib.h>
-#endif
-#ifdef HAVE_TIME_H
-  #include<time.h>
-#endif
+#include<math.h>
+#include<stdlib.h>
+#include<time.h>
+
 #ifdef HAVE_STDBOOL_H
   #include<stdbool.h>
 #endif

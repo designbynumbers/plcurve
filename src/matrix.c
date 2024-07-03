@@ -30,21 +30,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <config.h>
 #include"plCurve.h"
 
-#ifdef HAVE_MATH_H
-  #include <math.h>
-#endif
-#ifdef HAVE_STRING_H
-  #include <string.h>
-#endif
-#ifdef HAVE_STDLIB_H
-  #include <stdlib.h>
-#endif
-#ifdef HAVE_FLOAT_H
-  #include <float.h>
-#endif
-#ifdef HAVE_ASSERT_H
-  #include <assert.h>
-#endif
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
+#include <float.h>
+#include <assert.h>
 
 plc_matrix  *plc_build_matrix(plc_vector row0,plc_vector row1,plc_vector row2)
      /* Builds a matrix from rows. */

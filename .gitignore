@@ -64,6 +64,7 @@ auto/
 *\.nav
 *\.pdf\.orig
 *\.snm
+TAGS
 
 # tools contains some executables that we don't want in git
 
@@ -77,6 +78,22 @@ tools/TAGS
 # .trs files are test results; we don't want these tracked
 
 test/*.trs
+
+# regenerating the auto-generated test files produces a lot of intermediate files; we don't want these in git
+
+test/tangle_slide_input_tests/*.c
+test/tangle_slide_input_tests/*.doc
+test/tangle_slide_input_tests/*.pdstor
+test/tangle_slide_input_tests/.python-version
+
+test/tangle_ops_tests/*.c
+test/tangle_ops_tests/*.doc
+test/tangle_ops_tests/.python-version
+test/test_tangle_slide_ops_auto.c
+
+test/.python-version
+test/tangle_ops_tests/assemble_tangleslideops.py
+test/tangle_slide_input_tests/assemble_tangleslideinput.py
 
 # The make check tests generate a lot of executables that we don't want in git
 

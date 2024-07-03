@@ -29,9 +29,7 @@ USA. .
 #include "config.h"
 #endif
 
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 #ifdef HAVE_STRINGS_H
 #include <strings.h>

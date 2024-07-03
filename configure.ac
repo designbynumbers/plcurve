@@ -19,7 +19,7 @@ AC_COPYRIGHT([
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT([libplCurve],[11.0.0],[jason.cantarella@uga.edu])
+AC_INIT([libplCurve],[11.1.1],[jason.cantarella@uga.edu])
 #AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE()
 
@@ -40,7 +40,7 @@ AM_INIT_AUTOMAKE()
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
 #
-AC_SUBST(LIB_VERSION, 11:0:0)
+AC_SUBST(LIB_VERSION, 11:1:1)
 AC_CONFIG_SRCDIR([src/plCurve.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -167,14 +167,18 @@ AC_DEFINE_UNQUOTED([SVNVERSION],["][`svnversion`]["],[the svn revision number (o
 # script's behavior did not change.  They are probably safe to remove.
 #AC_CHECK_INCLUDES_DEFAULT
 #AC_PROG_EGREP
+# The C90 headers are:
+#<assert.h>  <limits.h>  <signal.h>  <stdlib.h>
+#<ctype.h>   <locale.h>  <stdarg.h>  <string.h>
+#<errno.h>   <math.h>    <stddef.h>  <time.h>
+#<float.h>   <setjmp.h>  <stdio.h>
 
 AC_HEADER_ASSERT
-AC_CHECK_HEADERS([stdlib.h math.h stdarg.h ctype.h stdio.h assert.h \
-                  string.h stdbool.h float.h wait.h sys/wait.h unistd.h \
-                  time.h sys/times.h sys/types.h fcntl.h signal.h complex.h \
+AC_CHECK_HEADERS([stdbool.h wait.h sys/wait.h unistd.h \
+                  sys/times.h sys/types.h fcntl.h signal.h complex.h \
 		  gsl/gsl_rng.h gsl/gsl_randist.h gsl/gsl_combination.h \
 		  gsl/gsl_permutation.h \
-		  limits.h strings.h stdint.h strings.h errno.h])
+		  limits.h stdint.h strings.h])
 
 
 # Signal to AUTOMAKE if we have argtable2

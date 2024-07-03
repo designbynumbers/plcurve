@@ -22,25 +22,15 @@
   #include<sys/types.h>
 #endif
 
-#ifdef HAVE_ASSERT_H
-  #include<assert.h>
-#endif
+#include<assert.h>
 
 #ifdef HAVE_STDBOOL_H
   #include<stdbool.h>
 #endif
 
-#ifdef HAVE_STDLIB_H
-  #include<stdlib.h>
-#endif
-
-#ifdef HAVE_STDIO_H
-  #include<stdio.h>
-#endif
-
-#ifdef HAVE_TIME_H
-  #include<time.h>
-#endif
+#include<stdlib.h>
+#include<stdio.h>
+#include<time.h>
 
 #ifdef HAVE_STDINT_H
   #include<stdint.h>

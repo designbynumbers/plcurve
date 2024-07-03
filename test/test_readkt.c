@@ -8,25 +8,15 @@
   #include"config.h"
 #endif
 
-#ifdef HAVE_STDIO_H
-   #include<stdio.h>
-#endif
-
-#ifdef HAVE_ASSERT_H
-   #include<assert.h>
-#endif
-
-#ifdef HAVE_STRING_H
-   #include<string.h>
-#endif
+#include<stdio.h>
+#include<assert.h>
+#include<string.h>
 
 #ifdef HAVE_STDINT_H
    #include<stdint.h>
 #endif
 
-#ifdef HAVE_STDLIB_H
-   #include<stdlib.h>
-#endif
+#include<stdlib.h>
 
 #ifdef HAVE_STDBOOL_H
    #include<stdbool.h>

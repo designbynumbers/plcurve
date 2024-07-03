@@ -30,21 +30,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <config.h>
 #include"plCurve.h"
 
-#ifdef HAVE_MATH_H
-  #include <math.h>
-#endif
-#ifdef HAVE_STRING_H
-  #include <string.h>
-#endif
-#ifdef HAVE_STDLIB_H
-  #include <stdlib.h>
-#endif
-#ifdef HAVE_FLOAT_H
-  #include <float.h>
-#endif
-#ifdef HAVE_ASSERT_H
-  #include <assert.h>
-#endif
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
+#include <float.h>
+#include <assert.h>
+
 #ifdef HAVE_GSL_GSL_RNG_H
   #include <gsl/gsl_rng.h>
 #endif

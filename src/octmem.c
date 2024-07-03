@@ -38,12 +38,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <config.h>
 #endif
 #include <stdio.h>
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
+
 #ifdef HAVE_MALLOC_H
-#include <malloc.h>
+  #include <malloc.h>
 #endif
+
 #include "octrope.h"
 
 static void *octmem = NULL;

@@ -288,25 +288,15 @@ prefixboilerplate = r"""
   #include"config.h"
 #endif
 
-#ifdef HAVE_STDIO_H
-   #include<stdio.h>
-#endif
-
-#ifdef HAVE_ASSERT_H
-   #include<assert.h>
-#endif
-
-#ifdef HAVE_STRING_H
-   #include<string.h>
-#endif
+#include<stdio.h>
+#include<assert.h>
+#include<string.h>
 
 #ifdef HAVE_STDINT_H
    #include<stdint.h>
 #endif
 
-#ifdef HAVE_STDLIB_H
-   #include<stdlib.h>
-#endif
+#include<stdlib.h>
 
 #ifdef HAVE_STDBOOL_H
    #include<stdbool.h>
@@ -316,7 +306,11 @@ prefixboilerplate = r"""
 #include<pd_multidx.h>
 #include<pd_perm.h>
 
-extern int PD_VERBOSE;
+#ifdef PD_VERBOSE
+  #undef PD_VERBOSE
+#endif
+
+#define PD_VERBOSE 15
 
 /* We need a utility function to do the tests... */
 
@@ -393,8 +387,6 @@ bool compare_list_of_pds(pd_idx_t nA, pd_code_t **A,
 
 actualtest = r"""
 int main() {{
-
-  PD_VERBOSE = 15;
 
   printf("test_tangle_slide_operation (%s)\n",PACKAGE_STRING);
   printf("--------------------------------------------------------\n"

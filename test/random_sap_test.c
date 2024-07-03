@@ -9,25 +9,15 @@
 
 #include<config.h>
 
-#ifdef HAVE_MATH_H
- #include<math.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
- #include<stdlib.h>
-#endif
-
-#ifdef HAVE_TIME_H
+#include<math.h>
+#include<stdlib.h>
 #include<time.h>
-#endif
 
 #ifdef HAVE_COMPLEX_H
 #include<complex.h>
 #endif
 
-#ifdef HAVE_STDIO_H
 #include<stdio.h>
-#endif
 
 uint64_t *xos; /* The global Xoshiro random number state */
 

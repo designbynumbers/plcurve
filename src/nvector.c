@@ -30,29 +30,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <config.h>
 #include"nplCurve.h"
   
-#ifdef HAVE_MATH_H
 #include <math.h>
-#endif
-
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-
-#ifdef HAVE_FLOAT_H
 #include <float.h>
-#endif
-
-#ifdef HAVE_ASSERT_H
 #include <assert.h>
-#endif
-
-#ifdef HAVE_STDARG_H
 #include <stdarg.h>
-#endif
+
   
 /**************************************************************/
 /*   Basic Linear Algebra Operations                          */

@@ -9,29 +9,16 @@
 #include<tsmcmc.h>
 #include<config.h>
 
-#ifdef HAVE_MATH_H
- #include<math.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
- #include<stdlib.h>
-#endif
-
-#ifdef HAVE_TIME_H
+#include<math.h>
+#include<stdlib.h>
 #include<time.h>
-#endif
 
 #ifdef HAVE_COMPLEX_H
 #include<complex.h>
 #endif
 
-#ifdef HAVE_STDIO_H
 #include<stdio.h>
-#endif
-
-#ifdef HAVE_ASSERT_H
 #include<assert.h>
-#endif
 
 #ifdef HAVE_GSL_GSL_RNG_H
 #include<gsl/gsl_rng.h>

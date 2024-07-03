@@ -8,33 +8,21 @@
   #include"config.h"
 #endif
 
-#ifdef HAVE_ASSERT_H
-  #include<assert.h>
-#endif
+#include<assert.h>
 
 #ifdef HAVE_STDINT_H
   #include<stdint.h>
 #endif
 
-#ifdef HAVE_STDIO_H
-  #include<stdio.h>
-#endif
-
-#ifdef HAVE_STRING_H
-  #include<string.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
-  #include<stdlib.h>
-#endif
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
 
 #ifdef HAVE_STDBOOL_H
   #include<stdbool.h>
 #endif
 
-#ifdef HAVE_MATH_H
-   #include<math.h>
-#endif
+#include<math.h>
 
 #include"plcTopology.h"
 #include"pd_container.h"

@@ -34,9 +34,10 @@ version of plcurve on the same (mac) machine, try
 
 `sudo make uninstall`
 
-before making if you problems, particularly with header files. The build will sometimes
-pick up old versions of the headers from /usr/local/include and put them instead of the
-updated headers in the package.
+before making if you problems, particularly with header files. The
+build will sometimes pick up old versions of the headers from
+/usr/local/include and put them instead of the updated headers in the
+package.
 
 On Amazon Linux (such as AWS)
 ----------------------
@@ -102,5 +103,5 @@ random polygons with 250 edges is about 999974 in 1000000
 In `ccode_test`, `randomwalk_test()` is called to process 1001 random
 250-gons into pdcode objects. If a single loop 'fails', the entire
 test 'fails'. Based on the prior run of this program, we estimate (as
-of March 2016) that this step should fail about 97.431% of the time,
-or about 3-in-100 times.
+of March 2016) that this step should pass about 97.431% of the time,
+or fail about 3-in-100 times.

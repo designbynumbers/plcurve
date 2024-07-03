@@ -10,17 +10,10 @@
 
 #include"config.h"
 
-#ifdef HAVE_STRING_H
 #include<string.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
 #include<stdlib.h>
-#endif
-
-#ifdef HAVE_STDIO_H
 #include<stdio.h>
-#endif
+
 
 FILE *fmangle(const char *filename,const char *oldextension,const char *newextension);
 /* Create an output file by replacing "oldextension" with "newextension" in "filename". */

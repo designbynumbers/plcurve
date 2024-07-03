@@ -20,13 +20,8 @@
 #include <sys/times.h>
 #endif
 
-#ifdef HAVE_STDIO_H
 #include <stdio.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -36,17 +31,9 @@
 #include <fcntl.h>
 #endif
 
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-
-#ifdef HAVE_TIME_H
 #include <time.h>
-#endif
-
-#ifdef HAVE_ASSERT_H
 #include <assert.h>
-#endif
 
   /* values the USER needs to define!! */
 #define XCNT       250     /* maximum crossings in knot (at most 255) */

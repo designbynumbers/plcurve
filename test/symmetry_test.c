@@ -7,13 +7,8 @@
 #include<plCurve.h>
 #include<config.h>
 
-#ifdef HAVE_MATH_H
- #include<math.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
- #include<stdlib.h>
-#endif
+#include<math.h>
+#include<stdlib.h>
 
 int gcd(int x, int y)
 {

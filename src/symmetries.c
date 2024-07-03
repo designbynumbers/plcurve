@@ -12,17 +12,9 @@
 
 #include<config.h>
 
-#ifdef HAVE_MATH_H
-  #include<math.h>
-#endif
-
-#ifdef HAVE_ASSERT_H
-  #include<assert.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
-  #include<stdlib.h>
-#endif
+#include<math.h>
+#include<assert.h>
+#include<stdlib.h>
 
 void plc_identity_matrix(plc_matrix *A)
 {

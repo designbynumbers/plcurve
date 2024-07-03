@@ -29,33 +29,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include"plCurve.h"
 #include"matrix.h"
 
-#ifdef HAVE_STDLIB_H
-  #include <stdlib.h>
-#endif
-#ifdef HAVE_MATH_H
-  #include <math.h>
-#endif
+#include <stdlib.h>
+#include <math.h>
+
 #ifdef HAVE_MALLOC_H
-  #include <malloc.h>
+#include <malloc.h>
 #endif
-#ifdef HAVE_STDARG_H
-  #include <stdarg.h>
-#endif
-#ifdef HAVE_CTYPE_H
-  #include <ctype.h>
-#endif
-#ifdef HAVE_STRING_H
-  #include <string.h>
-#endif
-#ifdef HAVE_ASSERT_H
-  #include <assert.h>
-#endif
-#ifdef HAVE_FLOAT_H
-  #include <float.h>
-#endif
-#ifdef HAVE_TIME_H
-  #include <time.h>
-#endif
+
+#include <stdarg.h>
+#include <ctype.h>
+#include <string.h>
+#include <assert.h>
+#include <float.h>
+#include <time.h>
+
 #ifdef HAVE_GSL_GSL_COMBINATION_H
   #include <gsl/gsl_combination.h>
 
