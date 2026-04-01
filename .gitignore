@@ -100,6 +100,7 @@ test/tangle_slide_input_tests/assemble_tangleslideinput.py
 test/test_2crossing
 test/test_bad_homfly
 test/test_crossingops
+test/test_csv_reader
 test/test_diagram_isotopic
 test/test_dihedral
 test/test_findpoca
@@ -216,3 +217,6 @@ build
 # the .idea directory contains settings.xml which should be ignored.
 
 ./.idea/settings.xml
+
+# Claude code generates various markdown files that we don't want in the repo
+*.md

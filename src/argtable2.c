@@ -36,17 +36,13 @@ USA.
 #endif
 
 #ifdef HAVE_GETOPT_H
-#include"getopt.h"
+#include <getopt.h>
 #else
-#include "./getopt.h"
-#endif
-
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
 #include "argtable2.h"
-#include "./getopt.h"
+#include <getopt.h>
 
 static
 void arg_register_error(struct arg_end *end, void *parent, int error, const char *argval)

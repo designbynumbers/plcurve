@@ -56,7 +56,8 @@ check_PROGRAMS = test_knottheory \
 		 test_dihedral \
 	         test_perm \
 		 ccode_test \
-		 test_random_sap	
+		 test_random_sap \
+		 test_csv_reader
 
 TESTS = test_knottheory \
 	test_invariants \
@@ -91,7 +92,8 @@ TESTS = test_knottheory \
 	test_dihedral \
 	test_perm \
 	ccode_test \
-	test_random_sap 
+	test_random_sap \
+	test_csv_reader
 
 test_knottheory_SOURCES = test_knottheory.c 
 test_knottheory_LDADD = $(top_builddir)/src/libplCurveStatic.la
@@ -300,3 +302,8 @@ test_orientation_SOURCES = test_orientation.c
 test_orientation_LDADD = $(top_builddir)/src/libplCurveStatic.la
 test_orientation_CFLAGS = -I$(top_srcdir)/src
 test_orientation_LDFLAGS = -static
+
+test_csv_reader_SOURCES = test_csv_reader.c
+test_csv_reader_LDADD = $(top_builddir)/src/libplCurveStatic.la
+test_csv_reader_CPPFLAGS = -I$(top_srcdir)/src
+test_csv_reader_LDFLAGS = -static

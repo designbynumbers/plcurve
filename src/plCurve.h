@@ -416,6 +416,22 @@ extern "C" {
   /* Write plCurve data to a file */
   void plc_write(FILE *outfile, plCurve * const L);
 
+  /* Read a single-component plCurve from CSV (comma-separated x,y,z per line).
+     If open is false (closed curve) and the last vertex duplicates the first,
+     the duplicate is removed. */
+  /*@only@*/ /*@null@*/ plCurve *plc_read_csv(FILE *file, bool open,
+                                              /*@out@*/ int *error_num,
+                                              /*@out@*/ char error_str[],
+                                              size_t error_str_len);
+
+  /* Read a single-component plCurve from TSV (tab-separated x,y,z per line).
+     If open is false (closed curve) and the last vertex duplicates the first,
+     the duplicate is removed. */
+  /*@only@*/ /*@null@*/ plCurve *plc_read_tsv(FILE *file, bool open,
+                                              /*@out@*/ int *error_num,
+                                              /*@out@*/ char error_str[],
+                                              size_t error_str_len);
+
   /* Fix the "hidden vertices" for easy handling of closed components */
   void plc_fix_wrap(plCurve * const L);
 
@@ -803,6 +819,8 @@ double plc_symmetry_group_variation_check(plCurve *L,plc_vector *buffer);
 #define PLC_E_BAD_CST_NUMS  11
 #define PLC_E_BAD_CC        12
 #define PLC_E_STALE_PCDATA  13
+#define PLC_E_BAD_CSV_LINE  14
+#define PLC_E_TOO_FEW_VERTS 15
 
 #if (__cplusplus || c_plusplus)
 };

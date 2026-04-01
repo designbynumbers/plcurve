@@ -203,6 +203,7 @@ AC_CHECK_FUNCS([bzero memset mkdir regcomp strchr strcspn strerror strrchr strst
 
 AC_CHECK_FUNCS([bzero strchr strcspn strrchr strtol])
 AC_CHECK_FUNC(getopt_long, SYS_GETOPTLONG=1, SYS_GETOPTLONG=0)
+AC_CHECK_HEADERS([getopt.h])
 AC_CHECK_FUNC(regcomp,     SYS_REGEX=1,      SYS_REGEX=0)
 AC_CHECK_FUNC(strptime,    SYS_STRPTIME=1,   SYS_STRPTIME=0)
 
@@ -225,6 +226,9 @@ AC_CONFIG_FILES([Makefile
 #		tools/diagram_to_img/Makefile])
 
 AC_CONFIG_SUBDIRS([judy])
+# TODO: planarity is bundled but unused — either update to upstream v4.0.1.0
+# (https://github.com/graph-algorithms/edge-addition-planarity-suite),
+# integrate it into pd_embed, or remove it from the build entirely.
 AC_CONFIG_SUBDIRS([planarity])
 AC_OUTPUT
 

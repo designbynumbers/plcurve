@@ -61,18 +61,19 @@ int main(int argc,char *argv[]) {
   struct arg_int *l = arg_int0("l","levels","<int>","levels in octree (>=0)");
   struct arg_dbl *lam = arg_dbl0("L","lambda","<dbl>","lambda (default=1)");
   struct arg_lit *help = arg_lit0("h","help","print this help and exit");
+  struct arg_lit *openlit = arg_lit0(NULL,"open","treat CSV/TSV input as open curve (default: closed)");
   struct arg_lit *excesslength = arg_lit0(NULL,"excesslength","excess length for clasp or open knot");
   struct arg_lit *diameter = arg_lit0(NULL,"diameter","computes pointset diameter (slow)");
   struct arg_lit *q = arg_lit0("q","quiet","prints ropelength only");
   struct arg_int *verbosity = arg_int0("v","verbosity","<int>","outputs debugging information");
   struct arg_end *end = arg_end(20);
 
-  void *argtable[] = {lam,l,d,dbg,help,excesslength,diameter,q,verbosity,knotfiles,end};
+  void *argtable[] = {lam,l,d,dbg,help,openlit,excesslength,diameter,q,verbosity,knotfiles,end};
 
   int nerrors;
   int filecnt;
   int edges;
-  char revision[20] = "$Revision: 1.17 $";
+  char revision[20] = "$Revision: 1.18 $";
   char *dollar;
 
   char winning_file[1024] = "No file";
@@ -153,7 +154,17 @@ int main(int argc,char *argv[]) {
     }
 
     octrope_error_num = 0;
-    L = plc_read(infile,&octrope_error_num,octrope_error_str,80);
+    {
+      bool is_open = (openlit->count > 0);
+      const char *ext = strrchr(knotfiles->filename[filecnt], '.');
+      if (ext != NULL && strcmp(ext, ".csv") == 0) {
+        L = plc_read_csv(infile, is_open, &octrope_error_num, octrope_error_str, sizeof(octrope_error_str));
+      } else if (ext != NULL && strcmp(ext, ".tsv") == 0) {
+        L = plc_read_tsv(infile, is_open, &octrope_error_num, octrope_error_str, sizeof(octrope_error_str));
+      } else {
+        L = plc_read(infile, &octrope_error_num, octrope_error_str, 80);
+      }
+    }
     fclose(infile);
     if (octrope_error_num != 0) { 
       fprintf(stderr,"%s:%s\n",argv[0],octrope_error_str); 

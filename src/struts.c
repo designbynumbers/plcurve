@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "octrope.h"
 #include "octrope_internal.h"
@@ -206,10 +207,11 @@ int main(int argc,char *argv[]) {
   struct arg_lit  *strut_v = arg_lit0(NULL,"sv","Show struts by their endpoints.  Implies -n.");
   struct arg_lit  *help    = arg_lit0("h","help","display help message");
   struct arg_lit  *no_file = arg_lit0("n","nofile","Don't write out the strut file");
+  struct arg_lit  *openlit = arg_lit0(NULL,"open","treat CSV/TSV input as open curve (default: closed)");
   struct arg_end  *end     = arg_end(20);
 
   void *argtable[] = {help,epsilon,tube_radius,levels,stats,show,maxst,
-                      no_file,strut_v,debuglevel,infile,end};
+                      no_file,strut_v,openlit,debuglevel,infile,end};
   
   struct arg_end  *helpend = arg_end(20);
 
@@ -247,7 +249,7 @@ int main(int argc,char *argv[]) {
 
     } else {  /* The help table matched, which means we asked for help or gave nothing */
   
-      printf("struts computes the set of self-contacts of a Geomview VECT file.\n"
+      printf("struts computes the set of self-contacts of a VECT, CSV, or TSV file.\n"
            "usage: \n\n");
       arg_print_glossary(stdout, argtable," %-25s %s\n");
       exit(0);
@@ -296,7 +298,19 @@ int main(int argc,char *argv[]) {
   }
   
   octrope_error_num = 0;
-  L = plc_read(infile_fptr,&octrope_error_num,octrope_error_str,80);
+  {
+    bool is_open = (openlit->count > 0);
+    const char *ext = strrchr(*(infile->filename), '.');
+    if (ext != NULL && strcmp(ext, ".csv") == 0) {
+      L = plc_read_csv(infile_fptr, is_open, &octrope_error_num,
+                       octrope_error_str, sizeof(octrope_error_str));
+    } else if (ext != NULL && strcmp(ext, ".tsv") == 0) {
+      L = plc_read_tsv(infile_fptr, is_open, &octrope_error_num,
+                       octrope_error_str, sizeof(octrope_error_str));
+    } else {
+      L = plc_read(infile_fptr, &octrope_error_num, octrope_error_str, 80);
+    }
+  }
   
   /* We now demonstrate the octrope library's error handling protocol: */
   
@@ -380,14 +394,15 @@ int main(int argc,char *argv[]) {
     
     sprintf(outfile_name,"%s",*(infile->basename));
     
-    if (strstr(outfile_name,".vect") != NULL) {
-  
-      sprintf(strstr(outfile_name,".vect"),".struts.skel");
-  
-    } else {
-  
-      strcat(outfile_name,".struts.skel");
-  
+    {
+      char *ext_pos;
+      if ((ext_pos = strstr(outfile_name,".vect")) != NULL ||
+          (ext_pos = strstr(outfile_name,".csv")) != NULL ||
+          (ext_pos = strstr(outfile_name,".tsv")) != NULL) {
+        sprintf(ext_pos,".struts.skel");
+      } else {
+        strcat(outfile_name,".struts.skel");
+      }
     }
     
     outfile_fptr = fopen(outfile_name,"w");

@@ -23,6 +23,11 @@ AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 
 AC_PROG_CC
+# Force gnu11: planarity uses old-style function-pointer declarations
+# with empty parentheses, which C23 treats as (void).
+# TODO: Update to upstream v4.0.1.0 or remove; this workaround can go
+# if the function-pointer declarations are modernized.
+CFLAGS="$CFLAGS -std=gnu11"
 LT_INIT
 #AC_PROG_LIBTOOL
 AC_PROG_INSTALL

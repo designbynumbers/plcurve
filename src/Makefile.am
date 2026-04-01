@@ -29,6 +29,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	plcRandomSap.c \
 	plcRandomSap.h \
 	plc_dihedrals.c \
+	plc_csv_reader.c \
 	octrope.h \
 	octrope_internal.h \
         octrope.c \
@@ -92,10 +93,7 @@ libplCurveStatic_la_SOURCES = plCurve.c \
 	arg_str.c \
 	argtable2.c \
 	argtable2.h \
-	getopt.c \
-	getopt.h \
-	getopt1.c \
-	pd_simplify.c 
+	pd_simplify.c
 
 libplCurveStatic_la_CFLAGS = $(AM_CFLAGS)
 libplCurveStatic_la_LDFLAGS = -version-info $(LIB_VERSION) -static
@@ -116,6 +114,7 @@ libplCurve_la_SOURCES = plCurve.c \
 	plcRandomSap.c \
 	plcRandomSap.h \
 	plc_dihedrals.c \
+	plc_csv_reader.c \
 	octrope.h \
 	octrope_internal.h \
         octrope.c \
@@ -179,10 +178,7 @@ libplCurve_la_SOURCES = plCurve.c \
 	arg_str.c \
 	argtable2.c \
 	argtable2.h \
-	getopt.c \
-	getopt.h \
-	getopt1.c \
-	pd_simplify.c 
+	pd_simplify.c
 
 libplCurve_la_CFLAGS = $(AM_CFLAGS)
 libplCurve_la_LDFLAGS = -version-info $(LIB_VERSION)
