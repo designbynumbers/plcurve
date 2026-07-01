@@ -35,6 +35,23 @@
 extern "C" {
 #endif
 
+/* `restrict` is a C99 keyword and is NOT valid C++, so a C++ translation unit that includes
+   this public header would fail to parse it (extern "C" only controls linkage, not the
+   language dialect). PLC_RESTRICT keeps the optimization hint for C99 consumers, uses the
+   equivalent compiler extension under C++ where available, and expands to nothing otherwise.
+   It is only a hint -- this has no ABI impact. */
+#if defined(__cplusplus)
+#  if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
+#    define PLC_RESTRICT __restrict
+#  else
+#    define PLC_RESTRICT
+#  endif
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#  define PLC_RESTRICT restrict
+#else
+#  define PLC_RESTRICT
+#endif
+
   /*
    * Take our chances that stdio.h and stdbool.h exist.  We need stdio to define
    * the FILE type and stdbool to define bool.  If stdbool doesn't exist, one
@@ -338,7 +355,7 @@ extern "C" {
   /* open[i] is true if the ith component is open */
   /* cc[i] is the number of colors for that component (0,1, or nv[i]) */
 
-  void plc_read_vertex_buffer(plCurve * const L, const double * const restrict vts, const int i);
+  void plc_read_vertex_buffer(plCurve * const L, const double * const PLC_RESTRICT vts, const int i);
 
   /* vts is a buffer of coordinates in the order xyz ... xyz for the first component, 
      then the second component, ..., until the last component. The offset i assumes 
@@ -347,7 +364,7 @@ extern "C" {
      L is expected to have already been allocated with plc_new, so this procedure
      does not allocate any new memory. */
 
-  void plc_write_vertex_buffer(const plCurve * const L, double * const restrict vts, const int i);
+  void plc_write_vertex_buffer(const plCurve * const L, double * const PLC_RESTRICT vts, const int i);
 
   /* vts is buffer of coordinates in the order above, holding vertices for many plCurves.
      This routine writes the coordinates of L to the i-th location in this buffer (assuming 
