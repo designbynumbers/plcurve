@@ -4,3 +4,11 @@
 /.gitattributes   export-ignore
 /CLAUDE.md        export-ignore
 /attic/           export-ignore
+
+# Large non-source content excluded from the release tarball (179 MB -> ~51 MB). talks/ is
+# conference slides; data/ccodes and data/KnotTheorycodes are big example datasets that the
+# build and test suite do not use (tests need only data/pdstors). Verified make check still
+# passes 35/35 + 1/1 without them.
+/talks/                  export-ignore
+/data/ccodes/            export-ignore
+/data/KnotTheorycodes/   export-ignore
