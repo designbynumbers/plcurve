@@ -6,8 +6,12 @@
 
 */
 
-#ifndef __PD_INVARIANTS_H 
+#ifndef __PD_INVARIANTS_H
 #define __PD_INVARIANTS_H 1
+
+#if (__cplusplus || c_plusplus)
+extern "C" {
+#endif
 
 int *pd_interlaced_crossings(pd_code_t *pd);
 /* Returns an array, pd->ncomps long, counting signed sum of crossings
@@ -17,5 +21,9 @@ int *pd_interlaced_crossings(pd_code_t *pd);
 unsigned int *pd_interlaced_crossings_unsigned(pd_code_t *pd);
 /* Returns an array, pd->ncomps long, counting the raw number of crossings
    which occur in the order ABAB along the component. */
+
+#if (__cplusplus || c_plusplus)
+}
+#endif
 
 #endif
