@@ -1,0 +1,6 @@
+# Keep repo meta / CI / dev files out of the `git archive` source-release tarball.
+/.github/         export-ignore
+/.gitignore       export-ignore
+/.gitattributes   export-ignore
+/CLAUDE.md        export-ignore
+/attic/           export-ignore

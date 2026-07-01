@@ -220,3 +220,5 @@ build
 
 # Claude code generates various markdown files that we don't want in the repo
 *.md
+# release tarballs are built by CI, not committed
+*.tar.gz

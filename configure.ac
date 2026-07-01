@@ -19,7 +19,7 @@ AC_COPYRIGHT([
 
 # Don't forget to change the LIB_VERSION (and read the note if you are
 # wondering what the numbers mean.
-AC_INIT([libplCurve],[11.1.1],[jason.cantarella@uga.edu])
+AC_INIT([libplCurve],[11.2.0],[jason.cantarella@uga.edu])
 #AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE()
 
@@ -40,7 +40,7 @@ AM_INIT_AUTOMAKE()
 # Due to various broken ideas, we have to have two versions of this number, one
 # with colons below and one with periods above.  Please keep them in sync!
 #
-AC_SUBST(LIB_VERSION, 11:1:1)
+AC_SUBST(LIB_VERSION, 11:2:0)
 AC_CONFIG_SRCDIR([src/plCurve.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -55,12 +55,26 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
 
+# The bundled judy/planarity/planarmap sources use pre-C23 constructs (e.g. K&R function
+# definitions) that modern compilers reject under their default -std=gnu23. Unless the user
+# pinned a standard explicitly, build under -std=gnu17, which still accepts them.
+case " $CFLAGS " in
+  *" -std="*) ;;
+  *)
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -std=gnu17"
+    AC_MSG_CHECKING([whether $CC accepts -std=gnu17])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [])],
+                      [AC_MSG_RESULT([yes])],
+                      [AC_MSG_RESULT([no]); CFLAGS="$save_CFLAGS"])
+    ;;
+esac
+
 
 #AM_PROG_LEX
 AC_PROG_LN_S
 
 AC_PROG_MAKE_SET
-LT_INIT
 
 # Checks for libraries. The syntax here is
 #

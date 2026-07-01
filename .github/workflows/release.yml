@@ -1,0 +1,57 @@
+name: Release
+
+# On a version tag (vX.Y.Z), publish a pure source tarball (git archive of the tag) plus its
+# sha256 as a GitHub Release, for downstream packagers (e.g. the Homebrew tap) to consume.
+#
+# This repo stays agnostic about how libplCurve's dependencies are installed: the action needs
+# only git. It ships tracked sources (no generated files), so packagers run ./autogen.sh to
+# bootstrap, then ./configure && make. Compiling/testing against real dependencies across
+# platforms is the downstream distribution's job.
+#
+# The tag must match the version in configure.ac (AC_INIT), e.g. tag v11.2.0 -> AC_INIT 11.2.0
+# -> asset libplcurve-11.2.0.tar.gz.
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tarball:
+    name: Build source tarball and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build source tarball (git archive)
+        id: dist
+        run: |
+          VER=$(sed -n 's/^AC_INIT(\[libplCurve\],[[:space:]]*\[\([0-9.]*\)\].*/\1/p' configure.ac)
+          T="libplcurve-$VER.tar.gz"
+          echo "Building $T"
+          git archive --format=tar.gz --prefix="libplcurve-$VER/" HEAD > "$T"
+          SHA=$(sha256sum "$T" | cut -d' ' -f1)
+          sha256sum "$T" | tee "$T.sha256"
+          {
+            echo "version=$VER"
+            echo "tarball=$T"
+            echo "sha256=$SHA"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.dist.outputs.tarball }}
+            ${{ steps.dist.outputs.tarball }}.sha256
+          body: |
+            Automated source release (pure `git archive`; ships no generated files).
+
+            **Asset:** `${{ steps.dist.outputs.tarball }}`
+            **sha256:** `${{ steps.dist.outputs.sha256 }}`
+
+            Build: `./autogen.sh && ./configure && make && make install`. Requires
+            autoconf/automake/libtool/pkg-config plus gsl.
