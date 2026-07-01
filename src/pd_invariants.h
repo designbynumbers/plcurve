@@ -9,6 +9,8 @@
 #ifndef __PD_INVARIANTS_H
 #define __PD_INVARIANTS_H 1
 
+#include "plcTopology.h"   /* for pd_code_t, used by the prototypes below */
+
 #if (__cplusplus || c_plusplus)
 extern "C" {
 #endif
