@@ -1,4 +1,4 @@
-AM_CFLAGS = -g -Wall #-finline-functions -ftree-vectorize -Wall
+AM_CFLAGS = -g -Wall $(OPENMP_CFLAGS) #-finline-functions -ftree-vectorize -Wall
 AM_CPPFLAGS = -I $(top_srcdir)/judy/src      # We'll need to find Judy.h here. 
 ACLOCAL_AMFLAGS = -I m4
 

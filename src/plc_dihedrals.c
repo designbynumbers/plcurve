@@ -120,8 +120,12 @@ float *plc_dihedral_angles(const plCurve * const L, unsigned int *ndihedrals)
 }
 
 #else
-double *plc_dihedral_angles(const plCurve * const L)
+float *plc_dihedral_angles(const plCurve * const L, unsigned int *ndihedrals)
 {
+  (void)L;
+  if (ndihedrals) {
+    *ndihedrals = 0;
+  }
   return NULL;
 }
 #endif

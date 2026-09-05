@@ -45,23 +45,25 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 
 #include "octrope.h"
+#include "octrope_tls.h"
 
-static void *octmem = NULL;
-static void *top = NULL;
-static int   provided = false; /* Memory was or was not provided by the *
-                                * calling program                       */
-static int   octmem_size = 0;
-static void *aux_mem = NULL;
-static void *aux_mem_top = NULL;
-static int   aux_mem_size = 0;
-static int   malloced_aux = false; 
+/* Per-thread arenas so concurrent octrope callers do not share bump state. */
+static OCTROPE_TLS void *octmem = NULL;
+static OCTROPE_TLS void *top = NULL;
+static OCTROPE_TLS int   provided = 0; /* Memory was or was not provided by the *
+                                        * calling program                       */
+static OCTROPE_TLS int   octmem_size = 0;
+static OCTROPE_TLS void *aux_mem = NULL;
+static OCTROPE_TLS void *aux_mem_top = NULL;
+static OCTROPE_TLS int   aux_mem_size = 0;
+static OCTROPE_TLS int   malloced_aux = 0; 
 
 void reserve_octmem(const int bytes_desired,void *mem,const int memsize) {
 
   if (mem != NULL && memsize >= bytes_desired) {
     top = octmem = mem;
     octmem_size = memsize;
-    provided = true;
+    provided = 1;
   } else {
     top = octmem = (void *)(malloc(bytes_desired));
     if (octmem == NULL) {
@@ -70,6 +72,7 @@ void reserve_octmem(const int bytes_desired,void *mem,const int memsize) {
       exit(-1);
     }
     octmem_size = bytes_desired;
+    provided = 0;
   }
 #ifdef DEBUG
   if (octrope_debug_level() > 0) {
@@ -92,7 +95,7 @@ void reserve_aux_mem(const int bytes_desired) {
         "Unable to reserve %d bytes in reserve_aux_mem.\n",bytes_desired);
       exit(-1);
     } 
-    malloced_aux = true;
+    malloced_aux = 1;
     aux_mem_size = bytes_desired;
   }
 #ifdef DEBUG
@@ -112,7 +115,7 @@ void free_octmem() {
     printf("Bytes unused: %d + %d = %d\n",size1,size2,size1+size2);
   }
 #endif
-  if (octmem != NULL && provided == false) {
+  if (octmem != NULL && provided == 0) {
     free(octmem);
   }
   if (malloced_aux) {
@@ -120,10 +123,10 @@ void free_octmem() {
   }
   octmem = top = NULL;
   octmem_size = 0;
-  provided = false;
+  provided = 0;
   aux_mem = aux_mem_top = NULL;
   aux_mem_size = 0;
-  malloced_aux = false;
+  malloced_aux = 0;
 }
 
 void *oct_alloc(int nelem,int size) {

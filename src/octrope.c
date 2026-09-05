@@ -44,6 +44,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "octcnv4.h"
 #endif
 #include "octmem.h"
+#include "octrope_tls.h"
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #ifndef min
   #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -51,6 +56,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifndef max
   #define max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
+/* Parallelize the edge loop when the curve is large enough to amortize OMP. */
+#ifndef OCTROPE_OMP_MIN_EDGES
+#define OCTROPE_OMP_MIN_EDGES 64
 #endif
 
 typedef struct vertarray_type { /* used for sorting vertices or edges */
@@ -78,17 +88,18 @@ struct box_type { /* A 3-dimensional box -- a part of the octree */
 typedef struct box_type box;
 
 #ifdef DEBUG
-static int strut_check_count;
-static int rc_count[5];
-static int wc_count[5];
-static int bi_count[2][9];
+static OCTROPE_TLS int strut_check_count;
+static OCTROPE_TLS int rc_count[5];
+static OCTROPE_TLS int wc_count[5];
+static OCTROPE_TLS int bi_count[2][9];
 #endif
 
-static int points_per_box = 1;
-static int octree_levels = 0;
-static int requested_levels = 0;
-static varr *by_oct;
-static int num_edges; /* Number of edges in the link */
+/* Per-call / per-thread tree state (reentrant across concurrent octrope calls). */
+static OCTROPE_TLS int points_per_box = 1;
+static OCTROPE_TLS int octree_levels = 0;
+static int requested_levels = 0; /* process-wide preference from octrope_set_levels */
+static OCTROPE_TLS varr *by_oct;
+static OCTROPE_TLS int num_edges; /* Number of edges in the link */
 
 static int debug_level = 0;
 
@@ -111,6 +122,27 @@ void octrope_set_levels(const int levels)
 {
   octrope_error_num = octrope_error_str[0] = 0;
   requested_levels = abs(levels);
+}
+
+void octrope_set_threads(int nthreads)
+{
+  octrope_error_num = octrope_error_str[0] = 0;
+#ifdef _OPENMP
+  if (nthreads > 0) {
+    omp_set_num_threads(nthreads);
+  }
+#else
+  (void)nthreads;
+#endif
+}
+
+int octrope_get_threads(void)
+{
+#ifdef _OPENMP
+  return omp_get_max_threads();
+#else
+  return 1;
+#endif
 }
 
 /* Estimate the memory needed to work with an num_edges-edge link */
@@ -749,15 +781,15 @@ box *build_octree(const plCurve *L,const int sl_size,
   return tree_swath[octree_levels-1]; 
 } /* build_octree */
 
-static varr *wedgecheck_edge[2];
+static OCTROPE_TLS varr *wedgecheck_edge[2];
 int wedge_check(varr *edge, const plc_vector v[3], 
                 const plc_vector far_edge[3], double percent,
                 const int which, const int last_edge) 
 {
-  static plc_vector snlc[2];
-  static plc_vector rnlc[2];
-  static double snc[2];
-  static double rnc[2];
+  static OCTROPE_TLS plc_vector snlc[2];
+  static OCTROPE_TLS plc_vector rnlc[2];
+  static OCTROPE_TLS double snc[2];
+  static OCTROPE_TLS double rnc[2];
   plc_vector slab_normal;
   plc_vector ramp_normal;
   double slab_norm;
@@ -841,14 +873,14 @@ int wedge_check(varr *edge, const plc_vector v[3],
  *  8 -- point is behind the slab and ramp
  *
  */
-static varr *rampcheck_edge;
+static OCTROPE_TLS varr *rampcheck_edge;
 int ramp_check(varr *edge, const plc_vector v[3], 
                const plc_vector v3, const int last_edge) 
 {
-  static plc_vector slab_normal;
-  static plc_vector ramp_normal;
-  static double slab_norm;
-  static double ramp_norm;
+  static OCTROPE_TLS plc_vector slab_normal;
+  static OCTROPE_TLS plc_vector ramp_normal;
+  static OCTROPE_TLS double slab_norm;
+  static OCTROPE_TLS double ramp_norm;
   plc_vector the_point;
   double dot_product;
 
@@ -1673,16 +1705,152 @@ int octrope_struts(plCurve *L,
 
   /* Don't check first edge as struts can only be *
    * from an edge to one before it.               */
-  for (edge = num_edges - 1; edge > 0; edge--) { 
-    cmp = by_oct[edge].component;
-    vert = by_oct[edge].vertex;
-    verts[0] = L->cp[cmp].vt[vert-1];
-    verts[1] = L->cp[cmp].vt[vert];
-    verts[2] = L->cp[cmp].vt[vert+1];
+  {
+    varr *shared_by_oct = by_oct;
+    int shared_num_edges = num_edges;
+    int use_omp = 0;
+#ifdef _OPENMP
+    use_omp = (omp_get_max_threads() > 1 &&
+               shared_num_edges >= OCTROPE_OMP_MIN_EDGES);
+#endif
 
-    /* Top box will always intersect */
-    check_boxes(L,B,verts,edge,final_pv(L->cp[cmp],vert+1),
-      &short_strut,cutoff,epsilon,strutlist,sl_size,&strut_count,pi_count); 
+    if (!use_omp) {
+      for (edge = shared_num_edges - 1; edge > 0; edge--) {
+        cmp = shared_by_oct[edge].component;
+        vert = shared_by_oct[edge].vertex;
+        verts[0] = L->cp[cmp].vt[vert-1];
+        verts[1] = L->cp[cmp].vt[vert];
+        verts[2] = L->cp[cmp].vt[vert+1];
+
+        check_boxes(L,B,verts,edge,final_pv(L->cp[cmp],vert+1),
+          &short_strut,cutoff,epsilon,strutlist,sl_size,&strut_count,pi_count);
+      }
+    } else {
+#ifdef _OPENMP
+      int nthreads = omp_get_max_threads();
+      int tid;
+      octrope_strut *local_lists = NULL;
+      int *local_counts = NULL;
+      double *local_short = NULL;
+      int local_sl = (sl_size > 0) ? sl_size : 0;
+
+      local_short = (double *)malloc((size_t)nthreads * sizeof(double));
+      local_counts = (int *)calloc((size_t)nthreads, sizeof(int));
+      if (local_short == NULL || local_counts == NULL) {
+        free(local_short);
+        free(local_counts);
+        sprintf(octrope_error_str,
+          "Unable to allocate OpenMP scratch in octrope_struts().\n");
+        octrope_error_num = 17;
+        free_octmem();
+        return -1;
+      }
+      if (local_sl > 0) {
+        local_lists = (octrope_strut *)malloc(
+          (size_t)nthreads * (size_t)local_sl * sizeof(octrope_strut));
+        if (local_lists == NULL) {
+          free(local_short);
+          free(local_counts);
+          sprintf(octrope_error_str,
+            "Unable to allocate OpenMP strut buffers in octrope_struts().\n");
+          octrope_error_num = 17;
+          free_octmem();
+          return -1;
+        }
+      }
+      for (tid = 0; tid < nthreads; tid++) {
+        local_short[tid] = DBL_MAX;
+      }
+
+#pragma omp parallel default(none) \
+  shared(L,B,shared_by_oct,shared_num_edges,cutoff,epsilon,pi_count, \
+         local_lists,local_counts,local_short,local_sl,short_strut) \
+  private(edge,cmp,vert,verts)
+      {
+        int mytid = omp_get_thread_num();
+        double my_short = DBL_MAX;
+        int my_count = 0;
+        octrope_strut *my_list = (local_sl > 0)
+          ? &local_lists[mytid * local_sl] : NULL;
+
+        /* Workers start with empty TLS; inherit the master's tree. */
+        by_oct = shared_by_oct;
+        num_edges = shared_num_edges;
+        rampcheck_edge = NULL;
+        wedgecheck_edge[0] = wedgecheck_edge[1] = NULL;
+
+#pragma omp for schedule(dynamic, 8) nowait
+        for (edge = shared_num_edges - 1; edge > 0; edge--) {
+          double bound_short;
+          double shared_short;
+
+          cmp = shared_by_oct[edge].component;
+          vert = shared_by_oct[edge].vertex;
+          verts[0] = L->cp[cmp].vt[vert-1];
+          verts[1] = L->cp[cmp].vt[vert];
+          verts[2] = L->cp[cmp].vt[vert+1];
+
+          /* Share improved bounds across threads for better pruning. */
+#pragma omp atomic read
+          shared_short = short_strut;
+          bound_short = my_short;
+          if (shared_short < bound_short) {
+            bound_short = shared_short;
+          }
+
+          check_boxes(L,B,verts,edge,final_pv(L->cp[cmp],vert+1),
+            &bound_short,cutoff,epsilon,my_list,local_sl,&my_count,pi_count);
+
+          if (bound_short < my_short) {
+            my_short = bound_short;
+#pragma omp critical (octrope_shortest)
+            {
+              if (my_short < short_strut) {
+                short_strut = my_short;
+              }
+            }
+          }
+        }
+        local_counts[mytid] = my_count;
+        local_short[mytid] = my_short;
+      }
+
+      for (tid = 0; tid < nthreads; tid++) {
+        if (local_short[tid] < short_strut) {
+          short_strut = local_short[tid];
+        }
+      }
+
+      if (local_sl > 0 && strutlist != NULL) {
+        double bound = (cutoff > 0) ? cutoff : short_strut + epsilon;
+        for (tid = 0; tid < nthreads; tid++) {
+          int i;
+          for (i = 0; i < local_counts[tid]; i++) {
+            octrope_strut *s = &local_lists[tid * local_sl + i];
+            if (s->length > bound) {
+              continue;
+            }
+            if (strut_count < sl_size) {
+              strutlist[strut_count++] = *s;
+            } else {
+              cleanup_strutlist(strutlist,&strut_count,bound);
+              if (strut_count < sl_size) {
+                strutlist[strut_count++] = *s;
+              }
+            }
+          }
+        }
+      }
+
+      free(local_lists);
+      free(local_counts);
+      free(local_short);
+
+      /* Restore master TLS tree pointers (freed via free_octmem below). */
+      by_oct = shared_by_oct;
+      num_edges = shared_num_edges;
+#endif /* _OPENMP */
+    }
   }
 
   if (sl_size > 0 && strut_count > 0) {
