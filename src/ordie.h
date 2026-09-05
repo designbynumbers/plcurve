@@ -7,6 +7,16 @@
 #ifndef ORDIE_H__
 #define ORDIE_H__ 1
 
+#include <stdio.h>
+#include <stddef.h>
+#ifdef HAVE_SYS_TYPES_H
+#  include <sys/types.h>
+#endif
+#if defined(_WIN32) && !defined(__MODE_T_DEFINED) && !defined(_MODE_T_)
+typedef unsigned short mode_t;
+#  define __MODE_T_DEFINED
+#endif
+
 #define fopen_or_die(A,B) fopen_or_die_internal(A,B,__FILE__,__LINE__,stderr)
 
 FILE *fopen_or_die_internal(const char *filename,const char *opentype,

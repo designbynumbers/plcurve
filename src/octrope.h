@@ -233,6 +233,13 @@ int octrope_est_mem(const int num_edges);
 void octrope_set_levels(int levels);
 
 /*
+ * OpenMP thread count for octrope_struts edge search (no-op without OpenMP).
+ * Pass nthreads > 0 to set; octrope_get_threads returns omp_get_max_threads().
+ */
+void octrope_set_threads(int nthreads);
+int octrope_get_threads(void);
+
+/*
  * Set debugging level 0 through 9, higher is more output
  *
  */

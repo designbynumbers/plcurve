@@ -54,6 +54,8 @@ LT_INIT
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
+AC_OPENMP
+CFLAGS="$CFLAGS $OPENMP_CFLAGS"
 
 # The bundled judy/planarity/planarmap sources use pre-C23 constructs (e.g. K&R function
 # definitions) that modern compilers reject under their default -std=gnu23. Unless the user

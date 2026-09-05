@@ -48,8 +48,13 @@ void mkdir_or_die_internal(const char *filename,mode_t mode,
 
 {
   int errnum;
-  
+
+#if defined(_WIN32) || defined(__MINGW32__)
+  (void)mode;
+  errnum = mkdir(filename);
+#else
   errnum = mkdir(filename,mode);
+#endif
 
   if (errnum != 0) {
 
@@ -68,7 +73,15 @@ void chmod_or_die_internal(const char *filename,mode_t mode,
 
 {
   int errnum;
-  
+
+#if defined(_WIN32) || defined(__MINGW32__)
+  (void)filename;
+  (void)mode;
+  (void)file;
+  (void)line;
+  (void)logstream;
+  return;
+#else
   errnum = chmod(filename,mode);
 
   if (errnum != 0) {
@@ -80,6 +93,7 @@ void chmod_or_die_internal(const char *filename,mode_t mode,
     exit(1);
   
   }
+#endif
 
 }
 
